@@ -2,6 +2,7 @@
 	import ClickOutside from '../test/ClickOutside.svelte'
 	import Browser from '../test/Browser.svelte'
 	import OnMount from '../test/OnMount.svelte'
+	import Wait from '../test/Wait.svelte'
 	import Nav from '../test/Nav.svelte'
 	import Dev from '../test/Dev.svelte'
 </script>
@@ -33,6 +34,8 @@
 
 <h2 id="utils">utils</h2>
 
+<Wait />
+
 <style>
 	header {
 		color: white;
@@ -46,6 +49,6 @@
 	}
 	h2 {
 		text-align: center;
-		margin-bottom: -2rem;
+		margin: 5rem auto -2rem auto;
 	}
 </style>
