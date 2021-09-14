@@ -52,6 +52,7 @@
 
 		background: var(--bg-a);
 		border-radius: var(--border-radius);
+		box-shadow: var(--shadow-lg);
 	}
 
 	.item h1 {
@@ -81,12 +82,14 @@
 		font-size: 0.75rem;
 		font-style: italic;
 	}
+
 	:global(.param) {
 		display: flex;
 		gap: 0.5rem;
 
 		margin-top: 1rem;
 	}
+
 	h6 {
 		text-align: center;
 		font-size: 1.5rem;
