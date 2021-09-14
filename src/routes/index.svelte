@@ -1,28 +1,19 @@
 <script context="module">
-	export const ssr = false;
+	export const ssr = false
 </script>
 
 <script lang="ts">
 	import ClickOutside from '../test/ClickOutside.svelte'
-	import Browser from './../test/Browser.svelte'
-	import Item from '../test/Item.svelte'
-	import { dev } from '$lib'
+	import Browser from '../test/Browser.svelte'
+	import Dev from '../test/Dev.svelte'
+	import 'greset/css/greset.css'
+	import '@fontsource/alata'
 	import '../prism.css'
-	import '../app.css'
+	import '../app.scss'
 </script>
 
-<Item title='dev'>
-	A boolean value indicating whether the app is in development mode.
-	
-	<pre>
-		This app {dev ? 'is' : 'is not'} in development mode.
-	</pre>
-</Item>
-
-<br />
+<Dev />
 
 <Browser />
-
-<br />
 
 <ClickOutside />
