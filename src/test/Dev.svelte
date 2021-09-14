@@ -2,10 +2,10 @@
 	import Item from '../test/Item.svelte'
 	import { dev } from '$lib'
 	const example = `<script>
-	import {dev} from 'fractils'
+	import { dev } from 'fractils'
 <\/script>
 
-This app {browser ? 'is' : 'is not'} running in a browser.
+This app {dev ? 'is' : 'is not'} in development mode.
 `
 </script>
 
