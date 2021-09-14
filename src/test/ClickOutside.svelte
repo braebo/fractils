@@ -1,6 +1,13 @@
 <script lang="ts">
 	import Item from './Item.svelte'
-	import { clickOutside } from '$lib'
+	import { onMount } from 'svelte'
+
+	let _clickOutside
+	onMount(async () => {
+		const { clickOutside } = await import('../lib/actions/clickOutside')
+		// @ts-ignore
+		_clickOutside = clickOutside
+	})
 
 	let clickedOutside = false
 	let timer: ReturnType<typeof setTimeout> | null = null
@@ -39,13 +46,15 @@
 	</div>
 
 	<div slot="result">
-		<div
-			class="clickoutside"
-			class:clickedOutside
-			use:clickOutside={handleClickOutside}
-		>
-			clickedOutside = {clickedOutside}
-		</div>
+		{#if _clickOutside}
+			<div
+				class="clickoutside"
+				class:clickedOutside
+				use:_clickOutside={handleClickOutside}
+			>
+				clickedOutside = {clickedOutside}
+			</div>
+		{/if}
 	</div>
 </Item>
 
