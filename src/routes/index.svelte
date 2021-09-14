@@ -5,6 +5,7 @@
 <script lang="ts">
 	import ClickOutside from '../test/ClickOutside.svelte'
 	import Browser from '../test/Browser.svelte'
+	import OnMount from '../test/OnMount.svelte'
 	import Dev from '../test/Dev.svelte'
 	import 'greset/css/greset.css'
 	import '@fontsource/alata'
@@ -17,3 +18,5 @@
 <Browser />
 
 <ClickOutside />
+
+<OnMount />

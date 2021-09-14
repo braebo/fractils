@@ -3,7 +3,7 @@
 	import { browser } from '$lib'
 
 	const example = `<script>
-	import { browser } from '$lib'
+	import { browser } from 'fractils'
 <\/script>
 
 This app {browser ? 'is' : 'is not'} running in a browser.

@@ -12,12 +12,12 @@
 		}, 1000)
 	}
 
-	const example = `<script lang="ts">
+	const example = `<script>
 	import { clickOutside } from 'fractils'
 
 	let clickedOutside
 
-	function handleClickOutside(e: CustomEvent) {
+	function handleClickOutside() {
 		clickedOutside = true
 		setTimeout(() => { clickedOutside = false }, 1000)
 	}
@@ -51,15 +51,18 @@
 
 <style lang="scss">
 	.clickoutside {
-		border: 1px solid #0001;
-		justify-content: center;
-		align-items: center;
 		display: flex;
+		align-items: center;
+		justify-content: center;
+
 		width: 90%;
-		margin: auto;
 		height: 50px;
+		margin: auto;
+
+		border: 1px solid #0001;
 		border-radius: var(--border-radius);
 		transition: border-color 0.2s ease;
+
 		&:hover {
 			border: 1px solid #000;
 		}

@@ -7,7 +7,6 @@
 	let Prism, highlightedExample
 	onMount(async () => {
 		const p = await import('prismjs')
-		import('prismjs/components/')
 		Prism = await p.default
 		Prism.highlightAll()
 		highlightedExample = Prism.highlight(
@@ -38,16 +37,20 @@
 	<div class="result">
 		<slot name="result" />
 	</div>
+
+	<slot />
 </div>
 
 <style>
 	.item {
 		display: flex;
 		flex-direction: column;
+
 		width: var(--col);
-		background: var(--bg-a);
 		margin: 3rem auto;
 		padding: 1rem;
+
+		background: var(--bg-a);
 		border-radius: var(--border-radius);
 	}
 
@@ -60,25 +63,28 @@
 		align-items: center;
 		justify-content: space-between;
 		gap: 1rem;
+
 		padding-bottom: 1rem;
 	}
 
 	header p,
 	:global(.description span) {
-		font-size: 0.75rem;
-
-		font-style: italic;
-		color: var(--color-primary);
-		background: var(--text-a);
-		padding: 0.15rem 0.5rem 0.3rem 0.5rem;
-		vertical-align: center;
 		display: flex;
+
 		width: max-content;
+		padding: 0.15rem 0.5rem 0.3rem 0.5rem;
+
+		background: var(--text-a);
+		color: var(--color-primary);
 		border-radius: var(--border-radius);
+
+		font-size: 0.75rem;
+		font-style: italic;
 	}
 	:global(.param) {
 		display: flex;
 		gap: 0.5rem;
+
 		margin-top: 1rem;
 	}
 	h6 {
@@ -87,10 +93,11 @@
 	}
 
 	.result {
-		background: white;
 		width: 75%;
-		margin: 5px auto;
 		padding: 1rem;
+		margin: 5px auto;
+
+		background: white;
 		border-radius: var(--border-radius);
 	}
 
