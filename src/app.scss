@@ -5,11 +5,25 @@
 
 	--border-radius: 5px;
 	--bg-a: #8990a3;
-	--text-a: #2b2b2b;
+	--text-a: #282a36;
+
+	--shadow-lg: 0px 5px 15px 2px rgba(0, 0, 0, 0.2);
+	
+	scroll-behavior: smooth;
 }
 
 body {
 	background: var(--text-a);
 	color: var(--text-a);
 	font-family: "Alata";
+	
+}
+
+a {
+	text-decoration: underline;
+	color: var(--text-a)
+}
+
+code {
+	font-family: "Inconsolata", "Fira Code", monospace !important;
 }
