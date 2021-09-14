@@ -6,8 +6,7 @@
     "singleQuote": true,
     "useTabs": true,
     "tabWidth": 4,
-    "semi": true,
-
+    "semi": false,
     "svelteSortOrder": "scripts-markup-styles",
     "svelteIndentScriptAndStyle": true,
     "svelteAllowShorthand": true
