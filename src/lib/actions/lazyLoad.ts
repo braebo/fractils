@@ -1,4 +1,4 @@
-//? https://github.com/sw-yx/svelte-actions/blob/main/src/lazyload.ts
+//? Adapted from swyx - https://github.com/sw-yx/svelte-actions/blob/main/src/lazyload.ts
 
 import type { Action } from './types';
 
@@ -51,7 +51,7 @@ let options = {
  * ```
  *
  */
-export function lazyload(
+export function lazyLoad(
 	node: HTMLElement,
 	attributes: Object,
 	options: IntersectionObserverOptions = {

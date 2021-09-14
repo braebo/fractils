@@ -1,63 +1,49 @@
 {
-  "name": "fractils",
-  "description": "some stuff I often use",
-  "version": "1.0.0",
-  "author": "Braden Wiggins",
-  "license": "MIT",
-  "type": "module",
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/fractalhq/fractils.git"
-  },
-  "keywords": [
-    "fractils",
-    "utils"
-  ],
-  "bugs": {
-    "url": "https://github.com/fractalhq/fractils/issues"
-  },
-  "homepage": "https://github.com/fractalhq/fractils#readme",
-  "exports": {
-    ".": {
-      "require": "./dist/index.cjs",
-      "import": "./dist/index.js"
-    },
-    "./package.json": "./package.json"
-  },
-  "types": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "LICENSE",
-    "README.md"
-  ],
-  "scripts": {
-    "dev": "run-p dev:*",
-    "dev:ts": "tsup-node --watch src",
-    "dev:nodemon": "nodemon dev/index.js",
-    "build": "tsup-node",
-    "docs": "typedoc src/index.ts --theme minimal",
-    "test": "run-s test:*",
-    "test:build-lib": "npm run build",
-    "test:test": "uvu tests",
-    "sp": "svelte-kit package"
-  },
-  "devDependencies": {
-    "@sveltejs/kit": "next",
-    "@types/node": "^15.14.9",
-    "@typescript-eslint/eslint-plugin": "^4.31.0",
-    "@typescript-eslint/parser": "^4.31.0",
-    "nodemon": "^2.0.7",
-    "npm-run-all": "^4.1.5",
-    "svelte": "^3.34.0",
-    "svelte-check": "^2.0.0",
-    "svelte-preprocess": "^4.9.4",
-    "svelte2tsx": "^0.4.6",
-    "tslib": "^2.3.1",
-    "tsup": "^4.12.0",
-    "typedoc": "^0.21.2",
-    "typescript": "^4.4.3",
-    "uvu": "^0.5.1"
-  }
+	"name": "fractils",
+	"description": "some stuff I often use",
+	"version": "1.0.0",
+	"author": "Braden Wiggins",
+	"license": "MIT",
+	"type": "module",
+	"main": "dist/index.cjs",
+	"module": "dist/index.js",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/fractalhq/fractils.git"
+	},
+	"keywords": [
+		"fractils",
+		"utils"
+	],
+	"bugs": {
+		"url": "https://github.com/fractalhq/fractils/issues"
+	},
+	"homepage": "https://github.com/fractalhq/fractils#readme",
+	"scripts": {
+		"dev": "svelte-kit dev",
+		"docs": "typedoc src/index.ts --theme minimal",
+		"test": "run-s test:*",
+		"test:build-lib": "npm run build",
+		"test:test": "uvu tests",
+		"build": "svelte-kit package"
+	},
+	"devDependencies": {
+		"@sveltejs/kit": "next",
+		"@types/node": "^15.14.9",
+		"@typescript-eslint/eslint-plugin": "^4.31.1",
+		"@typescript-eslint/parser": "^4.31.1",
+		"nodemon": "^2.0.12",
+		"npm-run-all": "^4.1.5",
+		"prismjs": "^1.24.1",
+		"svelte": "^3.42.5",
+		"svelte-check": "^2.2.6",
+		"svelte-preprocess": "^4.9.4",
+		"svelte2tsx": "^0.4.6",
+		"tslib": "^2.3.1",
+		"tsup": "^4.14.0",
+		"typedoc": "^0.21.9",
+		"typescript": "^4.4.3",
+		"uvu": "^0.5.1",
+		"window": "^4.2.7"
+	}
 }

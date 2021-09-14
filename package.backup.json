@@ -20,19 +20,24 @@
   },
   "homepage": "https://github.com/fractalhq/fractils#readme",
   "exports": {
-    "./package.json": "./package.json",
-    "./Test.svelte": "./Test.svelte",
     ".": {
       "require": "./dist/index.cjs",
       "import": "./dist/index.js"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "types": "dist/index.d.ts",
-  "files": [
-    "dist",
-    "LICENSE",
-    "README.md"
-  ],
+  "scripts": {
+    "dev": "run-p dev:*",
+    "dev:ts": "tsup-node --watch src",
+    "dev:nodemon": "nodemon dev/index.js",
+    "build": "tsup-node",
+    "docs": "typedoc src/index.ts --theme minimal",
+    "test": "run-s test:*",
+    "test:build-lib": "npm run build",
+    "test:test": "uvu tests",
+    "sp": "svelte-kit package"
+  },
   "devDependencies": {
     "@sveltejs/kit": "next",
     "@types/node": "^15.14.9",
