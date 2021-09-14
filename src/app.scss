@@ -1,0 +1,15 @@
+:root {
+	--col: min(90vw, 700px);
+
+	--color-primary: #00bcd4;
+
+	--border-radius: 5px;
+	--bg-a: #8990a3;
+	--text-a: #2b2b2b;
+}
+
+body {
+	background: var(--text-a);
+	color: var(--text-a);
+	font-family: "Alata";
+}
