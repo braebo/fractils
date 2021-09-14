@@ -1,45 +1,100 @@
 <script>
 	import { onMount } from 'svelte'
-    export let title = 'title'
-    export let type = 'type'
-    export let example = 'example'
+	export let example = 'example'
+	export let title = 'title'
+	export let type = 'type'
 
-    let Prism, highlightedExample
-    onMount(async () => {
-        const p = await import('prismjs')
-        import('prismjs/components/')
-        Prism = await p.default
-        Prism.highlightAll()
-        highlightedExample = Prism.highlight(example, Prism.languages.html, 'html')
-    })
+	let Prism, highlightedExample
+	onMount(async () => {
+		const p = await import('prismjs')
+		import('prismjs/components/')
+		Prism = await p.default
+		Prism.highlightAll()
+		highlightedExample = Prism.highlight(
+			example,
+			Prism.languages.html,
+			'html',
+		)
+	})
 </script>
 
-<div class='item'>
-    <h1>{title}</h1>
-    <slot name='description' />
+<div class="item">
+	<header>
+		<h1>{title}</h1>
+		<p>{type}</p>
+	</header>
 
-    <pre><code class='language-html'>
+	<div class="description">
+		<slot name="description" />
+	</div>
+
+	<pre><code class='language-html'>
         {#if highlightedExample}
         {@html highlightedExample}
         {/if}
     </code></pre>
-    
-    <h6>Result</h6>
-    <slot name='result' />
+
+	<h6>↓</h6>
+	<div class="result">
+		<slot name="result" />
+	</div>
 </div>
 
 <style>
-    .item {
-        display: flex;
-        flex-direction: column;
-        width: var(--col);
-        background: var(--bg-a);
-        margin: auto;
-        padding: 1rem;
-        border-radius: var(--border-radius);
-    }
+	.item {
+		display: flex;
+		flex-direction: column;
+		width: var(--col);
+		background: var(--bg-a);
+		margin: 3rem auto;
+		padding: 1rem;
+		border-radius: var(--border-radius);
+	}
 
-    .item h1 {
-        font-size: 1.5rem;
-    }
+	.item h1 {
+		font-size: 1.5rem;
+	}
+
+	header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1rem;
+		padding-bottom: 1rem;
+	}
+
+	header p,
+	:global(.description span) {
+		font-size: 0.75rem;
+
+		font-style: italic;
+		color: var(--color-primary);
+		background: var(--text-a);
+		padding: 0.15rem 0.5rem 0.3rem 0.5rem;
+		vertical-align: center;
+		display: flex;
+		width: max-content;
+		border-radius: var(--border-radius);
+	}
+	:global(.param) {
+		display: flex;
+		gap: 0.5rem;
+		margin-top: 1rem;
+	}
+	h6 {
+		text-align: center;
+		font-size: 1.5rem;
+	}
+
+	.result {
+		background: white;
+		width: 75%;
+		margin: 5px auto;
+		padding: 1rem;
+		border-radius: var(--border-radius);
+	}
+
+	.description {
+		padding-bottom: 1rem;
+	}
 </style>
