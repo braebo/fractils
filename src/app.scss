@@ -27,3 +27,13 @@ a {
 code {
 	font-family: "Inconsolata", "Fira Code", monospace !important;
 }
+
+button {
+	width: max-content;
+	margin: 0.5rem auto auto auto;
+	background: var(--text-a);
+	color: var(--bg-a);
+	border-radius: var(--border-radius);
+	font-size: 0.9rem;
+	padding: 3px 5px;
+}
