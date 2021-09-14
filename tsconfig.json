@@ -1,0 +1,31 @@
+{
+    "compilerOptions": {
+        "target": "es2019",
+        "module": "esnext",
+        "outDir": "dist/esm",
+        "lib": ["esnext", "dom"],
+        "moduleResolution": "node",
+        "importsNotUsedAsValues": "error",
+        "forceConsistentCasingInFileNames": true,
+        "noImplicitReturns": true,
+		"resolveJsonModule": true,
+        "strictNullChecks": true,
+        "esModuleInterop": true,
+		"isolatedModules": true,
+        "removeComments": false,
+        "noImplicitThis": true,
+        "noImplicitAny": false,
+		"skipLibCheck": true,
+        "declaration": true,
+        "sourceMap": true,
+		"allowJs": true,
+		"checkJs": true,
+        "strict": true,
+		"baseUrl": ".",
+		"paths": {
+			"$lib": ["src/lib"],
+			"$lib/*": ["src/lib/*"],
+        }
+    },
+    "include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.ts", "src/**/*.svelte"]
+}
