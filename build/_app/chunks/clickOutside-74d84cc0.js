@@ -1,0 +1,1 @@
+function e(e,t){const n=n=>{!e||e.contains(n.target)||n.defaultPrevented||t()};function c(){document.addEventListener("click",n,!0)}return c(),{update:c,destroy(){document.removeEventListener("click",n,!0)}}}export{e as clickOutside};

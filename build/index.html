@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="/favicon.png" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		
+
+		
+
+		<link rel="modulepreload" href="/_app/start-cb7674f8.js">
+		<link rel="modulepreload" href="/_app/chunks/vendor-6f4202fa.js">
+		<link rel="modulepreload" href="/_app/chunks/preload-helper-ec9aa979.js">
+		<link rel="modulepreload" href="/_app/pages/__layout.svelte-d07978ca.js">
+		<link rel="modulepreload" href="/_app/pages/index.svelte-399f66f8.js">
+		<link rel="stylesheet" href="/_app/assets/start-61d1577b.css">
+		<link rel="stylesheet" href="/_app/assets/pages/__layout.svelte-c59c63fc.css">
+		<link rel="stylesheet" href="/_app/assets/pages/index.svelte-be060410.css">
+
+		<script type="module">
+			import { start } from "/_app/start-cb7674f8.js";
+			start({
+				target: document.querySelector("#svelte"),
+				paths: {"base":"","assets":""},
+				session: {},
+				host: location.host,
+				route: true,
+				spa: false,
+				trailing_slash: "never",
+				hydrate: {
+					status: 200,
+					error: null,
+					nodes: [
+						import("/_app/pages/__layout.svelte-d07978ca.js"),
+						import("/_app/pages/index.svelte-399f66f8.js")
+					],
+					page: {
+						host: location.host, // TODO this is redundant
+						path: "/",
+						query: new URLSearchParams(""),
+						params: {}
+					}
+				}
+			});
+		</script>
+	</head>
+	<body>
+		<div id="svelte">
+
+
+<header class="svelte-10qypt5"><h1 class="svelte-10qypt5">fractils</h1>
+	<p class="description svelte-10qypt5"><span style="font-style: normal !important; font-size: 0.9rem;">npm i -D fractils</span></p></header>
+
+
+
+<ul class="svelte-1yr0r4e"><li class="svelte-1yr0r4e active"><a href="#env" class="svelte-1yr0r4e">env</a>
+		</li><li class="svelte-1yr0r4e"><a href="#actions" class="svelte-1yr0r4e">actions</a>
+		</li><li class="svelte-1yr0r4e"><a href="#components" class="svelte-1yr0r4e">components</a>
+		</li><li class="svelte-1yr0r4e"><a href="#utils" class="svelte-1yr0r4e">utils</a>
+		</li>
+</ul>
+
+<h2 id="env" class="svelte-10qypt5">env</h2>
+
+<div class="item svelte-1fyjo1l"><header class="svelte-1fyjo1l"><h1 class="svelte-1fyjo1l">dev</h1>
+		<p class="svelte-1fyjo1l">boolean</p></header>
+
+	<div class="description svelte-1fyjo1l"><div slot="description">A boolean value indicating whether the app is in development mode.
+	</div></div>
+
+	<pre><code class="language-html"></code></pre>
+
+	<h6 class="svelte-1fyjo1l">↓</h6>
+	<div class="result svelte-1fyjo1l"><div slot="result">This app is not in development mode.
+	</div></div>
+
+	
+</div>
+
+<div class="item svelte-1fyjo1l"><header class="svelte-1fyjo1l"><h1 class="svelte-1fyjo1l">browser</h1>
+		<p class="svelte-1fyjo1l">boolean</p></header>
+
+	<div class="description svelte-1fyjo1l"><div slot="description">Indicates whether the app is running in the browser.
+	</div></div>
+
+	<pre><code class="language-html"></code></pre>
+
+	<h6 class="svelte-1fyjo1l">↓</h6>
+	<div class="result svelte-1fyjo1l"><div slot="result">This app is not running in a browser.
+	</div></div>
+
+	
+</div>
+
+<h2 id="actions" class="svelte-10qypt5">actions</h2>
+
+<div class="item svelte-1fyjo1l"><header class="svelte-1fyjo1l"><h1 class="svelte-1fyjo1l">clickOutside</h1>
+		<p class="svelte-1fyjo1l">action</p></header>
+
+	<div class="description svelte-1fyjo1l"><div slot="description">Calls a function when the user clicks outside the element.
+
+		<div class="param"><span>@param</span> callback — The function to call.
+		</div></div></div>
+
+	<pre><code class="language-html"></code></pre>
+
+	<h6 class="svelte-1fyjo1l">↓</h6>
+	<div class="result svelte-1fyjo1l"><div slot="result"></div></div>
+
+	
+</div>
+
+<h2 id="components" class="svelte-10qypt5">components</h2>
+
+<div class="item svelte-1fyjo1l"><header class="svelte-1fyjo1l"><h1 class="svelte-1fyjo1l">OnMount</h1>
+		<p class="svelte-1fyjo1l">component</p></header>
+
+	<div class="description svelte-1fyjo1l"><div slot="description">Mounts an element on Svelte&#39;s <span>onMount </span>
+		<a href="https://svelte.dev/docs#onMount" target="_blank">lifecycle hook
+		</a>.
+	</div></div>
+
+	<pre><code class="language-html"></code></pre>
+
+	<h6 class="svelte-1fyjo1l">↓</h6>
+	<div class="result svelte-1fyjo1l"><div class="result svelte-inphrr" slot="result"></div></div>
+
+	<button>window.location.reload()</button>
+</div>
+
+<h2 id="utils" class="svelte-10qypt5">utils</h2>
+
+<div class="item svelte-1fyjo1l"><header class="svelte-1fyjo1l"><h1 class="svelte-1fyjo1l">wait</h1>
+		<p class="svelte-1fyjo1l">function</p></header>
+
+	<div class="description svelte-1fyjo1l"><div slot="description">A simple wait timer.
+		<div class="param"><span>param</span> t - time to wait in ms
+		</div>
+		<div class="param"><span>returns</span> a promise that resolves after t ms
+		</div></div></div>
+
+	<pre><code class="language-html"></code></pre>
+
+	<h6 class="svelte-1fyjo1l">↓</h6>
+	<div class="result svelte-1fyjo1l"><div class="result" slot="result"><p class="svelte-1o0nbyj">ready</p>
+		<p class="svelte-1o0nbyj">set</p>
+		<p class="svelte-1o0nbyj">go</p></div></div>
+
+	<button>start()</button>
+</div>
+
+
+
+			
+		</div>
+	</body>
+</html>

@@ -8,6 +8,10 @@ const config = {
 	kit: {
 		target: '#svelte',
 		adapter: _static(),
+		paths: {
+			base: '/svelte-kit-blog-demo',
+			assets: '/svelte-kit-blog-demo',
+		},
 	},
 }
 
