@@ -25,7 +25,7 @@
 		"test:build-lib": "npm run build",
 		"test:test": "uvu tests",
 		"build": "svelte-kit package && rm -rf build && svelte-kit build && touch .svelte-kit/static/build/.nojekyll",
-		"deploy": "npm run build && gh-pages -d .svelte-kit/static/build -t true"
+		"deploy": "npm run build && npx gh-pages -d .svelte-kit/static/build -t true"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-static": "^1.0.0-next.18",
