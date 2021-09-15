@@ -25,11 +25,7 @@
 
 <Item title="OnMount" type="component" {example}>
 	<div slot="description">
-		Mounts an element on Svelte's <span
-			class="token language-javascript"
-			style="display: inline; padding: 2px 5px; font-style: normal; font-size: 0.8rem; margin: 0 3px;"
-			>onMount</span
-		>
+		Mounts an element on Svelte's <span> onMount </span>
 		<a href="https://svelte.dev/docs#onMount" target="_blank">
 			lifecycle hook
 		</a>.
@@ -50,14 +46,5 @@
 <style>
 	.result {
 		min-height: 22px;
-	}
-	button {
-		width: max-content;
-		margin: 0.5rem auto auto auto;
-		background: var(--text-a);
-		color: var(--bg-a);
-		border-radius: var(--border-radius);
-		font-size: 0.9rem;
-		padding: 3px 5px;
 	}
 </style>
