@@ -9,7 +9,7 @@
     const theme = asyncLocalStorageStore('theme', 'light')
 <\/script>
 
-<div on:click="{() => ($theme = $theme == 'dark' ? 'light' : 'dark')}">
+<div on:click="{() => $theme = $theme == 'dark' ? 'light' : 'dark'}">
 	{$theme == 'dark' ? '🔆' : '🌙'}
 <\/div>
 `
