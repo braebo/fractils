@@ -15,16 +15,11 @@
 body {
 	background: var(--text-a);
 	color: var(--text-a);
-	font-family: "Alata";	
 }
 
 a {
 	text-decoration: underline;
 	color: var(--text-a)
-}
-
-code {
-	font-family: "Inconsolata", "Fira Code", monospace !important;
 }
 
 button {

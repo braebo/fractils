@@ -1,0 +1,19 @@
+@font-face {
+	font-family: 'inconsolata';
+	src: url('inconsolata/inconsolata.ttf') format('truetype');
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'alata';
+	src: url('alata/alata.ttf') format('truetype');
+	font-style: normal;
+}
+
+body {
+	font-family: 'alata' !important;
+}
+
+code {
+	font-family: 'Inconsolata', 'Fira Code', monospace !important;
+}
