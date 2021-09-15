@@ -33,10 +33,10 @@
 	<div slot="description">
 		A simple wait timer.
 		<div class="param">
-			<span>param</span> t - time to wait in ms
+			<span>param</span> t - Time to wait in ms
 		</div>
 		<div class="param">
-			<span>returns</span> a promise that resolves after t ms
+			<span>returns</span> A promise that resolves after t ms
 		</div>
 	</div>
 

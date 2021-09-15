@@ -19,12 +19,15 @@
 
 <Item title="asyncLocalStorageStore" type="store" {example}>
 	<div slot="description">
-		A simple wait timer.
+		A Svelte store that persists to localStorage.
 		<div class="param">
-			<span>param</span> t - time to wait in ms
+			<span>param</span> key - The key to store the data under.
 		</div>
 		<div class="param">
-			<span>returns</span> a promise that resolves after t ms
+			<span>param</span> value - The initial value of the store.
+		</div>
+		<div class="param">
+			<span>returns</span> A writable store.
 		</div>
 	</div>
 
