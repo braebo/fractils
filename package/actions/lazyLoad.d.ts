@@ -17,5 +17,5 @@ interface IntersectionObserverOptions {
  * ```
  *
  */
-export declare function lazyload(node: HTMLElement, attributes: Object, options?: IntersectionObserverOptions): ReturnType<Action>;
+export declare function lazyLoad(node: HTMLElement, attributes: Object, options?: IntersectionObserverOptions): ReturnType<Action>;
 export {};

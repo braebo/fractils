@@ -105,6 +105,7 @@
 	}
 
 	.description {
+		display: flex;
 		padding-bottom: 1rem;
 	}
 </style>

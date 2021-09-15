@@ -17,7 +17,7 @@
 	let active = 0
 	function trackScroll() {
 		els.forEach((el, i) => {
-			if (el.getBoundingClientRect().top < 100) {
+			if (el.getBoundingClientRect().top < 200) {
 				active = i
 			}
 		})

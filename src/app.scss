@@ -15,8 +15,7 @@
 body {
 	background: var(--text-a);
 	color: var(--text-a);
-	font-family: "Alata";
-	
+	font-family: "Alata";	
 }
 
 a {
@@ -30,10 +29,22 @@ code {
 
 button {
 	width: max-content;
+	padding: 3px 5px;
 	margin: 0.5rem auto auto auto;
+
 	background: var(--text-a);
 	color: var(--bg-a);
 	border-radius: var(--border-radius);
+
 	font-size: 0.9rem;
-	padding: 3px 5px;
+}
+
+.description div span {
+	display: inline-flex;
+
+	margin-right: 3px;
+	padding: 1px 5px 1px 5px;
+
+	font-style: normal;
+	font-size: 0.8rem;
 }

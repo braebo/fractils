@@ -1,4 +1,4 @@
-//? https://github.com/sw-yx/svelte-actions/blob/main/src/lazyload.ts
+//? Adapted from swyx - https://github.com/sw-yx/svelte-actions/blob/main/src/lazyload.ts
 const lazyLoadHandleIntersection = (entries) => {
     entries.forEach((entry) => {
         var _a;
@@ -17,7 +17,9 @@ const lazyLoadHandleIntersection = (entries) => {
 let lazyLoadObserver;
 let lazyLoadNodeAttributes = [];
 let options = {
-    root: document.querySelector('#scrollArea'),
+    root: typeof document != 'undefined'
+        ? document === null || document === void 0 ? void 0 : document.querySelector('#scrollArea')
+        : null,
     rootMargin: '0px',
     threshold: 1.0,
 };
@@ -34,7 +36,7 @@ let options = {
  * ```
  *
  */
-export function lazyload(node, attributes, options = {
+export function lazyLoad(node, attributes, options = {
     rootMargin: '0px',
     threshold: 1.5,
 }) {
