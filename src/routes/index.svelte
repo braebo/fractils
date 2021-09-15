@@ -51,4 +51,7 @@
 		text-align: center;
 		margin: 5rem auto -2rem auto;
 	}
+	h2:first-of-type {
+		margin-top: 2.5rem;
+	}
 </style>
