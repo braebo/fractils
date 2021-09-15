@@ -1,18 +1,23 @@
+<script context="module">
+	export const prerender = true
+</script>
+
 <script lang="ts">
-	import ClickOutside from '../test/ClickOutside.svelte'
-	import Browser from '../test/Browser.svelte'
-	import OnMount from '../test/OnMount.svelte'
-	import Wait from '../test/Wait.svelte'
-	import Nav from '../test/Nav.svelte'
-	import Dev from '../test/Dev.svelte'
+	import AsyncLocalStorageStore from '$test/utils/AsyncLocalStorageStore.svelte'
+	import ClickOutside from '$test/actions/ClickOutside.svelte'
+	import OnMount from '$test/components/OnMount.svelte'
+	import Browser from '$test/env/Browser.svelte'
+	import Wait from '$test/utils/Wait.svelte'
+	import Dev from '$test/env/Dev.svelte'
+	import Nav from '$test/Nav.svelte'
 </script>
 
 <header>
 	<h1>fractils</h1>
 	<p class="description">
-		<span style="font-style: normal !important; font-size: 0.9rem;"
-			>npm i -D fractils</span
-		>
+		<span style="font-style: normal !important; font-size: 0.9rem;">
+			npm i -D fractils
+		</span>
 	</p>
 </header>
 
@@ -36,11 +41,9 @@
 
 <Wait />
 
-<br />
-<br />
-<br />
-<br />
-<br />
+<AsyncLocalStorageStore />
+
+<div class="buffer" style="min-height: 250px" />
 
 <style>
 	header {
