@@ -1,42 +1,45 @@
 //? Adapted from swyx - https://github.com/sw-yx/svelte-actions/blob/main/src/lazyload.ts
 
-import type { Action } from './types';
+import type { Action } from './types'
 
 const lazyLoadHandleIntersection: IntersectionObserverCallback = (entries) => {
 	entries.forEach((entry) => {
 		if (!entry.isIntersecting) {
-			return;
+			return
 		}
 
 		if (!(entry.target instanceof HTMLElement)) {
-			return;
+			return
 		}
 
-		let node = entry.target;
+		let node = entry.target
 		let attributes = lazyLoadNodeAttributes.find(
 			(item) => item.node === node,
-		)?.attributes;
-		Object.assign(node, attributes);
+		)?.attributes
+		Object.assign(node, attributes)
 
-		lazyLoadObserver.unobserve(node);
-	});
-};
+		lazyLoadObserver.unobserve(node)
+	})
+}
 
-let lazyLoadObserver: IntersectionObserver;
+let lazyLoadObserver: IntersectionObserver
 let lazyLoadNodeAttributes: Array<{ node: HTMLElement; attributes: Object }> =
-	[];
+	[]
 
 interface IntersectionObserverOptions {
-	root?: Element | null;
-	rootMargin?: string;
-	threshold?: number;
+	root?: Element | null
+	rootMargin?: string
+	threshold?: number
 }
 
 let options = {
-	root: document.querySelector('#scrollArea'),
+	root:
+		typeof document != 'undefined'
+			? document?.querySelector('#scrollArea')
+			: null,
 	rootMargin: '0px',
 	threshold: 1.0,
-};
+}
 
 /**
  * Attach onto any image to lazy load it
@@ -63,14 +66,14 @@ export function lazyLoad(
 		lazyLoadObserver = new IntersectionObserver(
 			lazyLoadHandleIntersection,
 			options,
-		);
+		)
 	}
-	lazyLoadNodeAttributes.push({ node, attributes });
+	lazyLoadNodeAttributes.push({ node, attributes })
 
-	lazyLoadObserver.observe(node);
+	lazyLoadObserver.observe(node)
 	return {
 		destroy() {
-			lazyLoadObserver.unobserve(node);
+			lazyLoadObserver.unobserve(node)
 		},
-	};
+	}
 }
