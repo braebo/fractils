@@ -1,5 +1,7 @@
 pnpm-lock.yaml
 node_modules
+.svelte-kit
+build
 dist
 .env
 dev
