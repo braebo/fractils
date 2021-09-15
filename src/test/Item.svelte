@@ -5,16 +5,17 @@
 	export let title = 'title'
 	export let type = 'type'
 
-	let Prism, highlightedExample
+	let Prism, highlightedExample, code
 	onMount(async () => {
 		const p = await import('prismjs')
 		Prism = await p.default
 		Prism.highlightAll()
-		highlightedExample = Prism.highlight(
+		highlightedExample = await Prism.highlight(
 			example,
 			Prism.languages.html,
 			'html',
 		)
+		code.style.opacity = 1
 	})
 </script>
 
@@ -28,9 +29,10 @@
 		<slot name="description" />
 	</div>
 
-	<pre><code class='language-html'>
+	<pre><code class='language-html' bind:this={code}>
+		<!-- {@debug} -->
         {#if highlightedExample}
-        {@html highlightedExample}
+			{@html highlightedExample}
         {/if}
     </code></pre>
 
@@ -82,6 +84,20 @@
 
 		font-size: 0.75rem;
 		font-style: italic;
+	}
+
+	pre {
+		min-height: 165px;
+		/* padding: 1rem; */
+		margin: 0;
+
+		background: var(--text-a);
+		border-radius: var(--border-radius);
+	}
+
+	:global(code) {
+		transition: 0.2s;
+		opacity: 0;
 	}
 
 	:global(.param) {
