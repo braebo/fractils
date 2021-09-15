@@ -1,5 +1,5 @@
+import vercel from '@sveltejs/adapter-vercel'
 import preprocess from 'svelte-preprocess'
-import adapter from '@sveltejs/adapter-static'
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -7,15 +7,7 @@ const config = {
 
 	kit: {
 		target: '#svelte',
-		adapter: adapter({
-			pages: 'build',
-			assets: 'build',
-			paths: {
-				base: '/fractils',
-				appDir: 'internal',
-			},
-			fallback: null,
-		}),
+		adapter: vercel(),
 	},
 }
 

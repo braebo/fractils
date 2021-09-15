@@ -24,7 +24,7 @@
 		"deploy": "npm run build && npx gh-pages -d .svelte-kit/build -t true"
 	},
 	"devDependencies": {
-		"@sveltejs/adapter-static": "^1.0.0-next.18",
+		"@sveltejs/adapter-vercel": "^1.0.0-next.29",
 		"@sveltejs/kit": "next",
 		"@types/node": "^15.14.9",
 		"@typescript-eslint/eslint-plugin": "^4.31.1",
@@ -34,7 +34,7 @@
 		"nodemon": "^2.0.12",
 		"npm-run-all": "^4.1.5",
 		"prismjs": "^1.24.1",
-		"sass": "^1.40.1",
+		"sass": "^1.41.0",
 		"svelte": "^3.42.5",
 		"svelte-check": "^2.2.6",
 		"svelte-preprocess": "^4.9.4",
