@@ -43,7 +43,7 @@
 
 <AsyncLocalStorageStore />
 
-<div class="buffer" style="min-height: 250px" />
+<div class="buffer" style="min-height: 50px" />
 
 <style>
 	header {
