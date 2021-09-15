@@ -14,6 +14,7 @@ const config = {
 				base: '/fractils',
 				appDir: 'internal',
 			},
+			fallback: null,
 		}),
 	},
 }
