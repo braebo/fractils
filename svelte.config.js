@@ -10,9 +10,9 @@ const config = {
 		adapter: adapter({
 			pages: 'build',
 			assets: 'build',
-			appDir: 'internal',
 			paths: {
 				base: '/fractils',
+				appDir: 'internal',
 			},
 		}),
 	},
