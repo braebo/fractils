@@ -5,9 +5,7 @@
 	"author": "Braden Wiggins",
 	"license": "MIT",
 	"type": "module",
-	"main": "dist/index.cjs",
-	"module": "dist/index.js",
-	"private": "false",
+	"module": "package/index.js",
 	"keywords": [
 		"fractils",
 		"utils"
