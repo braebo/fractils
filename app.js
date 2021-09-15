@@ -22,9 +22,9 @@ export function init(settings = default_settings) {
 		amp: false,
 		dev: false,
 		entry: {
-			file: assets + "/_app/start-4f6800a3.js",
+			file: assets + "/_app/start-e0d214ad.js",
 			css: [assets + "/_app/assets/start-61d1577b.css"],
-			js: [assets + "/_app/start-4f6800a3.js",assets + "/_app/chunks/vendor-6f4202fa.js",assets + "/_app/chunks/preload-helper-ec9aa979.js"]
+			js: [assets + "/_app/start-e0d214ad.js",assets + "/_app/chunks/vendor-6f4202fa.js",assets + "/_app/chunks/preload-helper-ec9aa979.js"]
 		},
 		fetched: undefined,
 		floc: false,
@@ -83,7 +83,7 @@ const module_lookup = {
 	"src/routes/__layout.svelte": () => import("../../src/routes/__layout.svelte"),".svelte-kit/build/components/error.svelte": () => import("./components/error.svelte"),"src/routes/index.svelte": () => import("../../src/routes/index.svelte")
 };
 
-const metadata_lookup = {"src/routes/__layout.svelte":{"entry":"pages/__layout.svelte-d07978ca.js","css":["assets/pages/__layout.svelte-c59c63fc.css"],"js":["pages/__layout.svelte-d07978ca.js","chunks/vendor-6f4202fa.js"],"styles":[]},".svelte-kit/build/components/error.svelte":{"entry":"error.svelte-28b350df.js","css":[],"js":["error.svelte-28b350df.js","chunks/vendor-6f4202fa.js"],"styles":[]},"src/routes/index.svelte":{"entry":"pages/index.svelte-68a4f668.js","css":["assets/pages/index.svelte-46a607a8.css"],"js":["pages/index.svelte-68a4f668.js","chunks/vendor-6f4202fa.js","chunks/preload-helper-ec9aa979.js"],"styles":[]}};
+const metadata_lookup = {"src/routes/__layout.svelte":{"entry":"pages/__layout.svelte-d07978ca.js","css":["assets/pages/__layout.svelte-c59c63fc.css"],"js":["pages/__layout.svelte-d07978ca.js","chunks/vendor-6f4202fa.js"],"styles":[]},".svelte-kit/build/components/error.svelte":{"entry":"error.svelte-28b350df.js","css":[],"js":["error.svelte-28b350df.js","chunks/vendor-6f4202fa.js"],"styles":[]},"src/routes/index.svelte":{"entry":"pages/index.svelte-d9566812.js","css":["assets/pages/index.svelte-46a607a8.css"],"js":["pages/index.svelte-d9566812.js","chunks/vendor-6f4202fa.js","chunks/preload-helper-ec9aa979.js"],"styles":[]}};
 
 async function load_component(file) {
 	const { entry, css, js, styles } = metadata_lookup[file];
