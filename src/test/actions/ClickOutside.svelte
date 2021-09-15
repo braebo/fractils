@@ -1,10 +1,10 @@
 <script lang="ts">
-	import Item from './Item.svelte'
+	import Item from '$test/Item.svelte'
 	import { onMount } from 'svelte'
 
 	let _clickOutside
 	onMount(async () => {
-		const { clickOutside } = await import('../lib/actions/clickOutside')
+		const { clickOutside } = await import('../../lib/actions/clickOutside')
 		// @ts-ignore
 		_clickOutside = clickOutside
 	})

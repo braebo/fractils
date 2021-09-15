@@ -1,5 +1,5 @@
 <script>
-	import Item from './Item.svelte'
+	import Item from '../Item.svelte'
 	import { browser } from '$lib'
 
 	const example = `<script>
@@ -15,7 +15,7 @@ This app {browser ? 'is' : 'is not'} running in a browser.
 		Indicates whether the app is running in the browser.
 	</div>
 
-	<div slot="result">
+	<div slot="result" style="padding: 1rem;">
 		This app {browser ? 'is' : 'is not'} running in a browser.
 	</div>
 </Item>

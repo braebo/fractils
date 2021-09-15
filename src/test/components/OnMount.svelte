@@ -1,6 +1,6 @@
 <script>
 	import { fly } from 'svelte/transition'
-	import Item from './Item.svelte'
+	import Item from '../Item.svelte'
 	import { OnMount } from '$lib'
 
 	const example = `<script>
@@ -35,7 +35,7 @@
 	<div class="result" slot="result">
 		{#if mounted}
 			<OnMount>
-				<div in:fly={{ x: 100, duration: 1000 }}>
+				<div in:fly={{ y: 40, duration: 1000 }}>
 					My intro transition will always play!
 				</div>
 			</OnMount>
@@ -45,6 +45,7 @@
 
 <style>
 	.result {
-		min-height: 22px;
+		min-height: 54px;
+		overflow: hidden;
 	}
 </style>

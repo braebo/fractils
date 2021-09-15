@@ -1,5 +1,5 @@
 <script>
-	import Item from '../test/Item.svelte'
+	import Item from '../Item.svelte'
 	import { wait } from '$lib'
 	const example = `<script>
 	import { wait } from 'fractils'

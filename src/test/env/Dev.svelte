@@ -1,5 +1,5 @@
 <script>
-	import Item from '../test/Item.svelte'
+	import Item from '$test/Item.svelte'
 	import { dev } from '$lib'
 	const example = `<script>
 	import { dev } from 'fractils'
@@ -14,7 +14,7 @@ This app {dev ? 'is' : 'is not'} in development mode.
 		A boolean value indicating whether the app is in development mode.
 	</div>
 
-	<div slot="result">
+	<div slot="result" style="padding: 1rem;">
 		This app {dev ? 'is' : 'is not'} in development mode.
 	</div>
 </Item>

@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte'
+
 	export let example = 'example'
 	export let title = 'title'
 	export let type = 'type'
@@ -97,11 +98,15 @@
 
 	.result {
 		width: 75%;
-		padding: 1rem;
 		margin: 5px auto;
 
 		background: white;
 		border-radius: var(--border-radius);
+
+		text-align: center;
+	}
+	:global(.result:first-child) {
+		padding: 1rem;
 	}
 
 	.description {
