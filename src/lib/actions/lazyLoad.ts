@@ -43,16 +43,13 @@ let options = {
 
 /**
  * Attach onto any image to lazy load it
- * @param options - optional config
+ * @param options - optional config object
  * @param options.root - The base element used to calculate the threshold
  * @param options.rootMargin -   The base element used to calculate the threshold
  * @param options.threshold - The threshold used to trigger the intersection obeserver
  *
  * @example
- * ```
  *  <img use:lazyLoad={{src:"/myimage"}} alt="">
- * ```
- *
  */
 export function lazyLoad(
 	node: HTMLElement,
