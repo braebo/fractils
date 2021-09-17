@@ -8,6 +8,7 @@
 	import OnMount from '$test/components/OnMount.svelte'
 	import Browser from '$test/env/Browser.svelte'
 	import Wait from '$test/utils/Wait.svelte'
+	import Log from '$test/utils/Log.svelte'
 	import Dev from '$test/env/Dev.svelte'
 	import Nav from '$test/Nav.svelte'
 </script>
@@ -39,26 +40,31 @@
 
 <h2 id="utils">utils</h2>
 
-<Wait />
-
 <AsyncLocalStorageStore />
+
+<Log />
+
+<Wait />
 
 <div class="buffer" style="min-height: 50px" />
 
 <style>
 	header {
-		color: white;
 		padding-top: 0.5rem;
+
+		color: white;
 	}
 	h1,
 	h2,
 	p {
 		padding: 0 1rem;
+
 		color: white;
 	}
 	h2 {
-		text-align: center;
 		margin: 5rem auto -2rem auto;
+
+		text-align: center;
 	}
 	h2:first-of-type {
 		margin-top: 2.5rem;

@@ -68,12 +68,13 @@
 		height: 50px;
 		margin: auto;
 
-		border: 1px solid #0001;
+		border: 1px solid #00000011;
 		border-radius: var(--border-radius);
+
 		transition: border-color 0.2s ease;
 
 		&:hover {
-			border: 1px solid #000;
+			border: 1px solid #000000;
 		}
 	}
 	.clickedOutside {
