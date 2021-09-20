@@ -4,6 +4,7 @@
 
 <script lang="ts">
 	import AsyncLocalStorageStore from '$test/utils/AsyncLocalStorageStore.svelte'
+	import ThemeToggle from '$test/components/ThemeToggle.svelte'
 	import ClickOutside from '$test/actions/ClickOutside.svelte'
 	import OnMount from '$test/components/OnMount.svelte'
 	import Browser from '$test/env/Browser.svelte'
@@ -16,9 +17,7 @@
 <header>
 	<h1>fractils</h1>
 	<p class="description">
-		<span style="font-style: normal !important; font-size: 0.9rem;">
-			npm i -D fractils
-		</span>
+		<span style="font-style: normal !important; font-size: 0.9rem;"> npm i -D fractils </span>
 	</p>
 </header>
 
@@ -38,7 +37,11 @@
 
 <OnMount />
 
+<ThemeToggle />
+
 <h2 id="utils">utils</h2>
+
+<!-- TODO: THEME -->
 
 <AsyncLocalStorageStore />
 

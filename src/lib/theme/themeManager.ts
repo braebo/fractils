@@ -1,24 +1,30 @@
 import { get, writable } from 'svelte/store'
-import Logger from '$utils/logger'
-import { theme } from './theme'
+import { log, theme } from '$lib'
 
-const { log } = Logger
 const detectSystemPreference = (e: MediaQueryListEvent) => applyTheme(e.matches ? 'dark' : 'light')
 
+/**
+ * Applies system preference theme and registers a listener for changes
+ */
 export const initTheme = async (): Promise<void> => {
 	log('Init theme()')
-	window?.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', detectSystemPreference)
+	window
+		?.matchMedia('(prefers-color-scheme: dark)')
+		.addEventListener('change', detectSystemPreference)
 
 	if (localStorage)
 		if ('theme' in localStorage) {
 			try {
 				const pref = get(theme)
 				if (pref) {
-					log('theme found in localStorage: ' + pref, 'white', 20, 'purple')
+					log('theme found in localStorage: ' + pref, 'white', 'purple', 20)
 					applyTheme(pref as string)
 				}
 			} catch (err) {
-				console.log('%c Unable to access theme preference in local storage 😕', 'color:coral')
+				console.log(
+					'%c Unable to access theme preference in local storage 😕',
+					'color:coral',
+				)
 				console.error(err)
 				localStorage.removeItem('theme')
 			}
@@ -27,6 +33,9 @@ export const initTheme = async (): Promise<void> => {
 		}
 }
 
+/**
+ * Toggles to and from light / dark mode
+ */
 export const toggleTheme = (): void => {
 	const activeTheme = get(theme)
 	activeTheme == 'light' ? applyTheme('dark') : applyTheme('light')
@@ -35,10 +44,16 @@ export const toggleTheme = (): void => {
 export const initComplete = writable(false)
 
 const applySystemTheme = (): void => {
-	window?.matchMedia('(prefers-color-scheme: dark)').matches ? applyTheme('dark') : applyTheme('light')
+	window?.matchMedia('(prefers-color-scheme: dark)').matches
+		? applyTheme('dark')
+		: applyTheme('light')
 }
 
-const applyTheme = (newTheme: string): void => {
+/**
+ * Applies a specific theme
+ * @param newTheme - The theme to apply
+ */
+export const applyTheme = (newTheme: string): void => {
 	document.documentElement.setAttribute('theme', newTheme)
 	try {
 		theme.set(newTheme)

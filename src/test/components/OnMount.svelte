@@ -26,18 +26,14 @@
 <Item title="OnMount" type="component" {example}>
 	<div slot="description">
 		Mounts an element on Svelte's <span> onMount </span>
-		<a href="https://svelte.dev/docs#onMount" target="_blank">
-			lifecycle hook
-		</a>.
+		<a href="https://svelte.dev/docs#onMount" target="_blank"> lifecycle hook </a>.
 	</div>
 
 	<button on:click={reload}>window.location.reload()</button>
 	<div class="result" slot="result">
 		{#if mounted}
 			<OnMount>
-				<div in:fly={{ y: 40, duration: 1000 }}>
-					My intro transition will always play!
-				</div>
+				<div in:fly={{ y: 40, duration: 1000 }}>My intro transition will always play!</div>
 			</OnMount>
 		{/if}
 	</div>
@@ -46,6 +42,7 @@
 <style>
 	.result {
 		min-height: 54px;
+
 		overflow: hidden;
 	}
 </style>
