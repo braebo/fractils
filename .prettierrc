@@ -1,13 +1,14 @@
 {
+    "svelteSortOrder": "scripts-markup-styles",
+    "svelteIndentScriptAndStyle": true,
+    "svelteAllowShorthand": true,
     "quoteProps": "as-needed",
     "arrowParens": "always",
     "trailingComma": "all",
     "bracketSpacing": true,
     "singleQuote": true,
+    "printWidth": 100,
     "useTabs": true,
     "tabWidth": 4,
-    "semi": false,
-    "svelteSortOrder": "scripts-markup-styles",
-    "svelteIndentScriptAndStyle": true,
-    "svelteAllowShorthand": true
+    "semi": false
 }
