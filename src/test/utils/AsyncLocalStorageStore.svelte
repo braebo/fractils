@@ -1,24 +1,24 @@
-<script>
+<script lang="ts">
+	import { asyncLocalStorageStore, OnMount } from '$lib'
+	import { fade } from 'svelte/transition'
 	import Item from '../Item.svelte'
-	import { fly } from 'svelte/transition'
-	import { asyncLocalStorageStore } from '$lib'
 
 	const example = `<script>
 	import { asyncLocalStorageStore } from 'fractils'
     
-    const theme = asyncLocalStorageStore('theme', 'light')
+    const theme = asyncLocalStorageStore('count', 0)
 <\/script>
 
-<div on:click="{() => $theme = $theme == 'dark' ? 'light' : 'dark'}">
-	{$theme == 'dark' ? '🔆' : '🌙'}
-<\/div>
+<div on:click='{() => $count++}'>+<\/div>
+	{$count}
+<div on:click='{() => $count--}'>-<\/div>
 `
 
-	const theme = asyncLocalStorageStore('theme', 'light')
+	const count = asyncLocalStorageStore('count', 1)
 </script>
 
-<Item title="asyncLocalStorageStore" type="store" {example}>
-	<div slot="description">
+<Item title="asyncLocalStorageStore" type="store" {example} --eg-h="260px">
+	<div class="description" slot="description">
 		A Svelte store that persists to localStorage.
 		<div class="param">
 			<span>param</span> key - The key to store the data under.
@@ -31,41 +31,55 @@
 		</div>
 	</div>
 
-	<div class="result" class:dark={$theme == 'dark'} slot="result">
-		{#key $theme}
-			<div
-				on:click={() => ($theme = $theme == 'dark' ? 'light' : 'dark')}
-				transition:fly={{ y: 35, duration: 1000, opacity: 1 }}
-			>
-				{$theme == 'dark' ? '🔆' : '🌙'}
-			</div>
-		{/key}
+	<div class="result" slot="result">
+		<div class="button" on:click={() => $count++}>+</div>
+		<OnMount><div class="count" in:fade={{ delay: 250 }}>{$count}</div></OnMount>
+		<div class="button" on:click={() => $count--}>-</div>
 	</div>
 </Item>
 
 <style>
+	:global(.example) {
+		min-height: 800px;
+	}
 	.result {
+		justify-content: space-between;
+		align-items: center;
 		position: relative;
+		display: flex;
+
+		padding: 0.5rem;
 
 		height: 50px;
+		max-width: 150px;
+		margin: auto;
 
 		text-align: center;
 
 		border-radius: var(--border-radius);
-
-		overflow: hidden;
 	}
-	.result div {
-		position: absolute;
-		inset: 0;
+	.button {
+		width: 1.5rem;
+		height: 1.5rem;
 
-		height: 30px;
-		margin: auto;
+		line-height: 1.25rem;
+
+		color: white;
+		border-radius: 2px;
+
+		background: var(--bg-a);
 
 		cursor: pointer;
 		user-select: none;
 	}
-	.dark {
-		background: #1d1d1d;
+	.button:active {
+		filter: contrast(1.5);
+
+		transform: scale(0.95);
+	}
+	.count {
+		width: 50px;
+
+		background: white;
 	}
 </style>
