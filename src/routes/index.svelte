@@ -4,7 +4,7 @@
 
 <script lang="ts">
 	import AsyncLocalStorageStore from '$test/utils/AsyncLocalStorageStore.svelte'
-	import ThemeToggle from '$test/components/ThemeToggle.svelte'
+	// import ThemeToggle from '$test/components/ThemeToggle.svelte'
 	import ClickOutside from '$test/actions/ClickOutside.svelte'
 	import OnMount from '$test/components/OnMount.svelte'
 	import Browser from '$test/env/Browser.svelte'
@@ -37,7 +37,7 @@
 
 <OnMount />
 
-<ThemeToggle />
+<!-- <ThemeToggle /> -->
 
 <h2 id="utils">utils</h2>
 

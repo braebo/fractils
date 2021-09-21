@@ -1,7 +1,7 @@
 export { default as ThemeToggle } from './components/ThemeToggle.svelte'
 export { default as OnMount } from './components/OnMount.svelte'
 
-export { theme, initTheme, toggleTheme, applyTheme } from './theme'
+export { initTheme, toggleTheme, applyTheme, theme } from './theme'
 
 export { log, wait, asyncLocalStorageStore } from './utils'
 

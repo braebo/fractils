@@ -1,6 +1,12 @@
 <script>
-	import { ThemeToggle } from '$lib'
+	import { onMount } from 'svelte'
 	import Item from '../Item.svelte'
+
+	let TT
+	async function init() {
+		const { ThemeToggle } = await import('../../lib')
+		TT = ThemeToggle
+	}
 
 	const example = `<script>
     import { ThemeToggle } from 'fractils'
@@ -16,13 +22,19 @@
 			mounted = true
 		}, 0)
 	}
+
+	onMount(() => {
+		init()
+	})
 </script>
 
 <Item title="ThemeToggle" type="component" {example}>
 	<div slot="description">A simple component to toggle between light and dark themes.</div>
 
 	<div class="result" slot="result">
-		<ThemeToggle />
+		{#if TT}
+			<svelte:component this={TT} />
+		{/if}
 	</div>
 </Item>
 

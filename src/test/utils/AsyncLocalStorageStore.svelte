@@ -46,13 +46,14 @@
 <style>
 	.result {
 		position: relative;
-		overflow: hidden;
 
 		height: 50px;
 
+		text-align: center;
+
 		border-radius: var(--border-radius);
 
-		text-align: center;
+		overflow: hidden;
 	}
 	.result div {
 		position: absolute;

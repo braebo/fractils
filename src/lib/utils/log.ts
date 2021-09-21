@@ -1,4 +1,4 @@
-import { dev } from '$lib'
+import { dev } from '$app/env'
 
 /**
  * A simple logger that only runs in dev environments.

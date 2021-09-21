@@ -1,6 +1,6 @@
 import type { Writable } from 'svelte/store'
 import { writable } from 'svelte/store'
-import { browser } from '$lib'
+import { browser } from '$app/env'
 
 const setAsync = async (key: string, value: unknown): Promise<void> => {
 	return Promise.resolve().then(() => {
@@ -40,10 +40,7 @@ const getAsync = async (key: string): Promise<JSON> => {
  * @example
  * const store = asyncLocalStorageStore('foo', 'bar')
  */
-export const asyncLocalStorageStore = (
-	key: string,
-	value: unknown,
-): Writable<unknown> => {
+export const asyncLocalStorageStore = (key: string, value: unknown): Writable<unknown> => {
 	const { set: setStore, ...readableStore } = writable(value, () => {
 		if (!browser) return
 
@@ -53,8 +50,7 @@ export const asyncLocalStorageStore = (
 			if (e.key === key) getAndSetFromLocalStorage()
 		}
 		window.addEventListener('storage', updateFromStorageEvents)
-		return () =>
-			window.removeEventListener('storage', updateFromStorageEvents)
+		return () => window.removeEventListener('storage', updateFromStorageEvents)
 	})
 
 	//? Set both localStorage and this Svelte store
