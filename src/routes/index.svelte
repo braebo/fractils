@@ -4,7 +4,7 @@
 
 <script lang="ts">
 	import AsyncLocalStorageStore from '$test/utils/AsyncLocalStorageStore.svelte'
-	import ThemeToggle from '$test/components/ThemeToggle.svelte'
+	import ThemeToggle from '$test/components/ThemeToggleExample.svelte'
 	import ClickOutside from '$test/actions/ClickOutside.svelte'
 	import OnMount from '$test/components/OnMount.svelte'
 	import Wait from '$test/utils/Wait.svelte'

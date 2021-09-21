@@ -1,21 +1,9 @@
 <script lang="ts">
-	import type { toggleTheme, initTheme, theme, browser } from '$lib'
+	import { toggleTheme, initTheme, theme } from '$lib'
 	import { expoOut } from 'svelte/easing'
 	import { fly } from 'svelte/transition'
+	import { browser } from '$app/env'
 	import { onMount } from 'svelte'
-
-	let _toggleTheme: typeof toggleTheme | null = null,
-		_initTheme: typeof initTheme | null = null,
-		_theme: typeof theme | null = null,
-		_browser: typeof browser | null = null
-
-	async function initialize() {
-		const { toggleTheme, initTheme, theme, browser } = await import('../')
-		_toggleTheme = toggleTheme
-		_initTheme = initTheme
-		_theme = theme
-		_browser = browser
-	}
 
 	/**
 	 * disables _initTheme()
@@ -23,34 +11,53 @@
 	 */
 	export let init = true
 
+	export let config = { y: -35, duration: 1000, easing: expoOut }
+
 	onMount(() => {
-		initialize()
-		if (init && _browser && _initTheme) _initTheme()
+		// initialize()
+		if (init && browser) initTheme()
 	})
 </script>
 
-<div on:click={() => (_toggleTheme ? _toggleTheme() : null)}>
+<div class="wrapper" on:click={toggleTheme}>
 	<slot>
-		{#if _theme}
-			{#key _theme}
-				<div class="icon" transition:fly={{ y: 20, easing: expoOut }}>
-					{$_theme == 'light' ? '🌙' : '☀️'}
-				</div>
-			{/key}
-		{/if}
+		{#key $theme}
+			<div class="icon" transition:fly={config}>
+				{#if $theme === 'light'}
+					<slot name="light">🔆</slot>
+				{/if}
+				{#if $theme === 'dark'}
+					<slot name="dark">🌙</slot>
+				{/if}
+			</div>
+		{/key}
 	</slot>
 </div>
 
 <style>
+	.wrapper {
+		display: flex;
+		position: relative;
+		align-items: center;
+		justify-content: center;
+
+		width: 2rem;
+		height: 2rem;
+
+		line-height: 2rem;
+
+		border-radius: 100%;
+
+		cursor: pointer;
+	}
 	.icon {
 		position: absolute;
-		bottom: 15px;
-		left: 20px;
 
-		font-size: 1rem;
+		font-size: 1.5rem;
 
 		background-color: transparent;
 
 		pointer-events: none;
+		inset: 0;
 	}
 </style>

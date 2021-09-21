@@ -8,9 +8,7 @@ const initialTheme =
 		? localStorage.getItem('theme')
 		: 'dark'
 
-export const theme: ReturnType<typeof writable> | null = browser
-	? asyncLocalStorageStore('theme', initialTheme)
-	: null
+export const theme: ReturnType<typeof writable> = asyncLocalStorageStore('theme', initialTheme)
 
 const detectSystemPreference = (e: MediaQueryListEvent) => applyTheme(e.matches ? 'dark' : 'light')
 
