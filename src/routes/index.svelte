@@ -3,13 +3,13 @@
 </script>
 
 <script lang="ts">
-	import AsyncLocalStorageStore from '$test/utils/AsyncLocalStorageStore.svelte'
-	import ThemeToggle from '$test/components/ThemeToggleExample.svelte'
-	import ClickOutside from '$test/actions/ClickOutside.svelte'
-	import OnMount from '$test/components/OnMount.svelte'
-	import Wait from '$test/utils/Wait.svelte'
-	import Log from '$test/utils/Log.svelte'
-	import Nav from '$test/Nav.svelte'
+	import AsyncLocalStorageStore from '$examples/utils/AsyncLocalStorageStore.svelte'
+	import ThemeToggle from '$examples/components/ThemeToggleExample.svelte'
+	import ClickOutside from '$examples/actions/ClickOutside.svelte'
+	import OnMount from '$examples/components/OnMount.svelte'
+	import Wait from '$examples/utils/Wait.svelte'
+	import Log from '$examples/utils/Log.svelte'
+	import Nav from '$examples/Nav.svelte'
 </script>
 
 <header>

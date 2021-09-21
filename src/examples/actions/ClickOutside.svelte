@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Item from '$test/Item.svelte'
+	import Item from '$examples/Item.svelte'
 	import { onMount } from 'svelte'
 
 	let _clickOutside

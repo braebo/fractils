@@ -24,8 +24,8 @@
 		"paths": {
 			"$lib": ["src/lib"],
 			"$lib/*": ["src/lib/*"],
-			"$test": ["src/test"],
-			"$test/*": ["src/test/*"],
+			"$examples": ["src/examples"],
+			"$examples/*": ["src/examples/*"],
         },
         "types": ["@sveltejs/kit"]
     },
