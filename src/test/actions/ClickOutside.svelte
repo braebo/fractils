@@ -47,11 +47,7 @@
 
 	<div slot="result">
 		{#if _clickOutside}
-			<div
-				class="clickoutside"
-				class:clickedOutside
-				use:_clickOutside={handleClickOutside}
-			>
+			<div class="clickoutside" class:clickedOutside use:_clickOutside={handleClickOutside}>
 				clickedOutside = {clickedOutside}
 			</div>
 		{/if}

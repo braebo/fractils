@@ -1,15 +1,13 @@
-import { browser } from './browser';
+import { browser } from './browser'
 
-export const dev = (() => {
-	if (!browser) return;
-	if (typeof process != 'undefined') {
-		return process.env?.NODE_ENV === 'development';
-	} else {
-		try {
-			return import.meta.env.DEV;
-		} catch (e) {
-			console.error(e);
-		}
-	}
-	return false;
-})();
+export const dev =
+	import.meta.env != undefined
+		? import.meta.env.DEV
+		: (() => {
+				if (!browser) return
+				if (typeof process != 'undefined') {
+					return process.env?.NODE_ENV === 'development'
+				} else {
+					return false
+				}
+		  })()
