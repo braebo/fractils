@@ -20,7 +20,7 @@
 	}
 
 	const example = `<script>
-	import { clickOutside } from 'fractils'
+	// import { clickOutside } from 'fractils'
 
 	let clickedOutside
 

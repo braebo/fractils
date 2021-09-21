@@ -1,6 +1,16 @@
+import { asyncLocalStorageStore } from '../utils/asyncLocalStorageStore'
 import { get, writable } from 'svelte/store'
-import { theme } from './theme'
+import { browser } from '$app/env'
 import { log } from '$lib'
+
+const initialTheme =
+	browser && globalThis.localStorage && 'theme' in localStorage
+		? localStorage.getItem('theme')
+		: 'dark'
+
+export const theme: ReturnType<typeof writable> | null = browser
+	? asyncLocalStorageStore('theme', initialTheme)
+	: null
 
 const detectSystemPreference = (e: MediaQueryListEvent) => applyTheme(e.matches ? 'dark' : 'light')
 
