@@ -64,16 +64,15 @@
 		height: 50px;
 		margin: auto;
 
-		border: 1px solid #00000011;
-		border-radius: var(--border-radius);
+		color: var(--text);
 
-		transition: border-color 0.2s ease;
+		transition: color 0.2s ease;
 
 		&:hover {
-			border: 1px solid #000000;
+			color: #666666;
 		}
 	}
 	.clickedOutside {
-		border: 1px solid var(--color-primary);
+		color: var(--color-primary);
 	}
 </style>

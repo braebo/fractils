@@ -4,13 +4,11 @@
 
 <script lang="ts">
 	import AsyncLocalStorageStore from '$test/utils/AsyncLocalStorageStore.svelte'
-	// import ThemeToggle from '$test/components/ThemeToggle.svelte'
+	import ThemeToggle from '$test/components/ThemeToggle.svelte'
 	import ClickOutside from '$test/actions/ClickOutside.svelte'
 	import OnMount from '$test/components/OnMount.svelte'
-	import Browser from '$test/env/Browser.svelte'
 	import Wait from '$test/utils/Wait.svelte'
 	import Log from '$test/utils/Log.svelte'
-	import Dev from '$test/env/Dev.svelte'
 	import Nav from '$test/Nav.svelte'
 </script>
 
@@ -23,12 +21,6 @@
 
 <Nav />
 
-<h2 id="env">env</h2>
-
-<Dev />
-
-<Browser />
-
 <h2 id="actions">actions</h2>
 
 <ClickOutside />
@@ -37,7 +29,7 @@
 
 <OnMount />
 
-<!-- <ThemeToggle /> -->
+<ThemeToggle />
 
 <h2 id="utils">utils</h2>
 

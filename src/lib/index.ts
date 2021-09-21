@@ -6,5 +6,3 @@ export { initTheme, toggleTheme, applyTheme, theme } from './theme'
 export { log, wait, asyncLocalStorageStore } from './utils'
 
 export { clickOutside, lazyLoad } from './actions'
-
-export { dev, browser } from './env'

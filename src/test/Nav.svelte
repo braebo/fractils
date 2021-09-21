@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount, tick } from 'svelte'
 
-	const paths = ['env', 'actions', 'components', 'utils']
+	const paths = ['actions', 'components', 'utils']
 	let els: HTMLElement[] | [] = []
 	function grabEls() {
 		els = []
@@ -49,10 +49,7 @@
 
 <ul>
 	{#each paths as path, i}
-		<li
-			class:active={active === i}
-			on:click|capture={(e) => handleClick(i)}
-		>
+		<li class:active={active === i} on:click|capture={(e) => handleClick(i)}>
 			<a href="#{path}">{path}</a>
 		</li>
 	{/each}
