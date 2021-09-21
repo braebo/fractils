@@ -29,7 +29,7 @@
 	}
 </script>
 
-<Item title="wait" type="function" {example}>
+<Item title="wait" type="function" {example} --eg-h="332px">
 	<div slot="description">
 		A simple wait timer.
 		<div class="param">

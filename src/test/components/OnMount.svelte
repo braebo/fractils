@@ -23,7 +23,7 @@
 	}
 </script>
 
-<Item title="OnMount" type="component" {example}>
+<Item title="OnMount" type="component" {example} --eg-h="258px">
 	<div slot="description">
 		Mounts an element on Svelte's <span> onMount </span>
 		<a href="https://svelte.dev/docs#onMount" target="_blank"> lifecycle hook </a>.

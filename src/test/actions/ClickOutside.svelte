@@ -36,7 +36,7 @@
 `
 </script>
 
-<Item title="clickOutside" type="action" {example}>
+<Item title="clickOutside" type="action" {example} --eg-h="382px">
 	<div slot="description">
 		Calls a function when the user clicks outside the element.
 

@@ -10,11 +10,7 @@
 		const p = await import('prismjs')
 		Prism = await p.default
 		Prism.highlightAll()
-		highlightedExample = await Prism.highlight(
-			example,
-			Prism.languages.html,
-			'html',
-		)
+		highlightedExample = await Prism.highlight(example, Prism.languages.html, 'html')
 		code.style.opacity = 1
 	})
 </script>
@@ -78,16 +74,17 @@
 		width: max-content;
 		padding: 0.15rem 0.5rem 0.3rem 0.5rem;
 
-		background: var(--text-a);
+		font-size: 0.75rem;
+		font-style: italic;
+
 		color: var(--color-primary);
 		border-radius: var(--border-radius);
 
-		font-size: 0.75rem;
-		font-style: italic;
+		background: var(--text-a);
 	}
 
 	pre {
-		min-height: 165px;
+		min-height: var(--eg-h, 165px);
 		/* padding: 1rem; */
 		margin: 0;
 
@@ -96,8 +93,9 @@
 	}
 
 	:global(code) {
-		transition: 0.2s;
 		opacity: 0;
+
+		transition: 0.2s;
 	}
 
 	:global(.param) {
@@ -115,11 +113,13 @@
 	.result {
 		width: 75%;
 		margin: 5px auto;
-
-		background: white;
-		border-radius: var(--border-radius);
+		min-height: 50px;
 
 		text-align: center;
+
+		border-radius: var(--border-radius);
+
+		background: white;
 	}
 	:global(.result:first-child) {
 		padding: 1rem;
@@ -127,6 +127,7 @@
 
 	.description {
 		display: flex;
+
 		padding-bottom: 1rem;
 	}
 </style>
