@@ -5,12 +5,12 @@
 	const example = `<script>
 	import { log } from 'fractils'
     
-    log('Hello world', 'orange', '#333', 20, 'font-weight: bold;')
+    log('Hello world', 'blue', '#222', 20, 'font-weight: bold;')
 <\/script>
 `
 
 	function logger() {
-		log('Hello world', 'orange', '#333', 20, 'font-weight: bold;')
+		log('Hello world', '#00bcd4', '#222', 20, 'font-weight: bold;')
 	}
 	logger()
 </script>
@@ -22,8 +22,7 @@
 			<span>param</span> msg - A string or object to log
 		</div>
 		<div class="param">
-			<span>param</span> color - Any CSS color value ( named | hex | rgb |
-			hsl )
+			<span>param</span> color - Any CSS color value ( named | hex | rgb | hsl )
 		</div>
 		<div class="param">
 			<span>param</span> bgColor - Same as color ⇧
@@ -41,7 +40,7 @@
 		<div class="timestamp">04:20:69.173</div>
 
 		<pre
-			style="padding:5px;color:orange;background:#333;border:1px solid orange;font-size:20px;font-weight: bold;">Hello world</pre>
+			style="padding:5px;color:#00bcd4;background:var(--text-a);border:1px solid lightblue;font-size:20px;font-weight: bold;">Hello world</pre>
 		<div class="file">log.ts:22</div>
 		<!-- <button on:click={() => logger()}>log()</button> -->
 	</div>
@@ -58,12 +57,14 @@
 		margin: 1rem 0;
 	}
 	.timestamp {
-		font-size: 8px;
-		padding-right: 12px;
+		font-size: 11px;
+		padding: 2px 12px 0 0;
 	}
 	.file {
 		font-size: 13px;
 		margin-left: auto;
+
+		text-decoration: underline;
 	}
 	pre {
 		width: max-content;
