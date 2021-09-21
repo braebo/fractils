@@ -19,19 +19,21 @@ body {
 
 a {
 	text-decoration: underline;
+
 	color: var(--text-a)
 }
 
 button {
 	width: max-content;
-	padding: 3px 5px;
 	margin: 0.5rem auto auto auto;
+	padding: 3px 5px;
 
-	background: var(--text-a);
+	font-size: 0.9rem;
+
 	color: var(--bg-a);
 	border-radius: var(--border-radius);
 
-	font-size: 0.9rem;
+	background: var(--text-a);
 }
 
 .description div span {
