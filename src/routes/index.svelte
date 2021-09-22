@@ -9,18 +9,8 @@
 	import OnMount from '$examples/components/OnMount.svelte'
 	import Wait from '$examples/utils/Wait.svelte'
 	import Log from '$examples/utils/Log.svelte'
-	import Nav from '$examples/Nav.svelte'
 	import Theme from '$examples/theme/Theme.svelte'
 </script>
-
-<header>
-	<h1>fractils</h1>
-	<p class="description">
-		<span style="font-style: normal !important; font-size: 0.9rem;"> npm i -D fractils </span>
-	</p>
-</header>
-
-<Nav />
 
 <h2 id="actions">actions</h2>
 
@@ -46,22 +36,13 @@
 <div class="buffer" style="min-height: 50px" />
 
 <style>
-	header {
-		padding-top: 0.5rem;
-
-		color: white;
-	}
-	h1,
-	h2,
-	p {
-		padding: 0 1rem;
-
-		color: white;
-	}
 	h2 {
 		margin: 5rem auto -2rem auto;
+		padding: 0 1rem;
 
 		text-align: center;
+
+		color: white;
 	}
 	h2:first-of-type {
 		margin-top: 2.5rem;
