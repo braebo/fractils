@@ -4,8 +4,10 @@
 	export let example = 'example'
 	export let title = 'title'
 	export let type = 'type'
+	export let path = ''
 
 	let Prism, highlightedExample, code
+
 	onMount(async () => {
 		const p = await import('prismjs')
 		Prism = await p.default
@@ -17,7 +19,7 @@
 
 <div class="item">
 	<header>
-		<h1>{title}</h1>
+		<a href="#{title}"><h1 id={title}>{title}</h1></a>
 		<p>{type}</p>
 	</header>
 
@@ -38,12 +40,19 @@
 	</div>
 
 	<slot />
+
+	<a
+		class="link"
+		target="_blank"
+		href="https://github.com/FractalHQ/fractils/blob/main/src/lib/{path}">{'</>'}</a
+	>
 </div>
 
 <style>
 	.item {
 		display: flex;
 		flex-direction: column;
+		position: relative;
 
 		width: var(--col);
 		margin: 3rem auto;
@@ -58,6 +67,13 @@
 		font-size: 1.5rem;
 	}
 
+	.item a {
+		text-decoration: none;
+	}
+	.item a:hover {
+		text-decoration: underline;
+	}
+
 	header {
 		display: flex;
 		align-items: center;
@@ -68,7 +84,7 @@
 	}
 
 	header p,
-	:global(.description span) {
+	:global(.description .var) {
 		display: flex;
 
 		width: max-content;
@@ -129,5 +145,20 @@
 		display: flex;
 
 		padding-bottom: 1rem;
+	}
+
+	.link {
+		position: absolute;
+		bottom: 0;
+		right: 0;
+
+		padding: 1.2rem;
+
+		font-family: 'Inconsolata', 'Fira Code', monospace !important;
+		font-variation-settings: 'wght' 600;
+	}
+	.link:hover {
+		font-variation-settings: 'wght' 900;
+		text-decoration: none !important;
 	}
 </style>

@@ -27,16 +27,18 @@
 		set = false
 		go = false
 	}
+
+	const path = 'utils/wait.ts'
 </script>
 
-<Item title="wait" type="function" {example} --eg-h="332px">
+<Item title="wait" type="function" {example} {path} --eg-h="332px">
 	<div slot="description">
 		A simple wait timer.
 		<div class="param">
-			<span>param</span> t - Time to wait in ms
+			<span class="var">param</span> <span class="var-title">t</span> — &nbsp;Time to wait in ms
 		</div>
 		<div class="param">
-			<span>returns</span> A promise that resolves after t ms
+			<span class="var">returns</span> A promise that resolves after t ms
 		</div>
 	</div>
 

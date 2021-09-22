@@ -10,6 +10,7 @@
 	import Wait from '$examples/utils/Wait.svelte'
 	import Log from '$examples/utils/Log.svelte'
 	import Nav from '$examples/Nav.svelte'
+	import Theme from '$examples/theme/Theme.svelte'
 </script>
 
 <header>
@@ -34,6 +35,7 @@
 <h2 id="utils">utils</h2>
 
 <!-- TODO: THEME -->
+<Theme />
 
 <AsyncLocalStorageStore />
 

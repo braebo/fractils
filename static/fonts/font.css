@@ -1,12 +1,14 @@
 @font-face {
 	font-family: 'inconsolata';
 	src: url('inconsolata/inconsolata.ttf') format('truetype');
+
 	font-style: normal;
 }
 
 @font-face {
 	font-family: 'alata';
 	src: url('alata/alata.ttf') format('truetype');
+
 	font-style: normal;
 }
 

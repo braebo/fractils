@@ -15,19 +15,23 @@
 `
 
 	const count = asyncLocalStorageStore('count', 1)
+
+	const path = 'utils/asyncLocalStorageStore.ts'
 </script>
 
-<Item title="asyncLocalStorageStore" type="store" {example} --eg-h="260px">
+<Item title="asyncLocalStorageStore" type="store" {example} {path} --eg-h="260px">
 	<div class="description" slot="description">
 		A Svelte store that persists to localStorage.
 		<div class="param">
-			<span>param</span> key - The key to store the data under.
+			<span class="var">param</span> <span class="var-title">key</span> — &nbsp;The key to store
+			the data under.
 		</div>
 		<div class="param">
-			<span>param</span> value - The initial value of the store.
+			<span class="var">param</span> <span class="var-title">value</span> — &nbsp;The initial value
+			of the store.
 		</div>
 		<div class="param">
-			<span>returns</span> A writable store.
+			<span class="var">returns</span> A writable store.
 		</div>
 	</div>
 

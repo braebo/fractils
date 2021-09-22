@@ -13,25 +13,31 @@
 		log('Hello world', '#00bcd4', '#222', 20, 'font-weight: bold;')
 	}
 	logger()
+
+	const path = 'utils/log.ts'
 </script>
 
-<Item title="log" type="function" {example}>
+<Item title="log" type="function" {example} {path}>
 	<div slot="description">
 		A simple logger that only runs in dev environments.
 		<div class="param">
-			<span>param</span> msg - A string or object to log
+			<span class="var">param</span> <span class="var-title">msg</span> — &nbsp;A string or object
+			to log
 		</div>
 		<div class="param">
-			<span>param</span> color - Any CSS color value ( named | hex | rgb | hsl )
+			<span class="var">param</span> <span class="var-title">color</span> — &nbsp;Any CSS color
+			value ( named | hex | rgb | hsl )
 		</div>
 		<div class="param">
-			<span>param</span> bgColor - Same as color ⇧
+			<span class="var">param</span> <span class="var-title">bgColor</span> — &nbsp;Same as color
+			⇧
 		</div>
 		<div class="param">
-			<span>param</span> fontSize - Any number
+			<span class="var">param</span> <span class="var-title">fontSize</span> — &nbsp;Any number
 		</div>
 		<div class="param">
-			<span>param</span> css - Optional additional CSS
+			<span class="var">param</span> <span class="var-title">css</span> — &nbsp;Optional additional
+			CSS
 		</div>
 	</div>
 

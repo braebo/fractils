@@ -1,13 +1,6 @@
 <script>
 	import { ThemeToggle, theme } from '$lib'
 	import Item from '../Item.svelte'
-	import { onMount } from 'svelte'
-
-	let TT
-	async function init() {
-		const { ThemeToggle } = await import('../../lib')
-		TT = ThemeToggle
-	}
 
 	const example = `<script>
     import { ThemeToggle } from 'fractils'
@@ -15,22 +8,14 @@
 
 <ThemeToggle />
 `
-	let mounted = true
 
-	const reload = () => {
-		mounted = false
-		setTimeout(() => {
-			mounted = true
-		}, 0)
-	}
-
-	onMount(() => {
-		// init()
-	})
+	const path = 'components/ThemeToggleExample.svelte'
 </script>
 
-<Item title="ThemeToggle" type="component" {example}>
-	<div slot="description">A simple component to toggle between light and dark themes.</div>
+<Item title="ThemeToggle" type="component" {example} {path}>
+	<div slot="description">
+		A simple component to toggle between light and dark <a href="#Theme">theme</a>.
+	</div>
 
 	<div class="result" slot="result" class:dark={$theme == 'dark'}>
 		<ThemeToggle />
