@@ -24,7 +24,6 @@
 
 <h2 id="utils">utils</h2>
 
-<!-- TODO: THEME -->
 <Theme />
 
 <AsyncLocalStorageStore />
