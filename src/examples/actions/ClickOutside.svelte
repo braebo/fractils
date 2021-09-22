@@ -38,7 +38,7 @@
 	const path = 'actions/clickOutside.ts'
 </script>
 
-<Item title="clickOutside" type="action" {example} {path} --eg-h="382px">
+<Item title="clickOutside" type="action" example={example.replace('// ', '')} {path} --eg-h="382px">
 	<div slot="description">
 		Calls a function when the user clicks outside the element.
 
