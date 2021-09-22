@@ -17,7 +17,7 @@
 		A simple component to toggle between light and dark <a href="#Theme">theme</a>.
 	</div>
 
-	<div class="result" slot="result" class:dark={$theme == 'dark'}>
+	<div class="result" id="theme-in" slot="result" class:dark={$theme == 'dark'}>
 		<ThemeToggle />
 	</div>
 </Item>

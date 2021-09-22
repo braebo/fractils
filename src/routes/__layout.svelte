@@ -4,21 +4,26 @@
 	import '../prism.css'
 	import '../app.scss'
 
+	import { scrollY } from '$examples/stores'
 	import Nav from '$examples/Nav.svelte'
 </script>
 
-<header>
-	<h1>fractils</h1>
-	<p class="description">
-		<span style="opacity: 0.5">utilities for sveltekit</span>
-	</p>
-</header>
+<svelte:window bind:scrollY={$scrollY} />
 
-<h3>npm i -D fractils</h3>
+<div class="page">
+	<header>
+		<h1>fractils</h1>
+		<p class="description">
+			<span style="opacity: 0.5">utilities for sveltekit</span>
+		</p>
+	</header>
 
-<Nav />
+	<h3>npm i -D fractils</h3>
 
-<slot />
+	<Nav />
+
+	<slot />
+</div>
 
 <style>
 	header {
@@ -42,5 +47,8 @@
 	span {
 		font-style: normal !important;
 		font-size: 0.9rem;
+	}
+	.page {
+		position: relative;
 	}
 </style>

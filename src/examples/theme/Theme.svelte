@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { theme } from '$lib'
 	import Item from '../Item.svelte'
 
@@ -8,6 +8,19 @@
 
 {$theme}
 `
+	let theme2 = $theme
+	let timer: ReturnType<typeof setTimeout> | null = null
+	const updateTheme = (theme: string) => {
+		if (timer) clearTimeout(timer)
+		timer = setTimeout(() => {
+			theme2 = theme
+		}, 900)
+	}
+
+	$: {
+		$theme
+		updateTheme(String($theme))
+	}
 
 	const path = 'theme/index.ts'
 </script>
@@ -42,8 +55,8 @@
 		</div>
 	</div>
 
-	<div class="result" slot="result">
-		{$theme}
+	<div class="result" id="theme-out" slot="result">
+		{#key theme}{theme2}{/key}
 	</div>
 </Item>
 
