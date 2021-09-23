@@ -45,8 +45,8 @@ scrollY: {$scrollY}
 			&lt; mobileThreshold (default 900)
 		</div>
 		<div class="param">
-			<span class="var">store</span> <span class="var-title">mobile</span> — &nbsp;Writable store
-			to adjust the $mobile 'breakpoint' threshold. (default 900)
+			<span class="var">store</span> <span class="var-title">mobileThreshold</span> — &nbsp;Writable
+			store to adjust the $mobile 'breakpoint' threshold. (default 900)
 		</div>
 		<div class="param">
 			<span class="var">scrollY</span> — &nbsp;Tracks the users scroll position.
