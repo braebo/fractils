@@ -5,9 +5,9 @@
 <script lang="ts">
 	import AsyncLocalStorageStore from '$examples/utils/AsyncLocalStorageStore.svelte'
 	import ThemeToggle from '$examples/components/ThemeToggleExample.svelte'
+	import ThemePulse from '$examples/_lib.svelte/ThemePulse.svelte'
 	import ClickOutside from '$examples/actions/ClickOutside.svelte'
 	import OnMount from '$examples/components/OnMount.svelte'
-	import ThemePulse from '$examples/_lib.svelte/ThemePulse.svelte'
 	import Device from '$examples/stores/Device.svelte'
 	import Theme from '$examples/utils/Theme.svelte'
 	import Wait from '$examples/utils/Wait.svelte'
