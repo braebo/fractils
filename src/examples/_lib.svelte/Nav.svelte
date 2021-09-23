@@ -1,5 +1,9 @@
 <script lang="ts">
+	import { fly, fade } from 'svelte/transition'
 	import { onMount, tick } from 'svelte'
+	import Burger from './Burger.svelte'
+	import { mobile, clickOutside } from '$lib'
+	import { quintOut } from 'svelte/easing'
 
 	const paths = ['actions', 'components', 'utils']
 	let els: HTMLElement[] | [] = []
@@ -43,19 +47,39 @@
 			grabEls()
 		}, 600)
 	}
+
+	let menuOpen = false
 </script>
 
 <svelte:window on:scroll={trackScroll} />
 
-<ul>
-	{#each paths as path, i}
-		<li class:active={active === i} on:click|capture={(e) => handleClick(i)}>
-			<a href="#{path}">{path}</a>
-		</li>
-	{/each}
-</ul>
+<div class="overlay" class:menuOpen />
 
-<style>
+{#if $mobile}
+	<Burger bind:menuOpen />
+{/if}
+
+{#if !$mobile || menuOpen}
+	<ul
+		class:mobile={$mobile}
+		class:menuOpen
+		use:clickOutside={() => (menuOpen = false)}
+		out:fade={{ duration: 200 }}
+	>
+		{#each paths as path, i}
+			<li
+				in:fly={{ x: -30, easing: quintOut, delay: 100 * i, duration: 1000 }}
+				class:mobile={$mobile}
+				class:active={active === i}
+				on:click|capture={(e) => handleClick(i)}
+			>
+				<a href="#{path}">{path}</a>
+			</li>
+		{/each}
+	</ul>
+{/if}
+
+<style lang="scss">
 	ul {
 		display: flex;
 		position: fixed;
@@ -65,39 +89,72 @@
 		gap: 1rem;
 
 		color: var(--bg-a);
-	}
 
-	li {
-		position: relative;
+		&.mobile {
+			z-index: 10;
 
-		list-style-type: none;
-	}
+			width: max-content;
+			height: max-content;
 
-	a,
-	li {
-		text-decoration: none;
+			margin: auto;
+			padding: 2rem;
+			padding-left: 3rem;
 
-		color: var(--bg-a);
+			font-size: 1.5rem;
 
-		transition: 0.2s ease-in-out;
-	}
+			border-radius: var(--border-radius);
+			border: 1px solid var(--bg-a);
+			background: var(--text-a);
+			opacity: 0;
 
-	li:after {
-		position: absolute;
-		top: 9px;
-		left: -21px;
+			transition: opacity 0.2s;
+			inset: 0;
 
-		width: 10px;
-		height: 10px;
+			&.menuOpen {
+				opacity: 1;
+			}
+		}
 
-		border-radius: 100%;
+		li {
+			position: relative;
 
-		background: var(--color-primary);
+			list-style-type: none;
 
-		content: '';
-		transition: 0.2s ease-out;
+			&:after {
+				position: absolute;
+				top: 9px;
+				left: -21px;
 
-		transform: scale(0);
+				width: 10px;
+				height: 10px;
+
+				border-radius: 100%;
+
+				background: var(--color-primary);
+
+				content: '';
+				transition: 0.2s ease-out;
+
+				transform: scale(0);
+			}
+
+			&.mobile:after {
+				top: 15.5px !important;
+			}
+
+			&,
+			a {
+				text-decoration: none;
+
+				color: var(--bg-a);
+
+				transition: 0.2s ease-in-out;
+			}
+
+			&.active:after {
+				transform: scale(1);
+			}
+		}
 	}
 
 	.active,
@@ -106,7 +163,23 @@
 		filter: brightness(1.25);
 	}
 
-	li.active:after {
-		transform: scale(1);
+	.overlay {
+		position: fixed;
+
+		z-index: 9;
+
+		width: 100vw;
+		height: 100vh;
+
+		opacity: 0;
+		background: var(--text-a);
+
+		transition: opacity 0.2s;
+		pointer-events: none;
+		inset: 0;
+
+		&.menuOpen {
+			opacity: 0.8;
+		}
 	}
 </style>
