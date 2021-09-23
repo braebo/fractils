@@ -26,13 +26,13 @@
 	const path = 'components/OnMount.svelte'
 </script>
 
-<Item title="OnMount" type="component" {path} --eg-h="258px">
+<Item title="OnMount" type="component" {path}>
 	<div slot="description">
 		Mounts an element on Svelte's <span> onMount </span>
 		<a href="https://svelte.dev/docs#onMount" target="_blank"> lifecycle hook </a>.
 	</div>
 
-	<Example {example}>
+	<Example {example} --h="258px">
 		<div class="result">
 			{#if mounted}
 				<OnMount>

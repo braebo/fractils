@@ -39,7 +39,7 @@
 	const path = 'actions/clickOutside.ts'
 </script>
 
-<Item title="clickOutside" type="action" {path} --eg-h="382px">
+<Item title="clickOutside" type="action" {path}>
 	<div slot="description">
 		Calls a function when the user clicks outside the element.
 
@@ -49,7 +49,7 @@
 		</div>
 	</div>
 
-	<Example example={example.replace('// ', '')}>
+	<Example example={example.replace('// ', '')} --h="382px">
 		{#if _clickOutside}
 			<div class="clickoutside" class:clickedOutside use:_clickOutside={handleClickOutside}>
 				clickedOutside = {clickedOutside}
