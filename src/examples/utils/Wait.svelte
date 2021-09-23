@@ -1,6 +1,7 @@
 <script>
 	import Item from '../_lib.svelte/Item/Item.svelte'
 	import { wait } from '$lib'
+	import Example from '$examples/_lib.svelte/Item/Example.svelte'
 	const example = `<script>
 	import { wait } from 'fractils'
     
@@ -31,7 +32,7 @@
 	const path = 'utils/wait.ts'
 </script>
 
-<Item title="wait" type="function" {example} {path} --eg-h="332px">
+<Item title="wait" type="function" {path}>
 	<div slot="description">
 		A simple wait timer.
 		<div class="param">
@@ -42,11 +43,13 @@
 		</div>
 	</div>
 
-	<div class="result" slot="result">
-		<p class:active={ready}>ready</p>
-		<p class:active={set}>set</p>
-		<p class:active={go}>go</p>
-	</div>
+	<Example {example} --h="332px">
+		<div class="result">
+			<p class:active={ready}>ready</p>
+			<p class:active={set}>set</p>
+			<p class:active={go}>go</p>
+		</div>
+	</Example>
 	<button on:click={() => start()}>start()</button>
 </Item>
 

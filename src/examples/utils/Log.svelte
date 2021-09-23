@@ -1,6 +1,7 @@
 <script>
 	import Item from '../_lib.svelte/Item/Item.svelte'
 	import { log } from '$lib'
+	import Example from '$examples/_lib.svelte/Item/Example.svelte'
 
 	const example = `<script>
 	import { log } from 'fractils'
@@ -17,7 +18,7 @@
 	const path = 'utils/log.ts'
 </script>
 
-<Item title="log" type="function" {example} {path}>
+<Item title="log" type="function" {path}>
 	<div slot="description">
 		A simple logger that only runs in dev environments.
 		<div class="param">
@@ -41,14 +42,16 @@
 		</div>
 	</div>
 
-	<div class="result" slot="result">
-		<!-- prettier-ignore -->
-		<div class="timestamp">04:20:69.173</div>
+	<Example {example}>
+		<div class="result">
+			<!-- prettier-ignore -->
+			<div class="timestamp">04:20:69.173</div>
 
-		<pre
-			style="padding:5px;color:#00bcd4;background:var(--text-a);border:1px solid lightblue;font-size:20px;font-weight: bold;">Hello world</pre>
-		<div class="file">log.ts:22</div>
-	</div>
+			<pre
+				style="padding:5px;color:#00bcd4;background:var(--text-a);border:1px solid lightblue;font-size:20px;font-weight: bold;">Hello world</pre>
+			<div class="file">log.ts:22</div>
+		</div>
+	</Example>
 </Item>
 
 <style>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Example from '$examples/_lib.svelte/Item/Example.svelte'
 	import { theme } from '$lib'
 	import Item from '../_lib.svelte/Item/Item.svelte'
 
@@ -25,7 +26,7 @@
 	const path = 'theme/index.ts'
 </script>
 
-<Item title="Theme" type="store + functions" {example} {path}>
+<Item title="Theme" type="store + functions" {path}>
 	<div slot="description">
 		A series of utilitites for managing the active theme.
 		<div class="param">
@@ -55,9 +56,11 @@
 		</div>
 	</div>
 
-	<div class="result" id="theme-out" class:dark={theme2 == 'dark'} slot="result">
-		{#key theme}{theme2}{/key}
-	</div>
+	<Example {example}>
+		<div class="result" id="theme-out" class:dark={theme2 == 'dark'}>
+			{#key theme}{theme2}{/key}
+		</div>
+	</Example>
 </Item>
 
 <style lang="scss">

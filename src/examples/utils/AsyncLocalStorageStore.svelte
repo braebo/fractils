@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Example from '$examples/_lib.svelte/Item/Example.svelte'
 	import { asyncLocalStorageStore, OnMount } from '$lib'
 	import { fade } from 'svelte/transition'
 	import Item from '../_lib.svelte/Item/Item.svelte'
@@ -19,7 +20,7 @@
 	const path = 'utils/asyncLocalStorageStore.ts'
 </script>
 
-<Item title="asyncLocalStorageStore" type="store" {example} {path} --eg-h="260px">
+<Item title="asyncLocalStorageStore" type="store" {path}>
 	<div class="description" slot="description">
 		A Svelte store that persists to localStorage.
 		<div class="param">
@@ -35,11 +36,13 @@
 		</div>
 	</div>
 
-	<div class="result" slot="result">
-		<div class="button" on:click={() => $count++}>+</div>
-		<OnMount><div class="count" in:fade={{ delay: 250 }}>{$count}</div></OnMount>
-		<div class="button" on:click={() => $count--}>-</div>
-	</div>
+	<Example {example} --h="260px">
+		<div class="result">
+			<div class="button" on:click={() => $count++}>+</div>
+			<OnMount><div class="count" in:fade={{ delay: 250 }}>{$count}</div></OnMount>
+			<div class="button" on:click={() => $count--}>-</div>
+		</div>
+	</Example>
 </Item>
 
 <style>

@@ -1,20 +1,7 @@
 <script>
-	import { onMount } from 'svelte'
-
-	export let example = 'example'
 	export let title = 'title'
 	export let type = 'type'
 	export let path = ''
-
-	let Prism, highlightedExample, code
-
-	onMount(async () => {
-		const p = await import('prismjs')
-		Prism = await p.default
-		Prism.highlightAll()
-		highlightedExample = await Prism.highlight(example, Prism.languages.html, 'html')
-		code.style.opacity = 1
-	})
 </script>
 
 <div class="item">
@@ -25,18 +12,6 @@
 
 	<div class="description">
 		<slot name="description" />
-	</div>
-
-	<pre><code class='language-html' bind:this={code}>
-		<!-- {@debug} -->
-        {#if highlightedExample}
-			{@html highlightedExample}
-        {/if}
-    </code></pre>
-
-	<h6>↓</h6>
-	<div class="result">
-		<slot name="result" />
 	</div>
 
 	<slot />
@@ -99,46 +74,11 @@
 		background: var(--text-a);
 	}
 
-	pre {
-		min-height: var(--eg-h, 165px);
-		/* padding: 1rem; */
-		margin: 0;
-
-		background: var(--text-a);
-		border-radius: var(--border-radius);
-	}
-
-	:global(code) {
-		opacity: 0;
-
-		transition: 0.2s;
-	}
-
 	:global(.param) {
 		display: flex;
 		gap: 0.5rem;
 
 		margin-top: 1rem;
-	}
-
-	h6 {
-		text-align: center;
-		font-size: 1.5rem;
-	}
-
-	.result {
-		width: 75%;
-		margin: 5px auto;
-		min-height: 50px;
-
-		text-align: center;
-
-		border-radius: var(--border-radius);
-
-		background: white;
-	}
-	:global(.result:first-child) {
-		padding: 1rem;
 	}
 
 	.description {

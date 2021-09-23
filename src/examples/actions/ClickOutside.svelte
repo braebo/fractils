@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Example from '$examples/_lib.svelte/Item/Example.svelte'
 	import Item from '$examples/_lib.svelte/Item/Item.svelte'
 	import { onMount } from 'svelte'
 
@@ -38,7 +39,7 @@
 	const path = 'actions/clickOutside.ts'
 </script>
 
-<Item title="clickOutside" type="action" example={example.replace('// ', '')} {path} --eg-h="382px">
+<Item title="clickOutside" type="action" {path} --eg-h="382px">
 	<div slot="description">
 		Calls a function when the user clicks outside the element.
 
@@ -48,13 +49,13 @@
 		</div>
 	</div>
 
-	<div slot="result">
+	<Example example={example.replace('// ', '')}>
 		{#if _clickOutside}
 			<div class="clickoutside" class:clickedOutside use:_clickOutside={handleClickOutside}>
 				clickedOutside = {clickedOutside}
 			</div>
 		{/if}
-	</div>
+	</Example>
 </Item>
 
 <style lang="scss">

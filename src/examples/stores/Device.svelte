@@ -1,6 +1,7 @@
 <!-- TODO: this wont work.. maybe we can make an init function for
 	use in __layout to attach listeners to the root layout..? -->
 <script>
+	import Example from '$examples/_lib.svelte/Item/Example.svelte'
 	import { mobile, screenH, screenW, scrollY } from '$lib'
 
 	import Item from '../_lib.svelte/Item/Item.svelte'
@@ -33,7 +34,7 @@ scrollY: {$scrollY}
 	}
 </script>
 
-<Item title="device" type="stores" example={example1} {path} --eg-h="332px">
+<Item title="device" type="stores" {path}>
 	<div slot="description">
 		A series of device related stores.
 		<div class="param">
@@ -55,16 +56,18 @@ scrollY: {$scrollY}
 		</div>
 	</div>
 
-	<div class="result" slot="result">
-		<div class="grid">
-			{#each Object.entries(stores) as key, i}
-				<div class="store">
-					<div class="key">{key}</div>
-					<!-- <div class="value">{Object.entires(stores[key])}</div> -->
-				</div>
-			{/each}
+	<Example example={example1} --h="283px">
+		<div class="result">
+			<div class="grid">
+				{#each Object.entries(stores) as key, i}
+					<div class="store">
+						<div class="key">{key}</div>
+						<!-- <div class="value">{Object.entires(stores[key])}</div> -->
+					</div>
+				{/each}
+			</div>
 		</div>
-	</div>
+	</Example>
 </Item>
 
 <style>
