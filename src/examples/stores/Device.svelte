@@ -18,14 +18,17 @@ screenW: {$screenW}
 scrollY: {$scrollY}
 `
 
+	const example2 = `<script>
+	import { Fractils } from 'fractils'
+<\/script>
+
+<Fractils />
+
+<slot />
+`
+
 	const path = 'stores/device.svelte'
 
-	const arr = [
-		{ name: '$mobile', value: $mobile },
-		{ name: '$screenW', value: $screenW },
-		{ name: '$screenH', value: $screenH },
-		{ name: '$scrollY', value: $scrollY },
-	]
 	$: stores = {
 		mobile: $mobile,
 		screenW: $screenW,
@@ -54,15 +57,21 @@ scrollY: {$scrollY}
 		<div class="param">
 			<span class="var">screenH</span> — &nbsp;Tracks the screen height.
 		</div>
+
+		<br /><br />First, the stores need to be registered. Ideally in the root layout:<br /><br />
+
+		<Example example={example2} result={false} file={'src/routes/__layout.svelte'} />
+		<br />
 	</div>
 
-	<Example example={example1} --h="283px">
+	They can then be consumed normally:<br /><br />
+	<Example example={example1} --h="283px" file="Example.svelte">
 		<div class="result">
 			<div class="grid">
 				{#each Object.entries(stores) as key, i}
 					<div class="store">
-						<div class="key">{key}</div>
-						<!-- <div class="value">{Object.entires(stores[key])}</div> -->
+						<div class="key">{Object.keys(stores)[i]}</div>
+						<div class="value">{Object.values(stores)[i]}</div>
 					</div>
 				{/each}
 			</div>
@@ -73,5 +82,6 @@ scrollY: {$scrollY}
 <style>
 	.grid {
 		display: flex;
+		justify-content: space-around;
 	}
 </style>

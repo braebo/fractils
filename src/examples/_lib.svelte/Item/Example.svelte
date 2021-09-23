@@ -3,6 +3,7 @@
 
 	export let example = 'example'
 	export let result = true
+	export let file = null
 
 	let Prism, highlightedExample, code
 
@@ -15,11 +16,16 @@
 	})
 </script>
 
-<pre><code class='language-html' bind:this={code}>
+<div class="code">
+	{#if file}
+		<div class="file">{file}</div>
+	{/if}
+	<pre><code class='language-html' bind:this={code}>
 	{#if highlightedExample}
 		{@html highlightedExample}
 	{/if}
 </code></pre>
+</div>
 
 <span style="display: {!result ? 'none' : 'content'};">
 	<h6>↓</h6>
@@ -38,6 +44,8 @@
 	}
 
 	:global(code) {
+		position: relative;
+
 		opacity: 0;
 
 		transition: 0.2s;
@@ -62,5 +70,25 @@
 
 	:global(.result:first-child) {
 		padding: 1rem;
+	}
+
+	.code {
+		position: relative;
+	}
+
+	.file {
+		position: absolute;
+		right: 1rem;
+		top: 0.5rem;
+
+		width: max-content;
+
+		font-family: var(--mono);
+
+		/* font-size: 0.8rem; */
+
+		opacity: 0.5;
+		color: var(--bg-a);
+		/* background: pink; */
 	}
 </style>
