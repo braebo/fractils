@@ -1,18 +1,18 @@
-<script>
+<script lang="ts">
 	import { onMount } from 'svelte'
 
 	export let example = 'example'
 	export let result = true
-	export let file = null
+	export let file: string | null = null
 
-	let Prism, highlightedExample, code
+	let Prism: any, highlightedExample: string, code: HTMLDivElement
 
 	onMount(async () => {
 		const p = await import('prismjs')
 		Prism = await p.default
 		Prism.highlightAll()
 		highlightedExample = await Prism.highlight(example, Prism.languages.html, 'html')
-		code.style.opacity = 1
+		code.style.opacity = '1'
 	})
 </script>
 
