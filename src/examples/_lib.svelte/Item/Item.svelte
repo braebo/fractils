@@ -94,7 +94,7 @@
 
 		padding: 1.2rem;
 
-		font-family: 'Inconsolata', 'Fira Code', monospace !important;
+		font-family: var(--mono);
 		font-variation-settings: 'wght' 600;
 	}
 	.link:hover {
