@@ -1,16 +1,18 @@
 <script>
+	import { mobile } from '$lib'
+
 	export let title = 'title'
 	export let type = 'type'
 	export let path = ''
 </script>
 
-<div class="item">
+<div class="item" class:mobile={$mobile}>
 	<header>
 		<a href="#{title}"><h1 id={title}>{title}</h1></a>
 		<p>{type}</p>
 	</header>
 
-	<div class="description">
+	<div class="description" class:mobile={$mobile}>
 		<slot name="description" />
 	</div>
 
@@ -23,7 +25,7 @@
 	>
 </div>
 
-<style>
+<style lang="scss">
 	.item {
 		display: flex;
 		flex-direction: column;
@@ -66,12 +68,17 @@
 		padding: 0.15rem 0.5rem 0.3rem 0.5rem;
 
 		font-size: 0.75rem;
+
 		font-style: italic;
 
 		color: var(--color-primary);
 		border-radius: var(--border-radius);
 
 		background: var(--text-a);
+	}
+
+	.mobile {
+		font-size: 0.9rem;
 	}
 
 	:global(.param) {

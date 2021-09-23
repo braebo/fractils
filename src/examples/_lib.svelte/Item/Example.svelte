@@ -1,11 +1,12 @@
 <script lang="ts">
 	import { onMount } from 'svelte'
+	import { mobile } from '$lib'
 
 	export let example = 'example'
 	export let result = true
 	export let file: string | null = null
 
-	let Prism: any, highlightedExample: string, code: HTMLDivElement
+	let Prism: any, highlightedExample: string, code: HTMLDivElement, pre: HTMLPreElement
 
 	onMount(async () => {
 		const p = await import('prismjs')
@@ -14,13 +15,23 @@
 		highlightedExample = await Prism.highlight(example, Prism.languages.html, 'html')
 		code.style.opacity = '1'
 	})
+
+	$: if (code && $mobile) {
+		code.style.fontSize = '0.9rem'
+		code.style.margin = '0'
+		if (pre) pre.style.lineHeight = '0.75rem'
+		// calculate the min-height of pre
+		const current = parseInt(window.getComputedStyle(pre).minHeight.replace('px', ''))
+		pre.style.minHeight = String(current * 0.924) + 'px'
+	}
 </script>
 
 <div class="code">
 	{#if file}
 		<div class="file">{file}</div>
 	{/if}
-	<pre><code class='language-html' bind:this={code}>
+	<pre
+		bind:this={pre}><code class='language-html' bind:this={code} class:mobile={$mobile}>
 	{#if highlightedExample}
 		{@html highlightedExample}
 	{/if}
@@ -34,7 +45,7 @@
 	</div>
 </span>
 
-<style>
+<style lang="scss">
 	pre {
 		min-height: var(--h, 165px);
 		margin: 0;
@@ -74,6 +85,10 @@
 
 	.code {
 		position: relative;
+
+		&.mobile {
+			font-size: 0.5rem !important;
+		}
 	}
 
 	.file {
