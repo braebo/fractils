@@ -1,6 +1,6 @@
 <script>
 	import { fly } from 'svelte/transition'
-	import Item from '../Item.svelte'
+	import Item from '../_lib.svelte/Item/Item.svelte'
 	import { OnMount } from '$lib'
 
 	const example = `<script>

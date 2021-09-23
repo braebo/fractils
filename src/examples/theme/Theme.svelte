@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { theme } from '$lib'
-	import Item from '../Item.svelte'
+	import Item from '../_lib.svelte/Item/Item.svelte'
 
 	const example = `<script>
     import { theme } from 'fractils'
@@ -55,18 +55,12 @@
 		</div>
 	</div>
 
-	<div class="result" id="theme-out" slot="result">
+	<div class="result" id="theme-out" class:dark={theme2 == 'dark'} slot="result">
 		{#key theme}{theme2}{/key}
 	</div>
 </Item>
 
 <style lang="scss">
-	.result {
-		display: flex;
-
-		text-align: center;
-	}
-
 	.indented {
 		margin-left: 1.5rem;
 		margin-top: 5px;
@@ -95,5 +89,19 @@
 	.apply {
 		margin-right: 0.5rem !important;
 		margin-left: -0.25rem !important;
+	}
+
+	.result {
+		display: flex;
+
+		text-align: center;
+
+		transition: 0.1s;
+	}
+
+	.dark {
+		color: #ffffff;
+		background: #1d1d1d;
+		border-radius: var(--border-radius);
 	}
 </style>

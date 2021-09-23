@@ -1,6 +1,6 @@
 <script>
 	import { ThemeToggle, theme } from '$lib'
-	import Item from '../Item.svelte'
+	import Item from '../_lib.svelte/Item/Item.svelte'
 
 	const example = `<script>
     import { ThemeToggle } from 'fractils'

@@ -1,5 +1,5 @@
 <script>
-	import Item from '../Item.svelte'
+	import Item from '../_lib.svelte/Item/Item.svelte'
 	import { log } from '$lib'
 
 	const example = `<script>

@@ -7,7 +7,8 @@
 	import ThemeToggle from '$examples/components/ThemeToggleExample.svelte'
 	import ClickOutside from '$examples/actions/ClickOutside.svelte'
 	import OnMount from '$examples/components/OnMount.svelte'
-	import ThemePulse from '$examples/ThemePulse.svelte'
+	import ThemePulse from '$examples/_lib.svelte/ThemePulse.svelte'
+	import Device from '$examples/stores/Device.svelte'
 	import Theme from '$examples/theme/Theme.svelte'
 	import Wait from '$examples/utils/Wait.svelte'
 	import Log from '$examples/utils/Log.svelte'
@@ -21,7 +22,6 @@
 
 <OnMount />
 
-<!-- <div class="pulse-container"> -->
 <ThemePulse />
 
 <ThemeToggle />
@@ -29,7 +29,8 @@
 <h2 id="utils">utils</h2>
 
 <Theme />
-<!-- </div> -->
+
+<Device />
 
 <AsyncLocalStorageStore />
 
@@ -50,11 +51,5 @@
 	}
 	h2:first-of-type {
 		margin-top: 2.5rem;
-	}
-
-	.pulse-container {
-		/* position: relative; */
-
-		border: 1px solid white;
 	}
 </style>

@@ -5,8 +5,12 @@
 	import '../app.scss'
 
 	import { scrollY } from '$examples/stores'
-	import Nav from '$examples/Nav.svelte'
+	import Nav from '$examples/_lib.svelte/Nav.svelte'
+
+	import { Fractils } from '$lib'
 </script>
+
+<Fractils />
 
 <svelte:window bind:scrollY={$scrollY} />
 

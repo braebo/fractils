@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { asyncLocalStorageStore, OnMount } from '$lib'
 	import { fade } from 'svelte/transition'
-	import Item from '../Item.svelte'
+	import Item from '../_lib.svelte/Item/Item.svelte'
 
 	const example = `<script>
 	import { asyncLocalStorageStore } from 'fractils'
