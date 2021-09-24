@@ -40,38 +40,23 @@ button {
 	background: var(--text-a);
 }
 
-.var {
-	display: inline-flex;
+.code {
+	display: flex;
 
-	margin-right: 3px;
+	width: max-content;
 	height: max-content;
-	padding: var(--span-padding);
+	padding: 0.15rem 0.5rem 0.3rem 0.5rem;
 
-	font-style: normal;
 	font-size: 0.8rem;
 
-	transform: translateY(3px);
-}
+	color: var(--color-primary);
+	border-radius: var(--border-radius);
 
-.var-title {
-	font-weight: bolder;
+	background: var(--text-a);
 
-	color: var(--text-a);
-	text-shadow: 0px 0px 1px var(--color-primary);
-}
+	&.inline {
+		display: inline-flex;
 
-
-.connector {
-	position: absolute;
-	z-index: 1;
-	top: 5px;
-
-	left: 10px;
-
-	width: 25px;
-	height: 44px;
-
-	border: 2px solid var(--text-a);
-	border-right: none;
-	border-radius: 2px;
+		padding: 1px 5px 3px 4px;
+	}
 }

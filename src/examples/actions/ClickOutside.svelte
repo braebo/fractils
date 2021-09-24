@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Example from '$examples/_lib.svelte/Item/Example.svelte'
 	import Item from '$examples/_lib.svelte/Item/Item.svelte'
+	import Params from '$examples/_lib.svelte/Item/Params.svelte'
 	import { onMount } from 'svelte'
 
 	let _clickOutside
@@ -37,16 +38,21 @@
 `
 
 	const path = 'actions/clickOutside.ts'
+
+	const params = [
+		{
+			type: 'param',
+			title: 'callback',
+			description: 'The function to call',
+		},
+	]
 </script>
 
 <Item title="clickOutside" type="action" {path}>
 	<div slot="description">
 		Calls a function when the user clicks outside the element.
 
-		<div class="param">
-			<span class="var">param</span> <span class="var-title">callback</span> — &nbsp;The function
-			to call.
-		</div>
+		<Params {params} />
 	</div>
 
 	<Example example={example.replace('// ', '')} --h="382px">

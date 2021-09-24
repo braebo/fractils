@@ -2,6 +2,7 @@
 	use in __layout to attach listeners to the root layout..? -->
 <script>
 	import Example from '$examples/_lib.svelte/Item/Example.svelte'
+	import Params from '$examples/_lib.svelte/Item/Params.svelte'
 	import { mobile, screenH, screenW, scrollY } from '$lib'
 
 	import Item from '../_lib.svelte/Item/Item.svelte'
@@ -35,28 +36,40 @@ scrollY: {$scrollY}
 		screenH: $screenH,
 		scrollY: $scrollY,
 	}
+
+	const params = [
+		{
+			type: 'store',
+			title: 'mobile',
+			description: `Detects if <span class="code inline">screenW</span> &lt; <span class="code inline">mobileThreshold</span>`,
+		},
+		{
+			type: 'store',
+			title: 'mobileThreshold',
+			description: `Writable store to adjust the $mobile 'breakpoint' threshold. Default 900.`,
+		},
+		{
+			type: 'store',
+			title: 'scrollY',
+			description: `Tracks the users scroll position.`,
+		},
+		{
+			type: 'store',
+			title: 'screenW',
+			description: `Tracks the screen width.`,
+		},
+		{
+			type: 'store',
+			title: 'screenH',
+			description: `Tracks the screen height.`,
+		},
+	]
 </script>
 
 <Item title="device" type="stores" {path}>
-	<div slot="description">
+	<div slot="description" class="device">
 		A series of device related stores.
-		<div class="param">
-			<span class="var">store</span> <span class="var-title">mobile</span> — &nbsp;Detects if screenW
-			&lt; mobileThreshold (default 900)
-		</div>
-		<div class="param">
-			<span class="var">store</span> <span class="var-title">mobileThreshold</span> — &nbsp;Writable
-			store to adjust the $mobile 'breakpoint' threshold. (default 900)
-		</div>
-		<div class="param">
-			<span class="var">scrollY</span> — &nbsp;Tracks the users scroll position.
-		</div>
-		<div class="param">
-			<span class="var">screenW</span> — &nbsp;Tracks the screen width.
-		</div>
-		<div class="param">
-			<span class="var">screenH</span> — &nbsp;Tracks the screen height.
-		</div>
+		<Params {params} --width="200px" />
 
 		<br /><br />First, the stores need to be registered. Ideally in the root layout:<br /><br />
 
@@ -83,5 +96,8 @@ scrollY: {$scrollY}
 	.grid {
 		display: flex;
 		justify-content: space-around;
+	}
+	:global(.device .inline) {
+		transform: translateY(-2px);
 	}
 </style>

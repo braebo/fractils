@@ -1,7 +1,32 @@
 <script lang="ts">
 	import Example from '$examples/_lib.svelte/Item/Example.svelte'
-	import { theme } from '$lib'
+	import Params from '$examples/_lib.svelte/Item/Params.svelte'
 	import Item from '../_lib.svelte/Item/Item.svelte'
+	import { theme } from '$lib'
+
+	const params = [
+		{
+			type: 'store',
+			title: 'theme',
+			description: 'A writable, persistant store to manage the active theme.',
+		},
+		{
+			type: 'function',
+			title: 'initTheme',
+			description:
+				'Initializes theme from system preference or theme store and registers a prefers-media listener for changes.',
+		},
+		{
+			type: 'function',
+			title: 'toggleTheme',
+			description: `Toggles <span class="code inline">$theme</span> to and from light and dark mode.`,
+			child: {
+				type: 'param',
+				title: 'newTheme',
+				description: 'The theme to apply.',
+			},
+		},
+	]
 
 	const example = `<script>
     import { theme } from 'fractils'
@@ -29,31 +54,7 @@
 <Item title="Theme" type="store + functions" {path}>
 	<div slot="description">
 		A series of utilitites for managing the active theme.
-		<div class="param">
-			<span class="var">store</span> <span class="var-title">&nbsp; &nbsp; theme</span> — &nbsp;A
-			writable, persistant store to manage the active theme.
-		</div>
-		<div class="param">
-			<span class="var">function</span> <span class="var-title">initTheme</span> — &nbsp;Initializes
-			theme from system preference or theme store and registers a prefers-media listener for changes.
-		</div>
-		<div class="param">
-			<span class="var">function</span> <span class="var-title">toggleTheme</span> —
-			&nbsp;Toggles
-			<span>$theme</span>
-			to and from light and dark mode.
-		</div>
-		<div class="param col">
-			<div class="row">
-				<span class="var">function</span> <span class="var-title apply">applyTheme</span> — &nbsp;Applies
-				a specific theme.
-			</div>
-			<div class="connector" />
-			<div class="param indented">
-				<span class="var">param</span> <span class="var-title">newTheme</span> — &nbsp;The theme
-				to apply.
-			</div>
-		</div>
+		<Params {params} --width="183px" />
 	</div>
 
 	<Example {example}>
@@ -64,36 +65,6 @@
 </Item>
 
 <style lang="scss">
-	.indented {
-		margin-left: 1.5rem;
-		margin-top: 5px;
-	}
-
-	.col {
-		position: relative;
-		flex-direction: column;
-	}
-	.col span {
-		position: relative;
-		z-index: 2;
-
-		transform: unset;
-	}
-
-	.row {
-		display: flex;
-		flex-direction: row;
-
-		& span {
-			margin-right: 1rem;
-		}
-	}
-
-	.apply {
-		margin-right: 0.5rem !important;
-		margin-left: -0.25rem !important;
-	}
-
 	.result {
 		display: flex;
 

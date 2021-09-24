@@ -2,6 +2,7 @@
 	import Item from '../_lib.svelte/Item/Item.svelte'
 	import { log } from '$lib'
 	import Example from '$examples/_lib.svelte/Item/Example.svelte'
+	import Params from '$examples/_lib.svelte/Item/Params.svelte'
 
 	const example = `<script>
 	import { log } from 'fractils'
@@ -16,35 +17,45 @@
 	logger()
 
 	const path = 'utils/log.ts'
+
+	const params = [
+		{
+			type: 'param',
+			title: 'msg',
+			description: 'A string or object to log.',
+		},
+		{
+			type: 'param',
+			title: 'color',
+			description: 'Any CSS color value ( named | hex | rgb | hsl ).',
+		},
+		{
+			type: 'param',
+			title: 'bgColor',
+			description: 'Same as color ⇧.',
+		},
+		{
+			type: 'param',
+			title: 'fontSize',
+			description: 'Any number.',
+		},
+		{
+			type: 'param',
+			title: 'css',
+			description: 'Optional additional CSS.',
+		},
+	]
 </script>
 
 <Item title="log" type="function" {path}>
 	<div slot="description">
 		A simple logger that only runs in dev environments.
-		<div class="param">
-			<span class="var">param</span> <span class="var-title">msg</span> — &nbsp;A string or object
-			to log
-		</div>
-		<div class="param">
-			<span class="var">param</span> <span class="var-title">color</span> — &nbsp;Any CSS color
-			value ( named | hex | rgb | hsl )
-		</div>
-		<div class="param">
-			<span class="var">param</span> <span class="var-title">bgColor</span> — &nbsp;Same as color
-			⇧
-		</div>
-		<div class="param">
-			<span class="var">param</span> <span class="var-title">fontSize</span> — &nbsp;Any number
-		</div>
-		<div class="param">
-			<span class="var">param</span> <span class="var-title">css</span> — &nbsp;Optional additional
-			CSS
-		</div>
+
+		<Params {params} --width="150px" />
 	</div>
 
 	<Example {example}>
 		<div class="result">
-			<!-- prettier-ignore -->
 			<div class="timestamp">04:20:69.173</div>
 
 			<pre
@@ -59,10 +70,9 @@
 		display: flex;
 
 		border: 1px solid #999;
-		border-left: none;
 		border-right: none;
+		border-left: none;
 		padding: 5px;
-		margin: 1rem 0;
 	}
 	.timestamp {
 		font-size: 11px;

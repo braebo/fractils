@@ -2,6 +2,7 @@
 	import Item from '../_lib.svelte/Item/Item.svelte'
 	import { wait } from '$lib'
 	import Example from '$examples/_lib.svelte/Item/Example.svelte'
+	import Params from '$examples/_lib.svelte/Item/Params.svelte'
 	const example = `<script>
 	import { wait } from 'fractils'
     
@@ -30,17 +31,24 @@
 	}
 
 	const path = 'utils/wait.ts'
+
+	const params = [
+		{
+			type: 'param',
+			title: 't',
+			description: 'Time to wait in ms.',
+		},
+		{
+			type: 'returns',
+			description: 'A promise that resolves after <span class="code inline">t</span> ms.',
+		},
+	]
 </script>
 
 <Item title="wait" type="function" {path}>
 	<div slot="description">
 		A simple wait timer.
-		<div class="param">
-			<span class="var">param</span> <span class="var-title">t</span> — &nbsp;Time to wait in ms
-		</div>
-		<div class="param">
-			<span class="var">returns</span> A promise that resolves after t ms
-		</div>
+		<Params {params} --width="110px" />
 	</div>
 
 	<Example {example} --h="332px">

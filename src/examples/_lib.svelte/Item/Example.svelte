@@ -17,16 +17,15 @@
 	})
 
 	$: if (code && $mobile) {
-		code.style.fontSize = '0.9rem'
 		code.style.margin = '0'
+		code.style.fontSize = '0.9rem'
 		if (pre) pre.style.lineHeight = '0.75rem'
-		// calculate the min-height of pre
 		const current = parseInt(window.getComputedStyle(pre).minHeight.replace('px', ''))
 		pre.style.minHeight = String(current * 0.924) + 'px'
 	}
 </script>
 
-<div class="code">
+<div class="codeblock">
 	{#if file}
 		<div class="file">{file}</div>
 	{/if}
@@ -83,12 +82,8 @@
 		padding: 1rem;
 	}
 
-	.code {
+	.codeblock {
 		position: relative;
-
-		&.mobile {
-			font-size: 0.5rem !important;
-		}
 	}
 
 	.file {

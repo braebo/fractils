@@ -9,7 +9,7 @@
 <div class="item" class:mobile={$mobile}>
 	<header>
 		<a href="#{title}"><h1 id={title}>{title}</h1></a>
-		<p>{type}</p>
+		<p class="code">{type}</p>
 	</header>
 
 	<div class="description" class:mobile={$mobile}>
@@ -28,8 +28,8 @@
 <style lang="scss">
 	.item {
 		display: flex;
-		flex-direction: column;
 		position: relative;
+		flex-direction: column;
 
 		width: var(--col);
 		margin: 3rem auto;
@@ -58,23 +58,6 @@
 		gap: 1rem;
 
 		padding-bottom: 1rem;
-	}
-
-	header p,
-	:global(.description .var) {
-		display: flex;
-
-		width: max-content;
-		padding: 0.15rem 0.5rem 0.3rem 0.5rem;
-
-		font-size: 0.75rem;
-
-		font-style: italic;
-
-		color: var(--color-primary);
-		border-radius: var(--border-radius);
-
-		background: var(--text-a);
 	}
 
 	.mobile {

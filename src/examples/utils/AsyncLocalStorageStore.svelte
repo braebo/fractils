@@ -1,8 +1,26 @@
 <script lang="ts">
 	import Example from '$examples/_lib.svelte/Item/Example.svelte'
+	import Params from '$examples/_lib.svelte/Item/Params.svelte'
 	import { asyncLocalStorageStore, OnMount } from '$lib'
 	import { fade } from 'svelte/transition'
 	import Item from '../_lib.svelte/Item/Item.svelte'
+
+	const params = [
+		{
+			type: 'param',
+			title: 'key',
+			description: 'The key to store the data under.',
+		},
+		{
+			type: 'param',
+			title: 'value',
+			description: 'The initial value of the store.',
+		},
+		{
+			type: 'returns',
+			description: 'A writable store.',
+		},
+	]
 
 	const example = `<script>
 	import { asyncLocalStorageStore } from 'fractils'
@@ -23,17 +41,7 @@
 <Item title="asyncLocalStorageStore" type="store" {path}>
 	<div class="description" slot="description">
 		A Svelte store that persists to localStorage.
-		<div class="param">
-			<span class="var">param</span> <span class="var-title">key</span> — &nbsp;The key to store
-			the data under.
-		</div>
-		<div class="param">
-			<span class="var">param</span> <span class="var-title">value</span> — &nbsp;The initial value
-			of the store.
-		</div>
-		<div class="param">
-			<span class="var">returns</span> A writable store.
-		</div>
+		<Params {params} />
 	</div>
 
 	<Example {example} --h="260px">
