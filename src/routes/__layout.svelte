@@ -18,7 +18,7 @@
 	<header>
 		<h1>fractils</h1>
 		<p class="description">
-			<span style="opacity: 0.5">utilities for sveltekit</span>
+			<span>utilities for sveltekit</span>
 		</p>
 	</header>
 
@@ -39,16 +39,21 @@
 		color: white;
 	}
 	h1,
-	h2,
 	p {
 		padding: 0 1rem;
 
 		color: white;
 	}
+	span {
+		font-style: normal !important;
+		font-size: 0.9rem;
+
+		opacity: 0.5;
+	}
 	h2 {
 		margin: 1.5rem auto 0 auto;
+		padding: 6px 10px 7px 10px;
 		width: max-content;
-		padding: 6px 10px 6px 10px;
 
 		font-family: var(--mono);
 		letter-spacing: 1px;
@@ -60,9 +65,5 @@
 
 		border-radius: var(--border-radius);
 		background-color: rgb(21, 22, 29);
-	}
-	span {
-		font-style: normal !important;
-		font-size: 0.9rem;
 	}
 </style>
