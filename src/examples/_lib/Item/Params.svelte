@@ -79,7 +79,6 @@
 			display: flex;
 			justify-content: flex-start;
 
-			// width: 60%;
 			padding-left: 0.5rem;
 
 			font-size: 0.95rem;
@@ -122,16 +121,16 @@
 
 	.connector {
 		position: absolute !important;
-		z-index: 1;
 		bottom: 10px;
 		left: -15px;
+		z-index: 1;
 
-		width: 10px;
 		height: 20px;
+		width: 10px;
 
 		border: 2px solid var(--text-a);
+		border-radius: 2px;
 		border-right: none;
 		border-top: none;
-		border-radius: 2px;
 	}
 </style>
