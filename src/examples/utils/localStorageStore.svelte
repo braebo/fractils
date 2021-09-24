@@ -25,7 +25,7 @@
 	const example = `<script>
 	import { localStorageStore } from 'fractils'
     
-    const theme = localStorageStore('count', 0)
+    const count = localStorageStore('count', 0)
 <\/script>
 
 <div on:click='{() => $count++}'>+<\/div>

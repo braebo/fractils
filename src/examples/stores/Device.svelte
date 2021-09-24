@@ -8,7 +8,7 @@
 	import Item from '../_lib.svelte/Item/Item.svelte'
 
 	const example1 = `<script>
-	import { mobileThreshold, mobile, screenH, screenW, scrollY } from '$lib'
+	import { mobileThreshold, mobile, screenH, screenW, scrollY } from 'fractils'
     
     $mobileThreshold = 1000
 <\/script>
