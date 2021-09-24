@@ -16,17 +16,17 @@
 	// import '$lib/css/underline.scss'
 </script>
 
-<h2 id="actions"><a on:click|preventDefault class="double-under" href="#actions">actions</a></h2>
+<h2 id="actions"><a class="double-under" href="#actions">actions</a></h2>
 
 <ClickOutside />
 
 <h2 id="components">
-	<a on:click|preventDefault class="double-under" href="#components">components</a>
+	<a class="double-under" href="#components">components</a>
 </h2>
 
 <OnMount />
 
-<h2 id="utils"><a on:click|preventDefault class="double-under" href="#utils">utils</a></h2>
+<h2 id="utils"><a class="double-under" href="#utils">utils</a></h2>
 
 <Device />
 
@@ -36,7 +36,7 @@
 
 <Wait />
 
-<h2 id="theme"><a on:click|preventDefault class="double-under" href="#theme">theme</a></h2>
+<h2 id="theme"><a class="double-under" href="#theme">theme</a></h2>
 
 <ThemePulse />
 
