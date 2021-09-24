@@ -110,7 +110,7 @@
 			stroke-dashoffset: 5%;
 		}
 		100% {
-			stroke-dashoffset: 190%;
+			stroke-dashoffset: 200%;
 		}
 	}
 </style>
