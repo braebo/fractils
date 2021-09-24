@@ -26,7 +26,7 @@ export const initTheme = async (): Promise<void> => {
 			try {
 				const pref = get(theme)
 				if (pref) {
-					log('theme found in localStorage: ' + pref, 'white', 'purple', 20)
+					log('theme found in localStorage: ' + pref, 'white', '', 20)
 					applyTheme(pref as string)
 				}
 			} catch (err) {

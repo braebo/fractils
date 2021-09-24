@@ -11,8 +11,8 @@
 
 	async function place() {
 		await tick()
-		themeIn = document.getElementById('theme-in')?.getBoundingClientRect()
-		themeOut = document.getElementById('theme-out')?.getBoundingClientRect()
+		themeIn = document.getElementById('theme-out')?.getBoundingClientRect()
+		themeOut = document.getElementById('theme-in')?.getBoundingClientRect()
 
 		if (themeIn && themeOut) {
 			const docTop = document.documentElement.scrollTop
@@ -92,10 +92,10 @@
 	#pulse {
 		position: absolute;
 
-		stroke-dashoffset: 15%;
+		stroke-dashoffset: 5%;
 	}
 	path {
-		stroke-dasharray: 100 1000;
+		stroke-dasharray: 100 1200;
 		stroke: white;
 
 		&.dark {
@@ -107,10 +107,10 @@
 	}
 	@keyframes pulsate {
 		0% {
-			stroke-dashoffset: 15%;
+			stroke-dashoffset: 5%;
 		}
 		100% {
-			stroke-dashoffset: -175%;
+			stroke-dashoffset: 190%;
 		}
 	}
 </style>

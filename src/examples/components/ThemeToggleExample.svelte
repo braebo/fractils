@@ -1,5 +1,6 @@
 <script>
 	import Example from '$examples/_lib.svelte/Item/Example.svelte'
+	import Params from '$examples/_lib.svelte/Item/Params.svelte'
 	import { pulse } from '$examples/_lib.svelte/lib_stores'
 	import { ThemeToggle, theme, toggleTheme } from '$lib'
 	import Item from '../_lib.svelte/Item/Item.svelte'
@@ -27,6 +28,16 @@
 <Item title="ThemeToggle" type="component" {path}>
 	<div slot="description">
 		A simple component to toggle between light and dark <a href="#Theme">theme</a>.
+		<Params
+			params={[
+				{
+					type: 'prop',
+					title: 'init',
+					description:
+						'Make false to prevent <span class="code inline">initTheme()</span> from being called when the component mounts.  Defaults to true.',
+				},
+			]}
+		/>
 	</div>
 
 	<Example {example}>

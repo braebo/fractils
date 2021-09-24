@@ -14,7 +14,6 @@
 	export let config = { y: -35, duration: 1000, easing: expoOut }
 
 	onMount(() => {
-		// initialize()
 		if (init && browser) initTheme()
 	})
 </script>

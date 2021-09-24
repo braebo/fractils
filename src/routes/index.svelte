@@ -12,23 +12,21 @@
 	import Theme from '$examples/utils/Theme.svelte'
 	import Wait from '$examples/utils/Wait.svelte'
 	import Log from '$examples/utils/Log.svelte'
+
+	// import '$lib/css/underline.scss'
 </script>
 
-<h2 id="actions">actions</h2>
+<h2 id="actions"><a on:click|preventDefault class="double-under" href="#actions">actions</a></h2>
 
 <ClickOutside />
 
-<h2 id="components">components</h2>
+<h2 id="components">
+	<a on:click|preventDefault class="double-under" href="#components">components</a>
+</h2>
 
 <OnMount />
 
-<ThemePulse />
-
-<ThemeToggle />
-
-<h2 id="utils">utils</h2>
-
-<Theme />
+<h2 id="utils"><a on:click|preventDefault class="double-under" href="#utils">utils</a></h2>
 
 <Device />
 
@@ -38,18 +36,34 @@
 
 <Wait />
 
+<h2 id="theme"><a on:click|preventDefault class="double-under" href="#theme">theme</a></h2>
+
+<ThemePulse />
+
+<Theme />
+
+<ThemeToggle />
+
 <div class="buffer" style="min-height: 50px" />
 
-<style>
+<style lang="scss">
 	h2 {
+		display: flex;
+		justify-content: center;
+	}
+	a {
+		position: relative;
+
+		max-width: fit-content !important;
 		margin: 5rem auto -2rem auto;
 		padding: 0 1rem;
 
 		text-align: center;
+		text-decoration: none;
 
 		color: white;
 	}
-	h2:first-of-type {
+	a:first-of-type {
 		margin-top: 2.5rem;
 	}
 </style>
