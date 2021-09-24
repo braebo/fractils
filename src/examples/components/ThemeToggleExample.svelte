@@ -1,6 +1,7 @@
 <script>
 	import Example from '$examples/_lib.svelte/Item/Example.svelte'
-	import { ThemeToggle, theme } from '$lib'
+	import { pulse } from '$examples/_lib.svelte/lib_stores'
+	import { ThemeToggle, theme, toggleTheme } from '$lib'
 	import Item from '../_lib.svelte/Item/Item.svelte'
 
 	const example = `<script>
@@ -11,6 +12,16 @@
 `
 
 	const path = 'components/ThemeToggleExample.svelte'
+
+	let timer
+	const handlePulse = () => {
+		if (timer) clearTimeout(timer)
+		$pulse = true
+		toggleTheme()
+		timer = setTimeout(() => {
+			$pulse = false
+		}, 1000)
+	}
 </script>
 
 <Item title="ThemeToggle" type="component" {path}>
@@ -19,8 +30,10 @@
 	</div>
 
 	<Example {example}>
-		<div class="result" id="theme-in" class:dark={$theme == 'dark'}>
-			<ThemeToggle />
+		<div class:dark={$theme == 'dark'} class="result" id="theme-in">
+			<div on:click|stopPropagation|capture={handlePulse}>
+				<ThemeToggle />
+			</div>
 		</div>
 	</Example>
 </Item>

@@ -1,6 +1,6 @@
 <script>
-	import { scrollY } from '$examples/stores'
 	import { onMount, tick } from 'svelte'
+	import { pulse } from './lib_stores'
 	import { theme } from '$lib'
 
 	let themeIn, themeOut
@@ -36,13 +36,11 @@
 	}
 
 	$: {
-		$theme
+		$pulse
 		triggerPulse()
 	}
 
-	onMount(() => {
-		setTimeout(place, 0)
-	})
+	onMount(() => setTimeout(place, 1000))
 </script>
 
 <svelte:window on:resize={place} />
