@@ -46,6 +46,7 @@
 			disableTracker = false
 			grabEls()
 		}, 600)
+		menuOpen = false
 	}
 
 	let menuOpen = false
