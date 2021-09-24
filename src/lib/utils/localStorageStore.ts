@@ -38,9 +38,9 @@ const getAsync = async (key: string): Promise<JSON> => {
  * @param value - The initial value of the store.
  * @returns a writable store.
  * @example
- * const store = asyncLocalStorageStore('foo', 'bar')
+ * const store = localStorageStore('foo', 'bar')
  */
-export const asyncLocalStorageStore = (key: string, value: unknown): Writable<unknown> => {
+export const localStorageStore = (key: string, value: unknown): Writable<unknown> => {
 	const { set: setStore, ...readableStore } = writable(value, () => {
 		if (!browser) return
 
@@ -90,4 +90,4 @@ export const asyncLocalStorageStore = (key: string, value: unknown): Writable<un
 	return { ...readableStore, set }
 }
 
-export default asyncLocalStorageStore
+export default localStorageStore

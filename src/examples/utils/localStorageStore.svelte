@@ -1,9 +1,9 @@
 <script lang="ts">
 	import Example from '$examples/_lib.svelte/Item/Example.svelte'
 	import Params from '$examples/_lib.svelte/Item/Params.svelte'
-	import { asyncLocalStorageStore, OnMount } from '$lib'
-	import { fade } from 'svelte/transition'
 	import Item from '../_lib.svelte/Item/Item.svelte'
+	import { localStorageStore, OnMount } from '$lib'
+	import { fade } from 'svelte/transition'
 
 	const params = [
 		{
@@ -23,9 +23,9 @@
 	]
 
 	const example = `<script>
-	import { asyncLocalStorageStore } from 'fractils'
+	import { localStorageStore } from 'fractils'
     
-    const theme = asyncLocalStorageStore('count', 0)
+    const theme = localStorageStore('count', 0)
 <\/script>
 
 <div on:click='{() => $count++}'>+<\/div>
@@ -33,12 +33,12 @@
 <div on:click='{() => $count--}'>-<\/div>
 `
 
-	const count = asyncLocalStorageStore('count', 1)
+	const count = localStorageStore('count', 1)
 
-	const path = 'utils/asyncLocalStorageStore.ts'
+	const path = 'utils/localStorageStore.ts'
 </script>
 
-<Item title="asyncLocalStorageStore" type="store" {path}>
+<Item title="localStorageStore" type="store" {path}>
 	<div class="description" slot="description">
 		A Svelte store that persists to localStorage.
 		<Params {params} />

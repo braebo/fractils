@@ -3,7 +3,7 @@
 </script>
 
 <script lang="ts">
-	import AsyncLocalStorageStore from '$examples/utils/AsyncLocalStorageStore.svelte'
+	import localStorageStore from '$examples/utils/localStorageStore.svelte'
 	import ThemeToggle from '$examples/components/ThemeToggleExample.svelte'
 	import ThemePulse from '$examples/_lib.svelte/ThemePulse.svelte'
 	import ClickOutside from '$examples/actions/ClickOutside.svelte'
@@ -30,7 +30,7 @@
 
 <Device />
 
-<AsyncLocalStorageStore />
+<localStorageStore />
 
 <Log />
 

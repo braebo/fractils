@@ -7,6 +7,6 @@ export { mobile, screenH, screenW, scrollY } from './stores'
 
 export { default as Fractils } from './stores/device.svelte'
 
-export { log, wait, asyncLocalStorageStore } from './utils'
+export { log, wait, localStorageStore } from './utils'
 
 export { clickOutside, lazyLoad } from './actions'
