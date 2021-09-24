@@ -3,7 +3,7 @@
 </script>
 
 <script lang="ts">
-	import localStorageStore from '$examples/utils/localStorageStore.svelte'
+	import LocalStorageStore from '$examples/utils/LocalStorageStore.svelte'
 	import ThemeToggle from '$examples/components/ThemeToggleExample.svelte'
 	import ThemePulse from '$examples/_lib.svelte/ThemePulse.svelte'
 	import ClickOutside from '$examples/actions/ClickOutside.svelte'
@@ -12,8 +12,6 @@
 	import Theme from '$examples/utils/Theme.svelte'
 	import Wait from '$examples/utils/Wait.svelte'
 	import Log from '$examples/utils/Log.svelte'
-
-	// import '$lib/css/underline.scss'
 </script>
 
 <h2 id="actions"><a class="double-under" href="#actions">actions</a></h2>
@@ -30,7 +28,7 @@
 
 <Device />
 
-<localStorageStore />
+<LocalStorageStore />
 
 <Log />
 
