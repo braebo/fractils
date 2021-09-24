@@ -1,23 +1,29 @@
 <script>
 	import { scrollY } from '$examples/stores'
-	import { onMount } from 'svelte'
+	import { onMount, tick } from 'svelte'
 	import { theme } from '$lib'
 
 	let themeIn, themeOut
 	let startY, startX, endY, endX
-	const h = 750
+	let h = 0
 	const w = 200
+	let ready = false
 
-	function place() {
+	async function place() {
+		await tick()
 		themeIn = document.getElementById('theme-in')?.getBoundingClientRect()
 		themeOut = document.getElementById('theme-out')?.getBoundingClientRect()
 
 		if (themeIn && themeOut) {
-			startY = Math.floor(themeIn.top + themeOut.height / 2 + $scrollY)
+			const docTop = document.documentElement.scrollTop
+			startY = Math.floor(themeIn.top + themeOut.height / 2 + docTop)
 			startX = Math.floor(themeIn.left - w - 30)
-			endY = themeOut.top + themeOut.height / 2
-			endX = themeOut.left
+			endY = Math.floor(themeOut.top + themeOut.height / 2 + docTop)
+			endX = Math.floor(themeOut.left)
+			h = endY - startY
 		}
+
+		if (!ready) ready = true
 	}
 
 	let pulsate, timer
@@ -35,26 +41,26 @@
 	}
 
 	onMount(() => {
-		setTimeout(place, 50)
+		setTimeout(place, 0)
 	})
 </script>
 
 <svelte:window on:resize={place} />
 
-{#if themeIn}
+{#if themeIn && ready}
 	{#key $theme}
 		<div
 			class="pulsewrapper"
 			style="
-            left: {startX}px;
-            top: {startY}px;
+		left: {startX}px;
+		top: {startY}px;
         "
 		>
 			<svg
 				id="pulse"
 				style="
-                width: {w}px;
-                height: {h}px;
+		width: {w}px;
+		height: {h}px;
             "
 				viewBox="0 0 {w} {h}"
 				preserveAspectRatio="none"
@@ -74,6 +80,8 @@
 					stroke="yellow"
 					stroke-width="3"
 				/>
+				<circle cx={10} cy={startY} r="50" fill="red" />
+				<circle cx={10} cy={endY} r="50" fill="red" />
 			</svg>
 		</div>
 	{/key}
@@ -82,13 +90,9 @@
 <style lang="scss">
 	.pulsewrapper {
 		position: absolute;
-		// inset: 0;
 	}
 	#pulse {
 		position: absolute;
-
-		width: 500px;
-		height: 500px;
 
 		stroke-dashoffset: 15%;
 	}
