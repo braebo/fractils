@@ -1,9 +1,9 @@
 <script>
-	import Example from '$examples/_lib.svelte/Item/Example.svelte'
-	import Params from '$examples/_lib.svelte/Item/Params.svelte'
-	import { pulse } from '$examples/_lib.svelte/lib_stores'
+	import Example from '$examples/_lib/Item/Example.svelte'
+	import Params from '$examples/_lib/Item/Params.svelte'
+	import { pulse } from '$examples/_lib/lib_stores'
 	import { ThemeToggle, theme, toggleTheme } from '$lib'
-	import Item from '../_lib.svelte/Item/Item.svelte'
+	import Item from '../_lib/Item/Item.svelte'
 
 	const example = `<script>
     import { ThemeToggle } from 'fractils'

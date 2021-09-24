@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Example from '$examples/_lib.svelte/Item/Example.svelte'
-	import Params from '$examples/_lib.svelte/Item/Params.svelte'
-	import Item from '../_lib.svelte/Item/Item.svelte'
+	import Example from '$examples/_lib/Item/Example.svelte'
+	import Params from '$examples/_lib/Item/Params.svelte'
+	import Item from '../_lib/Item/Item.svelte'
 	import { localStorageStore, OnMount } from '$lib'
 	import { fade } from 'svelte/transition'
 

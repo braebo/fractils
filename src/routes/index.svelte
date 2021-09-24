@@ -5,7 +5,7 @@
 <script lang="ts">
 	import LocalStorageStore from '$examples/utils/LocalStorageStore.svelte'
 	import ThemeToggle from '$examples/components/ThemeToggleExample.svelte'
-	import ThemePulse from '$examples/_lib.svelte/ThemePulse.svelte'
+	import ThemePulse from '$examples/_lib/ThemePulse.svelte'
 	import ClickOutside from '$examples/actions/ClickOutside.svelte'
 	import OnMount from '$examples/components/OnMount.svelte'
 	import Device from '$examples/stores/Device.svelte'

@@ -1,7 +1,7 @@
 <script lang="ts">
-	import Example from '$examples/_lib.svelte/Item/Example.svelte'
-	import Item from '$examples/_lib.svelte/Item/Item.svelte'
-	import Params from '$examples/_lib.svelte/Item/Params.svelte'
+	import Example from '$examples/_lib/Item/Example.svelte'
+	import Item from '$examples/_lib/Item/Item.svelte'
+	import Params from '$examples/_lib/Item/Params.svelte'
 	import { onMount } from 'svelte'
 
 	let _clickOutside

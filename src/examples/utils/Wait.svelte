@@ -1,8 +1,8 @@
 <script>
-	import Item from '../_lib.svelte/Item/Item.svelte'
+	import Item from '../_lib/Item/Item.svelte'
 	import { wait } from '$lib'
-	import Example from '$examples/_lib.svelte/Item/Example.svelte'
-	import Params from '$examples/_lib.svelte/Item/Params.svelte'
+	import Example from '$examples/_lib/Item/Example.svelte'
+	import Params from '$examples/_lib/Item/Params.svelte'
 	const example = `<script>
 	import { wait } from 'fractils'
     
