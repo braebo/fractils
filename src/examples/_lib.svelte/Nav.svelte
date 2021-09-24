@@ -5,7 +5,7 @@
 	import { mobile, clickOutside } from '$lib'
 	import { quintOut } from 'svelte/easing'
 
-	const paths = ['actions', 'components', 'utils']
+	const paths = ['actions', 'components', 'utils', 'theme']
 	let els: HTMLElement[] | [] = []
 	function grabEls() {
 		els = []
@@ -19,7 +19,7 @@
 	}
 
 	onMount(() => {
-		grabEls()
+		setTimeout(grabEls, 0)
 	})
 
 	$: active = 0
@@ -46,7 +46,9 @@
 			disableTracker = false
 			grabEls()
 		}, 600)
-		menuOpen = false
+		if (menuOpen) menuOpen = false
+		const here = document.location.toString().split('#')[0]
+		document.location = here + '#' + [paths[i]]
 	}
 
 	let menuOpen = false
@@ -72,7 +74,7 @@
 				in:fly={{ x: -30, easing: quintOut, delay: 100 * i, duration: 1000 }}
 				class:mobile={$mobile}
 				class:active={active === i}
-				on:click|capture={(e) => handleClick(i)}
+				on:click|capture|preventDefault={(e) => handleClick(i)}
 			>
 				<a href="#{path}">{path}</a>
 			</li>
