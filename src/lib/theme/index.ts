@@ -43,7 +43,7 @@ export const initTheme = async (): Promise<void> => {
 }
 
 /**
- * Toggles to and from light / dark mode
+ * Toggles {@link theme} to and from light / dark mode
  */
 export const toggleTheme = (): void => {
 	const activeTheme = theme ? get(theme) : initialTheme
