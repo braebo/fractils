@@ -1,8 +1,8 @@
 <script lang="ts">
 	import Example from '$examples/_lib/Item/Example.svelte'
 	import Params from '$examples/_lib/Item/Params.svelte'
-	import { pulse } from '$examples/_lib/lib_stores'
 	import { theme, applyTheme, toggleTheme } from '$lib'
+	import { pulse } from '$examples/_lib/lib_stores'
 	import Item from '../_lib/Item/Item.svelte'
 
 	const params = [

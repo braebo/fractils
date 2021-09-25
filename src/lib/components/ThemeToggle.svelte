@@ -1,25 +1,21 @@
-<script lang="ts" context="module">
+<script>
 	import { expoOut } from 'svelte/easing'
 	import { fly } from 'svelte/transition'
 	import { browser } from '$app/env'
 	import { onMount } from 'svelte'
 
-	let _theme,
-		_initTheme = () => {},
-		_toggleTheme = () => {},
-		unsubscribe = () => {},
-		ready = false
+	let theme, currentTheme
+	let initTheme = () => {}
+	let toggleTheme = () => {}
+	let unsubscribe = () => {}
+	let ready = false
 
 	const load = async () => {
-		if (browser) {
-			const { theme, initTheme, toggleTheme } = await import('../theme')
-			unsubscribe = theme.subscribe((value) => {
-				_theme = value
-			})
-			_initTheme = initTheme
-			_toggleTheme = toggleTheme
-			ready = true
-		}
+		const t = await import('../theme')
+		theme = t.theme
+		unsubscribe = theme.subscribe((v) => (currentTheme = v))
+		initTheme = t.initTheme
+		toggleTheme = t.toggleTheme
 	}
 
 	/**
@@ -29,34 +25,33 @@
 	export const init = true
 
 	export const config = { y: -35, duration: 1000, easing: expoOut }
-</script>
 
-<script>
 	onMount(async () => {
 		if (init && browser) {
 			await load()
-			_initTheme()
+			initTheme()
+			ready = true
 		}
 		return unsubscribe
 	})
 </script>
 
-{#if ready}
-	<div class="wrapper" on:click={_toggleTheme}>
+<div class="wrapper" on:click={toggleTheme}>
+	{#if ready && currentTheme}
 		<slot>
-			{#key $_theme}
+			{#key currentTheme}
 				<div class="icon" transition:fly={config}>
-					{#if $_theme === 'light'}
+					{#if currentTheme === 'light'}
 						<slot name="light">🔆</slot>
 					{/if}
-					{#if $_theme === 'dark'}
+					{#if currentTheme === 'dark'}
 						<slot name="dark">🌙</slot>
 					{/if}
 				</div>
 			{/key}
 		</slot>
-	</div>
-{/if}
+	{/if}
+</div>
 
 <style>
 	.wrapper {

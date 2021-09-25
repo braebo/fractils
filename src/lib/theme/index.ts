@@ -3,13 +3,10 @@ import { get, writable } from 'svelte/store'
 import { log } from '../utils/log'
 import { browser } from '$app/env'
 
-const initialTheme = () => {
-	if (!browser) return
-	else
-		return globalThis.localStorage && 'theme' in localStorage
-			? localStorage.getItem('theme')
-			: 'dark'
-}
+const initialTheme =
+	browser && globalThis.localStorage && 'theme' in localStorage
+		? localStorage.getItem('theme')
+		: 'dark'
 
 export const theme: ReturnType<typeof writable> = localStorageStore('theme', initialTheme)
 
@@ -19,7 +16,7 @@ const detectSystemPreference = (e: MediaQueryListEvent) => applyTheme(e.matches 
  * Applies system preference theme and registers a listener for changes
  */
 export const initTheme = async (): Promise<void> => {
-	if (!browser) return
+	// if (!browser) return
 	log('Init theme()', 'white')
 	window
 		?.matchMedia('(prefers-color-scheme: dark)')
@@ -50,7 +47,7 @@ export const initTheme = async (): Promise<void> => {
  * Toggles {@link theme} to and from light / dark mode
  */
 export const toggleTheme = (): void => {
-	if (!browser) return
+	// if (!browser) return
 	const activeTheme = theme ? get(theme) : initialTheme
 	activeTheme == 'light' ? applyTheme('dark') : applyTheme('light')
 }
@@ -58,7 +55,7 @@ export const toggleTheme = (): void => {
 export const initComplete = writable(false)
 
 const applySystemTheme = (): void => {
-	if (!browser) return
+	// if (!browser) return
 	window?.matchMedia('(prefers-color-scheme: dark)').matches
 		? applyTheme('dark')
 		: applyTheme('light')
@@ -69,8 +66,8 @@ const applySystemTheme = (): void => {
  * @param newTheme - The theme to apply
  */
 export const applyTheme = (newTheme: string): void => {
-	if (!browser) return
-	document.documentElement.setAttribute('theme', newTheme)
+	// if (!browser) return
+	document?.documentElement?.setAttribute('theme', newTheme)
 	try {
 		theme?.set(newTheme)
 	} catch (err) {
