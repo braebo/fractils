@@ -1,11 +1,6 @@
 <script lang="ts" context="module">
-	// import { toggleTheme } from '$lib'
-	// import { initTheme } from '$lib'
-	// import { theme } from '$lib'
-
 	import { expoOut } from 'svelte/easing'
 	import { fly } from 'svelte/transition'
-	import { writable } from 'svelte/store'
 	import { browser } from '$app/env'
 	import { onMount } from 'svelte'
 
@@ -17,11 +12,7 @@
 
 	const load = async () => {
 		if (browser) {
-			// const t = await import('../theme')
 			const { theme, initTheme, toggleTheme } = await import('../theme')
-			console.log(theme)
-			console.log(initTheme)
-			console.log(toggleTheme)
 			unsubscribe = theme.subscribe((value) => {
 				_theme = value
 			})
