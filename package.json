@@ -22,7 +22,8 @@
 		"dev": "NODE_OPTIONS=\"--inspect\" svelte-kit dev",
 		"build": "rm -rf build && svelte-kit build",
 		"package": "svelte-kit package",
-		"release": "cd ./package && pnpm publish --tag next --access public --report-summary"
+		"release": "cd ./package && pnpm publish --tag next --access public --report-summary",
+		"preview": "svelte-kit preview"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-vercel": "^1.0.0-next.29",
