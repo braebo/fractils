@@ -1,7 +1,7 @@
 {
 	"name": "fractils",
 	"description": "some stuff I often use",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"author": "Braden Wiggins",
 	"license": "MIT",
 	"type": "module",

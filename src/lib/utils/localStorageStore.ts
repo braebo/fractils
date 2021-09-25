@@ -3,6 +3,7 @@ import { writable } from 'svelte/store'
 import { browser } from '$app/env'
 
 const setAsync = async (key: string, value: unknown): Promise<void> => {
+	if (!browser) return
 	return Promise.resolve().then(() => {
 		typeof value != 'string'
 			? localStorage.setItem(key, JSON.stringify(value))
@@ -10,24 +11,26 @@ const setAsync = async (key: string, value: unknown): Promise<void> => {
 	})
 }
 
-const getAsync = async (key: string): Promise<JSON> => {
-	return Promise.resolve().then(() => {
-		const value = localStorage.getItem(key)
-		//? Return object if valid json
-		if (value)
-			try {
-				const object = JSON.parse(value)
-				if (object && typeof object === 'object') {
-					return object
+const getAsync = async (key: string): Promise<JSON | null> => {
+	if (browser) {
+		return Promise.resolve().then(() => {
+			const value = localStorage.getItem(key)
+			//? Return object if valid json
+			if (value)
+				try {
+					const object = JSON.parse(value)
+					if (object && typeof object === 'object') {
+						return object
+					}
+				} catch (e) {
+					null //? discard error
 				}
-			} catch (e) {
-				null //? discard error
-			}
-		//? Make sure booleans aren't returned as strings
-		if ((typeof value == 'string' && value == 'true') || value == 'false')
-			return value === 'true'
-		return value
-	})
+			//? Make sure booleans aren't returned as strings
+			if ((typeof value == 'string' && value == 'true') || value == 'false')
+				return value === 'true'
+			return value
+		})
+	} else return null
 }
 
 // Adapted from https://svelte.dev/repl/7b4d6b448f8c4ed2b3d5a3c31260be2a?version=3.34.0
