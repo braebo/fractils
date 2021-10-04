@@ -28,6 +28,22 @@
 	 * Tracks the users scroll position.
 	 */
 	export const scrollY = writable(0)
+
+	/**
+	 * Tracks the users mouse position.
+	 * @param {number} x - The x position of the mouse.
+	 * @param {number} y - The y position of the mouse.
+	 */
+	export const mouse = writable({ x: 0, y: 0 })
+
+	const mouseMove = (e: MouseEvent) => {
+		mouse.update((v) => ({ x: e.clientX, y: e.clientY }))
+	}
 </script>
 
-<svelte:window bind:innerHeight={$screenH} bind:innerWidth={$screenW} bind:scrollY={$scrollY} />
+<svelte:window
+	bind:innerHeight={$screenH}
+	bind:innerWidth={$screenW}
+	on:mousemove={mouseMove}
+	bind:scrollY={$scrollY}
+/>

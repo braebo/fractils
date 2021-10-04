@@ -3,7 +3,7 @@
 <script>
 	import Example from '$examples/_lib/Item/Example.svelte'
 	import Params from '$examples/_lib/Item/Params.svelte'
-	import { mobile, screenH, screenW, scrollY } from '$lib'
+	import { mobile, screenH, screenW, scrollY, mouse } from '$lib'
 
 	import Item from '../_lib/Item/Item.svelte'
 
@@ -17,6 +17,7 @@ mobile: {$mobile}
 screenH: {$screenH}
 screenW: {$screenW}
 scrollY: {$scrollY}
+mouse: \`\${$mouse.x}, \${$mouse.y}\`
 `
 
 	const example2 = `<script>
@@ -35,6 +36,7 @@ scrollY: {$scrollY}
 		screenW: $screenW,
 		screenH: $screenH,
 		scrollY: $scrollY,
+		mouse: `${$mouse.x}, ${$mouse.y}`,
 	}
 
 	const params = [
@@ -50,11 +52,6 @@ scrollY: {$scrollY}
 		},
 		{
 			type: 'store',
-			title: 'scrollY',
-			description: `Tracks the users scroll position.`,
-		},
-		{
-			type: 'store',
 			title: 'screenW',
 			description: `Tracks the screen width.`,
 		},
@@ -62,6 +59,16 @@ scrollY: {$scrollY}
 			type: 'store',
 			title: 'screenH',
 			description: `Tracks the screen height.`,
+		},
+		{
+			type: 'store',
+			title: 'scrollY',
+			description: `Tracks the users scroll position.`,
+		},
+		{
+			type: 'store',
+			title: 'mouse',
+			description: `Tracks the users mouse position.`,
 		},
 	]
 </script>
@@ -99,5 +106,8 @@ scrollY: {$scrollY}
 	}
 	:global(.device .inline) {
 		transform: translateY(-2px);
+	}
+	.value {
+		min-width: 75px;
 	}
 </style>
