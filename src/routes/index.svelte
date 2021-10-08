@@ -5,9 +5,10 @@
 <script lang="ts">
 	import LocalStorageStore from '$examples/utils/LocalStorageStore.svelte'
 	import ThemeToggle from '$examples/components/ThemeToggleExample.svelte'
-	import ThemePulse from '$examples/_lib/ThemePulse.svelte'
 	import ClickOutside from '$examples/actions/ClickOutside.svelte'
+	import ThemePulse from '$examples/_lib/ThemePulse.svelte'
 	import OnMount from '$examples/components/OnMount.svelte'
+	import MapRange from '$examples/utils/MapRange.svelte'
 	import Device from '$examples/stores/Device.svelte'
 	import Theme from '$examples/utils/Theme.svelte'
 	import Wait from '$examples/utils/Wait.svelte'
@@ -33,6 +34,8 @@
 <Log />
 
 <Wait />
+
+<MapRange />
 
 <h2 id="theme"><a class="double-under" href="#theme">theme</a></h2>
 
