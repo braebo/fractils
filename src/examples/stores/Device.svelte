@@ -35,7 +35,7 @@ mouse: \`\${$mouse.x}, \${$mouse.y}\`
 		mobile: $mobile,
 		screenW: $screenW,
 		screenH: $screenH,
-		scrollY: $scrollY,
+		scrollY: Math.floor($scrollY),
 		mouse: `${$mouse.x}, ${$mouse.y}`,
 	}
 
@@ -88,7 +88,7 @@ mouse: \`\${$mouse.x}, \${$mouse.y}\`
 	<Example example={example1} --h="283px" file="Example.svelte">
 		<div class="result">
 			<div class="grid">
-				{#each Object.entries(stores) as key, i}
+				{#each Object.entries(stores) as _, i}
 					<div class="store">
 						<div class="key">{Object.keys(stores)[i]}</div>
 						<div class="value">{Object.values(stores)[i]}</div>
