@@ -5,30 +5,6 @@
 	import { pulse } from '$examples/_lib/lib_stores'
 	import Item from '../_lib/Item/Item.svelte'
 
-	const params = [
-		{
-			type: 'store',
-			title: 'theme',
-			description: 'A writable, persistant store to manage the active theme.',
-		},
-		{
-			type: 'function',
-			title: 'initTheme',
-			description:
-				'Initializes theme from system preference or theme store and registers a prefers-media listener for changes.',
-		},
-		{
-			type: 'function',
-			title: 'toggleTheme',
-			description: `Toggles <span class="code inline">$theme</span> to and from light and dark mode.`,
-			child: {
-				type: 'param',
-				title: 'newTheme',
-				description: 'The theme to apply.',
-			},
-		},
-	]
-
 	const example = `<script>
     import { theme, initTheme } from 'fractils'
 	import { onMount } from 'svelte'
@@ -70,7 +46,7 @@
 	const path = 'theme/index.ts'
 </script>
 
-<Item title="Theme" type="store + functions" {path}>
+<Item title="theme" type="store + functions" {path}>
 	<div slot="description">
 		A series of utilitites for managing the active theme.
 		<Params
@@ -83,8 +59,7 @@
 				{
 					type: 'function',
 					title: 'initTheme',
-					description:
-						'Initializes theme from system preference or theme store and registers a prefers-media listener for changes.',
+					description: `Initializes theme from system preference or theme store and registers a prefers-media listener for changes.<br/><em>note: &lt;ThemeToggle /&gt; component does this for you.</em>`,
 				},
 			]}
 			--width="183px"
@@ -109,11 +84,13 @@
 				type: 'function',
 				title: 'applyTheme',
 				description: `Manually apply a specific theme.`,
-				child: {
-					type: 'param',
-					title: 'newTheme',
-					description: 'The theme to apply.',
-				},
+				children: [
+					{
+						type: 'param',
+						title: 'newTheme',
+						description: 'The theme to apply.',
+					},
+				],
 			},
 		]}
 		--width="183px"
