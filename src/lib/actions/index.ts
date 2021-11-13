@@ -1,2 +1,2 @@
-export * from './clickOutside';
-export * from './lazyLoad';
+export * from './clickOutside'
+export * from './visibility'

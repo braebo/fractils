@@ -9,4 +9,4 @@ export { log, wait, localStorageStore, mapRange } from './utils'
 
 export { default as Fractils } from './stores/Device.svelte'
 
-export { clickOutside, lazyLoad } from './actions'
+export { clickOutside, visibility } from './actions'
