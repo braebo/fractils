@@ -17,7 +17,7 @@ const createEvent = (name: Event, detail: Detail): CustomEvent<Detail> =>
  *
  * Observes an element's current viewport visibility and dispatches relevant events.
  *
- * @param {Options} options - Optional config (view, rootMargin, threshold, once)
+ * @param {Options} options - Optional config:
  * @param {HTMLElement} options.view - The root view (default: window)
  * @param {string} options.margin - Margin around root view - 'px' or '%' (default: '0px')
  * @param {number | number[]} options.threshold - % of pixels required in view to trigger event.  An array will trigger multiple events - '0-1' (default: 0)
