@@ -5,11 +5,6 @@
 	import { visibility } from '$lib/actions'
 	import { bounceOut } from 'svelte/easing'
 	import { fly } from 'svelte/transition'
-	import { onMount } from 'svelte'
-
-	// onMount(async () => {
-	// 	const { visibility } = await import('../../lib/actions/visibility')
-	// })
 
 	let visible,
 		scrollDir,
@@ -43,45 +38,45 @@
 		{
 			type: 'param',
 			title: 'options',
-			description: 'Optional config (view, rootMargin, threshold, once)',
+			description: 'Optional config:',
 			children: [
 				{
 					type: 'param',
 					title: 'view',
-					description: 'The root view (default: window)',
+					description: 'The root view.  Defaults to `window`.',
 				},
 				{
 					type: 'param',
 					title: 'margin',
-					description: "Margin around root view - 'px' or '%' (default: '0px')",
+					description: "Margin around root view - 'px' or '%'. Default '0px'.",
 				},
 				{
 					type: 'param',
 					title: 'threshold',
 					description:
-						"% of pixels required in view to trigger event.  An array will trigger multiple events - '0-1' (default: 0)",
+						"% of pixels required in view to trigger event.  An array will trigger multiple events - '0-1'.  Default 0.",
 				},
 				{
 					type: 'param',
 					title: 'once',
-					description: 'Whether to dispatch events only once (default: false)',
+					description: 'Whether to dispatch events only once. Default false.',
 				},
 			],
 		},
 		{
 			type: 'event',
 			title: 'change',
-			description: 'Triggered when the element enters or leaves view',
+			description: 'Triggered when the element enters or leaves view.',
 		},
 		{
 			type: 'event',
 			title: 'enter',
-			description: 'Triggered when the element enters view',
+			description: 'Triggered when the element enters view.',
 		},
 		{
 			type: 'event',
 			title: 'leave',
-			description: 'Triggered when the element leaves view',
+			description: 'Triggered when the element leaves view.',
 		},
 	]
 
