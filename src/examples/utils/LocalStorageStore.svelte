@@ -51,6 +51,7 @@
 			<div class="button" on:click={() => $count--}>-</div>
 		</div>
 	</Example>
+	<em>refresh the page and count will persist</em>
 </Item>
 
 <style>
@@ -96,5 +97,11 @@
 		width: 50px;
 
 		background: white;
+	}
+	em {
+		opacity: 0.65;
+		font-family: var(--mono);
+		transform: translateY(5px);
+		text-align: center;
 	}
 </style>
