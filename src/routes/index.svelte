@@ -6,6 +6,7 @@
 	import LocalStorageStore from '$examples/utils/LocalStorageStore.svelte'
 	import ThemeToggle from '$examples/components/ThemeToggleExample.svelte'
 	import ClickOutside from '$examples/actions/ClickOutside.svelte'
+	import Visibility from '$examples/actions/Visibility.svelte'
 	import ThemePulse from '$examples/_lib/ThemePulse.svelte'
 	import OnMount from '$examples/components/OnMount.svelte'
 	import MapRange from '$examples/utils/MapRange.svelte'
@@ -18,6 +19,8 @@
 <h2 id="actions"><a class="double-under" href="#actions">actions</a></h2>
 
 <ClickOutside />
+
+<Visibility />
 
 <h2 id="components">
 	<a class="double-under" href="#components">components</a>
