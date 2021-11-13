@@ -59,7 +59,7 @@
 	$: valueMapped = mapRange(value, 0, 100, -10, 10).toFixed(2)
 </script>
 
-<Item title="Map Range" type="function" {path}>
+<Item title="mapRange" type="function" {path}>
 	<div slot="description">
 		Maps a value from one range to another.
 
