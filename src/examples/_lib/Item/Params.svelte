@@ -1,7 +1,9 @@
 <script>
+	import { children } from 'svelte/internal'
+
 	export let params = []
 
-	const hasChild = (p) => p.child != undefined
+	const hasChild = (p) => p.children != undefined
 </script>
 
 {#each params as p}
@@ -16,27 +18,34 @@
 						<div>{p.title}</div>
 					{/if}
 				</div>
-				<!-- — -->
 				<div class="seperator" />
 			</div>
 			<div class="description">{@html p.description}</div>
 		</div>
-		{#if p.child}
-			<!-- <svelte:self params={[p.child]} /> -->
-			<div class="param indented">
-				<div class="connector" />
-				<div class="row">
-					<div class="key type">
-						<div class="code">{p.child.type}</div>
+		{#if p.children}
+			{#each p.children as child, i}
+				<div class="param indented">
+					{#if i === 0}<div
+							class="connector"
+							style="height: {20 *
+								(p.children.length > 1
+									? p.children.length * 1.95
+									: p.children.length)}px !important"
+						/>{/if}
+					<div class="row">
+						<div class="keys row">
+							<div class="key type">
+								<div class="code">{child.type}</div>
+							</div>
+							<div class="key title">
+								<div>{child.title}</div>
+							</div>
+							<div class="seperator" />
+						</div>
+						<div class="description">{@html child.description}</div>
 					</div>
-					<div class="key title">
-						<div>{p.child.title}</div>
-					</div>
-					<!-- — -->
-					<div class="seperator" />
 				</div>
-				<div class="description">{@html p.child.description}</div>
-			</div>
+			{/each}
 		{/if}
 	</div>
 {/each}
@@ -99,6 +108,11 @@
 		transform: translate(-4px, 2px) scaleX(0.5);
 	}
 
+	:global(.description em) {
+		opacity: 0.5;
+		font-family: var(--mono);
+	}
+
 	.col {
 		position: relative;
 		flex-direction: column;
@@ -121,11 +135,11 @@
 
 	.connector {
 		position: absolute !important;
-		bottom: 10px;
+		top: -5px;
 		left: -15px;
 		z-index: 1;
 
-		height: 20px;
+		// height: 20px;
 		width: 10px;
 
 		border: 2px solid var(--text-a);
