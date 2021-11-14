@@ -32,7 +32,7 @@
  <\/div>
 `
 
-	const path = 'actions/visibility/visibility.ts'
+	const path = 'actions/visibility/index.ts'
 
 	const params = [
 		{
