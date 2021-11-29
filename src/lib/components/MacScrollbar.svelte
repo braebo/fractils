@@ -46,7 +46,6 @@
 
 <svelte:window on:scroll={update} />
 
-<!-- <pre>{JSON.stringify(debugObj, null, 2)}</pre> -->
 <div
 	class:reveal
 	id="scrollbar"
@@ -66,7 +65,6 @@
 		height: 100%;
 	}
 	#scrollbar {
-		/* cursor: pointer; */
 		position: fixed;
 		right: 5px;
 		margin: auto;
@@ -83,12 +81,4 @@
 	.reveal {
 		opacity: 1 !important;
 	}
-
-	/* pre {
-		position: absolute;
-		left: 0;
-		top: 100px;
-		color: white;
-		z-index: 1;
-	} */
 </style>
