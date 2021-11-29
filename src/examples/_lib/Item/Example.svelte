@@ -51,6 +51,14 @@
 
 		background: var(--text-a);
 		border-radius: var(--border-radius);
+
+		&::-webkit-scrollbar {
+			display: none;
+			/* IE and Edge */
+			-ms-overflow-style: none;
+			/* Firefox */
+			scrollbar-width: none;
+		}
 	}
 
 	:global(code) {
