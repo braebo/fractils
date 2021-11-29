@@ -1,26 +1,26 @@
 <script>
 	import { onMount, tick } from 'svelte'
 	import { pulse } from './lib_stores'
-	import { theme } from '$lib'
+	import { theme, log } from '$lib'
 
-	let themeIn, themeOut
-	let startY, startX, endY, endX
+	let pulseBottom, pulseTop
+	let bottomY, bottomX, topY, topX
 	let h = 0
 	const w = 200
 	let ready = false
 
 	async function place() {
 		await tick()
-		themeIn = document.getElementById('theme-out')?.getBoundingClientRect()
-		themeOut = document.getElementById('theme-in')?.getBoundingClientRect()
+		pulseBottom = document.getElementById('theme-out')?.getBoundingClientRect()
+		pulseTop = document.getElementById('theme-in')?.getBoundingClientRect()
 
-		if (themeIn && themeOut) {
+		if (pulseBottom && pulseTop) {
 			const docTop = document.documentElement.scrollTop
-			startY = Math.floor(themeIn.top + themeOut.height / 2 + docTop)
-			startX = Math.floor(themeIn.left - w - 30)
-			endY = Math.floor(themeOut.top + themeOut.height / 2 + docTop)
-			endX = Math.floor(themeOut.left)
-			h = endY - startY
+			topY = Math.floor(pulseTop.top + pulseTop.height / 2 + docTop)
+			topX = Math.floor(pulseTop.left)
+			bottomY = Math.floor(pulseBottom.top + pulseTop.height / 2 + docTop)
+			bottomX = Math.floor(pulseBottom.left - w - 30)
+			h = topY - bottomY
 		}
 
 		if (!ready) ready = true
@@ -45,21 +45,18 @@
 
 <svelte:window on:resize={place} />
 
-{#if themeIn && ready}
+{#if pulseBottom && ready}
 	{#key $theme}
 		<div
 			class="pulsewrapper"
 			style="
-		left: {startX}px;
-		top: {startY}px;
+		left: {bottomX}px;
+		top: {bottomY}px;
         "
 		>
 			<svg
 				id="pulse"
-				style="
-		width: {w}px;
-		height: {h}px;
-            "
+				style="width: {w}px; height: {h}px;"
 				viewBox="0 0 {w} {h}"
 				preserveAspectRatio="none"
 				class:pulsate
@@ -78,8 +75,8 @@
 					stroke="yellow"
 					stroke-width="3"
 				/>
-				<circle cx={10} cy={startY} r="50" fill="red" />
-				<circle cx={10} cy={endY} r="50" fill="red" />
+				<circle cx={10} cy={bottomY} r="50" fill="red" />
+				<circle cx={10} cy={topY} r="50" fill="red" />
 			</svg>
 		</div>
 	{/key}
