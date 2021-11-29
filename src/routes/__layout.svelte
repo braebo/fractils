@@ -4,35 +4,32 @@
 	import '../prism.css'
 	import '../app.scss'
 
-	import { scrollY } from '$examples/stores'
+	import MacScrollbar from '$lib/components/MacScrollbar.svelte'
 	import Nav from '$examples/_lib/Nav.svelte'
-
+	import { scrollY } from '$examples/stores'
 	import { Fractils } from '$lib'
 </script>
 
-<Fractils />
+<template lang="pug">
 
-<svelte:window bind:scrollY={$scrollY} />
+	Fractils
+	
+	MacScrollbar
+	
+	header
+		h1 fractils
+		p.description
+			span utilities for sveltekit
 
-<div class="page">
-	<header>
-		<h1>fractils</h1>
-		<p class="description">
-			<span>utilities for sveltekit</span>
-		</p>
-	</header>
+	h2 npm i -D fractils
 
-	<h2>npm i -D fractils</h2>
+	Nav
 
-	<Nav />
+	slot
 
-	<slot />
-</div>
+</template>
 
 <style>
-	.page {
-		position: relative;
-	}
 	header {
 		padding-top: 0.5rem;
 
