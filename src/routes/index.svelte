@@ -5,6 +5,7 @@
 <script lang="ts">
 	import LocalStorageStore from '$examples/utils/LocalStorageStore.svelte'
 	import ThemeToggle from '$examples/components/ThemeToggleExample.svelte'
+	import MacScrollbar from '$examples/components/MacScrollbar.svelte'
 	import ClickOutside from '$examples/actions/ClickOutside.svelte'
 	import Visibility from '$examples/actions/Visibility.svelte'
 	import ThemePulse from '$examples/_lib/ThemePulse.svelte'
@@ -27,6 +28,8 @@
 </h2>
 
 <OnMount />
+
+<MacScrollbar />
 
 <h2 id="utils"><a class="double-under" href="#utils">utils</a></h2>
 
