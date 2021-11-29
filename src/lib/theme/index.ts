@@ -17,7 +17,7 @@ const detectSystemPreference = (e: MediaQueryListEvent) => applyTheme(e.matches 
  */
 export const initTheme = async (): Promise<void> => {
 	// if (!browser) return
-	log('Init theme()', 'white')
+	log('Init theme()', 'gray', 'transparent')
 	window
 		?.matchMedia('(prefers-color-scheme: dark)')
 		.addEventListener('change', detectSystemPreference)
@@ -27,7 +27,12 @@ export const initTheme = async (): Promise<void> => {
 			try {
 				const pref = get(theme)
 				if (pref) {
-					log('theme found in localStorage', 'white', '', 20)
+					log(
+						pref + ' theme found in localStorage',
+						pref == 'light' ? 'black' : 'white',
+						pref == 'light' ? 'white' : 'black',
+						20,
+					)
 					applyTheme(pref as string)
 				}
 			} catch (err) {

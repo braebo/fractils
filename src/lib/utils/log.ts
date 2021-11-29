@@ -12,7 +12,7 @@ import { dev } from '$app/env'
 export const log = (
 	msg: string | any,
 	color = 'lightblue',
-	bgColor = 'transparent',
+	bgColor = 'gray',
 	fontSize = 15,
 	css = '',
 ): void => {
