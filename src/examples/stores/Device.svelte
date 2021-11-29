@@ -1,10 +1,7 @@
-<!-- TODO: this wont work.. maybe we can make an init function for
-	use in __layout to attach listeners to the root layout..? -->
 <script>
+	import { mobile, screenH, screenW, scrollY, mouse } from '$lib'
 	import Example from '$examples/_lib/Item/Example.svelte'
 	import Params from '$examples/_lib/Item/Params.svelte'
-	import { mobile, screenH, screenW, scrollY, mouse } from '$lib'
-
 	import Item from '../_lib/Item/Item.svelte'
 
 	const example1 = `<script>
@@ -29,7 +26,7 @@ mouse: \`\${$mouse.x}, \${$mouse.y}\`
 <slot />
 `
 
-	const path = 'stores/device.svelte'
+	const path = 'stores/Device.svelte'
 
 	$: stores = {
 		mobile: $mobile,
