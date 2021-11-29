@@ -92,6 +92,7 @@
 
 			font-size: 0.95rem;
 			font-weight: bolder;
+			transform: translateY(-1.5px);
 
 			color: var(--text-a);
 			text-shadow: 0px 0px 1px var(--color-primary);
