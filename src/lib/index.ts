@@ -1,3 +1,4 @@
+export { default as MacScrollbar } from './components/MacScrollbar.svelte'
 export { default as ThemeToggle } from './components/ThemeToggle.svelte'
 export { default as OnMount } from './components/OnMount.svelte'
 
