@@ -1,6 +1,7 @@
 <script>
 	import { mapRange, scrollY } from '$lib'
 	import { onMount, tick } from 'svelte'
+	import { browser } from '$app/env'
 
 	export let root
 
@@ -9,6 +10,7 @@
 	let ratio, scrollbarHeight, scrollbarHeightRatio, scrollbarOffset, scrollPercentage
 
 	onMount(async () => {
+		if (!browser) return
 		if (!root) {
 			const userDefinedroot = document.querySelector('#scroll-root')
 			root = userDefinedroot ? userDefinedroot : document.getElementById('svelte')
@@ -62,21 +64,24 @@
 	}
 	:global(#scrollbar-root) {
 		flex-grow: 1;
+
 		height: 100%;
 	}
 	#scrollbar {
 		position: fixed;
 		right: 5px;
+		z-index: 9999;
+
 		margin: auto;
 		width: 7px;
 		height: var(--scrollbar-height);
+
 		background: #0007;
 		border-radius: 20px;
-		overflow: hidden;
 		opacity: 0;
-		transition: opacity 0.25s;
 
-		z-index: 9999;
+		overflow: hidden;
+		transition: opacity 0.25s;
 	}
 	.reveal {
 		opacity: 1 !important;
