@@ -1,15 +1,13 @@
 <script lang="ts">
-	// import { mapRange, scrollY } from '$lib'
+	import { mapRange } from '$lib/utils'
+	import { scrollY } from '$lib/stores'
 	import { onMount, tick } from 'svelte'
-
-	const mapRange = (value: number, x1: number, x2: number, y1: number, y2: number) =>
-		((value - x1) * (y2 - y1)) / (x2 - x1) + y1
 
 	export let root
 
 	let viewHeight, containerHeight
 
-	let ratio, scrollbarHeight, scrollbarHeightRatio, scrollbarOffset, scrollPercentage, scrollY
+	let ratio, scrollbarHeight, scrollbarHeightRatio, scrollbarOffset, scrollPercentage
 
 	onMount(async () => {
 		if (!root) {
@@ -30,7 +28,7 @@
 		scrollbarHeightRatio = parseFloat((scrollbarHeight / viewHeight).toFixed(4)) * 100
 		scrollbarOffset = viewHeight / scrollbarHeightRatio
 		containerHeight = root.getBoundingClientRect().height
-		scrollPercentage = mapRange(scrollY, 0, containerHeight, 0, 100)
+		scrollPercentage = mapRange($scrollY, 0, containerHeight, 0, 100)
 
 		showScrollbar()
 	}
@@ -47,7 +45,7 @@
 	}
 </script>
 
-<svelte:window on:scroll={() => update()} bind:scrollY />
+<svelte:window on:scroll={() => update()} />
 
 <div
 	class:reveal
