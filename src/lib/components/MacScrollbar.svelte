@@ -1,7 +1,6 @@
 <script>
 	import { mapRange, scrollY } from '$lib'
 	import { onMount, tick } from 'svelte'
-	import { browser } from '$app/env'
 
 	export let root
 
@@ -10,7 +9,6 @@
 	let ratio, scrollbarHeight, scrollbarHeightRatio, scrollbarOffset, scrollPercentage
 
 	onMount(async () => {
-		if (!browser) return
 		if (!root) {
 			const userDefinedroot = document.querySelector('#scroll-root')
 			root = userDefinedroot ? userDefinedroot : document.getElementById('svelte')
@@ -46,7 +44,7 @@
 	}
 </script>
 
-<svelte:window on:scroll={update} />
+<svelte:window on:scroll={() => update()} />
 
 <div
 	class:reveal
