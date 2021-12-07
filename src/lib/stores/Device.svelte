@@ -42,8 +42,8 @@
 </script>
 
 <svelte:window
+	on:mousemove={(e) => mouseMove(e)}
 	bind:innerHeight={$screenH}
 	bind:innerWidth={$screenW}
-	on:mousemove={mouseMove}
 	bind:scrollY={$scrollY}
 />
