@@ -1,33 +1,42 @@
 <script lang="ts">
-	import { mapRange } from '$lib/utils'
-	import { scrollY } from '$lib/stores'
+	import { scrollY, mobile } from '$lib/stores'
 	import { onMount, tick } from 'svelte'
+	import { mapRange } from '$lib/utils'
 
-	export let root
+	// TODO: Expand and document config options
+	export let root: string | Element | null = null
+	export let disabled: boolean
+	$: disabled = disabled || $mobile
 
-	let viewHeight, containerHeight
-
-	let ratio, scrollbarHeight, scrollbarHeightRatio, scrollbarOffset, scrollPercentage
+	let viewHeight,
+		containerHeight,
+		ratio,
+		scrollbarHeight,
+		scrollbarHeightRatio,
+		scrollbarOffset,
+		scrollPercentage
 
 	onMount(async () => {
+		if (typeof root === 'string') {
+			root = document.querySelector(root)
+		}
 		if (!root) {
 			const userDefinedroot = document.querySelector('#scroll-root')
 			root = userDefinedroot ? userDefinedroot : document.getElementById('svelte')
-		} else if (typeof root === 'string') {
-			root = document.querySelector(root)
 		}
-		root.id += ' scrollbar-root'
+		root!.id += ' scrollbar-root'
 		update()
 	})
 
 	async function update() {
+		if (disabled) return
 		await tick()
 		viewHeight = window.innerHeight
 		ratio = parseFloat((viewHeight / containerHeight).toFixed(3))
 		scrollbarHeight = Math.max(Math.round(viewHeight * ratio), 25)
 		scrollbarHeightRatio = parseFloat((scrollbarHeight / viewHeight).toFixed(4)) * 100
 		scrollbarOffset = viewHeight / scrollbarHeightRatio
-		containerHeight = root.getBoundingClientRect().height
+		containerHeight = (root as Element).getBoundingClientRect().height
 		scrollPercentage = mapRange($scrollY, 0, containerHeight, 0, 100)
 
 		showScrollbar()
@@ -47,11 +56,13 @@
 
 <svelte:window on:scroll={() => update()} />
 
-<div
-	class:reveal
-	id="scrollbar"
-	style="--scrollbar-height: {scrollbarHeight}px; top: {scrollPercentage}%"
-/>
+{#if !disabled}
+	<divspo
+		class:reveal
+		id="scrollbar"
+		style="--scrollbar-height: {scrollbarHeight}px; top: {scrollPercentage}%"
+	/>
+{/if}
 
 <style>
 	:global(body::-webkit-scrollbar) {

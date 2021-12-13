@@ -8,7 +8,7 @@ const initialTheme =
 		? localStorage.getItem('theme')
 		: 'dark'
 
-export const theme: ReturnType<typeof writable> = localStorageStore('theme', initialTheme)
+export const theme = localStorageStore('theme', initialTheme)
 
 const detectSystemPreference = (e: MediaQueryListEvent) => applyTheme(e.matches ? 'dark' : 'light')
 

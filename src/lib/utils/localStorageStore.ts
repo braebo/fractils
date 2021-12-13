@@ -2,7 +2,7 @@ import type { Writable } from 'svelte/store'
 import { writable } from 'svelte/store'
 import { browser } from '$app/env'
 
-const setAsync = async (key: string, value: unknown): Promise<void> => {
+const setAsync = async <T>(key: string, value: T): Promise<void> => {
 	if (!browser) return
 	return Promise.resolve().then(() => {
 		typeof value != 'string'
@@ -11,7 +11,7 @@ const setAsync = async (key: string, value: unknown): Promise<void> => {
 	})
 }
 
-const getAsync = async (key: string): Promise<JSON | null> => {
+const getAsync = async <T = any>(key: string): Promise<T | null> => {
 	if (browser) {
 		return Promise.resolve().then(() => {
 			const value = localStorage.getItem(key)
@@ -43,7 +43,7 @@ const getAsync = async (key: string): Promise<JSON | null> => {
  * @example
  * const store = localStorageStore('foo', 'bar')
  */
-export const localStorageStore = (key: string, value: unknown): Writable<unknown> => {
+export const localStorageStore = <T = any>(key: string, value: T): Writable<T> => {
 	const { set: setStore, ...readableStore } = writable(value, () => {
 		if (!browser) return
 
@@ -57,7 +57,7 @@ export const localStorageStore = (key: string, value: unknown): Writable<unknown
 	})
 
 	//? Set both localStorage and this Svelte store
-	const set = async (value: unknown) => {
+	const set = async (value: T) => {
 		setStore(value)
 		try {
 			await setAsync(key, value)
@@ -70,7 +70,7 @@ export const localStorageStore = (key: string, value: unknown): Writable<unknown
 
 	//? Synchronize the Svelte store with localStorage
 	const getAndSetFromLocalStorage = async () => {
-		let localValue: JSON | void | null = null
+		let localValue = null
 		localValue = await getAsync(key).catch((error) => {
 			console.error(
 				`the \`${key}\` store's value could not be restored from localStorage because of ${error}`,
