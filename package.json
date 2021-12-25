@@ -1,7 +1,7 @@
 {
 	"name": "fractils",
 	"description": "some stuff I often use",
-	"version": "1.0.15",
+	"version": "1.0.16",
 	"author": "Braden Wiggins",
 	"license": "MIT",
 	"type": "module",
@@ -27,29 +27,31 @@
 		"preview": "svelte-kit preview"
 	},
 	"devDependencies": {
-		"@sveltejs/adapter-vercel": "^1.0.0-next.31",
+		"@sveltejs/adapter-vercel": "^1.0.0-next.32",
 		"@sveltejs/kit": "next",
 		"@types/node": "^15.14.9",
 		"@typescript-eslint/eslint-plugin": "^4.33.0",
 		"@typescript-eslint/parser": "^4.33.0",
-		"fractils": "^1.0.7",
+		"eslint": "^8.5.0",
+		"fractils": "^1.0.15",
 		"greset": "^1.0.0",
 		"nodemon": "^2.0.15",
 		"npm-run-all": "^4.1.5",
+		"prettier": "^2.5.1",
 		"prismjs": "^1.25.0",
 		"pug": "^3.0.2",
-		"sass": "^1.43.5",
+		"sass": "^1.45.1",
 		"stylelint": "^13.13.1",
 		"stylelint-config-concentric-order": "^4.0.1",
 		"stylelint-config-prettier": "^8.0.2",
 		"stylelint-config-sass-guidelines": "^8.0.0",
 		"stylelint-order": "^4.1.0",
 		"stylelint-prettier": "^1.2.0",
-		"svelte": "^3.44.2",
-		"svelte-check": "^2.2.10",
-		"svelte-preprocess": "^4.9.8",
-		"svelte2tsx": "^0.4.10",
+		"svelte": "^3.44.3",
+		"svelte-check": "^2.2.11",
+		"svelte-preprocess": "^4.10.1",
+		"svelte2tsx": "^0.4.12",
 		"tslib": "^2.3.1",
-		"typescript": "^4.5.2"
+		"typescript": "^4.5.4"
 	}
 }

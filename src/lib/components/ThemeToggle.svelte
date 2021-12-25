@@ -42,10 +42,10 @@
 			{#key currentTheme}
 				<div class="icon" transition:fly={config}>
 					{#if currentTheme === 'light'}
-						<slot name="light">🔆</slot>
+						<slot name="light">🌙</slot>
 					{/if}
 					{#if currentTheme === 'dark'}
-						<slot name="dark">🌙</slot>
+						<slot name="dark">🔆</slot>
 					{/if}
 				</div>
 			{/key}
