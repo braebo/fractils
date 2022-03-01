@@ -27,10 +27,12 @@ export type ScrollDirection = {
 	horizontal?: Direction
 }
 
-export type Detail = {
+export type VisibilityEventDetail = {
 	isVisible: boolean
 	entry: IntersectionObserverEntry
 	scrollDirection: ScrollDirection
 	observe: (target: Element) => void
 	unobserve: (target: Element) => void
 }
+
+export type VisibilityEvent = CustomEvent<VisibilityEventDetail>;

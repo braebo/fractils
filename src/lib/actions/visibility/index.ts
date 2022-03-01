@@ -30,11 +30,13 @@ const createEvent = (name: Event, detail: Detail): CustomEvent<Detail> =>
  * @example
  *```svelte
  * <script>
+ * 	import type { VisibilityEvent } from 'fractils';
+ * 
  * 	let visible, scrollDir, options = {threshold: 0.25}
  *
- * 	function handleChange({ detail }) {
- * 		visible = e.detail.isVisible
- * 		scrollDir = e.detail.scrollDirection
+ * 	function handleChange(event: VisibilityEvent) {
+ * 		visible = event.detail.isVisible
+ * 		scrollDir = event.detail.scrollDirection
  * 	}
  * </script>
  *

@@ -11,3 +11,6 @@ export { log, wait, localStorageStore, mapRange } from './utils'
 export { default as Fractils } from './stores/Device.svelte'
 
 export { clickOutside, visibility } from './actions'
+
+import './actions/visibility/events.d.ts'
+export type { VisibilityEventDetail, VisibilityEvent } from './actions/visibility'
