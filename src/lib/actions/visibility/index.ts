@@ -1,6 +1,6 @@
 // adapted from https://github.com/maciekgrzybek/svelte-inview
 
-import type { Detail, Options, Position, ScrollDirection, Event } from './types'
+import type { VisibilityEventDetail, Options, Position, ScrollDirection, Event } from './types'
 import type { Action } from '../types'
 
 const defaultOptions: Options = {
@@ -10,8 +10,11 @@ const defaultOptions: Options = {
 	once: false,
 }
 
-const createEvent = (name: Event, detail: Detail): CustomEvent<Detail> =>
-	new CustomEvent(name, { detail })
+const dispatch = (node: HTMLElement, name: Event, detail: VisibilityEventDetail) => {
+	// Dispatch both the old and new event (semver)
+	node.dispatchEvent(new CustomEvent(name, { detail }))
+	node.dispatchEvent(new CustomEvent(`f-${name}`, { detail }))
+}
 
 /**
  *
@@ -30,21 +33,20 @@ const createEvent = (name: Event, detail: Detail): CustomEvent<Detail> =>
  * @example
  *```svelte
  * <script>
- * 	import type { VisibilityEvent } from 'fractils';
- * 
  * 	let visible, scrollDir, options = {threshold: 0.25}
  *
- * 	function handleChange(event: VisibilityEvent) {
- * 		visible = event.detail.isVisible
- * 		scrollDir = event.detail.scrollDirection
+ *  <!-- TypeScript users can import the VisibilityEvent or VisibilityEventDetail type -->
+ * 	function handleChange({ detail }) {
+ * 		visible = detail.isVisible
+ * 		scrollDir = detail.scrollDirection
  * 	}
  * </script>
  *
  * <div
  * 	use:visibility={options}
- * 	on:change={handleChange}
- * 	on:enter={doSomething}
- * 	on:leave={doSomethingElse}
+ * 	on:f-change={handleChange}
+ * 	on:f-enter={doSomething}
+ * 	on:f-leave={doSomethingElse}
  * 	class:visible
  * >
  * 	{scrollDir}
@@ -94,7 +96,7 @@ export function visibility(node: HTMLElement, options?: Options): ReturnType<Act
 						x: entry.boundingClientRect.x,
 					}
 
-					const detail: Detail = {
+					const detail: VisibilityEventDetail = {
 						isVisible: entry.isIntersecting,
 						entry,
 						scrollDirection,
@@ -102,14 +104,14 @@ export function visibility(node: HTMLElement, options?: Options): ReturnType<Act
 						unobserve,
 					}
 
-					node.dispatchEvent(createEvent('change', detail))
+					dispatch(node, 'change', detail)
 
 					if (entry.isIntersecting) {
-						node.dispatchEvent(createEvent('enter', detail))
+						dispatch(node, 'enter', detail)
 
 						once && _observer.unobserve(node)
 					} else {
-						node.dispatchEvent(createEvent('leave', detail))
+						dispatch(node, 'leave', detail)
 					}
 				})
 			},
