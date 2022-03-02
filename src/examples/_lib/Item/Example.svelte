@@ -1,6 +1,6 @@
 <script script lang="ts">
+	import { mobile } from '$lib/index'
 	import { onMount } from 'svelte'
-	import { mobile } from '$lib'
 
 	export let example = 'example'
 	export let result = true
