@@ -2,6 +2,7 @@
 	import Example from '$examples/_lib/Item/Example.svelte'
 	import Params from '$examples/_lib/Item/Params.svelte'
 	import Item from '$examples/_lib/Item/Item.svelte'
+	import type { VisibilityEvent } from '$lib/index'
 	import { visibility } from '$lib/actions'
 	import { bounceOut } from 'svelte/easing'
 	import { fly } from 'svelte/transition'
@@ -23,7 +24,7 @@
  	}
  <\/script>
 
- <div use:visibility={options} on:change={handleChange}>
+ <div use:visibility={options} on:f-change={handleChange}>
 	{#if visible}
  		<div in:fly={{ y: -20, easing: bounceOut }}>
 			going {scrollDir === 'down' ? '⬇' : '⬆'}
@@ -80,7 +81,7 @@
 		},
 	]
 
-	const handleChange = ({ detail }) => {
+	const handleChange = ({ detail }: VisibilityEvent) => {
 		visible = detail.isVisible
 		scrollDir = detail.scrollDirection.vertical
 	}
@@ -94,7 +95,7 @@
 	</div>
 
 	<Example example={example.replace('// ', '')} --h="382px">
-		<div class="visibility" use:visibility={options} on:change={handleChange}>
+		<div class="visibility" use:visibility={options} on:f-enter={handleChange}>
 			{#if visible}
 				<div in:fly={{ y: -20, delay: 250, duration: 1000, easing: bounceOut }}>
 					going {scrollDir === 'down' ? '⬇' : '⬆'}
