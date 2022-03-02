@@ -6,12 +6,12 @@
 	export let result = true
 	export let file: string | null = null
 
-	let Prism: any, highlightedExample: string, code: HTMLDivElement, pre: HTMLPreElement
+	let Prism: any, highlightedExample: string, code: HTMLElement, pre: HTMLPreElement
 
 	onMount(async () => {
 		const p = await import('prismjs')
 		Prism = await p.default
-		Prism.highlightAll()
+		// Prism.highlightAll()
 		highlightedExample = await Prism.highlight(example, Prism.languages.html, 'html')
 		code.style.opacity = '1'
 	})
@@ -29,9 +29,9 @@
 	{#if file}
 		<div class="file">{file}</div>
 	{/if}
-	<pre bind:this={pre}><code class="language-html" bind:this={code} class:mobile={$mobile}>
-	{#if highlightedExample}
-				{@html highlightedExample}
+
+	<pre bind:this={pre}><code class="language-html" bind:this={code} class:mobile={$mobile}
+			>{#if highlightedExample}{@html highlightedExample}
 			{/if}
 </code></pre>
 </div>
