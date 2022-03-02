@@ -1,4 +1,4 @@
-<script lang="ts">
+<script script lang="ts">
 	import { onMount } from 'svelte'
 	import { mobile } from '$lib'
 
@@ -29,11 +29,10 @@
 	{#if file}
 		<div class="file">{file}</div>
 	{/if}
-	<pre
-		bind:this={pre}><code class='language-html' bind:this={code} class:mobile={$mobile}>
+	<pre bind:this={pre}><code class="language-html" bind:this={code} class:mobile={$mobile}>
 	{#if highlightedExample}
-		{@html highlightedExample}
-	{/if}
+				{@html highlightedExample}
+			{/if}
 </code></pre>
 </div>
 
