@@ -1,4 +1,0 @@
-src/examples/_lib/ThemePulse.svelte
-src/examples/utils/Log.svelte
-.vercel_build_output/**
-.eslintrc.cjs
