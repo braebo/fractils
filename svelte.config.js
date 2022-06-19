@@ -15,6 +15,12 @@ const config = {
 				},
 			},
 		},
+		package: {
+			dir: 'dist',
+			exports: (file) => {
+				return file === 'index.ts'
+			},
+		},
 	},
 }
 
