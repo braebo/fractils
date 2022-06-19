@@ -1,5 +1,11 @@
 # fractils
 
+## 2.0.1
+
+### Patch Changes
+
+-   [fix] file path ([`a36e2f8`](https://github.com/FractalHQ/fractils/commit/a36e2f837870a1463b6b0edfbb9a53f0f8ab0221))
+
 ## 2.0.0
 
 ### Major Changes
