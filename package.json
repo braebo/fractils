@@ -23,7 +23,7 @@
 		"debug": "NODE_OPTIONS=\"--inspect\" svelte-kit dev",
 		"build": "rm -rf dist && svelte-kit build",
 		"package": "svelte-kit package",
-		"release": "pnpm package && rm ./dist/package.json && changeset release",
+		"release": "pnpm package && rm ./dist/package.json && changeset publish",
 		"preview": "svelte-kit preview"
 	},
 	"devDependencies": {
