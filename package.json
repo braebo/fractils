@@ -21,7 +21,7 @@
 	"scripts": {
 		"dev": "svelte-kit dev",
 		"debug": "NODE_OPTIONS=\"--inspect\" svelte-kit dev",
-		"build": "rm -rf build && svelte-kit build",
+		"build": "rm -rf dist && svelte-kit build",
 		"package": "svelte-kit package",
 		"release": "pnpm package && rm ./dist/package.json && changeset release",
 		"preview": "svelte-kit preview"
