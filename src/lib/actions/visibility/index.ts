@@ -19,8 +19,6 @@ const defaultOptions: Options = {
 }
 
 const dispatch = (node: HTMLElement, name: Event, detail: VisibilityEventDetail) => {
-	// Dispatch both the old and new event (semver)
-	node.dispatchEvent(new CustomEvent(name, { detail }))
 	node.dispatchEvent(new CustomEvent(`f-${name}`, { detail }))
 }
 
