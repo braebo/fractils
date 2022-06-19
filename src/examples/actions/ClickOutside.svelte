@@ -1,19 +1,15 @@
 <script lang="ts">
 	import Example from '$examples/_lib/Item/Example.svelte'
-	import Item from '$examples/_lib/Item/Item.svelte'
+	import { clickOutside } from '$lib/actions/clickOutside'
 	import Params from '$examples/_lib/Item/Params.svelte'
-	import { onMount } from 'svelte'
-
-	let _clickOutside
-	onMount(async () => {
-		const { clickOutside } = await import('../../lib/actions/clickOutside')
-		// @ts-ignore
-		_clickOutside = clickOutside
-	})
+	import Item from '$examples/_lib/Item/Item.svelte'
 
 	let clickedOutside = false
+
 	let timer: ReturnType<typeof setTimeout> | null = null
+
 	const handleClickOutside = (e: CustomEvent) => {
+		console.log(e.detail.target)
 		if (timer) clearTimeout(timer)
 		clickedOutside = true
 		timer = setTimeout(() => {
@@ -21,20 +17,27 @@
 		}, 1000)
 	}
 
-	const example = `<script>
+	const example = `<script lang="ts">
 	// import { clickOutside } from 'fractils'
 
 	let clickedOutside
 
-	function handleClickOutside() {
+	function handleClickOutside(e: CustomEvent) {
 		clickedOutside = true
-		setTimeout(() => { clickedOutside = false }, 1000)
+		console.log(e.detail.target) // the element that was clicked
 	}
 <\/script>
 
-<div use:clickOutside={handleClickOutside}>
-	clickedOutside: {clickedOutside}
+<div
+	use:clickOutside="{{ whitelist: ['notme'] }}"
+	on:outclick="{handleClickOutside}"
+>
+	
+	clickedOutside = {clickedOutside}
+
 </div>
+
+<div class="notme">🚫</div>
 `
 
 	const path = 'actions/clickOutside.ts'
@@ -42,25 +45,45 @@
 	const params = [
 		{
 			type: 'param',
-			title: 'callback',
-			description: 'The function to call',
+			title: 'whitelist',
+			description:
+				'Array of classnames.  If the click target element has one of these classes, it will not be considered an outclick.',
+		},
+		{
+			type: 'event',
+			title: 'outclick',
+			description: 'Fired when the user clicks outside of the element.',
+			children: [
+				{
+					type: 'detail',
+					title: 'target',
+					description:
+						'The element that was clicked.  Access with <span class="code" style="display: inline">e.detail.target</span>.',
+				},
+			],
 		},
 	]
 </script>
 
 <Item title="clickOutside" type="action" {path}>
 	<div slot="description">
-		Calls a function when the user clicks outside the element.
+		Emits an event when the user clicks outside the element. Great for modals.
 
 		<Params {params} />
 	</div>
 
 	<Example example={example.replace('// ', '')} --h="382px">
-		{#if _clickOutside}
-			<div class="clickoutside" class:clickedOutside use:_clickOutside={handleClickOutside}>
+		<div class="row">
+			<div
+				class="clickoutside"
+				class:clickedOutside
+				on:outclick={handleClickOutside}
+				use:clickOutside={{ whitelist: ['notme'] }}
+			>
 				clickedOutside = {clickedOutside}
 			</div>
-		{/if}
+			<div class="notme">🚫</div>
+		</div>
 	</Example>
 </Item>
 
@@ -70,11 +93,12 @@
 		align-items: center;
 		justify-content: center;
 
-		width: 90%;
+		width: 50%;
 		height: 50px;
-		margin: auto;
+		// margin: auto;
+		background: var(--text-a);
 
-		color: var(--text);
+		color: white;
 
 		transition: color 0.2s ease;
 
@@ -84,5 +108,26 @@
 	}
 	.clickedOutside {
 		color: var(--color-primary);
+	}
+
+	.row {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-around;
+		align-items: center;
+	}
+
+	.notme {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+
+		height: 50px;
+		width: 50px;
+
+		background: #ff634755;
+		filter: saturate(0);
+
+		user-select: none;
 	}
 </style>
