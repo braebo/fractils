@@ -23,7 +23,7 @@
 		"debug": "NODE_OPTIONS=\"--inspect\" svelte-kit dev",
 		"build": "rm -rf build && svelte-kit build",
 		"package": "svelte-kit package",
-		"release": "cd ./package && pnpm publish --tag latest --access public --report-summary",
+		"release": "pnpm package && rm ./dist/package.json && changeset release",
 		"preview": "svelte-kit preview"
 	},
 	"devDependencies": {
@@ -46,5 +46,14 @@
 		"svelte2tsx": "^0.5.9",
 		"tslib": "^2.4.0",
 		"typescript": "^4.6.3"
-	}
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": "./dist/index.js"
+	},
+	"svelte": "./dist/index.js",
+	"files": [
+		"./dist",
+		"LICENSE"
+	]
 }
