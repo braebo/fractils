@@ -13,7 +13,7 @@
 		Prism = await p.default
 		// Prism.highlightAll()
 		highlightedExample = await Prism.highlight(example, Prism.languages.html, 'html')
-		code.style.opacity = '1'
+		if (code) code.style.opacity = '1'
 	})
 
 	$: if (code && $mobile) {

@@ -17,12 +17,6 @@
 	import Log from '$examples/utils/Log.svelte'
 </script>
 
-<h2 id="actions"><a class="double-under" href="#actions">actions</a></h2>
-
-<ClickOutside />
-
-<Visibility />
-
 <h2 id="components">
 	<a class="double-under" href="#components">components</a>
 </h2>
@@ -50,6 +44,12 @@
 <Theme />
 
 <ThemeToggle />
+
+<h2 id="actions"><a class="double-under" href="#actions">actions</a></h2>
+
+<ClickOutside />
+
+<Visibility />
 
 <div class="buffer" style="min-height: 50px" />
 

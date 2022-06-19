@@ -23,7 +23,7 @@
 	]
 
 	const example = `<script>
-	import { localStorageStore } from 'fractils'
+	//import { localStorageStore } from 'fractils'
     
     const count = localStorageStore('count', 0)
 <\/script>
@@ -44,7 +44,7 @@
 		<Params {params} />
 	</div>
 
-	<Example {example} --h="260px">
+	<Example example={example.replace('//', '')} --h="260px">
 		<div class="result">
 			<div class="button" on:click={() => $count++}>+</div>
 			<OnMount><div class="count" in:fade={{ delay: 250 }}>{$count}</div></OnMount>

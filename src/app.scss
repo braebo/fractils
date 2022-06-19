@@ -6,7 +6,7 @@
 	--color-primary: #00bcd4;
 
 	--border-radius: 5px;
-	--bg-a: #8990a3;
+	--bg-a: #777d8f;
 	--text-a: #282a36;
 
 	--shadow-lg: 0px 5px 15px 2px rgba(0, 0, 0, 0.2);
@@ -19,7 +19,7 @@
 }
 
 body {
-	background: var(--text-a);
+	background: rgb(21, 22, 29) !important;
 	color: var(--text-a);
 }
 

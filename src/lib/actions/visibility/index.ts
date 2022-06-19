@@ -1,7 +1,15 @@
 // adapted from https://github.com/maciekgrzybek/svelte-inview
 
-import type { VisibilityEventDetail, Options, Position, ScrollDirection, Event } from './types'
-import type { Action } from '../types'
+import type { Action } from 'svelte/action'
+import type {
+	VisibilityEventDetail,
+	Options,
+	Position,
+	ScrollDirection,
+	Direction,
+	Event,
+} from './types'
+export type { VisibilityEventDetail, Options, Position, ScrollDirection, Direction, Event }
 
 const defaultOptions: Options = {
 	view: null,
@@ -11,8 +19,6 @@ const defaultOptions: Options = {
 }
 
 const dispatch = (node: HTMLElement, name: Event, detail: VisibilityEventDetail) => {
-	// Dispatch both the old and new event (semver)
-	node.dispatchEvent(new CustomEvent(name, { detail }))
 	node.dispatchEvent(new CustomEvent(`f-${name}`, { detail }))
 }
 
@@ -54,7 +60,7 @@ const dispatch = (node: HTMLElement, name: Event, detail: VisibilityEventDetail)
  *
  *```
  */
-export function visibility(node: HTMLElement, options?: Options): ReturnType<Action> | void {
+export const visibility: Action<HTMLElement, Options> = (node, options) => {
 	const { view, margin, threshold, once }: Options = {
 		...defaultOptions,
 		...options,
@@ -123,10 +129,13 @@ export function visibility(node: HTMLElement, options?: Options): ReturnType<Act
 		)
 
 		observer.observe(node)
+
 		return {
 			destroy() {
 				observer.unobserve(node)
 			},
 		}
 	}
+
+	return {}
 }

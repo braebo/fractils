@@ -8,13 +8,13 @@
 	export let disabled: boolean
 	$: disabled = disabled || $mobile
 
-	let viewHeight,
-		containerHeight,
-		ratio,
-		scrollbarHeight,
-		scrollbarHeightRatio,
-		scrollbarOffset,
-		scrollPercentage
+	let viewHeight: number,
+		containerHeight: number,
+		ratio: number,
+		scrollbarHeight: number,
+		scrollbarHeightRatio: number,
+		scrollbarOffset: number,
+		scrollPercentage: number
 
 	onMount(async () => {
 		if (typeof root === 'string') {
@@ -57,7 +57,7 @@
 <svelte:window on:scroll={() => update()} />
 
 {#if !disabled}
-	<divspo
+	<div
 		class:reveal
 		id="scrollbar"
 		style="--scrollbar-height: {scrollbarHeight}px; top: {scrollPercentage}%"
@@ -86,7 +86,7 @@
 		width: 7px;
 		height: var(--scrollbar-height);
 
-		background: #00000077;
+		background: var(--color, #555);
 		border-radius: 20px;
 		opacity: 0;
 

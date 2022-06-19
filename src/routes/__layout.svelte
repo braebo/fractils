@@ -1,5 +1,5 @@
 <script>
-	import 'greset/css/greset.css'
+	import 'greset/greset.css'
 
 	import '../prism.css'
 	import '../app.scss'
@@ -13,9 +13,9 @@
 <template lang="pug">
 
 	Fractils
-	
-	MacScrollbar
-	
+
+	MacScrollbar(--color='#555')
+
 	header
 		h1 fractils
 		p.description

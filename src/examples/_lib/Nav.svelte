@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { fly, fade } from 'svelte/transition'
-	import { onMount, tick } from 'svelte'
-	import Burger from './Burger.svelte'
 	import { mobile, clickOutside } from '$lib'
 	import { quintOut } from 'svelte/easing'
+	import { onMount, tick } from 'svelte'
+	import Burger from './Burger.svelte'
 
-	const paths = ['actions', 'components', 'utils', 'theme']
+	const paths = ['components', 'utils', 'theme', 'actions']
 	let els: HTMLElement[] | [] = []
 	function grabEls() {
 		els = []
@@ -64,10 +64,11 @@
 
 {#if !$mobile || menuOpen}
 	<ul
+		out:fade={{ duration: 200 }}
 		class:mobile={$mobile}
 		class:menuOpen
-		use:clickOutside={() => (menuOpen = false)}
-		out:fade={{ duration: 200 }}
+		use:clickOutside
+		on:outclick={() => (menuOpen = false)}
 	>
 		{#each paths as path, i}
 			<li

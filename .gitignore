@@ -1,9 +1,9 @@
 .vercel_build_output
-pnpm-lock.yaml
 node_modules
 .svelte-kit
 package
 build
+.dist
 dist
 .env
 dev

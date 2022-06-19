@@ -14,6 +14,15 @@ const config = {
 					$examples: resolve('./src/examples'),
 				},
 			},
+			optimizeDeps: {
+				exclude: ['fractils'],
+			},
+		},
+		package: {
+			dir: 'dist',
+			exports: (file) => {
+				return file === 'index.ts'
+			},
 		},
 	},
 }
