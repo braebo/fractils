@@ -18,7 +18,7 @@
 	const example = ` <script>
 	import { bounceOut } from 'svelte/easing'
 	import { fly } from 'svelte/transition'
-	import { visibility } from 'fractils'
+	//import { visibility } from 'fractils'
  	
 	let visible, scrollDir, options = {threshold: 0.75}
 
