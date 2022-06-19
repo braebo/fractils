@@ -1,38 +1,39 @@
-name: Publish
+name: Release
 
 on:
-  release:
-    types: [created]
+    push:
+        branches:
+            - main
 
 jobs:
-  test:
-    name: Test on NodeJS v${{ matrix.node-version }}
-    runs-on: ubuntu-latest
+    release:
+        if: github.repository == 'fractalhq/fractils'
+        name: Release
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout Repo
+              uses: actions/checkout@v2
+              with:
+                  # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
+                  fetch-depth: 0
 
-    strategy:
-      matrix:
-        node-version: [ 12.x, 14.x, 16.x ]
+            - name: Setup Node.js 16.x
+              uses: actions/setup-node@v2
+              with:
+                  node-version: 16.x
 
-    steps:
-      - uses: actions/checkout@v2
-      - name: Test on NodeJS v${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-      - run: npm i
-      - run: npm test
+            - name: Setup PNPM
+              uses: pnpm/action-setup@v2.0.1
+              with:
+                  version: 7.0.0
 
-  publish-npm:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 12.x
-          registry-url: https://registry.npmjs.org/
-      - run: npm i
-      - run: npm run build
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+            - name: Install Dependencies
+              run: pnpm install
+
+            - name: Create Release Pull Request
+              uses: changesets/action@v1
+              with:
+                  publish: pnpm package && changeset publish
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
