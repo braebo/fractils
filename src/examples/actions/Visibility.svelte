@@ -1,14 +1,18 @@
 <script lang="ts">
+	import type { Direction } from '$lib/actions/visibility'
+	import type { VisibilityEvent } from '$lib/index'
+
+	import { visibility } from '$lib/actions'
+
 	import Example from '$examples/_lib/Item/Example.svelte'
 	import Params from '$examples/_lib/Item/Params.svelte'
 	import Item from '$examples/_lib/Item/Item.svelte'
-	import type { VisibilityEvent } from '$lib/index'
-	import { visibility } from '$lib/actions'
+
 	import { bounceOut } from 'svelte/easing'
 	import { fly } from 'svelte/transition'
 
-	let visible,
-		scrollDir,
+	let visible: boolean,
+		scrollDir: Direction | undefined,
 		options = { threshold: 0.75 }
 
 	const example = ` <script>
@@ -24,7 +28,7 @@
  	}
  <\/script>
 
- <div use:visibility={options} on:f-change={handleChange}>
+ <div use:visibility={options} on:f-enter={handleChange}>
 	{#if visible}
  		<div in:fly={{ y: -20, easing: bounceOut }}>
 			going {scrollDir === 'down' ? '⬇' : '⬆'}
@@ -42,23 +46,23 @@
 			description: 'Optional config:',
 			children: [
 				{
-					type: 'param',
+					type: 'option',
 					title: 'view',
 					description: 'The root view.  Defaults to `window`.',
 				},
 				{
-					type: 'param',
+					type: 'option',
 					title: 'margin',
 					description: "Margin around root view - 'px' or '%'. Default '0px'.",
 				},
 				{
-					type: 'param',
+					type: 'option',
 					title: 'threshold',
 					description:
 						"% of pixels required in view to trigger event.  An array will trigger multiple events - '0-1'.  Default 0.",
 				},
 				{
-					type: 'param',
+					type: 'option',
 					title: 'once',
 					description: 'Whether to dispatch events only once. Default false.',
 				},
@@ -66,18 +70,41 @@
 		},
 		{
 			type: 'event',
-			title: 'change',
+			title: 'f-change',
 			description: 'Triggered when the element enters or leaves view.',
 		},
 		{
 			type: 'event',
-			title: 'enter',
+			title: 'f-enter',
 			description: 'Triggered when the element enters view.',
 		},
 		{
 			type: 'event',
-			title: 'leave',
+			title: 'f-leave',
 			description: 'Triggered when the element leaves view.',
+		},
+		{
+			type: 'event',
+			title: 'detail',
+			description: '',
+			children: [
+				{
+					type: 'boolean',
+					title: 'isVisible',
+					description: 'True if the element is currently in the viewport.',
+				},
+				{
+					type: 'element',
+					title: 'entry',
+					description: 'The element being observed.',
+				},
+				{
+					type: 'Direction',
+					title: 'scrollDirection',
+					description: `{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;horizontal:&nbsp;&nbsp; 'up' | 'down' | 'left' | 'right',<br>
+					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vertical:&nbsp;&nbsp; 'up' | 'down' | 'left' | 'right'<br>}`,
+				},
+			],
 		},
 	]
 

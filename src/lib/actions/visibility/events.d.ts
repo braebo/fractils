@@ -5,3 +5,10 @@ declare namespace svelte.JSX {
 		'onf-leave'?: (event: import('./types').VisibilityEvent) => void
 	}
 }
+
+declare type Direction = 'up' | 'down' | 'left' | 'right'
+
+declare type ScrollDirection = {
+	vertical?: Direction
+	horizontal?: Direction
+}

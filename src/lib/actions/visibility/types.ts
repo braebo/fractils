@@ -20,7 +20,7 @@ export type Position = {
 }
 
 // Types below needs to be manually copied to additional-svelte.jsx.d.ts file - more details there
-type Direction = 'up' | 'down' | 'left' | 'right'
+export type Direction = 'up' | 'down' | 'left' | 'right'
 
 export type ScrollDirection = {
 	vertical?: Direction
@@ -35,4 +35,4 @@ export type VisibilityEventDetail = {
 	unobserve: (target: Element) => void
 }
 
-export type VisibilityEvent = CustomEvent<VisibilityEventDetail>;
+export type VisibilityEvent = CustomEvent<VisibilityEventDetail>
