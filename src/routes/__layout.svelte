@@ -14,7 +14,7 @@
 
 	Fractils
 
-	MacScrollbar
+	MacScrollbar(--color='#555')
 
 	header
 		h1 fractils
