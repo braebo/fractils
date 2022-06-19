@@ -5,7 +5,6 @@
 	"author": "Braden Wiggins",
 	"license": "MIT",
 	"type": "module",
-	"module": "package/index.js",
 	"keywords": [
 		"fractils",
 		"utils"
@@ -50,9 +49,10 @@
 		"./package.json": "./package.json",
 		".": "./dist/index.js"
 	},
+	"types": "./index.d.ts",
 	"svelte": "./dist/index.js",
 	"files": [
-		"./dist",
+		"dist",
 		"LICENSE"
 	]
 }
