@@ -49,7 +49,7 @@
 		"./package.json": "./package.json",
 		".": "./dist/index.js"
 	},
-	"types": "./index.d.ts",
+	"types": "./dist/index.d.ts",
 	"svelte": "./dist/index.js",
 	"files": [
 		"dist",
