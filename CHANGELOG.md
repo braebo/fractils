@@ -1,5 +1,11 @@
 # fractils
 
+## 2.0.2
+
+### Patch Changes
+
+-   [fix] path to types ([`2f7fb10`](https://github.com/FractalHQ/fractils/commit/2f7fb10a8db83b71d2f6330705432a3d1dc77692))
+
 ## 2.0.1
 
 ### Patch Changes
