@@ -1,5 +1,13 @@
 # fractils
 
+## 2.0.3
+
+### Patch Changes
+
+-   [fix] export mobileThreshold and clickOutside types ([`bb4cd8c`](https://github.com/FractalHQ/fractils/commit/bb4cd8ca0693ff2b628088e8bf5b09e055bcb4cc))
+
+*   [fix] duplicate export ([`0052396`](https://github.com/FractalHQ/fractils/commit/005239692f4015dc7e52afbb5ce9155c12336120))
+
 ## 2.0.2
 
 ### Patch Changes
