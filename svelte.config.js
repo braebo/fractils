@@ -11,11 +11,12 @@ const config = {
 		alias: {
 			$examples: resolve('./src/examples'),
 		},
-		package: {
-			dir: 'dist',
-			exports: (file) => {
-				return file === 'index.ts'
-			},
+	},
+
+	package: {
+		dir: 'dist',
+		exports: (file) => {
+			return file === 'index.ts'
 		},
 	},
 

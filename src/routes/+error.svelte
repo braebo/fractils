@@ -1,25 +1,26 @@
-<script context="module" lang="ts">
-	import type { Load } from '@sveltejs/kit'
+<!-- <script context="module" lang="ts">
+	// throw new Error(
+	// 	'@migration task: Replace error load function (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3293209)',
+	// )
 
-	export const load: Load = ({ error, status }) => {
-		return {
-			props: {
-				status,
-				error,
-			},
-		}
-	}
-</script>
+	// import type { Load } from '@sveltejs/kit'
 
+	// export const load: Load = ({ error, status }) => {
+	// 	return {
+	// 		props: {
+	// 			status,
+	// 			error,
+	// 		},
+	// 	}
+	// }
+</script> -->
 <script lang="ts">
 	import FourOhFour from '../examples/_lib/FourOhFour.svelte'
-	import { dev } from '$app/env'
 	import { log } from '$lib/utils/log'
+	import { page } from '$app/stores'
+	import { dev } from '$app/env'
 
-	export let status: string
-	export let error: Record<string, any>
-
-	if (dev) console.log(error)
+	if (dev) console.log($page.error)
 
 	log('Testing 123', 'red', '#123')
 </script>
@@ -32,8 +33,8 @@
 		h1 {status}
 
 		.error
-			pre.message {error.message}
-			pre.stack {error.stack.split(error.message)[1]}
+			pre.message {$page.error.message}
+			pre.stack {$page.error.stack.split($page.error.message)[1]}
 	
 
 </template>

@@ -1,7 +1,3 @@
-<script context="module">
-	export const prerender = true
-</script>
-
 <script lang="ts">
 	import LocalStorageStore from '$examples/utils/LocalStorageStore.svelte'
 	import ThemeToggle from '$examples/components/ThemeToggleExample.svelte'
@@ -12,10 +8,10 @@
 	import OnMount from '$examples/components/OnMount.svelte'
 	import MapRange from '$examples/utils/MapRange.svelte'
 	import Device from '$examples/stores/Device.svelte'
+	import Clamp from '$examples/utils/Clamp.svelte'
 	import Theme from '$examples/utils/Theme.svelte'
 	import Wait from '$examples/utils/Wait.svelte'
 	import Log from '$examples/utils/Log.svelte'
-	import Clamp from '$examples/utils/Clamp.svelte'
 </script>
 
 <h2 id="components">
