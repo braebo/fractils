@@ -19,7 +19,6 @@
 		.error
 			pre.message {$page.error.message}
 			pre.stack {$page.error.stack.split($page.error.message)[1]}
-	
 
 </template>
 
