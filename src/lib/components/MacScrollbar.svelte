@@ -1,11 +1,26 @@
 <script lang="ts">
+	import { onDestroy, onMount, tick } from 'svelte'
 	import { scrollY, mobile } from '$lib/stores'
-	import { onMount, tick } from 'svelte'
 	import { mapRange } from '$lib/utils'
 
-	// TODO: Expand and document config options
+	/**
+	 * The scrollbar root element or it's query selector.
+	 * @default `document.body`
+	 */
 	export let root: string | Element | null = null
+
+	/**
+	 * Destroys the component.
+	 * @default `true` on mobile if not overridden.
+	 * @note This component only works on viewport-sized elements.
+	 */
 	export let disabled: boolean
+
+	/**
+	 * % of the scrollbar track to pad at the top and bottom.
+	 * @default `0.2`
+	 */
+	export const padding = 0.2
 	$: disabled = disabled || $mobile
 
 	let viewHeight: number,
@@ -21,8 +36,8 @@
 			root = document.querySelector(root)
 		}
 		if (!root) {
-			const userDefinedroot = document.querySelector('#scroll-root')
-			root = userDefinedroot ? userDefinedroot : document.getElementById('svelte')
+			const userDefinedroot = document.querySelector('#scrollbar-root')
+			root = userDefinedroot ?? document.body
 		}
 		root!.id += ' scrollbar-root'
 		update()
@@ -37,13 +52,13 @@
 		scrollbarHeightRatio = parseFloat((scrollbarHeight / viewHeight).toFixed(4)) * 100
 		scrollbarOffset = viewHeight / scrollbarHeightRatio
 		containerHeight = (root as Element).getBoundingClientRect().height
-		scrollPercentage = mapRange($scrollY, 0, containerHeight, 0, 100)
+		scrollPercentage = mapRange($scrollY, 0, containerHeight, 0 + padding, 100 - padding * 2)
 
 		showScrollbar()
 	}
 
 	let reveal = false
-	let timer: NodeJS.Timeout | null = null
+	let timer: NodeJS.Timeout
 
 	function showScrollbar() {
 		if (timer) clearTimeout(timer)
@@ -52,6 +67,8 @@
 			reveal = false
 		}, 1000)
 	}
+
+	onDestroy(() => clearTimeout(timer))
 </script>
 
 <svelte:window on:scroll={() => update()} />
@@ -65,18 +82,24 @@
 {/if}
 
 <style>
-	:global(body::-webkit-scrollbar) {
+	:global(#scrollbar-root) {
 		display: none;
 		/* IE and Edge */
 		-ms-overflow-style: none;
 		/* Firefox */
 		scrollbar-width: none;
-	}
-	:global(#scrollbar-root) {
+
 		flex-grow: 1;
 
 		height: 100%;
 	}
+
+	@-moz-document url-prefix() {
+		:global(html) {
+			scrollbar-width: none;
+		}
+	}
+
 	#scrollbar {
 		position: fixed;
 		right: 5px;
