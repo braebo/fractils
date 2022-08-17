@@ -7,8 +7,7 @@
 	const example = `<script>
 	import { clamp } from 'fractils'
 
-	let value = 50
-    $: valueMapped = clamp(value, 25, 75)
+    $: value = clamp(value ?? 50, 25, 75)
 <\/script>
 
 {value}
