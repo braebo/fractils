@@ -1,19 +1,3 @@
-<!-- <script context="module" lang="ts">
-	// throw new Error(
-	// 	'@migration task: Replace error load function (https://github.com/sveltejs/kit/discussions/5774#discussioncomment-3293209)',
-	// )
-
-	// import type { Load } from '@sveltejs/kit'
-
-	// export const load: Load = ({ error, status }) => {
-	// 	return {
-	// 		props: {
-	// 			status,
-	// 			error,
-	// 		},
-	// 	}
-	// }
-</script> -->
 <script lang="ts">
 	import FourOhFour from '../examples/_lib/FourOhFour.svelte'
 	import { log } from '$lib/utils/log'
@@ -29,8 +13,8 @@
 	
 	FourOhFour
 	
-	+if('dev && status != "404"')
-		h1 {status}
+	+if('dev && $page.status != "404"')
+		h1 {$page.status}
 
 		.error
 			pre.message {$page.error.message}
