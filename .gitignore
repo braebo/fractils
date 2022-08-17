@@ -1,6 +1,6 @@
-.vercel_build_output
 node_modules
 .svelte-kit
+.vercel
 package
 build
 .dist
