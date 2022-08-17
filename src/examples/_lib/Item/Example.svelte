@@ -11,7 +11,6 @@
 	onMount(async () => {
 		const p = await import('prismjs')
 		Prism = await p.default
-		// Prism.highlightAll()
 		highlightedExample = await Prism.highlight(example, Prism.languages.html, 'html')
 		if (code) code.style.opacity = '1'
 	})
@@ -31,8 +30,7 @@
 	{/if}
 
 	<pre bind:this={pre}><code class="language-html" bind:this={code} class:mobile={$mobile}
-			>{#if highlightedExample}{@html highlightedExample}
-			{/if}
+			>{#if highlightedExample}{@html highlightedExample.trim()}{/if}
 </code></pre>
 </div>
 
@@ -80,9 +78,8 @@
 
 		text-align: center;
 
+		background: var(--result-bg, var(--text-b));
 		border-radius: var(--border-radius);
-
-		background: white;
 	}
 
 	:global(.result:first-child) {
@@ -102,10 +99,7 @@
 
 		font-family: var(--mono);
 
-		/* font-size: 0.8rem; */
-
 		opacity: 0.5;
 		color: var(--bg-a);
-		/* background: pink; */
 	}
 </style>
