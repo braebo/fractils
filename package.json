@@ -1,7 +1,7 @@
 {
 	"name": "fractils",
 	"description": "some stuff I often use",
-	"version": "2.0.3",
+	"version": "2.0.4",
 	"author": "Braden Wiggins",
 	"license": "MIT",
 	"type": "module",
@@ -21,7 +21,7 @@
 		"dev": "vite dev",
 		"debug": "NODE_OPTIONS=\"--inspect\" vite dev",
 		"build": "rm -rf dist && vite build",
-		"package": "svelte-kit package",
+		"package": "svelte-package",
 		"release": "pnpm package && rm ./dist/package.json && changeset publish",
 		"preview": "vite preview"
 	},
@@ -29,6 +29,7 @@
 		"@changesets/cli": "^2.24.3",
 		"@sveltejs/adapter-vercel": "1.0.0-next.66",
 		"@sveltejs/kit": "1.0.0-next.418",
+		"@sveltejs/package": "1.0.0-next.1",
 		"@svitejs/changesets-changelog-github-compact": "^0.1.1",
 		"@types/node": "^18.7.6",
 		"greset": "2.0.0",
