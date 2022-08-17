@@ -48,7 +48,11 @@
 
 <Item title="theme" type="store + functions" {path}>
 	<div slot="description">
-		A series of utilitites for managing the active theme.
+		A series of utilitites for managing the active theme. <span
+			class="code"
+			style:display="inline">{'<ThemeToggle />'}</span
+		>
+		component manages all of this by default.
 		<Params
 			params={[
 				{
@@ -67,7 +71,12 @@
 	</div>
 
 	<Example {example}>
-		<div class="result" id="theme-out" class:dark={theme2 == 'dark'}>
+		<div
+			class="result"
+			id="theme-out"
+			class:dark={theme2 == 'dark'}
+			class:light={theme2 == 'light'}
+		>
 			{#key theme}{theme2}{/key}
 		</div>
 	</Example>
@@ -98,7 +107,12 @@
 
 	<br />
 	<Example example={example2}>
-		<div class="result" id="theme-in2" class:dark={theme2 == 'dark'}>
+		<div
+			class="result"
+			id="theme-in2"
+			class:dark={theme2 == 'dark'}
+			class:light={theme2 == 'light'}
+		>
 			{#key theme}
 				<div class="row">
 					<button on:click={() => applyTheme('light')}> Light </button>
@@ -122,6 +136,12 @@
 	.dark {
 		color: #ffffff;
 		background: #1d1d1d;
+		border-radius: var(--border-radius);
+	}
+
+	.light {
+		color: #1d1d1d;
+		background: #ffffff;
 		border-radius: var(--border-radius);
 	}
 

@@ -46,9 +46,9 @@
 
 	<Example example={example.replace('//', '')} --h="260px">
 		<div class="result">
-			<div class="button" on:click={() => $count++}>+</div>
-			<OnMount><div class="count" in:fade={{ delay: 250 }}>{$count}</div></OnMount>
 			<div class="button" on:click={() => $count--}>-</div>
+			<OnMount><div class="count" in:fade={{ delay: 250 }}>{$count}</div></OnMount>
+			<div class="button" on:click={() => $count++}>+</div>
 		</div>
 	</Example>
 	<em>refresh the page and count will persist</em>
@@ -58,6 +58,7 @@
 	:global(.example) {
 		min-height: 800px;
 	}
+
 	.result {
 		justify-content: space-between;
 		align-items: center;
@@ -74,6 +75,7 @@
 
 		border-radius: var(--border-radius);
 	}
+
 	.button {
 		width: 1.5rem;
 		height: 1.5rem;
@@ -87,17 +89,30 @@
 
 		cursor: pointer;
 		user-select: none;
+
+		transition: 0.3s;
 	}
+
 	.button:active {
 		filter: contrast(1.5);
 
 		transform: scale(0.95);
 	}
+
+	.button:hover {
+		outline: 1px solid white;
+	}
+
 	.count {
 		width: 50px;
+		height: 23px;
+		line-height: 23px;
 
-		background: white;
+		color: white;
+		background: var(--text-a);
+		border-radius: var(--border-radius);
 	}
+
 	em {
 		opacity: 0.65;
 		font-family: var(--mono);

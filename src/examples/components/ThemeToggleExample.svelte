@@ -41,7 +41,12 @@
 	</div>
 
 	<Example {example}>
-		<div class:dark={$theme == 'dark'} class="result" id="theme-in">
+		<div
+			class:dark={$theme == 'dark'}
+			class:light={$theme == 'light'}
+			class="result"
+			id="theme-in"
+		>
 			<div on:click|stopPropagation|capture={handlePulse}>
 				<ThemeToggle />
 			</div>
@@ -61,8 +66,15 @@
 		overflow: hidden;
 		transition: background-color 0.2s;
 	}
+
 	.dark {
 		background-color: #1d1d1d;
+		border-radius: var(--border-radius);
+	}
+
+	.light {
+		color: #1d1d1d;
+		background: #ffffff;
 		border-radius: var(--border-radius);
 	}
 </style>

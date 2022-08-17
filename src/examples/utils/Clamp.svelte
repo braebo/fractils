@@ -73,11 +73,8 @@
 		display: flex;
 
 		padding: 5px;
-
-		border: 1px solid #999999;
-		border-right: none;
-		border-left: none;
 	}
+
 	.col {
 		display: flex;
 		flex-direction: column;
@@ -86,6 +83,7 @@
 		width: 100%;
 		height: 75px;
 	}
+
 	.row {
 		display: flex;
 		justify-content: center;
@@ -97,7 +95,8 @@
 
 		text-align: center;
 
-		background: var(--bg-a);
+		background: var(--text-a);
+		color: white;
 	}
 
 	input {

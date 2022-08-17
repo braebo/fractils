@@ -95,7 +95,6 @@
 
 		width: 50%;
 		height: 50px;
-		// margin: auto;
 		background: var(--text-a);
 
 		color: white;
@@ -115,6 +114,9 @@
 		flex-direction: row;
 		justify-content: space-around;
 		align-items: center;
+
+		background: white;
+		border-radius: var(--border-radius);
 	}
 
 	.notme {

@@ -21,8 +21,8 @@
 			{
 				type: 'string',
 				title: 'root',
-				description: `The root element used to scroll.  Defaults to <span class="code inline">#svelte</span>, 
-				but it can be replaced with an id, classname, or HTMLElement`,
+				description: `The root element used to scroll.  Defaults to <span class="code inline">body</span>, 
+				but it can be replaced with HTMLElement or query selector.`,
 			},
 		]}
 	/>

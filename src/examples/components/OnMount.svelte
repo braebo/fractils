@@ -29,7 +29,8 @@
 <Item title="OnMount" type="component" {path}>
 	<div slot="description">
 		Mounts an element on Svelte's <span> onMount </span>
-		<a href="https://svelte.dev/docs#onMount" target="_blank"> lifecycle hook </a>.
+		<a href="https://svelte.dev/docs#onMount" target="_blank"> lifecycle hook </a>. Often used
+		to force a svelte transition to play on page-load.
 	</div>
 
 	<Example {example} --h="258px">
@@ -52,5 +53,8 @@
 		min-height: 54px;
 
 		overflow: hidden;
+
+		outline: 1px solid white;
+		border-radius: var(--border-radius);
 	}
 </style>
