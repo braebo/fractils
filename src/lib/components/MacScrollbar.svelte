@@ -82,16 +82,8 @@
 {/if}
 
 <style>
-	:global(#scrollbar-root) {
+	:global(body::-webkit-scrollbar) {
 		display: none;
-		/* IE and Edge */
-		-ms-overflow-style: none;
-		/* Firefox */
-		scrollbar-width: none;
-
-		flex-grow: 1;
-
-		height: 100%;
 	}
 
 	@-moz-document url-prefix() {
