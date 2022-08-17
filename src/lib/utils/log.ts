@@ -1,39 +1,34 @@
-const dev = !!import.meta.env.DEV
+const isBrowser =
+	typeof globalThis.window !== 'undefined' && typeof globalThis.window.document !== 'undefined'
 
-/**
- *  Debug logger with optional theming.  Dev env only.
- *
- * @param msg - A message to log (objects are logged without theming)
- * @param color - Any CSS ( named | hex | rgb | hsl ) color value
- * @param bgColor - Same as {@link color}
- * @param fontSize - Any number
- * @param css - Optional additional CSS
- *
- * @remarks
- * The dev variable inherits the sveltekit {@link https://kit.svelte.dev/docs#modules-$app-env | $app/env} variable.
- *
- */
-
-class Logger {
-	log(msg: string | unknown, color: string, bgColor: string, fontSize: number) {
-		return dev
-			? typeof msg === 'string'
-				? console.log(
-						`%c${msg}`,
-						`
-					size:${fontSize}px;
-					color:${color};
-					background: ${bgColor};
-					border:1px solid ${color};
-					padding:0.5px 5px;
-					border-radius: 4px;
-					line-height: 1.4rem;
-				`,
-				  )
-				: console.log(msg)
-			: null
-	}
+const dev = () => {
+	if (!isBrowser) return false
+	return process?.env?.NODE_ENV === 'development' ?? import.meta?.env?.DEV ?? false
 }
 
-export const log = (msg: unknown, color = 'lightblue', bgColor = '#1d1d1d', fontSize = 15) =>
-	new Logger().log(msg, color, bgColor, fontSize)
+/**
+ * A simple logger that only runs in dev environments.
+ * @param msg - A string or object to log
+ * @param color - Any CSS color value ( named | hex | rgb | hsl )
+ * @param bgColor - Same as color ⇧
+ * @param fontSize - Any number
+ * @param css - Optional additional CSS
+ */
+export const log = (
+	msg: string | any,
+	color = 'lightblue',
+	bgColor = 'transparent',
+	fontSize = 15,
+	css = '',
+) => {
+	if (!dev) return
+
+	if (typeof msg == 'string')
+		return () =>
+			console.log(
+				`%c${msg}`,
+				`padding:5px;color:${color};background: ${bgColor};border:1px solid ${color};size:${fontSize}px;${css}`,
+			)
+
+	return console.log(msg)
+}
