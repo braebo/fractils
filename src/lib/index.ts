@@ -6,7 +6,7 @@ export { initTheme, toggleTheme, applyTheme, theme } from './theme'
 
 export { mobile, screenH, screenW, scrollY, mouse, mobileThreshold } from './stores'
 
-export { log, wait, localStorageStore, mapRange } from './utils'
+export { log, wait, localStorageStore, mapRange, clamp } from './utils'
 
 export { default as Fractils } from './stores/Device.svelte'
 

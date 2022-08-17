@@ -15,6 +15,7 @@
 	import Theme from '$examples/utils/Theme.svelte'
 	import Wait from '$examples/utils/Wait.svelte'
 	import Log from '$examples/utils/Log.svelte'
+	import Clamp from '$examples/utils/Clamp.svelte'
 </script>
 
 <h2 id="components">
@@ -36,6 +37,8 @@
 <Wait />
 
 <MapRange />
+
+<Clamp />
 
 <h2 id="theme"><a class="double-under" href="#theme">theme</a></h2>
 
