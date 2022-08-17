@@ -14,7 +14,7 @@ mobile: {$mobile}
 screenH: {$screenH}
 screenW: {$screenW}
 scrollY: {$scrollY}
-mouse: \`\${$mouse.x}, \${$mouse.y}\`
+mouse: {$mouse.x}, {$mouse.y}
 `
 
 	const example2 = `<script>

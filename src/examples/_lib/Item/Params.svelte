@@ -1,6 +1,4 @@
 <script>
-	import { children } from 'svelte/internal'
-
 	export let params = []
 
 	const hasChild = (p) => p.children != undefined
@@ -98,6 +96,7 @@
 			text-shadow: 0px 0px 1px var(--color-primary);
 		}
 	}
+
 	.seperator {
 		flex: 1;
 
