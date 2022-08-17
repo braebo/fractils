@@ -8,21 +8,20 @@ const config = {
 
 	kit: {
 		adapter: vercel(),
-		vite: {
-			resolve: {
-				alias: {
-					$examples: resolve('./src/examples'),
-				},
-			},
-			optimizeDeps: {
-				exclude: ['fractils'],
-			},
+		alias: {
+			$examples: resolve('./src/examples'),
 		},
 		package: {
 			dir: 'dist',
 			exports: (file) => {
 				return file === 'index.ts'
 			},
+		},
+	},
+
+	vitePlugin: {
+		optimizeDeps: {
+			exclude: ['fractils'],
 		},
 	},
 }
