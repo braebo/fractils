@@ -19,12 +19,6 @@ const config = {
 			return file === 'index.ts'
 		},
 	},
-
-	vitePlugin: {
-		optimizeDeps: {
-			exclude: ['fractils'],
-		},
-	},
 }
 
 export default config
