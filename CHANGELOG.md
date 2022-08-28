@@ -1,5 +1,22 @@
 # fractils
 
+## 3.0.0
+
+### Major Changes
+
+-   [release] major v3.0.0 ([`f5c4a5a`](https://github.com/FractalHQ/fractils/commit/f5c4a5af43a50ed411eefb39ad26948e8546151a))
+
+    -   new visibility action API - now prefixed with 'v' (i.e. 'f-change' -> 'v-change') - 'f-leave' is now 'v-exit'
+    -   separate sync/async localStorageStores - the old localStorageStore is now 'asyncLocalStorageStore' - localStorageStore is a simpler syncronous version
+    -   updated to the latest sveltekit / vite
+    -   now publishing build to github
+    -   better action types
+    -   fixed some examples
+
+### Minor Changes
+
+-   New clamp util + docs improvements. ([`76beda0`](https://github.com/FractalHQ/fractils/commit/76beda07c574a0ba09df072ca6ad21aff26cde57))
+
 ## 2.0.3
 
 ### Patch Changes
