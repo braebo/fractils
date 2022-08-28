@@ -28,7 +28,7 @@
  	}
  <\/script>
 
- <div use:visibility={options} on:f-enter={handleChange}>
+ <div use:visibility={options} on:v-change={handleChange}>
 	{#if visible}
  		<div in:fly={{ y: -20, easing: bounceOut }}>
 			going {scrollDir === 'down' ? '⬇' : '⬆'}
@@ -70,18 +70,18 @@
 		},
 		{
 			type: 'event',
-			title: 'f-change',
-			description: 'Triggered when the element enters or leaves view.',
+			title: 'v-change',
+			description: 'Triggered when the element enters or exits view.',
 		},
 		{
 			type: 'event',
-			title: 'f-enter',
+			title: 'v-enter',
 			description: 'Triggered when the element enters view.',
 		},
 		{
 			type: 'event',
-			title: 'f-leave',
-			description: 'Triggered when the element leaves view.',
+			title: 'v-exit',
+			description: 'Triggered when the element exits view.',
 		},
 		{
 			type: 'event',
@@ -122,7 +122,7 @@
 	</div>
 
 	<Example example={example.replace('// ', '')} --h="382px">
-		<div class="visibility" use:visibility={options} on:f-enter={handleChange}>
+		<div class="visibility" use:visibility={options} on:v-change={handleChange}>
 			{#if visible}
 				<div in:fly={{ y: -20, delay: 250, duration: 1000, easing: bounceOut }}>
 					going {scrollDir === 'down' ? '⬇' : '⬆'}

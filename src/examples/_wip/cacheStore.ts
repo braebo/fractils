@@ -1,10 +1,11 @@
+// @ts-nocheck
+
 import type { Writable } from 'svelte/store'
 import { writable } from 'svelte/store'
-import { browser } from '$app/env'
 import { log } from '../../lib/utils/log'
 
 const setAsync = async <T>(key: string, value: T, expiry: number): Promise<void> => {
-	if (!browser) return
+	if (!import.meta?.env?.ssr) return
 	return Promise.resolve().then(() => {
 		localStorage.setItem(
 			key,
@@ -22,11 +23,11 @@ interface cachedValue {
 }
 
 const getAsync = async <T = any>(key: string, cb: T, ttl: number): Promise<cachedValue | null> => {
-	if (browser) {
-		console.log('getAsync', key);
+	if (import.meta?.env?.ssr) {
+		console.log('getAsync', key)
 		return new Promise(async (resolve) => {
 			const item = localStorage.getItem(key)
-			log({item})
+			log({ item })
 			//? Return object if valid json
 			if (item)
 				try {
@@ -78,17 +79,20 @@ const getAsync = async <T = any>(key: string, cb: T, ttl: number): Promise<cache
  * @remarks Adapted from {@link https://svelte.dev/repl/7b4d6b448f8c4ed2b3d5a3c31260be2a?version=3.34.0 this REPL}
  */
 export const cacheStore = <T = any>(key: string, cb: T, ttl = 10000): Writable<T> => {
-	const { set: setStore, ...readableStore } = writable<cachedValue | null>({value: null, expiry: 0}, () => {
-		if (!browser) return
+	const { set: setStore, ...readableStore } = writable<cachedValue | null>(
+		{ value: null, expiry: 0 },
+		() => {
+			if (!import.meta?.env?.ssr) return
 
-		getAndSetFromLocalStorage()
+			getAndSetFromLocalStorage()
 
-		const updateFromStorageEvents = (e: StorageEvent) => {
-			if (e.key === key) getAndSetFromLocalStorage()
-		}
-		window.addEventListener('storage', updateFromStorageEvents)
-		return () => window.removeEventListener('storage', updateFromStorageEvents)
-	})
+			const updateFromStorageEvents = (e: StorageEvent) => {
+				if (e.key === key) getAndSetFromLocalStorage()
+			}
+			window.addEventListener('storage', updateFromStorageEvents)
+			return () => window.removeEventListener('storage', updateFromStorageEvents)
+		},
+	)
 
 	/**
 	 * Sets both localStorage and this Svelte store

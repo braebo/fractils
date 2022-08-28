@@ -10,7 +10,7 @@
 
 	onMount(async () => {
 		const p = await import('prismjs')
-		Prism = await p.default
+		Prism = p.default
 		highlightedExample = await Prism.highlight(example, Prism.languages.html, 'html')
 		if (code) code.style.opacity = '1'
 	})

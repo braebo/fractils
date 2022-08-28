@@ -1,4 +1,4 @@
-export type Event = 'change' | 'leave' | 'enter'
+export type Event = 'v-change' | 'v-leave' | 'v-exit' | 'v-enter'
 
 /**
  * Optional config
@@ -7,7 +7,7 @@ export type Event = 'change' | 'leave' | 'enter'
  * @param {number | number[]} threshold - % of pixels required in view to trigger event.  An array will trigger multiple events - '0-1' (default: 0).
  * @param {boolean} once - Whether to dispatch events only once (default: false)
  */
-export type Options = {
+export type VisibilityOptions = {
 	view?: HTMLElement | null
 	margin?: string
 	threshold?: number | number[]

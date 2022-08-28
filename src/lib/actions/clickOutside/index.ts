@@ -1,8 +1,9 @@
-import type { Action } from 'svelte/action'
-import type { ClickOutsideEventDetail } from './types'
-export type { ClickOutsideEventDetail }
+import './events.d'
 
-interface ClickOutsideOptions {
+import type { ClickOutsideEventDetail } from './types'
+import type { Action } from 'svelte/action'
+
+export interface ClickOutsideOptions {
 	/**
 	 * Array of classnames.  If the click target element has one of these classes, it will not be considered an outclick.
 	 */
@@ -10,13 +11,11 @@ interface ClickOutsideOptions {
 }
 
 /**
- *
  * Calls a function when the user clicks outside the element.
- *
  * @example
- *
+ * ```svelte
  * <div on:outclick={someFunction} use:clickOutside={{ whitelist: ['.burger'] }}>
- *
+ * ```
  */
 export const clickOutside: Action<Element, ClickOutsideOptions> = (node, options = {}) => {
 	const handleClick = (event: MouseEvent) => {

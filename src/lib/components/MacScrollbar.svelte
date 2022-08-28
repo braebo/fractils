@@ -28,8 +28,10 @@
 		ratio: number,
 		scrollbarHeight: number,
 		scrollbarHeightRatio: number,
-		scrollbarOffset: number,
+		scrollbarOffset: number = 0,
 		scrollPercentage: number
+	
+	scrollbarOffset // wow
 
 	onMount(async () => {
 		if (typeof root === 'string') {

@@ -1,8 +1,8 @@
-<script>
+<script lang='ts'>
 	import Item from '../_lib/Item/Item.svelte'
 	import { wait } from '$lib'
 	import Example from '$examples/_lib/Item/Example.svelte'
-	import Params from '$examples/_lib/Item/Params.svelte'
+	import Params, { type Param } from '$examples/_lib/Item/Params.svelte'
 	const example = `<script>
 	import { wait } from 'fractils'
     
@@ -17,7 +17,7 @@
 <\/script>
 `
 
-	let ready, set, go
+	let ready = false, set = false, go = false
 	async function start() {
 		ready = true
 		await wait(500)
@@ -32,7 +32,7 @@
 
 	const path = 'utils/wait.ts'
 
-	const params = [
+	const params: Param[] = [
 		{
 			type: 'param',
 			title: 't',

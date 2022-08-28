@@ -1,8 +1,8 @@
 <script lang="ts">
 	import FourOhFour from '../examples/_lib/FourOhFour.svelte'
+	import { dev } from '$app/environment'
 	import { log } from '$lib/utils/log'
 	import { page } from '$app/stores'
-	import { dev } from '$app/env'
 
 	if (dev) console.log($page.error)
 

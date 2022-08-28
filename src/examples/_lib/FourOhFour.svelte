@@ -146,7 +146,7 @@
 		<pre
 			clip-path="url(#terminalClipPath)"
 			class="code"
-			style="max-width: {svgWidth *
+			style="max-width: {(svgWidth ?? 500) *
 				0.9}px;">
 	findRoute(
 			path: string,

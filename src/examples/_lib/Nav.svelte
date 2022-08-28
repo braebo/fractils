@@ -75,7 +75,7 @@
 				in:fly={{ x: -30, easing: quintOut, delay: 100 * i, duration: 1000 }}
 				class:mobile={$mobile}
 				class:active={active === i}
-				on:click|capture|preventDefault={(e) => handleClick(i)}
+				on:click|capture|preventDefault={() => handleClick(i)}
 			>
 				<a href="#{path}">{path}</a>
 			</li>

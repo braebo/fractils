@@ -2,7 +2,7 @@
 	import Example from '$examples/_lib/Item/Example.svelte'
 	import Params from '$examples/_lib/Item/Params.svelte'
 	import Item from '../_lib/Item/Item.svelte'
-	import { mapRange, mouse, screenW } from '$lib'
+	import { mapRange } from '$lib'
 
 	const example = `<script>
 	import { mapRange } from 'fractils'
@@ -51,8 +51,6 @@
 			description: 'A number mapped from the input range to the output range',
 		},
 	]
-
-	$: ranges = [0, 100, -10, 10]
 
 	let value = 50,
 		valueMapped = '0.00'

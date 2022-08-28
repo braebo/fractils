@@ -1,10 +1,11 @@
 <script>
 	import { onMount, tick } from 'svelte'
 	import { pulse } from './lib_stores'
-	import { theme, log } from '$lib'
+	import { theme } from '$lib'
 
 	let pulseBottom, pulseTop
 	let bottomY, bottomX, topY, topX
+	topX // wow
 	let h = 0
 	const w = 200
 	let ready = false

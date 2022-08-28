@@ -1,17 +1,29 @@
 // adapted from https://github.com/maciekgrzybek/svelte-inview
+import './events.d'
 
 import type { Action } from 'svelte/action'
+
 import type {
 	VisibilityEventDetail,
-	Options,
-	Position,
+	VisibilityOptions,
+	VisibilityEvent,
 	ScrollDirection,
 	Direction,
+	Position,
 	Event,
 } from './types'
-export type { VisibilityEventDetail, Options, Position, ScrollDirection, Direction, Event }
 
-const defaultOptions: Options = {
+export type {
+	VisibilityEventDetail,
+	VisibilityOptions,
+	VisibilityEvent,
+	ScrollDirection,
+	Direction,
+	Position,
+	Event,
+}
+
+const defaultOptions: VisibilityOptions = {
 	view: null,
 	margin: '0px',
 	threshold: 0,
@@ -19,22 +31,21 @@ const defaultOptions: Options = {
 }
 
 const dispatch = (node: HTMLElement, name: Event, detail: VisibilityEventDetail) => {
-	node.dispatchEvent(new CustomEvent(`f-${name}`, { detail }))
+	node.dispatchEvent(new CustomEvent(name, { detail }))
 }
 
 /**
- *
  * Observes an element's current viewport visibility and dispatches relevant events.
  *
- * @param {Options} options - Optional config:
- * @param {HTMLElement} options.view - The root view (default: window)
- * @param {string} options.margin - Margin around root view - 'px' or '%' (default: '0px')
- * @param {number | number[]} options.threshold - % of pixels required in view to trigger event.  An array will trigger multiple events - '0-1' (default: 0)
- * @param {boolean} options.once - Whether to dispatch events only once (default: false)
+ * @param options - Optional config:
+ * @param options.view - The root view (default: window)
+ * @param options.margin - Margin around root view - 'px' or '%' (default: '0px')
+ * @param options.threshold - % of pixels required in view to trigger event.  An array will trigger multiple events - '0-1' (default: 0)
+ * @param options.once - Whether to dispatch events only once (default: false)
  *
- * @event change - Triggered when element enters or leaves view
- * @event enter - Triggered when element enters view
- * @event leave - Triggered when element leaves view
+ * @event change - Triggered when element enters or leaves view.
+ * @event enter - Triggered when element enters view.
+ * @event exit - Triggered when element exits view.
  *
  * @example
  *```svelte
@@ -50,9 +61,9 @@ const dispatch = (node: HTMLElement, name: Event, detail: VisibilityEventDetail)
  *
  * <div
  * 	use:visibility={options}
- * 	on:f-change={handleChange}
- * 	on:f-enter={doSomething}
- * 	on:f-leave={doSomethingElse}
+ * 	on:v-change={handleChange}
+ * 	on:v-enter={doSomething}
+ * 	on:v-exit={doSomethingElse}
  * 	class:visible
  * >
  * 	{scrollDir}
@@ -60,8 +71,8 @@ const dispatch = (node: HTMLElement, name: Event, detail: VisibilityEventDetail)
  *
  *```
  */
-export const visibility: Action<HTMLElement, Options> = (node, options) => {
-	const { view, margin, threshold, once }: Options = {
+export const visibility: Action<HTMLElement, VisibilityOptions> = (node, options) => {
+	const { view, margin, threshold, once }: VisibilityOptions = {
 		...defaultOptions,
 		...options,
 	}
@@ -110,14 +121,14 @@ export const visibility: Action<HTMLElement, Options> = (node, options) => {
 						unobserve,
 					}
 
-					dispatch(node, 'change', detail)
+					dispatch(node, 'v-change', detail)
 
 					if (entry.isIntersecting) {
-						dispatch(node, 'enter', detail)
+						dispatch(node, 'v-enter', detail)
 
 						once && _observer.unobserve(node)
 					} else {
-						dispatch(node, 'leave', detail)
+						dispatch(node, 'v-exit', detail)
 					}
 				})
 			},

@@ -1,7 +1,16 @@
-<script>
-	export let params = []
+<script context="module" lang='ts'>
+	export interface Param {
+		type: string,
+		title?: string,
+		description?: string,
+		children?: Param[]
+	}
+</script>
+<script lang='ts'>
+	
+	export let params: Param[] = []
 
-	const hasChild = (p) => p.children != undefined
+	const hasChild = (p: Param) => p.children != undefined
 </script>
 
 {#each params as p}

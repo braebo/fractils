@@ -1,0 +1,53 @@
+{
+  "name": "fractils",
+  "description": "some stuff I often use",
+  "version": "2.0.4",
+  "author": "Braden Wiggins",
+  "license": "MIT",
+  "type": "module",
+  "keywords": [
+    "fractils",
+    "utils"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fractalhq/fractils.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fractalhq/fractils/issues"
+  },
+  "homepage": "https://github.com/fractalhq/fractils#readme",
+  "devDependencies": {
+    "@changesets/cli": "^2.24.3",
+    "@sveltejs/adapter-vercel": "1.0.0-next.69",
+    "@sveltejs/kit": "1.0.0-next.445",
+    "@sveltejs/package": "1.0.0-next.1",
+    "@svitejs/changesets-changelog-github-compact": "^0.1.1",
+    "@types/node": "^18.7.13",
+    "@types/prismjs": "^1.26.0",
+    "greset": "2.0.0",
+    "nodemon": "^2.0.19",
+    "npm-run-all": "^4.1.5",
+    "prettier": "3.0.0-alpha.0",
+    "prismjs": "^1.29.0",
+    "pug": "^3.0.2",
+    "sass": "^1.54.5",
+    "svelte": "^3.49.0",
+    "svelte-check": "^2.8.1",
+    "svelte-preprocess": "^4.10.7",
+    "svelte2tsx": "^0.5.14",
+    "tslib": "^2.4.0",
+    "typescript": "^4.8.2",
+    "vite": "^3.0.9"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./dist/index.js"
+  },
+  "types": "./dist/index.d.ts",
+  "svelte": "./dist/index.js",
+  "files": [
+    "dist",
+    "LICENSE"
+  ]
+}

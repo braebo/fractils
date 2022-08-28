@@ -1,8 +1,8 @@
-const isBrowser =
+const browser =
 	typeof globalThis.window !== 'undefined' && typeof globalThis.window.document !== 'undefined'
 
 const dev = () => {
-	if (!isBrowser) return false
+	if (!browser) return false
 	return process?.env?.NODE_ENV === 'development' ?? import.meta?.env?.DEV ?? false
 }
 

@@ -1,0 +1,32 @@
+.double-under {
+	&:after,
+	&:before {
+		position: absolute;
+		left: 20%;
+		bottom: 0;
+
+		height: 1px;
+		width: 60%;
+
+		background: white;
+
+		content: '';
+
+		transform: translateY(0px) scaleX(0);
+		transition: 0.15s;
+	}
+	&:after {
+		opacity: 0.6;
+
+		transition-delay: 0.1s;
+	}
+	&:before {
+		opacity: 0.25;
+	}
+	&:hover:after {
+		transform: translateY(0px) scaleX(1);
+	}
+	&:hover:before {
+		transform: translateY(5px) scaleX(0.3);
+	}
+}

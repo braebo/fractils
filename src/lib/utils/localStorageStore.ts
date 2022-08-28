@@ -1,66 +1,39 @@
-import type { Writable } from 'svelte/store'
+// https://github.com/babichjacob/svelte-localstorage
+
 import { writable } from 'svelte/store'
-import { browser } from '$app/env'
 
-const setAsync = async <T>(key: string, value: T): Promise<void> => {
-	if (!browser) return
-	return Promise.resolve().then(() => {
-		typeof value != 'string'
-			? localStorage.setItem(key, JSON.stringify(value))
-			: localStorage.setItem(key, value)
-	})
-}
-
-const getAsync = async <T = any>(key: string): Promise<T | null> => {
-	if (browser) {
-		return Promise.resolve().then(() => {
-			const value = localStorage.getItem(key)
-			//? Return object if valid json
-			if (value)
-				try {
-					const object = JSON.parse(value)
-					if (object && typeof object === 'object') {
-						return object
-					}
-				} catch (e) {
-					null //? discard error
-				}
-			//? Make sure booleans aren't returned as strings
-			if ((typeof value == 'string' && value == 'true') || value == 'false')
-				return value === 'true'
-			return value
-		})
-	} else return null
-}
-
-// Adapted from https://svelte.dev/repl/7b4d6b448f8c4ed2b3d5a3c31260be2a?version=3.34.0
 /**
- *
- * A Svelte store that uses localStorage to store data.
+ * A Svelte store that uses localStorage to store data asyncronously.
  * @param key - The key to store the data under.
- * @param value - The initial value of the store.
- * @returns a writable store.
+ * @param initial - The initial value of the store.
  * @example
  * const store = localStorageStore('foo', 'bar')
  */
-export const localStorageStore = <T = any>(key: string, value: T): Writable<T> => {
-	const { set: setStore, ...readableStore } = writable(value, () => {
-		if (!browser) return
+export const localStorageStore = <T>(key: string, initial: T) => {
+	const browser = typeof globalThis.window !== 'undefined'
+	let currentValue = initial
 
-		getAndSetFromLocalStorage()
+	const { set: setStore, ...readableStore } = writable<T>(initial, () => {
+		if (browser) {
+			getAndSetFromLocalStorage()
 
-		const updateFromStorageEvents = (e: StorageEvent) => {
-			if (e.key === key) getAndSetFromLocalStorage()
-		}
-		window.addEventListener('storage', updateFromStorageEvents)
-		return () => window.removeEventListener('storage', updateFromStorageEvents)
+			const updateFromStorageEvents = (event: StorageEvent) => {
+				if (event.key === key) getAndSetFromLocalStorage()
+			}
+
+			window.addEventListener('storage', updateFromStorageEvents)
+
+			return () => window.removeEventListener('storage', updateFromStorageEvents)
+		} else return () => {}
 	})
 
-	//? Set both localStorage and this Svelte store
-	const set = async (value: T) => {
+	// Set both localStorage and this Svelte store
+	const set = (value: T) => {
+		currentValue = value
 		setStore(value)
+
 		try {
-			await setAsync(key, value)
+			localStorage.setItem(key, JSON.stringify(value))
 		} catch (error) {
 			console.error(
 				`the \`${key}\` store's new value \`${value}\` could not be persisted to localStorage because of ${error}`,
@@ -68,29 +41,34 @@ export const localStorageStore = <T = any>(key: string, value: T): Writable<T> =
 		}
 	}
 
-	//? Synchronize the Svelte store with localStorage
-	const getAndSetFromLocalStorage = async () => {
-		let localValue = null
-		localValue = await getAsync(key).catch((error) => {
+	// Synchronize the Svelte store with localStorage
+	const getAndSetFromLocalStorage = () => {
+		let localValue: string | null = null
+		try {
+			localValue = localStorage.getItem(key)
+		} catch (error) {
 			console.error(
 				`the \`${key}\` store's value could not be restored from localStorage because of ${error}`,
 			)
-		})
+		}
 
-		if (localValue === null) {
-			await setAsync(key, value)
-		} else {
+		if (localValue === null) set(initial)
+		else {
 			try {
-				setStore(localValue)
+				const parsed = JSON.parse(localValue)
+				setStore(parsed)
+				currentValue = parsed
 			} catch (error) {
 				console.error(
-					`the \`${key}\` store's value could not be added to localStorage because of ${error}`,
+					`localStorage's value for \`${key}\` (\`${localValue}\`) could not be parsed as JSON because of ${error}`,
 				)
 			}
 		}
 	}
 
-	return { ...readableStore, set }
-}
+	const update = (fn: (T: T) => T) => {
+		set(fn(currentValue))
+	}
 
-export default localStorageStore
+	return { ...readableStore, set, update }
+}

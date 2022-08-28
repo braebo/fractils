@@ -1,10 +1,8 @@
 import { localStorageStore } from '../utils/localStorageStore'
 import { get, writable } from 'svelte/store'
-import { log } from '../utils/log'
-import { browser } from '$app/env'
 
 const initialTheme =
-	browser && globalThis.localStorage && 'theme' in localStorage
+	!import.meta.env.SSR && globalThis.localStorage && 'theme' in localStorage
 		? localStorage.getItem('theme')
 		: 'dark'
 
@@ -17,7 +15,6 @@ const detectSystemPreference = (e: MediaQueryListEvent) => applyTheme(e.matches 
  */
 export const initTheme = async (): Promise<void> => {
 	// if (!browser) return
-	log('Init theme()', 'gray', 'transparent')
 	window
 		?.matchMedia('(prefers-color-scheme: dark)')
 		.addEventListener('change', detectSystemPreference)
@@ -27,12 +24,6 @@ export const initTheme = async (): Promise<void> => {
 			try {
 				const pref = get(theme)
 				if (pref) {
-					log(
-						pref + ' theme found in localStorage',
-						pref == 'light' ? 'black' : 'white',
-						pref == 'light' ? 'white' : 'black',
-						20,
-					)
 					applyTheme(pref as string)
 				}
 			} catch (err) {
@@ -76,6 +67,6 @@ export const applyTheme = (newTheme: string): void => {
 	try {
 		theme?.set(newTheme)
 	} catch (err) {
-		console.log('%c Unable to save theme preference in local storage 😕', 'color:coral')
+		console.error('%c Unable to save theme preference in local storage 😕', 'color:coral')
 	}
 }

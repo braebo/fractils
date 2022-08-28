@@ -6,14 +6,21 @@ export { initTheme, toggleTheme, applyTheme, theme } from './theme'
 
 export { mobile, screenH, screenW, scrollY, mouse, mobileThreshold } from './stores'
 
-export { log, wait, localStorageStore, mapRange, clamp } from './utils'
+export { log, wait, localStorageStore, asyncLocalStorageStore, mapRange, clamp } from './utils'
 
 export { default as Fractils } from './stores/Device.svelte'
 
 export { clickOutside, visibility } from './actions'
 
-import './actions/visibility/events.d.ts'
-export type { VisibilityEventDetail, VisibilityEvent } from './actions/visibility/types'
+// import './actions/visibility/events.d'
+export type {
+	VisibilityEventDetail,
+	VisibilityOptions,
+	VisibilityEvent,
+	ScrollDirection,
+	Direction,
+	Event,
+} from './actions/visibility/'
 
-import './actions/clickOutside/events.d.ts'
+// import './actions/clickOutside/events.d'
 export type { ClickOutsideEventDetail, ClickOutsideEvent } from './actions/clickOutside/types'

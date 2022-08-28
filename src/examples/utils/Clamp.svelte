@@ -39,8 +39,6 @@
 		},
 	]
 
-	$: ranges = [0, 100, -10, 10]
-
 	$: value = clamp(value ?? 50, 25, 75)
 </script>
 
