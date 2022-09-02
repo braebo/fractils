@@ -1,11 +1,3 @@
-const browser =
-	typeof globalThis.window !== 'undefined' && typeof globalThis.window.document !== 'undefined'
-
-const dev = () => {
-	if (!browser) return false
-	return process?.env?.NODE_ENV === 'development' ?? import.meta?.env?.DEV ?? false
-}
-
 /**
  * A simple logger that only runs in dev environments.
  * @param msg - A string or object to log
@@ -21,7 +13,7 @@ export const log = (
 	fontSize = 15,
 	css = '',
 ) => {
-	if (!dev) return
+	if (!import.meta.env.DEV) return
 
 	if (typeof msg == 'string')
 		return () =>
