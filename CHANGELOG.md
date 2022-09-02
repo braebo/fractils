@@ -1,5 +1,11 @@
 # fractils
 
+## 3.0.1
+
+### Patch Changes
+
+-   [fix] log() not firing in dev ([`74cd14b`](https://github.com/FractalHQ/fractils/commit/74cd14b23cd6066f43b77e0d09e92a79f405404e))
+
 ## 3.0.0
 
 ### Major Changes
