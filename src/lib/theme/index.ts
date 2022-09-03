@@ -2,7 +2,7 @@ import { localStorageStore } from '../utils/localStorageStore'
 import { get, writable } from 'svelte/store'
 
 const initialTheme =
-	!import.meta.env.SSR && globalThis.localStorage && 'theme' in localStorage
+	typeof window !== 'undefined' && globalThis.localStorage && 'theme' in localStorage
 		? localStorage.getItem('theme')
 		: 'dark'
 
@@ -14,7 +14,7 @@ const detectSystemPreference = (e: MediaQueryListEvent) => applyTheme(e.matches 
  * Applies system preference theme and registers a listener for changes
  */
 export const initTheme = async (): Promise<void> => {
-	// if (!browser) return
+	if (typeof window === 'undefined') return
 	window
 		?.matchMedia('(prefers-color-scheme: dark)')
 		.addEventListener('change', detectSystemPreference)
@@ -43,7 +43,7 @@ export const initTheme = async (): Promise<void> => {
  * Toggles {@link theme} to and from light / dark mode
  */
 export const toggleTheme = (): void => {
-	// if (!browser) return
+	if (typeof window === 'undefined') return
 	const activeTheme = theme ? get(theme) : initialTheme
 	activeTheme == 'light' ? applyTheme('dark') : applyTheme('light')
 }
@@ -51,7 +51,7 @@ export const toggleTheme = (): void => {
 export const initComplete = writable(false)
 
 const applySystemTheme = (): void => {
-	// if (!browser) return
+	if (typeof window === 'undefined') return
 	window?.matchMedia('(prefers-color-scheme: dark)').matches
 		? applyTheme('dark')
 		: applyTheme('light')
@@ -62,7 +62,7 @@ const applySystemTheme = (): void => {
  * @param newTheme - The theme to apply
  */
 export const applyTheme = (newTheme: string): void => {
-	// if (!browser) return
+	if (typeof window === 'undefined') return
 	document?.documentElement?.setAttribute('theme', newTheme)
 	try {
 		theme?.set(newTheme)

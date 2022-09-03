@@ -16,11 +16,10 @@ export const log = (
 	if (!import.meta.env.DEV) return
 
 	if (typeof msg == 'string')
-		return () =>
-			console.log(
-				`%c${msg}`,
-				`padding:5px;color:${color};background: ${bgColor};border:1px solid ${color};size:${fontSize}px;${css}`,
-			)
+		return console.log(
+			`%c${msg}`,
+			`padding:5px;color:${color};background: ${bgColor};border:1px solid ${color};size:${fontSize}px;${css}`,
+		)
 
 	return console.log(msg)
 }

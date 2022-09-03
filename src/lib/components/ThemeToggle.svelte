@@ -26,7 +26,7 @@
 	export const config = { y: -35, duration: 1000, easing: expoOut }
 
 	onMount(async () => {
-		if (init && !import.meta.env.SSR) {
+		if (init && typeof window !== 'undefined') {
 			await load()
 			initTheme()
 			ready = true

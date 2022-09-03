@@ -1,6 +1,6 @@
 import { localStorageStore } from '../utils/localStorageStore';
 import { get, writable } from 'svelte/store';
-const initialTheme = !import.meta.env.SSR && globalThis.localStorage && 'theme' in localStorage
+const initialTheme = typeof window !== 'undefined' && globalThis.localStorage && 'theme' in localStorage
     ? localStorage.getItem('theme')
     : 'dark';
 export const theme = localStorageStore('theme', initialTheme);
@@ -9,7 +9,8 @@ const detectSystemPreference = (e) => applyTheme(e.matches ? 'dark' : 'light');
  * Applies system preference theme and registers a listener for changes
  */
 export const initTheme = async () => {
-    // if (!browser) return
+    if (typeof window === 'undefined')
+        return;
     window === null || window === void 0 ? void 0 : window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', detectSystemPreference);
     if (localStorage)
         if ('theme' in localStorage && theme) {
@@ -33,13 +34,15 @@ export const initTheme = async () => {
  * Toggles {@link theme} to and from light / dark mode
  */
 export const toggleTheme = () => {
-    // if (!browser) return
+    if (typeof window === 'undefined')
+        return;
     const activeTheme = theme ? get(theme) : initialTheme;
     activeTheme == 'light' ? applyTheme('dark') : applyTheme('light');
 };
 export const initComplete = writable(false);
 const applySystemTheme = () => {
-    // if (!browser) return
+    if (typeof window === 'undefined')
+        return;
     (window === null || window === void 0 ? void 0 : window.matchMedia('(prefers-color-scheme: dark)').matches)
         ? applyTheme('dark')
         : applyTheme('light');
@@ -50,7 +53,8 @@ const applySystemTheme = () => {
  */
 export const applyTheme = (newTheme) => {
     var _a;
-    // if (!browser) return
+    if (typeof window === 'undefined')
+        return;
     (_a = document === null || document === void 0 ? void 0 : document.documentElement) === null || _a === void 0 ? void 0 : _a.setAttribute('theme', newTheme);
     try {
         theme === null || theme === void 0 ? void 0 : theme.set(newTheme);

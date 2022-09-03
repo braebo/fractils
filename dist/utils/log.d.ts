@@ -6,4 +6,4 @@
  * @param fontSize - Any number
  * @param css - Optional additional CSS
  */
-export declare const log: (msg: string | any, color?: string, bgColor?: string, fontSize?: number, css?: string) => void | (() => void);
+export declare const log: (msg: string | any, color?: string, bgColor?: string, fontSize?: number, css?: string) => void;
