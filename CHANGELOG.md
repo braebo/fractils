@@ -1,5 +1,11 @@
 # fractils
 
+## 3.0.2
+
+### Patch Changes
+
+-   [fix] more reliable browser checks ([`d1f9702`](https://github.com/FractalHQ/fractils/commit/d1f97029948836572ee5b304fc94fb22c81f098e))
+
 ## 3.0.1
 
 ### Patch Changes
