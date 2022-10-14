@@ -35,7 +35,7 @@
 	})
 </script>
 
-<div class="wrapper" on:click={toggleTheme}>
+<div class="wrapper" on:click={toggleTheme} on:keypress={() => {}}>
 	{#if ready && currentTheme}
 		<slot>
 			{#key currentTheme}
