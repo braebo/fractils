@@ -1,5 +1,11 @@
 # fractils
 
+## 3.1.0
+
+### Minor Changes
+
+-   [fix] Themetoggle a11y warnings ([`4108daf`](https://github.com/FractalHQ/fractils/commit/4108dafb784152fa9f116689d40f8b35a7bb4437))
+
 ## 3.0.2
 
 ### Patch Changes
