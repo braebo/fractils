@@ -15,12 +15,6 @@ export default class ThemeToggle extends SvelteComponentTyped<{
     light: {};
     dark: {};
 }> {
-    get init(): boolean;
-    get config(): {
-        y: number;
-        duration: number;
-        easing: typeof expoOut;
-    };
 }
 export type ThemeToggleProps = typeof __propDef.props;
 export type ThemeToggleEvents = typeof __propDef.events;

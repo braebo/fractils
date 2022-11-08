@@ -1,8 +1,10 @@
 <script lang="ts">
-	import { clickOutside, localStorageStore } from 'fractils';
+	import { clickOutside, localStorageStore, ThemeToggle } from 'fractils';
 
 	const x = localStorageStore('x', false);
 </script>
+
+<ThemeToggle />
 
 <input type="checkbox" bind:checked={$x} />
 
@@ -11,6 +13,14 @@
 {/if}
 
 <style>
+	:global(html[theme='dark']) {
+		background: #111;
+	}
+
+	:global(html[theme='light']) {
+		background: gray;
+	}
+
 	.modal {
 		position: absolute;
 		inset: 0;

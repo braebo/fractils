@@ -18,12 +18,15 @@
 	}
 
 	/**
-	 * disables _initTheme()
+	 * Disables initTheme()
 	 * @defaultValue true
 	 */
-	export const init = true
+	export let init = true
 
-	export const config = { y: -35, duration: 1000, easing: expoOut }
+	/**
+	 * Transition animation options
+	*/
+	export let config = { y: -35, duration: 1000, easing: expoOut }
 
 	onMount(async () => {
 		if (init && typeof window !== 'undefined') {
@@ -31,29 +34,29 @@
 			initTheme()
 			ready = true
 		}
-		return unsubscribe
+		return () => unsubscribe()
 	})
 </script>
 
-<div class="wrapper" on:click={toggleTheme}>
+<button class="wrapper" on:click={toggleTheme}>
 	{#if ready && currentTheme}
 		<slot>
 			{#key currentTheme}
 				<div class="icon" transition:fly={config}>
 					{#if currentTheme === 'light'}
 						<slot name="light">🌙</slot>
-					{/if}
-					{#if currentTheme === 'dark'}
+					{:else if currentTheme === 'dark'}
 						<slot name="dark">🔆</slot>
 					{/if}
 				</div>
 			{/key}
 		</slot>
 	{/if}
-</div>
+</button>
 
 <style>
 	.wrapper {
+		all: unset;
 		display: flex;
 		position: relative;
 		align-items: center;
@@ -68,6 +71,7 @@
 
 		cursor: pointer;
 	}
+
 	.icon {
 		position: absolute;
 

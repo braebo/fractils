@@ -27,7 +27,7 @@
 
 <Item title="ThemeToggle" type="component" {path}>
 	<div slot="description">
-		A simple component to toggle between light and dark <a href="#Theme">theme</a>.
+		A simple component to toggle between light and dark <a href="#theme">theme</a>.
 		<Params
 			params={[
 				{
