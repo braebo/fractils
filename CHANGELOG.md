@@ -1,5 +1,11 @@
 # fractils
 
+## 3.1.1
+
+### Patch Changes
+
+-   fix action types & event.d error ([#17](https://github.com/FractalHQ/fractils/pull/17))
+
 ## 3.1.0
 
 ### Minor Changes
