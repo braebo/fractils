@@ -8,6 +8,7 @@ import type {
 	Direction,
 	Position,
 	Event,
+	VisibilityAttr,
 } from './types'
 
 export type {
@@ -29,15 +30,6 @@ const defaultOptions: VisibilityOptions = {
 
 const dispatch = (node: HTMLElement, name: Event, detail: VisibilityEventDetail) => {
 	node.dispatchEvent(new CustomEvent(name, { detail }))
-}
-
-interface VisibilityAttr {
-	/** Callback fired when element enters or exits view. */
-	'on:v-change'?: (event: VisibilityEvent) => void
-	/** Callback fired when element enters view. */
-	'on:v-enter'?: (event: VisibilityEvent) => void
-	/** Callback fired when element exits view. */
-	'on:v-exit'?: (event: VisibilityEvent) => void
 }
 
 /**

@@ -36,3 +36,13 @@ export type VisibilityEventDetail = {
 }
 
 export type VisibilityEvent = CustomEvent<VisibilityEventDetail>
+
+// Attributes applied to the element that does use:visibility
+export interface VisibilityAttr {
+	/** Callback fired when element enters or exits view. */
+	'on:v-change'?: (event: VisibilityEvent) => void
+	/** Callback fired when element enters view. */
+	'on:v-enter'?: (event: VisibilityEvent) => void
+	/** Callback fired when element exits view. */
+	'on:v-exit'?: (event: VisibilityEvent) => void
+}

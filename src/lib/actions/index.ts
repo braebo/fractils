@@ -1,4 +1,10 @@
-export { clickOutside, type ClickOutsideOptions } from './clickOutside'
+export { clickOutside } from './clickOutside'
+
+export type {
+	ClickOutsideOptions,
+	ClickOutsideEvent,
+	ClickOutsideEventDetail,
+} from './clickOutside/types'
 
 export type {
 	VisibilityEventDetail,
@@ -7,6 +13,6 @@ export type {
 	ScrollDirection,
 	Direction,
 	Event,
-} from './visibility'
+} from './visibility/types'
 
 export { visibility } from './visibility'
