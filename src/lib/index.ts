@@ -12,7 +12,6 @@ export { default as Fractils } from './stores/Device.svelte'
 
 export { clickOutside, visibility } from './actions'
 
-// import './actions/visibility/events.d'
 export type {
 	VisibilityEventDetail,
 	VisibilityOptions,
@@ -22,5 +21,4 @@ export type {
 	Event,
 } from './actions/visibility/'
 
-// import './actions/clickOutside/events.d'
 export type { ClickOutsideEventDetail, ClickOutsideEvent } from './actions/clickOutside/types'

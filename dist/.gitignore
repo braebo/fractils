@@ -1,7 +1,0 @@
-node_modules
-.svelte-kit
-.vercel
-package
-.env
-dev
-bin

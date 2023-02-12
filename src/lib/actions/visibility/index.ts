@@ -1,6 +1,3 @@
-// adapted from https://github.com/maciekgrzybek/svelte-inview
-import './events.d'
-
 import type { Action } from 'svelte/action'
 
 import type {
@@ -11,6 +8,7 @@ import type {
 	Direction,
 	Position,
 	Event,
+	VisibilityAttr,
 } from './types'
 
 export type {
@@ -71,7 +69,10 @@ const dispatch = (node: HTMLElement, name: Event, detail: VisibilityEventDetail)
  *
  *```
  */
-export const visibility: Action<HTMLElement, VisibilityOptions> = (node, options) => {
+export const visibility: Action<HTMLElement, VisibilityOptions, VisibilityAttr> = (
+	node,
+	options,
+) => {
 	const { view, margin, threshold, once }: VisibilityOptions = {
 		...defaultOptions,
 		...options,
