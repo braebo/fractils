@@ -21,7 +21,7 @@
 		p.description
 			span utilities for sveltekit
 
-	h2 npm i -D fractils
+	h2 pnpm i -D fractils
 
 	Nav
 
