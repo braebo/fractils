@@ -1,8 +1,8 @@
 <script lang="ts">
 	import Example from '$examples/_lib/Item/Example.svelte'
 	import Params from '$examples/_lib/Item/Params.svelte'
-	import Item from '../_lib/Item/Item.svelte'
 	import { localStorageStore, OnMount } from '$lib'
+	import Item from '../_lib/Item/Item.svelte'
 	import { fade } from 'svelte/transition'
 
 	const params = [
@@ -24,8 +24,8 @@
 
 	const example = `<script>
 	//import { localStorageStore } from 'fractils'
-    
-    const count = localStorageStore('count', 0)
+
+	const count = localStorageStore('count', 0)
 <\/script>
 
 <div on:click='{() => $count++}'>+<\/div>
@@ -46,9 +46,9 @@
 
 	<Example example={example.replace('//', '')} --h="260px">
 		<div class="result">
-			<div class="button" on:click={() => $count--}>-</div>
+			<div class="button" on:pointerdown={() => $count--}>-</div>
 			<OnMount><div class="count" in:fade={{ delay: 250 }}>{$count}</div></OnMount>
-			<div class="button" on:click={() => $count++}>+</div>
+			<div class="button" on:pointerdown={() => $count++}>+</div>
 		</div>
 	</Example>
 	<em>refresh the page and count will persist</em>

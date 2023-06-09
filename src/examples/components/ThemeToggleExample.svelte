@@ -47,7 +47,7 @@
 			class="result"
 			id="theme-in"
 		>
-			<div on:click|stopPropagation|capture={handlePulse}>
+			<div on:pointerdown|stopPropagation|capture={handlePulse}>
 				<ThemeToggle />
 			</div>
 		</div>
