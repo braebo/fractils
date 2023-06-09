@@ -1,3 +1,5 @@
+import { DEV } from 'esm-env'
+
 /**
  * A simple logger that only runs in dev environments.
  * @param msg - A string or object to log
@@ -13,7 +15,7 @@ export const log = (
 	fontSize = 15,
 	css = '',
 ) => {
-	if (!import.meta.env.DEV) return
+	if (!DEV) return
 
 	if (typeof msg == 'string')
 		return console.log(
