@@ -12,13 +12,6 @@ const config = {
 			$examples: resolve('./src/examples'),
 		},
 	},
-
-	package: {
-		dir: 'dist',
-		exports: (file) => {
-			return file === 'index.ts'
-		},
-	},
 }
 
 export default config

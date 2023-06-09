@@ -3,7 +3,7 @@
 	"compilerOptions": {
 		"moduleResolution": "node",
 		"module": "esnext",
-		"lib": ["esnext", "dom"],
+		"lib": ["esnext", "dom", "dom.iterable"],
 		"target": "es2019",
 		"importsNotUsedAsValues": "error",
 		"isolatedModules": true,
