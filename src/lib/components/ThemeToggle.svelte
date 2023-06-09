@@ -1,51 +1,62 @@
-<script>
+<!-- 
+	@component
+	A theme toggle button with slots for light and dark mode icons.
+ -->
+
+<script lang="ts">
+	import { theme, initTheme, toggleTheme } from '../theme'
+	import { createEventDispatcher } from 'svelte'
 	import { expoOut } from 'svelte/easing'
 	import { fly } from 'svelte/transition'
-	import { onMount } from 'svelte'
 
-	let theme, currentTheme
-	let initTheme = () => {}
-	let toggleTheme = () => {}
-	let unsubscribe = () => {}
-	let ready = false
+	const dispatch = createEventDispatcher()
 
-	const load = async () => {
-		const t = await import('../theme')
-		theme = t.theme
-		unsubscribe = theme.subscribe((v) => (currentTheme = v))
-		initTheme = t.initTheme
-		toggleTheme = t.toggleTheme
+	interface $$Props {
+		/**
+		 * Whether `initTheme` should be called automatically.
+		 * @default true
+		 */
+		init?: boolean
+		/**
+		 * Icon transition animation options.
+		 * @default { y: -35, duration: 1000, easing: expoOut }
+		 */
+		transitionOptions?: { y: number; duration: number; easing: (t: number) => number }
 	}
 
-	/**
-	 * Disables initTheme()
-	 * @defaultValue true
-	 */
+	interface $$Events {
+		/**
+		 * Fires when the toggle is clicked and provides `event.detail.theme` as the new theme.
+		 */
+		toggle: CustomEvent<{ theme: 'light' | 'dark' }>
+	}
+
 	export let init = true
 
-	/**
-	 * Transition animation options
-	*/
-	export let config = { y: -35, duration: 1000, easing: expoOut }
+	const config = { y: -35, duration: 1000, easing: expoOut }
 
-	onMount(async () => {
-		if (init && typeof window !== 'undefined') {
-			await load()
-			initTheme()
-			ready = true
-		}
-		return () => unsubscribe()
-	})
+	let ready = false
+	if (init) initTheme().then(() => (ready = true))
 </script>
 
-<button class="wrapper" on:click={toggleTheme}>
-	{#if ready && currentTheme}
+<button
+	class="wrapper"
+	on:click={() => {
+		toggleTheme()
+		dispatch('click', {
+			detail: {
+				theme: $theme,
+			},
+		})
+	}}
+>
+	{#if ready}
 		<slot>
-			{#key currentTheme}
+			{#key $theme}
 				<div class="icon" transition:fly={config}>
-					{#if currentTheme === 'light'}
+					{#if $theme === 'light'}
 						<slot name="light">🌙</slot>
-					{:else if currentTheme === 'dark'}
+					{:else if $theme === 'dark'}
 						<slot name="dark">🔆</slot>
 					{/if}
 				</div>
