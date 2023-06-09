@@ -22,7 +22,7 @@
 		"debug": "NODE_OPTIONS=\"--inspect\" vite dev",
 		"build": "rm -rf dist && vite build",
 		"package": "svelte-package",
-		"release": "pnpm package && rm ./dist/package.json && changeset publish",
+		"release": "pnpm package && changeset publish",
 		"preview": "vite preview",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
