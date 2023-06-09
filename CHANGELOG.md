@@ -1,5 +1,11 @@
 # fractils
 
+## 3.1.2
+
+### Patch Changes
+
+-   [fix] a11y warnings / import.meta usage ([`6ef7e5f`](https://github.com/FractalHQ/fractils/commit/6ef7e5f1d69952c2a5fb263e25bfb208a97b1fea))
+
 ## 3.1.1
 
 ### Patch Changes
