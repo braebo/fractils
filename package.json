@@ -28,7 +28,9 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
 	},
 	"dependencies": {
-		"esm-env": "^1.0.0",
+		"esm-env": "^1.0.0"
+	},
+	"peerDependencies": {
 		"svelte": "^3.59.1"
 	},
 	"devDependencies": {
@@ -54,8 +56,16 @@
 		"vite": "^4.3.9"
 	},
 	"exports": {
-		"./package.json": "./package.json",
-		".": "./dist/index.js"
+		".": {
+			"types": "./dist/index.d.ts",
+			"svelte": "./dist/index.js",
+			"import": "./dist/index.js"
+		},
+		"./*": {
+			"types": "./dist/*.d.ts",
+			"svelte": "./dist/*.js",
+			"import": "./dist/*.js"
+		}
 	},
 	"types": "./dist/index.d.ts",
 	"svelte": "./dist/index.js",
