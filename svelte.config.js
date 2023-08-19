@@ -12,6 +12,9 @@ const config = {
 			$examples: resolve('./src/examples'),
 		},
 	},
+	vitePlugin: {
+		inspector: true,
+	},
 }
 
 export default config
