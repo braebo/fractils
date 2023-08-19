@@ -1,3 +1,4 @@
+export { objectEntries, objectKeys, objectValues } from './object'
 export { asyncLocalStorageStore } from './asyncLocalStorageStore'
 export { localStorageStore } from './localStorageStore'
 export { mapRange } from './mapRange'

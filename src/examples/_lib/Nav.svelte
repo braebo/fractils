@@ -18,11 +18,12 @@
 		trackScroll()
 	}
 
-	onMount(() => {
-		setTimeout(grabEls, 0)
+	onMount(async () => {
+		await tick()
+		grabEls()
 	})
 
-	$: active = 0
+	let active = 0
 	let disableTracker = false
 	async function trackScroll() {
 		await tick()
@@ -42,46 +43,52 @@
 		if (timer) clearTimeout(timer)
 		disableTracker = true
 		active = i
+
+		if (menuOpen) menuOpen = false
+
+		const here = document.location.toString().split('#')[0]
+		document.location = here + '#' + [paths[i]]
+
 		timer = setTimeout(() => {
 			disableTracker = false
 			grabEls()
 		}, 600)
-		if (menuOpen) menuOpen = false
-		const here = document.location.toString().split('#')[0]
-		document.location = here + '#' + [paths[i]]
 	}
 
 	let menuOpen = false
 </script>
 
-<svelte:window on:scroll={trackScroll} />
+<template lang="pug">
 
-<div class="overlay" class:menuOpen />
+	svelte:window(on:scroll="{trackScroll}")
 
-{#if $mobile}
-	<Burger bind:menuOpen />
-{/if}
+	.overlay(class:menuOpen)
 
-{#if !$mobile || menuOpen}
-	<ul
-		out:fade={{ duration: 200 }}
-		class:mobile={$mobile}
-		class:menuOpen
-		use:clickOutside
-		on:outclick={() => (menuOpen = false)}
-	>
-		{#each paths as path, i}
-			<li
-				in:fly={{ x: -30, easing: quintOut, delay: 100 * i, duration: 1000 }}
-				class:mobile={$mobile}
-				class:active={active === i}
-				on:pointerdown|capture|preventDefault={() => handleClick(i)}
-			>
-				<a href="#{path}">{path}</a>
-			</li>
-		{/each}
-	</ul>
-{/if}
+	+if("$mobile")
+		
+		Burger(bind:menuOpen)
+
+
+	+if("!$mobile || menuOpen")
+
+		ul(
+			out:fade="{{ duration: 200 }}"
+			class:mobile="{$mobile}"
+			class:menuOpen
+			use:clickOutside
+			on:outclick!="{() => (menuOpen = false)}"
+		)
+
+			+each("paths as path, i")
+				li(
+					in:fly="{{ x: -30, easing: quintOut, delay: 100 * i, duration: 1000 }}"
+					class:mobile="{$mobile}"
+					class:active="{active === i}"
+					on:pointerdown|capture|preventDefault!="{() => handleClick(i)}"
+				)
+					a(href="#{path}") {path}
+
+</template>
 
 <style lang="scss">
 	ul {

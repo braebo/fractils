@@ -1,54 +1,25 @@
 <script lang="ts">
-	import LocalStorageStore from '$examples/utils/LocalStorageStore.svelte'
-	import ThemeToggle from '$examples/components/ThemeToggleExample.svelte'
-	import MacScrollbar from '$examples/components/MacScrollbar.svelte'
-	import ClickOutside from '$examples/actions/ClickOutside.svelte'
-	import Visibility from '$examples/actions/Visibility.svelte'
+	import { EXAMPLES } from '$examples'
+
 	import ThemePulse from '$examples/_lib/ThemePulse.svelte'
-	import OnMount from '$examples/components/OnMount.svelte'
-	import MapRange from '$examples/utils/MapRange.svelte'
-	import Device from '$examples/stores/Device.svelte'
-	import Clamp from '$examples/utils/Clamp.svelte'
-	import Theme from '$examples/utils/Theme.svelte'
-	import Wait from '$examples/utils/Wait.svelte'
-	import Log from '$examples/utils/Log.svelte'
 </script>
 
-<h2 id="components">
-	<a class="double-under" href="#components">components</a>
-</h2>
+{#each [...EXAMPLES.entries()] as example, i}
+	{@const categoryName = example[0].toLowerCase()}
+	{@const category = example[1]}
 
-<OnMount />
+	<h2 id={categoryName}>
+		<a class="double-under" href="#{categoryName}">{categoryName}</a>
+	</h2>
 
-<MacScrollbar />
+	{#each Object.values(category) as example, j}
+		{#if j === 0}
+			<svelte:component this={ThemePulse} />
+		{/if}
 
-<h2 id="utils"><a class="double-under" href="#utils">utils</a></h2>
-
-<Device />
-
-<LocalStorageStore />
-
-<Log />
-
-<Wait />
-
-<MapRange />
-
-<Clamp />
-
-<h2 id="theme"><a class="double-under" href="#theme">theme</a></h2>
-
-<ThemePulse />
-
-<Theme />
-
-<ThemeToggle />
-
-<h2 id="actions"><a class="double-under" href="#actions">actions</a></h2>
-
-<ClickOutside />
-
-<Visibility />
+		<svelte:component this={example} />
+	{/each}
+{/each}
 
 <div class="buffer" style="min-height: 50px" />
 
@@ -57,6 +28,7 @@
 		display: flex;
 		justify-content: center;
 	}
+
 	a {
 		position: relative;
 
