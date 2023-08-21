@@ -7,7 +7,7 @@
 	let bottomY, bottomX, topY, topX
 	topX // wow
 	let h = 0
-	const w = 200
+	const w = 300
 	let ready = false
 
 	async function place() {
@@ -16,11 +16,11 @@
 		pulseTop = document.getElementById('theme-in')?.getBoundingClientRect()
 
 		if (pulseBottom && pulseTop) {
-			const docTop = document.documentElement.scrollTop
-			topY = Math.floor(pulseTop.top + pulseTop.height / 2 + docTop)
+			const { scrollTop } = document.documentElement
+			topY = Math.floor(pulseTop.top + pulseTop.height / 2 + scrollTop)
 			topX = Math.floor(pulseTop.left)
-			bottomY = Math.floor(pulseBottom.top + pulseTop.height / 2 + docTop)
-			bottomX = Math.floor(pulseBottom.left - w - 30)
+			bottomY = Math.floor(pulseBottom.top + pulseTop.height / 2 + scrollTop)
+			bottomX = Math.floor(pulseBottom.left - w)
 			h = topY - bottomY
 		}
 
@@ -51,9 +51,9 @@
 		<div
 			class="pulsewrapper"
 			style="
-		left: {bottomX}px;
-		top: {bottomY}px;
-        "
+				left: {bottomX}px;
+				top: {bottomY}px;
+        	"
 		>
 			<svg
 				id="pulse"
@@ -86,18 +86,20 @@
 <style lang="scss">
 	.pulsewrapper {
 		position: absolute;
+		z-index: 2;
 	}
 	#pulse {
 		position: absolute;
-
-		stroke-dashoffset: 5%;
+		backface-visibility: hidden;
+		
+		stroke-dashoffset: 15%;
 	}
 	path {
-		stroke-dasharray: 100 1200;
-		stroke: white;
+		stroke-dasharray: 100 1300;
+		stroke: var(--fg-a);
 
 		&.dark {
-			stroke: black;
+			stroke: var(--black);
 		}
 	}
 	.pulsate {
@@ -105,10 +107,10 @@
 	}
 	@keyframes pulsate {
 		0% {
-			stroke-dashoffset: 5%;
+			stroke-dashoffset: 15%;
 		}
 		100% {
-			stroke-dashoffset: 200%;
+			stroke-dashoffset: 205%;
 		}
 	}
 </style>
