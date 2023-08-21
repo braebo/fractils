@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" theme="dark">
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" href="/favicon.png" />
@@ -18,25 +18,28 @@
 		<!-- Primary Meta Tags -->
 		<title>fractils</title>
 		<meta name="title" content="fractils" />
-		<meta name="description" content="Minimal Sveltekit Toolkit" />
+		<meta name="description" content="Toolkit for Typescript / Svelte / Sveltekit" />
 
 		<!-- Open Graph / Facebook -->
 		<meta property="og:type" content="website" />
 		<meta property="og:url" content="https://fractils.fractal-hq.com/" />
 		<meta property="og:title" content="fractils" />
-		<meta property="og:description" content="Minimal Sveltekit Toolkit" />
+		<meta property="og:description" content="Toolkit for Typescript / Svelte / Sveltekit" />
 		<meta property="og:image" content="https://fractils.fractal-hq.com/meta.jpg" />
 
 		<!-- Twitter -->
 		<meta property="twitter:card" content="summary_large_image" />
 		<meta property="twitter:url" content="https://fractils.fractal-hq.com/" />
 		<meta property="twitter:title" content="fractils" />
-		<meta property="twitter:description" content="Minimal Sveltekit Toolkit" />
+		<meta
+			property="twitter:description"
+			content="Toolkit for Typescript / Svelte / Sveltekit"
+		/>
 		<meta property="twitter:image" content="https://fractils.fractal-hq.com/meta.jpg" />
 
 		%sveltekit.head%
 	</head>
-	<body style="background-color: #282a36">
+	<body theme="dark" style="background-color: var(--dark-a)">
 		<div id="svelte">%sveltekit.body%</div>
 	</body>
 </html>
