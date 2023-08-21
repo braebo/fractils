@@ -1,32 +1,30 @@
 @import '../src/lib/css/underline.scss';
+@import '../src/lib/css/scrollbars.scss';
 
 :root {
 	--col: min(95vw, 700px);
 
-	--color-primary: #00bcd4;
+	--brand-a: #00bcd4;
 
 	--border-radius: 5px;
-	--bg-a: #777d8f;
-	--text-a: #282a36;
-
 	--shadow-lg: 0px 5px 15px 2px rgba(0, 0, 0, 0.2);
 
 	--span-padding: 0px 5px 2px 5px;
 
 	--mono: 'Inconsolata', 'Fira Code', monospace !important;
-	
+
 	scroll-behavior: smooth;
 }
 
 body {
-	background: rgb(21, 22, 29) !important;
-	color: var(--text-a);
+	background: var(--bg-a) !important;
+	color: var(--fg-d);
 }
 
 a {
 	text-decoration: underline;
 
-	color: var(--text-a)
+	color: inherit;
 }
 
 button {
@@ -38,8 +36,16 @@ button {
 
 	color: var(--bg-a);
 	border-radius: var(--border-radius);
+	border: 1px solid var(--fg-c);
 
-	background: var(--text-a);
+	background: var(--fg-d);
+
+	&:hover {
+		border-color: var(--fg-a);
+		background: var(--fg-c);
+	}
+
+	transition: 0.15s;
 }
 
 .code {
@@ -51,14 +57,65 @@ button {
 
 	font-size: 0.8rem;
 
-	color: var(--color-primary);
+	color: var(--brand-a);
 	border-radius: var(--border-radius);
 
-	background: var(--text-a);
+	background: var(--bg-a);
 
 	&.inline {
 		display: inline-flex;
 
 		padding: 1px 5px 3px 4px;
+	}
+}
+
+// Theme
+
+@mixin variables($map) {
+	@each $variable, $colour in $map {
+		--#{$variable}: #{$colour};
+		// Enables alpha manipulation, ie: rgba(var(--fg-a-rgb), 0.5)
+		--#{$variable}-rgb: #{red($colour) + ', ' + green($colour) + ', ' + blue($colour)};
+	}
+}
+
+body {
+	--black: #0b0e11;
+	@include variables(
+		(
+			brand-a: #00bcd4,
+			brand-b: #ffcc8b,
+			brand-c: #ff8ba9,
+		)
+	);
+
+	&[theme='light'] {
+		@include variables(
+			(
+				fg-a: #15161d,
+				fg-b: #282a36,
+				fg-c: #1d252e,
+				fg-d: #3a3a44,
+				bg-a: #ffffff,
+				bg-b: #dfe1e9,
+				bg-c: #c3c4c7,
+				bg-d: #777d8f,
+			)
+		);
+	}
+
+	&[theme='dark'] {
+		@include variables(
+			(
+				bg-a: #15161d,
+				bg-b: #282a36,
+				bg-c: #1d252e,
+				bg-d: #3a3a44,
+				fg-a: #ffffff,
+				fg-b: #dfe1e9,
+				fg-c: #c3c4c7,
+				fg-d: #777d8f,
+			)
+		);
 	}
 }
