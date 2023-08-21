@@ -1,10 +1,11 @@
 <script lang="ts">
+	import { entries } from '$lib/utils/object'
 	import { EXAMPLES } from '$examples'
 
 	import ThemePulse from '$examples/_lib/ThemePulse.svelte'
 </script>
 
-{#each [...EXAMPLES.entries()] as example, i}
+{#each entries(EXAMPLES) as example, i}
 	{@const categoryName = example[0].toLowerCase()}
 	{@const category = example[1]}
 
@@ -33,7 +34,7 @@
 		position: relative;
 
 		max-width: fit-content !important;
-		margin: 5rem auto -2rem auto;
+		margin: 5rem auto -1rem auto;
 		padding: 0 1rem;
 
 		text-align: center;
