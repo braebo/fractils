@@ -1,4 +1,4 @@
-import { objectEntries } from '$lib/utils/object.js'
+// import { entries } from '$lib/utils/object'
 
 import OnMount from './components/OnMount.svelte'
 import MacScrollbar from './components/MacScrollbar.svelte'
@@ -13,27 +13,25 @@ import ThemeToggle from './components/ThemeToggle.svelte'
 import ClickOutside from './actions/ClickOutside.svelte'
 import Visibility from './actions/Visibility.svelte'
 
-export const EXAMPLES = new Map([
-	...objectEntries({
-		COMPONENTS: {
-			OnMount,
-			MacScrollbar,
-		},
-		UTILS: {
-			Device,
-			LocalStorageStore,
-			Log,
-			Wait,
-			MapRange,
-			Clamp,
-		},
-		THEME: {
-			Theme,
-			ThemeToggle,
-		},
-		ACTIONS: {
-			ClickOutside,
-			Visibility,
-		},
-	} as const),
-])
+export const EXAMPLES = {
+	components: {
+		OnMount,
+		MacScrollbar,
+	},
+	utils: {
+		device: Device,
+		localStorageStore: LocalStorageStore,
+		log: Log,
+		wait: Wait,
+		mapRange: MapRange,
+		clamp: Clamp,
+	},
+	theme: {
+		theme: Theme,
+		ThemeToggle,
+	},
+	actions: {
+		clickOutside: ClickOutside,
+		visibility: Visibility,
+	},
+} as const
