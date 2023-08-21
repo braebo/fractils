@@ -109,7 +109,7 @@
 		line-height: 23px;
 
 		color: white;
-		background: var(--text-a);
+		background: var(--fg-d);
 		border-radius: var(--border-radius);
 	}
 

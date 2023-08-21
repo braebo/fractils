@@ -69,7 +69,7 @@
 	<div slot="description">
 		Emits an event when the user clicks outside the element. Great for modals.
 
-		<Params {params} />
+		<Params {params} --width="175px" />
 	</div>
 
 	<Example example={example.replace('// ', '')} --h="382px">
@@ -95,7 +95,7 @@
 
 		width: 50%;
 		height: 50px;
-		background: var(--text-a);
+		background: var(--fg-d);
 
 		color: white;
 
@@ -106,7 +106,7 @@
 		}
 	}
 	.clickedOutside {
-		color: var(--color-primary);
+		color: var(--brand-a);
 	}
 
 	.row {

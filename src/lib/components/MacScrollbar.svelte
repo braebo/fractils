@@ -1,7 +1,7 @@
 <script lang="ts">
+	import { scrollY, mobile } from '../stores/Device.svelte'
 	import { onDestroy, onMount, tick } from 'svelte'
-	import { scrollY, mobile } from '$lib/stores'
-	import { mapRange } from '$lib/utils'
+	import { mapRange } from '../utils/mapRange'
 
 	/**
 	 * The scrollbar root element or it's query selector.
@@ -30,7 +30,7 @@
 		scrollbarHeightRatio: number,
 		scrollbarOffset: number = 0,
 		scrollPercentage: number
-	
+
 	scrollbarOffset // wow
 
 	onMount(async () => {

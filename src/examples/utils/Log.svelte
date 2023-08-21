@@ -59,7 +59,7 @@
 			<div class="timestamp">04:20:69.173</div>
 
 			<pre
-				style="padding:5px;color:#00bcd4;background:var(--text-a);border:1px solid lightblue;font-size:20px;font-weight: bold;">Hello world</pre>
+				style="padding:5px;color:#00bcd4;background:var(--fg-d);border:1px solid lightblue;font-size:20px;font-weight: bold;">Hello world</pre>
 			<div class="file">log.ts:22</div>
 		</div>
 	</Example>

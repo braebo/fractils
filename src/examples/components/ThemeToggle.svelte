@@ -18,7 +18,6 @@
 	const handlePulse = () => {
 		if (timer) clearTimeout(timer)
 		$pulse = true
-		toggleTheme()
 		timer = setTimeout(() => {
 			$pulse = false
 		}, 1000)
@@ -68,13 +67,14 @@
 	}
 
 	.dark {
-		background-color: #1d1d1d;
+		color: var(--fg-a);
+		background-color: var(--bg-a);
 		border-radius: var(--border-radius);
 	}
 
 	.light {
-		color: #1d1d1d;
-		background: #ffffff;
+		color: var(--bg-a);
+		background: var(--fg-a);
 		border-radius: var(--border-radius);
 	}
 </style>

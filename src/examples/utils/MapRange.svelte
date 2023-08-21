@@ -2,7 +2,7 @@
 	import Example from '$examples/_lib/Item/Example.svelte'
 	import Params from '$examples/_lib/Item/Params.svelte'
 	import Item from '../_lib/Item/Item.svelte'
-	import { mapRange } from '$lib'
+	import { Range, mapRange } from '$lib'
 
 	const example = `<script>
 	import { mapRange } from 'fractils'
@@ -67,9 +67,10 @@
 	<Example {example}>
 		<div class="result">
 			<div class="col">
-				<div class="row">
+				<div class="row value">
 					{value}
 				</div>
+				<Range {value} min={0} max={100} />
 				<input type="range" bind:value min="0" max="100" />
 				<div class="row">
 					{valueMapped}
@@ -107,7 +108,7 @@
 
 		text-align: center;
 
-		background: var(--text-a);
-		color: white;
+		background: var(--bg-a);
+		color: var(--fg-a);
 	}
 </style>

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import type { Direction } from '$lib/actions/visibility'
-	import type { VisibilityEvent } from '$lib/index'
+	import type { VisibilityEvent } from '$lib'
 
-	import { visibility } from '$lib/actions'
+	import { visibility } from '$lib'
 
 	import Example from '$examples/_lib/Item/Example.svelte'
 	import Params from '$examples/_lib/Item/Params.svelte'

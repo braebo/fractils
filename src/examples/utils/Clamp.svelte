@@ -2,7 +2,7 @@
 	import Example from '$examples/_lib/Item/Example.svelte'
 	import Params from '$examples/_lib/Item/Params.svelte'
 	import Item from '../_lib/Item/Item.svelte'
-	import { clamp } from '$lib/utils'
+	import { clamp } from '$lib'
 
 	const example = `<script>
 	import { clamp } from 'fractils'
@@ -52,7 +52,7 @@
 	<Example {example}>
 		<div class="result">
 			<div class="col">
-				<div class="row">
+				<div class="row value">
 					{value}
 				</div>
 				<input
@@ -92,9 +92,6 @@
 		border-radius: 5px;
 
 		text-align: center;
-
-		background: var(--text-a);
-		color: white;
 	}
 
 	input {

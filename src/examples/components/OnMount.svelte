@@ -54,7 +54,6 @@
 
 		overflow: hidden;
 
-		outline: 1px solid white;
 		border-radius: var(--border-radius);
 	}
 </style>

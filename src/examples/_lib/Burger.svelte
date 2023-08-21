@@ -82,7 +82,7 @@
 
 		border-radius: 100%;
 
-		background: var(--text-a);
+		background: var(--fg-d);
 
 		cursor: pointer;
 		transition: box-shadow 0.2s;
