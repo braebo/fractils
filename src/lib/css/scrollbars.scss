@@ -1,0 +1,15 @@
+.scrollbar::-webkit-scrollbar {
+	height: 7px;
+	width: 7px;
+
+	border-radius: 0.25rem;
+	background: transparent; /* make scrollbar transparent */
+}
+.scrollbar::-webkit-scrollbar-thumb {
+	border: 1px solid var(--bg-a);
+	background: var(--bg-b);
+	border-radius: 0.25rem;
+}
+.scrollbar::-webkit-scrollbar-corner {
+	background: transparent;
+}
