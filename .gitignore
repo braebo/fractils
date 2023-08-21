@@ -5,3 +5,4 @@ dist
 .env
 dev
 bin
+vite.config.js.timestamp*
