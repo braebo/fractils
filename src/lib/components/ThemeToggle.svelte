@@ -41,7 +41,7 @@
 
 <button
 	class="wrapper"
-	on:click={() => {
+	on:mousedown|capture|preventDefault|stopPropagation={() => {
 		toggleTheme()
 		dispatch('click', {
 			detail: {
