@@ -1,10 +1,12 @@
 <script lang="ts">
 	import FourOhFour from '../examples/_lib/FourOhFour.svelte'
-	import { dev } from '$app/environment'
 	import { log } from '$lib/utils/log'
 	import { page } from '$app/stores'
+	import { DEV } from 'esm-env'
 
-	if (dev) console.log($page.error)
+	if (DEV) {
+		console.log($page.error)
+	}
 
 	log('Testing 123', 'red', '#123')
 </script>
@@ -13,16 +15,13 @@
 	
 	FourOhFour
 	
-	+if('dev && $page.status != "404"')
-		h1 {$page.status}
-
+	+if('DEV && $page.status != "404"')
 		.error
+			a(href="/") go back
 			pre.message {$page.error.message}
-			pre.stack {$page.error.stack.split($page.error.message)[1]}
+			pre.stack {$page.error.stack?.split($page.error.message)[1]}
 
 </template>
-
-<a href="/">go back</a>
 
 <slot />
 
@@ -31,7 +30,7 @@
 		display: flex;
 
 		width: max-content;
-		margin: -5rem auto 0 auto;
+		// margin: -5rem auto 0 auto;
 
 		font-size: 1.5rem;
 		text-align: center;
@@ -41,20 +40,11 @@
 		text-decoration-color: #ffffff50;
 	}
 
-	h1 {
-		margin-top: 15vh;
-
-		color: var(--warn);
-
-		font-size: 10rem;
-		font-weight: 100;
-		text-align: center;
-	}
-
 	.error {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+		gap: 1rem;
 
 		margin-top: 10vh;
 		text-align: center;
