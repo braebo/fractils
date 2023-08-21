@@ -144,10 +144,8 @@
 	</g>
 	<foreignObject x="32%" clip-path="url(#terminalClipPath)" width="50%" height="100%">
 		<pre
-			clip-path="url(#terminalClipPath)"
 			class="code"
-			style="max-width: {(svgWidth ?? 500) *
-				0.9}px;">
+			style="clip-path: url(#terminalClipPath); max-width: {(svgWidth ?? 500) * 0.9}px;">
 	findRoute(
 			path: string,
 			routes: any,
