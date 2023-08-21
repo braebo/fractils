@@ -7,12 +7,12 @@
 	import MacScrollbar from '$lib/components/MacScrollbar.svelte'
 	import Nav from '$examples/_lib/Nav.svelte'
 	import { scrollY } from '$examples/stores'
-	import { Fractils } from '$lib'
+	import { Device } from '$lib'
 </script>
 
 <template lang="pug">
 
-	Fractils
+	Device
 
 	MacScrollbar(--color='#555')
 
@@ -58,7 +58,7 @@
 		font-size: 1.1rem;
 		font-weight: 300;
 
-		color: var(--color-primary);
+		color: var(--brand-a);
 
 		border-radius: var(--border-radius);
 		background-color: rgb(21, 22, 29);

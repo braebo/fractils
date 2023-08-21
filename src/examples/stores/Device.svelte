@@ -18,10 +18,10 @@ mouse: {$mouse.x}, {$mouse.y}
 `
 
 	const example2 = `<script>
-	import { Fractils } from 'fractils'
+	import { Device } from 'fractils'
 <\/script>
 
-<Fractils />
+<Device />
 
 <slot />
 `
@@ -71,15 +71,15 @@ mouse: {$mouse.x}, {$mouse.y}
 </script>
 
 <Item title="device" type="stores" {path}>
-	<div slot="description" class="device">
-		A series of device related stores.
-		<Params {params} --width="200px" />
+	<div slot="description">A series of device related stores.</div>
+	<Params {params} --width="200px" />
+	<br /><br />
+	First, the stores need to be registered. Ideally in the root layout:
+	<br /><br />
 
-		<br /><br />First, the stores need to be registered. Ideally in the root layout:<br /><br />
+	<Example example={example2} result={false} file={'src/routes/__layout.svelte'} />
 
-		<Example example={example2} result={false} file={'src/routes/__layout.svelte'} />
-		<br />
-	</div>
+	<br />
 
 	They can then be consumed normally:<br /><br />
 	<Example example={example1} --h="283px" file="Example.svelte">
