@@ -1,105 +1,215 @@
-<script lang="ts">
-	import { fly, fade } from 'svelte/transition'
-	import { mobile, clickOutside } from '$lib'
-	import { quintOut } from 'svelte/easing'
-	import { onMount, tick } from 'svelte'
-	import Burger from './Burger.svelte'
-
-	const paths = ['components', 'utils', 'theme', 'actions']
-	let els: HTMLElement[] | [] = []
-	function grabEls() {
-		els = []
-		paths.forEach((path) => {
-			const el = document.getElementById(`${path}`)
-			if (el) {
-				els = [...els, el]
-			}
-		})
-		trackScroll()
+<script lang="ts" context="module">
+	export interface Node {
+		name: string
+		path: string
+		element: HTMLElement | null
+		isActive: boolean
+		childActive: boolean
+		parent: Node | null
+		depth: number
+		disabled: boolean
+		children: Node[]
 	}
+</script>
+
+<script lang="ts">
+	import { mobile, clickOutside, entries } from '$lib'
+	import Paths from '$examples/_lib/Paths.svelte'
+	import { onMount, tick } from 'svelte'
+	import { EXAMPLES } from '$examples'
+	import Burger from './Burger.svelte'
 
 	onMount(async () => {
 		await tick()
-		grabEls()
+		disableTracker = false
+		buildNodeTree()
+		await tick()
+		rootNode = rootNode
 	})
 
-	let active = 0
-	let disableTracker = false
-	async function trackScroll() {
-		await tick()
-		if (!disableTracker) {
-			els.forEach(async (el, i) => {
-				const { top, width } = el.getBoundingClientRect()
-				if (width === 0) grabEls() // fixes weird bug where rects are all 0
-				if (top < 200) {
-					active = i
+	let rootEl: HTMLUListElement
+
+	let rootNode = {} as any as Node
+	let key = true
+	let initial = true
+
+	/**
+	 * Builds the nav node tree and saves a ref to each
+	 * section header to the corresponding node.
+	 */
+	function buildNodeTree() {
+		rootNode = {
+			name: 'root',
+			path: '#root',
+			element: rootEl,
+			isActive: true,
+			childActive: false,
+			parent: null,
+			depth: 0,
+			disabled: true,
+			children: [] as Node[],
+		} satisfies Node
+
+		rootNode.children = recurse(rootNode, EXAMPLES)
+
+		function recurse(parent: Node, obj: Record<string, any>, depth = 1) {
+			let children = [] as Node[]
+
+			for (const [key, value] of entries(obj)) {
+				const element = document.getElementById(key)
+
+				console.log(key, depth)
+
+				const node = {
+					name: key,
+					path: '#' + key,
+					element,
+					childActive: false,
+					isActive: active === key,
+					parent,
+					depth,
+					disabled: depth < 2,
+					children: [] as Node[],
+				} satisfies Node
+
+				children.push(node)
+
+				if (typeof value === 'object') {
+					node.children = recurse(node, value, depth + 1)
 				}
-			})
+			}
+
+			return children
 		}
+
+		recurse(rootNode, EXAMPLES)
+
+		if (initial) {
+			initial = false
+			const hash = document.location.hash.slice(1)
+			if (hash) {
+				const node = enabledNodes().find((n) => n.name === hash)
+
+				if (node) {
+					updateActiveNode(node)
+				}
+			}
+		}
+
+		key = !key
 	}
 
-	let timer: ReturnType<typeof setTimeout> | null = null
-	function handleClick(i: number) {
+	function allNodes() {
+		let allNodes = [] as Node[]
+		recurse(rootNode)
+
+		function recurse(node: Node) {
+			allNodes.push(node)
+
+			for (const child of node.children) {
+				recurse(child)
+			}
+		}
+
+		return allNodes
+	}
+
+	function enabledNodes() {
+		return allNodes().filter((n) => !n.disabled)
+	}
+
+	function updateActiveNode(node: Node) {
+		active = node.name
+
+		for (const node of allNodes()) {
+			updateChildActive(node, false)
+		}
+
+		let parent = node.parent
+		while (parent) {
+			updateChildActive(parent, true)
+			parent = parent.parent
+		}
+
+		rootNode = rootNode
+	}
+
+	function updateChildActive(node: Node, state: boolean) {
+		node.childActive = state
+		if (node.name === 'root') return
+		state
+			? node.element?.classList.add('child-active')
+			: node.element?.classList.remove('child-active')
+	}
+
+	let active = 'root'
+	let disableTracker = true
+
+	let timer: NodeJS.Timeout | null = null
+	function handleClick(e: CustomEvent) {
 		if (timer) clearTimeout(timer)
+
 		disableTracker = true
-		active = i
+		active = e.detail.path
 
 		if (menuOpen) menuOpen = false
 
-		const here = document.location.toString().split('#')[0]
-		document.location = here + '#' + [paths[i]]
+		const here = document.location.origin + document.location.pathname
+		document.location = here + '#' + active
 
 		timer = setTimeout(() => {
 			disableTracker = false
-			grabEls()
 		}, 600)
+	}
+
+	function trackScroll() {
+		if (disableTracker === false) {
+			for (const node of enabledNodes()) {
+				if (!node.element) continue
+				if (node.name === 'root') continue
+
+				const top = node.element.getBoundingClientRect().top
+
+				if (top > 0 && top < window.innerHeight * 0.33) {
+					active = node.name
+					updateActiveNode(node)
+					break
+				}
+			}
+		}
 	}
 
 	let menuOpen = false
 </script>
 
-<template lang="pug">
+<svelte:window on:scroll={trackScroll} />
 
-	svelte:window(on:scroll="{trackScroll}")
+<div class="overlay" class:menuOpen />
 
-	.overlay(class:menuOpen)
+{#if $mobile}
+	<Burger bind:menuOpen />
+{/if}
 
-	+if("$mobile")
-		
-		Burger(bind:menuOpen)
-
-
-	+if("!$mobile || menuOpen")
-
-		ul(
-			out:fade="{{ duration: 200 }}"
-			class:mobile="{$mobile}"
-			class:menuOpen
-			use:clickOutside
-			on:outclick!="{() => (menuOpen = false)}"
-		)
-
-			+each("paths as path, i")
-				li(
-					in:fly="{{ x: -30, easing: quintOut, delay: 100 * i, duration: 1000 }}"
-					class:mobile="{$mobile}"
-					class:active="{active === i}"
-					on:pointerdown|capture|preventDefault!="{() => handleClick(i)}"
-				)
-					a(href="#{path}") {path}
-
-</template>
+{#if !$mobile || menuOpen}
+	<ul
+		bind:this={rootEl}
+		class:mobile={$mobile}
+		class:menuOpen
+		use:clickOutside
+		on:outclick={() => (menuOpen = false)}
+	>
+		<Paths node={rootNode} on:click={(e) => handleClick(e)} {active} />
+	</ul>
+{/if}
 
 <style lang="scss">
 	ul {
-		display: flex;
 		position: fixed;
-		flex-direction: column;
 		top: 40vh;
 		left: 1rem;
-		gap: 1rem;
 
-		color: var(--bg-a);
+		display: flex;
+		flex-direction: column;
 
 		&.mobile {
 			z-index: 10;
@@ -115,7 +225,7 @@
 
 			border-radius: var(--border-radius);
 			border: 1px solid var(--bg-a);
-			background: var(--text-a);
+			background: var(--fg-d);
 			opacity: 0;
 
 			transition: opacity 0.2s;
@@ -125,53 +235,6 @@
 				opacity: 1;
 			}
 		}
-
-		li {
-			position: relative;
-
-			list-style-type: none;
-
-			&:after {
-				position: absolute;
-				top: 9px;
-				left: -21px;
-
-				width: 10px;
-				height: 10px;
-
-				border-radius: 100%;
-
-				background: var(--color-primary);
-
-				content: '';
-				transition: 0.2s ease-out;
-
-				transform: scale(0);
-			}
-
-			&.mobile:after {
-				top: 15.5px !important;
-			}
-
-			&,
-			a {
-				text-decoration: none;
-
-				color: var(--bg-a);
-
-				transition: 0.2s ease-in-out;
-			}
-
-			&.active:after {
-				transform: scale(1);
-			}
-		}
-	}
-
-	.active,
-	.active a {
-		color: var(--color-primary);
-		filter: brightness(1.25);
 	}
 
 	.overlay {
@@ -183,7 +246,7 @@
 		height: 100vh;
 
 		opacity: 0;
-		background: var(--text-a);
+		background: var(--fg-d);
 
 		transition: opacity 0.2s;
 		pointer-events: none;
