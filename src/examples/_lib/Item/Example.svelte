@@ -46,15 +46,12 @@
 		min-height: var(--h, 165px);
 		margin: 0;
 
-		background: var(--text-a);
 		border-radius: var(--border-radius);
 
 		&::-webkit-scrollbar {
 			display: none;
-			/* IE and Edge */
-			-ms-overflow-style: none;
-			/* Firefox */
-			scrollbar-width: none;
+			-ms-overflow-style: none; // IE & Edge
+			scrollbar-width: none; // Firefox
 		}
 	}
 
@@ -78,8 +75,15 @@
 
 		text-align: center;
 
-		background: var(--result-bg, var(--text-b));
+		box-shadow: 0 0 5px 0 #111 inset;
+		background: var(--result-bg, var(--bg-c));
 		border-radius: var(--border-radius);
+
+		z-index: 3;
+	}
+
+	:global(.result .value) {
+		background: var(--bg-a);
 	}
 
 	:global(.result:first-child) {

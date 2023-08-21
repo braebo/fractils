@@ -3,7 +3,7 @@
 
 	export let title = 'title'
 	export let type = 'type'
-	export let path = ''
+	export let path = '';
 </script>
 
 <div class="item" class:mobile={$mobile}>
@@ -25,23 +25,38 @@
 	>
 </div>
 
-<style lang="scss">
+<style lang="css">
 	.item {
 		display: flex;
 		position: relative;
 		flex-direction: column;
+		gap: 0.5rem;
 
 		width: var(--col);
 		margin: 3rem auto;
 		padding: 1rem;
 
-		background: var(--bg-a);
+		color: var(--fg-c);
+		background: var(--bg-b);
+
 		border-radius: var(--border-radius);
 		box-shadow: var(--shadow-lg);
+
+		font-family: var(--font-b);
+
+		outline: none;
+		z-index: 1;
 	}
 
 	.item h1 {
 		font-size: 1.5rem;
+		color: var(--fg-a);
+	}
+
+	:global(:not(pre) > code[class*='language-']),
+	:global(pre[class*='language-']) {
+		font-family: var(--font-b);
+		background: var(--bg-a) !important;
 	}
 
 	.item a {
@@ -56,8 +71,6 @@
 		align-items: center;
 		justify-content: space-between;
 		gap: 1rem;
-
-		padding-bottom: 1rem;
 	}
 
 	.mobile {
