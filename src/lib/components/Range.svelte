@@ -14,6 +14,7 @@
 	import { mapRange } from '../utils/mapRange'
 	import { clamp } from '../utils/clamp'
 	import { onDestroy } from 'svelte'
+	import { BROWSER } from 'esm-env'
 
 	const dispatch = createEventDispatcher()
 
@@ -132,8 +133,9 @@
 	}
 
 	onDestroy(() => {
-		window.removeEventListener('mousemove', mouseMove)
-		window.removeEventListener('mouseup', mouseUp)
+		if (!BROWSER) return
+		window?.removeEventListener('mousemove', mouseMove)
+		window?.removeEventListener('mouseup', mouseUp)
 	})
 </script>
 
