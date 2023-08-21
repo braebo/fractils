@@ -1,28 +1,152 @@
 /**
- * A type-safe version of `Object.entries`
+ * A type-preserving version of `Object.entries`.
  * @param obj Any object.
- * @returns An array of key-value pairs.
+ * @returns An array of key-value pairs with their types preserved.
+ *
+ * @example :
+ *
+ * ### Immutable
+ * ```ts
+ * const foo2 = { a: 1, b: '✨' } as const
+ * entries(foo2) // (['a', 1] | ['b', '✨'])[]
+ * Object.entries(foo2) // [string, 1 | '✨'][]
+ * ```
+ *
+ * ### Mutable
+ * ```ts
+ * const foo1 = { a: 1, b: '✨' }
+ * entries(foo1) // ['a', number] | ['b', string])[]
+ * Object.entries(foo1) // [string, string | number][]
+ * ```
  */
-export function objectEntries<T extends {}>(obj: T) {
-	if (typeof obj === 'object' && obj !== null) {
-		return Object.entries(obj) as [keyof T, T[keyof T]][]
-	} else {
-		throw new Error('objectEntries called with non-object')
+export function entries<T extends {}>(object: T) {
+	if (typeof object !== 'object' || object === null) {
+		console.error('Error: Invalid object', object)
+		throw new Error('`entries()` util called with invalid object')
+	}
+
+	return Object.entries(object) as unknown as ReadonlyArray<Entry<T>>
+}
+
+/**
+ * A type-preserving version of `Object.keys`.
+ * @param obj Any object.
+ * @returns An array of the keys with their types preserved.
+ *
+ * @example :
+ *
+ * ### Immutable
+ * ```ts
+ * const foo2 = { a: 1, b: '✨' } as const
+ * keys(foo2) // ('a' | 'b')[]
+ * Object.keys(foo2) // string[]
+ * ```
+ *
+ * ### Mutable
+ * ```ts
+ * const foo1 = { a: 1, b: '✨' }
+ * keys(foo1) // readonly ('a' | 'b')[]
+ * Object.keys(foo1) // string[]
+ * ```
+ */
+export function keys<T extends {}>(object: T): ReadonlyArray<keyof T> {
+	if (typeof object !== 'object' && object === null) {
+		console.error('Error: Invalid object', object)
+		throw new Error('`keys()` util called with invalid object.')
+	}
+	return Object.keys(object) as unknown as ReadonlyArray<keyof T>
+}
+
+/**
+ * A type-preserving version of `Object.values`.
+ * @param obj Any object.
+ * @returns An array of values with their types preserved.
+ *
+ * @example :
+ *
+ * ### Immutable
+ * ```ts
+ * const foo2 = { a: 1, b: '✨' } as const
+ * values(foo2) // (1 | '✨')[]
+ * Object.values(foo2) // (1 | '✨')[]
+ * ```
+ *
+ * ### Mutable
+ * ```ts
+ * const foo1 = { a: 1, b: '✨' }
+ * values(foo1) // readonly (number | string)[]
+ * Object.values(foo1) // (number | string)[]
+ * ```
+ */
+export function values<T extends {}>(object: T): ReadonlyArray<T[keyof T]> {
+	if (typeof object !== 'object' && object === null) {
+		console.error('Error: Invalid object', object)
+		throw new Error('`values()` util called with invalid object.')
+	}
+	return Object.values(object) as unknown as ReadonlyArray<T[keyof T]>
+}
+
+// Tests
+{
+	// Mutable
+	{
+		const foo = { a: 1, b: '✨' }
+
+		const e1 = Object.entries(foo) // [string, string | number][]
+		const k2 = Object.keys(foo) // string[]
+		const v2 = Object.values(foo) // (string | number)[]
+
+		const e2 = entries(foo) // ["a", number] | ["b", string])[]
+		const k1 = keys(foo) // readonly ("a" | "b")[]
+		const v1 = values(foo) // readonly (number | string)[]
+	}
+
+	// Immutable
+	{
+		const foo = { a: 1, b: '✨' } as const
+
+		const e1 = entries(foo) // (["a", 1] | ["b", "✨"])[]
+		const k1 = keys(foo) // ("a" | "b")[]
+		const v1 = values(foo) // (1 | '✨')[]
+
+		const e2 = Object.entries(foo) // [string, 1 | "✨"][]
+		const k2 = Object.keys(foo) // string[]
+		const v2 = Object.values(foo) // (1 | '✨')[]
 	}
 }
 
-export function objectKeys<T extends {}>(obj: T) {
-	if (typeof obj === 'object' && obj !== null) {
-		return Object.keys(obj) as (keyof T)[]
-	} else {
-		throw new Error('objectKeys called with non-object')
-	}
-}
+/**
+ * Recursively processes a tuple type and returns a union of entries.
+ * @template T - The tuple type being processed.
+ * @template I - The indices of the tuple so far, initialized to an empty array.
+ * @template R - The accumulated result, initialized to `never`.
+ */
+type TupleEntry<
+	T extends readonly unknown[],
+	I extends unknown[] = [],
+	R = never,
+> = T extends readonly [infer Head, ...infer Tail]
+	? TupleEntry<Tail, [...I, unknown], R | [`${I['length']}`, Head]>
+	: R
 
-export function objectValues<T extends {}>(obj: T) {
-	if (typeof obj === 'object' && obj !== null) {
-		return Object.values(obj) as T[keyof T][]
-	} else {
-		throw new Error('objectValues called with non-object')
-	}
-}
+/**
+ * Maps an object literal to a union of literal entry pairs.
+ * @template T - The object type being processed.
+ */
+type ObjectEntry<T extends {}> = T extends object
+	? {
+			[K in keyof T]: [K, Required<T>[K]]
+	  }[keyof T] extends infer E
+		? E extends [infer K, infer V]
+			? K extends string | number
+				? [`${K}`, V]
+				: never
+			: never
+		: never
+	: never
+
+export type Entry<T extends {}> = T extends readonly [unknown, ...unknown[]]
+	? TupleEntry<T>
+	: T extends ReadonlyArray<infer U>
+	? [`${number}`, U]
+	: ObjectEntry<T>
