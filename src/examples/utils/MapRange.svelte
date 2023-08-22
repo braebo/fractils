@@ -70,8 +70,7 @@
 				<div class="row value">
 					{value}
 				</div>
-				<Range {value} min={0} max={100} />
-				<input type="range" bind:value min="0" max="100" />
+				<Range bind:value min={0} max={100} step={1} />
 				<div class="row">
 					{valueMapped}
 				</div>
