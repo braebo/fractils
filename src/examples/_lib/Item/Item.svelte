@@ -34,7 +34,7 @@
 
 		width: var(--col);
 		margin: 3rem auto;
-		padding: 1rem;
+		padding: 1.5rem;
 
 		color: var(--fg-c);
 		background: var(--bg-b);
