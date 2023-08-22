@@ -3,14 +3,19 @@
 	A custom range input slider component.
 	
 	@prop `value: any` - The value to be controled by the slider.
-	@prop `range: { min: number, max: number }` - The range of the slider.
+	@prop `min: number` - The minimum value allowed.
+	@prop `max: number` - The maximum value allowed.
 	@prop `name: string` - The name of the value for its label.
 	@prop `step: number` - The amount to increment each change.
 	@prop `vertical?: boolean` - The amount to increment each change.
-	@prop `truncate?: boolean` - Rounds decimals into whole numbers.
+	@prop `truncate?: boolean` - Whether to truncate the value to the step.
+	@prop `callback?: (value: number) => number` - Callback function to be called on change.  Passes the updated value as an argument (and expects it to be returned).
  -->
+
 <script lang="ts">
+	import { decimalToPow } from '../utils/decimalToPow'
 	import { createEventDispatcher, tick } from 'svelte'
+	import { truncate as trunc } from '../utils/truncate'
 	import { mapRange } from '../utils/mapRange'
 	import { clamp } from '../utils/clamp'
 	import { onDestroy } from 'svelte'
@@ -23,24 +28,53 @@
 		 * The value to be controled by the slider.
 		 */
 		value: number
+		/**
+		 * The minimum value allowed.
+		 */
 		min?: number
+		/**
+		 * The maximum value allowed.
+		 */
 		max?: number
+		/**
+		 * The amount to increment each change.
+		 */
 		step?: number
 		/**
 		 * An optional title to be displayed above the slider.
 		 */
 		name?: string
+		/**
+		 * Whether the slider should be vertical.
+		 */
 		vertical?: boolean
+		/**
+		 * Whether to truncate the value to the step.
+		 */
 		truncate?: boolean
+		/**
+		 * Callback function to be called on change.  Passes the updated value as an argument (and expects it to be returned).
+		 */
+		callback?: (value: number) => number
+	}
+
+	interface $$Events {
+		/**
+		 * Triggered when the slider value changes. Contains the new value, `event.detail.value`.
+		 * @remarks
+		 * If the `callback` prop is set, the value will be the result of the callback.
+		 */
+		change: { value: number }
 	}
 
 	export let value: number
 	export let name = ''
 	export let min = 0
 	export let max = 1
-	export let step = 0.001
+	export let step = 0.01
 	export let vertical = false
-	export let truncate = false
+	export let truncate = true
+	export let callback: ((v: number) => number) | undefined = undefined
 
 	let el: HTMLElement
 	let track: HTMLElement
@@ -109,8 +143,6 @@
 		await tick()
 		e.preventDefault()
 
-		// targetValue += e.movementX * ((1 / clientWidth) * (max - min))
-
 		const targetValue = getMouseProgress(e)
 		if (!targetValue) return
 
@@ -127,9 +159,27 @@
 	}
 
 	const updateValue = (v: number) => {
-		if (truncate) v = Math.round(v)
-		if (Math.abs(targetValue - value) > step) value = v
-		dispatch('change', { detail: { value } })
+		let newValue = v
+
+		// Only update if the value has changed.
+		if (newValue === value) return
+
+		// Only update if the value changed by the step amount.
+		if (Math.abs(newValue - value) < step) return
+
+		console.log('\n')
+		console.log(`decimalToPow(${step}) = ${decimalToPow(step)}`)
+		console.table({ before: newValue, targetValue, step, v })
+
+		if (truncate) newValue = trunc(newValue, decimalToPow(step))
+
+		console.table({ after: newValue, targetValue, step, v })
+
+		if (callback) newValue = callback(newValue)
+
+		dispatch('change', { detail: { value: newValue } })
+
+		value = newValue
 	}
 
 	onDestroy(() => {
@@ -169,6 +219,7 @@
 		width: 100%;
 
 		background: none;
+		box-shadow: 0 2px 3px 0 rgba(var(--bg-a-rgb), 0.5);
 
 		user-select: none;
 
@@ -184,9 +235,9 @@
 		width: 100%;
 		height: 15px;
 
-		border: 0.2px solid var(--fg-c);
+		border: 0.2px solid var(--bg-a);
 		border-radius: 50px;
-		background: var(--fg-b);
+		background: var(--bg-d);
 
 		cursor: pointer;
 		transition: 200ms;
@@ -203,7 +254,7 @@
 
 		border: 1px solid var(--bg-d);
 		border-radius: 20px;
-		background: var(--bg-a);
+		background: var(--fg-a);
 
 		cursor: grab;
 		transition: background 0.3s;
