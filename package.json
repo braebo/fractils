@@ -52,6 +52,8 @@
 		"prismjs": "^1.29.0",
 		"pug": "^3.0.2",
 		"sass": "^1.66.1",
+		"shiki": "^0.14.3",
+		"shiki-twoslash": "^3.1.2",
 		"svelte-check": "^3.5.0",
 		"svelte-preprocess": "^5.0.4",
 		"svelte2tsx": "^0.6.20",
