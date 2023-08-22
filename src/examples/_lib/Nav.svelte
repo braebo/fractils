@@ -58,8 +58,6 @@
 			for (const [key, value] of entries(obj)) {
 				const element = document.getElementById(key)
 
-				console.log(key, depth)
-
 				const node = {
 					name: key,
 					path: '#' + key,
