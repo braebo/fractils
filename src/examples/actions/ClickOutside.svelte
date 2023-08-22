@@ -1,6 +1,6 @@
 <script lang="ts">
+	import { clickOutside } from '$lib/actions/clickOutside.js'
 	import Example from '$examples/_lib/Item/Example.svelte'
-	import { clickOutside } from '$lib/actions/clickOutside'
 	import Params from '$examples/_lib/Item/Params.svelte'
 	import Item from '$examples/_lib/Item/Item.svelte'
 

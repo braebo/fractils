@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Direction } from '$lib/actions/visibility'
+	import type { Direction } from '$lib/actions/visibility.js'
 	import type { VisibilityEvent } from '$lib'
 
 	import { visibility } from '$lib'
