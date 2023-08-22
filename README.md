@@ -1,5 +1,24 @@
-# fractils
+<p align="center">
+	<img src="./static/meta.jpg" width="500px" />
+	<br>
+	<a href="https://fractils.fractal-hq.com">docs</a>
+</p>
 
-some stuff I often use
+Some stuff i use sometimes.
 
-https://fractils.fractal-hq.com
+<br>
+
+### todo
+
+- [ ] document / release new stuff
+  - [ ] utils
+    - [ ] `decimalToPow`
+    - [ ] `truncate`
+    - [ ] `stringify`
+    - [ ] `object`
+    - [ ] `debounce`
+  - [ ] components
+    - [ ] `Code`
+    - [ ] `Range`
+  - [ ] css
+    - [ ] `scollbars`
