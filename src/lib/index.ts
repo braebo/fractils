@@ -20,6 +20,8 @@ export { asyncLocalStorageStore } from './utils/asyncLocalStorageStore'
 export { stringify, type StringifyOptions } from './utils/stringify'
 export { localStorageStore } from './utils/localStorageStore'
 export { entries, keys, values } from './utils/object'
+export { decimalToPow } from './utils/decimalToPow'
+export { truncate } from './utils/truncate'
 export { mapRange } from './utils/mapRange'
 export { clamp } from './utils/clamp'
 export { wait } from './utils/wait'
@@ -31,14 +33,14 @@ export { default as Device } from './stores/Device.svelte'
 // legacy
 export { default as Fractils } from './stores/Device.svelte'
 
+export { clickOutside } from './actions/clickOutside'
 export type {
 	ClickOutsideEventDetail,
 	ClickOutsideOptions,
 	ClickOutsideEvent,
-} from './actions/clickOutside/types'
+} from './actions/clickOutside'
 
-export { clickOutside } from './actions/clickOutside'
-
+export { visibility } from './actions/visibility'
 export type {
 	VisibilityEventDetail,
 	VisibilityOptions,
@@ -48,6 +50,13 @@ export type {
 	Direction,
 	Position,
 	Event,
-} from './actions/visibility/types'
+} from './actions/visibility'
 
-export { visibility } from './actions/visibility'
+export { highlight } from './actions/highlight'
+export type {
+	HighlightEventDetail,
+	HighlightOptions,
+	HighlightEvent,
+	HighlightAttr,
+	ValidLanguage,
+} from './actions/highlight'
