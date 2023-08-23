@@ -4,50 +4,50 @@
  -->
 
 <script lang="ts">
-	import { theme, initTheme, toggleTheme } from '../theme'
-	import { createEventDispatcher } from 'svelte'
-	import { expoOut } from 'svelte/easing'
-	import { fly } from 'svelte/transition'
+	import { theme, initTheme, toggleTheme } from '../theme';
+	import { createEventDispatcher } from 'svelte';
+	import { expoOut } from 'svelte/easing';
+	import { fly } from 'svelte/transition';
 
-	const dispatch = createEventDispatcher()
+	const dispatch = createEventDispatcher();
 
 	interface $$Props {
 		/**
 		 * Whether `initTheme` should be called automatically.
 		 * @default true
 		 */
-		init?: boolean
+		init?: boolean;
 		/**
 		 * Icon transition animation options.
 		 * @default { y: -35, duration: 1000, easing: expoOut }
 		 */
-		transitionOptions?: { y: number; duration: number; easing: (t: number) => number }
+		transitionOptions?: { y: number; duration: number; easing: (t: number) => number };
 	}
 
 	interface $$Events {
 		/**
 		 * Fires when the toggle is clicked and provides `event.detail.theme` as the new theme.
 		 */
-		toggle: CustomEvent<{ theme: 'light' | 'dark' }>
+		toggle: CustomEvent<{ theme: 'light' | 'dark' }>;
 	}
 
-	export let init = true
+	export let init = true;
 
-	const config = { y: -35, duration: 1000, easing: expoOut }
+	const config = { y: -35, duration: 1000, easing: expoOut };
 
-	let ready = false
-	if (init) initTheme().then(() => (ready = true))
+	let ready = false;
+	if (init) initTheme().then(() => (ready = true));
 </script>
 
 <button
 	class="wrapper"
 	on:mousedown|capture|preventDefault|stopPropagation={() => {
-		toggleTheme()
+		toggleTheme();
 		dispatch('click', {
 			detail: {
 				theme: $theme,
 			},
-		})
+		});
 	}}
 >
 	{#if ready}
@@ -57,7 +57,9 @@
 					{#if $theme === 'light'}
 						<slot name="light">🌙</slot>
 					{:else if $theme === 'dark'}
-						<slot name="dark">🔆</slot>
+						<slot name="dark">
+							<span style:filter="hue-rotate(-40deg) saturate(0.5)"> 🔆 </span>
+						</slot>
 					{/if}
 				</div>
 			{/key}
