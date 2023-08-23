@@ -1,47 +1,50 @@
 <script>
-	import { onMount, tick } from 'svelte'
-	import { pulse } from './lib_stores'
-	import { theme } from '$lib'
+	import { onMount, tick } from 'svelte';
+	import { pulse } from './lib_stores';
+	import { theme } from '$lib';
 
-	let pulseBottom, pulseTop
-	let bottomY, bottomX, topY, topX
-	topX // wow
-	let h = 0
-	const w = 300
-	let ready = false
+	let pulseBottom, pulseTop;
+	let bottomY, bottomX, topY, topX;
+
+	let h = 0;
+	const w = 300;
+	let ready = false;
 
 	async function place() {
-		await tick()
-		pulseBottom = document.getElementById('theme-out')?.getBoundingClientRect()
-		pulseTop = document.getElementById('theme-in')?.getBoundingClientRect()
+		await tick();
+		// pulseBottom = document.getElementById('theme-out')?.getBoundingClientRect();
+		// pulseTop = document.getElementById('theme-in')?.getBoundingClientRect();
+		pulseBottom = document.getElementById('theme-in')?.getBoundingClientRect();
+		pulseTop = document.getElementById('theme-out')?.getBoundingClientRect();
 
 		if (pulseBottom && pulseTop) {
-			const { scrollTop } = document.documentElement
-			topY = Math.floor(pulseTop.top + pulseTop.height / 2 + scrollTop)
-			topX = Math.floor(pulseTop.left)
-			bottomY = Math.floor(pulseBottom.top + pulseTop.height / 2 + scrollTop)
-			bottomX = Math.floor(pulseBottom.left - w)
-			h = topY - bottomY
+			const { scrollTop } = document.documentElement;
+			bottomY = Math.floor(pulseBottom.top + pulseBottom.height / 2 + scrollTop);
+			bottomX = Math.floor(pulseBottom.left - w);
+			topY = Math.floor(pulseTop.top + pulseTop.height / 2 + scrollTop);
+			topX = Math.floor(pulseTop.left);
+			h = topY - bottomY;
+			// h = bottomY - topY; // Change to bottomY - topY
 		}
 
-		if (!ready) ready = true
+		if (!ready) ready = true;
 	}
 
-	let pulsate, timer
+	let pulsate, timer;
 	const triggerPulse = () => {
-		if (timer) clearTimeout(timer)
-		pulsate = true
+		if (timer) clearTimeout(timer);
+		pulsate = true;
 		timer = setTimeout(() => {
-			pulsate = false
-		}, 1000)
-	}
+			pulsate = false;
+		}, 1000);
+	};
 
 	$: {
-		$pulse
-		triggerPulse()
+		$pulse;
+		triggerPulse();
 	}
 
-	onMount(() => setTimeout(place, 1000))
+	onMount(() => setTimeout(place, 1000));
 </script>
 
 <svelte:window on:resize={place} />
@@ -91,8 +94,8 @@
 	#pulse {
 		position: absolute;
 		backface-visibility: hidden;
-		
-		stroke-dashoffset: 15%;
+
+		stroke-dashoffset: 310%;
 	}
 	path {
 		stroke-dasharray: 100 1300;
@@ -103,14 +106,14 @@
 		}
 	}
 	.pulsate {
-		animation: pulsate 1s ease-in-out;
+		animation: pulsate 1s ease-out;
 	}
 	@keyframes pulsate {
 		0% {
-			stroke-dashoffset: 15%;
+			stroke-dashoffset: 303%;
 		}
 		100% {
-			stroke-dashoffset: 205%;
+			stroke-dashoffset: 101%;
 		}
 	}
 </style>
