@@ -1,8 +1,8 @@
 <script>
-	import { mobile } from '$lib'
+	import { mobile } from '$lib';
 
-	export let title = 'title'
-	export let type = 'type'
+	export let title = 'title';
+	export let type = 'type';
 	export let path = '';
 </script>
 
@@ -42,7 +42,7 @@
 		border-radius: var(--border-radius);
 		box-shadow: var(--shadow-lg);
 
-		font-family: var(--font-b);
+		font-family: var(--mono);
 
 		outline: none;
 		z-index: 1;
@@ -55,7 +55,7 @@
 
 	:global(:not(pre) > code[class*='language-']),
 	:global(pre[class*='language-']) {
-		font-family: var(--font-b);
+		font-family: var(--mono);
 		background: var(--bg-a) !important;
 	}
 
@@ -96,6 +96,8 @@
 		right: 0;
 
 		padding: 1.2rem;
+
+		color: var(--bg-a);
 
 		font-family: var(--mono);
 		font-variation-settings: 'wght' 600;

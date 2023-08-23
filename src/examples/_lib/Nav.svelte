@@ -1,41 +1,41 @@
 <script lang="ts" context="module">
 	export interface Node {
-		name: string
-		path: string
-		element: HTMLElement | null
-		isActive: boolean
-		childActive: boolean
-		parent: Node | null
-		depth: number
-		disabled: boolean
-		children: Node[]
+		name: string;
+		path: string;
+		element: HTMLElement | null;
+		isActive: boolean;
+		childActive: boolean;
+		parent: Node | null;
+		depth: number;
+		disabled: boolean;
+		children: Node[];
 	}
 </script>
 
 <script lang="ts">
-	import { mobile, clickOutside, entries } from '$lib'
-	import Paths from '$examples/_lib/Paths.svelte'
-	import { onMount, tick } from 'svelte'
-	import { EXAMPLES } from '$examples'
-	import Burger from './Burger.svelte'
+	import { mobile, clickOutside, entries } from '$lib';
+	import Paths from '$examples/_lib/Paths.svelte';
+	import { onMount, tick } from 'svelte';
+	import { EXAMPLES } from '$examples';
+	import Burger from './Burger.svelte';
 
 	onMount(async () => {
-		await tick()
-		disableTracker = false
-		buildNodeTree()
-		await tick()
-		rootNode = rootNode
-	})
+		await tick();
+		disableTracker = false;
+		buildNodeTree();
+		await tick();
+		rootNode = rootNode;
+	});
 
-	let rootEl: HTMLUListElement
+	let rootEl: HTMLUListElement;
 
-	let rootNode = {} as any as Node
-	let key = true
-	let initial = true
+	let rootNode = {} as any as Node;
+	let key = true;
+	let initial = true;
 
 	/**
 	 * Builds the nav node tree and saves a ref to each
-	 * section header to the corresponding node.
+	 * section's header to the corresponding node.
 	 */
 	function buildNodeTree() {
 		rootNode = {
@@ -48,15 +48,15 @@
 			depth: 0,
 			disabled: true,
 			children: [] as Node[],
-		} satisfies Node
+		} satisfies Node;
 
-		rootNode.children = recurse(rootNode, EXAMPLES)
+		rootNode.children = recurse(rootNode, EXAMPLES);
 
 		function recurse(parent: Node, obj: Record<string, any>, depth = 1) {
-			let children = [] as Node[]
+			let children = [] as Node[];
 
 			for (const [key, value] of entries(obj)) {
-				const element = document.getElementById(key)
+				const element = document.getElementById(key);
 
 				const node = {
 					name: key,
@@ -68,116 +68,116 @@
 					depth,
 					disabled: depth < 2,
 					children: [] as Node[],
-				} satisfies Node
+				} satisfies Node;
 
-				children.push(node)
+				children.push(node);
 
 				if (typeof value === 'object') {
-					node.children = recurse(node, value, depth + 1)
+					node.children = recurse(node, value, depth + 1);
 				}
 			}
 
-			return children
+			return children;
 		}
 
-		recurse(rootNode, EXAMPLES)
+		recurse(rootNode, EXAMPLES);
 
 		if (initial) {
-			initial = false
-			const hash = document.location.hash.slice(1)
+			initial = false;
+			const hash = document.location.hash.slice(1);
 			if (hash) {
-				const node = enabledNodes().find((n) => n.name === hash)
+				const node = enabledNodes().find((n) => n.name === hash);
 
 				if (node) {
-					updateActiveNode(node)
+					updateActiveNode(node);
 				}
 			}
 		}
 
-		key = !key
+		key = !key;
 	}
 
 	function allNodes() {
-		let allNodes = [] as Node[]
-		recurse(rootNode)
+		let allNodes = [] as Node[];
+		recurse(rootNode);
 
 		function recurse(node: Node) {
-			allNodes.push(node)
+			allNodes.push(node);
 
 			for (const child of node.children) {
-				recurse(child)
+				recurse(child);
 			}
 		}
 
-		return allNodes
+		return allNodes;
 	}
 
 	function enabledNodes() {
-		return allNodes().filter((n) => !n.disabled)
+		return allNodes().filter((n) => !n.disabled);
 	}
 
 	function updateActiveNode(node: Node) {
-		active = node.name
+		active = node.name;
 
 		for (const node of allNodes()) {
-			updateChildActive(node, false)
+			updateChildActive(node, false);
 		}
 
-		let parent = node.parent
+		let parent = node.parent;
 		while (parent) {
-			updateChildActive(parent, true)
-			parent = parent.parent
+			updateChildActive(parent, true);
+			parent = parent.parent;
 		}
 
-		rootNode = rootNode
+		rootNode = rootNode;
 	}
 
 	function updateChildActive(node: Node, state: boolean) {
-		node.childActive = state
-		if (node.name === 'root') return
+		node.childActive = state;
+		if (node.name === 'root') return;
 		state
 			? node.element?.classList.add('child-active')
-			: node.element?.classList.remove('child-active')
+			: node.element?.classList.remove('child-active');
 	}
 
-	let active = 'root'
-	let disableTracker = true
+	let active = 'root';
+	let disableTracker = true;
 
-	let timer: NodeJS.Timeout | null = null
+	let timer: NodeJS.Timeout | null = null;
 	function handleClick(e: CustomEvent) {
-		if (timer) clearTimeout(timer)
+		if (timer) clearTimeout(timer);
 
-		disableTracker = true
-		active = e.detail.path
+		disableTracker = true;
+		active = e.detail.path;
 
-		if (menuOpen) menuOpen = false
+		if (menuOpen) menuOpen = false;
 
-		const here = document.location.origin + document.location.pathname
-		document.location = here + '#' + active
+		const here = document.location.origin + document.location.pathname;
+		document.location = here + '#' + active;
 
 		timer = setTimeout(() => {
-			disableTracker = false
-		}, 600)
+			disableTracker = false;
+		}, 600);
 	}
 
 	function trackScroll() {
 		if (disableTracker === false) {
 			for (const node of enabledNodes()) {
-				if (!node.element) continue
-				if (node.name === 'root') continue
+				if (!node.element) continue;
+				if (node.name === 'root') continue;
 
-				const top = node.element.getBoundingClientRect().top
+				const top = node.element.getBoundingClientRect().top;
 
 				if (top > 0 && top < window.innerHeight * 0.33) {
-					active = node.name
-					updateActiveNode(node)
-					break
+					active = node.name;
+					updateActiveNode(node);
+					break;
 				}
 			}
 		}
 	}
 
-	let menuOpen = false
+	let menuOpen = false;
 </script>
 
 <svelte:window on:scroll={trackScroll} />
@@ -203,7 +203,7 @@
 <style lang="scss">
 	ul {
 		position: fixed;
-		top: 40vh;
+		top: 10rem;
 		left: 1rem;
 
 		display: flex;

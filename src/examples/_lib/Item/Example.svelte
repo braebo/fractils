@@ -1,26 +1,31 @@
 <script script lang="ts">
-	import { mobile } from '$lib/index'
-	import { onMount } from 'svelte'
+	export let result = true;
+	export let file: string | null = null;
+	export let html: string | null = null;
 
-	export let example = 'example'
-	export let result = true
-	export let file: string | null = null
+	interface AddOptions {
+		/**
+		 * The class(es) to add to the element.
+		 */
+		class?: string | string[];
+		target?: (node: HTMLElement) => HTMLElement;
+		transform?: (node: HTMLElement) => void;
+	}
 
-	let Prism: any, highlightedExample: string, code: HTMLElement, pre: HTMLPreElement
+	const ADD_OPTIONS_DEFAULTS = {
+		class: '' as string | string[],
+	} as const satisfies AddOptions;
 
-	onMount(async () => {
-		const p = await import('prismjs')
-		Prism = p.default
-		highlightedExample = await Prism.highlight(example, Prism.languages.html, 'html')
-		if (code) code.style.opacity = '1'
-	})
+	const addScrollbars = {
+		class: 'scrollbars',
+		target: (node: HTMLElement) => {
+			return node.firstChild as HTMLElement;
+		},
+	};
 
-	$: if (code && $mobile) {
-		code.style.margin = '0'
-		code.style.fontSize = '0.9rem'
-		if (pre) pre.style.lineHeight = '0.75rem'
-		const current = parseInt(window.getComputedStyle(pre).minHeight.replace('px', ''))
-		pre.style.minHeight = String(current * 0.924) + 'px'
+	function add(node: HTMLElement, options: AddOptions) {
+		const { class: c } = { ...ADD_OPTIONS_DEFAULTS, ...options };
+		Array.isArray(c) ? node.classList.add(...c) : node.classList.add(c);
 	}
 </script>
 
@@ -29,9 +34,11 @@
 		<div class="file">{file}</div>
 	{/if}
 
-	<pre bind:this={pre}><code class="language-html" bind:this={code} class:mobile={$mobile}
-			>{#if highlightedExample}{@html highlightedExample.trim()}{/if}
-</code></pre>
+	{#if html}
+		<div class="shiki" use:add={addScrollbars}>
+			{@html html}
+		</div>
+	{/if}
 </div>
 
 <span style="display: {!result ? 'none' : 'content'};">
@@ -42,23 +49,29 @@
 </span>
 
 <style lang="scss">
-	pre {
-		min-height: var(--h, 165px);
+	$box-shadow: 0 0 5px 0 #000 inset;
+
+	.codeblock {
+		position: relative;
+
+		overflow: auto;
+	}
+
+	.shiki {
+		padding: 1rem 1.25rem;
 		margin: 0;
 
+		background: var(--bg-a);
 		border-radius: var(--border-radius);
+		box-shadow: $box-shadow;
 
-		&::-webkit-scrollbar {
-			display: none;
-			-ms-overflow-style: none; // IE & Edge
-			scrollbar-width: none; // Firefox
-		}
+		font-size: 0.9rem;
+		font-family: var(--mono);
+		line-height: 1.5;
 	}
 
 	:global(code) {
 		position: relative;
-
-		opacity: 0;
 
 		transition: 0.2s;
 	}
@@ -75,9 +88,9 @@
 
 		text-align: center;
 
-		box-shadow: 0 0 5px 0 #111 inset;
-		background: var(--result-bg, var(--bg-c));
+		background: var(--result-bg, var(--bg-a));
 		border-radius: var(--border-radius);
+		box-shadow: $box-shadow;
 
 		z-index: 3;
 	}
@@ -90,10 +103,6 @@
 		padding: 1rem;
 	}
 
-	.codeblock {
-		position: relative;
-	}
-
 	.file {
 		position: absolute;
 		right: 1rem;
@@ -104,6 +113,6 @@
 		font-family: var(--mono);
 
 		opacity: 0.5;
-		color: var(--bg-a);
+		color: var(--fg-d);
 	}
 </style>
