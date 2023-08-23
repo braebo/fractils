@@ -17,10 +17,10 @@ body {
 }
 
 code {
-	font-family: 'Inconsolata', 'Fira Code', monospace !important;
+	font-family: 'inconsolata', 'Fira Code', monospace !important;
 }
 
 :root {
 	--font-a: 'alata', sans-serif;
-	--font-b: 'inconsolata', monospace;
+	--mono: 'inconsolata', 'Fira Code', monospace !important;
 }

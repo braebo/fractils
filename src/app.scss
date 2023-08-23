@@ -11,8 +11,6 @@
 
 	--span-padding: 0px 5px 2px 5px;
 
-	--mono: 'Inconsolata', 'Fira Code', monospace !important;
-
 	scroll-behavior: smooth;
 }
 
@@ -30,22 +28,28 @@ a {
 button {
 	width: max-content;
 	margin: 0.5rem auto auto auto;
-	padding: 3px 5px;
+	padding: 5px 7px;
 
 	font-size: 0.9rem;
+	font-family: var(--font-c);
+	font-variation-settings: 'wght' 300;
 
-	color: var(--bg-a);
+	color: var(--fg-a);
 	border-radius: var(--border-radius);
-	border: 1px solid var(--fg-c);
+	border: 1px solid var(--bg-d);
 
-	background: var(--fg-d);
+	background: var(--bg-a);
 
 	&:hover {
-		border-color: var(--fg-a);
-		background: var(--fg-c);
+		border-color: var(--fg-d);
 	}
 
-	transition: 0.15s;
+	&:active {
+		border-color: var(--fg-d);
+		background: var(--bg-b);
+	}
+
+	transition: 0.1s;
 }
 
 .code {
@@ -69,7 +73,7 @@ button {
 	}
 }
 
-// Theme
+//· Theme ················································································¬
 
 @mixin variables($map) {
 	@each $variable, $colour in $map {
@@ -84,7 +88,7 @@ body {
 	@include variables(
 		(
 			brand-a: #00bcd4,
-			brand-b: #ffcc8b,
+			brand-b: #f8d2c9,
 			brand-c: #ff8ba9,
 		)
 	);
