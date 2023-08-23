@@ -1,46 +1,24 @@
 <script lang="ts">
-	import { clickOutside } from '$lib/actions/clickOutside.js'
-	import Example from '$examples/_lib/Item/Example.svelte'
-	import Params from '$examples/_lib/Item/Params.svelte'
-	import Item from '$examples/_lib/Item/Item.svelte'
+	import { clickOutside, type ClickOutsideEvent } from '$lib/actions/clickOutside.js';
+	import Example from '$examples/_lib/Item/Example.svelte';
+	import Params from '$examples/_lib/Item/Params.svelte';
+	import Item from '$examples/_lib/Item/Item.svelte';
+	import html from './ClickOutside.html?raw';
 
-	let clickedOutside = false
+	let clickedOutside = false;
 
-	let timer: ReturnType<typeof setTimeout> | null = null
+	let timer: ReturnType<typeof setTimeout> | null = null;
 
-	const handleClickOutside = (e: CustomEvent) => {
-		console.log(e.detail.target)
-		if (timer) clearTimeout(timer)
-		clickedOutside = true
+	const handleClickOutside = (e: ClickOutsideEvent) => {
+		if (timer) clearTimeout(timer);
+		clickedOutside = true;
+
 		timer = setTimeout(() => {
-			clickedOutside = false
-		}, 1000)
-	}
+			clickedOutside = false;
+		}, 1000);
+	};
 
-	const example = `<script lang="ts">
-	// import { clickOutside } from 'fractils'
-
-	let clickedOutside
-
-	function handleClickOutside(e: CustomEvent) {
-		clickedOutside = true
-		console.log(e.detail.target) // the element that was clicked
-	}
-<\/script>
-
-<div
-	use:clickOutside="{{ whitelist: ['notme'] }}"
-	on:outclick="{handleClickOutside}"
->
-	
-	clickedOutside = {clickedOutside}
-
-</div>
-
-<div class="notme">🚫</div>
-`
-
-	const path = 'actions/clickOutside.ts'
+	const path = 'actions/clickOutside.ts';
 
 	const params = [
 		{
@@ -62,7 +40,7 @@
 				},
 			],
 		},
-	]
+	];
 </script>
 
 <Item title="clickOutside" type="action" {path}>
@@ -72,7 +50,7 @@
 		<Params {params} --width="175px" />
 	</div>
 
-	<Example example={example.replace('// ', '')} --h="382px">
+	<Example --h="382px" {html}>
 		<div class="row">
 			<div
 				class="clickoutside"
@@ -95,7 +73,7 @@
 
 		width: 50%;
 		height: 50px;
-		background: var(--fg-d);
+		background: var(--bg-d);
 
 		color: white;
 
@@ -115,7 +93,7 @@
 		justify-content: space-around;
 		align-items: center;
 
-		background: white;
+		background: var(--bg-a);
 		border-radius: var(--border-radius);
 	}
 

@@ -1,15 +1,9 @@
 <script>
-	import Item from '../_lib/Item/Item.svelte'
-	import { log } from '$lib'
 	import Example from '$examples/_lib/Item/Example.svelte'
 	import Params from '$examples/_lib/Item/Params.svelte'
-
-	const example = `<script>
-	import { log } from 'fractils'
-    
-    log('Hello world', 'blue', '#222', 20, 'font-weight: bold;')
-<\/script>
-`
+	import Item from '../_lib/Item/Item.svelte'
+	import html from './Log.html?raw'
+	import { log } from '$lib'
 
 	function logger() {
 		log('Hello world', '#00bcd4', '#222', 20, 'font-weight: bold;')
@@ -54,12 +48,12 @@
 		<Params {params} --width="150px" />
 	</div>
 
-	<Example {example}>
+	<Example {html}>
 		<div class="result">
 			<div class="timestamp">04:20:69.173</div>
 
 			<pre
-				style="padding:5px;color:#00bcd4;background:var(--fg-d);border:1px solid lightblue;font-size:20px;font-weight: bold;">Hello world</pre>
+				style="padding:5px;color:#00bcd4;background:var(--bg-b);border:1px solid lightblue;font-size:20px;font-weight: bold;">Hello world</pre>
 			<div class="file">log.ts:22</div>
 		</div>
 	</Example>

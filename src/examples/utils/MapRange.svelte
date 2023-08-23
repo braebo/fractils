@@ -1,24 +1,11 @@
 <script>
-	import Example from '$examples/_lib/Item/Example.svelte'
-	import Params from '$examples/_lib/Item/Params.svelte'
-	import Item from '../_lib/Item/Item.svelte'
-	import { Range, mapRange } from '$lib'
+	import Example from '$examples/_lib/Item/Example.svelte';
+	import Params from '$examples/_lib/Item/Params.svelte';
+	import Item from '../_lib/Item/Item.svelte';
+	import html from './MapRange.html?raw';
+	import { Range, mapRange } from '$lib';
 
-	const example = `<script>
-	import { mapRange } from 'fractils'
-	
-	let value = 50
-    $: valueMapped = mapRange(value, 0, 100, -10, 10)
-<\/script>
-
-{value}
-
-<input bind:value type='range'/>
-
-{valueMapped}
-`
-
-	const path = 'utils/log.ts'
+	const path = 'utils/log.ts';
 
 	const params = [
 		{
@@ -50,11 +37,11 @@
 			type: 'returns',
 			description: 'A number mapped from the input range to the output range',
 		},
-	]
+	];
 
 	let value = 50,
-		valueMapped = '0.00'
-	$: valueMapped = mapRange(value, 0, 100, -10, 10).toFixed(2)
+		valueMapped = '0.00';
+	$: valueMapped = mapRange(value, 0, 100, -10, 10).toFixed(2);
 </script>
 
 <Item title="mapRange" type="function" {path}>
@@ -64,7 +51,7 @@
 		<Params {params} --width="150px" />
 	</div>
 
-	<Example {example}>
+	<Example {html}>
 		<div class="result">
 			<div class="col">
 				<div class="row value">
@@ -91,8 +78,9 @@
 		flex-direction: column;
 		justify-content: space-around;
 
-		width: 100%;
+		width: 75%;
 		height: 75px;
+		margin: auto;
 	}
 
 	.row {

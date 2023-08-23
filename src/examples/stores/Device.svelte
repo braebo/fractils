@@ -1,32 +1,12 @@
 <script>
-	import { mobile, screenH, screenW, scrollY, mouse } from '$lib'
-	import Example from '$examples/_lib/Item/Example.svelte'
-	import Params from '$examples/_lib/Item/Params.svelte'
-	import Item from '../_lib/Item/Item.svelte'
+	import { mobile, screenH, screenW, scrollY, mouse } from '$lib';
+	import Example from '$examples/_lib/Item/Example.svelte';
+	import Params from '$examples/_lib/Item/Params.svelte';
+	import Item from '../_lib/Item/Item.svelte';
+	import html2 from './Device2.html?raw';
+	import html1 from './Device.html?raw';
 
-	const example1 = `<script>
-	import { mobileThreshold, mobile, screenH, screenW, scrollY } from 'fractils'
-    
-    $mobileThreshold = 1000
-<\/script>
-
-mobile: {$mobile}
-screenH: {$screenH}
-screenW: {$screenW}
-scrollY: {$scrollY}
-mouse: {$mouse.x}, {$mouse.y}
-`
-
-	const example2 = `<script>
-	import { Device } from 'fractils'
-<\/script>
-
-<Device />
-
-<slot />
-`
-
-	const path = 'stores/Device.svelte'
+	const path = 'stores/Device.svelte';
 
 	$: stores = {
 		mobile: $mobile,
@@ -34,7 +14,7 @@ mouse: {$mouse.x}, {$mouse.y}
 		screenH: $screenH,
 		scrollY: Math.floor($scrollY),
 		mouse: `${$mouse.x}, ${$mouse.y}`,
-	}
+	};
 
 	const params = [
 		{
@@ -67,7 +47,7 @@ mouse: {$mouse.x}, {$mouse.y}
 			title: 'mouse',
 			description: `Tracks the users mouse position.`,
 		},
-	]
+	];
 </script>
 
 <Item title="device" type="stores" {path}>
@@ -77,12 +57,12 @@ mouse: {$mouse.x}, {$mouse.y}
 	First, the stores need to be registered. Ideally in the root layout:
 	<br /><br />
 
-	<Example example={example2} result={false} file={'src/routes/__layout.svelte'} />
+	<Example result={false} file={'src/routes/__layout.svelte'} html={html2} />
 
 	<br />
 
 	They can then be consumed normally:<br /><br />
-	<Example example={example1} --h="283px" file="Example.svelte">
+	<Example --h="283px" file="Example.svelte" html={html1}>
 		<div class="result">
 			<div class="grid">
 				{#each Object.entries(stores) as _, i}

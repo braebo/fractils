@@ -1,9 +1,10 @@
 <script lang="ts">
-	import Example from '$examples/_lib/Item/Example.svelte'
-	import Params from '$examples/_lib/Item/Params.svelte'
-	import { localStorageStore, OnMount } from '$lib'
-	import Item from '../_lib/Item/Item.svelte'
-	import { fade } from 'svelte/transition'
+	import Example from '$examples/_lib/Item/Example.svelte';
+	import Params from '$examples/_lib/Item/Params.svelte';
+	import { localStorageStore, OnMount } from '$lib';
+	import html from './LocalStorageStore.html?raw';
+	import Item from '../_lib/Item/Item.svelte';
+	import { fade } from 'svelte/transition';
 
 	const params = [
 		{
@@ -20,22 +21,11 @@
 			type: 'returns',
 			description: 'A writable store.',
 		},
-	]
+	];
 
-	const example = `<script>
-	//import { localStorageStore } from 'fractils'
+	const count = localStorageStore('count', 1);
 
-	const count = localStorageStore('count', 0)
-<\/script>
-
-<div on:click='{() => $count++}'>+<\/div>
-	{$count}
-<div on:click='{() => $count--}'>-<\/div>
-`
-
-	const count = localStorageStore('count', 1)
-
-	const path = 'utils/localStorageStore.ts'
+	const path = 'utils/localStorageStore.ts';
 </script>
 
 <Item title="localStorageStore" type="store" {path}>
@@ -44,7 +34,7 @@
 		<Params {params} />
 	</div>
 
-	<Example example={example.replace('//', '')} --h="260px">
+	<Example --h="260px" {html}>
 		<div class="result">
 			<div class="button" on:pointerdown={() => $count--}>-</div>
 			<OnMount><div class="count" in:fade={{ delay: 250 }}>{$count}</div></OnMount>

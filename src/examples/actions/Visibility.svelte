@@ -1,43 +1,22 @@
 <script lang="ts">
-	import type { Direction } from '$lib/actions/visibility.js'
-	import type { VisibilityEvent } from '$lib'
+	import type { Direction } from '$lib/actions/visibility.js';
+	import type { VisibilityEvent } from '$lib';
 
-	import { visibility } from '$lib'
+	import { visibility } from '$lib';
 
-	import Example from '$examples/_lib/Item/Example.svelte'
-	import Params from '$examples/_lib/Item/Params.svelte'
-	import Item from '$examples/_lib/Item/Item.svelte'
+	import Example from '$examples/_lib/Item/Example.svelte';
+	import Params from '$examples/_lib/Item/Params.svelte';
+	import Item from '$examples/_lib/Item/Item.svelte';
+	import html from './Visibility.html?raw';
 
-	import { bounceOut } from 'svelte/easing'
-	import { fly } from 'svelte/transition'
+	import { bounceOut } from 'svelte/easing';
+	import { fly } from 'svelte/transition';
 
-	let visible: boolean,
-		scrollDir: Direction | undefined,
-		options = { threshold: 0.75 }
+	let visible: boolean;
+	let scrollDir: Direction | undefined;
+	let options = { threshold: 0.75 };
 
-	const example = ` <script>
-	import { bounceOut } from 'svelte/easing'
-	import { fly } from 'svelte/transition'
-	//import { visibility } from 'fractils'
- 	
-	let visible, scrollDir, options = {threshold: 0.75}
-
- 	function handleChange(e) {
- 		visible = e.detail.isVisible
- 		scrollDir = e.detail.scrollDirection
- 	}
- <\/script>
-
- <div use:visibility={options} on:v-change={handleChange}>
-	{#if visible}
- 		<div in:fly={{ y: -20, easing: bounceOut }}>
-			going {scrollDir === 'down' ? '⬇' : '⬆'}
-		<\/div>
-	{\/if}
- <\/div>
-`
-
-	const path = 'actions/visibility/index.ts'
+	const path = 'actions/visibility/index.ts';
 
 	const params = [
 		{
@@ -106,12 +85,12 @@
 				},
 			],
 		},
-	]
+	];
 
 	const handleChange = ({ detail }: VisibilityEvent) => {
-		visible = detail.isVisible
-		scrollDir = detail.scrollDirection.vertical
-	}
+		visible = detail.isVisible;
+		scrollDir = detail.scrollDirection.vertical;
+	};
 </script>
 
 <Item title="visibility" type="action" {path}>
@@ -121,7 +100,7 @@
 		<Params {params} --width="183px" />
 	</div>
 
-	<Example example={example.replace('// ', '')} --h="382px">
+	<Example --h="382px" {html}>
 		<div class="visibility" use:visibility={options} on:v-change={handleChange}>
 			{#if visible}
 				<div in:fly={{ y: -20, delay: 250, duration: 1000, easing: bounceOut }}>

@@ -1,21 +1,12 @@
 <script>
-	import Example from '$examples/_lib/Item/Example.svelte'
-	import Params from '$examples/_lib/Item/Params.svelte'
-	import Item from '../_lib/Item/Item.svelte'
-	import { clamp } from '$lib'
+	import Example from '$examples/_lib/Item/Example.svelte';
+	import Params from '$examples/_lib/Item/Params.svelte';
+	import Range from '$lib/components/Range.svelte';
+	import Item from '../_lib/Item/Item.svelte';
+	import html from './Clamp.html?raw';
+	import { clamp } from '$lib';
 
-	const example = `<script>
-	import { clamp } from 'fractils'
-
-    $: value = clamp(value ?? 50, 25, 75)
-<\/script>
-
-{value}
-
-<input bind:value type='range'/>
-`
-
-	const path = 'utils/clamp.ts'
+	const path = 'utils/clamp.ts';
 
 	const params = [
 		{
@@ -37,9 +28,9 @@
 			type: 'returns',
 			description: 'The value clamped between the minimum and maximum.',
 		},
-	]
+	];
 
-	$: value = clamp(value ?? 50, 25, 75)
+	$: value = clamp(value ?? 50, 25, 75);
 </script>
 
 <Item title="clamp" type="function" {path}>
@@ -49,18 +40,19 @@
 		<Params {params} --width="150px" />
 	</div>
 
-	<Example {example}>
+	<Example {html}>
 		<div class="result">
 			<div class="col">
 				<div class="row value">
 					{value}
 				</div>
-				<input
-					type="range"
-					bind:value
+				<div
+					class="range-wrapper"
 					class:minClamped={value === 25}
 					class:maxClamped={value === 75}
-				/>
+				>
+					<Range bind:value min={0} max={100} step={1} />
+				</div>
 			</div>
 		</div>
 	</Example>
@@ -94,24 +86,24 @@
 		text-align: center;
 	}
 
-	input {
+	.range-wrapper {
 		position: relative;
 		width: 75%;
 		margin: 0 auto;
 	}
 
-	input.minClamped::before,
-	input.maxClamped::after {
+	.range-wrapper.minClamped::before,
+	.range-wrapper.maxClamped::after {
 		color: tomato;
 	}
 
-	input::before {
+	.range-wrapper::before {
 		content: '|';
 		position: absolute;
 		top: -1.5rem;
 		left: 25%;
 	}
-	input::after {
+	.range-wrapper::after {
 		content: '|';
 		position: absolute;
 		top: -1.5rem;

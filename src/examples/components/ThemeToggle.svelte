@@ -1,27 +1,22 @@
 <script>
-	import Example from '$examples/_lib/Item/Example.svelte'
-	import { ThemeToggle, theme, toggleTheme } from '$lib'
-	import Params from '$examples/_lib/Item/Params.svelte'
-	import { pulse } from '$examples/_lib/lib_stores'
-	import Item from '../_lib/Item/Item.svelte'
+	import Example from '$examples/_lib/Item/Example.svelte';
+	import Params from '$examples/_lib/Item/Params.svelte';
+	import { pulse } from '$examples/_lib/lib_stores';
+	import Item from '../_lib/Item/Item.svelte';
+	import { ThemeToggle, theme } from '$lib';
+	import html from './ThemeToggle.html?raw';
 
-	const example = `<script>
-    import { ThemeToggle } from 'fractils'
-<\/script>
+	const path = 'components/ThemeToggleExample.svelte';
 
-<ThemeToggle />
-`
-
-	const path = 'components/ThemeToggleExample.svelte'
-
-	let timer
+	let timer;
 	const handlePulse = () => {
-		if (timer) clearTimeout(timer)
-		$pulse = true
+		if ($pulse) return;
+		if (timer) clearTimeout(timer);
+		$pulse = true;
 		timer = setTimeout(() => {
-			$pulse = false
-		}, 1000)
-	}
+			$pulse = false;
+		}, 1000);
+	};
 </script>
 
 <Item title="ThemeToggle" type="component" {path}>
@@ -39,7 +34,7 @@
 		/>
 	</div>
 
-	<Example {example}>
+	<Example {html}>
 		<div
 			class:dark={$theme == 'dark'}
 			class:light={$theme == 'light'}
@@ -70,11 +65,15 @@
 		color: var(--fg-a);
 		background-color: var(--bg-a);
 		border-radius: var(--border-radius);
+
+		box-shadow: 0 0 5px 0 #000 inset;
 	}
 
 	.light {
 		color: var(--bg-a);
-		background: var(--fg-a);
+		background: var(--fg-d);
 		border-radius: var(--border-radius);
+
+		box-shadow: -1px 1px 4px 1px #000 inset;
 	}
 </style>

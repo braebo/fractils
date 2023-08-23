@@ -1,36 +1,27 @@
-<script lang='ts'>
-	import Item from '../_lib/Item/Item.svelte'
-	import { wait } from '$lib'
-	import Example from '$examples/_lib/Item/Example.svelte'
-	import Params, { type Param } from '$examples/_lib/Item/Params.svelte'
-	const example = `<script>
-	import { wait } from 'fractils'
-    
-    let ready, set, go
-	async function start() {
-		ready = true
-		await wait(500)
-		set = true
-		await wait(500)
-		go = true
-	}
-<\/script>
-`
+<script lang="ts">
+	import Params, { type Param } from '$examples/_lib/Item/Params.svelte';
+	import Example from '$examples/_lib/Item/Example.svelte';
+	import Item from '../_lib/Item/Item.svelte';
+	import html from './Wait.html?raw';
+	import { wait } from '$lib';
 
-	let ready = false, set = false, go = false
+	let ready = false;
+	let set = false;
+	let go = false;
+
 	async function start() {
-		ready = true
-		await wait(500)
-		set = true
-		await wait(500)
-		go = true
-		await wait(1500)
-		ready = false
-		set = false
-		go = false
+		ready = true;
+		await wait(500);
+		set = true;
+		await wait(500);
+		go = true;
+		await wait(1500);
+		ready = false;
+		set = false;
+		go = false;
 	}
 
-	const path = 'utils/wait.ts'
+	const path = 'utils/wait.ts';
 
 	const params: Param[] = [
 		{
@@ -42,7 +33,7 @@
 			type: 'returns',
 			description: 'A promise that resolves after <span class="code inline">t</span> ms.',
 		},
-	]
+	];
 </script>
 
 <Item title="wait" type="function" {path}>
@@ -51,7 +42,7 @@
 		<Params {params} --width="110px" />
 	</div>
 
-	<Example {example} --h="332px">
+	<Example --h="332px" {html}>
 		<div class="result">
 			<p class:active={ready}>ready</p>
 			<p class:active={set}>set</p>
