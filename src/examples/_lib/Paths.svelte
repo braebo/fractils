@@ -1,21 +1,21 @@
 <script lang="ts">
-	import type { Node } from '$examples/_lib/Nav.svelte'
+	import type { Node } from '$examples/_lib/Nav.svelte';
 
-	import { createEventDispatcher } from 'svelte'
-	import { fly, fade } from 'svelte/transition'
-	import { quintOut } from 'svelte/easing'
-	import { mobile } from '$lib'
+	import { createEventDispatcher } from 'svelte';
+	import { fly, fade } from 'svelte/transition';
+	import { quintOut } from 'svelte/easing';
+	import { mobile } from '$lib';
 
-	export let active: string
-	export let node: Node
-	$: children = node.children
+	export let active: string;
+	export let node: Node;
+	$: children = node.children;
 
-	const dispatch = createEventDispatcher()
+	const dispatch = createEventDispatcher();
 	function handleClick(index: number, path: string) {
 		dispatch('click', {
 			index,
 			path,
-		})
+		});
 	}
 </script>
 
@@ -29,7 +29,7 @@
 		class:child-active={node.childActive}
 		class:active={active === node.name && node.depth > 1}
 		on:click|capture|preventDefault={() => handleClick(i, node.name)}
-		on:touchstart|capture|preventDefault={() => handleClick(i, node.name)}
+		on:touchstart|capture={() => handleClick(i, node.name)}
 		on:keydown|capture|preventDefault={() => handleClick(i, node.name)}
 	>
 		<a href="#{node.name}">{node.name}</a>
@@ -110,7 +110,7 @@
 	}
 
 	.sub-path {
-		font-family: var(--font-b);
+		font-family: var(--mono);
 		margin-top: 0.25rem;
 
 		padding-left: 1.5rem;
