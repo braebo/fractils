@@ -1,14 +1,21 @@
+/**
+ * Undocumented modules are marked with // todo
+ */
+
 // Stores
 
 export { mobile, screenH, screenW, scrollY, mouse, mobileThreshold } from './stores/Device.svelte';
+export { default as Fractils } from './stores/Device.svelte'; // todo - deprecate legacy name
+export { default as Device } from './stores/Device.svelte';
 
 // Components
 
 export { default as MacScrollbar } from './components/MacScrollbar.svelte';
 export { default as ThemeToggle } from './components/ThemeToggle.svelte';
 export { default as OnMount } from './components/OnMount.svelte';
-export { default as Range } from './components/Range.svelte';
-export { default as Code } from './components/Code.svelte';
+export { default as Github } from './components/Github.svelte'; // todo
+export { default as Range } from './components/Range.svelte'; // todo
+export { default as Code } from './components/Code.svelte'; // todo
 
 // Theme
 
@@ -17,11 +24,11 @@ export { initTheme, toggleTheme, applyTheme, theme } from './theme';
 // Utils
 
 export { asyncLocalStorageStore } from './utils/asyncLocalStorageStore';
-export { stringify, type StringifyOptions } from './utils/stringify';
+export { stringify, type StringifyOptions } from './utils/stringify'; // todo
 export { localStorageStore } from './utils/localStorageStore';
-export { entries, keys, values } from './utils/object';
-export { decimalToPow } from './utils/decimalToPow';
-export { truncate } from './utils/truncate';
+export { entries, keys, values } from './utils/object'; // todo
+export { decimalToPow } from './utils/decimalToPow'; // todo
+export { truncate } from './utils/truncate'; // todo
 export { mapRange } from './utils/mapRange';
 export { clamp } from './utils/clamp';
 export { wait } from './utils/wait';
@@ -29,9 +36,7 @@ export { log } from './utils/log';
 
 // Actions
 
-export { default as Device } from './stores/Device.svelte';
-// legacy
-export { default as Fractils } from './stores/Device.svelte';
+export { add, type AddOptions } from './actions/add'; // todo
 
 export { clickOutside } from './actions/clickOutside';
 export type {
@@ -52,11 +57,11 @@ export type {
 	Event,
 } from './actions/visibility';
 
-export { highlight } from './actions/highlight';
+export { highlight } from './actions/highlight'; // todo
 export type {
 	HighlightEventDetail,
 	HighlightOptions,
 	HighlightEvent,
 	HighlightAttr,
 	ValidLanguage,
-} from './actions/highlight';
+} from './actions/highlight'; // todo
