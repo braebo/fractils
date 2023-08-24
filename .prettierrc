@@ -1,14 +1,15 @@
 {
-    "svelteSortOrder": "scripts-markup-styles",
-    "svelteIndentScriptAndStyle": true,
-    "svelteAllowShorthand": true,
-    "quoteProps": "as-needed",
-    "arrowParens": "always",
-    "trailingComma": "all",
-    "bracketSpacing": true,
-    "singleQuote": true,
-    "printWidth": 100,
-    "useTabs": true,
-    "tabWidth": 4,
-    "semi": true
+	"svelteSortOrder": "scripts-markup-styles",
+	"htmlWhitespaceSensitivity": "strict",
+	"svelteIndentScriptAndStyle": true,
+	"svelteAllowShorthand": true,
+	"quoteProps": "as-needed",
+	"arrowParens": "always",
+	"trailingComma": "all",
+	"bracketSpacing": true,
+	"singleQuote": true,
+	"printWidth": 100,
+	"useTabs": true,
+	"tabWidth": 4,
+	"semi": true
 }
