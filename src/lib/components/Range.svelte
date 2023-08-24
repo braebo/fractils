@@ -167,13 +167,7 @@
 		// Only update if the value changed by the step amount.
 		if (Math.abs(newValue - value) < step) return
 
-		console.log('\n')
-		console.log(`decimalToPow(${step}) = ${decimalToPow(step)}`)
-		console.table({ before: newValue, targetValue, step, v })
-
 		if (truncate) newValue = trunc(newValue, decimalToPow(step))
-
-		console.table({ after: newValue, targetValue, step, v })
 
 		if (callback) newValue = callback(newValue)
 
