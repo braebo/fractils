@@ -1,22 +1,19 @@
 <!-- hmr-reset -->
 <script lang="ts">
-	import { onMount } from 'svelte'
-
 	import hljs from 'highlight.js/lib/core'
 	import json from 'highlight.js/lib/languages/json'
 
-	import 'highlight.js/styles/github-dark-dimmed.css'
+	import { highlight, type ValidLanguage } from '../actions/highlight.js'
 	hljs.registerLanguage('json', json)
 
 	export let str = ''
 	export let title = 'code'
-	export let lang = 'json'
+	export let lang = 'json' as ValidLanguage
 
-	let highlighted = str ? hljs.highlight(str, { language: lang }).value : ''
+	if (lang === 'js') lang = 'javascript'
+	if (lang === 'ts') lang = 'typescript'
+	export let stringify = false
 
-	onMount(async () => {
-		highlighted ??= hljs.highlight(str, { language: lang }).value
-	})
 
 	function copy() {
 		navigator.clipboard.writeText(str)
@@ -32,7 +29,8 @@
 		<button class="copy" on:click|preventDefault={copy}>copy</button>
 	{/if}
 
-	<pre>{@html highlighted}</pre>
+	<!-- <pre>{@html highlighted}</pre> -->
+	<pre use:highlight={{ lang, stringify }}>{@html str}</pre>
 </div>
 
 <style lang="scss">
@@ -55,7 +53,7 @@
 
 	pre {
 		margin-top: 0.5rem;
-		font-family: var(--font-b);
+		font-family: var(--font-mono);
 	}
 
 	button {
@@ -76,7 +74,7 @@
 		height: 1rem;
 
 		font-size: 0.8rem;
-		font-family: var(--font-b);
+		font-family: var(--font-mono);
 
 		color: var(--fg-d);
 		background: var(--bg-a);
