@@ -5,6 +5,7 @@
 	font-style: normal;
 }
 
+/* Header Font */
 @font-face {
 	font-family: 'alata';
 	src: url('alata/alata.ttf') format('truetype');
@@ -12,15 +13,24 @@
 	font-style: normal;
 }
 
-body {
-	font-family: 'alata' !important;
-}
+/* Text Font */
+@font-face {
+	font-family: 'karla';
+	src: url('karla/karla.ttf') format('truetype');
 
-code {
-	font-family: 'inconsolata', 'Fira Code', monospace !important;
+	font-style: normal;
+}
+@font-face {
+	font-family: 'karla';
+	src: url('karla/karla-italic.ttf') format('truetype');
+
+	font-style: italic;
 }
 
 :root {
 	--font-a: 'alata', sans-serif;
-	--mono: 'inconsolata', 'Fira Code', monospace !important;
+	--font-b: 'karla', sans-serif;
+	--font-mono: 'inconsolata', 'Comic Mono', 'Fira Code', monospace !important;
+	--system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+		Arial, sans-serif;
 }
