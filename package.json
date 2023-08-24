@@ -23,7 +23,7 @@
 	"scripts": {
 		"dev": "vite dev",
 		"debug": "NODE_OPTIONS=\"--inspect\" vite dev",
-		"build": "rm -rf dist && vite build",
+		"build": "vite-node ./scripts/syntax-highlighter.ts && rm -rf dist && vite build",
 		"package": "svelte-package",
 		"release": "pnpm package && changeset publish",
 		"preview": "vite preview",
