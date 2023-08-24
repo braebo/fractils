@@ -172,7 +172,7 @@ export const highlight: Action<Element, HighlightOptions, HighlightAttr> = (node
 				outline: 1px dashed #aaaa;
 				
 				font-size: 0.8rem;
-				font-family: var(--mono);
+				font-family: var(--font-mono);
 			}
 		`
 
