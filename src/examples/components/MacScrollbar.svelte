@@ -22,7 +22,7 @@
 				title: 'root',
 				description:
 					`The root element used to scroll.  ` +
-					`Defaults to <span class="code inline">body</span>, but it can be replaced with HTMLElement or query selector.  `
+					`Defaults to <span class="code inline">body</span>, but it can be replaced with HTMLElement or query selector.  `,
 			},
 		]}
 	/>

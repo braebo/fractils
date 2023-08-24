@@ -9,12 +9,16 @@
 	const path = 'components/ThemeToggleExample.svelte';
 
 	let timer;
+	let animating = false;
 	const handlePulse = () => {
-		if ($pulse) return;
+		if (animating) return;
+		animating = true;
+
 		if (timer) clearTimeout(timer);
 		$pulse = true;
 		timer = setTimeout(() => {
 			$pulse = false;
+			animating = false;
 		}, 1000);
 	};
 </script>
@@ -56,6 +60,7 @@
 		min-height: 54px;
 
 		border-radius: var(--border-radius);
+		box-shadow: var(--shadow-inset);
 
 		overflow: hidden;
 		transition: background-color 0.2s;
@@ -65,8 +70,6 @@
 		color: var(--fg-a);
 		background-color: var(--bg-a);
 		border-radius: var(--border-radius);
-
-		box-shadow: 0 0 5px 0 #000 inset;
 	}
 
 	.light {
@@ -74,6 +77,6 @@
 		background: var(--fg-d);
 		border-radius: var(--border-radius);
 
-		box-shadow: -1px 1px 4px 1px #000 inset;
+		box-shadow: -2px 2px 5px 1px #000a inset;
 	}
 </style>
