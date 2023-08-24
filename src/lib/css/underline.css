@@ -1,0 +1,26 @@
+.double-under:after, .double-under:before {
+  position: absolute;
+  left: 20%;
+  bottom: 0;
+  height: 1px;
+  width: 60%;
+  background: white;
+  content: "";
+  transform: translateY(0px) scaleX(0);
+  transition: 0.15s;
+}
+.double-under:after {
+  opacity: 0.6;
+  transition-delay: 0.1s;
+}
+.double-under:before {
+  opacity: 0.25;
+}
+.double-under:hover:after {
+  transform: translateY(0px) scaleX(1);
+}
+.double-under:hover:before {
+  transform: translateY(5px) scaleX(0.3);
+}
+
+/*# sourceMappingURL=underline.css.map */
