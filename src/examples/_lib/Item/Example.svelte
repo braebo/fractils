@@ -54,20 +54,25 @@
 	.codeblock {
 		position: relative;
 
-		overflow: auto;
+		border-radius: var(--border-radius);
+		box-shadow: var(--shadow-inset);
+		background: var(--bg-a);
 	}
 
 	.shiki {
 		padding: 1rem 1.25rem;
 		margin: 0;
 
-		background: var(--bg-a);
-		border-radius: var(--border-radius);
-		box-shadow: $box-shadow;
+		font-family: var(--font-mono);
+		font-family: var(--font-a) !important;
 
 		font-size: 0.9rem;
 		font-family: var(--mono);
 		line-height: 1.5;
+	}
+
+	:global(.shiki pre.shiki) {
+		padding: 1rem 1.25rem;
 	}
 
 	:global(.shiki *) {
