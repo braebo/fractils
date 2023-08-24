@@ -110,7 +110,7 @@
 	}
 
 	.sub-path {
-		font-family: var(--mono);
+		font-family: var(--font-mono);
 		margin-top: 0.25rem;
 
 		padding-left: 1.5rem;

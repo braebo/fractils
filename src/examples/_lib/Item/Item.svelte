@@ -42,7 +42,9 @@
 		border-radius: var(--border-radius);
 		box-shadow: var(--shadow-lg);
 
-		font-family: var(--mono);
+		font-family: var(--font-b);
+		font-variation-settings: 'wght' 300 !important;
+		letter-spacing: 0.5px;
 
 		outline: none;
 		z-index: 1;
@@ -52,15 +54,20 @@
 		font-size: 1.5rem;
 		color: var(--fg-a);
 	}
-
-	:global(:not(pre) > code[class*='language-']),
-	:global(pre[class*='language-']) {
-		font-family: var(--mono);
-		background: var(--bg-a) !important;
+	
+	h1 {
+		scroll-padding-top: 3rem !important;
 	}
 
 	.item a {
+		font-family: var(--font-a);
 		text-decoration: none;
+
+		scroll-padding-top: 3rem;
+
+		&:target {
+			scroll-padding-top: 3rem;
+		}
 	}
 	.item a:hover {
 		text-decoration: underline;
@@ -70,7 +77,6 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-		gap: 1rem;
 	}
 
 	.mobile {
@@ -81,13 +87,7 @@
 		display: flex;
 		gap: 0.5rem;
 
-		margin-top: 1rem;
-	}
-
-	.description {
-		display: flex;
-
-		padding-bottom: 1rem;
+		margin-top: 0.5rem;
 	}
 
 	.link {
@@ -99,11 +99,13 @@
 
 		color: var(--bg-a);
 
-		font-family: var(--mono);
-		font-variation-settings: 'wght' 600;
+		font-family: var(--font-mono) !important;
+		font-variation-settings: 'wght' 500 !important;
+
+		transition: 0.15s;
 	}
 	.link:hover {
-		font-variation-settings: 'wght' 900;
+		font-variation-settings: 'wght' 900 !important;
 		text-decoration: none !important;
 	}
 </style>
