@@ -126,6 +126,7 @@
 		display: flex;
 
 		text-align: center;
+		box-shadow: var(--shadow-inset-b);
 
 		transition: 0.1s;
 	}

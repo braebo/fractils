@@ -1,5 +1,6 @@
 @import '../src/lib/css/underline.scss';
 @import '../src/lib/css/scrollbars.scss';
+@import '../src/lib/css/theme.scss';
 
 :root {
 	--col: min(95vw, 700px);
@@ -7,6 +8,7 @@
 	--border-radius: 5px;
 	--shadow-lg: 0px 5px 15px 2px rgba(0, 0, 0, 0.2);
 	--shadow-inset: 0 0 5px 0 #000 inset;
+	--shadow-inset-b: 0 0 13px 0 #000a inset, 0 0 5px 0 #000a inset, 0 0 3px 1px #0009 inset;
 
 	--span-padding: 0px 5px 2px 5px;
 }
@@ -79,56 +81,5 @@ button {
 		display: inline-flex;
 
 		padding: 1px 7px 3px 7px;
-	}
-}
-
-//· Theme ················································································¬
-
-@mixin variables($map) {
-	@each $variable, $colour in $map {
-		--#{$variable}: #{$colour};
-		// Enables alpha manipulation, ie: rgba(var(--fg-a-rgb), 0.5)
-		--#{$variable}-rgb: #{red($colour) + ', ' + green($colour) + ', ' + blue($colour)};
-	}
-}
-
-body {
-	--black: #0b0e11;
-	@include variables(
-		(
-			brand-a: #00bcd4,
-			brand-b: #f8d2c9,
-			brand-c: #ff8ba9,
-		)
-	);
-
-	&[theme='light'] {
-		@include variables(
-			(
-				fg-a: #15161d,
-				fg-b: #282a36,
-				fg-c: #1d252e,
-				fg-d: #3a3a44,
-				bg-a: #ffffff,
-				bg-b: #dfe1e9,
-				bg-c: #c3c4c7,
-				bg-d: #777d8f,
-			)
-		);
-	}
-
-	&[theme='dark'] {
-		@include variables(
-			(
-				bg-a: #15161d,
-				bg-b: #282a36,
-				bg-c: #1d252e,
-				bg-d: #3a3a44,
-				fg-a: #ffffff,
-				fg-b: #dfe1e9,
-				fg-c: #c3c4c7,
-				fg-d: #777d8f,
-			)
-		);
 	}
 }
