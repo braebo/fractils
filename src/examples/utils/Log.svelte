@@ -68,7 +68,11 @@
 			<a href="https://developer.chrome.com/docs/devtools/settings/ignore-list/">
 				ignore list
 			</a>
-			to forward stack traces <em>(It's pretty annoying when you click on a log's file in devtools and it takes you to the logger file instead of the callsite).</em>
+			to forward stack traces
+			<em
+				>(It's pretty annoying when you click on a log's link in devtools and it takes you
+				to the logger file instead of the callsite).</em
+			>
 		</em>
 	</p>
 </Item>
