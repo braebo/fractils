@@ -1,16 +1,16 @@
 <script>
-	import Example from '$examples/_lib/Item/Example.svelte'
-	import Params from '$examples/_lib/Item/Params.svelte'
-	import Item from '../_lib/Item/Item.svelte'
-	import html from './Log.html?raw'
-	import { log } from '$lib'
+	import Example from '$examples/_lib/Item/Example.svelte';
+	import Params from '$examples/_lib/Item/Params.svelte';
+	import Item from '../_lib/Item/Item.svelte';
+	import html from './Log.html?raw';
+	import { log } from '$lib';
 
 	function logger() {
-		log('Hello world', '#00bcd4', '#222', 20, 'font-weight: bold;')
+		log('Hello world', '#00bcd4', '#222', 20, 'font-weight: bold;');
 	}
-	logger()
+	logger();
 
-	const path = 'utils/log.ts'
+	const path = 'utils/log.ts';
 
 	const params = [
 		{
@@ -38,48 +38,98 @@
 			title: 'css',
 			description: 'Optional additional CSS.',
 		},
-	]
+	];
 </script>
 
 <Item title="log" type="function" {path}>
 	<div slot="description">
-		A simple logger that only runs in dev environments.
+		<p>A simple logger that only runs in dev environments.</p>
 
 		<Params {params} --width="150px" />
 	</div>
 
 	<Example {html}>
 		<div class="result">
-			<div class="timestamp">04:20:69.173</div>
+			<div class="console">
+				<div class="timestamp">04:20:69.173</div>
 
-			<pre
-				style="padding:5px;color:#00bcd4;background:var(--bg-b);border:1px solid lightblue;font-size:20px;font-weight: bold;">Hello world</pre>
-			<div class="file">log.ts:22</div>
+				<pre class="helloworld">Hello world</pre>
+				<div class="file">log.ts:21</div>
+			</div>
 		</div>
 	</Example>
+
+	<br />
+
+	<p class="dim">
+		&#9432; &nbsp;
+		<em>
+			Add <code>log.ts</code> to devtools
+			<a href="https://developer.chrome.com/docs/devtools/settings/ignore-list/">
+				ignore list
+			</a>
+			to forward stack traces <em>(It's pretty annoying when you click on a log's file in devtools and it takes you to the logger file instead of the callsite).</em>
+		</em>
+	</p>
 </Item>
 
-<style>
+<style lang="scss">
 	.result {
+		padding: 0.5rem 0;
+	}
+	.console {
 		display: flex;
-
-		border: 1px solid #999;
+		border: 1px solid var(--fg-d);
+		border-image: linear-gradient(
+				to right,
+				transparent,
+				var(--bg-d) 5%,
+				var(--bg-d) 95%,
+				transparent
+			)
+			1;
 		border-right: none;
 		border-left: none;
-		padding: 5px;
+		padding: 0.5rem 0;
+
+		width: 100%;
 	}
+
+	pre.helloworld {
+		padding: 5px;
+		color: var(--brand-a);
+		background: var(--bg-b);
+		border: 1px solid var(--brand-a);
+		font-size: 20px;
+		font-weight: bold;
+	}
+
 	.timestamp {
 		font-size: 11px;
-		padding: 2px 12px 0 0;
+		padding: 2px 12px 0 0.5rem;
 	}
+
 	.file {
 		font-size: 13px;
 		margin-left: auto;
 
+		padding-right: 0.5rem;
+
 		text-decoration: underline;
 	}
+
 	pre {
 		width: max-content;
 		padding: 0 20px;
+	}
+
+	em code {
+		font-size: 0.9rem;
+		font-family: var(--font-mono);
+		font-variation-settings: 'wght' 800;
+	}
+
+	em em {
+		color: var(--fg-d);
 	}
 </style>
