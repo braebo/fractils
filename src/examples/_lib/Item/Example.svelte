@@ -1,32 +1,16 @@
 <script script lang="ts">
+	import { add } from '$lib';
+
 	export let result = true;
 	export let file: string | null = null;
 	export let html: string | null = null;
 
-	interface AddOptions {
-		/**
-		 * The class(es) to add to the element.
-		 */
-		class?: string | string[];
-		target?: (node: HTMLElement) => HTMLElement;
-		transform?: (node: HTMLElement) => void;
-	}
-
-	const ADD_OPTIONS_DEFAULTS = {
-		class: '' as string | string[],
-	} as const satisfies AddOptions;
-
 	const addScrollbars = {
 		class: 'scrollbars',
 		target: (node: HTMLElement) => {
-			return node.firstChild as HTMLElement;
+			return node.querySelector('pre')!;
 		},
 	};
-
-	function add(node: HTMLElement, options: AddOptions) {
-		const { class: c } = { ...ADD_OPTIONS_DEFAULTS, ...options };
-		Array.isArray(c) ? node.classList.add(...c) : node.classList.add(c);
-	}
 </script>
 
 <div class="codeblock">
@@ -49,30 +33,24 @@
 </span>
 
 <style lang="scss">
-	$box-shadow: 0 0 5px 0 #000 inset;
-
 	.codeblock {
 		position: relative;
 
 		border-radius: var(--border-radius);
 		box-shadow: var(--shadow-inset);
 		background: var(--bg-a);
+
+		line-height: 1.5;
 	}
 
 	.shiki {
-		padding: 1rem 1.25rem;
-		margin: 0;
-
-		font-family: var(--font-mono);
-		font-family: var(--font-a) !important;
-
 		font-size: 0.9rem;
-		font-family: var(--mono);
-		line-height: 1.5;
 	}
 
 	:global(.shiki pre.shiki) {
 		padding: 1rem 1.25rem;
+
+		transition: 0.2s;
 	}
 
 	:global(.shiki *) {
@@ -107,7 +85,7 @@
 
 		background: var(--result-bg, var(--bg-a));
 		border-radius: var(--border-radius);
-		box-shadow: $box-shadow;
+		box-shadow: var(--shadow-inset-b);
 
 		z-index: 3;
 	}
@@ -127,7 +105,7 @@
 
 		width: max-content;
 
-		font-family: var(--mono);
+		font-family: var(--font-mono);
 
 		opacity: 0.5;
 		color: var(--fg-d);

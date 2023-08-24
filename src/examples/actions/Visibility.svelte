@@ -78,10 +78,9 @@
 					description: 'The element being observed.',
 				},
 				{
-					type: 'Direction',
+					type: 'object',
 					title: 'scrollDirection',
-					description: `{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;horizontal:&nbsp;&nbsp; 'up' | 'down' | 'left' | 'right',<br>
-					&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;vertical:&nbsp;&nbsp; 'up' | 'down' | 'left' | 'right'<br>}`,
+					description: `The direction of the scroll. <span class="code">scrollDirection.vertical</span> and <span class="code">scrollDirection.horizonal</span> will be either <span class="code">'up'</span>, <span class="code">'down'</span>, <span class="code">'left'</span>, or <span class="code">'right'</span>.</span>`,
 				},
 			],
 		},
@@ -97,7 +96,7 @@
 	<div slot="description">
 		Observes an element's current viewport visibility and dispatches relevant events.
 
-		<Params {params} --width="183px" />
+		<Params {params} --width="200px" />
 	</div>
 
 	<Example --h="382px" {html}>

@@ -25,7 +25,7 @@
 		{
 			type: 'store',
 			title: 'mobileThreshold',
-			description: `Writable store to adjust the $mobile 'breakpoint' threshold. Default 900.`,
+			description: `Writable store to adjust the $mobile 'breakpoint' threshold. Default <span class="code">900</span>`,
 		},
 		{
 			type: 'store',
@@ -52,16 +52,15 @@
 
 <Item title="device" type="stores" {path}>
 	<div slot="description">A series of device related stores.</div>
-	<Params {params} --width="200px" />
-	<br /><br />
-	First, the stores need to be registered. Ideally in the root layout:
+	<Params {params} --width="210px" />
+	First, the stores need to be registered. &nbsp;Ideally in the root layout:
 	<br /><br />
 
 	<Example result={false} file={'src/routes/__layout.svelte'} html={html2} />
 
 	<br />
 
-	They can then be consumed normally:<br /><br />
+	Now, they're reactive:<br /><br />
 	<Example --h="283px" file="Example.svelte" html={html1}>
 		<div class="result">
 			<div class="grid">

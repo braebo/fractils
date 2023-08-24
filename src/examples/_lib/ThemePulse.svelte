@@ -12,8 +12,6 @@
 
 	async function place() {
 		await tick();
-		// pulseBottom = document.getElementById('theme-out')?.getBoundingClientRect();
-		// pulseTop = document.getElementById('theme-in')?.getBoundingClientRect();
 		pulseBottom = document.getElementById('theme-in')?.getBoundingClientRect();
 		pulseTop = document.getElementById('theme-out')?.getBoundingClientRect();
 
@@ -24,7 +22,6 @@
 			topY = Math.floor(pulseTop.top + pulseTop.height / 2 + scrollTop);
 			topX = Math.floor(pulseTop.left);
 			h = topY - bottomY;
-			// h = bottomY - topY; // Change to bottomY - topY
 		}
 
 		if (!ready) ready = true;
@@ -78,6 +75,8 @@
 					fill="none"
 					stroke="yellow"
 					stroke-width="3"
+					stroke-linecap="round"
+					stroke-linejoin="round"
 				/>
 				<circle cx={10} cy={bottomY} r="50" fill="red" />
 				<circle cx={10} cy={topY} r="50" fill="red" />
@@ -95,7 +94,7 @@
 		position: absolute;
 		backface-visibility: hidden;
 
-		stroke-dashoffset: 310%;
+		stroke-dashoffset: 7rem;
 	}
 	path {
 		stroke-dasharray: 100 1300;
@@ -110,7 +109,7 @@
 	}
 	@keyframes pulsate {
 		0% {
-			stroke-dashoffset: 303%;
+			stroke-dashoffset: 311%;
 		}
 		100% {
 			stroke-dashoffset: 101%;

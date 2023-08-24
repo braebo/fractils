@@ -15,7 +15,7 @@
 
 		timer = setTimeout(() => {
 			clickedOutside = false;
-		}, 1000);
+		}, 500);
 	};
 
 	const path = 'actions/clickOutside.ts';
@@ -36,7 +36,7 @@
 					type: 'detail',
 					title: 'target',
 					description:
-						'The element that was clicked.  Access with <span class="code" style="display: inline">e.detail.target</span>.',
+						'The element that was clicked.  Access with <span class="code" style="display: inline">e.detail.target</span>',
 				},
 			],
 		},
