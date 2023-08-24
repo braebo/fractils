@@ -70,9 +70,9 @@
 		width: 1.5rem;
 		height: 1.5rem;
 
-		line-height: 1.25rem;
+		line-height: 1.4rem;
 
-		color: white;
+		color: var(--fg-a);
 		border-radius: 2px;
 
 		background: var(--bg-a);
@@ -90,7 +90,7 @@
 	}
 
 	.button:hover {
-		outline: 1px solid white;
+		outline: 1px solid var(--fg-a);
 	}
 
 	.count {
@@ -98,14 +98,14 @@
 		height: 23px;
 		line-height: 23px;
 
-		color: white;
-		background: var(--fg-d);
+		color: var(--fg-a);
+		background: var(--bg-d);
 		border-radius: var(--border-radius);
 	}
 
 	em {
 		opacity: 0.65;
-		font-family: var(--mono);
+		font-family: var(--font-mono);
 		transform: translateY(5px);
 		text-align: center;
 	}
