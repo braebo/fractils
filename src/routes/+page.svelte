@@ -1,11 +1,10 @@
 <script lang="ts">
-	import { entries } from '$lib/utils/object'
-	import { EXAMPLES } from '$examples'
-
-	import ThemePulse from '$examples/_lib/ThemePulse.svelte'
+	import ThemePulse from '$examples/_lib/ThemePulse.svelte';
+	import { entries } from '$lib/utils/object';
+	import { EXAMPLES } from '$examples';
 </script>
 
-{#each entries(EXAMPLES) as example, i}
+{#each entries(EXAMPLES) as example}
 	{@const categoryName = example[0].toLowerCase()}
 	{@const category = example[1]}
 
@@ -40,9 +39,12 @@
 		text-align: center;
 		text-decoration: none;
 
-		color: white;
-	}
-	a:first-of-type {
-		margin-top: 2.5rem;
+		font-family: var(--font-a);
+
+		color: var(--fg-a);
+
+		&:first-of-type {
+			margin-top: 2.5rem;
+		}
 	}
 </style>
