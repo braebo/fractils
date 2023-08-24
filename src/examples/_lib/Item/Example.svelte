@@ -70,10 +70,22 @@
 		line-height: 1.5;
 	}
 
-	:global(code) {
-		position: relative;
+	:global(.shiki *) {
+		font-family: var(--font-mono) !important;
+		font-variation-settings: 'wght' 400 !important;
+	}
 
-		transition: 0.2s;
+	:global(.shiki pre.shiki)::-webkit-scrollbar {
+		height: 7px;
+		width: 7px;
+	}
+	:global(.shiki pre.shiki)::-webkit-scrollbar-thumb {
+		border: 1px solid var(--bg-a);
+		background: var(--bg-b);
+		border-radius: 0.25rem;
+	}
+	:global(.shiki pre.shiki)::-webkit-scrollbar-corner {
+		background: transparent;
 	}
 
 	h6 {
