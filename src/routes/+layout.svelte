@@ -1,13 +1,21 @@
-<script>
-	import 'greset/greset.css'
+<script lang="ts">
+	import 'greset/greset.css';
 
-	import '../prism.css'
-	import '../app.scss'
+	import '../prism.css';
+	import '../app.scss';
 
-	import MacScrollbar from '$lib/components/MacScrollbar.svelte'
-	import Nav from '$examples/_lib/Nav.svelte'
-	import { scrollY } from '$examples/stores'
-	import { Device } from '$lib'
+	import MacScrollbar from '$lib/components/MacScrollbar.svelte';
+	import Github from '$lib/components/Github.svelte';
+	import Nav from '$examples/_lib/Nav.svelte';
+	import { scrollY } from '$examples/stores';
+	import { onMount, tick } from 'svelte';
+	import { Device, wait } from '$lib';
+
+	// https://github.com/sveltejs/kit/pull/8724
+	onMount(async () => {
+		await wait(1);
+		document.documentElement.style.scrollBehavior = 'smooth';
+	});
 </script>
 
 <template lang="pug">
