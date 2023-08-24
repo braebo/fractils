@@ -8,7 +8,12 @@
 </script>
 
 <Item title="MacScrollbar" type="component" {path}>
-	<div slot="description">Replaces the default scrollbar with a MacOS-style scrolbar. You probably shouldn't use this for anything that needs to be accessible (most things).</div>
+	<div slot="description">
+		<p>Replaces the default scrollbar with a MacOS-style scrolbar.</p>
+		<em>
+			You probably shouldn't use this for anything that needs to be accessible (most things).
+		</em>
+	</div>
 
 	<Params
 		params={[
