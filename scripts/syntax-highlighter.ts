@@ -8,7 +8,7 @@ import { getHighlighter, loadTheme } from 'shiki';
 import fs from 'fs/promises';
 
 const lang = 'svelte';
-// const theme = await loadTheme(__dirname + `/moxer.json`);
+
 const theme = await loadTheme(__dirname + `/serendipity.json`);
 
 const highlighter = await getHighlighter({
@@ -23,5 +23,7 @@ for await (const [path, module] of Object.entries(files)) {
 
 	const highlighted = highlighter.codeToHtml(code, lang);
 
-	await fs.writeFile(path.replace('.example.js', '.html'), highlighted);
+	const output = new URL(path, import.meta.url).pathname.replace('.example.js', '.html');
+
+	await fs.writeFile(output, highlighted);
 }
