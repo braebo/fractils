@@ -10,6 +10,7 @@ import Theme from './utils/Theme.svelte';
 import ThemeToggle from './components/ThemeToggle.svelte';
 import ClickOutside from './actions/ClickOutside.svelte';
 import Visibility from './actions/Visibility.svelte';
+import Tooltip from './components/Tooltip.svelte';
 import OnMount from './components/OnMount.svelte';
 import MacScrollbar from './components/MacScrollbar.svelte';
 
@@ -31,6 +32,7 @@ export const EXAMPLES = {
 		visibility: Visibility,
 	},
 	components: {
+		Tooltip,
 		OnMount,
 		MacScrollbar,
 	},
