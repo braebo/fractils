@@ -13,6 +13,8 @@ export { default as Device } from './stores/Device.svelte';
 export { default as MacScrollbar } from './components/MacScrollbar.svelte';
 export { default as ThemeToggle } from './components/ThemeToggle.svelte';
 export { default as OnMount } from './components/OnMount.svelte';
+export { default as Tooltip } from './components/Tooltip.svelte'; // todo
+export { default as Switch } from './components/Switch.svelte'; // todo
 export { default as Github } from './components/Github.svelte'; // todo
 export { default as Range } from './components/Range.svelte'; // todo
 export { default as Code } from './components/Code.svelte'; // todo
