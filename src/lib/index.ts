@@ -10,8 +10,10 @@ export { default as Device } from './stores/Device.svelte';
 
 // Components
 
+export { default as Inspector } from './components/inspector/Inspector.svelte'; // todo
 export { default as MacScrollbar } from './components/MacScrollbar.svelte';
 export { default as ThemeToggle } from './components/ThemeToggle.svelte';
+export { Toasts, toast, type Toast } from './components/toast/index'; // todo
 export { default as OnMount } from './components/OnMount.svelte';
 export { default as Tooltip } from './components/Tooltip.svelte'; // todo
 export { default as Switch } from './components/Switch.svelte'; // todo
@@ -30,8 +32,10 @@ export { stringify, type StringifyOptions } from './utils/stringify'; // todo
 export { localStorageStore } from './utils/localStorageStore';
 export { entries, keys, values } from './utils/object'; // todo
 export { decimalToPow } from './utils/decimalToPow'; // todo
+export { colors, randomColor } from './utils/color'; // todo
 export { truncate } from './utils/truncate'; // todo
 export { mapRange } from './utils/mapRange';
+export { defer } from './utils/defer'; // todo
 export { clamp } from './utils/clamp';
 export { wait } from './utils/wait';
 export { log } from './utils/log';
