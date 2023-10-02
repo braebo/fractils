@@ -1,8 +1,8 @@
-import { stringify } from '../../../src/lib/utils/stringify';
+import { debrief } from '../../../src/lib/utils/debrief';
 import * as tsdoc from '@microsoft/tsdoc';
-import * as ts from 'typescript';
 import * as path from 'path';
 import colors from 'colors';
+import ts from 'typescript';
 import * as os from 'os';
 
 /**
@@ -215,7 +215,9 @@ function parseTSDoc(foundComment: IFoundComment): void {
 
 	console.log(os.EOL + colors.green("Visiting TSDoc's DocNode tree") + os.EOL);
 	dumpTSDocTree(docComment, '');
-	console.log(stringify(docComment, 2));
+	console.clear()
+	console.log(debrief(docComment, { depth: 3, siblings: 4, trim: 30 }))
+	// console.log(stringify(docComment, 2));
 }
 
 /**
