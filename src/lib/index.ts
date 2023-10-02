@@ -28,8 +28,8 @@ export { initTheme, toggleTheme, applyTheme, theme } from './theme';
 // Utils
 
 export { asyncLocalStorageStore } from './utils/asyncLocalStorageStore';
-export { stringify, type StringifyOptions } from './utils/stringify'; // todo
 export { localStorageStore } from './utils/localStorageStore';
+export { stringify, serialize } from './utils/stringify'; // todo
 export { entries, keys, values } from './utils/object'; // todo
 export { decimalToPow } from './utils/decimalToPow'; // todo
 export { colors, randomColor } from './utils/color'; // todo
