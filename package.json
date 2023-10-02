@@ -45,6 +45,7 @@
 		"@svitejs/changesets-changelog-github-compact": "^1.1.0",
 		"@types/node": "^20.8.0",
 		"@types/prismjs": "^1.26.1",
+		"@vitest/ui": "^0.34.6",
 		"greset": "2.0.0",
 		"highlight.js": "^11.8.0",
 		"nanoid": "^5.0.1",
@@ -63,7 +64,8 @@
 		"tslib": "^2.6.2",
 		"typescript": "^5.2.2",
 		"vite": "^4.4.9",
-		"vite-node": "^0.34.6"
+		"vite-node": "^0.34.6",
+		"vitest": "^0.34.6"
 	},
 	"exports": {
 		".": {
