@@ -2,9 +2,9 @@
 	import type { Readable, Writable } from 'svelte/store'
 
 	import { inspectorStore } from './inspectorStore'
+	import { theme } from '../../theme'
 	import Group from './Group.svelte'
 	import Menu from './Menu.svelte'
-	import { theme } from 'fractils'
 
 	export let register: Record<string, Writable<unknown> | Readable<unknown>>
 	export let top = '10%'

@@ -1,13 +1,13 @@
 <script lang="ts">
-	import MacScrollbar from '$lib/ui/Scrollbar.svelte'
+	import { screenH } from '../../stores/Device.svelte'
+	import MacScrollbar from '../MacScrollbar.svelte'
 	import { createEventDispatcher } from 'svelte'
 	import { resize } from '$lib/utils/resizable'
-	import { screenH } from 'fractils'
 
 	export let isOpen = false
 	export let right = false
 	export let top = '10px'
-	export let theme = ''
+	export let theme = null as string | null
 	export let nub = '🚀'
 
 	interface Link {
@@ -50,9 +50,10 @@
 	class:isOpen
 	class:right
 >
-	<div class="nub" on:click={toggle}>{nub}</div>
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
+	<div class="nub" on:click={toggle} aria-disabled="true">{nub}</div>
 	<div class="side-menu-content" bind:this={content} on:scroll={(ev) => (e = ev)}>
-		<MacScrollbar root=".side-menu-content" {e} --mac-scrollbar-color="#131315" />
+		<MacScrollbar root=".side-menu-content" --mac-scrollbar-color="#131315" />
 		<nav>
 			{#each links as link}
 				{#if link.path}
@@ -115,7 +116,11 @@
 		border-right: solid 1px var(--lowlight);
 		border-top: solid 1px var(--highlight);
 		border-radius: 5px 0 0 5px;
-		box-shadow: var(--level-4, -6px 14px 28px rgba(0, 0, 0, 0.1), -6px 10px 10px rgba(0, 0, 0, 0.12));
+		box-shadow: var(
+			--level-4,
+			-6px 14px 28px rgba(0, 0, 0, 0.1),
+			-6px 10px 10px rgba(0, 0, 0, 0.12)
+		);
 
 		cursor: pointer;
 	}
@@ -129,7 +134,11 @@
 		color: var(--color-int);
 		background: var(--background-int);
 		border-left: solid 1px var(--highlight);
-		box-shadow: var(--level-4, 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22));
+		box-shadow: var(
+			--level-4,
+			0 14px 28px rgba(0, 0, 0, 0.25),
+			0 10px 10px rgba(0, 0, 0, 0.22)
+		);
 		border-radius: 5px 0 0 5px;
 
 		// overflow: hidden;
