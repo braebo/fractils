@@ -33,6 +33,7 @@ export { stringify, serialize } from './utils/stringify'; // todo
 export { entries, keys, values } from './utils/object'; // todo
 export { decimalToPow } from './utils/decimalToPow'; // todo
 export { colors, randomColor } from './utils/color'; // todo
+export { Extractor } from './utils/Extractor'; // todo
 export { truncate } from './utils/truncate'; // todo
 export { mapRange } from './utils/mapRange';
 export { defer } from './utils/defer'; // todo
