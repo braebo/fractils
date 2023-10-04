@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-	import type { Toast } from './index';
+	import { toast, type Toast } from './toast';
 
 	import { writable } from 'svelte/store';
 
@@ -19,8 +19,6 @@
 			},
 		};
 	}
-
-	export const toast = writable<Partial<Toast>>();
 </script>
 
 <script lang="ts">
@@ -98,7 +96,15 @@
 </script>
 
 <div class="fullscreen-toast-fixture">
-	<div class="toasts" style:top style:right style:bottom style:left style:margin style:flexDirection>
+	<div
+		class="toasts"
+		style:top
+		style:right
+		style:bottom
+		style:left
+		style:margin
+		style:flexDirection
+	>
 		{#each $toasts as toast (toast.id)}
 			<div
 				class="flip"

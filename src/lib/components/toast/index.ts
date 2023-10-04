@@ -1,14 +1,7 @@
-export interface Toast {
-	type: 'success' | 'error' | 'info';
-	message: string;
-	duration: number;
-	href?: string;
-}
+export type { Toast } from './toast'
 
-import { toast } from './Toasts.svelte';
-import Toasts from './Toasts.svelte';
+export { toast } from './toast'
 
-export { Toasts };
-export { toast };
-
-export default Toasts;
+import Toasts from './Toasts.svelte'
+export { Toasts }
+export default Toasts

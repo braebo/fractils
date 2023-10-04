@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Toast } from './index';
+	import type { Toast } from './toast';
 
 	import { createEventDispatcher, onMount } from 'svelte';
 	import { tweened } from 'svelte/motion';
