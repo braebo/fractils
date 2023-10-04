@@ -1,76 +1,74 @@
 <script lang="ts">
-	import { scrollY, mobile } from '../stores/Device.svelte';
-	import { onDestroy, onMount, tick } from 'svelte';
-	import { mapRange } from '../utils/mapRange.js';
+	import { scrollY, mobile } from '../stores/Device.svelte'
+	import { onDestroy, onMount, tick } from 'svelte'
+	import { mapRange } from '../utils/mapRange.js'
 
 	/**
 	 * The scrollbar root element or it's query selector.
 	 * @default `document.body`
 	 */
-	export let root: string | Element | null = null;
+	export let root: string | Element | null = null
 
 	/**
 	 * Destroys the component.
 	 * @default `true` on mobile if not overridden.
 	 * @note This component only works on viewport-sized elements.
 	 */
-	export let disabled: boolean;
+	export let disabled: boolean | undefined = undefined
 
 	/**
 	 * % of the scrollbar track to pad at the top and bottom.
 	 * @default `0.2`
 	 */
-	export const padding = 0.2;
-	$: disabled = disabled || $mobile;
+	export const padding = 0.2
+	$: disabled = disabled || $mobile
 
-	let viewHeight: number;
-	let containerHeight: number;
-	let ratio: number;
-	let scrollbarHeight: number;
-	let scrollbarHeightRatio: number;
-	let scrollbarOffset: number = 0;
-	let scrollPercentage: number;
+	let viewHeight: number
+	let containerHeight: number
+	let ratio: number
+	let scrollbarHeight: number
+	let scrollbarHeightRatio: number
+	let scrollPercentage: number
 
 	onMount(async () => {
 		if (typeof root === 'string') {
-			root = document.querySelector(root);
+			root = document.querySelector(root)
 		}
 
 		if (!root) {
-			const userDefinedroot = document.querySelector('#scrollbar-root');
-			root = userDefinedroot ?? document.body;
+			const userDefinedroot = document.querySelector('#scrollbar-root')
+			root = userDefinedroot ?? document.body
 		}
 
-		root!.id += ' scrollbar-root';
-		update();
-	});
+		root!.id += ' scrollbar-root'
+		update()
+	})
 
 	async function update() {
-		if (disabled) return;
-		await tick();
-		viewHeight = window.innerHeight;
-		ratio = parseFloat((viewHeight / containerHeight).toFixed(3));
-		scrollbarHeight = Math.max(Math.round(viewHeight * ratio), 25);
-		scrollbarHeightRatio = parseFloat((scrollbarHeight / viewHeight).toFixed(4)) * 100;
-		scrollbarOffset = viewHeight / scrollbarHeightRatio;
-		containerHeight = (root as Element).getBoundingClientRect().height;
-		scrollPercentage = mapRange($scrollY, 0, containerHeight, 0 + padding, 100 - padding * 2);
+		if (disabled) return
+		await tick()
+		viewHeight = window.innerHeight
+		ratio = parseFloat((viewHeight / containerHeight).toFixed(3))
+		scrollbarHeight = Math.max(Math.round(viewHeight * ratio), 25)
+		scrollbarHeightRatio = parseFloat((scrollbarHeight / viewHeight).toFixed(4)) * 100
+		containerHeight = (root as Element).getBoundingClientRect().height
+		scrollPercentage = mapRange($scrollY, 0, containerHeight, 0 + padding, 100 - padding * 2)
 
-		showScrollbar();
+		showScrollbar()
 	}
 
-	let reveal = false;
-	let timer: NodeJS.Timeout;
+	let reveal = false
+	let timer: NodeJS.Timeout
 
 	function showScrollbar() {
-		if (timer) clearTimeout(timer);
-		reveal = true;
+		if (timer) clearTimeout(timer)
+		reveal = true
 		timer = setTimeout(() => {
-			reveal = false;
-		}, 1000);
+			reveal = false
+		}, 1000)
 	}
 
-	onDestroy(() => clearTimeout(timer));
+	onDestroy(() => clearTimeout(timer))
 </script>
 
 <svelte:window on:scroll={() => update()} />
