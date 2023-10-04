@@ -7,7 +7,7 @@ export type Position = {
 	y?: number
 }
 
-// Types below needs to be manually copied to additional-svelte.jsx.d.ts file - more details there
+// Types below need to be manually copied to additional-svelte.jsx.d.ts file - more details there
 export type Direction = 'up' | 'down' | 'left' | 'right'
 
 export type ScrollDirection = {
@@ -25,7 +25,6 @@ export type VisibilityEventDetail = {
 
 export type VisibilityEvent = CustomEvent<VisibilityEventDetail>
 
-// Attributes applied to the element that does use:visibility
 export interface VisibilityAttr {
 	/** Callback fired when element enters or exits view. */
 	'on:v-change'?: (event: VisibilityEvent) => void
@@ -116,7 +115,7 @@ export const visibility: Action<HTMLElement, VisibilityOptions, VisibilityAttr> 
 		horizontal: undefined,
 	}
 
-	if (typeof IntersectionObserver !== 'undefined' && node) {
+	if (node && typeof IntersectionObserver !== 'undefined') {
 		const observer = new IntersectionObserver(
 			(entries, _observer) => {
 				const observe = _observer.observe
