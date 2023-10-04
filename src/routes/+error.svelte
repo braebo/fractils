@@ -12,9 +12,9 @@
 </script>
 
 <template lang="pug">
-	
+
 	FourOhFour
-	
+
 	+if('DEV && $page.status != "404"')
 		.error
 			a(href="/") go back

@@ -86,35 +86,6 @@ export function values<T extends {}>(object: T): ReadonlyArray<T[keyof T]> {
 	return Object.values(object) as unknown as ReadonlyArray<T[keyof T]>
 }
 
-// Tests
-{
-	// Mutable
-	{
-		const foo = { a: 1, b: '✨' }
-
-		const e1 = Object.entries(foo) // [string, string | number][]
-		const k2 = Object.keys(foo) // string[]
-		const v2 = Object.values(foo) // (string | number)[]
-
-		const e2 = entries(foo) // ["a", number] | ["b", string])[]
-		const k1 = keys(foo) // readonly ("a" | "b")[]
-		const v1 = values(foo) // readonly (number | string)[]
-	}
-
-	// Immutable
-	{
-		const foo = { a: 1, b: '✨' } as const
-
-		const e1 = entries(foo) // (["a", 1] | ["b", "✨"])[]
-		const k1 = keys(foo) // ("a" | "b")[]
-		const v1 = values(foo) // (1 | '✨')[]
-
-		const e2 = Object.entries(foo) // [string, 1 | "✨"][]
-		const k2 = Object.keys(foo) // string[]
-		const v2 = Object.values(foo) // (1 | '✨')[]
-	}
-}
-
 /**
  * Recursively processes a tuple type and returns a union of entries.
  * @template T - The tuple type being processed.
