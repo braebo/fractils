@@ -8,9 +8,6 @@ dependencies:
   esm-env:
     specifier: ^1.0.0
     version: 1.0.0
-  svelte:
-    specifier: ^3.59.1
-    version: 3.59.1
 
 devDependencies:
   '@changesets/cli':
@@ -85,6 +82,9 @@ devDependencies:
   shiki-twoslash:
     specifier: ^3.1.2
     version: 3.1.2(typescript@5.2.2)
+  svelte:
+    specifier: ^3.59.1
+    version: 3.59.1
   svelte-check:
     specifier: ^3.5.2
     version: 3.5.2(pug@3.0.2)(sass@1.68.0)(svelte@3.59.1)
@@ -3677,6 +3677,7 @@ packages:
   /svelte@3.59.1:
     resolution: {integrity: sha512-pKj8fEBmqf6mq3/NfrB9SLtcJcUvjYSWyePlfCqN9gujLB25RitWK8PvFzlwim6hD/We35KbPlRteuA6rnPGcQ==}
     engines: {node: '>= 8'}
+    dev: true
 
   /tar@6.2.0:
     resolution: {integrity: sha512-/Wo7DcT0u5HUV486xg675HtjNd3BXZ6xDbzsCUZPt5iw8bTQ63bP0Raut3mvro9u+CUyq7YQd8Cx55fsZXxqLQ==}
