@@ -1,19 +1,34 @@
 <!-- hmr-reset -->
 <script lang="ts">
-	import hljs from 'highlight.js/lib/core'
-	import json from 'highlight.js/lib/languages/json'
-
 	import { highlight, type ValidLanguage } from '../actions/highlight.js'
+	import json from 'highlight.js/lib/languages/json'
+	import hljs from 'highlight.js/lib/core'
+
 	hljs.registerLanguage('json', json)
 
+	/**
+	 * The string to highlight.
+	 * @defaultValue ''
+	 */
 	export let str = ''
+	/**
+	 * An optional title to display above the code block.
+	 * @defaultValue 'code'
+	 */
 	export let title = 'code'
+	/**
+	 * The language to use.  Must be a {@link ValidLanguage}.
+	 * @defaultValue 'json'
+	 */
 	export let lang = 'json' as ValidLanguage
+	/**
+	 * Whether to stringify the input.
+	 * @defaultValue false
+	 */
+	export let stringify = false
 
 	if (lang === 'js') lang = 'javascript'
 	if (lang === 'ts') lang = 'typescript'
-	export let stringify = false
-
 
 	function copy() {
 		navigator.clipboard.writeText(str)
