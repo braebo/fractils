@@ -1,10 +1,35 @@
 import { DocNode, DocExcerpt, DocComment, TSDocParser } from '@microsoft/tsdoc'
-import { l as log, n as nl, b, bd, dim, g, r } from '$lib/utils/l'
-import { readdir, stat } from 'node:fs/promises'
+import { l as log, n as nl, b, bd, dim, g, r, y } from './l'
+import { svelte2tsx } from 'svelte2tsx'
 import tsdoc from '@microsoft/tsdoc'
-import { join } from 'node:path'
 import ts from 'typescript'
 import os from 'os'
+
+/** A parsed file's tsdoc comment information. */
+export interface ParsedFile {
+	/** Path to the file containing the source code. */
+	file: string
+	/** All variable declaration docs found in the file. */
+	comments: Comment[]
+}
+
+/** A parsed variable declaration's tsdoc comment information. */
+export interface Comment {
+	/** Name of the variable the comment belongs to. */
+	name: string
+	/** Path to the file containing the source code. */
+	file: string
+	/** The raw tsdoc comment. */
+	tsdoc: string
+	summary?: string
+	remarks?: string
+	params?: { name: string; description: string }[]
+	typeParams?: { name: string; description: string }[]
+	returns?: string
+	seeBlocks?: string[]
+	defaultValue?: string
+	customBlocks?: { tagName: string; content: string }[]
+}
 
 /**
  * Information for a found variable declaration.  Most importantly,
@@ -12,34 +37,15 @@ import os from 'os'
  * parse the comment in the source file into a {@link DocComment}
  * for further processing, ultimately parsed into a {@link Comment}.
  */
-export interface FoundComment {
+interface FoundComment {
 	/** The name of the variable the comment belongs to. */
 	name: string
 	/** The declaration node the comment belongs to. */
 	compilerNode: ts.Node
 	/** The start and end positions of the comment in the source file. */
 	textRange: tsdoc.TextRange
-}
-
-/**
- * A parsed variable declaration's tsdoc comment information.
- */
-export interface Comment {
-	/**
-	 * Name of the variable the comment belongs to.
-	 */
-	name: string
-	/**
-	 * The raw tsdoc comment.
-	 */
-	tsdoc: string
-	summary?: string
-	remarks?: string
-	params?: { name: string; description: string }[]
-	typeParams?: { name: string; description: string }[]
-	returns?: string
-	defaultValue?: string
-	customBlocks?: { tagName: string; content: string }[]
+	/** The {@link ts.SyntaxKind} of declaration node the comment belongs to. */
+	kind: string
 }
 
 /**
@@ -47,123 +53,117 @@ export interface Comment {
  * the form of {@link Comment} objects.
  */
 export class Extractor {
-	public static comments: Comment[] = []
+	static comments: Comment[] = []
 
-	public static async scanFolders(paths: string[], verbose = false) {
-		const l = verbose ? log : () => {}
-		const comments: Comment[] = []
+	// static async scanFolders(paths: string[], verbose = false) {
+	// 	const l = verbose ? log : () => {}
+	// 	const comments: Comment[] = []
 
-		for (const path of paths) {
-			const absolutePath = join(__dirname, path)
-			const files = await readdir(absolutePath)
+	// 	for (const path of paths) {
+	// 		const absolutePath = join(__dirname, path)
+	// 		const files = await readdir(absolutePath)
 
-			for (const file of files) {
-				const filePath = join(absolutePath, file)
-				const stats = await stat(filePath)
+	// 		for (const file of files) {
+	// 			const filePath = join(absolutePath, file)
+	// 			const stats = await stat(filePath)
 
-				if (stats.isDirectory()) {
-					this.scanFolders([filePath])
-					continue
-				}
+	// 			if (stats.isDirectory()) {
+	// 				this.scanFolders([filePath])
+	// 				continue
+	// 			}
 
-				if (stats.isFile() && filePath.endsWith('.ts')) {
-					l(dim('\n' + '-'.repeat(80)))
+	// 			if (stats.isFile() && filePath.endsWith('.ts')) {
+	// 				l(dim('\n' + '-'.repeat(80)))
 
-					const result = this.scanFile(filePath, verbose)
+	// 				const result = this.scanFiles(filePath, verbose)
 
-					for (const parsedComment of result.comments) {
-						comments.push(parsedComment)
+	// 				for (const parsedComment of result.comments) {
+	// 					comments.push(parsedComment)
 
-						if (verbose) {
-							l(b(`\n\nFound comment:\n`))
-							this.logComment(parsedComment)
-						}
-					}
+	// 					if (verbose) {
+	// 						l(b(`\n\nFound comment:\n`))
+	// 						this.logComment(parsedComment)
+	// 					}
+	// 				}
 
-					l(dim('\n' + '-'.repeat(80) + '\n'))
-				}
-			}
-		}
+	// 				l(dim('\n' + '-'.repeat(80) + '\n'))
+	// 			}
+	// 		}
+	// 	}
 
-		return comments
-	}
+	// 	return comments
+	// }
 
-	public static scanFile(path: string, verbose = false) {
+	static scanFiles(paths: string[], verbose = false) {
 		const l = verbose ? log : () => {}
 		const n = verbose ? nl : () => {}
 
+		console.time('scanFiles()')
+		l(bd('\nscanFiles()\n'))
+
 		const compilerOptions: ts.CompilerOptions = {
-			target: ts.ScriptTarget.ES5,
+			target: ts.ScriptTarget.Latest,
+			module: ts.ModuleKind.ESNext,
+			moduleResolution: ts.ModuleResolutionKind.Bundler,
 		}
 
-		const input = new URL(path, import.meta.url)
-		const inputFilename = input.pathname
+		// svelte shims
+		if (paths.some((p) => p.endsWith('.svelte'))) {
+			l(dim('\nadding svelte shims\n'))
+			paths.push(require.resolve('svelte2tsx/svelte-jsx.d.ts'))
+			paths.push(require.resolve('svelte2tsx/svelte-shims.d.ts'))
+			// paths.push(require.resolve('@sveltejs/kit/types/index.d.ts'))
+		}
 
-		n()
-		l(inputFilename.split('/').pop())
-		n()
-		l(dim('envoking typescript compiler'))
-		n()
+		l(dim('\nenvoking typescript compiler\n'))
+		const program: ts.Program = ts.createProgram(paths, compilerOptions)
 
-		const program: ts.Program = ts.createProgram([inputFilename], compilerOptions)
+		if (verbose) this.#reportCompilerErrors(program)
 
-		// Report any compiler errors
-		const compilerDiagnostics: ReadonlyArray<ts.Diagnostic> = program.getSemanticDiagnostics()
-		if (compilerDiagnostics.length > 0) {
-			for (const diagnostic of compilerDiagnostics) {
-				const message: string = ts.flattenDiagnosticMessageText(
-					diagnostic.messageText,
-					os.EOL,
-				)
-				if (diagnostic.file) {
-					const location: ts.LineAndCharacter =
-						diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start!)
-					const formattedMessage: string =
-						`${diagnostic.file.fileName}(${location.line + 1},${
-							location.character + 1
-						}):` + ` [TypeScript] ${message}`
-					console.log(r(formattedMessage))
-				} else {
-					console.log(r(message))
-				}
+		const comments: ParsedFile[] = []
+
+		for (const path of paths) {
+			const sourceFile = program.getSourceFile(path)
+
+			if (!sourceFile) {
+				l(r('Error retrieving source file: ') + paths)
+				throw new Error('Error retrieving source file')
 			}
-		} else {
-			l(g('No compiler errors.'))
-		}
 
-		const sourceFile = program.getSourceFile(inputFilename)
-		if (!sourceFile) {
-			throw new Error('Error retrieving source file')
-		}
+			l(os.EOL + 'Scanning compiler AST for first code comment...' + os.EOL)
 
-		l(os.EOL + 'Scanning compiler AST for first code comment...' + os.EOL)
+			const foundComments: FoundComment[] = []
 
-		const foundComments: FoundComment[] = []
+			this.#walkCompilerAstAndFindComments(sourceFile, '', foundComments)
 
-		this.#walkCompilerAstAndFindComments(sourceFile, '', foundComments)
-
-		if (!foundComments.length) {
-			l(r('No comments found.'))
-			return {
-				file: null,
-				comments: [],
+			if (!foundComments.length) {
+				l(r('No comments found.'))
+				return []
 			}
+
+			comments.push({
+				file: path,
+				comments: foundComments
+					.map((c) => Extractor.#parseTSDoc(c))
+					.map((c) => Extractor.parseComment(path, c.name, c.docComment)),
+			})
 		}
 
-		const comments = foundComments
-			.map((c) => Extractor.#parseTSDoc(c))
-			.map((c) => Extractor.parseComment(c.name, c.docComment))
+		console.timeEnd('\nscanFiles()\n')
+		return comments
+	}
 
-		return {
-			file: path,
-			comments,
-		}
+	static compileSvelte(svelte: string, filename: string) {
+		return svelte2tsx(svelte, {
+			filename,
+			isTsFile: true,
+		})
 	}
 
 	/**
 	 * Pretty prints a {@link Comment} to the console.
 	 */
-	public static logComment(comment: Comment) {
+	static logComment(comment: Comment) {
 		const l = log
 		const n = nl
 		const star = dim(' *')
@@ -252,27 +252,37 @@ export class Extractor {
 	 * Get's the name of a variable from a {@link VariableDeclaration} node.
 	 */
 	static #getIdentifierName(node: ts.Node): string {
-		const tree: string[] = []
+		const tree = [ts.SyntaxKind[node.kind]]
 
-		for (const n of node.getChildren()) {
+		let name: string | undefined = undefined
+
+		node.forEachChild(visit)
+
+		function visit(n: ts.Node) {
+			if (name) return
 			tree.push(ts.SyntaxKind[n.kind])
 			if (['Identifier', 'StringLiteral'].includes(ts.SyntaxKind[n.kind])) {
-				return n.getText()
+				name ??= n.getText()
 			}
+			n.forEachChild(visit)
 		}
 
-		console.error('Failed to find identifier name.')
-		console.error(tree)
-		throw new Error('Failed to find identifier name.')
+		if (!name) {
+			console.error('Failed to find identifier name.')
+			console.error(tree)
+			throw new Error('Failed to find identifier name.')
+		}
+
+		return name
 	}
 
 	/**
 	 * Parses a {@link DocComment} into a {@link Comment}.
+	 * @param file The path to the file containing the comment.
 	 * @param name The name of the variable associated with the comment.
 	 * @param comment The {@link DocComment} to parse.
-	 * @returns
 	 */
-	static parseComment(name: string, comment: DocComment): Comment {
+	static parseComment(file: string, name: string, comment: DocComment): Comment {
 		const tsdoc = comment.emitAsTsdoc()
 
 		const summary = Extractor.renderDocNode(comment.summarySection)?.trim()
@@ -311,14 +321,20 @@ export class Extractor {
 			}
 		})
 
+		const seeBlocks = comment.seeBlocks
+			? comment.seeBlocks.map((b) => Extractor.renderDocNode(b.content)?.trim())
+			: undefined
+
 		return {
 			name,
+			file,
 			tsdoc,
 			summary,
 			remarks,
 			params,
 			typeParams,
 			returns,
+			seeBlocks,
 			defaultValue,
 			customBlocks,
 		}
@@ -333,34 +349,44 @@ export class Extractor {
 		node: ts.Node,
 		indent: string,
 		foundComments: FoundComment[],
+		tree: string[] = [],
 	): void {
-		const buffer: string = node.getSourceFile().getFullText() // don't use getText() here!
+		try {
+			const buffer: string = node.getSourceFile().getFullText() // don't use getText() here!
 
-		// Only consider nodes that are part of a declaration form.  Without this, we could discover
-		// the same comment twice (e.g. for a MethodDeclaration and its PublicKeyword).
-		if (this.#isDeclarationKind(node.kind)) {
-			// Find "/** */" style comments associated with this node.
-			// Note that this reinvokes the compiler's scanner -- the result is not cached.
-			const comments: ts.CommentRange[] = this.#getJSDocCommentRanges(node, buffer)
+			// Only consider nodes that are part of a declaration form.  Without this, we could discover
+			// the same comment twice (e.g. for a MethodDeclaration and its PublicKeyword).
+			if (this.#isDeclarationKind(node.kind)) {
+				tree.push(indent + ts.SyntaxKind[node.kind])
+				// Find "/** */" style comments associated with this node.
+				// Note that this reinvokes the compiler's scanner -- the result is not cached.
+				const comments: ts.CommentRange[] = this.#getJSDocCommentRanges(node, buffer)
 
-			if (comments.length > 0) {
-				for (const comment of comments) {
-					foundComments.push({
-						name: this.#getIdentifierName(node),
-						compilerNode: node,
-						textRange: tsdoc.TextRange.fromStringRange(
-							buffer,
-							comment.pos,
-							comment.end,
-						),
-					})
+				if (comments.length > 0) {
+					for (const comment of comments) {
+						foundComments.push({
+							name: this.#getIdentifierName(node),
+							compilerNode: node,
+							textRange: tsdoc.TextRange.fromStringRange(
+								buffer,
+								comment.pos,
+								comment.end,
+							),
+							kind: ts.SyntaxKind[node.kind],
+						})
+					}
 				}
 			}
-		}
 
-		return node.forEachChild((child) =>
-			this.#walkCompilerAstAndFindComments(child, indent + '  ', foundComments),
-		)
+			return node.forEachChild((child) =>
+				this.#walkCompilerAstAndFindComments(child, indent + '  ', foundComments, tree),
+			)
+		} catch (error) {
+			console.error(error)
+			console.log('tree:')
+			console.log(y(tree))
+			throw error
+		}
 	}
 
 	/**
@@ -431,9 +457,46 @@ export class Extractor {
 			kind === ts.SyntaxKind.TypeAliasDeclaration ||
 			kind === ts.SyntaxKind.TypeParameter ||
 			kind === ts.SyntaxKind.VariableDeclaration ||
+			kind === ts.SyntaxKind.VariableDeclarationList || //?!
+			kind === ts.SyntaxKind.VariableStatement || //?!
 			kind === ts.SyntaxKind.JSDocTypedefTag ||
 			kind === ts.SyntaxKind.JSDocCallbackTag ||
 			kind === ts.SyntaxKind.JSDocPropertyTag
 		)
+	}
+
+	static #reportCompilerErrors(program: ts.Program) {
+		const l = log
+		const compilerDiagnostics: ReadonlyArray<ts.Diagnostic> = program.getSemanticDiagnostics()
+		const count = compilerDiagnostics.length
+		if (count > 0) {
+			nl()
+			const _ = count === 1 ? 'error' : 'errors'
+			console.error(`${bd(r(count))} compiler ${_} found:`)
+
+			for (const diagnostic of compilerDiagnostics) {
+				const message: string = ts.flattenDiagnosticMessageText(
+					diagnostic.messageText,
+					os.EOL,
+				)
+				if (diagnostic.file) {
+					const location: ts.LineAndCharacter =
+						diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start!)
+					const formattedMessage: string =
+						b('\n[TypeScript] ') +
+						r(message) +
+						dim(
+							`\n${diagnostic.file.fileName}(${location.line + 1},${
+								location.character + 1
+							})`,
+						)
+					l(formattedMessage)
+				} else {
+					l(r(message))
+				}
+			}
+		} else {
+			l(g('No compiler errors.'))
+		}
 	}
 }
