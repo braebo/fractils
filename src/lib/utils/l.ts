@@ -66,3 +66,37 @@ export function timestamp() {
 		.replace(/[-:.TZ]/g, '')
 		.slice(2, 12)
 }
+
+/**
+ * Like `console.time`, returning a `console.timeEnd` function.
+ * @param label Console label.
+ * @param randomColor Whether to use a random color for the label.
+ * @param format Whether to log the time in seconds or milliseconds.
+ * @returns `console.timeEnd` for the given label.
+ * @example
+ * const end = start('foo')
+ * // do stuff
+ * end() // foo 1.2s
+ */
+export function start(label: string, randomColor = true, format: 's' | 'ms' = 's') {
+	const hex = randomColor
+		? c.hex(`#${Math.floor(Math.random() * 16777215).toString(16)}`)
+		: (x: string) => x
+
+	n()
+	l(bd(hex(label)))
+	n()
+
+	const start = performance.now()
+
+	return () => {
+		n()
+		const end =
+			format === 'ms'
+				? (performance.now() - start).toFixed(2) + 'ms'
+				: ((performance.now() - start) / 1000).toFixed(1).replace('.0', '') + 's'
+
+		l(`${hex(label.replace('()', ''))} ${end}`)
+		n()
+	}
+}
