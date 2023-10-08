@@ -2,20 +2,23 @@
 	"$schema": "https://developer.microsoft.com/json-schemas/tsdoc/v0/tsdoc.schema.json",
 
 	// Include the definitions that are required for API Extractor
-	"extends": ["@microsoft/api-extractor/extends/tsdoc-base.json"],
-
-	// noStandardTags: false,
+	// "extends": ["@microsoft/api-extractor/extends/tsdoc-base.json"],
 
 	"tagDefinitions": [
-		// Define a custom tag and specify how it should be parsed
 		{
 			"tagName": "@default",
+			"syntaxKind": "block",
+			"allowMultiple": false
+		},
+		{
+			"tagName": "@note",
 			"syntaxKind": "block",
 			"allowMultiple": true
 		}
 	],
 
 	"supportForTags": {
-		"@default": true
+		"@default": true,
+		"@note": true
 	}
 }

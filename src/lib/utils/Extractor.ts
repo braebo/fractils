@@ -4,21 +4,39 @@ import { TSDocConfigFile } from '@microsoft/tsdoc-config'
 import * as tsdoc from '@microsoft/tsdoc'
 import { svelte2tsx } from 'svelte2tsx'
 import ts from 'typescript'
+import chalk from 'chalk'
 import os from 'os'
 
-/** A parsed file's tsdoc comment information. */
+/**
+ * A parsed file's tsdoc comment information.
+ */
 export interface ParsedFile {
-	/** Path to the file containing the source code. */
+	/**
+	 * Path to the file containing the source code.
+	 */
 	file: string
-	/** All variable declaration docs found in the file. */
+
+	/**
+	 * Whether the comment belongs to a js/ts variable
+	 * declaration or a svelte component.
+	 */
+	type: 'ts' | 'svelte'
+
+	/**
+	 * All variable declaration doc comments found.
+	 */
 	comments: Comment[]
 }
 
 /** A parsed variable declaration's tsdoc comment information. */
 export interface Comment {
-	/** Name of the variable the comment belongs to. */
+	/**
+	 * Name of the variable the comment belongs to.
+	 */
 	name: string
-	/** Path to the file containing the source code. */
+	/**
+	 * Path to the file containing the source code.
+	 */
 	file: string
 	summary?: string
 	remarks?: string
@@ -26,9 +44,12 @@ export interface Comment {
 	typeParams?: { name: string; description: string }[]
 	returns?: string
 	seeBlocks?: string[]
-	defaultValue?: string
 	customBlocks?: { tagName: string; content: string }[]
-	/** The raw tsdoc comment. */
+	defaultValue?: string
+	noteBlocks?: string[]
+	/**
+	 * The raw tsdoc comment.
+	 */
 	raw: string
 }
 
@@ -101,6 +122,7 @@ export class Extractor {
 
 			comments.push({
 				file: path,
+				type: path.match(/\.svelte(\.ts)?$/) ? 'svelte' : 'ts',
 				comments: foundComments
 					.map((c) => Extractor.#parseTSDoc(c))
 					.map((c) => Extractor.parseComment(path, c.name, c.docComment)),
@@ -122,40 +144,43 @@ export class Extractor {
 	 * Pretty prints a {@link Comment} to the console.
 	 */
 	static logComment(comment: Comment) {
+		const pink = chalk.hex('#eaa')
+		const lightGreen = chalk.hex('#aea')
 		const l = log
 		const n = nl
-		const star = dim(' *')
+		const star = dim('  *')
+		let first = false
+		const maybeStar = () => (first ? (first = false) : l(star))
 
-		l(bd(comment.name))
 		n()
-		l(dim('/**'))
+		l(bd(comment.name))
+		l(dim(' /**'))
 
 		if (comment.summary) {
-			lc(g(format(comment.summary)))
+			lc(lightGreen(format(comment.summary)))
 		}
 		if (comment.params?.length) {
-			l(star)
-			comment.params.forEach((p) => lc(b('param:'), p.name, p.description))
+			maybeStar()
+			comment.params.forEach((p) => lc(pink('param:'), p.name, p.description))
 		}
 		if (comment.typeParams?.length) {
-			l(star)
-			comment.typeParams.forEach((p) => lc(b('typeParam:'), p.name, p.description))
+			maybeStar()
+			comment.typeParams.forEach((p) => lc(pink('typeParam:'), p.name, p.description))
 		}
 		if (comment.returns) {
-			l(star)
-			lc(b('returns:'), comment.returns)
+			maybeStar()
+			lc(pink('returns:'), comment.returns)
 		}
 		if (comment.defaultValue) {
-			l(star)
-			lc(b('@default'), comment.defaultValue)
+			maybeStar()
+			lc(pink('@default'), comment.defaultValue)
 		}
 		if (comment.remarks) {
-			l(star)
-			lc(b('remarks:'), comment.remarks)
+			maybeStar()
+			lc(pink('remarks:'), comment.remarks)
 		}
 
-		l(star)
-		l(dim(' */'))
+		l(dim('  */'))
 
 		/**
 		 *  Logs a {@link Comment} in tsdoc-style, ensuring each line starts with a spaced *
@@ -282,13 +307,16 @@ export class Extractor {
 
 		const defaultValue = comment.customBlocks
 			.filter((b) => b.blockTag.tagName.match(/@default(Value)?/))
-			.map((b) => Extractor.renderDocNode(b.content))?.[0]
-			?.trim()
+			.map((b) => Extractor.renderDocNode(b.content).trim())?.[0]
+
+		const noteBlocks = comment.customBlocks
+			.filter((b) => b.blockTag.tagName === '@note')
+			.map((b) => Extractor.renderDocNode(b.content).trim())
 
 		const customBlocks = comment.customBlocks.map((b) => {
 			return {
 				tagName: b.blockTag.tagName,
-				content: Extractor.renderDocNode(b.content)?.trim(),
+				content: Extractor.renderDocNode(b.content).trim(),
 			}
 		})
 
@@ -297,7 +325,7 @@ export class Extractor {
 			: undefined
 
 		return {
-			name,
+			name: name.replace('__SvelteComponent_', ''),
 			file,
 			raw,
 			summary,
@@ -306,8 +334,9 @@ export class Extractor {
 			typeParams,
 			returns,
 			seeBlocks,
-			defaultValue,
 			customBlocks,
+			defaultValue,
+			noteBlocks,
 		}
 	}
 
