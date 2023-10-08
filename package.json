@@ -41,6 +41,7 @@
 		"@changesets/cli": "^2.26.2",
 		"@microsoft/api-extractor": "^7.38.0",
 		"@microsoft/tsdoc": "^0.14.2",
+		"@microsoft/tsdoc-config": "^0.16.2",
 		"@sveltejs/adapter-vercel": "3.0.3",
 		"@sveltejs/kit": "1.25.1",
 		"@sveltejs/package": "2.2.2",

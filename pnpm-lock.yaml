@@ -19,6 +19,9 @@ devDependencies:
   '@microsoft/tsdoc':
     specifier: ^0.14.2
     version: 0.14.2
+  '@microsoft/tsdoc-config':
+    specifier: ^0.16.2
+    version: 0.16.2
   '@sveltejs/adapter-vercel':
     specifier: 3.0.3
     version: 3.0.3(@sveltejs/kit@1.25.1)
