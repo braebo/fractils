@@ -1,6 +1,6 @@
 import type { ParsedFile } from '../Extractor'
 
-import { readFile, unlink, writeFile } from 'node:fs/promises'
+import { readFile, writeFile, unlink } from 'node:fs/promises'
 import { entries, values } from '../object'
 import { Extractor } from '../Extractor'
 import { l, n, r, start } from '../l'
@@ -9,11 +9,12 @@ import { globbySync } from 'globby'
 
 const lib = 'src/lib/'
 const folders = [
-	// 'components',
+	//...
+	'components',
 	// 'actions',
-	'stores',
+	// 'stores',
 	// 'theme',
-	// 'utils'
+	// 'utils',
 ] as const
 
 interface Category {
@@ -36,26 +37,45 @@ await main()
 l(r('fin'))
 
 async function main() {
-	const end = start('main()')
+	const end = start('main')
 	clear()
 
 	const categories = buildCategoryMap()
-	l('Extracting')
-	l(categories)
+	l('Extracting:')
+	l(Object.keys(categories))
 
 	await transformSvelte(categories)
-	l(categories)
+	l('categories:')
+	l(debrief(categories, { depth: 2, siblings: 4 }))
 
 	const comments = getComments(categories)
-	l(debrief(comments, { depth: 5, siblings: 4 }))
+	l('comments')
+	l(debrief(comments, { depth: 3, siblings: 4 }))
+
+	await writeComments(comments)
 
 	await cleanup()
 
 	end()
 }
 
+async function writeComments(comments: ParsedCategory[]) {
+	const end = start('writeComments')
+
+	for (const comment of comments) {
+		for (const { file, comments } of [comment.ts, comment.svelte].flat()) {
+			const out = file.replace(/(\.svelte)?\.ts/, '.json')
+			const content = JSON.stringify(comments, null, 2)
+			l('writing file: ' + out)
+			// await writeFile('src/lib/' + out, content)
+		}
+	}
+
+	end()
+}
+
 function buildCategoryMap() {
-	const end = start('buildCategoryMap()')
+	const end = start('buildCategoryMap')
 
 	const categories = folders.reduce((acc, folder) => {
 		acc[folder] = {
@@ -83,8 +103,8 @@ function buildCategoryMap() {
  * Extracts and parses all comments from a given {@link CategoryMap}.
  * @param map {@link CategoryMap}
  */
-function getComments(map: CategoryMap) {
-	const end = start('getComments()')
+function getComments(map: CategoryMap, verbose = true) {
+	const end = start('getComments')
 
 	const comments = values(map).map((category) => {
 		return {
@@ -93,6 +113,16 @@ function getComments(map: CategoryMap) {
 			svelte: Extractor.scanFiles(category.svelte, true),
 		} as ParsedCategory
 	})
+
+	if (verbose) {
+		for (const comment of comments) {
+			for (const { comments } of [comment.ts, comment.svelte].flat()) {
+				for (const comment of comments) {
+					Extractor.logComment(comment)
+				}
+			}
+		}
+	}
 
 	end()
 	return comments
@@ -103,7 +133,7 @@ function getComments(map: CategoryMap) {
  * @param map {@link CategoryMap}
  */
 async function transformSvelte(map: CategoryMap) {
-	const end = start('transformSvelte()')
+	const end = start('transformSvelte')
 
 	for (const [name, category] of entries(map)) {
 		for (const filepath of category.svelte) {
@@ -126,7 +156,7 @@ async function transformSvelte(map: CategoryMap) {
 
 /** Removes all generated `*.svelte.ts` files after the extraction process. */
 async function cleanup() {
-	const end = start('cleanup()')
+	const end = start('cleanup')
 
 	const files = globbySync('src/lib/**/*.svelte.ts')
 	for (const file of files) {
