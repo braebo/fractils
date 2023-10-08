@@ -1,7 +1,8 @@
 import { DocNode, DocExcerpt, DocComment, TSDocParser } from '@microsoft/tsdoc'
-import { l as log, n as nl, b, bd, dim, g, r, y } from './l'
+import { l as log, n as nl, b, bd, dim, g, r, y, start } from './l'
+import { TSDocConfigFile } from '@microsoft/tsdoc-config'
+import * as tsdoc from '@microsoft/tsdoc'
 import { svelte2tsx } from 'svelte2tsx'
-import tsdoc from '@microsoft/tsdoc'
 import ts from 'typescript'
 import os from 'os'
 
@@ -19,8 +20,6 @@ export interface Comment {
 	name: string
 	/** Path to the file containing the source code. */
 	file: string
-	/** The raw tsdoc comment. */
-	tsdoc: string
 	summary?: string
 	remarks?: string
 	params?: { name: string; description: string }[]
@@ -29,6 +28,8 @@ export interface Comment {
 	seeBlocks?: string[]
 	defaultValue?: string
 	customBlocks?: { tagName: string; content: string }[]
+	/** The raw tsdoc comment. */
+	raw: string
 }
 
 /**
@@ -55,51 +56,10 @@ interface FoundComment {
 export class Extractor {
 	static comments: Comment[] = []
 
-	// static async scanFolders(paths: string[], verbose = false) {
-	// 	const l = verbose ? log : () => {}
-	// 	const comments: Comment[] = []
-
-	// 	for (const path of paths) {
-	// 		const absolutePath = join(__dirname, path)
-	// 		const files = await readdir(absolutePath)
-
-	// 		for (const file of files) {
-	// 			const filePath = join(absolutePath, file)
-	// 			const stats = await stat(filePath)
-
-	// 			if (stats.isDirectory()) {
-	// 				this.scanFolders([filePath])
-	// 				continue
-	// 			}
-
-	// 			if (stats.isFile() && filePath.endsWith('.ts')) {
-	// 				l(dim('\n' + '-'.repeat(80)))
-
-	// 				const result = this.scanFiles(filePath, verbose)
-
-	// 				for (const parsedComment of result.comments) {
-	// 					comments.push(parsedComment)
-
-	// 					if (verbose) {
-	// 						l(b(`\n\nFound comment:\n`))
-	// 						this.logComment(parsedComment)
-	// 					}
-	// 				}
-
-	// 				l(dim('\n' + '-'.repeat(80) + '\n'))
-	// 			}
-	// 		}
-	// 	}
-
-	// 	return comments
-	// }
-
 	static scanFiles(paths: string[], verbose = false) {
 		const l = verbose ? log : () => {}
-		const n = verbose ? nl : () => {}
 
-		console.time('scanFiles()')
-		l(bd('\nscanFiles()\n'))
+		const end = start('scanFiles')
 
 		const compilerOptions: ts.CompilerOptions = {
 			target: ts.ScriptTarget.Latest,
@@ -107,13 +67,13 @@ export class Extractor {
 			moduleResolution: ts.ModuleResolutionKind.Bundler,
 		}
 
-		// svelte shims
-		if (paths.some((p) => p.endsWith('.svelte'))) {
-			l(dim('\nadding svelte shims\n'))
-			paths.push(require.resolve('svelte2tsx/svelte-jsx.d.ts'))
-			paths.push(require.resolve('svelte2tsx/svelte-shims.d.ts'))
-			// paths.push(require.resolve('@sveltejs/kit/types/index.d.ts'))
-		}
+		// todo - svelte shims introduce more errors than they remove.
+		// // svelte shims
+		// if (paths.some((p) => p.endsWith('.svelte') || p.endsWith('.svelte.ts'))) {
+		// 	l(dim('\nadding svelte shims\n'))
+		// 	// paths.push(require.resolve('svelte2tsx/svelte-jsx.d.ts'))
+		// 	paths.push(require.resolve('svelte2tsx/svelte-shims.d.ts'))
+		// }
 
 		l(dim('\nenvoking typescript compiler\n'))
 		const program: ts.Program = ts.createProgram(paths, compilerOptions)
@@ -130,15 +90,13 @@ export class Extractor {
 				throw new Error('Error retrieving source file')
 			}
 
-			l(os.EOL + 'Scanning compiler AST for first code comment...' + os.EOL)
-
 			const foundComments: FoundComment[] = []
 
 			this.#walkCompilerAstAndFindComments(sourceFile, '', foundComments)
 
 			if (!foundComments.length) {
-				l(r('No comments found.'))
-				return []
+				l(r('No comments found in file: ') + dim(path))
+				return comments
 			}
 
 			comments.push({
@@ -149,7 +107,7 @@ export class Extractor {
 			})
 		}
 
-		console.timeEnd('\nscanFiles()\n')
+		end()
 		return comments
 	}
 
@@ -170,35 +128,33 @@ export class Extractor {
 
 		l(bd(comment.name))
 		n()
-
-		l(dim(comment.tsdoc))
-
 		l(dim('/**'))
 
 		if (comment.summary) {
 			lc(g(format(comment.summary)))
-			l(star)
-		}
-		if (comment.remarks) {
-			lc(b('remarks:'), comment.remarks)
-			l(star)
 		}
 		if (comment.params?.length) {
-			comment.params.forEach((p) => lc(b('param:'), p.name, p.description))
 			l(star)
+			comment.params.forEach((p) => lc(b('param:'), p.name, p.description))
 		}
 		if (comment.typeParams?.length) {
-			comment.typeParams.forEach((p) => lc(b('typeParam:'), p.name, p.description))
 			l(star)
+			comment.typeParams.forEach((p) => lc(b('typeParam:'), p.name, p.description))
 		}
 		if (comment.returns) {
-			lc(b('returns:'), comment.returns)
 			l(star)
+			lc(b('returns:'), comment.returns)
 		}
 		if (comment.defaultValue) {
-			lc(b('@defaultValue'), comment.defaultValue)
+			l(star)
+			lc(b('@default'), comment.defaultValue)
+		}
+		if (comment.remarks) {
+			l(star)
+			lc(b('remarks:'), comment.remarks)
 		}
 
+		l(star)
 		l(dim(' */'))
 
 		/**
@@ -221,7 +177,22 @@ export class Extractor {
 		}
 	}
 
-	static #tsdocParser = new TSDocParser()
+	// static #tsdocParser = new TSDocParser()
+	static #tsdocParser = Extractor.#createParser()
+
+	static #createParser() {
+		// Load the nearest config file, for example `my-project/tsdoc.json`
+		const tsdocConfigFile = TSDocConfigFile.loadForFolder(__dirname)
+		if (tsdocConfigFile.hasErrors) {
+			// Report any errors
+			console.log(tsdocConfigFile.getErrorSummary())
+		}
+
+		// Use the TSDocConfigFile to configure the parser
+		const tsdocConfiguration = new tsdoc.TSDocConfiguration()
+		tsdocConfigFile.configureParser(tsdocConfiguration)
+		return new TSDocParser(tsdocConfiguration)
+	}
 
 	/**
 	 * Parses a {@link FoundComment} into a docComment.
@@ -283,7 +254,7 @@ export class Extractor {
 	 * @param comment The {@link DocComment} to parse.
 	 */
 	static parseComment(file: string, name: string, comment: DocComment): Comment {
-		const tsdoc = comment.emitAsTsdoc()
+		const raw = comment.emitAsTsdoc()
 
 		const summary = Extractor.renderDocNode(comment.summarySection)?.trim()
 
@@ -310,7 +281,7 @@ export class Extractor {
 			: undefined
 
 		const defaultValue = comment.customBlocks
-			.filter((b) => b.blockTag.tagName === '@defaultValue')
+			.filter((b) => b.blockTag.tagName.match(/@default(Value)?/))
 			.map((b) => Extractor.renderDocNode(b.content))?.[0]
 			?.trim()
 
@@ -328,7 +299,7 @@ export class Extractor {
 		return {
 			name,
 			file,
-			tsdoc,
+			raw,
 			summary,
 			remarks,
 			params,
@@ -352,7 +323,10 @@ export class Extractor {
 		tree: string[] = [],
 	): void {
 		try {
-			const buffer: string = node.getSourceFile().getFullText() // don't use getText() here!
+			// Skip node_modules
+			// if (node.getSourceFile().fileName.includes('node_modules')) return
+
+			const buffer: string = node.getSourceFile().getFullText() // Don't use getText() here!
 
 			// Only consider nodes that are part of a declaration form.  Without this, we could discover
 			// the same comment twice (e.g. for a MethodDeclaration and its PublicKeyword).
@@ -465,15 +439,21 @@ export class Extractor {
 		)
 	}
 
-	static #reportCompilerErrors(program: ts.Program) {
-		const l = log
+	static #reportCompilerErrors(program: ts.Program, verbose = false) {
+		const l = verbose ? log : () => {}
 		const compilerDiagnostics: ReadonlyArray<ts.Diagnostic> = program.getSemanticDiagnostics()
 		const count = compilerDiagnostics.length
-		if (count > 0) {
-			nl()
-			const _ = count === 1 ? 'error' : 'errors'
-			console.error(`${bd(r(count))} compiler ${_} found:`)
 
+		if (count <= 0) {
+			l(g('No compiler errors.'))
+			return
+		}
+
+		nl()
+		const _ = count === 1 ? 'error' : 'errors'
+		console.error(`${bd(r(count))} compiler ${_} found:`)
+
+		if (verbose) {
 			for (const diagnostic of compilerDiagnostics) {
 				const message: string = ts.flattenDiagnosticMessageText(
 					diagnostic.messageText,
@@ -495,8 +475,6 @@ export class Extractor {
 					l(r(message))
 				}
 			}
-		} else {
-			l(g('No compiler errors.'))
 		}
 	}
 }
