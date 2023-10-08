@@ -35,14 +35,17 @@
 	export const scrollY = writable(0)
 
 	/**
-	 * Tracks the users mouse position.
-	 * @param {number} x - The x position of the mouse.
-	 * @param {number} y - The y position of the mouse.
+	 * Tracks the users x and y mouse positions.
 	 */
 	export const mouse = writable({ x: 0, y: 0 })
 
+	let frame: number
 	const mouseMove = (e: MouseEvent) => {
-		mouse.update(() => ({ x: e.clientX, y: e.clientY }))
+		cancelAnimationFrame(frame)
+
+		frame = requestAnimationFrame(() => {
+			mouse.update(() => ({ x: e.clientX, y: e.clientY }))
+		})
 	}
 </script>
 
