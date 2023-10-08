@@ -6,7 +6,7 @@ export function debrief<T>(
 	{
 		depth = 2,
 		siblings = 4,
-		trim = 15,
+		trim = 30,
 	}: { depth?: number; siblings?: number; trim?: number; verbose?: boolean } = {},
 ) {
 	function parse(o: unknown, d: number): unknown {
