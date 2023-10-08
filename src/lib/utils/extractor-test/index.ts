@@ -17,18 +17,18 @@ const folders = [
 	// 'utils',
 ] as const
 
+type FilePath = string
+
 interface Category {
 	category: string
 	folderPath: string
-	ts: string[]
-	svelte: string[]
+	files: FilePath[]
 }
 
 interface ParsedCategory {
 	category: string
 	folderPath: string
-	ts: ParsedFile[]
-	svelte: ParsedFile[]
+	files: ParsedFile[]
 }
 
 type CategoryMap = Record<(typeof folders)[number], Category>
@@ -63,7 +63,7 @@ async function writeComments(comments: ParsedCategory[]) {
 	const end = start('writeComments')
 
 	for (const comment of comments) {
-		for (const { file, comments } of [comment.ts, comment.svelte].flat()) {
+		for (const { file, comments } of comment.files) {
 			const out = file.replace(/(\.svelte)?\.ts/, '.json')
 			const content = JSON.stringify(comments, null, 2)
 			l('writing file: ' + out)
@@ -81,16 +81,11 @@ function buildCategoryMap() {
 		acc[folder] = {
 			category: folder,
 			folderPath: lib + folder,
-			ts: globbySync(lib + folder, {
+			files: globbySync(lib + folder, {
 				expandDirectories: {
-					files: ['*.ts'],
+					extensions: ['svelte', 'ts'],
 				},
 			}).filter((p) => !p.endsWith('.svelte.ts')),
-			svelte: globbySync(lib + folder, {
-				expandDirectories: {
-					extensions: ['svelte'],
-				},
-			}),
 		}
 		return acc
 	}, {} as CategoryMap)
@@ -109,14 +104,13 @@ function getComments(map: CategoryMap, verbose = true) {
 	const comments = values(map).map((category) => {
 		return {
 			...category,
-			ts: category.ts.length ? Extractor.scanFiles(category.ts, true) : [],
-			svelte: Extractor.scanFiles(category.svelte, true),
+			files: category.files.length ? Extractor.scanFiles(category.files, true) : [],
 		} as ParsedCategory
 	})
 
 	if (verbose) {
 		for (const comment of comments) {
-			for (const { comments } of [comment.ts, comment.svelte].flat()) {
+			for (const { comments } of comment.files) {
 				for (const comment of comments) {
 					Extractor.logComment(comment)
 				}
@@ -136,7 +130,7 @@ async function transformSvelte(map: CategoryMap) {
 	const end = start('transformSvelte')
 
 	for (const [name, category] of entries(map)) {
-		for (const filepath of category.svelte) {
+		for (const filepath of category.files.filter((p) => p.endsWith('.svelte'))) {
 			const buffer = await readFile(filepath, {
 				encoding: 'utf-8',
 			})
@@ -147,7 +141,7 @@ async function transformSvelte(map: CategoryMap) {
 
 			await writeFile(filepath + '.ts', compiled.code)
 
-			map[name].svelte[map[name].svelte.indexOf(filepath)] += '.ts'
+			map[name].files[map[name].files.indexOf(filepath)] += '.ts'
 		}
 	}
 
