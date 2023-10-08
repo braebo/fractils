@@ -47,6 +47,7 @@ export interface Comment {
 	customBlocks?: { tagName: string; content: string }[]
 	defaultValue?: string
 	noteBlocks?: string[]
+	exampleBlocks?: string[]
 	/**
 	 * The raw tsdoc comment.
 	 */
@@ -161,7 +162,7 @@ export class Extractor {
 		}
 		if (comment.params?.length) {
 			maybeStar()
-			comment.params.forEach((p) => lc(pink('param:'), p.name, p.description))
+			comment.params.forEach((p) => lc(pink('@param'), p.name, p.description))
 		}
 		if (comment.typeParams?.length) {
 			maybeStar()
@@ -279,65 +280,112 @@ export class Extractor {
 	 * @param comment The {@link DocComment} to parse.
 	 */
 	static parseComment(file: string, name: string, comment: DocComment): Comment {
-		const raw = comment.emitAsTsdoc()
-
-		const summary = Extractor.renderDocNode(comment.summarySection)?.trim()
-
-		const params = comment.params.blocks.map((b) => {
-			return {
-				name: b.parameterName,
-				description: Extractor.renderDocNode(b.content)?.trim(),
-			}
-		})
-
-		const typeParams = comment.typeParams.blocks.map((b) => {
-			return {
-				name: b.parameterName,
-				description: Extractor.renderDocNode(b.content)?.trim(),
-			}
-		})
-
-		const returns = comment.returnsBlock
-			? Extractor.renderDocNode(comment.returnsBlock.content)?.trim()
-			: undefined
-
-		const remarks = comment.remarksBlock
-			? Extractor.renderDocNode(comment.remarksBlock.content)?.trim()
-			: undefined
-
-		const defaultValue = comment.customBlocks
-			.filter((b) => b.blockTag.tagName.match(/@default(Value)?/))
-			.map((b) => Extractor.renderDocNode(b.content).trim())?.[0]
-
-		const noteBlocks = comment.customBlocks
-			.filter((b) => b.blockTag.tagName === '@note')
-			.map((b) => Extractor.renderDocNode(b.content).trim())
-
-		const customBlocks = comment.customBlocks.map((b) => {
-			return {
-				tagName: b.blockTag.tagName,
-				content: Extractor.renderDocNode(b.content).trim(),
-			}
-		})
-
-		const seeBlocks = comment.seeBlocks
-			? comment.seeBlocks.map((b) => Extractor.renderDocNode(b.content)?.trim())
-			: undefined
-
-		return {
+		const found: Partial<Comment> = {
 			name: name.replace('__SvelteComponent_', ''),
 			file,
-			raw,
-			summary,
-			remarks,
-			params,
-			typeParams,
-			returns,
-			seeBlocks,
-			customBlocks,
-			defaultValue,
-			noteBlocks,
+			raw: comment.emitAsTsdoc(),
 		}
+
+		if (comment.summarySection) {
+			found.summary = Extractor.renderDocNode(comment.summarySection)?.trim()
+		}
+
+		if (comment.params.blocks.length) {
+			found.params = comment.params.blocks.map((b) => {
+				return {
+					name: b.parameterName,
+					description: Extractor.renderDocNode(b.content)?.trim(),
+				}
+			})
+		}
+
+		if (comment.typeParams.blocks.length) {
+			found.typeParams = comment.typeParams.blocks.map((b) => {
+				return {
+					name: b.parameterName,
+					description: Extractor.renderDocNode(b.content)?.trim(),
+				}
+			})
+		}
+
+		if (comment.returnsBlock) {
+			found.returns = Extractor.renderDocNode(comment.returnsBlock.content)?.trim()
+		}
+
+		if (comment.remarksBlock) {
+			found.remarks = Extractor.renderDocNode(comment.remarksBlock.content)?.trim()
+		}
+
+		if (comment.seeBlocks.length) {
+			found.seeBlocks = comment.seeBlocks.map(
+				(b) => Extractor.renderDocNode(b.content)?.trim(),
+			)
+		}
+
+		if (comment.customBlocks.length) {
+			const defaultValue = comment.customBlocks
+				.filter((b) => b.blockTag.tagName.match(/@default(Value)?/))
+				.map((b) => Extractor.renderDocNode(b.content).trim())?.[0]
+
+			if (defaultValue) found.defaultValue = defaultValue
+
+			const noteBlocks = comment.customBlocks
+				.filter((b) => b.blockTag.tagName === '@note')
+				.map((b) => Extractor.renderDocNode(b.content).trim())
+
+			if (noteBlocks.length) found.noteBlocks = noteBlocks
+
+			const exampleBlocks = comment.customBlocks
+				.filter((b) => b.blockTag.tagName === '@example')
+				.map((b) => Extractor.renderDocNode(b.content)?.trim())
+
+			if (exampleBlocks.length) found.exampleBlocks = exampleBlocks
+
+			const unusedBlocks = comment.customBlocks
+				.filter(
+					(b) =>
+						!['@default', '@defaultValue', '@note', '@example'].includes(
+							b.blockTag.tagName,
+						),
+				)
+				.map((b) => {
+					return {
+						tagName: b.blockTag.tagName,
+						content: Extractor.renderDocNode(b.content).trim(),
+					}
+				})
+
+			if (unusedBlocks.length) {
+				found.customBlocks = unusedBlocks
+
+				console.warn(r('Unused custom blocks found:'))
+				unusedBlocks.forEach((b) => {
+					console.log(b.tagName, b.content)
+				})
+			}
+		}
+
+		return found as Comment
+	}
+
+	/**
+	 * Pretty prints a {@link DocNode} tree to the console.
+	 */
+	static #logTSDocTree(docNode: tsdoc.DocNode, outputLines: string[] = [], indent: string = '') {
+		let dumpText: string = ''
+		if (docNode instanceof tsdoc.DocExcerpt) {
+			const content: string = docNode.content.toString()
+			dumpText += dim(`${indent}* ${docNode.excerptKind}: `) + b(JSON.stringify(content))
+		} else {
+			dumpText += `${indent}- ${docNode.kind}`
+		}
+		outputLines.push(dumpText)
+
+		for (const child of docNode.getChildNodes()) {
+			this.#logTSDocTree(child, outputLines, indent + '  ')
+		}
+
+		return outputLines
 	}
 
 	/**
