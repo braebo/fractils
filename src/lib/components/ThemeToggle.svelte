@@ -4,7 +4,7 @@
  -->
 
 <script lang="ts">
-	import { theme, initTheme, toggleTheme } from '../theme';
+	import { theme, initTheme, toggleTheme } from '../theme/theme';
 	import { createEventDispatcher } from 'svelte';
 	import { expoOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';

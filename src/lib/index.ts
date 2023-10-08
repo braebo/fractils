@@ -23,7 +23,7 @@ export { default as Code } from './components/Code.svelte'; // todo
 
 // Theme
 
-export { initTheme, toggleTheme, applyTheme, theme } from './theme';
+export { initTheme, toggleTheme, applyTheme, theme } from './theme/theme';
 
 // Utils
 

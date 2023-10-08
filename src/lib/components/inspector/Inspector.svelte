@@ -2,7 +2,7 @@
 	import type { Readable, Writable } from 'svelte/store'
 
 	import { inspectorStore } from './inspectorStore'
-	import { theme } from '../../theme'
+	import { theme } from '../../theme/theme'
 	import Group from './Group.svelte'
 	import Menu from './Menu.svelte'
 
