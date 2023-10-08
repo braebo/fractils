@@ -12,8 +12,10 @@ export function debrief<T>(
 	function parse(o: unknown, d: number): unknown {
 		if (o === null) return o
 
+		const depthReached = d > depth
+
 		if (Array.isArray(o)) {
-			if (d > depth) return `[...${o.length} ${o.length === 1 ? 'item' : 'items'}]`
+			if (depthReached) return `[...${o.length} ${o.length === 1 ? 'item' : 'items'}]`
 			if (o.length <= siblings) return o.map((s) => parse(s, d + 1))
 			return [
 				...o.slice(0, siblings).map((s) => parse(s, d)),
@@ -23,7 +25,7 @@ export function debrief<T>(
 
 		if (typeof o === 'object') {
 			const keyCount = Object.keys(o).length
-			if (d > depth) return `{...${keyCount} ${keyCount === 1 ? 'item' : 'items'}}`
+			if (depthReached) return `{...${keyCount} ${keyCount === 1 ? 'entry' : 'entries'}}`
 
 			if (keyCount <= siblings) {
 				return Object.fromEntries(Object.entries(o).map(([k, v]) => [k, parse(v, d + 1)]))
@@ -37,7 +39,7 @@ export function debrief<T>(
 			)
 		}
 
-		if (d > depth) return '...'
+		// if (depthReached) return '...'
 
 		if (['boolean', 'symbol', 'undefined'].includes(typeof o)) return o
 
