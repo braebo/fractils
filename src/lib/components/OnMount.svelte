@@ -1,17 +1,16 @@
+<!-- 
+	@component Mounts a component when the DOM is ready.  Useful for intro animations.
+ -->
 <script>
-    /** 
-     * Mounts a component when the DOM is ready.  Useful for intro animations.
-    */
+	import { onMount } from 'svelte'
 
-	import { onMount } from 'svelte';
+	let loaded = false
 
-    let loaded = false;
-
-    onMount(() => {
-        loaded = true;
-    });
+	onMount(() => {
+		loaded = true
+	})
 </script>
 
 {#if loaded}
-    <slot></slot>
+	<slot />
 {/if}
