@@ -84,19 +84,45 @@ export function start(label: string, randomColor = true, format: 's' | 'ms' = 's
 		: (x: string) => x
 
 	n()
-	l(bd(hex(label)))
+	l(hex('▶︎ ') + label)
 	n()
 
 	const start = performance.now()
 
 	return () => {
 		n()
-		const end =
-			format === 'ms'
-				? (performance.now() - start).toFixed(2) + 'ms'
-				: ((performance.now() - start) / 1000).toFixed(1).replace('.0', '') + 's'
+		const end = performance.now() - start
 
-		l(`${hex(label.replace('()', ''))} ${end}`)
+		l(hex('⏹ ') + label.replace('()', '') + ' ' + fmtTime(end))
 		n()
+	}
+}
+
+/**
+ * Formats a number representing time.  Smaller numbers are formatted in
+ * milliseconds, and larger numbers in seconds. In both cases, precision
+ * is kept to a minimum and trailing zeroes are removed.
+ * @param n Time in milliseconds.
+ * @returns Formatted time string.
+ */
+export function fmtTime(n: number): string {
+	if (n < 10) {
+		return removeTrailingZeroes(getBestPrecision(n)) + dim('ms')
+	} else {
+		return removeTrailingZeroes((n / 1000).toFixed(1)) + dim('s')
+	}
+
+	function removeTrailingZeroes(str: string): string {
+		return str.replace(/\.?0+$/, '')
+	}
+
+	function getBestPrecision(ms: number) {
+		for (let precision = 1; precision <= 10; precision++) {
+			const value = ms.toFixed(precision)
+			if (value.at(-1) !== '0') {
+				return value
+			}
+		}
+		return ms.toString() // Unlikely.
 	}
 }
