@@ -56,4 +56,3 @@ export function n(
 export function j(o: unknown) {
 	return stringify(o, 2)
 }
-
