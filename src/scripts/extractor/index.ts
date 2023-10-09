@@ -1,17 +1,23 @@
-import type { ParsedFile } from '../Extractor'
+/**
+ * @fileoverview
+ * Extracts all tsdoc comments from the `src/lib` folder
+ * and writes them to `*.doc.json` files for further processing.
+ */
+
+import type { ParsedFile } from './Extractor'
 
 import { readFile, writeFile, unlink } from 'node:fs/promises'
-import { entries, values } from '../object'
-import { Extractor } from '../Extractor'
-import { l, n, r, start } from '../l'
-import { debrief } from '../debrief'
+import { entries, values } from '$lib/utils/object'
+import { dim, l, n, r, start } from '$lib/utils/l'
+import { debrief } from '$lib/utils/debrief'
+import { Extractor } from './Extractor'
 import { globbySync } from 'globby'
 
 const lib = 'src/lib/'
+// prettier-ignore
 const folders = [
-	//...
-	'components',
-	// 'actions',
+	// 'components',
+	'actions',
 	// 'stores',
 	// 'theme',
 	// 'utils',
@@ -49,8 +55,9 @@ async function main() {
 	l(debrief(categories, { depth: 2, siblings: 4 }))
 
 	const comments = getComments(categories)
-	l('comments')
-	l(debrief(comments, { depth: 3, siblings: 4 }))
+	l('comments:')
+	// l(comments)
+	l(debrief(comments, { depth: 3, siblings: 3 }))
 
 	await writeComments(comments)
 
@@ -64,10 +71,17 @@ async function writeComments(comments: ParsedCategory[]) {
 
 	for (const comment of comments) {
 		for (const { file, comments } of comment.files) {
-			const out = file.replace(/(\.svelte)?\.ts/, '.json')
-			const content = JSON.stringify(comments, null, 2)
-			l('writing file: ' + out)
-			// await writeFile('src/lib/' + out, content)
+			const out = file.replace(/\.(svelte|ts)/, '.doc.json')
+
+			if (!out.endsWith('.doc.json')) {
+				throw new Error('malformed json file: ' + out)
+			}
+
+			l(dim('writing file: ') + out)
+
+			await writeFile(out, JSON.stringify(comments, null, 2), {
+				encoding: 'utf-8',
+			})
 		}
 	}
 

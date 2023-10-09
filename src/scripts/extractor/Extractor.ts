@@ -1,5 +1,5 @@
 import { DocNode, DocExcerpt, DocComment, TSDocParser } from '@microsoft/tsdoc'
-import { l as log, n as nl, b, bd, dim, g, r, y, start } from './l'
+import { l as log, n as nl, b, bd, dim, g, r, y, start } from '$lib/utils/l'
 import { TSDocConfigFile } from '@microsoft/tsdoc-config'
 import * as tsdoc from '@microsoft/tsdoc'
 import { svelte2tsx } from 'svelte2tsx'
