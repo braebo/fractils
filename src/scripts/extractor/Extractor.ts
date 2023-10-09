@@ -28,7 +28,9 @@ export interface ParsedFile {
 	comments: Comment[]
 }
 
-/** A parsed variable declaration's tsdoc comment information. */
+/**
+ * A parsed variable declaration's tsdoc comment information.
+ */
 export interface Comment {
 	/**
 	 * Name of the variable the comment belongs to.
@@ -118,7 +120,7 @@ export class Extractor {
 
 			if (!foundComments.length) {
 				l(r('No comments found in file: ') + dim(path))
-				return comments
+				continue
 			}
 
 			comments.push({
