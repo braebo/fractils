@@ -88,9 +88,9 @@ export function values<T extends {}>(object: T): ReadonlyArray<T[keyof T]> {
 
 /**
  * Recursively processes a tuple type and returns a union of entries.
- * @template T - The tuple type being processed.
- * @template I - The indices of the tuple so far, initialized to an empty array.
- * @template R - The accumulated result, initialized to `never`.
+ * @typeParam T - The tuple type being processed.
+ * @typeParam I - The indices of the tuple so far, initialized to an empty array.
+ * @typeParam R - The accumulated result, initialized to `never`.
  */
 type TupleEntry<
 	T extends readonly unknown[],
@@ -102,7 +102,7 @@ type TupleEntry<
 
 /**
  * Maps an object literal to a union of literal entry pairs.
- * @template T - The object type being processed.
+ * @typeParam T - The object type being processed.
  */
 type ObjectEntry<T extends {}> = T extends object
 	? {
