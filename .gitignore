@@ -7,3 +7,4 @@ dev
 bin
 vite.config.js.timestamp*
 .DS_Store
+*.doc.json
