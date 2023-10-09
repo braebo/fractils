@@ -35,16 +35,28 @@ export interface VisibilityAttr {
 }
 
 /**
- * Optional config
- * @param {HTMLElement} view - The root view (default: window)
- * @param {string} margin - Margin around root view - 'px' or '%' (default: '0px')
- * @param {number | number[]} threshold - % of pixels required in view to trigger event.  An array will trigger multiple events - '0-1' (default: 0).
- * @param {boolean} once - Whether to dispatch events only once (default: false)
+ * Optional config for `visibility` action.
  */
 export type VisibilityOptions = {
+	/**
+	 * The root view.
+	 * @default window
+	 */
 	view?: HTMLElement | null
+	/**
+	 * Margin around root view - 'px' or '%'.
+	 * @default '0px'
+	 */
 	margin?: string
+	/**
+	 * % of pixels required in view to trigger event.  An array will trigger multiple events - '0-1'.
+	 * @default 0
+	 */
 	threshold?: number | number[]
+	/**
+	 * Whether to dispatch events only once.
+	 * @default false
+	 */
 	once?: boolean
 }
 
@@ -62,11 +74,7 @@ const dispatch = (node: HTMLElement, name: Event, detail: VisibilityEventDetail)
 /**
  * Observes an element's current viewport visibility and dispatches relevant events.
  *
- * @param options - Optional config:
- * @param options.view - The root view (default: window)
- * @param options.margin - Margin around root view - 'px' or '%' (default: '0px')
- * @param options.threshold - % of pixels required in view to trigger event.  An array will trigger multiple events - '0-1' (default: 0)
- * @param options.once - Whether to dispatch events only once (default: false)
+ * @param options - Optional config, see {@link VisibilityOptions}.
  *
  * @event change - Triggered when element enters or leaves view.
  * @event enter - Triggered when element enters view.
