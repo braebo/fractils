@@ -2,25 +2,25 @@
  * @fileoverview
  * Extracts all tsdoc comments from the `src/lib` folder
  * and writes them to `*.doc.json` files for further processing.
+ *
+ * Run with `pnpm extract` or `bun src/scripts/extract/index.ts`.
  */
 
-import type { ParsedFile } from './Extractor'
-
 import { readFile, writeFile, unlink } from 'node:fs/promises'
+import { start, type StartOptions } from '$lib/utils/time'
+import { Extractor, type ParsedFile } from './Extractor'
 import { entries, values } from '$lib/utils/object'
-import { dim, l, n, r, start } from '$lib/utils/l'
-import { debrief } from '$lib/utils/debrief'
-import { Extractor } from './Extractor'
+import { bd, dim, g, l, n } from '$lib/utils/l'
 import { globbySync } from 'globby'
 
 const lib = 'src/lib/'
 // prettier-ignore
 const folders = [
-	// 'components',
+	'components',
 	'actions',
-	// 'stores',
-	// 'theme',
-	// 'utils',
+	'stores',
+	'theme',
+	'utils',
 ] as const
 
 type FilePath = string
@@ -39,35 +39,60 @@ interface ParsedCategory {
 
 type CategoryMap = Record<(typeof folders)[number], Category>
 
-await main()
-l(r('fin'))
+let fileCount = 0
+let commentCount = 0
+let jsonCount = 0
+const opts: StartOptions = {
+	pad: false,
+	logStart: false,
+}
 
-async function main() {
-	const end = start('main')
-	clear()
+await extract()
 
+async function extract(verbose = false) {
+	const end = start(bd('extract'), {
+		...opts,
+		symbol: '🏁',
+	})
+
+	// Get all files.
 	const categories = buildCategoryMap()
-	l('Extracting:')
-	l(Object.keys(categories))
 
+	if (verbose) {
+		l('Extracting:\n' + Object.keys(categories))
+	}
+
+	fileCount += Object.values(categories).reduce((acc, { files }) => acc + files.length, 0)
+
+	// Transform svelte to typescript.
 	await transformSvelte(categories)
-	l('categories:')
-	l(debrief(categories, { depth: 2, siblings: 4 }))
 
-	const comments = getComments(categories)
-	l('comments:')
-	// l(comments)
-	l(debrief(comments, { depth: 3, siblings: 3 }))
+	// Extract doc comments.
+	const comments = getComments(categories, verbose)
 
-	await writeComments(comments)
+	commentCount += comments.reduce(
+		(acc, { files }) => acc + files.reduce((acc, { comments }) => acc + comments.length, 0),
+		0,
+	)
+
+	await writeComments(comments, verbose)
 
 	await cleanup()
+
+	n()
+	l(dim('Files analysed     '), g(fileCount))
+	l(dim('Comments extracted '), g(commentCount))
+	l(dim('JSON written       '), g(jsonCount))
+	n()
 
 	end()
 }
 
-async function writeComments(comments: ParsedCategory[]) {
-	const end = start('writeComments')
+/**
+ * Writes all comments to `*.doc.json` files.
+ */
+async function writeComments(comments: ParsedCategory[], verbose = false) {
+	const end = start('writeComments', opts)
 
 	for (const comment of comments) {
 		for (const { file, comments } of comment.files) {
@@ -77,11 +102,13 @@ async function writeComments(comments: ParsedCategory[]) {
 				throw new Error('malformed json file: ' + out)
 			}
 
-			l(dim('writing file: ') + out)
+			if (verbose) l(dim('Writing file: ') + out)
 
 			await writeFile(out, JSON.stringify(comments, null, 2), {
 				encoding: 'utf-8',
 			})
+
+			jsonCount++
 		}
 	}
 
@@ -89,8 +116,6 @@ async function writeComments(comments: ParsedCategory[]) {
 }
 
 function buildCategoryMap() {
-	const end = start('buildCategoryMap')
-
 	const categories = folders.reduce((acc, folder) => {
 		acc[folder] = {
 			category: folder,
@@ -104,7 +129,6 @@ function buildCategoryMap() {
 		return acc
 	}, {} as CategoryMap)
 
-	end()
 	return categories
 }
 
@@ -112,13 +136,13 @@ function buildCategoryMap() {
  * Extracts and parses all comments from a given {@link CategoryMap}.
  * @param map {@link CategoryMap}
  */
-function getComments(map: CategoryMap, verbose = true) {
-	const end = start('getComments')
+function getComments(map: CategoryMap, verbose: boolean) {
+	const end = start('getComments', opts)
 
 	const comments = values(map).map((category) => {
 		return {
 			...category,
-			files: category.files.length ? Extractor.scanFiles(category.files, true) : [],
+			files: category.files.length ? Extractor.scanFiles(category.files, verbose) : [],
 		} as ParsedCategory
 	})
 
@@ -138,10 +162,9 @@ function getComments(map: CategoryMap, verbose = true) {
 
 /**
  * Transforms all `*.svelte` files to `*.svelte.ts` files using `svelte2tsx`.
- * @param map {@link CategoryMap}
  */
 async function transformSvelte(map: CategoryMap) {
-	const end = start('transformSvelte')
+	const end = start('transformSvelte', opts)
 
 	for (const [name, category] of entries(map)) {
 		for (const filepath of category.files.filter((p) => p.endsWith('.svelte'))) {
@@ -164,19 +187,9 @@ async function transformSvelte(map: CategoryMap) {
 
 /** Removes all generated `*.svelte.ts` files after the extraction process. */
 async function cleanup() {
-	const end = start('cleanup')
-
 	const files = globbySync('src/lib/**/*.svelte.ts')
+
 	for (const file of files) {
 		await unlink(file)
 	}
-
-	end()
-}
-
-function clear() {
-	console.clear()
-	n(2)
-	console.log('-'.repeat(70))
-	n()
 }

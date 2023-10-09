@@ -82,8 +82,7 @@ export class Extractor {
 
 	static scanFiles(paths: string[], verbose = false) {
 		const l = verbose ? log : () => {}
-
-		const end = start('scanFiles')
+		const end = verbose ? start('scanFiles') : () => {}
 
 		const compilerOptions: ts.CompilerOptions = {
 			target: ts.ScriptTarget.Latest,
@@ -99,10 +98,10 @@ export class Extractor {
 		// 	paths.push(require.resolve('svelte2tsx/svelte-shims.d.ts'))
 		// }
 
-		l(dim('\nenvoking typescript compiler\n'))
 		const program: ts.Program = ts.createProgram(paths, compilerOptions)
 
-		if (verbose) this.#reportCompilerErrors(program)
+		// if (verbose) this.#reportCompilerErrors(program)
+		this.#reportCompilerErrors(program, verbose)
 
 		const comments: ParsedFile[] = []
 
@@ -119,7 +118,7 @@ export class Extractor {
 			this.#walkCompilerAstAndFindComments(sourceFile, '', foundComments)
 
 			if (!foundComments.length) {
-				l(r('No comments found in file: ') + dim(path))
+				l(y('No comments found in file: ') + dim(path))
 				continue
 			}
 
@@ -136,6 +135,12 @@ export class Extractor {
 		return comments
 	}
 
+	/**
+	 * Compiles svelte to typescript with `svelte2tsx`.
+	 * @param svelte The svelte source code to compile.
+	 * @param filename The name of the file containing the source code.
+	 * @returns The compiled ts.
+	 */
 	static compileSvelte(svelte: string, filename: string) {
 		return svelte2tsx(svelte, {
 			filename,
@@ -360,7 +365,7 @@ export class Extractor {
 			if (unusedBlocks.length) {
 				found.customBlocks = unusedBlocks
 
-				console.warn(r('Unused custom blocks found:'))
+				console.warn(y('Unused custom blocks found:'))
 				unusedBlocks.forEach((b) => {
 					console.log(b.tagName, b.content)
 				})
@@ -528,9 +533,8 @@ export class Extractor {
 			return
 		}
 
-		nl()
 		const _ = count === 1 ? 'error' : 'errors'
-		console.error(`${bd(r(count))} compiler ${_} found:`)
+		l(`\n${bd(r(count))} compiler ${_} found:\n`)
 
 		if (verbose) {
 			for (const diagnostic of compilerDiagnostics) {

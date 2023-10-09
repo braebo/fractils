@@ -24,12 +24,14 @@
 		"dev": "vite dev",
 		"test": "vitest",
 		"debug": "NODE_OPTIONS=\"--inspect\" vite dev",
-		"build": "vite-node ./src/shiki/syntax-highlighter.ts && rm -rf dist && vite build",
+		"build": "vite-node ./src/scripts/shiki/syntax-highlighter.ts && rm -rf dist && vite build",
 		"preview": "vite preview",
 		"package": "svelte-package",
 		"release": "pnpm package && changeset publish",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"extract": "bun src/scripts/extract/index.ts",
+		"extract:watch": "bun --watch src/scripts/extract/index.ts"
 	},
 	"dependencies": {
 		"esm-env": "^1.0.0"
