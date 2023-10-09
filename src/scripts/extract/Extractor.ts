@@ -379,7 +379,7 @@ export class Extractor {
 	/**
 	 * Pretty prints a {@link DocNode} tree to the console.
 	 */
-	static #logTSDocTree(docNode: tsdoc.DocNode, outputLines: string[] = [], indent: string = '') {
+	static logTSDocTree(docNode: tsdoc.DocNode, outputLines: string[] = [], indent: string = '') {
 		let dumpText: string = ''
 		if (docNode instanceof tsdoc.DocExcerpt) {
 			const content: string = docNode.content.toString()
@@ -390,7 +390,7 @@ export class Extractor {
 		outputLines.push(dumpText)
 
 		for (const child of docNode.getChildNodes()) {
-			this.#logTSDocTree(child, outputLines, indent + '  ')
+			this.logTSDocTree(child, outputLines, indent + '  ')
 		}
 
 		return outputLines
