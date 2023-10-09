@@ -30,9 +30,12 @@ export { initTheme, toggleTheme, applyTheme, theme } from './theme/theme'
 export { asyncLocalStorageStore } from './utils/asyncLocalStorageStore'
 export { localStorageStore } from './utils/localStorageStore'
 export { stringify, serialize } from './utils/stringify' // todo
+export { l, n, r, g, b, y, dim, bd, j } from './utils/l' // todo
+export { start, type StartOptions } from './utils/time' // todo
 export { entries, keys, values } from './utils/object' // todo
 export { decimalToPow } from './utils/decimalToPow' // todo
 export { colors, randomColor } from './utils/color' // todo
+export { timestamp } from './utils/timestamp' // todo
 export { truncate } from './utils/truncate' // todo
 export { mapRange } from './utils/mapRange'
 export { defer } from './utils/defer' // todo
