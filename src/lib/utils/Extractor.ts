@@ -122,7 +122,7 @@ export class Extractor {
 			}
 
 			comments.push({
-				file: path,
+				file: path.replace('.svelte.ts', '.svelte'),
 				type: path.match(/\.svelte(\.ts)?$/) ? 'svelte' : 'ts',
 				comments: foundComments
 					.map((c) => Extractor.#parseTSDoc(c))
@@ -282,7 +282,7 @@ export class Extractor {
 	static parseComment(file: string, name: string, comment: DocComment): Comment {
 		const found: Partial<Comment> = {
 			name: name.replace('__SvelteComponent_', ''),
-			file,
+			file: file.replace('.svelte.ts', '.svelte'),
 			raw: comment.emitAsTsdoc(),
 		}
 
