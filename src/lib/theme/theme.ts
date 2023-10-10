@@ -6,12 +6,17 @@ const initialTheme =
 		? localStorage.getItem('theme')
 		: 'dark'
 
-export const theme = localStorageStore('theme', initialTheme)
+type Theme = 'light' | 'dark' | (string & {}) | null
+
+/**
+ * A store for the current theme persisted in local storage.
+ */
+export const theme = localStorageStore<Theme>('theme', initialTheme)
 
 const detectSystemPreference = (e: MediaQueryListEvent) => applyTheme(e.matches ? 'dark' : 'light')
 
 /**
- * Applies system preference theme and registers a listener for changes
+ * Applies system preference theme and registers a listener for changes.
  */
 export const initTheme = async (): Promise<void> => {
 	if (typeof window === 'undefined') return
