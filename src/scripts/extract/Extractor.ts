@@ -29,6 +29,17 @@ export interface ParsedFile {
 	comments: Comment[]
 }
 
+export type VariableCategory =
+	| 'variable'
+	| 'component'
+	| 'function'
+	| 'method'
+	| 'property'
+	| 'event'
+	| 'class'
+	| 'store'
+	| (string & {})
+
 /**
  * A parsed variable declaration's tsdoc comment information.
  */
@@ -37,6 +48,7 @@ export interface Comment {
 	 * Name of the variable the comment belongs to.
 	 */
 	name: string
+	category: VariableCategory
 	/**
 	 * Path to the file containing the source code.
 	 */
@@ -66,6 +78,8 @@ export interface Comment {
 interface FoundComment {
 	/** The name of the variable the comment belongs to. */
 	name: string
+	/** The VariableCategory for lack of a better name... */
+	category: VariableCategory
 	/** The declaration node the comment belongs to. */
 	compilerNode: ts.Node
 	/** The start and end positions of the comment in the source file. */
@@ -116,7 +130,7 @@ export class Extractor {
 
 			const foundComments: FoundComment[] = []
 
-			this.#walkCompilerAstAndFindComments(sourceFile, '', foundComments)
+			this.#walkCompilerAstAndFindComments(sourceFile, '', foundComments, [], program)
 
 			if (!foundComments.length) {
 				l(y('No comments found in file: ') + dim(path))
@@ -128,7 +142,7 @@ export class Extractor {
 				type: path.match(/\.svelte(\.ts)?$/) ? 'svelte' : 'ts',
 				comments: foundComments
 					.map((c) => Extractor.#parseTSDoc(c))
-					.map((c) => Extractor.parseComment(path, c.name, c.docComment)),
+					.map((c) => Extractor.parseComment(path, c.name, c.category, c.docComment)),
 			})
 		}
 
@@ -236,8 +250,9 @@ export class Extractor {
 
 		const name = foundComment.name
 		const docComment = parserContext.docComment
+		const category = foundComment.category
 
-		return { name, docComment } as const
+		return { name, category, docComment } as const
 	}
 
 	static renderDocNode(docNode: DocNode): string {
@@ -273,7 +288,6 @@ export class Extractor {
 		}
 
 		if (!name) {
-			console.error('Failed to find identifier name.')
 			console.error(tree)
 			throw new Error('Failed to find identifier name.')
 		}
@@ -282,16 +296,71 @@ export class Extractor {
 	}
 
 	/**
+	 * Get's the name of a variable from a {@link VariableDeclaration} node.
+	 */
+	static #getInitializerType(node: ts.Node, program: ts.Program) {
+		let type: string | undefined = undefined
+
+		const tree = [ts.SyntaxKind[node.kind]]
+		const typeChecker = program.getTypeChecker()
+
+		const visit = (n: ts.Node) => {
+			if (type) return type
+			tree.push(ts.SyntaxKind[n.kind])
+
+			// @ts-expect-error ...
+			if (n.initializer) {
+				// @ts-expect-error ...
+				switch (n.initializer.kind) {
+					case ts.SyntaxKind.FunctionExpression:
+					case ts.SyntaxKind.ArrowFunction:
+						return 'function'
+					case ts.SyntaxKind.ObjectLiteralExpression:
+						return 'object'
+					case ts.SyntaxKind.ArrayLiteralExpression:
+						return 'array'
+					case ts.SyntaxKind.NumericLiteral:
+						return 'number'
+					case ts.SyntaxKind.StringLiteral:
+						return 'string'
+					case ts.SyntaxKind.TrueKeyword:
+					case ts.SyntaxKind.FalseKeyword:
+						return 'boolean'
+					case ts.SyntaxKind.ClassExpression:
+						return 'class'
+					case ts.SyntaxKind.TypeReference: {
+						// We need to get the identifier name from the type reference.
+					}
+				}
+			}
+
+			return n.forEachChild(visit)
+		}
+
+		let category = node.forEachChild(visit)
+
+		category ??= typeChecker.typeToString(typeChecker.getTypeAtLocation(node)) ?? 'ERROR'
+
+		return category
+	}
+
+	/**
 	 * Parses a {@link DocComment} into a {@link Comment}.
 	 * @param file The path to the file containing the comment.
 	 * @param name The name of the variable associated with the comment.
 	 * @param comment The {@link DocComment} to parse.
 	 */
-	static parseComment(file: string, name: string, comment: DocComment): Comment {
+	static parseComment(
+		file: string,
+		name: string,
+		category: VariableCategory,
+		comment: DocComment,
+	): Comment {
 		const found: Partial<Comment> = {
 			name: name.replace('__SvelteComponent_', ''),
 			file: file.replace('.svelte.ts', '.svelte'),
 			raw: comment.emitAsTsdoc(),
+			category,
 		}
 
 		if (comment.summarySection) {
@@ -406,9 +475,18 @@ export class Extractor {
 		indent: string,
 		foundComments: FoundComment[],
 		tree: string[] = [],
+		program: ts.Program,
 	): void {
-		try {
-			// Skip node_modules
+		let category: VariableCategory | undefined = undefined
+
+		const walk = (
+			node: ts.Node,
+			indent: string,
+			foundComments: FoundComment[],
+			tree: string[] = [],
+			program: ts.Program,
+		) => {
+			// Skip node_modules // todo - only used when shimming svelte
 			// if (node.getSourceFile().fileName.includes('node_modules')) return
 
 			const buffer: string = node.getSourceFile().getFullText() // Don't use getText() here!
@@ -417,14 +495,41 @@ export class Extractor {
 			// the same comment twice (e.g. for a MethodDeclaration and its PublicKeyword).
 			if (this.#isDeclarationKind(node.kind)) {
 				tree.push(indent + ts.SyntaxKind[node.kind])
+
 				// Find "/** */" style comments associated with this node.
 				// Note that this reinvokes the compiler's scanner -- the result is not cached.
 				const comments: ts.CommentRange[] = this.#getJSDocCommentRanges(node, buffer)
 
-				if (comments.length > 0) {
+				const name = this.#getIdentifierName(node)
+
+				// This is a pretty hacky way to differentiate between stores
+				// and other variables.  It seems to work for now.
+				if (['writable', 'Writable'].includes(name.toLowerCase())) {
+					category = 'store'
+				}
+
+				if (comments.length) {
+					if (name.includes('__SvelteComponent_')) {
+						category = 'svelte_component'
+					}
+
+					if (!category) {
+						category = this.#getInitializerType(node, program)
+
+						if (category === 'any') {
+							category = 'ERROR'
+						}
+
+						category ??= 'ERROR'
+					}
+					
+					log(r(name + ': ' + category))
+
 					for (const comment of comments) {
+
 						foundComments.push({
-							name: this.#getIdentifierName(node),
+							name,
+							category,
 							compilerNode: node,
 							textRange: tsdoc.TextRange.fromStringRange(
 								buffer,
@@ -434,15 +539,20 @@ export class Extractor {
 							kind: ts.SyntaxKind[node.kind],
 						})
 					}
+
+					category = undefined
 				}
 			}
 
 			return node.forEachChild((child) =>
-				this.#walkCompilerAstAndFindComments(child, indent + '  ', foundComments, tree),
+				walk(child, indent + '  ', foundComments, tree, program),
 			)
+		}
+
+		try {
+			return walk(node, indent, foundComments, tree, program)
 		} catch (error) {
-			console.error(error)
-			console.log('tree:')
+			console.log(`tree:`)
 			console.log(y(tree))
 			throw error
 		}
