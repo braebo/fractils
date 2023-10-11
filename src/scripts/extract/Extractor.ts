@@ -1,9 +1,10 @@
 import { DocNode, DocExcerpt, DocComment, TSDocParser } from '@microsoft/tsdoc'
 import { l as log, n as nl, b, bd, dim, g, r, y } from '$lib/utils/l'
 import { TSDocConfigFile } from '@microsoft/tsdoc-config'
+import { stringify } from '$lib/utils/stringify.js'
 import * as tsdoc from '@microsoft/tsdoc'
 import { start } from '$lib/utils/time'
-import { svelte2tsx } from 'svelte2tsx'
+// import { get_types } from './kit'
 import ts from 'typescript'
 import chalk from 'chalk'
 import os from 'os'
@@ -21,37 +22,28 @@ export interface ParsedFile {
 	 * Whether the comment belongs to a js/ts variable
 	 * declaration or a svelte component.
 	 */
-	type: 'ts' | 'svelte'
+	fileType: 'ts' | 'svelte'
 
 	/**
-	 * All variable declaration doc comments found.
+	 * All exported variable declarations.
 	 */
-	comments: Comment[]
-}
+	variables: Export[]
 
-export type VariableCategory =
-	| 'variable'
-	| 'component'
-	| 'function'
-	| 'method'
-	| 'property'
-	| 'event'
-	| 'class'
-	| 'store'
-	| (string & {})
+	/**
+	 * All exported type declarations.
+	 */
+	types: Export[]
+}
 
 /**
  * A parsed variable declaration's tsdoc comment information.
  */
-export interface Comment {
-	/**
-	 * Name of the variable the comment belongs to.
-	 */
+export interface Export {
+	/** Name of the variable the comment belongs to. */
 	name: string
-	category: VariableCategory
-	/**
-	 * Path to the file containing the source code.
-	 */
+	/** The typescript type of the variable. */
+	type: string
+	/** Path to the file containing the source code. */
 	file: string
 	summary?: string
 	remarks?: string
@@ -63,9 +55,7 @@ export interface Comment {
 	defaultValue?: string
 	noteBlocks?: string[]
 	exampleBlocks?: string[]
-	/**
-	 * The raw tsdoc comment.
-	 */
+	/** The raw tsdoc comment. */
 	raw: string
 }
 
@@ -73,15 +63,15 @@ export interface Comment {
  * Information for a found variable declaration.  Most importantly,
  * the `textRange` is captured from the compiler's AST, and used to
  * parse the comment in the source file into a {@link DocComment}
- * for further processing, ultimately parsed into a {@link Comment}.
+ * for further processing, ultimately parsed into a {@link Export}.
  */
 interface FoundComment {
 	/** The name of the variable the comment belongs to. */
 	name: string
-	/** The VariableCategory for lack of a better name... */
-	category: VariableCategory
+	fileType: string
 	/** The declaration node the comment belongs to. */
 	compilerNode: ts.Node
+	type: string
 	/** The start and end positions of the comment in the source file. */
 	textRange: tsdoc.TextRange
 	/** The {@link ts.SyntaxKind} of declaration node the comment belongs to. */
@@ -90,12 +80,22 @@ interface FoundComment {
 
 /**
  * Extracts tsdoc comment information from files or folders in
- * the form of {@link Comment} objects.
+ * the form of {@link Export} objects.
  */
 export class Extractor {
-	static comments: Comment[] = []
+	static #tsdocParser = Extractor.#createParser()
+	static #program?: ts.Program
 
-	static scanFiles(paths: string[], verbose = false) {
+	static variables: Export[] = []
+	static types: Export[] = []
+
+	/**
+	 * Scans a list of files for tsdoc comments and parses them.
+	 * @param paths The paths to the files to scan.
+	 * @param verbose Whether to log the results to the console.
+	 * @returns An array of {@link ParsedFile} objects.
+	 */
+	static async scanFiles(paths: string[], verbose = false): Promise<ParsedFile[]> {
 		const l = verbose ? log : () => {}
 		const end = verbose ? start('scanFiles') : () => {}
 
@@ -105,128 +105,58 @@ export class Extractor {
 			moduleResolution: ts.ModuleResolutionKind.Bundler,
 		}
 
-		// todo - svelte shims introduce more errors than they remove.
-		// // svelte shims
-		// if (paths.some((p) => p.endsWith('.svelte') || p.endsWith('.svelte.ts'))) {
-		// 	l(dim('\nadding svelte shims\n'))
-		// 	// paths.push(require.resolve('svelte2tsx/svelte-jsx.d.ts'))
-		// 	paths.push(require.resolve('svelte2tsx/svelte-shims.d.ts'))
-		// }
+		Extractor.#program = ts.createProgram(paths, compilerOptions)
+		Extractor.#program.getSemanticDiagnostics()
 
-		const program: ts.Program = ts.createProgram(paths, compilerOptions)
-
-		// if (verbose) this.#reportCompilerErrors(program)
-		this.#reportCompilerErrors(program, verbose)
-
-		const comments: ParsedFile[] = []
+		const parsedFiles: ParsedFile[] = []
 
 		for (const path of paths) {
-			const sourceFile = program.getSourceFile(path)
+			const sourceFile = Extractor.#program.getSourceFile(path)
 
 			if (!sourceFile) {
-				l(r('Error retrieving source file: ') + paths)
-				throw new Error('Error retrieving source file')
+				throw new Error('Error retrieving source file' + paths)
 			}
 
-			const foundComments: FoundComment[] = []
-
-			this.#walkCompilerAstAndFindComments(sourceFile, '', foundComments, [], program)
+			const foundComments = this.#walkCompilerAstAndFindComments(sourceFile, '')
 
 			if (!foundComments.length) {
 				l(y('No comments found in file: ') + dim(path))
 				continue
+			} else {
+				l(g('Found ' + foundComments.length + ' comment(s) in file: ') + dim(path))
 			}
 
-			comments.push({
+			const variables: Export[] = []
+			const types: Export[] = []
+
+			for (const comment of foundComments) {
+				const tsdoc = Extractor.#parseTSDoc(comment)
+				const parsedComment = Extractor.parseComment(path, tsdoc.name, tsdoc.docComment)
+
+				const collection =
+					ts.isVariableStatement(comment.compilerNode) ||
+					ts.isFunctionDeclaration(comment.compilerNode)
+						? variables
+						: types
+
+				collection.push({
+					...parsedComment,
+					type: comment.type,
+				})
+			}
+
+			parsedFiles.push({
 				file: path.replace('.svelte.ts', '.svelte'),
-				type: path.match(/\.svelte(\.ts)?$/) ? 'svelte' : 'ts',
-				comments: foundComments
-					.map((c) => Extractor.#parseTSDoc(c))
-					.map((c) => Extractor.parseComment(path, c.name, c.category, c.docComment)),
+				fileType: path.match(/\.svelte(\.ts)?$/) ? 'svelte' : 'ts',
+				variables,
+				types,
 			})
 		}
 
 		end()
-		return comments
+
+		return parsedFiles
 	}
-
-	/**
-	 * Compiles svelte to typescript with `svelte2tsx`.
-	 * @param svelte The svelte source code to compile.
-	 * @param filename The name of the file containing the source code.
-	 * @returns The compiled ts.
-	 */
-	static compileSvelte(svelte: string, filename: string) {
-		return svelte2tsx(svelte, {
-			filename,
-			isTsFile: true,
-		})
-	}
-
-	/**
-	 * Pretty prints a {@link Comment} to the console.
-	 */
-	static logComment(comment: Comment) {
-		const pink = chalk.hex('#eaa')
-		const lightGreen = chalk.hex('#aea')
-		const l = log
-		const n = nl
-		const star = dim('  *')
-		let first = false
-		const maybeStar = () => (first ? (first = false) : l(star))
-
-		n()
-		l(bd(comment.name))
-		l(dim(' /**'))
-
-		if (comment.summary) {
-			lc(lightGreen(format(comment.summary)))
-		}
-		if (comment.params?.length) {
-			maybeStar()
-			comment.params.forEach((p) => lc(pink('@param'), p.name, p.description))
-		}
-		if (comment.typeParams?.length) {
-			maybeStar()
-			comment.typeParams.forEach((p) => lc(pink('typeParam:'), p.name, p.description))
-		}
-		if (comment.returns) {
-			maybeStar()
-			lc(pink('returns:'), comment.returns)
-		}
-		if (comment.defaultValue) {
-			maybeStar()
-			lc(pink('@default'), comment.defaultValue)
-		}
-		if (comment.remarks) {
-			maybeStar()
-			lc(pink('remarks:'), comment.remarks)
-		}
-
-		l(dim('  */'))
-
-		/**
-		 *  Logs a {@link Comment} in tsdoc-style, ensuring each line starts with a spaced *
-		 */
-		function lc(...args: any[]) {
-			// we use 1 because 0 is the colored tagname
-			let str = args[1]
-
-			if (typeof str === 'string') {
-				// Replace newlines with newlines and a spaced *
-				l(star, args[0], format(str))
-			} else {
-				l(star, ...args)
-			}
-		}
-
-		function format(str: string) {
-			return str.replace(/\n/g, `\n${star} `)
-		}
-	}
-
-	// static #tsdocParser = new TSDocParser()
-	static #tsdocParser = Extractor.#createParser()
 
 	static #createParser() {
 		// Load the nearest config file, for example `my-project/tsdoc.json`
@@ -243,6 +173,95 @@ export class Extractor {
 	}
 
 	/**
+	 * Recursively walks the compiler AST, looking for comments
+	 * associated with variable declarations.
+	 * @returns An array of {@link FoundComment} objects.
+	 */
+	static #walkCompilerAstAndFindComments(node: ts.SourceFile, indent: string) {
+		let type: string | null = null
+		let types: string[] = []
+		let foundComments = [] as FoundComment[]
+
+		const walk = (node: ts.Node, indent: string, tree: string[]) => {
+			const buffer: string = node.getSourceFile().getFullText() // Don't use getText() here!
+
+			// Only consider nodes that are part of a declaration form.  Without this, we could discover
+			// the same comment twice (e.g. for a MethodDeclaration and its PublicKeyword).
+			if (this.#isDeclarationKind(node.kind)) {
+				// @ts-expect-error
+				// we only care about exported variables
+				const isExport = !!(ts.getCombinedModifierFlags(node) & ts.ModifierFlags.Export)
+				if (!isExport) return
+
+				// We especially want to skip imports.
+				if (ts.isImportDeclaration(node)) return
+
+				tree.push(indent + ts.SyntaxKind[node.kind])
+
+				// Find "/** */" style comments associated with this node.
+				// Note that this reinvokes the compiler's scanner -- the result is not cached.
+				const commentRanges: ts.CommentRange[] = Extractor.#getJSDocCommentRanges(
+					node,
+					buffer,
+				)
+
+				const name = Extractor.#getIdentifierName(node)
+
+				if (!type || type === 'any' || type === 'null' || type === null) {
+					if (name.includes('__SvelteComponent_')) {
+						type = 'svelte_component'
+						types.push(type)
+					}
+
+					type = Extractor.#getInitializerType(node)
+					types.push(type)
+
+					if (type === 'any') {
+						type = null
+						types.push('null')
+					}
+				}
+
+				if (commentRanges.length) {
+
+					nl()
+					log(y('Found ' + commentRanges.length + ' comment(s)'))
+					log(dim('Name	'), b(name))
+					log(dim('Kind	'), b(ts.SyntaxKind[node.kind]))
+					log(dim('Type	'), b(type))
+					log(dim('Types	'), dim(types))
+					log(dim('Snippet'), b(stringify(node.getText(), 2)))
+					log(dim(tree))
+
+					const comment = commentRanges[0]
+
+					foundComments.push({
+						name,
+						fileType: node.getSourceFile().fileName.endsWith('.svelte.ts') ? 'svelte' : 'ts',
+						compilerNode: node,
+						textRange: tsdoc.TextRange.fromStringRange(
+							buffer,
+							comment.pos,
+							comment.end,
+						),
+						kind: ts.SyntaxKind[node.kind],
+						type: type ?? 'ERROR',
+					})
+
+					type = null
+					types = []
+				}
+			}
+
+			node.forEachChild((child) => walk(child, indent + '  ', tree))
+		}
+
+		walk(node, indent, [])
+
+		return foundComments
+	}
+
+	/**
 	 * Parses a {@link FoundComment} into a docComment.
 	 */
 	static #parseTSDoc(foundComment: FoundComment) {
@@ -250,7 +269,7 @@ export class Extractor {
 
 		const name = foundComment.name
 		const docComment = parserContext.docComment
-		const category = foundComment.category
+		const category = foundComment.fileType
 
 		return { name, category, docComment } as const
 	}
@@ -270,6 +289,7 @@ export class Extractor {
 
 	/**
 	 * Get's the name of a variable from a {@link VariableDeclaration} node.
+	 * @throws If the name cannot be found.
 	 */
 	static #getIdentifierName(node: ts.Node): string {
 		const tree = [ts.SyntaxKind[node.kind]]
@@ -298,69 +318,78 @@ export class Extractor {
 	/**
 	 * Get's the name of a variable from a {@link VariableDeclaration} node.
 	 */
-	static #getInitializerType(node: ts.Node, program: ts.Program) {
-		let type: string | undefined = undefined
+	static #getInitializerType(node: ts.Node): string {
+		const typeChecker = Extractor.#program?.getTypeChecker()
 
-		const tree = [ts.SyntaxKind[node.kind]]
-		const typeChecker = program.getTypeChecker()
-
-		const visit = (n: ts.Node) => {
-			if (type) return type
-			tree.push(ts.SyntaxKind[n.kind])
-
-			// @ts-expect-error ...
-			if (n.initializer) {
-				// @ts-expect-error ...
-				switch (n.initializer.kind) {
-					case ts.SyntaxKind.FunctionExpression:
-					case ts.SyntaxKind.ArrowFunction:
-						return 'function'
-					case ts.SyntaxKind.ObjectLiteralExpression:
-						return 'object'
-					case ts.SyntaxKind.ArrayLiteralExpression:
-						return 'array'
-					case ts.SyntaxKind.NumericLiteral:
-						return 'number'
-					case ts.SyntaxKind.StringLiteral:
-						return 'string'
-					case ts.SyntaxKind.TrueKeyword:
-					case ts.SyntaxKind.FalseKeyword:
-						return 'boolean'
-					case ts.SyntaxKind.ClassExpression:
-						return 'class'
-					case ts.SyntaxKind.TypeReference: {
-						// We need to get the identifier name from the type reference.
-					}
-				}
-			}
-
-			return n.forEachChild(visit)
+		if (ts.isImportDeclaration(node) || ts.isImportSpecifier(node)) {
+			return 'import'
 		}
 
-		let category = node.forEachChild(visit)
+		const visit = (n: ts.Node) => {
+			const type = typeChecker?.getTypeAtLocation(n)
+			if (type) return typeChecker?.typeToString(type)
 
-		category ??= typeChecker.typeToString(typeChecker.getTypeAtLocation(node)) ?? 'ERROR'
+			if (ts.isFunctionDeclaration(node)) return 'function'
+			if (ts.isMethodDeclaration(node)) return 'method'
+			if (ts.isPropertyDeclaration(node)) return 'property'
+			if (ts.isVariableDeclaration(node)) return 'variable'
+			if (ts.isClassDeclaration(node)) return 'class'
+			if (ts.isInterfaceDeclaration(node)) return 'interface'
+			if (ts.isTypeAliasDeclaration(node)) return 'type'
+			if (ts.isEnumDeclaration(node)) return 'enum'
 
-		return category
+			switch (n.kind) {
+				case ts.SyntaxKind.FunctionExpression:
+				case ts.SyntaxKind.ArrowFunction:
+					return 'function'
+				case ts.SyntaxKind.ObjectLiteralExpression:
+					return 'object'
+				case ts.SyntaxKind.ArrayLiteralExpression:
+					return 'array'
+				case ts.SyntaxKind.NumericLiteral:
+					return 'number'
+				case ts.SyntaxKind.StringLiteral:
+					return 'string'
+				case ts.SyntaxKind.TrueKeyword:
+				case ts.SyntaxKind.FalseKeyword:
+					return 'boolean'
+				case ts.SyntaxKind.ClassExpression:
+					return 'class'
+				case ts.SyntaxKind.TypeReference: {
+					// We need to get the identifier name from the type reference.
+					// This is a bit of a hack, but it works.
+					const type = typeChecker?.getTypeAtLocation(n)
+					const symbol = type?.aliasSymbol ?? type?.symbol
+					if (symbol) {
+						return symbol.getName()
+					}
+				}
+				case ts.SyntaxKind.FirstStatement:
+				default:
+					for (const child of n.getChildren()) {
+						const result = visit(child)
+						if (result) return result
+					}
+			}
+			return null
+		}
+
+		const result = visit(node) || 'ERROR'
+
+		return result
 	}
 
 	/**
-	 * Parses a {@link DocComment} into a {@link Comment}.
+	 * Parses a {@link DocComment} into a {@link Export}.
 	 * @param file The path to the file containing the comment.
 	 * @param name The name of the variable associated with the comment.
 	 * @param comment The {@link DocComment} to parse.
 	 */
-	static parseComment(
-		file: string,
-		name: string,
-		category: VariableCategory,
-		comment: DocComment,
-	): Comment {
-		const found: Partial<Comment> = {
+	static parseComment(file: string, name: string, comment: DocComment): Export {
+		const found: Partial<Export> = {
 			name: name.replace('__SvelteComponent_', ''),
 			file: file.replace('.svelte.ts', '.svelte'),
 			raw: comment.emitAsTsdoc(),
-			category,
 		}
 
 		if (comment.summarySection) {
@@ -442,120 +471,7 @@ export class Extractor {
 			}
 		}
 
-		return found as Comment
-	}
-
-	/**
-	 * Pretty prints a {@link DocNode} tree to the console.
-	 */
-	static logTSDocTree(docNode: tsdoc.DocNode, outputLines: string[] = [], indent: string = '') {
-		let dumpText: string = ''
-		if (docNode instanceof tsdoc.DocExcerpt) {
-			const content: string = docNode.content.toString()
-			dumpText += dim(`${indent}* ${docNode.excerptKind}: `) + b(JSON.stringify(content))
-		} else {
-			dumpText += `${indent}- ${docNode.kind}`
-		}
-		outputLines.push(dumpText)
-
-		for (const child of docNode.getChildNodes()) {
-			this.logTSDocTree(child, outputLines, indent + '  ')
-		}
-
-		return outputLines
-	}
-
-	/**
-	 * Recursively walks the compiler AST, looking for comments
-	 * associated with variable declarations.
-	 * @returns An array of {@link FoundComment} objects.
-	 */
-	static #walkCompilerAstAndFindComments(
-		node: ts.Node,
-		indent: string,
-		foundComments: FoundComment[],
-		tree: string[] = [],
-		program: ts.Program,
-	): void {
-		let category: VariableCategory | undefined = undefined
-
-		const walk = (
-			node: ts.Node,
-			indent: string,
-			foundComments: FoundComment[],
-			tree: string[] = [],
-			program: ts.Program,
-		) => {
-			// Skip node_modules // todo - only used when shimming svelte
-			// if (node.getSourceFile().fileName.includes('node_modules')) return
-
-			const buffer: string = node.getSourceFile().getFullText() // Don't use getText() here!
-
-			// Only consider nodes that are part of a declaration form.  Without this, we could discover
-			// the same comment twice (e.g. for a MethodDeclaration and its PublicKeyword).
-			if (this.#isDeclarationKind(node.kind)) {
-				tree.push(indent + ts.SyntaxKind[node.kind])
-
-				// Find "/** */" style comments associated with this node.
-				// Note that this reinvokes the compiler's scanner -- the result is not cached.
-				const comments: ts.CommentRange[] = this.#getJSDocCommentRanges(node, buffer)
-
-				const name = this.#getIdentifierName(node)
-
-				// This is a pretty hacky way to differentiate between stores
-				// and other variables.  It seems to work for now.
-				if (['writable', 'Writable'].includes(name.toLowerCase())) {
-					category = 'store'
-				}
-
-				if (comments.length) {
-					if (name.includes('__SvelteComponent_')) {
-						category = 'svelte_component'
-					}
-
-					if (!category) {
-						category = this.#getInitializerType(node, program)
-
-						if (category === 'any') {
-							category = 'ERROR'
-						}
-
-						category ??= 'ERROR'
-					}
-					
-					log(r(name + ': ' + category))
-
-					for (const comment of comments) {
-
-						foundComments.push({
-							name,
-							category,
-							compilerNode: node,
-							textRange: tsdoc.TextRange.fromStringRange(
-								buffer,
-								comment.pos,
-								comment.end,
-							),
-							kind: ts.SyntaxKind[node.kind],
-						})
-					}
-
-					category = undefined
-				}
-			}
-
-			return node.forEachChild((child) =>
-				walk(child, indent + '  ', foundComments, tree, program),
-			)
-		}
-
-		try {
-			return walk(node, indent, foundComments, tree, program)
-		} catch (error) {
-			console.log(`tree:`)
-			console.log(y(tree))
-			throw error
-		}
+		return found as Export
 	}
 
 	/**
@@ -577,6 +493,7 @@ export class Extractor {
 				break
 			}
 		}
+
 		commentRanges.push(...(ts.getLeadingCommentRanges(text, node.pos) || []))
 
 		// True if the comment starts with '/**' but not if it is '/**/'
@@ -591,7 +508,7 @@ export class Extractor {
 	/**
 	 * Returns true if the specified SyntaxKind is part of a declaration form.
 	 *
-	 * Based on ts.isDeclarationKind() from the compiler.
+	 * Based on ts.isDeclarationKind() from the compiler but includes more kinds.
 	 * https://github.com/microsoft/TypeScript/blob/v3.0.3/src/compiler/utilities.ts#L6382
 	 */
 	static #isDeclarationKind(kind: ts.SyntaxKind): boolean {
@@ -634,6 +551,68 @@ export class Extractor {
 		)
 	}
 
+	/**
+	 * Pretty prints a {@link Export} to the console.
+	 */
+	static logComment(comment: Export) {
+		const pink = chalk.hex('#eaa')
+		const lightGreen = chalk.hex('#aea')
+		const l = log
+		const n = nl
+		const star = dim('  *')
+		let first = false
+		const maybeStar = () => (first ? (first = false) : l(star))
+
+		n()
+		l(bd(comment.name))
+		l(dim(' /**'))
+
+		if (comment.summary) {
+			lc(lightGreen(format(comment.summary)))
+		}
+		if (comment.params?.length) {
+			maybeStar()
+			comment.params.forEach((p) => lc(pink('@param'), p.name, p.description))
+		}
+		if (comment.typeParams?.length) {
+			maybeStar()
+			comment.typeParams.forEach((p) => lc(pink('typeParam:'), p.name, p.description))
+		}
+		if (comment.returns) {
+			maybeStar()
+			lc(pink('returns:'), comment.returns)
+		}
+		if (comment.defaultValue) {
+			maybeStar()
+			lc(pink('@default'), comment.defaultValue)
+		}
+		if (comment.remarks) {
+			maybeStar()
+			lc(pink('remarks:'), comment.remarks)
+		}
+
+		l(dim('  */'))
+
+		/**
+		 *  Logs a {@link Export} in tsdoc-style, ensuring each line starts with a spaced *
+		 */
+		function lc(...args: any[]) {
+			// we use 1 because 0 is the colored tagname
+			let str = args[1]
+
+			if (typeof str === 'string') {
+				// Replace newlines with newlines and a spaced *
+				l(star, args[0], format(str))
+			} else {
+				l(star, ...args)
+			}
+		}
+
+		function format(str: string) {
+			return str.replace(/\n/g, `\n${star} `)
+		}
+	}
+
 	static #reportCompilerErrors(program: ts.Program, verbose = false) {
 		const l = verbose ? log : () => {}
 		const compilerDiagnostics: ReadonlyArray<ts.Diagnostic> = program.getSemanticDiagnostics()
@@ -644,8 +623,7 @@ export class Extractor {
 			return
 		}
 
-		const _ = count === 1 ? 'error' : 'errors'
-		l(`\n${bd(r(count))} compiler ${_} found:\n`)
+		l(`\n${bd(r(count))} compiler ${count === 1 ? 'error' : 'errors'} found:\n`)
 
 		if (verbose) {
 			for (const diagnostic of compilerDiagnostics) {
@@ -670,5 +648,25 @@ export class Extractor {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Pretty prints a {@link DocNode} tree to the console.
+	 */
+	static #logTSDocTree(docNode: tsdoc.DocNode, outputLines: string[] = [], indent: string = '') {
+		let dumpText: string = ''
+		if (docNode instanceof tsdoc.DocExcerpt) {
+			const content: string = docNode.content.toString()
+			dumpText += dim(`${indent}* ${docNode.excerptKind}: `) + b(JSON.stringify(content))
+		} else {
+			dumpText += `${indent}- ${docNode.kind}`
+		}
+		outputLines.push(dumpText)
+
+		for (const child of docNode.getChildNodes()) {
+			this.#logTSDocTree(child, outputLines, indent + '  ')
+		}
+
+		return outputLines
 	}
 }

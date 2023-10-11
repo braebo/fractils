@@ -11,16 +11,17 @@ import { start, type StartOptions } from '$lib/utils/time'
 import { Extractor, type ParsedFile } from './Extractor'
 import { entries, values } from '$lib/utils/object'
 import { bd, dim, g, l, n } from '$lib/utils/l'
+import { svelte2tsx } from 'svelte2tsx'
 import { globbySync } from 'globby'
 
 const lib = 'src/lib/'
 // prettier-ignore
 const folders = [
-	'components',
-	'actions',
+	// 'components',
+	// 'actions',
 	'stores',
 	'theme',
-	'utils',
+	// 'utils',
 ] as const
 
 type FilePath = string
@@ -47,7 +48,7 @@ const opts: StartOptions = {
 	logStart: false,
 }
 
-await extract()
+await extract(false)
 
 async function extract(verbose = false) {
 	const end = start(bd('extract'), {
@@ -68,15 +69,17 @@ async function extract(verbose = false) {
 	await transformSvelte(categories)
 
 	// Extract doc comments.
-	const comments = getComments(categories, verbose)
+	const comments = await getComments(categories, verbose)
 
 	commentCount += comments.reduce(
-		(acc, { files }) => acc + files.reduce((acc, { comments }) => acc + comments.length, 0),
+		(acc, { files }) => acc + files.reduce((acc, { variables }) => acc + variables.length, 0),
 		0,
 	)
 
+	// Save the results.
 	await writeComments(comments, verbose)
 
+	// Remove the generated files.
 	await cleanup()
 
 	n()
@@ -94,9 +97,9 @@ async function extract(verbose = false) {
 async function writeComments(comments: ParsedCategory[], verbose = false) {
 	const end = start('writeComments', opts)
 
-	for (const comment of comments) {
-		for (const { file, comments } of comment.files) {
-			const out = file.replace(/\.(svelte|ts)/, '.doc.json')
+	for (const { files } of comments) {
+		for (const parsedFile of files) {
+			const out = parsedFile.file.replace(/\.(svelte|ts)/, '.doc.json')
 
 			if (!out.endsWith('.doc.json')) {
 				throw new Error('malformed json file: ' + out)
@@ -104,7 +107,7 @@ async function writeComments(comments: ParsedCategory[], verbose = false) {
 
 			if (verbose) l(dim('Writing file: ') + out)
 
-			await writeFile(out, JSON.stringify(comments, null, 2), {
+			await writeFile(out, JSON.stringify(files, null, 2), {
 				encoding: 'utf-8',
 			})
 
@@ -136,20 +139,30 @@ function buildCategoryMap() {
  * Extracts and parses all comments from a given {@link CategoryMap}.
  * @param map {@link CategoryMap}
  */
-function getComments(map: CategoryMap, verbose: boolean) {
+async function getComments(map: CategoryMap, verbose: boolean) {
 	const end = start('getComments', opts)
 
-	const comments = values(map).map((category) => {
-		return {
+	let comments: ParsedCategory[] = []
+
+	for (const [name, category] of entries(map)) {
+		if (!category.files.length) {
+			comments.push({
+				...category,
+				files: [],
+			} as ParsedCategory)
+		}
+
+		const parsedFile = await Extractor.scanFiles(category.files, verbose)
+		comments.push({
 			...category,
-			files: category.files.length ? Extractor.scanFiles(category.files, verbose) : [],
-		} as ParsedCategory
-	})
+			files: parsedFile,
+		} as ParsedCategory)
+	}
 
 	if (verbose) {
 		for (const comment of comments) {
-			for (const { comments } of comment.files) {
-				for (const comment of comments) {
+			for (const { variables } of comment.files) {
+				for (const comment of variables) {
 					Extractor.logComment(comment)
 				}
 			}
@@ -174,7 +187,10 @@ async function transformSvelte(map: CategoryMap) {
 
 			const filename = filepath.split('/').pop() as string
 
-			const compiled = Extractor.compileSvelte(buffer, filename)
+			const compiled = svelte2tsx(buffer, {
+				filename,
+				isTsFile: true,
+			})
 
 			await writeFile(filepath + '.ts', compiled.code)
 

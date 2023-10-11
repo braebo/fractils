@@ -47,7 +47,7 @@ export async function initTheme() {
 /**
  * Toggles {@link theme} to and from light / dark mode
  */
-export const toggleTheme = (): void => {
+export function toggleTheme() {
 	if (typeof window === 'undefined') return
 	const activeTheme = theme ? get(theme) : initialTheme
 	activeTheme == 'light' ? applyTheme('dark') : applyTheme('light')
