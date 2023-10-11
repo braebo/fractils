@@ -3,10 +3,10 @@ import { get, writable } from 'svelte/store'
 
 const initialTheme =
 	typeof window !== 'undefined' && globalThis.localStorage && 'theme' in localStorage
-		? localStorage.getItem('theme')
+		? localStorage.getItem('theme') ?? 'dark'
 		: 'dark'
 
-type Theme = 'light' | 'dark' | (string & {}) | null
+export type Theme = 'light' | 'dark' | (string & {})
 
 /**
  * A store for the current theme persisted in local storage.
@@ -18,7 +18,7 @@ const detectSystemPreference = (e: MediaQueryListEvent) => applyTheme(e.matches 
 /**
  * Applies system preference theme and registers a listener for changes.
  */
-export const initTheme = async (): Promise<void> => {
+export async function initTheme() {
 	if (typeof window === 'undefined') return
 	window
 		?.matchMedia('(prefers-color-scheme: dark)')
@@ -66,7 +66,7 @@ const applySystemTheme = (): void => {
  * Applies a specific theme
  * @param newTheme - The theme to apply
  */
-export const applyTheme = (newTheme: string): void => {
+export function applyTheme(newTheme: Theme) {
 	if (typeof window === 'undefined') return
 	document?.documentElement?.setAttribute('theme', newTheme)
 	try {
