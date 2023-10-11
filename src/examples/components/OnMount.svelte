@@ -28,7 +28,7 @@
 		<div class="result">
 			{#if mounted}
 				<OnMount>
-					<div in:fly={{ y: 40, duration: 1000 }}>
+					<div in:fly|global={{ y: 40, duration: 1000 }}>
 						My intro transition will always play!
 					</div>
 				</OnMount>

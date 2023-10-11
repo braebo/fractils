@@ -53,7 +53,7 @@
 	{#if ready}
 		<slot>
 			{#key $theme}
-				<div class="icon" transition:fly={config}>
+				<div class="icon" transition:fly|global={config}>
 					{#if $theme === 'light'}
 						<slot name="light">🌙</slot>
 					{:else if $theme === 'dark'}

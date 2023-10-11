@@ -37,7 +37,7 @@
 	<Example --h="260px" {html}>
 		<div class="result">
 			<div class="button" on:pointerdown={() => $count--}>-</div>
-			<OnMount><div class="count" in:fade={{ delay: 250 }}>{$count}</div></OnMount>
+			<OnMount><div class="count" in:fade|global={{ delay: 250 }}>{$count}</div></OnMount>
 			<div class="button" on:pointerdown={() => $count++}>+</div>
 		</div>
 	</Example>

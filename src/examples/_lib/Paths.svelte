@@ -22,8 +22,8 @@
 {#each children ?? [] as node, i}
 	<li
 		class="path"
-		in:fly|local={{ x: -30, easing: quintOut, delay: 100 * i, duration: 1000 }}
-		out:fade|local={{ duration: 200 }}
+		in:fly={{ x: -30, easing: quintOut, delay: 100 * i, duration: 1000 }}
+		out:fade={{ duration: 200 }}
 		class:mobile={$mobile}
 		class:sub-path={node.depth > 1}
 		class:child-active={node.childActive}

@@ -102,7 +102,7 @@
 	<Example --h="382px" {html}>
 		<div class="visibility" use:visibility={options} on:v-change={handleChange}>
 			{#if visible}
-				<div in:fly={{ y: -20, delay: 250, duration: 1000, easing: bounceOut }}>
+				<div in:fly|global={{ y: -20, delay: 250, duration: 1000, easing: bounceOut }}>
 					going {scrollDir === 'down' ? '⬇' : '⬆'}
 				</div>
 			{/if}

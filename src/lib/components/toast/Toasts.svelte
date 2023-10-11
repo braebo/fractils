@@ -109,8 +109,8 @@
 			<div
 				class="flip"
 				animate:flip={{ duration: transitionDuration }}
-				in:receive={{ key: toast.id }}
-				out:send={{ key: toast.id }}
+				in:receive|global={{ key: toast.id }}
+				out:send|global={{ key: toast.id }}
 			>
 				<div class="card">
 					{#if toast}

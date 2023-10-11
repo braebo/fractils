@@ -14,7 +14,7 @@
 	$: scrolled = $scrollY > 100
 </script>
 
-<div class="burger" on:pointerdown={handleClick} class:scrolled out:fly={{ x: 75 }} class:menuOpen>
+<div class="burger" on:pointerdown={handleClick} class:scrolled out:fly|global={{ x: 75 }} class:menuOpen>
 	<OnMount>
 		{#key menuOpen}
 			<svg
