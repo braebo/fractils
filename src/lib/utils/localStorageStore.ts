@@ -1,6 +1,6 @@
 // https://github.com/babichjacob/svelte-localstorage
 
-import { writable } from 'svelte/store'
+import { writable, type Writable } from 'svelte/store'
 
 /**
  * A Svelte store that uses localStorage to store data asyncronously.
@@ -9,7 +9,7 @@ import { writable } from 'svelte/store'
  * @example
  * const store = localStorageStore('foo', 'bar')
  */
-export const localStorageStore = <T>(key: string, initial: T) => {
+export const localStorageStore = <T>(key: string, initial: T): Writable<T> => {
 	const browser = typeof globalThis.window !== 'undefined'
 	let currentValue = initial
 
