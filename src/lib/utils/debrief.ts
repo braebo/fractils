@@ -1,13 +1,32 @@
 /**
+ * Configuration for {@link debrief}.
+ */
+export interface DebriefOptions {
+	/**
+	 * The max depth to traverse.
+	 * @default 2
+	 */
+	depth?: number
+	
+	/**
+	 * The max number of object or array entries before truncating.
+	 * @default 4
+	 */
+	siblings?: number
+	
+	/**
+	 * The max number of chars per string before truncating.
+	 * @default 30
+	 */
+	trim?: number
+}
+
+/**
  * Like tree for objects, with controls for depth, max siblings, and string length.
  */
 export function debrief<T>(
 	obj: unknown,
-	{
-		depth = 2,
-		siblings = 4,
-		trim = 30,
-	}: { depth?: number; siblings?: number; trim?: number; verbose?: boolean } = {},
+	{ depth = 2, siblings = 4, trim = 30 }: DebriefOptions = {},
 ) {
 	function parse(o: unknown, d: number): unknown {
 		if (o === null) return o
@@ -38,8 +57,6 @@ export function debrief<T>(
 					.map(([k, v]) => [k, parse(v, d + 1)]),
 			)
 		}
-
-		// if (depthReached) return '...'
 
 		if (['boolean', 'symbol', 'undefined'].includes(typeof o)) return o
 
