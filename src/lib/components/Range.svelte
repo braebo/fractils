@@ -1,15 +1,6 @@
 <!-- 
 	@component
 	A custom range input slider component.
-	
-	@prop `value: any` - The value to be controled by the slider.
-	@prop `min: number` - The minimum value allowed.
-	@prop `max: number` - The maximum value allowed.
-	@prop `name: string` - The name of the value for its label.
-	@prop `step: number` - The amount to increment each change.
-	@prop `vertical?: boolean` - The amount to increment each change.
-	@prop `truncate?: boolean` - Whether to truncate the value to the step.
-	@prop `callback?: (value: number) => number` - Callback function to be called on change.  Passes the updated value as an argument (and expects it to be returned).
  -->
 
 <script lang="ts">
@@ -188,7 +179,7 @@
 	class:vertical
 	role="slider"
 	bind:this={el}
-	on:mousedown={mouseDown}
+	on:pointerdown={mouseDown}
 	style:--thumb-width="{thumbWidth}px"
 	draggable="false"
 	aria-valuenow={value}
@@ -198,7 +189,7 @@
 	<div
 		class="thumb"
 		bind:this={thumb}
-		on:mousedown|stopPropagation|capture={mouseDown}
+		on:pointerdown|stopPropagation|capture={mouseDown}
 		style:left="{progress}px"
 		draggable="false"
 	/>
