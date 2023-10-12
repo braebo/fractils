@@ -11,6 +11,11 @@
 			"allowMultiple": false
 		},
 		{
+			"tagName": "@prop",
+			"syntaxKind": "block",
+			"allowMultiple": true
+		},
+		{
 			"tagName": "@note",
 			"syntaxKind": "block",
 			"allowMultiple": true
@@ -19,6 +24,7 @@
 
 	"supportForTags": {
 		"@default": true,
+		"@prop": true,
 		"@note": true
 	}
 }
