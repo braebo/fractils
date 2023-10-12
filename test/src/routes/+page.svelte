@@ -1,10 +1,14 @@
 <script lang="ts">
 	import { clickOutside, localStorageStore, ThemeToggle } from 'fractils';
+	import { Range } from 'fractils';
 
 	const x = localStorageStore('x', false);
+
+	let value = 5
 </script>
 
 <ThemeToggle />
+<Range bind:value />
 
 <input type="checkbox" bind:checked={$x} />
 
