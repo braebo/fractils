@@ -11,14 +11,3 @@ Some stuff i use sometimes.
 ### todo
 
 - [ ] document / release new stuff
-  - [ ] utils
-    - [ ] `decimalToPow`
-    - [ ] `truncate`
-    - [ ] `stringify`
-    - [ ] `object`
-    - [ ] `debounce`
-  - [ ] components
-    - [ ] `Code`
-    - [ ] `Range`
-  - [ ] css
-    - [ ] `scollbars`
