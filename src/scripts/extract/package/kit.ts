@@ -1,9 +1,6 @@
-import { readFile, readdir, writeFile } from 'node:fs/promises'
-import { fileURLToPath } from 'node:url'
-import { format } from 'prettier'
+import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import ts from 'typescript'
-import { mkdirp } from 'src/scripts/extract/mkdirp.js'
 
 interface Extracted {
 	name: string
@@ -22,8 +19,6 @@ interface Module {
 	types: Extracted[]
 	exempt?: boolean
 }
-
-const modules: Module[] = []
 
 export async function get_types(code: string, statements: ts.NodeArray<ts.Statement>) {
 	const exports = [] as Extracted[]
