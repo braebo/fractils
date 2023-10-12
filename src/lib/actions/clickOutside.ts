@@ -21,7 +21,6 @@ export interface ClickOutsideAttr {
 	'on:outclick'?: (event: ClickOutsideEvent) => void
 }
 
-
 /**
  * Calls a function when the user clicks outside the element.
  * @example
@@ -29,14 +28,14 @@ export interface ClickOutsideAttr {
  * <div on:outclick={someFunction} use:clickOutside={{ whitelist: ['.burger'] }}>
  * ```
  */
-export const clickOutside: Action<Element, ClickOutsideOptions, ClickOutsideAttr> = (
+export const clickOutside: Action<Element, ClickOutsideOptions | undefined, ClickOutsideAttr> = (
 	node,
-	options = {},
+	options?: ClickOutsideOptions,
 ) => {
 	const handleClick = (event: MouseEvent) => {
 		let disable = false
 
-		for (const className of options.whitelist || []) {
+		for (const className of options?.whitelist || []) {
 			if (event.target instanceof Element && event.target.classList.contains(className)) {
 				disable = true
 			}
