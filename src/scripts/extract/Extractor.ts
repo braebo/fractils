@@ -1,5 +1,5 @@
 import { DocNode, DocExcerpt, DocComment, TSDocParser } from '@microsoft/tsdoc'
-import { l as log, n as nl, b, bd, dim, g, r, y } from '$lib/utils/l'
+import { l as log, n as nl, b, bd, dim, g, r, y, o, m } from '$lib/utils/l'
 import { TSDocConfigFile } from '@microsoft/tsdoc-config'
 import { stringify } from '$lib/utils/stringify.js'
 import * as tsdoc from '@microsoft/tsdoc'
@@ -178,87 +178,62 @@ export class Extractor {
 	 * @returns An array of {@link FoundComment} objects.
 	 */
 	static #walkCompilerAstAndFindComments(node: ts.SourceFile, indent: string) {
-		let type: string | null = null
-		let types: string[] = []
-		let foundComments = [] as FoundComment[]
+		const foundComments = [] as FoundComment[]
 
-		const walk = (node: ts.Node, indent: string, tree: string[]) => {
-			const buffer: string = node.getSourceFile().getFullText() // Don't use getText() here!
+		const typeChecker = Extractor.#program?.getTypeChecker()!
 
-			// Only consider nodes that are part of a declaration form.  Without this, we could discover
-			// the same comment twice (e.g. for a MethodDeclaration and its PublicKeyword).
-			if (this.#isDeclarationKind(node.kind)) {
+		const walk = (n: ts.Node, indent: string, tree: string[]) => {
+			const buffer: string = n.getSourceFile().getFullText() // Don't use getText() here!
+
+			const isExportedDeclaration =
+				this.#isDeclarationKind(n.kind) &&
 				// @ts-expect-error
-				// we only care about exported variables
-				const isExport = !!(ts.getCombinedModifierFlags(node) & ts.ModifierFlags.Export)
-				if (!isExport) return
+				ts.getCombinedModifierFlags(n) & ts.ModifierFlags.Export
 
-				// We especially want to skip imports.
-				if (ts.isImportDeclaration(node)) return
+			if (isExportedDeclaration) {
+				const [comment]: ts.CommentRange[] = Extractor.#getJSDocCommentRanges(n, buffer)
+				if (!comment) return
 
-				tree.push(indent + ts.SyntaxKind[node.kind])
+				const name = Extractor.#getIdentifierName(n)
+				const type = Extractor.getType(n, typeChecker)
 
-				// Find "/** */" style comments associated with this node.
-				// Note that this reinvokes the compiler's scanner -- the result is not cached.
-				const commentRanges: ts.CommentRange[] = Extractor.#getJSDocCommentRanges(
-					node,
-					buffer,
-				)
+				nl()
+				log(dim('Name	'), b(name))
+				log(dim('Type	'), o(type))
+				log(dim('Snippet	 ' + stringify(n.getText(), 2).slice(1, 50)) + '...')
+				log(dim(tree))
 
-				const name = Extractor.#getIdentifierName(node)
-
-				if (!type || type === 'any' || type === 'null' || type === null) {
-					if (name.includes('__SvelteComponent_')) {
-						type = 'svelte_component'
-						types.push(type)
-					}
-
-					type = Extractor.#getInitializerType(node)
-					types.push(type)
-
-					if (type === 'any') {
-						type = null
-						types.push('null')
-					}
-				}
-
-				if (commentRanges.length) {
-
-					nl()
-					log(y('Found ' + commentRanges.length + ' comment(s)'))
-					log(dim('Name	'), b(name))
-					log(dim('Kind	'), b(ts.SyntaxKind[node.kind]))
-					log(dim('Type	'), b(type))
-					log(dim('Types	'), dim(types))
-					log(dim('Snippet'), b(stringify(node.getText(), 2)))
-					log(dim(tree))
-
-					const comment = commentRanges[0]
-
-					foundComments.push({
-						name,
-						fileType: node.getSourceFile().fileName.endsWith('.svelte.ts') ? 'svelte' : 'ts',
-						compilerNode: node,
-						textRange: tsdoc.TextRange.fromStringRange(
-							buffer,
-							comment.pos,
-							comment.end,
-						),
-						kind: ts.SyntaxKind[node.kind],
-						type: type ?? 'ERROR',
-					})
-
-					type = null
-					types = []
-				}
+				foundComments.push({
+					name,
+					fileType: n.getSourceFile().fileName.endsWith('.svelte.ts') ? 'svelte' : 'ts',
+					compilerNode: n,
+					textRange: tsdoc.TextRange.fromStringRange(buffer, comment.pos, comment.end),
+					kind: ts.SyntaxKind[n.kind],
+					type: type ?? 'ERROR',
+				})
 			}
 
-			node.forEachChild((child) => walk(child, indent + '  ', tree))
+			n.forEachChild((child) => walk(child, indent + '  ', tree))
 		}
 
 		walk(node, indent, [])
 
 		return foundComments
+	}
+
+	static getType(node: ts.Node, typeChecker: ts.TypeChecker) {
+		for (const child of node.getChildren()) {
+			const type = typeChecker.typeToString(typeChecker.getTypeAtLocation(child))
+
+			if (type !== 'any') {
+				return type.includes('__SvelteComponent_') ? 'SvelteComponent' : type
+			}
+
+			const found = Extractor.getType(child, typeChecker)
+			if (found) return found
+		}
+
+		return null
 	}
 
 	/**
@@ -292,91 +267,56 @@ export class Extractor {
 	 * @throws If the name cannot be found.
 	 */
 	static #getIdentifierName(node: ts.Node): string {
-		const tree = [ts.SyntaxKind[node.kind]]
-
-		let name: string | undefined = undefined
-
-		node.forEachChild(visit)
+		return node.forEachChild(visit).replace('__SvelteComponent_', '')
 
 		function visit(n: ts.Node) {
-			if (name) return
-			tree.push(ts.SyntaxKind[n.kind])
 			if (['Identifier', 'StringLiteral'].includes(ts.SyntaxKind[n.kind])) {
-				name ??= n.getText()
+				return n.getText()
 			}
-			n.forEachChild(visit)
-		}
 
-		if (!name) {
-			console.error(tree)
-			throw new Error('Failed to find identifier name.')
+			return n.forEachChild(visit)
 		}
-
-		return name
 	}
 
 	/**
 	 * Get's the name of a variable from a {@link VariableDeclaration} node.
 	 */
-	static #getInitializerType(node: ts.Node): string {
-		const typeChecker = Extractor.#program?.getTypeChecker()
-
+	static #getInitializerType(
+		node: ts.Node,
+		name: string,
+		typeChecker: ts.TypeChecker | undefined = undefined,
+	): string {
 		if (ts.isImportDeclaration(node) || ts.isImportSpecifier(node)) {
 			return 'import'
 		}
 
-		const visit = (n: ts.Node) => {
-			const type = typeChecker?.getTypeAtLocation(n)
+		// const yourNan = typeChecker?.getTypeAtLocation(node);
+		// const yourNanAsAStringLol =typeChecker?.typeToString(yourNan!) ?? 'lol'
+		// return yourNanAsAStringLol
+
+		// let result: string | null = null;
+
+		// node.forEachChild(visit)
+		if (name.includes('__SvelteComponent_')) {
+			return 'svelte_component'
+		}
+
+		function visit(n: ts.Node) {
+			console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+
+			let type = typeChecker?.getTypeAtLocation(n)
 			if (type) return typeChecker?.typeToString(type)
 
-			if (ts.isFunctionDeclaration(node)) return 'function'
-			if (ts.isMethodDeclaration(node)) return 'method'
-			if (ts.isPropertyDeclaration(node)) return 'property'
-			if (ts.isVariableDeclaration(node)) return 'variable'
-			if (ts.isClassDeclaration(node)) return 'class'
-			if (ts.isInterfaceDeclaration(node)) return 'interface'
-			if (ts.isTypeAliasDeclaration(node)) return 'type'
-			if (ts.isEnumDeclaration(node)) return 'enum'
+			log(r('type:', type))
 
-			switch (n.kind) {
-				case ts.SyntaxKind.FunctionExpression:
-				case ts.SyntaxKind.ArrowFunction:
-					return 'function'
-				case ts.SyntaxKind.ObjectLiteralExpression:
-					return 'object'
-				case ts.SyntaxKind.ArrayLiteralExpression:
-					return 'array'
-				case ts.SyntaxKind.NumericLiteral:
-					return 'number'
-				case ts.SyntaxKind.StringLiteral:
-					return 'string'
-				case ts.SyntaxKind.TrueKeyword:
-				case ts.SyntaxKind.FalseKeyword:
-					return 'boolean'
-				case ts.SyntaxKind.ClassExpression:
-					return 'class'
-				case ts.SyntaxKind.TypeReference: {
-					// We need to get the identifier name from the type reference.
-					// This is a bit of a hack, but it works.
-					const type = typeChecker?.getTypeAtLocation(n)
-					const symbol = type?.aliasSymbol ?? type?.symbol
-					if (symbol) {
-						return symbol.getName()
-					}
-				}
-				case ts.SyntaxKind.FirstStatement:
-				default:
-					for (const child of n.getChildren()) {
-						const result = visit(child)
-						if (result) return result
-					}
+			if (!type || type === 'any') {
+				return n.forEachChild(visit)
 			}
+
 			return null
 		}
 
-		const result = visit(node) || 'ERROR'
-
-		return result
+		return visit(node) ?? 'canny find node type lol'
 	}
 
 	/**
@@ -524,9 +464,9 @@ export class Extractor {
 			kind === ts.SyntaxKind.FunctionDeclaration ||
 			kind === ts.SyntaxKind.FunctionExpression ||
 			kind === ts.SyntaxKind.GetAccessor ||
-			kind === ts.SyntaxKind.ImportClause ||
-			kind === ts.SyntaxKind.ImportEqualsDeclaration ||
-			kind === ts.SyntaxKind.ImportSpecifier ||
+			// kind === ts.SyntaxKind.ImportClause ||
+			// kind === ts.SyntaxKind.ImportEqualsDeclaration ||
+			// kind === ts.SyntaxKind.ImportSpecifier ||
 			kind === ts.SyntaxKind.InterfaceDeclaration ||
 			kind === ts.SyntaxKind.JsxAttribute ||
 			kind === ts.SyntaxKind.MethodDeclaration ||
