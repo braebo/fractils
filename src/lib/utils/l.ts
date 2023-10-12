@@ -29,6 +29,29 @@ export function y(...args: unknown[]) {
 	return c.yellow(...args)
 }
 
+/** chalk.magenta */
+export function m(...args: unknown[]) {
+	return c.magenta(...args)
+}
+
+const orange = c.hex('#cc6630')
+/** orange chalk.hex('#cc6630') */
+export function o(...args: unknown[]) {
+	return orange(...args)
+}
+
+const pink = c.hex('#eaa')
+/** pink chalk.hex('#eaa') */
+export function p(...args: unknown[]) {
+	return pink(...args)
+}
+
+const lightGreen = c.hex('#aea')
+/** lightGreen chalk.hex('#aea') */
+export function lg(...args: unknown[]) {
+	return lightGreen(...args)
+}
+
 /** chalk.dim */
 export function dim(...args: unknown[]) {
 	return c.dim(...args)
