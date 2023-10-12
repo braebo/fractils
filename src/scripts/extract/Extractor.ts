@@ -1,13 +1,10 @@
 import { DocNode, DocExcerpt, DocComment, TSDocParser } from '@microsoft/tsdoc'
-import { l as log, n as nl, b, bd, dim, g, r, y, o, m } from '$lib/utils/l'
+import { l as log, n as nl, bd, dim, y, p, m, lg, r } from '$lib/utils/l'
 import { TSDocConfigFile } from '@microsoft/tsdoc-config'
-import { stringify } from '$lib/utils/stringify.js'
 import * as tsdoc from '@microsoft/tsdoc'
 import { start } from '$lib/utils/time'
-// import { get_types } from './kit'
 import ts from 'typescript'
-import chalk from 'chalk'
-import os from 'os'
+import c from 'chalk'
 
 /**
  * A parsed file's tsdoc comment information.
@@ -46,15 +43,16 @@ export interface Export {
 	/** Path to the file containing the source code. */
 	file: string
 	summary?: string
+	props?: { name: string; description: string }[]
 	remarks?: string
 	params?: { name: string; description: string }[]
 	typeParams?: { name: string; description: string }[]
+	defaultValue?: string
 	returns?: string
+	notes?: string[]
+	examples?: string[]
 	seeBlocks?: string[]
 	customBlocks?: { tagName: string; content: string }[]
-	defaultValue?: string
-	noteBlocks?: string[]
-	exampleBlocks?: string[]
 	/** The raw tsdoc comment. */
 	raw: string
 }
@@ -97,7 +95,12 @@ export class Extractor {
 	 */
 	static async scanFiles(paths: string[], verbose = false): Promise<ParsedFile[]> {
 		const l = verbose ? log : () => {}
-		const end = verbose ? start('scanFiles') : () => {}
+		const end = verbose
+			? start(dim('scanFiles ') + bd(paths[0].split('/').at(-2)), {
+					logStart: true,
+					pad: true,
+			  })
+			: () => {}
 
 		const compilerOptions: ts.CompilerOptions = {
 			target: ts.ScriptTarget.Latest,
@@ -109,6 +112,7 @@ export class Extractor {
 		Extractor.#program.getSemanticDiagnostics()
 
 		const parsedFiles: ParsedFile[] = []
+		const emptyFiles: string[] = []
 
 		for (const path of paths) {
 			const sourceFile = Extractor.#program.getSourceFile(path)
@@ -120,10 +124,8 @@ export class Extractor {
 			const foundComments = this.#walkCompilerAstAndFindComments(sourceFile, '')
 
 			if (!foundComments.length) {
-				l(y('No comments found in file: ') + dim(path))
+				emptyFiles.push(path)
 				continue
-			} else {
-				l(g('Found ' + foundComments.length + ' comment(s) in file: ') + dim(path))
 			}
 
 			const variables: Export[] = []
@@ -139,10 +141,10 @@ export class Extractor {
 						? variables
 						: types
 
-				collection.push({
-					...parsedComment,
-					type: comment.type,
-				})
+				parsedComment.type = comment.type
+				collection.push(parsedComment)
+
+				if (verbose) Extractor.logComment(parsedComment)
 			}
 
 			parsedFiles.push({
@@ -152,6 +154,8 @@ export class Extractor {
 				types,
 			})
 		}
+
+		if (emptyFiles.length) l(y(`\nNo comments found in ${emptyFiles.length} files.`))
 
 		end()
 
@@ -196,12 +200,6 @@ export class Extractor {
 
 				const name = Extractor.#getIdentifierName(n)
 				const type = Extractor.getType(n, typeChecker)
-
-				nl()
-				log(dim('Name	'), b(name))
-				log(dim('Type	'), o(type))
-				log(dim('Snippet	 ' + stringify(n.getText(), 2).slice(1, 50)) + '...')
-				log(dim(tree))
 
 				foundComments.push({
 					name,
@@ -279,47 +277,6 @@ export class Extractor {
 	}
 
 	/**
-	 * Get's the name of a variable from a {@link VariableDeclaration} node.
-	 */
-	static #getInitializerType(
-		node: ts.Node,
-		name: string,
-		typeChecker: ts.TypeChecker | undefined = undefined,
-	): string {
-		if (ts.isImportDeclaration(node) || ts.isImportSpecifier(node)) {
-			return 'import'
-		}
-
-		// const yourNan = typeChecker?.getTypeAtLocation(node);
-		// const yourNanAsAStringLol =typeChecker?.typeToString(yourNan!) ?? 'lol'
-		// return yourNanAsAStringLol
-
-		// let result: string | null = null;
-
-		// node.forEachChild(visit)
-		if (name.includes('__SvelteComponent_')) {
-			return 'svelte_component'
-		}
-
-		function visit(n: ts.Node) {
-			console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
-
-			let type = typeChecker?.getTypeAtLocation(n)
-			if (type) return typeChecker?.typeToString(type)
-
-			log(r('type:', type))
-
-			if (!type || type === 'any') {
-				return n.forEachChild(visit)
-			}
-
-			return null
-		}
-
-		return visit(node) ?? 'canny find node type lol'
-	}
-
-	/**
 	 * Parses a {@link DocComment} into a {@link Export}.
 	 * @param file The path to the file containing the comment.
 	 * @param name The name of the variable associated with the comment.
@@ -369,44 +326,43 @@ export class Extractor {
 		}
 
 		if (comment.customBlocks.length) {
-			const defaultValue = comment.customBlocks
-				.filter((b) => b.blockTag.tagName.match(/@default(Value)?/))
-				.map((b) => Extractor.renderDocNode(b.content).trim())?.[0]
+			for (const block of comment.customBlocks) {
+				switch (block.blockTag.tagName) {
+					case '@example':
+						found.examples ??= []
+						found.examples.push(Extractor.renderDocNode(block.content)?.trim())
+						break
+					case '@note':
+						found.notes ??= []
+						found.notes.push(Extractor.renderDocNode(block.content)?.trim())
+						break
+					case '@default':
+					case '@defaultValue':
+						found.defaultValue = Extractor.renderDocNode(block.content)?.trim()
+						break
+					case '@prop':
+						found.props ??= []
+						const description = Extractor.renderDocNode(block.content)?.trim()
+						const name = description.match(/^(\S+)\s-\s\S+$/)?.[1] ?? ''
+						found.props.push({
+							name,
+							description
+						})
+						break
+					default:
+						found.customBlocks ??= []
+						found.customBlocks.push({
+							tagName: block.blockTag.tagName,
+							content: Extractor.renderDocNode(block.content)?.trim(),
+						})
+						break
+				}
+			}
 
-			if (defaultValue) found.defaultValue = defaultValue
-
-			const noteBlocks = comment.customBlocks
-				.filter((b) => b.blockTag.tagName === '@note')
-				.map((b) => Extractor.renderDocNode(b.content).trim())
-
-			if (noteBlocks.length) found.noteBlocks = noteBlocks
-
-			const exampleBlocks = comment.customBlocks
-				.filter((b) => b.blockTag.tagName === '@example')
-				.map((b) => Extractor.renderDocNode(b.content)?.trim())
-
-			if (exampleBlocks.length) found.exampleBlocks = exampleBlocks
-
-			const unusedBlocks = comment.customBlocks
-				.filter(
-					(b) =>
-						!['@default', '@defaultValue', '@note', '@example'].includes(
-							b.blockTag.tagName,
-						),
-				)
-				.map((b) => {
-					return {
-						tagName: b.blockTag.tagName,
-						content: Extractor.renderDocNode(b.content).trim(),
-					}
-				})
-
-			if (unusedBlocks.length) {
-				found.customBlocks = unusedBlocks
-
+			if (found.customBlocks?.length) {
 				console.warn(y('Unused custom blocks found:'))
-				unusedBlocks.forEach((b) => {
-					console.log(b.tagName, b.content)
+				found.customBlocks.forEach((b) => {
+					console.log(r(b.tagName), dim(b.content))
 				})
 			}
 		}
@@ -443,6 +399,74 @@ export class Extractor {
 				text.charCodeAt(comment.pos + 2) === 0x2a /* ts.CharacterCodes.asterisk */ &&
 				text.charCodeAt(comment.pos + 3) !== 0x2f /* ts.CharacterCodes.slash */,
 		)
+	}
+
+	/**
+	 * Pretty prints a {@link Export} to the console.
+	 */
+	static logComment(comment: Export) {
+		const l = log
+		const n = nl
+		const star = dim(' *')
+		let first = false
+		const maybeStar = () => (first ? (first = false) : l(star))
+
+		n(2)
+		l(dim('/**'))
+
+		if (comment.summary) {
+			const gr = c.hex('#446')
+			lc(gr(format(comment.summary)))
+		}
+		if (comment.params?.length) {
+			maybeStar()
+			comment.params.forEach(({ name, description }) => lc(p('@param'), name, description))
+		}
+		if (comment.typeParams?.length) {
+			maybeStar()
+			comment.typeParams.forEach(({ name, description }) =>
+				lc(p('typeParam:'), name, description),
+			)
+		}
+		if (comment.props?.length) {
+			maybeStar()
+			l(JSON.stringify(comment.props))
+			comment.props.forEach(({ name, description }) => lc(p('@prop'), name, description))
+		}
+		if (comment.returns) {
+			maybeStar()
+			lc(p('@returns'), comment.returns)
+		}
+		if (comment.defaultValue) {
+			maybeStar()
+			lc(p('@default'), comment.defaultValue)
+		}
+		if (comment.remarks) {
+			maybeStar()
+			lc(p('remarks:'), comment.remarks)
+		}
+
+		l(dim(' */'))
+		l(bd(comment.name) + dim(': ' + comment.type))
+
+		/**
+		 *  Logs a {@link Export} in tsdoc-style, ensuring each line starts with a spaced *
+		 */
+		function lc(...args: any[]) {
+			// we use 1 because 0 is the colored tagname
+			let str = args[1]
+
+			if (typeof str === 'string') {
+				// Replace newlines with newlines and a spaced *
+				l(star, args[0], format(str))
+			} else {
+				l(star, ...args)
+			}
+		}
+
+		function format(str: string) {
+			return str.replace(/\n/g, `\n${star} `)
+		}
 	}
 
 	/**
@@ -489,124 +513,5 @@ export class Extractor {
 			kind === ts.SyntaxKind.JSDocCallbackTag ||
 			kind === ts.SyntaxKind.JSDocPropertyTag
 		)
-	}
-
-	/**
-	 * Pretty prints a {@link Export} to the console.
-	 */
-	static logComment(comment: Export) {
-		const pink = chalk.hex('#eaa')
-		const lightGreen = chalk.hex('#aea')
-		const l = log
-		const n = nl
-		const star = dim('  *')
-		let first = false
-		const maybeStar = () => (first ? (first = false) : l(star))
-
-		n()
-		l(bd(comment.name))
-		l(dim(' /**'))
-
-		if (comment.summary) {
-			lc(lightGreen(format(comment.summary)))
-		}
-		if (comment.params?.length) {
-			maybeStar()
-			comment.params.forEach((p) => lc(pink('@param'), p.name, p.description))
-		}
-		if (comment.typeParams?.length) {
-			maybeStar()
-			comment.typeParams.forEach((p) => lc(pink('typeParam:'), p.name, p.description))
-		}
-		if (comment.returns) {
-			maybeStar()
-			lc(pink('returns:'), comment.returns)
-		}
-		if (comment.defaultValue) {
-			maybeStar()
-			lc(pink('@default'), comment.defaultValue)
-		}
-		if (comment.remarks) {
-			maybeStar()
-			lc(pink('remarks:'), comment.remarks)
-		}
-
-		l(dim('  */'))
-
-		/**
-		 *  Logs a {@link Export} in tsdoc-style, ensuring each line starts with a spaced *
-		 */
-		function lc(...args: any[]) {
-			// we use 1 because 0 is the colored tagname
-			let str = args[1]
-
-			if (typeof str === 'string') {
-				// Replace newlines with newlines and a spaced *
-				l(star, args[0], format(str))
-			} else {
-				l(star, ...args)
-			}
-		}
-
-		function format(str: string) {
-			return str.replace(/\n/g, `\n${star} `)
-		}
-	}
-
-	static #reportCompilerErrors(program: ts.Program, verbose = false) {
-		const l = verbose ? log : () => {}
-		const compilerDiagnostics: ReadonlyArray<ts.Diagnostic> = program.getSemanticDiagnostics()
-		const count = compilerDiagnostics.length
-
-		if (count <= 0) {
-			l(g('No compiler errors.'))
-			return
-		}
-
-		l(`\n${bd(r(count))} compiler ${count === 1 ? 'error' : 'errors'} found:\n`)
-
-		if (verbose) {
-			for (const diagnostic of compilerDiagnostics) {
-				const message: string = ts.flattenDiagnosticMessageText(
-					diagnostic.messageText,
-					os.EOL,
-				)
-				if (diagnostic.file) {
-					const location: ts.LineAndCharacter =
-						diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start!)
-					const formattedMessage: string =
-						b('\n[TypeScript] ') +
-						r(message) +
-						dim(
-							`\n${diagnostic.file.fileName}(${location.line + 1},${
-								location.character + 1
-							})`,
-						)
-					l(formattedMessage)
-				} else {
-					l(r(message))
-				}
-			}
-		}
-	}
-
-	/**
-	 * Pretty prints a {@link DocNode} tree to the console.
-	 */
-	static #logTSDocTree(docNode: tsdoc.DocNode, outputLines: string[] = [], indent: string = '') {
-		let dumpText: string = ''
-		if (docNode instanceof tsdoc.DocExcerpt) {
-			const content: string = docNode.content.toString()
-			dumpText += dim(`${indent}* ${docNode.excerptKind}: `) + b(JSON.stringify(content))
-		} else {
-			dumpText += `${indent}- ${docNode.kind}`
-		}
-		outputLines.push(dumpText)
-
-		for (const child of docNode.getChildNodes()) {
-			this.#logTSDocTree(child, outputLines, indent + '  ')
-		}
-
-		return outputLines
 	}
 }
