@@ -190,9 +190,10 @@ export class Extractor {
 			const buffer: string = n.getSourceFile().getFullText() // Don't use getText() here!
 
 			const isExportedDeclaration =
-				this.#isDeclarationKind(n.kind) &&
-				// @ts-expect-error
-				ts.getCombinedModifierFlags(n) & ts.ModifierFlags.Export
+				(this.#isDeclarationKind(n.kind) &&
+					// @ts-expect-error
+					ts.getCombinedModifierFlags(n) & ts.ModifierFlags.Export) ||
+				n.kind === ts.SyntaxKind.DeclareKeyword
 
 			if (isExportedDeclaration) {
 				const [comment]: ts.CommentRange[] = Extractor.#getJSDocCommentRanges(n, buffer)
@@ -238,10 +239,9 @@ export class Extractor {
 	 * Parses a {@link FoundComment} into a docComment.
 	 */
 	static #parseTSDoc(foundComment: FoundComment) {
-		const parserContext = this.#tsdocParser.parseRange(foundComment.textRange)
+		const { docComment } = this.#tsdocParser.parseRange(foundComment.textRange)
 
 		const name = foundComment.name
-		const docComment = parserContext.docComment
 		const category = foundComment.fileType
 
 		return { name, category, docComment } as const
@@ -346,7 +346,7 @@ export class Extractor {
 						const name = description.match(/^(\S+)\s-\s\S+$/)?.[1] ?? ''
 						found.props.push({
 							name,
-							description
+							description,
 						})
 						break
 					default:
@@ -511,7 +511,8 @@ export class Extractor {
 			kind === ts.SyntaxKind.VariableStatement || //?!
 			kind === ts.SyntaxKind.JSDocTypedefTag ||
 			kind === ts.SyntaxKind.JSDocCallbackTag ||
-			kind === ts.SyntaxKind.JSDocPropertyTag
+			kind === ts.SyntaxKind.JSDocPropertyTag ||
+			kind === ts.SyntaxKind.DeclareKeyword
 		)
 	}
 }
