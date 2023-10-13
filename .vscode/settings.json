@@ -19,9 +19,9 @@
 
 	"workbench.iconTheme": "material-icon-theme",
 
-	//* More subtle Template Tags
 	"editor.tokenColorCustomizations": {
 		"textMateRules": [
+			//* More subtle Template Tags
 			{
 				"scope": [
 					"punctuation.definition.tag",
@@ -33,30 +33,13 @@
 					"foreground": "#5a86ff36"
 				}
 			},
+			//* More subtle Template Tags
 			{
-				"scope": [
-					"punctuation.terminator"
-				],
+				"scope": ["punctuation.terminator"],
 				"settings": {
 					"foreground": "#43485a"
 				}
 			}
 		]
-	},
-
-	"better-comments.tags": [
-		{
-			"tag": "?",
-			"color": "#f00",
-			"strikethrough": false,
-			"underline": false,
-			"backgroundColor": "transparent",
-			"bold": false,
-			"italic": false
-		},
-	],
-
-	"[typescript]": {
-		"editor.defaultFormatter": "esbenp.prettier-vscode"
-	},
+	}
 }
