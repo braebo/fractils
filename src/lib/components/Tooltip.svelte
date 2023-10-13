@@ -1,68 +1,69 @@
-<script context="module">
-	import { customAlphabet } from 'nanoid';
-	const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 10);
+<!-- @component
+A tooltip that appears on hover.
+
+@example
+```svelte
+<script>
+	import { Tooltip } from 'fractils';
 </script>
 
-<!-- @component
-	A tooltip that appears on hover.
+<Tooltip content="Hello World">
+	<div class="hover-1"> Hover over me! </div>
+</Tooltip>
+```
+-->
 
-	@example
-	```svelte
-	<script>
-		import { Tooltip } from 'fractils';
-	</script>
-
-	<Tooltip content="Hello World">
-		<div class="hover-1"> Hover over me! </div>
-	</Tooltip>
- -->
+<script context="module">
+	import { customAlphabet } from 'nanoid'
+	const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 10)
+</script>
 
 <script lang="ts">
-	import type { PopperElement, Instance } from 'tippy.js';
-	import tippy, { sticky } from 'tippy.js';
-	import { onMount } from 'svelte';
+	import type { PopperElement, Instance } from 'tippy.js'
+	import tippy, { sticky } from 'tippy.js'
+	import { onMount } from 'svelte'
 
 	/**
 	 * Text content of the tooltip.
 	 */
-	export let content = 'Tooltip';
+	export let content = 'Tooltip'
 
 	/**
 	 * Placement of the tooltip.
 	 * @defaultValue 'right'
 	 */
-	export let placement: 'top' | 'right' | 'bottom' | 'left' | (string & {}) = 'right';
+	export let placement: 'top' | 'right' | 'bottom' | 'left' | (string & {}) = 'right'
 
 	/**
 	 * Intro & outro delay in ms.
 	 * @defaultValue [500, 100]
 	 */
-	export let delay: [number, number] = [500, 100];
+	export let delay: [number, number] = [500, 100]
 
-	export let interactive = false;
+	export let interactive = false
 
 	/**
 	 * Whether to show the arrow connecting the tooltip to the target.
 	 */
-	export let arrow = true;
+	export let arrow = true
 
 	/**
 	 * X and Y offset in px.
 	 * @defaultValue [10, 0]
 	 */
-	export let offset = [10, 0];
+	export let offset = [10, 0]
 
 	/**
 	 * Used to hide the tooltip.
 	 */
-	export let display: 'none' | 'contents' | (string & {}) = 'contents';
+	export let display: 'none' | 'contents' | (string & {}) = 'contents'
 
-	export let instance: Instance<PopperElement> | undefined = undefined;
+	export let instance: Instance<PopperElement> | undefined = undefined
 
 	/**
 	 * Unique ID to avoid collisions.
 	 */
-	const id = nanoid();
+	const id = nanoid()
 
 	onMount(() => {
 		tippy.setDefaultProps({
@@ -71,14 +72,14 @@
 			duration: [150, 100],
 			plugins: [sticky],
 			delay,
-		});
+		})
 
-		let selector = `#${id}`;
-		const targetEl = document.querySelector(selector)?.children[0];
+		let selector = `#${id}`
+		const targetEl = document.querySelector(selector)?.children[0]
 		if (targetEl) {
-			const childId = id + '_child';
-			selector = `#${childId}`;
-			targetEl.setAttribute('id', childId);
+			const childId = id + '_child'
+			selector = `#${childId}`
+			targetEl.setAttribute('id', childId)
 		}
 
 		// @ts-ignore
@@ -89,15 +90,15 @@
 			arrow,
 			offset: [offset[1], offset[0]],
 			delay,
-		});
+		})
 
-		const container = document.querySelector(selector);
+		const container = document.querySelector(selector)
 
 		// @ts-ignore
-		instance = container?._tippy;
-	});
+		instance = container?._tippy
+	})
 
-	$: if (instance) instance.setContent(content);
+	$: if (instance) instance.setContent(content)
 </script>
 
 <span {id} style="display: {display};" class="tippy-container">
