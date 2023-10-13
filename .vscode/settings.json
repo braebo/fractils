@@ -43,6 +43,19 @@
 			}
 		]
 	},
+
+	"better-comments.tags": [
+		{
+			"tag": "?",
+			"color": "#f00",
+			"strikethrough": false,
+			"underline": false,
+			"backgroundColor": "transparent",
+			"bold": false,
+			"italic": false
+		},
+	],
+
 	"[typescript]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	},
