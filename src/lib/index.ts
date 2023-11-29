@@ -45,6 +45,8 @@ export { log } from './utils/log'
 
 // Actions
 
+export { fullscreen, type FullscreenOptions } from './actions/fullscreen' // todo
+
 export { add, type AddOptions } from './actions/add' // todo
 
 export { clickOutside } from './actions/clickOutside'
