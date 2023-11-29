@@ -1,0 +1,21 @@
+{
+  "file": "/Users/fractal-live/dev/fractils/.extractinator-temp/components/inspector/index.svelte.d.ts",
+  "componentName": "index",
+  "props": [],
+  "events": [],
+  "slots": [],
+  "variables": [
+    {
+      "name": "IndexProps",
+      "type": "Record<string, never>"
+    },
+    {
+      "name": "IndexEvents",
+      "type": "{ [evt: string]: CustomEvent<any>; }"
+    },
+    {
+      "name": "IndexSlots",
+      "type": "{}"
+    }
+  ]
+}

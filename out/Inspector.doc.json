@@ -1,0 +1,21 @@
+{
+  "file": "/Users/fractal-live/dev/fractils/.extractinator-temp/components/inspector/Inspector.svelte.d.ts",
+  "componentName": "Inspector",
+  "props": [
+    {
+      "name": "register",
+      "type": "Record<string, Writable<unknown> | Readable<unknown>>"
+    },
+    {
+      "name": "top",
+      "type": "string"
+    },
+    {
+      "name": "nub",
+      "type": "string"
+    }
+  ],
+  "events": [],
+  "slots": [],
+  "variables": []
+}

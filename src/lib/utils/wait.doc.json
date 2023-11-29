@@ -1,0 +1,24 @@
+{
+  "file": "src/lib/utils/wait.ts",
+  "fileType": "ts",
+  "variables": [
+    {
+      "name": "wait",
+      "file": "src/lib/utils/wait.ts",
+      "raw": "/**\n * A simple wait timer.\n *\n * @param t - time to wait in ms\n *\n * @returns a promise that resolves after t ms\n *\n * @example\n * ```ts\n * await wait(1000)\n * ```\n *\n */\n",
+      "summary": "A simple wait timer.",
+      "params": [
+        {
+          "name": "t",
+          "description": "time to wait in ms"
+        }
+      ],
+      "returns": "a promise that resolves after t ms",
+      "examples": [
+        "```ts\nawait wait(1000)\n```"
+      ],
+      "type": "(t: number) => Promise<unknown>"
+    }
+  ],
+  "types": []
+}

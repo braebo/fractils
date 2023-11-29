@@ -1,0 +1,13 @@
+{
+  "file": "/Users/fractal-live/dev/fractils/.extractinator-temp/components/Github.svelte.d.ts",
+  "componentName": "Github",
+  "props": [
+    {
+      "name": "__index",
+      "type": "any"
+    }
+  ],
+  "events": [],
+  "slots": [],
+  "variables": []
+}

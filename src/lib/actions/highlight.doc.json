@@ -1,0 +1,17 @@
+{
+  "file": "src/lib/actions/highlight.ts",
+  "fileType": "ts",
+  "variables": [
+    {
+      "name": "highlight",
+      "file": "src/lib/actions/highlight.ts",
+      "raw": "/**\n * A syntax highlighter.\n *\n * @example\n * ```svelte\n * <pre use:highlight={{ lang: 'json' }}>\n * \t{JSON.stringify({ hello: 'world' }, null, 2)}\n * </pre>\n * ```\n *\n */\n",
+      "summary": "A syntax highlighter.",
+      "examples": [
+        "```svelte\n<pre use:highlight={{ lang: 'json' }}>\n\t{JSON.stringify({ hello: 'world' }, null, 2)}\n</pre>\n```"
+      ],
+      "type": "Action<Element, HighlightOptions, HighlightAttr>"
+    }
+  ],
+  "types": []
+}

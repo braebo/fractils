@@ -1,0 +1,14 @@
+{
+  "file": "src/lib/utils/decimalToPow.ts",
+  "fileType": "ts",
+  "variables": [
+    {
+      "name": "decimalToPow",
+      "file": "src/lib/utils/decimalToPow.ts",
+      "raw": "/**\n * Converts a decimal to a power of 10.\n */\n",
+      "summary": "Converts a decimal to a power of 10.",
+      "type": "(value: number) => number"
+    }
+  ],
+  "types": []
+}

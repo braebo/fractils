@@ -1,0 +1,36 @@
+{
+  "file": "src/lib/utils/log.ts",
+  "fileType": "ts",
+  "variables": [
+    {
+      "name": "log",
+      "file": "src/lib/utils/log.ts",
+      "raw": "/**\n * A simple logger that only runs in dev environments.\n *\n * @param msg - A string or object to log\n *\n * @param color - Any CSS color value ( named | hex | rgb | hsl )\n *\n * @param bgColor - Same as color ⇧\n *\n * @param fontSize - Any number\n *\n * @param css - Optional additional CSS\n */\n",
+      "summary": "A simple logger that only runs in dev environments.",
+      "params": [
+        {
+          "name": "msg",
+          "description": "A string or object to log"
+        },
+        {
+          "name": "color",
+          "description": "Any CSS color value ( named | hex | rgb | hsl )"
+        },
+        {
+          "name": "bgColor",
+          "description": "Same as color ⇧"
+        },
+        {
+          "name": "fontSize",
+          "description": "Any number"
+        },
+        {
+          "name": "css",
+          "description": "Optional additional CSS"
+        }
+      ],
+      "type": "(msg: any, color?: string, bgColor?: string, fontSize?: number, css?: string) => void"
+    }
+  ],
+  "types": []
+}

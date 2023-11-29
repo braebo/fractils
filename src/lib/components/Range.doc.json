@@ -1,0 +1,48 @@
+{
+  "file": "src/lib/components/Range.svelte",
+  "fileType": "svelte",
+  "variables": [],
+  "types": [
+    {
+      "name": "Range",
+      "file": "src/lib/components/Range.svelte",
+      "raw": "/**\n * A custom range input slider component.\n *\n * @prop\n *\n * `value: any` - The value to be controled by the slider.\n *\n * @prop\n *\n * `min: number` - The minimum value allowed.\n *\n * @prop\n *\n * `max: number` - The maximum value allowed.\n *\n * @prop\n *\n * `name: string` - The name of the value for its label.\n *\n * @prop\n *\n * `step: number` - The amount to increment each change.\n *\n * @prop\n *\n * `vertical?: boolean` - The amount to increment each change.\n *\n * @prop\n *\n * `truncate?: boolean` - Whether to truncate the value to the step.\n *\n * @prop\n *\n * `callback?: (value: number) => number` - Callback function to be called on change. Passes the updated value as an argument (and expects it to be returned).\n */\n",
+      "summary": "A custom range input slider component.",
+      "props": [
+        {
+          "name": "",
+          "description": "`value: any` - The value to be controled by the slider."
+        },
+        {
+          "name": "",
+          "description": "`min: number` - The minimum value allowed."
+        },
+        {
+          "name": "",
+          "description": "`max: number` - The maximum value allowed."
+        },
+        {
+          "name": "",
+          "description": "`name: string` - The name of the value for its label."
+        },
+        {
+          "name": "",
+          "description": "`step: number` - The amount to increment each change."
+        },
+        {
+          "name": "",
+          "description": "`vertical?: boolean` - The amount to increment each change."
+        },
+        {
+          "name": "",
+          "description": "`truncate?: boolean` - Whether to truncate the value to the step."
+        },
+        {
+          "name": "",
+          "description": "`callback?: (value: number) => number` - Callback function to be called on change.  Passes the updated value as an argument (and expects it to be returned)."
+        }
+      ],
+      "type": "SvelteComponent"
+    }
+  ]
+}

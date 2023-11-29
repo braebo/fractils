@@ -1,0 +1,14 @@
+{
+  "file": "src/lib/utils/truncate.ts",
+  "fileType": "ts",
+  "variables": [
+    {
+      "name": "truncate",
+      "file": "src/lib/utils/truncate.ts",
+      "raw": "/**\n * A faster `.toFixed()` alternative.\n */\n",
+      "summary": "A faster `.toFixed()` alternative.",
+      "type": "(value: number, decimals: number) => number"
+    }
+  ],
+  "types": []
+}

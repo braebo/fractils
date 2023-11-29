@@ -1,0 +1,66 @@
+{
+  "file": "src/lib/stores/Device.svelte",
+  "fileType": "svelte",
+  "variables": [
+    {
+      "name": "screenH",
+      "file": "src/lib/stores/Device.svelte",
+      "raw": "/**\n * Tracks the screen height.\n *\n * @default\n *\n * 900\n */\n",
+      "summary": "Tracks the screen height.",
+      "defaultValue": "900",
+      "type": "Writable<number>"
+    },
+    {
+      "name": "screenW",
+      "file": "src/lib/stores/Device.svelte",
+      "raw": "/**\n * Tracks the screen width.\n *\n * @default\n *\n * 900\n */\n",
+      "summary": "Tracks the screen width.",
+      "defaultValue": "900",
+      "type": "Writable<number>"
+    },
+    {
+      "name": "mobileThreshold",
+      "file": "src/lib/stores/Device.svelte",
+      "raw": "/**\n * Adjusts the $mobile 'breakpoint' threshold.\n *\n * @default\n *\n * 900\n */\n",
+      "summary": "Adjusts the $mobile 'breakpoint' threshold.",
+      "defaultValue": "900",
+      "type": "Writable<number>"
+    },
+    {
+      "name": "mobile",
+      "file": "src/lib/stores/Device.svelte",
+      "raw": "/**\n * Detects screen width below 900px\n *\n * @default\n *\n * false\n */\n",
+      "summary": "Detects screen width below 900px",
+      "defaultValue": "false",
+      "type": "Readable<boolean>"
+    },
+    {
+      "name": "scrollY",
+      "file": "src/lib/stores/Device.svelte",
+      "raw": "/**\n * Tracks the users scroll position.\n *\n * @default\n *\n * 0\n */\n",
+      "summary": "Tracks the users scroll position.",
+      "defaultValue": "0",
+      "type": "Writable<number>"
+    },
+    {
+      "name": "mouse",
+      "file": "src/lib/stores/Device.svelte",
+      "raw": "/**\n * Tracks the users x and y mouse positions.\n *\n * @default\n *\n * '{ x: 0, y: 0 }'\n */\n",
+      "summary": "Tracks the users x and y mouse positions.",
+      "defaultValue": "'{ x: 0, y: 0 }'",
+      "type": "Writable<{ x: number; y: number; }>"
+    }
+  ],
+  "types": [
+    {
+      "name": "Device",
+      "file": "src/lib/stores/Device.svelte",
+      "raw": "/**\n * A series of device related stores.\n *\n * @see\n *\n * {@link https://fractils.fractal-hq.com/#Device Device documentation}\n */\n",
+      "summary": "A series of device related stores.",
+      "seeBlocks": [
+        "{@link https://fractils.fractal-hq.com/#Device Device documentation}"
+      ],
+      "type": "SvelteComponent"
+    }
+  ]
+}

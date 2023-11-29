@@ -1,0 +1,20 @@
+{
+  "file": "src/lib/utils/timestamp.ts",
+  "fileType": "ts",
+  "variables": [
+    {
+      "name": "timestamp",
+      "file": "src/lib/utils/timestamp.ts",
+      "raw": "/**\n * Short timestamp.\n *\n * @param length - Timestamp character length.\n */\n",
+      "summary": "Short timestamp.",
+      "params": [
+        {
+          "name": "length",
+          "description": "Timestamp character length."
+        }
+      ],
+      "type": "(length?: number) => string"
+    }
+  ],
+  "types": []
+}

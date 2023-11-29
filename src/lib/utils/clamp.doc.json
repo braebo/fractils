@@ -1,0 +1,14 @@
+{
+  "file": "src/lib/utils/clamp.ts",
+  "fileType": "ts",
+  "variables": [
+    {
+      "name": "clamp",
+      "file": "src/lib/utils/clamp.ts",
+      "raw": "/**\n * Clamps a value between a min and max.\n */\n",
+      "summary": "Clamps a value between a min and max.",
+      "type": "(value: number, min: number, max: number) => number"
+    }
+  ],
+  "types": []
+}

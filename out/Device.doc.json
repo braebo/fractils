@@ -1,0 +1,57 @@
+{
+  "file": "/Users/fractal-live/dev/fractils/.extractinator-temp/stores/Device.svelte.d.ts",
+  "componentName": "Device",
+  "props": [],
+  "events": [],
+  "slots": [],
+  "variables": [
+    {
+      "comment": {
+        "raw": "/**\n * Tracks the screen height.  @default 900\n */\n",
+        "summary": "Tracks the screen height.@default900"
+      },
+      "name": "screenH",
+      "type": "Writable<number>"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * Tracks the screen width.  @default 900\n */\n",
+        "summary": "Tracks the screen width.@default900"
+      },
+      "name": "screenW",
+      "type": "Writable<number>"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * Adjusts the $mobile 'breakpoint' threshold.  @default 900\n */\n",
+        "summary": "Adjusts the $mobile 'breakpoint' threshold.@default900"
+      },
+      "name": "mobileThreshold",
+      "type": "Writable<number>"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * Detects screen width below 900px  @default false\n */\n",
+        "summary": "Detects screen width below 900px@defaultfalse"
+      },
+      "name": "mobile",
+      "type": "Readable<boolean>"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * Tracks the users scroll position.  @default 0\n */\n",
+        "summary": "Tracks the users scroll position.@default0"
+      },
+      "name": "scrollY",
+      "type": "Writable<number>"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * Tracks the users x and y mouse positions.  @default '{ x: 0, y: 0 }'\n */\n",
+        "summary": "Tracks the users x and y mouse positions.@default'{x: 0, y: 0}'"
+      },
+      "name": "mouse",
+      "type": "Writable<{ x: number; y: number; }>"
+    }
+  ]
+}

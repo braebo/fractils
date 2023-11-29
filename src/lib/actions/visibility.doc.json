@@ -1,0 +1,31 @@
+{
+  "file": "src/lib/actions/visibility.ts",
+  "fileType": "ts",
+  "variables": [
+    {
+      "name": "visibility",
+      "file": "src/lib/actions/visibility.ts",
+      "raw": "/**\n * Observes an element's current viewport visibility and dispatches relevant events.\n *\n * @param options - Optional config, see {@link VisibilityOptions}.\n *\n * @event change - Triggered when element enters or leaves view.  @event enter - Triggered when element enters view.  @event exit - Triggered when element exits view.\n *\n * @example\n * ```svelte\n * <script>\n * \tlet visible, scrollDir, options = {threshold: 0.25}\n *\n *  <!-- TypeScript users can import the VisibilityEvent or VisibilityEventDetail type -->\n * \tfunction handleChange({ detail }) {\n * \t\tvisible = detail.isVisible\n * \t\tscrollDir = detail.scrollDirection\n * \t}\n * </script>\n *\n * <div\n * \tuse:visibility={options}\n * \ton:v-change={handleChange}\n * \ton:v-enter={doSomething}\n * \ton:v-exit={doSomethingElse}\n * \tclass:visible\n * >\n * \t{scrollDir}\n * </div>\n *\n * ```\n *\n */\n",
+      "summary": "Observes an element's current viewport visibility and dispatches relevant events.",
+      "params": [
+        {
+          "name": "options",
+          "description": "Optional config, see {@link VisibilityOptions}.\n\n@event change - Triggered when element enters or leaves view.\n@event enter - Triggered when element enters view.\n@event exit - Triggered when element exits view."
+        }
+      ],
+      "examples": [
+        "```svelte\n<script>\n\tlet visible, scrollDir, options = {threshold: 0.25}\n\n <!-- TypeScript users can import the VisibilityEvent or VisibilityEventDetail type -->\n\tfunction handleChange({ detail }) {\n\t\tvisible = detail.isVisible\n\t\tscrollDir = detail.scrollDirection\n\t}\n</script>\n\n<div\n\tuse:visibility={options}\n\ton:v-change={handleChange}\n\ton:v-enter={doSomething}\n\ton:v-exit={doSomethingElse}\n\tclass:visible\n>\n\t{scrollDir}\n</div>\n\n```"
+      ],
+      "type": "Action<HTMLElement, VisibilityOptions, VisibilityAttr>"
+    }
+  ],
+  "types": [
+    {
+      "name": "VisibilityOptions",
+      "file": "src/lib/actions/visibility.ts",
+      "raw": "/**\n * Optional config for `visibility` action.\n */\n",
+      "summary": "Optional config for `visibility` action.",
+      "type": "VisibilityOptions"
+    }
+  ]
+}

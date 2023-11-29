@@ -1,0 +1,27 @@
+{
+  "file": "src/lib/utils/localStorageStore.ts",
+  "fileType": "ts",
+  "variables": [
+    {
+      "name": "localStorageStore",
+      "file": "src/lib/utils/localStorageStore.ts",
+      "raw": "/**\n * A Svelte store that uses localStorage to store data asyncronously.\n *\n * @param key - The key to store the data under.\n *\n * @param initial - The initial value of the store.\n *\n * @example\n *\n * const store = localStorageStore('foo', 'bar')\n */\n",
+      "summary": "A Svelte store that uses localStorage to store data asyncronously.",
+      "params": [
+        {
+          "name": "key",
+          "description": "The key to store the data under."
+        },
+        {
+          "name": "initial",
+          "description": "The initial value of the store."
+        }
+      ],
+      "examples": [
+        "const store = localStorageStore('foo', 'bar')"
+      ],
+      "type": "<T>(key: string, initial: T) => Writable<T>"
+    }
+  ],
+  "types": []
+}

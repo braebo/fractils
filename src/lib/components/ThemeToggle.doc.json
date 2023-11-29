@@ -1,0 +1,14 @@
+{
+  "file": "src/lib/components/ThemeToggle.svelte",
+  "fileType": "svelte",
+  "variables": [],
+  "types": [
+    {
+      "name": "ThemeToggle",
+      "file": "src/lib/components/ThemeToggle.svelte",
+      "raw": "/**\n * A theme toggle button with slots for light and dark mode icons.\n */\n",
+      "summary": "A theme toggle button with slots for light and dark mode icons.",
+      "type": "SvelteComponent"
+    }
+  ]
+}

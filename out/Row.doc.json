@@ -1,0 +1,37 @@
+{
+  "file": "/Users/fractal-live/dev/fractils/.extractinator-temp/components/inspector/Row.svelte.d.ts",
+  "componentName": "Row",
+  "props": [
+    {
+      "name": "key",
+      "type": "string"
+    },
+    {
+      "name": "value",
+      "type": "unknown"
+    },
+    {
+      "name": "store",
+      "type": "Writable<any> | Readable<any>"
+    },
+    {
+      "name": "path",
+      "type": "string"
+    },
+    {
+      "name": "simple",
+      "type": "boolean"
+    },
+    {
+      "name": "label",
+      "type": "boolean"
+    },
+    {
+      "name": "depth",
+      "type": "number"
+    }
+  ],
+  "events": [],
+  "slots": [],
+  "variables": []
+}

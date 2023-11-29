@@ -1,0 +1,14 @@
+{
+  "file": "src/lib/utils/color.ts",
+  "fileType": "ts",
+  "variables": [
+    {
+      "name": "colors",
+      "file": "src/lib/utils/color.ts",
+      "raw": "/**\n * All valid CSS color names.\n */\n",
+      "summary": "All valid CSS color names.",
+      "type": "readonly [\"AliceBlue\", \"AntiqueWhite\", \"Aqua\", \"Aquamarine\", \"Azure\", \"Beige\", \"Bisque\", \"Black\", \"BlanchedAlmond\", \"Blue\", \"BlueViolet\", \"Brown\", \"BurlyWood\", \"CadetBlue\", ... 133 more ..., \"YellowGreen\"]"
+    }
+  ],
+  "types": []
+}

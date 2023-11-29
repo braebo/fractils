@@ -1,0 +1,46 @@
+{
+  "file": "src/lib/utils/time.ts",
+  "fileType": "ts",
+  "variables": [
+    {
+      "name": "start",
+      "file": "src/lib/utils/time.ts",
+      "raw": "/**\n * Like `console.time`, returning a `console.timeEnd` function.\n *\n * @param label - Console label.\n *\n * @returns `console.timeEnd` for the given label.\n *\n * @example\n *\n * const end = start('foo') // do stuff end() // foo 1.2s\n */\n",
+      "summary": "Like `console.time`, returning a `console.timeEnd` function.",
+      "params": [
+        {
+          "name": "label",
+          "description": "Console label."
+        }
+      ],
+      "returns": "`console.timeEnd` for the given label.",
+      "examples": [
+        "const end = start('foo')\n// do stuff\nend() // foo 1.2s"
+      ],
+      "type": "(label: string, options?: StartOptions) => () => void"
+    },
+    {
+      "name": "fmtTime",
+      "file": "src/lib/utils/time.ts",
+      "raw": "/**\n * Formats a number representing time. Smaller numbers are formatted in milliseconds, and larger numbers in seconds. In both cases, precision is kept to a minimum and trailing zeroes are removed.\n *\n * @param n - Time in milliseconds.\n *\n * @returns Formatted time string.\n */\n",
+      "summary": "Formats a number representing time.  Smaller numbers are formatted in\nmilliseconds, and larger numbers in seconds. In both cases, precision\nis kept to a minimum and trailing zeroes are removed.",
+      "params": [
+        {
+          "name": "n",
+          "description": "Time in milliseconds."
+        }
+      ],
+      "returns": "Formatted time string.",
+      "type": "(n: number) => string"
+    }
+  ],
+  "types": [
+    {
+      "name": "StartOptions",
+      "file": "src/lib/utils/time.ts",
+      "raw": "/**\n * Options for `start`.\n */\n",
+      "summary": "Options for `start`.",
+      "type": "StartOptions"
+    }
+  ]
+}
