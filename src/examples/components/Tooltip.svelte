@@ -6,7 +6,7 @@
 	import { Tooltip, theme } from '$lib';
 	import html from './Tooltip.html?raw';
 
-	const path = 'components/TooltipExample.svelte';
+	const path = 'components/Tooltip.svelte';
 
 	let timer;
 	let animating = false;
