@@ -134,13 +134,13 @@
 	.dark {
 		color: var(--fg-d);
 		background: var(--bg-a);
-		border-radius: var(--border-radius);
+		border-radius: var(--radius);
 	}
 
 	.light {
 		color: var(--bg-a);
 		background: var(--fg-d);
-		border-radius: var(--border-radius);
+		border-radius: var(--radius);
 	}
 
 	.row {

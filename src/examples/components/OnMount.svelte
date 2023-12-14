@@ -45,6 +45,6 @@
 
 		overflow: hidden;
 
-		border-radius: var(--border-radius);
+		border-radius: var(--radius);
 	}
 </style>

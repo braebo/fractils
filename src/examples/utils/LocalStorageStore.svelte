@@ -63,7 +63,7 @@
 
 		text-align: center;
 
-		border-radius: var(--border-radius);
+		border-radius: var(--radius);
 	}
 
 	.button {
@@ -100,7 +100,7 @@
 
 		color: var(--fg-a);
 		background: var(--bg-d);
-		border-radius: var(--border-radius);
+		border-radius: var(--radius);
 	}
 
 	em {

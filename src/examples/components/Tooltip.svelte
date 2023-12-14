@@ -89,7 +89,7 @@
 
 		min-height: 54px;
 
-		border-radius: var(--border-radius);
+		border-radius: var(--radius);
 		box-shadow: var(--shadow-inset);
 
 		overflow: hidden;
@@ -99,6 +99,6 @@
 	.hover-1 {
 		color: var(--fg-a);
 		background-color: var(--bg-a);
-		border-radius: var(--border-radius);
+		border-radius: var(--radius);
 	}
 </style>

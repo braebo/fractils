@@ -94,7 +94,7 @@
 		align-items: center;
 
 		background: var(--bg-a);
-		border-radius: var(--border-radius);
+		border-radius: var(--radius);
 	}
 
 	.notme {

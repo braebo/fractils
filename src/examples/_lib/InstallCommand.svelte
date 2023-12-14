@@ -14,7 +14,7 @@
 
 		color: var(--brand-a);
 
-		border-radius: var(--border-radius);
+		border-radius: var(--radius);
 		background-color: rgb(21, 22, 29);
 	}
 </style>

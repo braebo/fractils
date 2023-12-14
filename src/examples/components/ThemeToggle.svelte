@@ -59,7 +59,7 @@
 
 		min-height: 54px;
 
-		border-radius: var(--border-radius);
+		border-radius: var(--radius);
 		box-shadow: var(--shadow-inset);
 
 		overflow: hidden;
@@ -69,13 +69,13 @@
 	.dark {
 		color: var(--fg-a);
 		background-color: var(--bg-a);
-		border-radius: var(--border-radius);
+		border-radius: var(--radius);
 	}
 
 	.light {
 		color: var(--bg-a);
 		background: var(--fg-d);
-		border-radius: var(--border-radius);
+		border-radius: var(--radius);
 
 		box-shadow: -2px 2px 5px 1px #000a inset;
 	}

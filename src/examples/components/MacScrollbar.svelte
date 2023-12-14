@@ -43,7 +43,7 @@
 
 		min-height: 54px;
 
-		border-radius: var(--border-radius);
+		border-radius: var(--radius);
 
 		overflow: hidden;
 	}

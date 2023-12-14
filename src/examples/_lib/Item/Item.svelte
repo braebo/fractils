@@ -39,7 +39,7 @@
 		color: var(--fg-c);
 		background: var(--bg-b);
 
-		border-radius: var(--border-radius);
+		border-radius: var(--radius);
 		box-shadow: var(--shadow-lg);
 
 		font-family: var(--font-b);

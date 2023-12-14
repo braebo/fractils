@@ -221,7 +221,7 @@
 
 			font-size: 1.5rem;
 
-			border-radius: var(--border-radius);
+			border-radius: var(--radius);
 			border: 1px solid var(--bg-a);
 			background: var(--fg-d);
 			opacity: 0;

@@ -36,7 +36,7 @@
 	.codeblock {
 		position: relative;
 
-		border-radius: var(--border-radius);
+		border-radius: var(--radius);
 		box-shadow: var(--shadow-inset);
 		background: var(--bg-a);
 
@@ -84,7 +84,7 @@
 		text-align: center;
 
 		background: var(--result-bg, var(--bg-a));
-		border-radius: var(--border-radius);
+		border-radius: var(--radius);
 		box-shadow: var(--shadow-inset-b);
 
 		z-index: 3;

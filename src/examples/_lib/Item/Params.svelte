@@ -9,8 +9,6 @@
 </script>
 
 <script lang="ts">
-	import { nanoid } from 'nanoid';
-
 	export let params: Param[] = [];
 
 	let connectorStart = 0;
