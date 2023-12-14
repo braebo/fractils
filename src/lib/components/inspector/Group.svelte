@@ -21,7 +21,7 @@
 </script>
 
 {#if 'subscribe' in store && $store !== (null || 'undefined')}
-	<h4 class:isOpen on:click={toggle} on:keydown={toggle}>
+	<h4 class:isOpen on:pointerdown={toggle}>
 		<span>▼</span>
 		{label}
 	</h4>
@@ -36,7 +36,14 @@
 						<Row {key} {value} {store} path={key} />
 					{/each}
 				{:else}
-					<Row key={label} value={$store} {store} path={label} simple={true} label={false} />
+					<Row
+						key={label}
+						value={$store}
+						{store}
+						path={label}
+						simple={true}
+						label={false}
+					/>
 				{/if}
 			{/key}
 		</div>

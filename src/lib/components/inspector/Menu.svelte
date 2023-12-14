@@ -1,3 +1,8 @@
+<!-- 
+	@component A menu component used internally by the Inspector.
+	@internal
+ -->
+
 <script lang="ts">
 	import { screenH } from '../../stores/Device.svelte'
 	import MacScrollbar from '../MacScrollbar.svelte'
@@ -50,10 +55,11 @@
 	class:isOpen
 	class:right
 >
-	<!-- svelte-ignore a11y-click-events-have-key-events -->
-	<div class="nub" on:click={toggle} aria-disabled="true">{nub}</div>
+	<div class="nub" on:pointerdown={toggle} aria-disabled="true">{nub}</div>
+
 	<div class="side-menu-content" bind:this={content} on:scroll={(ev) => (e = ev)}>
 		<MacScrollbar root=".side-menu-content" --mac-scrollbar-color="#131315" />
+
 		<nav>
 			{#each links as link}
 				{#if link.path}
