@@ -1,0 +1,31 @@
+{
+  "fileName": "safari.ts",
+  "filePath": "src/lib/utils/safari.ts",
+  "exports": [
+    {
+      "name": "maybeCoolThing",
+      "type": "typeof maybeCoolThing",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Helper function to deal with the flaming hot pile of garbage that is Safari.\n *\n * @param any - Something cool (and standards compliant).\n *\n * @returns A less cool (safari compatible) thing if safari is detected, otherwise the cool thing.\n */\n",
+        "summary": "Helper function to deal with the flaming hot pile of garbage that is Safari.\n",
+        "params": [
+          {
+            "name": "any",
+            "description": "Something cool (and standards compliant).\n"
+          }
+        ],
+        "returns": " A less cool (safari compatible) thing if safari is detected, otherwise the cool thing.\n"
+      }
+    },
+    {
+      "name": "isSafari",
+      "type": "boolean",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Checks if the current browser is a potato (Safari).\n */\n",
+        "summary": "Checks if the current browser is a potato (Safari).\n"
+      }
+    }
+  ]
+}

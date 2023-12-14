@@ -1,0 +1,46 @@
+{
+  "fileName": "Code.svelte",
+  "filePath": "src/lib/components/Code.svelte",
+  "componentName": "Code",
+  "props": [
+    {
+      "comment": {
+        "raw": "/**\n * The string to highlight.\n *\n * @defaultValue\n *\n * ''\n */\n",
+        "summary": "The string to highlight.\n",
+        "defaultValue": " ''\n"
+      },
+      "name": "str",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * An optional title to display above the code block.\n *\n * @defaultValue\n *\n * 'code'\n */\n",
+        "summary": "An optional title to display above the code block.\n",
+        "defaultValue": " 'code'\n"
+      },
+      "name": "title",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The language to use. Must be a {@link ValidLanguage}.\n *\n * @defaultValue\n *\n * 'json'\n */\n",
+        "summary": "The language to use.  Must be a {@link ValidLanguage}.\n",
+        "defaultValue": " 'json'\n"
+      },
+      "name": "lang",
+      "type": "\"json\" | \"javascript\" | \"typescript\" | \"svelte\" | \"xml\" | \"css\""
+    },
+    {
+      "comment": {
+        "raw": "/**\n * Whether to stringify the input.\n *\n * @defaultValue\n *\n * false\n */\n",
+        "summary": "Whether to stringify the input.\n",
+        "defaultValue": " false\n"
+      },
+      "name": "stringify",
+      "type": "boolean"
+    }
+  ],
+  "events": [],
+  "slots": [],
+  "exports": []
+}

@@ -1,0 +1,50 @@
+{
+  "fileName": "fullscreen.ts",
+  "filePath": "src/lib/actions/fullscreen.ts",
+  "exports": [
+    {
+      "name": "fullscreenSupported",
+      "type": "typeof fullscreenSupported",
+      "isDefaultExport": false
+    },
+    {
+      "name": "fullscreenEnabled",
+      "type": "typeof fullscreenEnabled",
+      "isDefaultExport": false
+    },
+    {
+      "name": "fullscreenEnter",
+      "type": "typeof fullscreenEnter",
+      "isDefaultExport": false
+    },
+    {
+      "name": "fullscreenExit",
+      "type": "typeof fullscreenExit",
+      "isDefaultExport": false
+    },
+    {
+      "name": "fullscreenToggle",
+      "type": "typeof fullscreenToggle",
+      "isDefaultExport": false
+    },
+    {
+      "name": "FullscreenOptions",
+      "type": "FullscreenOptions",
+      "isDefaultExport": false
+    },
+    {
+      "name": "fullscreen",
+      "type": "Action<HTMLElement, undefined, Record<never, any>>",
+      "isDefaultExport": false
+    },
+    {
+      "name": "FullscreenButton",
+      "type": "FullscreenButton",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Creates a button that toggles fullscreen mode.\n */\n",
+        "summary": "Creates a button that toggles fullscreen mode.\n"
+      }
+    }
+  ]
+}

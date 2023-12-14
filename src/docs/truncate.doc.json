@@ -1,0 +1,15 @@
+{
+  "fileName": "truncate.ts",
+  "filePath": "src/lib/utils/truncate.ts",
+  "exports": [
+    {
+      "name": "truncate",
+      "type": "typeof truncate",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * A faster `.toFixed()` alternative.\n */\n",
+        "summary": "A faster `.toFixed()` alternative.\n"
+      }
+    }
+  ]
+}

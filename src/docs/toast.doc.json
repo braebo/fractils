@@ -1,0 +1,19 @@
+{
+  "fileName": "Toast.svelte",
+  "filePath": "src/lib/components/toast/Toast.svelte",
+  "componentName": "Toast",
+  "props": [
+    {
+      "name": "toast",
+      "type": "Toast"
+    }
+  ],
+  "events": [
+    {
+      "name": "complete",
+      "type": "CustomEvent<any>"
+    }
+  ],
+  "slots": [],
+  "exports": []
+}

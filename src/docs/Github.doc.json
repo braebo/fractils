@@ -1,0 +1,14 @@
+{
+  "fileName": "Github.svelte",
+  "filePath": "src/lib/icons/Github.svelte",
+  "componentName": "Github",
+  "props": [
+    {
+      "name": "__index",
+      "type": "any"
+    }
+  ],
+  "events": [],
+  "slots": [],
+  "exports": []
+}

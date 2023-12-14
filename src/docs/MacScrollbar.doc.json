@@ -1,0 +1,40 @@
+{
+  "fileName": "MacScrollbar.svelte",
+  "filePath": "src/lib/components/MacScrollbar.svelte",
+  "componentName": "MacScrollbar",
+  "props": [
+    {
+      "comment": {
+        "raw": "/**\n * The scrollbar root element or it's query selector.\n *\n * @default\n *\n * `document.body`\n */\n",
+        "summary": "The scrollbar root element or it's query selector.\n",
+        "defaultValue": " `document.body`\n"
+      },
+      "name": "root",
+      "type": "string | Element"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * Destroys the component.\n *\n * @default\n *\n * `true` on mobile if not overridden.\n *\n * @note\n *\n * This component only works on viewport-sized elements.\n */\n",
+        "summary": "Destroys the component.\n",
+        "defaultValue": " `true` on mobile if not overridden.\n",
+        "notes": [
+          " This component only works on viewport-sized elements.\n"
+        ]
+      },
+      "name": "disabled",
+      "type": "boolean"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * % of the scrollbar track to pad at the top and bottom.\n *\n * @default\n *\n * `0.2`\n */\n",
+        "summary": "% of the scrollbar track to pad at the top and bottom.\n",
+        "defaultValue": " `0.2`\n"
+      },
+      "name": "padding",
+      "type": "0.2"
+    }
+  ],
+  "events": [],
+  "slots": [],
+  "exports": []
+}

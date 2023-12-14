@@ -1,0 +1,22 @@
+{
+  "fileName": "Inspector.svelte",
+  "filePath": "src/lib/components/inspector/Inspector.svelte",
+  "componentName": "Inspector",
+  "props": [
+    {
+      "name": "register",
+      "type": "Record<string, Writable<unknown> | Readable<unknown>>"
+    },
+    {
+      "name": "top",
+      "type": "string"
+    },
+    {
+      "name": "nub",
+      "type": "string"
+    }
+  ],
+  "events": [],
+  "slots": [],
+  "exports": []
+}

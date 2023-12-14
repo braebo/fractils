@@ -1,0 +1,38 @@
+{
+  "fileName": "mapRange.ts",
+  "filePath": "src/lib/utils/mapRange.ts",
+  "exports": [
+    {
+      "name": "mapRange",
+      "type": "(value: number, x1: number, x2: number, y1: number, y2: number) => number",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Maps a value from one range to another\n *\n * @param value - the value to map\n *\n * @param x1 - lower bound of the input range\n *\n * @param x2 - upper bound of the input range\n *\n * @param y1 - lower bound of the output range\n *\n * @param y2 - upper bound of the output range\n *\n * @returns a number mapped from the input range to the output range\n */\n",
+        "summary": " Maps a value from one range to another\n\n",
+        "params": [
+          {
+            "name": "value",
+            "description": "the value to map\n"
+          },
+          {
+            "name": "x1",
+            "description": "lower bound of the input range\n"
+          },
+          {
+            "name": "x2",
+            "description": "upper bound of the input range\n"
+          },
+          {
+            "name": "y1",
+            "description": "lower bound of the output range\n"
+          },
+          {
+            "name": "y2",
+            "description": "upper bound of the output range\n"
+          }
+        ],
+        "returns": " a number mapped from the input range to the output range\n"
+      }
+    }
+  ]
+}

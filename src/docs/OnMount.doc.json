@@ -1,0 +1,23 @@
+{
+  "fileName": "OnMount.svelte",
+  "filePath": "src/lib/components/OnMount.svelte",
+  "comment": {
+    "raw": "/**\n * Mounts a component when the DOM is ready. Useful for intro animations.\n */\n",
+    "summary": "Mounts a component when the DOM is ready.  Useful for intro animations.\n"
+  },
+  "componentName": "OnMount",
+  "props": [
+    {
+      "name": "__index",
+      "type": "any"
+    }
+  ],
+  "events": [],
+  "slots": [
+    {
+      "name": "default",
+      "props": []
+    }
+  ],
+  "exports": []
+}

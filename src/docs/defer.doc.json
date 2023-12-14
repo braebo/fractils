@@ -1,0 +1,16 @@
+{
+  "fileName": "defer.ts",
+  "filePath": "src/lib/utils/defer.ts",
+  "exports": [
+    {
+      "name": "defer",
+      "type": "(((callback: IdleRequestCallback, options?: IdleRequestOptions) => number) & typeof requestIdleCallback) | ((fn: () => void) => number)",
+      "isDefaultExport": false
+    },
+    {
+      "name": "cancelDefer",
+      "type": "typeof cancelAnimationFrame",
+      "isDefaultExport": false
+    }
+  ]
+}

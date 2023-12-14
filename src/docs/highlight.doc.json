@@ -1,0 +1,46 @@
+{
+  "fileName": "highlight.ts",
+  "filePath": "src/lib/actions/highlight.ts",
+  "exports": [
+    {
+      "name": "HighlightEventDetail",
+      "type": "HighlightEventDetail",
+      "isDefaultExport": false
+    },
+    {
+      "name": "HighlightEvent",
+      "type": "HighlightEvent",
+      "isDefaultExport": false
+    },
+    {
+      "name": "ValidLanguage",
+      "type": "\"json\" | \"js\" | \"javascript\" | \"ts\" | \"typescript\" | \"svelte\" | \"xml\" | \"css\"",
+      "isDefaultExport": false
+    },
+    {
+      "name": "HighlightOptions",
+      "type": "HighlightOptions",
+      "isDefaultExport": false
+    },
+    {
+      "name": "HighlightAttr",
+      "type": "HighlightAttr",
+      "isDefaultExport": false
+    },
+    {
+      "name": "highlight",
+      "type": "Action<Element, HighlightOptions, HighlightAttr>",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * A syntax highlighter.\n *\n * @example\n * ```svelte\n * <pre use:highlight={{ lang: 'json' }}>\n * \t{JSON.stringify({ hello: 'world' }, null, 2)}\n * </pre>\n * ```\n *\n */\n",
+        "summary": "A syntax highlighter.\n",
+        "examples": [
+          {
+            "name": "",
+            "content": "\n```svelte\n<pre use:highlight={{ lang: 'json' }}>\n\t{JSON.stringify({ hello: 'world' }, null, 2)}\n</pre>\n```\n"
+          }
+        ]
+      }
+    }
+  ]
+}

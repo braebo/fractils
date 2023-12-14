@@ -1,0 +1,15 @@
+{
+  "fileName": "decimalToPow.ts",
+  "filePath": "src/lib/utils/decimalToPow.ts",
+  "exports": [
+    {
+      "name": "decimalToPow",
+      "type": "typeof decimalToPow",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Converts a decimal to a power of 10.\n */\n",
+        "summary": "Converts a decimal to a power of 10.\n"
+      }
+    }
+  ]
+}

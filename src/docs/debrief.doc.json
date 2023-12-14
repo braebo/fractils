@@ -1,0 +1,24 @@
+{
+  "fileName": "debrief.ts",
+  "filePath": "src/lib/utils/debrief.ts",
+  "exports": [
+    {
+      "name": "debrief",
+      "type": "typeof debrief",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Like tree for objects, with controls for depth, max siblings, and string length.\n */\n",
+        "summary": "Like tree for objects, with controls for depth, max siblings, and string length.\n"
+      }
+    },
+    {
+      "name": "DebriefOptions",
+      "type": "DebriefOptions",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Configuration for {@link debrief}.\n */\n",
+        "summary": "Configuration for {@link debrief}.\n"
+      }
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "fileName": "debounce.ts",
+  "filePath": "src/lib/utils/debounce.ts",
+  "exports": [
+    {
+      "name": "debounce",
+      "type": "typeof debounce",
+      "isDefaultExport": false
+    }
+  ]
+}

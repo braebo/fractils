@@ -1,0 +1,16 @@
+{
+  "fileName": "logger.ts",
+  "filePath": "src/lib/utils/logger.ts",
+  "exports": [
+    {
+      "name": "logger",
+      "type": "(title?: string, options?: { styled?: boolean; deferred?: boolean; fg?: CSSColor; bg?: CSSColor; css?: string; }) => (...args: any[]) => void",
+      "isDefaultExport": false
+    },
+    {
+      "name": "CSSColor",
+      "type": "CSSColor",
+      "isDefaultExport": false
+    }
+  ]
+}
