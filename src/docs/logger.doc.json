@@ -4,12 +4,7 @@
   "exports": [
     {
       "name": "logger",
-      "type": "(title?: string, options?: { styled?: boolean; deferred?: boolean; fg?: CSSColor; bg?: CSSColor; css?: string; }) => (...args: any[]) => void",
-      "isDefaultExport": false
-    },
-    {
-      "name": "CSSColor",
-      "type": "CSSColor",
+      "type": "(title?: string, options?: { styled?: boolean; deferred?: boolean; fg?: (string & {}) | CSSColor; bg?: (string & {}) | CSSColor; css?: string; server?: boolean; browser?: boolean; }) => (...args: any[]) => void",
       "isDefaultExport": false
     }
   ]

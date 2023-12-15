@@ -15,6 +15,15 @@
         "raw": "/**\n * All valid CSS color names.\n */\n",
         "summary": "All valid CSS color names.\n"
       }
+    },
+    {
+      "name": "CSSColor",
+      "type": "CSSColor",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * All valid CSS color names.\n */\n",
+        "summary": "All valid CSS color names.\n"
+      }
     }
   ]
 }
