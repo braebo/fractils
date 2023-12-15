@@ -30,8 +30,10 @@
 		"release": "pnpm package && changeset publish",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"extract": "bun src/scripts/extractinator/src/cli.ts extract",
-		"extract:watch": "bun --watch src/scripts/extractinator/src/cli.ts extract"
+		"generate:css": "bash src/scripts/generate-css.sh",
+		"generate:shiki": "vite-node ./src/scripts/shiki/syntax-highlighter.ts",
+		"generate:docs": "bun src/scripts/extractinator/src/exports/cli.ts extract src/lib src/docs",
+		"generate:all": "run-p generate:docs generate:css generate:shiki"
 	},
 	"dependencies": {
 		"esm-env": "^1.0.0"
