@@ -1,4 +1,9 @@
-export const randomColor = () => colors[Math.floor(Math.random() * colors.length)];
+export const randomColor = () => colors[Math.floor(Math.random() * colors.length)]
+
+/**
+ * All valid CSS color names.
+ */
+export type CSSColor = (typeof colors)[number] | Lowercase<(typeof colors)[number]>
 
 /**
  * All valid CSS color names.
@@ -152,4 +157,4 @@ export const colors = [
 	'WhiteSmoke',
 	'Yellow',
 	'YellowGreen',
-] as const;
+] as const
