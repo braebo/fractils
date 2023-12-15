@@ -1,11 +1,10 @@
 {
 	"extends": "./.svelte-kit/tsconfig.json",
 	"compilerOptions": {
-		"moduleResolution": "node",
+		"moduleResolution": "Bundler",
 		"module": "esnext",
 		"lib": ["esnext", "dom", "dom.iterable"],
 		"target": "esnext",
-		"importsNotUsedAsValues": "error",
 		"isolatedModules": true,
 		"resolveJsonModule": true,
 		"sourceMap": true,
@@ -21,14 +20,17 @@
 		"noImplicitThis": true,
 		"noImplicitAny": false,
 		"importHelpers": true,
+		"verbatimModuleSyntax": true,
 		"declaration": true,
-		"baseUrl": ".",
-		"paths": {
-			"$lib": ["src/lib"],
-			"$lib/*": ["src/lib/*"],
-			"$examples": ["src/examples"],
-			"$examples/*": ["src/examples/*"]
-		},
+		// "baseUrl": ".",
+		// "paths": {
+		// 	"$lib": ["src/lib"],
+		// 	"$lib/*": ["src/lib/*"],
+		// 	"$examples": ["src/examples"],
+		// 	"$examples/*": ["src/examples/*"],
+		// 	"$scripts": ["src/scripts"],
+		// 	"$scripts/*": ["src/scripts/*"]
+		// },
 		"types": ["@sveltejs/kit", "svelte"]
 	},
 	"include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.ts", "src/**/*.svelte"],
