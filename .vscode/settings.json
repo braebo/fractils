@@ -10,7 +10,7 @@
 	"editor.formatOnSave": false,
 
 	"editor.codeActionsOnSave": {
-		"source.fixAll.stylelint": true
+		"source.fixAll.stylelint": "explicit"
 	},
 
 	"[svelte]": {
@@ -41,5 +41,8 @@
 				}
 			}
 		]
+	},
+	"[shellscript]": {
+		"editor.defaultFormatter": "foxundermoon.shell-format"
 	}
 }
