@@ -1,6 +1,7 @@
 <!-- 
 	@component
 	A series of device related stores.
+
 	@see {@link https://fractils.fractal-hq.com/#Device Device documentation}
  -->
 <script context="module" lang="ts">
