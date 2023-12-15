@@ -10,6 +10,7 @@ const config = {
 		alias: {
 			$lib: resolve('./src/lib'),
 			$examples: resolve('./src/examples'),
+			$scripts: resolve('./src/scripts'),
 		},
 	},
 	vitePlugin: {
