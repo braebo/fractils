@@ -1,8 +1,17 @@
 <script lang="ts">
-	import ThemePulse from '$examples/_lib/ThemePulse.svelte';
-	import { entries } from '$lib/utils/object';
-	import { EXAMPLES } from '$examples';
+	import InstallCommand from '$examples/_lib/InstallCommand.svelte'
+	import ThemePulse from '$examples/_lib/ThemePulse.svelte'
+	import Header from '$examples/_lib/Header.svelte'
+	import Nav from '$examples/_lib/Nav.svelte'
+	import { entries } from '$lib/utils/object'
+	import { EXAMPLES } from '$examples'
 </script>
+
+<Header />
+
+<InstallCommand />
+
+<Nav />
 
 {#each entries(EXAMPLES) as example}
 	{@const categoryName = example[0].toLowerCase()}
@@ -23,7 +32,7 @@
 
 <div class="buffer" style="min-height: 50px" />
 
-<style lang="scss">
+<style>
 	h2 {
 		display: flex;
 		justify-content: center;
