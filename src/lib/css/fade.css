@@ -1,0 +1,6 @@
+.fade {
+  background-image: linear-gradient(to right, black 0%, rgb(0, 0, 0) 0%, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 0) 90%, rgb(0, 0, 0) 100%, black 100%), radial-gradient(farthest-corner, transparent 50%, black 100%), linear-gradient(to bottom, black 0%, rgb(0, 0, 0) 0%, rgba(0, 0, 0, 0) 10%, rgba(0, 0, 0, 0) 90%, rgb(0, 0, 0) 100%, black 100%), radial-gradient(farthest-corner, transparent 50%, black 100%);
+  z-index: 25;
+}
+
+/*# sourceMappingURL=fade.css.map */

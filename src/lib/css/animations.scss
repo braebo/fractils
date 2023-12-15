@@ -1,0 +1,90 @@
+@keyframes fade-out {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+	}
+}
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes rotate-out {
+	from {
+		transform: rotate3d(1, 0, 0, 0deg) translate3d(0, 0, -10px);
+	}
+	to {
+		transform: rotate3d(1, 0, 0, -90deg) translate3d(0, 0, -10px);
+	}
+}
+
+@keyframes rotate-in {
+	from {
+		transform: rotate3d(1, 0, 0, 90deg) translate3d(0, 0, -10px);
+	}
+	to {
+		transform: rotate3d(1, 0, 0, 0deg) translate3d(0, 0, -4px);
+	}
+}
+
+@keyframes swipe-out {
+	from {
+		clip-path: inset(0);
+		opacity: 1;
+	}
+	to {
+		clip-path: inset(0 0 0 100%);
+		opacity: 0;
+	}
+}
+@keyframes swipe-in {
+	from {
+		clip-path: inset(0 100% 0 0);
+		opacity: 0;
+	}
+	to {
+		clip-path: inset(0);
+		opacity: 1;
+	}
+}
+
+@keyframes fly-in {
+	from {
+		transform: translateY(0.5rem);
+	}
+	to {
+		transform: translateY(0);
+	}
+}
+@keyframes fly-out {
+	from {
+		transform: translateY(0);
+	}
+	to {
+		transform: translateY(0.5rem);
+	}
+}
+
+@keyframes land-in {
+	from {
+		transform: scale(1.2);
+	}
+	to {
+		transform: scale(1);
+	}
+}
+
+@keyframes expand {
+	from {
+		transform: scaleX(0);
+	}
+	to {
+		transform: scaleX(1);
+	}
+}
