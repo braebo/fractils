@@ -17,13 +17,15 @@ export { Toasts, toast, type Toast } from './components/toast/index' // todo
 export { default as OnMount } from './components/OnMount.svelte'
 export { default as Tooltip } from './components/Tooltip.svelte' // todo
 export { default as Switch } from './components/Switch.svelte' // todo
-export { default as Github } from './components/Github.svelte' // todo
 export { default as Range } from './components/Range.svelte' // todo
 export { default as Code } from './components/Code.svelte' // todo
 
 // Theme
 
 export { initTheme, toggleTheme, applyTheme, theme } from './theme/theme'
+
+// Icons
+export { default as Github } from './icons/Github.svelte' // todo
 
 // Utils
 
@@ -35,6 +37,7 @@ export { start, type StartOptions } from './utils/time' // todo
 export { entries, keys, values } from './utils/object' // todo
 export { decimalToPow } from './utils/decimalToPow' // todo
 export { colors, randomColor } from './utils/color' // todo
+export { cliHyperlink } from './utils/cliHyperlink' // todo
 export { timestamp } from './utils/timestamp' // todo
 export { truncate } from './utils/truncate' // todo
 export { mapRange } from './utils/mapRange'
@@ -68,11 +71,10 @@ export type {
 	Event,
 } from './actions/visibility'
 
-export { highlight } from './actions/highlight' // todo
+export { highlighter as highlight } from './actions/highlight/highlight' // todo
 export type {
 	HighlightEventDetail,
 	HighlightOptions,
 	HighlightEvent,
 	HighlightAttr,
-	ValidLanguage,
-} from './actions/highlight' // todo
+} from './actions/highlight/highlight' // todo
