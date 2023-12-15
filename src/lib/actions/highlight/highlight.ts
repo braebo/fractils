@@ -23,7 +23,7 @@ export interface HighlightEventDetail {
 
 export type HighlightEvent = CustomEvent<HighlightEventDetail>
 
-export type HighlightOptions = CodeToHastOptions & {
+export type HighlightOptions = Partial<CodeToHastOptions<Lang, Theme>> & {
 	/**
 	 * The language to highlight.
 	 * @defaultValue 'json'
