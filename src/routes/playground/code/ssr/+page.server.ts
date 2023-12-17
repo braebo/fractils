@@ -10,15 +10,20 @@ import { transform } from './transform'
 export async function load() {
 	const paths = ['./+page.svelte', './+page.ts', './+page.server.ts']
 
-	const files: { title: string; text: string; lang: Lang }[] = []
+	const files: { title: string; text: string; highlightedText: string; lang: Lang }[] = []
 
 	for (const path of paths) {
 		const file = new URL(path, import.meta.url)
 		const lang = path.split('.').pop() as 'svelte' | 'ts'
-		const raw = transform(await readFile(file, 'utf-8'))
-		const text = await highlight(raw, { lang }) // [!code focus]
+		const text = transform(await readFile(file, 'utf-8'))
+		const highlightedText = await highlight(text, { lang }) // [!code focus]
 
-		files.push({ title: path.replace('./', ''), text, lang })
+		files.push({
+			title: path.replace('./', ''),
+			text,
+			highlightedText,
+			lang,
+		})
 	}
 
 	return { files }
