@@ -1,5 +1,15 @@
+<!-- 
+@component
+
+A styled code block with syntax highlighting.  On the client, the code is
+highlighted using [Shikiji](https://github.com/antfu/shikiji) using the
+{@link highlight} util unless the `ssr` prop is set to true and the highlighted
+text is provided as the `highlightedText` prop.  The raw `text` prop is still
+required in this case, as it's used for screen readers and the copy button.
+-->
+
 <script context="module">
-	import { localStorageStore } from '../utils/localStorageStore.js'
+	import { localStorageStore } from '../utils/localStorageStore'
 
 	const fontSize = localStorageStore('fractils::settings::codeblock::fontSize', '0.8rem')
 </script>
@@ -12,9 +22,21 @@
 
 	/**
 	 * The string to highlight.
-	 * @defaultValue ''
 	 */
-	export let text = ''
+	export let text: string
+
+	/**
+	 * Effectively just disables the client-side highlighting,
+	 * assuming the text has already been highlighted on the server.
+	 * @defaultValue false
+	 */
+	export let ssr = false
+
+	/**
+	 * Optional pre-highlighted text.  If this is provided _and_ the {@link ssr}
+	 * prop is `true`, the highlighter will not be loaded / run on the client.
+	 */
+	export let highlightedText = ssr ? text : sanitize(text)
 
 	/**
 	 * An optional title to display above the code block.
@@ -35,19 +57,10 @@
 	export let theme = 'serendipity' as Theme
 
 	/**
-	 * Effectively just disables the client-side highlighting,
-	 * assuming the text has already been highlighted on the server.
-	 * @defaultValue false
-	 */
-	export let ssr = false
-
-	/**
 	 * If true, a button will be displayed to copy the code to the clipboard.
 	 * @defaultValue true
 	 */
 	export let copyButton = true
-
-	let highlightedText = ssr ? text : sanitize(text)
 
 	$: if (!ssr && text && BROWSER) {
 		update()
@@ -66,15 +79,10 @@
 		highlightedText = await highlight(text, { lang, theme })
 		console.log('update')
 	}
-
-	function copy() {
-		if (typeof navigator === 'undefined') return
-		navigator.clipboard?.writeText?.(text)
-	}
 </script>
 
 <!-- invisible plain text version for screen readers -->
-<div class="sr-only">{text}</div>
+<div class="sr-only" aria-label={`code snippet titled ${title}`}>{text}</div>
 
 <div aria-hidden="true" class="codeblock scrollbar">
 	<div class="nav" aria-hidden="true">
@@ -97,9 +105,7 @@
 		</div>
 	{/if}
 
-	<pre aria-label={`Code snippet: ${title}`} style:font-size={$fontSize}
-		><code>{@html highlightedText}</code></pre
-	>
+	<pre style:font-size={$fontSize}>{@html highlightedText}</pre>
 </div>
 
 <style lang="scss">
@@ -151,6 +157,31 @@
 		filter: none;
 	}
 
+	pre {
+		padding: var(--padding-sm, 0.5rem);
+
+		line-height: 1.25rem;
+		font-family: var(--font-mono);
+		box-shadow: var(--shadow-inset);
+	}
+
+	.copy-container {
+		position: sticky;
+		// top: 0;
+		top: 2rem;
+		right: 0;
+		max-height: 0px;
+	}
+
+	.sticky {
+		position: absolute;
+		right: 0rem;
+		top: 0rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
 	.nav {
 		position: sticky;
 		top: 0;
@@ -190,30 +221,5 @@
 				background: var(--green, #28c941);
 			}
 		}
-	}
-
-	pre {
-		padding: var(--padding-sm, 0.5rem);
-
-		line-height: 1.25rem;
-		font-family: var(--font-mono);
-		box-shadow: var(--shadow-inset);
-	}
-
-	.copy-container {
-		position: sticky;
-		// top: 0;
-		top: 2rem;
-		right: 0;
-		max-height: 0px;
-	}
-
-	.sticky {
-		position: absolute;
-		right: 0rem;
-		top: 0rem;
-
-		min-width: 1rem;
-		min-height: 1rem;
 	}
 </style>
