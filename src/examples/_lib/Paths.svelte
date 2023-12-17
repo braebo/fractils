@@ -1,25 +1,26 @@
 <script lang="ts">
-	import type { Node } from '$examples/_lib/Nav.svelte';
+	import type { Node } from '$examples/_lib/Nav.svelte'
 
-	import { createEventDispatcher } from 'svelte';
-	import { fly, fade } from 'svelte/transition';
-	import { quintOut } from 'svelte/easing';
-	import { mobile } from '$lib';
+	import { createEventDispatcher } from 'svelte'
+	import { fly, fade } from 'svelte/transition'
+	import { quintOut } from 'svelte/easing'
+	import { mobile } from '$lib'
 
-	export let active: string;
-	export let node: Node;
-	$: children = node.children;
+	export let active: string
+	export let node: Node
+	$: children = node.children
 
-	const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher()
 	function handleClick(index: number, path: string) {
 		dispatch('click', {
 			index,
 			path,
-		});
+		})
 	}
 </script>
 
 {#each children ?? [] as node, i}
+	<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 	<li
 		class="path"
 		in:fly={{ x: -30, easing: quintOut, delay: 100 * i, duration: 1000 }}
