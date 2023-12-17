@@ -7,12 +7,13 @@
 
 export const count = writable(0)
 `,
-		svelte: String(`<script>
-    import { count } from './store.js'
+		svelte: `<script>
+    import { count } from './store.js' // [!code --]
+    import { count } from './store' // [!code ++]
 <\/script>
 
-<button on:click={() => $count += 1}>count: {$count}</button>
-`),
+<button on:click={() => $count++}>count: {$count}</button>
+`,
 	}
 </script>
 
