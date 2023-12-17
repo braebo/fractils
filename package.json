@@ -6,9 +6,9 @@
 	"license": "MIT",
 	"type": "module",
 	"keywords": [
-		"fractils",
 		"utils",
 		"svelte",
+		"sveltekit",
 		"typescript",
 		"javascript"
 	],
@@ -23,6 +23,7 @@
 	"scripts": {
 		"dev": "vite dev",
 		"test": "vitest",
+		"test:ui": "vitest --ui",
 		"debug": "NODE_OPTIONS=\"--inspect\" vite dev",
 		"build": "vite-node ./src/scripts/shiki/syntax-highlighter.ts && rm -rf dist && vite build",
 		"preview": "vite preview",
