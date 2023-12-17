@@ -21,16 +21,7 @@
 		"noImplicitAny": false,
 		"importHelpers": true,
 		"verbatimModuleSyntax": true,
-		"declaration": true,
-		// "baseUrl": ".",
-		// "paths": {
-		// 	"$lib": ["src/lib"],
-		// 	"$lib/*": ["src/lib/*"],
-		// 	"$examples": ["src/examples"],
-		// 	"$examples/*": ["src/examples/*"],
-		// 	"$scripts": ["src/scripts"],
-		// 	"$scripts/*": ["src/scripts/*"]
-		// },
+		// "declaration": true,
 		"types": ["@sveltejs/kit", "svelte"]
 	},
 	"include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.ts", "src/**/*.svelte"],
