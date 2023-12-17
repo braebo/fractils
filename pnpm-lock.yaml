@@ -115,6 +115,9 @@ devDependencies:
   shikiji-transformers:
     specifier: ^0.9.3
     version: 0.9.3
+  shikiji-twoslash:
+    specifier: ^0.9.9
+    version: 0.9.9(typescript@5.3.3)
   svelte:
     specifier: ^4.2.8
     version: 4.2.8
@@ -1095,6 +1098,13 @@ packages:
       '@types/unist': 3.0.2
     dev: true
 
+  /@types/lz-string@1.5.0:
+    resolution: {integrity: sha512-s84fKOrzqqNCAPljhVyC5TjAo6BH4jKHw9NRNFNiRUY5QSgZCmVm5XILlWbisiKl+0OcS7eWihmKGS5akc2iQw==}
+    deprecated: This is a stub types definition. lz-string provides its own type definitions, so you do not need this installed.
+    dependencies:
+      lz-string: 1.5.0
+    dev: true
+
   /@types/mdast@4.0.3:
     resolution: {integrity: sha512-LsjtqsyF+d2/yFOYaN22dHZI1Cpwkrj+g06G8+qtUKlhovPW89YhqSnfKtMbkgmEtYpH2gydRNULd6y8mciAFg==}
     dependencies:
@@ -1149,6 +1159,20 @@ packages:
       - supports-color
     dev: true
 
+  /@typescript/twoslash@3.2.4(typescript@5.3.3):
+    resolution: {integrity: sha512-/TCIOuPQaKltzUUT1qJo6mplYwjbAxkaSFvkeZD3FeFt3Ovt+HJi8xisu8rcLyDRmM3VJ0+jAx+AAICwn4Zlhw==}
+    peerDependencies:
+      typescript: '*'
+    dependencies:
+      '@types/lz-string': 1.5.0
+      '@typescript/vfs': 1.5.0
+      debug: 4.3.4(supports-color@5.5.0)
+      lz-string: 1.5.0
+      typescript: 5.3.3
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
   /@typescript/vfs@1.3.4:
     resolution: {integrity: sha512-RbyJiaAGQPIcAGWFa3jAXSuAexU4BFiDRF1g3hy7LmRqfNpYlTQWGXjcrOaVZjJ8YkkpuwG0FcsYvtWQpd9igQ==}
     dependencies:
@@ -1159,6 +1183,14 @@ packages:
 
   /@typescript/vfs@1.3.5:
     resolution: {integrity: sha512-pI8Saqjupf9MfLw7w2+og+fmb0fZS0J6vsKXXrp4/PDXEFvntgzXmChCXC/KefZZS0YGS6AT8e0hGAJcTsdJlg==}
+    dependencies:
+      debug: 4.3.4(supports-color@5.5.0)
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
+  /@typescript/vfs@1.5.0:
+    resolution: {integrity: sha512-AJS307bPgbsZZ9ggCT3wwpg3VbTKMFNHfaY/uF0ahSkYYrPF2dSSKDNIDIQAHm9qJqbLvCsSJH7yN4Vs/CsMMg==}
     dependencies:
       debug: 4.3.4(supports-color@5.5.0)
     transitivePeerDependencies:
@@ -4120,10 +4152,24 @@ packages:
     resolution: {integrity: sha512-Khc/xyxUDAXit7QWA8QhtmuGSVdvpxooTathF+sYcsT52uKVH59GR2D48tMxQ8lnpW6Dx17TSZSE1ocRmhr6wQ==}
     dev: true
 
+  /shikiji-core@0.9.9:
+    resolution: {integrity: sha512-qu5Qq7Co6JIMY312J9Ek6WYjXieeyJT/fIqmkcjF4MdnMNlUnhSqPo8/42g5UdPgdyTCwijS7Nhg8DfLSLodkg==}
+    dev: true
+
   /shikiji-transformers@0.9.3:
     resolution: {integrity: sha512-tR8hfxlKowkSMefzSXqZiEtuuJfosd/ZSDrHU8UClKa9P/bbg+VVW0wAZu+8Hntjg1mOUSfXEwypV2uMVIFETQ==}
     dependencies:
       shikiji: 0.9.3
+    dev: true
+
+  /shikiji-twoslash@0.9.9(typescript@5.3.3):
+    resolution: {integrity: sha512-O6rMbXBVF2rerLnQOIXufXWeuYVsB+VKNnpIKEzxHuvSbL9JgEI9Uz8bafp9he4diZZd+RKg3l4i5ekAikwjpg==}
+    dependencies:
+      '@typescript/twoslash': 3.2.4(typescript@5.3.3)
+      shikiji-core: 0.9.9
+    transitivePeerDependencies:
+      - supports-color
+      - typescript
     dev: true
 
   /shikiji@0.9.2:
