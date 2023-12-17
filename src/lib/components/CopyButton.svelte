@@ -96,13 +96,12 @@
 		border-radius: 0.2rem;
 		outline: 1px solid transparent;
 		color: var(--bg-d);
-		background: var(--bg-a);
 
 		&.active,
 		&.outro {
 			outline-color: transparent !important;
 			color: var(--bg-d) !important;
-			background: var(--bg-a) !important;
+			background: transparent !important;
 		}
 
 		&:hover {
