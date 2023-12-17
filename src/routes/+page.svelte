@@ -32,7 +32,7 @@
 
 <div class="buffer" style="min-height: 50px" />
 
-<style>
+<style lang="scss">
 	h2 {
 		display: flex;
 		justify-content: center;
