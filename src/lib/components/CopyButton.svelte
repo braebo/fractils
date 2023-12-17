@@ -1,79 +1,130 @@
 <script lang="ts">
-	import Copy from '../icons/Copy.svelte'
 	import { fly } from 'svelte/transition'
 
 	export let text: string
 	export let style = ''
 
-	let copied = false
+	/**
+	 * True for 1.25s after the button is clicked.
+	 */
+	let active = false
+	/**
+	 * True, after `copied` becomes false again, for a duration approximately
+	 * equal to the length of any subsequent CSS transitions.
+	 */
+	let outro = false
+
 	let cooldown: NodeJS.Timeout
+	let outroCooldown: NodeJS.Timeout
+	let btn: HTMLButtonElement
 
 	function copy() {
 		if (typeof navigator === 'undefined') return
-		if (copied) return
+		if (active) return
 
 		navigator.clipboard?.writeText?.(text)
 
 		clearTimeout(cooldown)
-		copied = true
+		clearTimeout(outroCooldown)
+
+		active = true
+
 		cooldown = setTimeout(() => {
-			copied = false
-		}, 1000)
+			btn.blur() // remove :active and :focus styles
+			active = false
+			outro = true
+
+			clearTimeout(outroCooldown)
+			outroCooldown = setTimeout(() => {
+				outro = false
+			}, 500)
+		}, 1250)
 	}
 </script>
 
-<button class="copy" title="copy to clipboard" on:click|preventDefault={copy} {style}>
-	<div transition:fly>
-		<Copy bind:active={copied} />
+<button
+	class="copy"
+	class:active
+	class:outro
+	{style}
+	title="copy to clipboard"
+	transition:fly
+	on:click|preventDefault={copy}
+	bind:this={btn}
+>
+	<div class="svg-container">
+		<svg
+			class="icon copy"
+			class:active
+			class:outro
+			xmlns="http://www.w3.org/2000/svg"
+			width="100%"
+			height="100%"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke="currentColor"
+			stroke-width="2"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+		>
+			<path
+				class="back"
+				class:active
+				class:outro
+				d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+			/>
+			<rect class="front" class:active class:outro width="13" height="13" rx="2" ry="2" />
+			<path class="check" class:active class:outro stroke-width="2" d="M17 9l-7 7-4-4" />
+		</svg>
 	</div>
 </button>
 
 <style lang="scss">
-	button.copy {
+	button {
 		display: grid;
 		all: unset;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 
 		max-width: 100%;
 		max-height: 100%;
 		padding: 0.25rem 0.5rem;
 		margin: 0.5rem;
+
 		border-radius: 0.2rem;
-
-		display: flex;
-		align-items: center;
-		justify-content: center;
-
-		line-height: 1;
-		height: 1rem;
-
-		font-size: 0.8rem;
-		font-family: var(--font-mono);
-
+		outline: 1px solid transparent;
 		color: var(--bg-d);
 		background: var(--bg-a);
 
-		transition: 0.15s;
+		&.active,
+		&.outro {
+			outline-color: transparent !important;
+			color: var(--bg-d) !important;
+			background: var(--bg-a) !important;
+		}
 
 		&:hover {
 			color: var(--fg-c);
 			background: var(--bg-b);
 		}
-		cursor: pointer;
 
-		outline: 1px solid transparent;
-		transition: 0.25s;
-
+		&:active,
 		&:focus {
-			outline: 1px solid var(--bg-b);
-		}
-
-		&:active {
 			color: var(--fg-b);
 			background: var(--bg-c);
 		}
+
+		line-height: 1;
+		height: 1rem;
+		font-size: 0.8rem;
+		font-family: var(--font-mono);
+
+		transition: 0.25s;
 	}
 
-	div {
+	.svg-container {
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -82,5 +133,80 @@
 		height: 100%;
 
 		grid-area: 1/1;
+	}
+
+	$dur: 0.33s;
+	$bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+	$bounceXtreme: cubic-bezier(0.2, 2, 0.2, 0.85);
+	$quintInOut: cubic-bezier(0.86, 0, 0.07, 1);
+	$quartInOut: cubic-bezier(0.77, 0, 0.175, 1);
+	svg {
+		overflow: visible;
+	}
+
+	.front,
+	.back,
+	.check {
+		transform-origin: 50% 50%;
+	}
+
+	.front {
+		transition-duration: 0.66s !important;
+		transition-timing-function: $bounce;
+
+		x: 9;
+		y: 9;
+		stroke: currentColor;
+
+		&.active {
+			transition-timing-function: $bounceXtreme;
+			// transition-timing-function: $bounce;
+			transition-duration: 0.2s;
+
+			transform: scale(2);
+			x: 5.5;
+			y: 5.5;
+			rx: 10;
+			ry: 10;
+			fill: #12a084 !important;
+			stroke: #12a084 !important;
+		}
+
+		&.outro {
+			transition-duration: 0.5s !important;
+		}
+	}
+
+	.back {
+		transform: translate(0, 0);
+		transition-duration: $dur;
+		transition-timing-function: $quartInOut;
+
+		&.active {
+			transform: translate(15%, 15%);
+		}
+
+		&.outro {
+			transition-delay: 0s !important;
+			transition-duration: 1s !important;
+		}
+	}
+
+	.check {
+		// stroke: var(--color, var(--bg-a));
+		stroke: var(--color, var(--fg-a));
+
+		opacity: 0;
+
+		transform: scale(0);
+
+		transition: 0.2s $bounce 0s;
+
+		&.active {
+			opacity: 1;
+			transform: scale(1.25);
+
+			transition: 0.3s $bounceXtreme 0.1s;
+		}
 	}
 </style>
