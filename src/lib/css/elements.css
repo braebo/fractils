@@ -13,7 +13,6 @@
 }
 
 .center {
-  text-align: center;
   align-items: center;
   justify-content: center;
 }
@@ -22,7 +21,6 @@ section.page {
   display: flex;
   display: flex;
   flex-direction: column;
-  text-align: center;
   align-items: center;
   justify-content: center;
   gap: 1rem;
