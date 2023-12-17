@@ -1,24 +1,23 @@
 {
 	"files.associations": {
 		"[*.md, *.svx, *.mdsvex]": "mdx", //* https://github.com/pngwn/MDsveX/issues/121#issuecomment-675106929
-		"*.xml": "html", //* Prettier
-		"*.svg": "html" //* Prettier
+		"*.xml": "html",
+		"*.svg": "html"
 	},
 
 	"editor.defaultFormatter": "esbenp.prettier-vscode",
-
-	"editor.formatOnSave": false,
-
-	"editor.codeActionsOnSave": {
-		"source.fixAll.stylelint": "explicit"
-	},
 
 	"[svelte]": {
 		"editor.defaultFormatter": "svelte.svelte-vscode"
 	},
 
+	"[shellscript]": {
+		"editor.defaultFormatter": "shakram02.bash-beautify"
+	},
+
 	"workbench.iconTheme": "material-icon-theme",
 
+	//* Theming
 	"editor.tokenColorCustomizations": {
 		"textMateRules": [
 			//* More subtle Template Tags
@@ -61,8 +60,5 @@
 		"cargo.toml": ".clippy.toml, .rustfmt.toml, cargo.lock, clippy.toml, cross.toml, rust-toolchain.toml, rustfmt.toml",
 		"svelte.config.*": "bunfig.toml, *.env, .eslint*, .cssnanorc*, .env.*, env.d.ts, .prettier*, mdsvex.config.js, postcss.config.*, tsdoc.*, vercel*, vite.config.*, vitest.config.*",
 		"favicon.ico": "robots.txt, safari-pinned-tab.svg, browserconfig.xml, site.webmanifest, *.png"
-	},
-	"[shellscript]": {
-		"editor.defaultFormatter": "foxundermoon.shell-format"
 	}
 }
