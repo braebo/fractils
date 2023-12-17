@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { LayoutData } from './$types'
+
 	import { page } from '$app/stores'
 
 	export let data: LayoutData
@@ -18,9 +19,9 @@
 
 	<div class="br" />
 
-	<div class="page" style:--max-width="900px">
+	<section class="page" style:--max-width="900px">
 		<slot />
-	</div>
+	</section>
 </div>
 
 <style>
@@ -35,12 +36,19 @@
 		width: 100%;
 
 		background: var(--bg-b);
-        box-shadow: var(--shadow-lg);
+		box-shadow: var(--shadow-lg);
 	}
 
 	a {
 		color: var(--fg-d);
 		font-family: var(--font-b);
+
+		&:focus {
+			outline: 1px solid var(--brand-a);
+			outline-offset: 0.2rem;
+			border: none;
+			border-radius: var(--radius-sm);
+		}
 	}
 
 	.dot {
@@ -69,8 +77,8 @@
 		justify-content: center;
 		gap: 1rem;
 
-		/* background: rgba(var(--bg-b-rgb, 0.5)); */
-		padding: 2rem;
+		max-width: calc(100vw - var(--padding-sm));
+		padding: var(--padding-sm);
 		margin: 2rem auto;
 
 		border-radius: 0.5rem;
