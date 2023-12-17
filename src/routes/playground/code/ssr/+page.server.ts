@@ -2,13 +2,15 @@
 
 import type { Lang } from 'shiki'
 
-import { highlight } from '$lib/utils/highlight'
 import { readFile } from 'node:fs/promises'
 import { transform } from './transform'
+import { highlight } from '$lib/utils/highlight'
+
+export const prerender = true
 
 // Read and highlight this folder's source code.
 export async function load() {
-	const paths = ['./+page.svelte', './+page.ts', './+page.server.ts']
+	const paths = ['./+page.svelte', './+page.server.ts']
 
 	const files: { title: string; text: string; highlightedText: string; lang: Lang }[] = []
 
