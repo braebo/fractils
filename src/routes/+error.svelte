@@ -1,14 +1,11 @@
 <script lang="ts">
 	import FourOhFour from '../examples/_lib/FourOhFour.svelte'
-	import { log } from '$lib/utils/log'
 	import { page } from '$app/stores'
 	import { DEV } from 'esm-env'
 
 	if (DEV) {
-		console.log($page.error)
+		console.error($page.error)
 	}
-
-	log('Testing 123', 'red', '#123')
 </script>
 
 <template lang="pug">
