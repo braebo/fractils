@@ -6,6 +6,47 @@ highlighted using [Shikiji](https://github.com/antfu/shikiji) using the
 {@link highlight} util unless the `ssr` prop is set to true and the highlighted
 text is provided as the `highlightedText` prop.  The raw `text` prop is still
 required in this case, as it's used for screen readers and the copy button.
+
+@example CSR
+
+```svelte
+<script>
+	import Code from 'fractils'
+
+	const text = `console.log('hello world')`
+</script>
+
+<Code {text} />
+```
+
+@example SSR
+
++page.svelte
+```svelte
+<script>
+	import Code from 'fractils'
+
+	export let data
+	const { text, highlightedText } = data
+</script>
+
+<Code ssr {text} {highlightedText} />
+```
+
++page.ts
+```typescript
+import { highlight } from 'fractils/utils/highlight'
+
+export async function load({ page, fetch }) {
+	const text = `console.log('hello world')`
+	const highlightedText = await highlight(text, { lang: 'js' })
+
+	return {
+		text,
+		highlightedText,
+	}
+}
+```
 -->
 
 <script context="module">
@@ -62,6 +103,11 @@ required in this case, as it's used for screen readers and the copy button.
 	 */
 	export let copyButton = true
 
+	/**
+	 * If true, the code block will be collapsed by default.
+	 */
+	export let collapsed = false
+
 	$: if (!ssr && text && BROWSER) {
 		update()
 	}
@@ -84,55 +130,78 @@ required in this case, as it's used for screen readers and the copy button.
 <!-- invisible plain text version for screen readers -->
 <div class="sr-only" aria-label={`code snippet titled ${title}`}>{text}</div>
 
-<div aria-hidden="true" class="codeblock scrollbar">
+<div aria-hidden="true" class="window">
 	<div class="nav" aria-hidden="true">
 		<div class="dots">
-			<div class="dot red" />
-			<div class="dot yellow" />
-			<div class="dot green" />
+			<button class="dot red" on:click={() => (collapsed = true)} />
+			<button class="dot yellow" on:click={() => (collapsed = true)} />
+			<button class="dot green" on:click={() => (collapsed = false)} />
 		</div>
 
 		{#if title}
-			<div class="file">{title}</div>
+			<div class="title">{title}</div>
 		{/if}
 	</div>
 
-	{#if text && copyButton && BROWSER}
-		<div class="copy-container">
-			<div class="sticky">
-				<CopyButton {text} />
+	<div class="codeblock" class:collapsed>
+		{#if text && copyButton && BROWSER}
+			<div class="copy-container">
+				<div class="sticky">
+					<CopyButton {text} />
+				</div>
 			</div>
-		</div>
-	{/if}
+		{/if}
 
-	<pre style:font-size={$fontSize}>{@html highlightedText}</pre>
+		<pre style:font-size={$fontSize}>{@html highlightedText}</pre>
+	</div>
 </div>
 
 <style lang="scss">
-	.codeblock {
+	.window {
 		position: relative;
 
 		width: 100%;
-		max-width: var(--max-width, min(95vw, 500px));
-		max-height: var(--max-height, min(50vh, 500px));
+
 		margin: auto;
 
 		background: var(--bg, var(--bg-a, #15161d));
-		border-radius: 0.2rem;
+		border-radius: 0.25rem;
 		outline: 1px solid var(--bg-b, #282a36);
 		box-shadow: var(--shadow-sm);
 
 		font-size: 0.8rem;
 
-		overflow: auto;
+		overflow: hidden;
 	}
 
-	:global(.shiki:focus) {
-		border: none;
-		border-radius: var(--radius-xs);
-		outline: 1px solid var(--bg-b, #282a36);
-		outline-offset: 0.5rem;
+	.codeblock {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		flex-shrink: 1;
+		flex-grow: 1;
+
+		width: 100%;
+
+		overflow-y: auto;
+
+		// transition: max-height 1s cubic-bezier(0.23,1,0.320,1);
+		transition: max-height 0.75s;
+		transition-timing-function: cubic-bezier(0.56, 0.48, 0.16, 1);
+		&.collapsed {
+			transition-timing-function: cubic-bezier(0.08, 1.12, 0.3, 0.97);
+		}
 	}
+
+	.codeblock {
+		max-height: min(var(--max-height, 450px), min(50vh, 450px));
+
+		&.collapsed {
+			max-height: 0px;
+		}
+	}
+
+	////// SHIKI //////
 
 	:global(.shiki.has-focused) {
 		:global(.line) {
@@ -167,8 +236,7 @@ required in this case, as it's used for screen readers and the copy button.
 
 	.copy-container {
 		position: sticky;
-		// top: 0;
-		top: 2rem;
+		top: 0;
 		right: 0;
 		max-height: 0px;
 	}
@@ -187,29 +255,37 @@ required in this case, as it's used for screen readers and the copy button.
 		top: 0;
 
 		display: flex;
-		align-items: center;
 		justify-content: center;
-		gap: 2rem;
 
-		// height: 2.5rem;
-		padding: 0.5rem;
+		padding: 0.33rem 0.5rem;
 
-		background: var(--bg-b);
+		background: var(--bg-b, #282a36);
+	}
+	.title {
+		color: var(--fg-d, #dfe1e9);
+		transition: color 0.15s;
+	}
+	.window:hover .title {
+		color: var(--fg-c, #c3c4c7);
 	}
 
 	.dots {
 		position: absolute;
-		top: 0.75rem;
-		left: 0.75rem;
+		top: 0.55rem;
+		left: 0.55rem;
+
 		display: flex;
-		gap: 0.25rem;
+		gap: 0.3rem;
 
 		width: 2rem;
 		height: 0.5rem;
 
 		.dot {
+			all: unset;
+			cursor: pointer;
 			min-width: 0.5rem;
 			min-height: 0.5rem;
+
 			border-radius: 1rem;
 			&.red {
 				background: var(--red, #ff605c);
@@ -221,5 +297,40 @@ required in this case, as it's used for screen readers and the copy button.
 				background: var(--green, #28c941);
 			}
 		}
+
+		filter: saturate(0.5);
+		transition: filter 0.1s;
+	}
+
+	.window:hover .dots {
+		filter: saturate(1);
+	}
+
+	////// Scrollbars //////
+
+	:global(pre) {
+		scrollbar-gutter: stable;
+	}
+	:global(pre::-webkit-scrollbar) {
+		height: 7px;
+		width: 7px;
+
+		border-radius: 0.25rem;
+		background: transparent; /* make scrollbar transparent */
+	}
+	:global(pre::-webkit-scrollbar-thumb) {
+		border: 1px solid var(--bg-a);
+		background: var(--bg-b);
+		border-radius: 0.125rem;
+	}
+	:global(pre::-webkit-scrollbar-corner) {
+		background: transparent;
+	}
+
+	:global(.shiki:focus) {
+		border: none;
+		border-radius: 0.1px !important;
+		outline: 1px solid var(--bg-b, #282a36);
+		outline-offset: 0.45rem;
 	}
 </style>
