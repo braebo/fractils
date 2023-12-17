@@ -1,7 +1,13 @@
-<!-- hmr-reset -->
+<script context="module">
+	import { localStorageStore } from '../utils/localStorageStore.js'
+
+	const fontSize = localStorageStore('fractils::settings::codeblock::fontSize', '0.8rem')
+</script>
+
 <script lang="ts">
 	import type { Lang, Theme } from 'shiki'
 
+	import CopyButton from './CopyButton.svelte'
 	import { BROWSER } from 'esm-env'
 
 	/**
@@ -56,7 +62,7 @@
 	}
 
 	async function update() {
-		const { highlight } = await import('../actions/highlight/')
+		const { highlight } = await import('../utils/highlight')
 		highlightedText = await highlight(text, { lang, theme })
 		console.log('update')
 	}
@@ -67,8 +73,11 @@
 	}
 </script>
 
-<div class="codeblock scrollbar">
-	<div class="nav">
+<!-- invisible plain text version for screen readers -->
+<div class="sr-only">{text}</div>
+
+<div aria-hidden="true" class="codeblock scrollbar">
+	<div class="nav" aria-hidden="true">
 		<div class="dots">
 			<div class="dot red" />
 			<div class="dot yellow" />
@@ -80,28 +89,17 @@
 		{/if}
 	</div>
 
-	{#if text}
+	{#if text && copyButton && BROWSER}
 		<div class="copy-container">
-			<button class="copy" on:click|preventDefault={copy}>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					width="1rem"
-					height="1rem"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					stroke-width="2"
-					stroke-linecap="round"
-					stroke-linejoin="round"
-				>
-					<rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-					<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-				</svg>
-			</button>
+			<div class="sticky">
+				<CopyButton {text} />
+			</div>
 		</div>
 	{/if}
 
-	<pre><code>{@html highlightedText}</code></pre>
+	<pre aria-label={`Code snippet: ${title}`} style:font-size={$fontSize}
+		><code>{@html highlightedText}</code></pre
+	>
 </div>
 
 <style lang="scss">
@@ -113,14 +111,44 @@
 		max-height: var(--max-height, min(50vh, 500px));
 		margin: auto;
 
-		background: var(--bg, var(--bg-a));
+		background: var(--bg, var(--bg-a, #15161d));
 		border-radius: 0.2rem;
-		outline: 1px solid var(--bg-b);
+		outline: 1px solid var(--bg-b, #282a36);
 		box-shadow: var(--shadow-sm);
 
 		font-size: 0.8rem;
 
 		overflow: auto;
+	}
+
+	:global(.shiki:focus) {
+		border: none;
+		border-radius: var(--radius-xs);
+		outline: 1px solid var(--bg-b, #282a36);
+		outline-offset: 0.5rem;
+	}
+
+	:global(.shiki.has-focused) {
+		:global(.line) {
+			transition: 0.25s;
+		}
+
+		:global(.line) {
+			filter: blur(1px) saturate(0.5) brightness(0.8);
+		}
+
+		:global(.line.focused) {
+			filter: blur(0) saturate(1) brightness(1);
+			font-variation-settings: 'wght' 700;
+		}
+	}
+
+	:global(.has-focused:hover .line) {
+		filter: none;
+	}
+
+	:global(.shiki .line.focused) {
+		filter: none;
 	}
 
 	.nav {
@@ -153,19 +181,19 @@
 			min-height: 0.5rem;
 			border-radius: 1rem;
 			&.red {
-				background: #ff605c;
+				background: var(--red, #ff605c);
 			}
 			&.yellow {
-				background: #febc2e;
+				background: var(--yellow, #febc2e);
 			}
 			&.green {
-				background: #28c941;
+				background: var(--green, #28c941);
 			}
 		}
 	}
 
 	pre {
-		padding: var(--padding, 0.5rem);
+		padding: var(--padding-sm, 0.5rem);
 
 		line-height: 1.25rem;
 		font-family: var(--font-mono);
@@ -180,45 +208,12 @@
 		max-height: 0px;
 	}
 
-	button.copy {
-		all: unset;
+	.sticky {
 		position: absolute;
-		// position: sticky;
 		right: 0rem;
 		top: 0rem;
-		outline: 1px solid var(--bg-b);
 
-		padding: 0.25rem 0.5rem;
-		margin: 0.5rem;
-		border-radius: 0.2rem;
-
-		display: flex;
-		align-items: center;
-		justify-content: center;
-
-		line-height: 1;
-		height: 1rem;
-
-		font-size: 0.8rem;
-		font-family: var(--font-mono);
-
-		color: var(--bg-d);
-		background: var(--bg-a);
-
-		&:hover {
-			color: var(--fg-c);
-			background: var(--bg-b);
-		}
-		cursor: pointer;
-
-		transition: 0.1s;
-
-		&:focus {
-			outline: 1px solid var(--bg-d);
-		}
-		&:active {
-			color: var(--fg-b);
-			background: var(--bg-c);
-		}
+		min-width: 1rem;
+		min-height: 1rem;
 	}
 </style>
