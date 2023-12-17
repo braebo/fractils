@@ -105,8 +105,8 @@ const dispatch = (node: HTMLElement, name: Event, detail: VisibilityEventDetail)
  *```
  */
 export const visibility: Action<HTMLElement, VisibilityOptions, VisibilityAttr> = (
-	node,
-	options,
+	node: HTMLElement,
+	options: VisibilityOptions,
 ) => {
 	const { view, margin, threshold, once }: VisibilityOptions = {
 		...defaultOptions,
