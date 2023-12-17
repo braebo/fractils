@@ -26,14 +26,18 @@ export { initTheme, toggleTheme, applyTheme, theme } from './theme/theme'
 
 // Icons
 export { default as Github } from './icons/Github.svelte' // todo
+export { default as Copy } from './icons/Copy.svelte' // todo
 
 // Utils
 
+export { highlight, HIGHLIGHT_DEFAULTS, type HighlightOptions } from './utils/highlight' // todo
+export { l, n, r, g, lg, b, y, c, o, m, p, dim, bd, i, j } from './utils/l' // todo
+export { coerce, coerceObject, type CoerceValue } from './utils/coerce' // todo
 export { asyncLocalStorageStore } from './utils/asyncLocalStorageStore'
+export { start, fmtTime, type StartOptions } from './utils/time' // todo
 export { localStorageStore } from './utils/localStorageStore'
+export { ArgMap, mapArgs, resolveArg } from './utils/args' // todo
 export { stringify, serialize } from './utils/stringify' // todo
-export { l, n, r, g, b, y, dim, bd, j } from './utils/l' // todo
-export { start, type StartOptions } from './utils/time' // todo
 export { entries, keys, values } from './utils/object' // todo
 export { decimalToPow } from './utils/decimalToPow' // todo
 export { colors, randomColor } from './utils/color' // todo
@@ -71,10 +75,5 @@ export type {
 	Event,
 } from './actions/visibility'
 
-export { highlighter as highlight } from './actions/highlight/highlight' // todo
-export type {
-	HighlightEventDetail,
-	HighlightOptions,
-	HighlightEvent,
-	HighlightAttr,
-} from './actions/highlight/highlight' // todo
+export { highlighter } from './actions/highlighter' // todo
+export type { HighlightEventDetail, HighlightEvent, HighlightAttr } from './actions/highlighter' // todo
