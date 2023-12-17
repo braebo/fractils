@@ -1,0 +1,20 @@
+@import 'units.scss';
+@import 'flex.scss';
+
+section.page {
+	@include flex;
+	@include col;
+	@include center;
+	// display: flex;
+	// flex-direction: column;
+	// align-items: center;
+	// justify-content: center;
+	gap: 1rem;
+
+	max-width: calc(100vw - var(--padding-sm));
+	padding: var(--padding-sm);
+	margin: 2rem auto;
+
+	border-radius: 0.5rem;
+	width: fit-content;
+}
