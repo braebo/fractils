@@ -1,8 +1,12 @@
+// TLDR; Use the `highlight` function on the server and return the HTML to the client.
+
 import type { Lang } from 'shiki'
 
-import { highlight } from '$lib/actions/highlight'
+import { highlight } from '$lib/utils/highlight'
 import { readFile } from 'node:fs/promises'
+import { transform } from './transform'
 
+// Read and highlight this folder's source code.
 export async function load() {
 	const paths = ['./+page.svelte', './+page.ts', './+page.server.ts']
 
@@ -11,18 +15,8 @@ export async function load() {
 	for (const path of paths) {
 		const file = new URL(path, import.meta.url)
 		const lang = path.split('.').pop() as 'svelte' | 'ts'
-		const raw = (await readFile(file, 'utf-8'))
-			.replace('$lib/actions/highlight', 'fractils')
-			.replace(
-				"import Code from '$lib/components/Code.svelte'",
-				"import { Code } from 'fractils'",
-			)
-			.replace(
-				'const text = await highlight(raw, { lang })',
-				'[!code focus]const text = await highlight(raw, { lang })',
-			)
-			.trim()
-		const text = await highlight(raw, { lang })
+		const raw = transform(await readFile(file, 'utf-8'))
+		const text = await highlight(raw, { lang }) // [!code focus]
 
 		files.push({ title: path.replace('./', ''), text, lang })
 	}
