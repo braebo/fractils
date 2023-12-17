@@ -9,7 +9,7 @@
         "summary": "The string to highlight.\n",
         "defaultValue": " ''\n"
       },
-      "name": "str",
+      "name": "text",
       "type": "string"
     },
     {
@@ -28,15 +28,33 @@
         "defaultValue": " 'json'\n"
       },
       "name": "lang",
-      "type": "\"json\" | \"javascript\" | \"typescript\" | \"svelte\" | \"xml\" | \"css\""
+      "type": "Lang"
     },
     {
       "comment": {
-        "raw": "/**\n * Whether to stringify the input.\n *\n * @defaultValue\n *\n * false\n */\n",
-        "summary": "Whether to stringify the input.\n",
+        "raw": "/**\n * The theme to use.\n *\n * @defaultValue\n *\n * 'github'\n */\n",
+        "summary": "The theme to use.\n",
+        "defaultValue": " 'github'\n"
+      },
+      "name": "theme",
+      "type": "Theme"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * Effectively just disables the client-side highlighting, assuming the text has already been highlighted on the server.\n *\n * @defaultValue\n *\n * false\n */\n",
+        "summary": "Effectively just disables the client-side highlighting,\nassuming the text has already been highlighted on the server.\n",
         "defaultValue": " false\n"
       },
-      "name": "stringify",
+      "name": "ssr",
+      "type": "boolean"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * If true, a button will be displayed to copy the code to the clipboard.\n *\n * @defaultValue\n *\n * true\n */\n",
+        "summary": "If true, a button will be displayed to copy the code to the clipboard.\n",
+        "defaultValue": " true\n"
+      },
+      "name": "copyButton",
       "type": "boolean"
     }
   ],

@@ -1,0 +1,11 @@
+{
+  "fileName": "css.ts",
+  "filePath": "src/lib/types/css.ts",
+  "exports": [
+    {
+      "name": "CssStyle",
+      "type": "CssStyle",
+      "isDefaultExport": false
+    }
+  ]
+}

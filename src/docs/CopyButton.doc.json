@@ -1,0 +1,18 @@
+{
+  "fileName": "CopyButton.svelte",
+  "filePath": "src/lib/components/CopyButton.svelte",
+  "componentName": "CopyButton",
+  "props": [
+    {
+      "name": "text",
+      "type": "string"
+    },
+    {
+      "name": "style",
+      "type": "string"
+    }
+  ],
+  "events": [],
+  "slots": [],
+  "exports": []
+}

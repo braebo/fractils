@@ -1,21 +1,39 @@
 {
   "fileName": "highlight.ts",
-  "filePath": "src/lib/actions/highlight.ts",
+  "filePath": "src/lib/utils/highlight.ts",
   "exports": [
     {
-      "name": "HighlightEventDetail",
-      "type": "HighlightEventDetail",
-      "isDefaultExport": false
+      "name": "highlight",
+      "type": "typeof highlight",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Converts text to HTML with syntax highlighting using shikiji.\n */\n",
+        "summary": "Converts text to HTML with syntax highlighting using shikiji.\n"
+      }
     },
     {
-      "name": "HighlightEvent",
-      "type": "HighlightEvent",
-      "isDefaultExport": false
+      "name": "getHighlighterInstance",
+      "type": "typeof getHighlighterInstance",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Highlighter instance singleton.\n *\n * @internal\n */\n",
+        "summary": "Highlighter instance singleton.\n\n",
+        "modifierTagSet": [
+          "@internal"
+        ]
+      }
     },
     {
-      "name": "ValidLanguage",
-      "type": "\"json\" | \"js\" | \"javascript\" | \"ts\" | \"typescript\" | \"svelte\" | \"xml\" | \"css\"",
-      "isDefaultExport": false
+      "name": "loadLanguage",
+      "type": "typeof loadLanguage",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Load a language into the highlighter.\n *\n * @internal\n */\n",
+        "summary": "Load a language into the highlighter.\n\n",
+        "modifierTagSet": [
+          "@internal"
+        ]
+      }
     },
     {
       "name": "HighlightOptions",
@@ -23,24 +41,9 @@
       "isDefaultExport": false
     },
     {
-      "name": "HighlightAttr",
-      "type": "HighlightAttr",
+      "name": "HIGHLIGHT_DEFAULTS",
+      "type": "HighlightOptions",
       "isDefaultExport": false
-    },
-    {
-      "name": "highlight",
-      "type": "Action<Element, HighlightOptions, HighlightAttr>",
-      "isDefaultExport": false,
-      "comment": {
-        "raw": "/**\n * A syntax highlighter.\n *\n * @example\n * ```svelte\n * <pre use:highlight={{ lang: 'json' }}>\n * \t{JSON.stringify({ hello: 'world' }, null, 2)}\n * </pre>\n * ```\n *\n */\n",
-        "summary": "A syntax highlighter.\n",
-        "examples": [
-          {
-            "name": "",
-            "content": "\n```svelte\n<pre use:highlight={{ lang: 'json' }}>\n\t{JSON.stringify({ hello: 'world' }, null, 2)}\n</pre>\n```\n"
-          }
-        ]
-      }
     }
   ]
 }

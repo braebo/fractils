@@ -1,0 +1,14 @@
+{
+  "fileName": "Copy.svelte",
+  "filePath": "src/lib/icons/Copy.svelte",
+  "componentName": "Copy",
+  "props": [
+    {
+      "name": "active",
+      "type": "boolean"
+    }
+  ],
+  "events": [],
+  "slots": [],
+  "exports": []
+}

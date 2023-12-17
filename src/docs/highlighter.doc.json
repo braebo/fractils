@@ -1,0 +1,36 @@
+{
+  "fileName": "highlighter.ts",
+  "filePath": "src/lib/actions/highlighter.ts",
+  "exports": [
+    {
+      "name": "HighlightEventDetail",
+      "type": "HighlightEventDetail",
+      "isDefaultExport": false
+    },
+    {
+      "name": "HighlightEvent",
+      "type": "HighlightEvent",
+      "isDefaultExport": false
+    },
+    {
+      "name": "HighlightAttr",
+      "type": "HighlightAttr",
+      "isDefaultExport": false
+    },
+    {
+      "name": "highlighter",
+      "type": "Action<HTMLElement, HighlightOptions, HighlightAttr>",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * A syntax highlighter action.\n *\n * @example\n * ```svelte\n * <pre use:highlight={{ lang: 'json' }}>\n * \t{JSON.stringify({ hello: 'world' }, null, 2)}\n * </pre>\n * ```\n *\n */\n",
+        "summary": "A syntax highlighter action.\n",
+        "examples": [
+          {
+            "name": "",
+            "content": "\n```svelte\n<pre use:highlight={{ lang: 'json' }}>\n\t{JSON.stringify({ hello: 'world' }, null, 2)}\n</pre>\n```\n"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -39,6 +39,15 @@
       }
     },
     {
+      "name": "c",
+      "type": "typeof c",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * chalk.cyan\n */\n",
+        "summary": "chalk.cyan\n"
+      }
+    },
+    {
       "name": "y",
       "type": "typeof y",
       "isDefaultExport": false,
@@ -99,6 +108,15 @@
       "comment": {
         "raw": "/**\n * chalk.bold\n */\n",
         "summary": "chalk.bold\n"
+      }
+    },
+    {
+      "name": "i",
+      "type": "typeof i",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * chalk.italic\n */\n",
+        "summary": "chalk.italic\n"
       }
     },
     {
