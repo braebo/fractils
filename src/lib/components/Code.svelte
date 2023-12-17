@@ -152,7 +152,7 @@ export async function load({ page, fetch }) {
 			</div>
 		{/if}
 
-		<pre style:font-size={$fontSize}>{@html highlightedText}</pre>
+		<pre class="shiki-wrapper" style:font-size={$fontSize}>{@html highlightedText}</pre>
 	</div>
 </div>
 
@@ -280,6 +280,10 @@ export async function load({ page, fetch }) {
 		width: 2rem;
 		height: 0.5rem;
 
+		$red: var(--red, #ff605c);
+		$yellow: var(--yellow, #febc2e);
+		$green: var(--green, #28c941);
+
 		.dot {
 			all: unset;
 			cursor: pointer;
@@ -287,14 +291,29 @@ export async function load({ page, fetch }) {
 			min-height: 0.5rem;
 
 			border-radius: 1rem;
+
+			transition: 0.2s;
+
 			&.red {
-				background: var(--red, #ff605c);
+				background: $red;
+				&:focus {
+					outline-offset: 2px;
+					outline: 1px solid $red;
+				}
 			}
 			&.yellow {
-				background: var(--yellow, #febc2e);
+				background: $yellow;
+				&:focus {
+					outline-offset: 2px;
+					outline: 1px solid $yellow;
+				}
 			}
 			&.green {
-				background: var(--green, #28c941);
+				background: $green;
+				&:focus {
+					outline-offset: 2px;
+					outline: 1px solid $green;
+				}
 			}
 		}
 
@@ -308,29 +327,38 @@ export async function load({ page, fetch }) {
 
 	////// Scrollbars //////
 
-	:global(pre) {
+	$scrollbar-width: 7px;
+	:global(pre.shiki-wrapper) {
 		scrollbar-gutter: stable;
+		// margin-right: calc(-1 * $scrollbar-width) !important;
+		// margin-left: $scrollbar-width !important;
 	}
-	:global(pre::-webkit-scrollbar) {
-		height: 7px;
-		width: 7px;
+	:global(pre.shiki-wrapper::-webkit-scrollbar) {
+		height: $scrollbar-width;
+		width: $scrollbar-width;
 
 		border-radius: 0.25rem;
 		background: transparent; /* make scrollbar transparent */
 	}
-	:global(pre::-webkit-scrollbar-thumb) {
+	:global(pre.shiki-wrapper::-webkit-scrollbar-thumb) {
 		border: 1px solid var(--bg-a);
 		background: var(--bg-b);
 		border-radius: 0.125rem;
 	}
-	:global(pre::-webkit-scrollbar-corner) {
+	:global(pre.shiki-wrapper::-webkit-scrollbar-corner) {
 		background: transparent;
 	}
 
+	:global(.shiki) {
+		filter: brightness(0.9);
+	}
 	:global(.shiki:focus) {
+		filter: brightness(1.1);
+
 		border: none;
 		border-radius: 0.1px !important;
-		outline: 1px solid var(--bg-b, #282a36);
-		outline-offset: 0.45rem;
+		// outline: 1px solid var(--bg-b, #282a36);
+		// outline-offset: 0.45rem;
+		outline: none;
 	}
 </style>
