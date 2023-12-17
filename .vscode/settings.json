@@ -42,6 +42,26 @@
 			}
 		]
 	},
+
+	//* File nesting.
+	"explorer.fileNesting.enabled": true,
+	"explorer.fileNesting.expand": false,
+	"explorer.fileNesting.patterns": {
+		".gitignore": ".gitattributes, .gitmodules, .gitmessage, .mailmap, .git-blame*",
+		"*.js": "$(capture).js.map, $(capture).min.js, $(capture).d.ts",
+		"*.ts": "$(capture).js, $(capture).*.ts",
+		"*.svelte": "$(capture).js, $(capture).ts, $(capture).*.ts",
+		"*.scss": "$(capture).css.map, $(capture).css",
+		"vite.config.js": "vite.config.js*",
+		"index.d.ts": "*.d.ts",
+		"shims.d.ts": "*.d.ts",
+		".env": "*.env, .env.*, env.d.ts",
+		"package.json": ".editorconfig, .github*, .gitignore, .gitpod*, .node-version, .npm*, .nvmrc, .pnpm*, .stylelint*, .vscode*, api-extractor.json, package-lock.json, pm2.*, pnpm*, rollup.config.*, stylelint*, tsdoc.*, tslint*, tsup.config.*, turbo*, typedoc*, vetur.config.*, vitest.config.*, workspace.json, xo.config.*",
+		"readme.*": "authors, backers.md, changelog*, citation*, code_of_conduct.md, codeowners, contributing.md, contributors, copying, credits, governance.md, history.md, license*, maintainers, readme*, security.md, sponsors.md",
+		"cargo.toml": ".clippy.toml, .rustfmt.toml, cargo.lock, clippy.toml, cross.toml, rust-toolchain.toml, rustfmt.toml",
+		"svelte.config.*": "bunfig.toml, *.env, .eslint*, .cssnanorc*, .env.*, env.d.ts, .prettier*, mdsvex.config.js, postcss.config.*, tsdoc.*, vercel*, vite.config.*, vitest.config.*",
+		"favicon.ico": "robots.txt, safari-pinned-tab.svg, browserconfig.xml, site.webmanifest, *.png"
+	},
 	"[shellscript]": {
 		"editor.defaultFormatter": "foxundermoon.shell-format"
 	}
