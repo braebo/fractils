@@ -2,6 +2,7 @@ import type { ThemeInput } from 'shikiji/core'
 
 /**
  * The default shikiji theme for `highlight`.
+ * @internal
  */
 export const serendipity: ThemeInput = {
 	name: 'serendipity',
