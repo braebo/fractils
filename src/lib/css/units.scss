@@ -1,0 +1,58 @@
+// Responsive spacers.
+
+@mixin units {
+	@include spacers;
+	@include radius;
+	@include padding;
+	@include pageWidth;
+}
+
+@mixin radius {
+	--radius-xxs: 0.125rem;
+	--radius-sm: 0.1875rem;
+	--radius: 0.3125rem;
+	--radius-md: 0.4375rem;
+	--radius-lg: 0.625rem;
+	--radius-xl: 0.875rem;
+	--radius-xxl: 1.25rem;
+}
+
+@mixin padding {
+	--padding-xxs: 0.25rem;
+	--padding-xs: 0.5rem;
+	--padding-sm: 1rem;
+	--padding: 1.5rem;
+	--padding: 2rem;
+	--padding-lg: 2.5rem;
+	--padding-xl: 3rem;
+	--padding-xxl: 4rem;
+}
+
+@mixin pageWidth {
+	--page-width: min(75rem, 100vw);
+	--col: min(42rem, 95vw);
+}
+
+@mixin spacers {
+	@include br('br-xxxs', 0.15rem, 0.09rem);
+	@include br('br-xxs', 0.25rem, 0.125rem);
+	@include br('br-xs', 0.5rem, 0.25rem);
+	@include br('br-sm', 1rem, 0.5rem);
+	@include br('br', 2rem, 1.5rem);
+	@include br('br-md', 4rem, 3rem);
+	@include br('br-lg', 6.5rem, 5rem);
+	@include br('br-xl', 10rem, 6rem);
+}
+
+@mixin br($class, $height, $responsiveHeight: null) {
+	.#{$class} {
+		height: $height;
+		flex-shrink: 0;
+
+		@if $responsiveHeight !=null {
+			@media screen and (max-width: 560px) {
+				height: $responsiveHeight;
+			}
+		}
+	}
+}
