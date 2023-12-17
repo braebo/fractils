@@ -1,0 +1,36 @@
+.flex {
+  display: flex;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+.center {
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+}
+
+section.page {
+  display: flex;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  max-width: calc(100vw - var(--padding-sm));
+  padding: var(--padding-sm);
+  margin: 2rem auto;
+  border-radius: 0.5rem;
+  width: fit-content;
+}
+
+/*# sourceMappingURL=elements.css.map */
