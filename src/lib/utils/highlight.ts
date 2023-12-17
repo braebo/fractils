@@ -2,6 +2,7 @@ import type { HighlighterCore } from 'shikiji/core'
 import type { CodeToHastOptions } from 'shikiji'
 import type { Lang, Theme } from 'shiki'
 
+// import { transformerTwoSlash } from 'shikiji-twoslash'
 import { serendipity } from './highlight.serendipity'
 import { getHighlighterCore } from 'shikiji/core'
 import { getWasmInlined } from 'shikiji/wasm'
@@ -13,6 +14,8 @@ import {
 
 import { bundledLanguages } from 'shikiji'
 import { logger } from '$lib/utils/logger'
+import { fmtTime } from './time'
+import { dim } from './l'
 
 const DEBUG = true
 const log = logger('highlight', { fg: '#94b8ff', deferred: true, browser: DEBUG })
@@ -32,14 +35,12 @@ export type HighlightOptions = CodeToHastOptions<Lang, Theme> & {
 
 export const HIGHLIGHT_DEFAULTS: HighlightOptions = {
 	lang: 'json',
-	// inspector: DEV,
-	// stringify: false,
 	theme: 'serendipity',
-	transformers: [
-		transformerNotationHighlight(),
-		transformerNotationFocus(),
-		transformerNotationDiff(),
-	],
+	// transformers: [
+	// 	transformerNotationHighlight(),
+	// 	transformerNotationFocus(),
+	// 	transformerNotationDiff(),
+	// ],
 } as const
 
 const themes = new Set<Theme>()
@@ -82,9 +83,18 @@ export async function highlight(text: string, options?: Partial<HighlightOptions
 	}
 
 	try {
-		const highlightedHtml = highlighter.codeToHtml(text, opts)
-		log('complete', { lang, theme, ms: performance.now() - start })
-		return highlightedHtml
+		const highlighted = highlighter.codeToHtml(text, {
+			...opts,
+			transformers: [
+				transformerNotationHighlight(),
+				transformerNotationFocus(),
+				transformerNotationDiff(),
+				// transformerTwoSlash(),
+			],
+		})
+		const time = fmtTime(performance.now() - start)
+		log('complete', dim(time), { lang, theme, text, highlighted })
+		return highlighted
 	} catch (error) {
 		console.error(error)
 		return text
@@ -100,7 +110,6 @@ export async function getHighlighterInstance() {
 	if (!highlighterInstance) {
 		highlighterInstance = await getHighlighterCore({
 			loadWasm: getWasmInlined,
-			// Initially load with minimal or no languages/themes
 			themes: [serendipity],
 			langs: [],
 		})
