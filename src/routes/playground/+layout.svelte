@@ -9,7 +9,7 @@
 <div class="layout">
 	<nav>
 		{#each data.routes as route, i}
-			<a class:active={$page.route.id === '/playground/' + route} href="/playground/{route}"
+			<a data-sveltekit-preload-code data-sveltekit-preload-data class:active={$page.route.id === '/playground/' + route} href="/playground/{route}"
 				>{route}</a
 			>
 
