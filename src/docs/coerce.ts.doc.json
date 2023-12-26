@@ -1,0 +1,40 @@
+{
+  "type": "ts",
+  "fileName": "coerce.ts",
+  "filePath": "src/lib/utils/coerce.ts",
+  "exports": [
+    {
+      "name": "coerce",
+      "type": "typeof coerce",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Attempts to parse a string value to a boolean or number if possible, returning the string unchanged if not.\n *\n * @example\n *\n * const a = coerce('21') //=> const a: number const b = coerce('true') //=> const b: true const c = coerce('False') //=> const c: \"False\"\n */",
+        "summary": "Attempts to parse a string value to a boolean or number ifpossible, returning the string unchanged if not.",
+        "examples": [
+          {
+            "name": "",
+            "content": "\nconst a = coerce('21') //=> const a: number\nconst b = coerce('true') //=> const b: true\nconst c = coerce('False') //=> const c: \"False\"\n"
+          }
+        ]
+      }
+    },
+    {
+      "name": "coerceObject",
+      "type": "typeof coerceObject",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Takes an object with string values, returning a new object with the values coerced to booleans or numbers where possible. Non-string properties are left unchanged.\n */",
+        "summary": "Takes an object with string values, returning a new object with thevalues coerced to booleans or numbers where possible. Non-stringproperties are left unchanged."
+      }
+    },
+    {
+      "name": "CoerceValue",
+      "type": "CoerceValue<T>",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * A conditional type that coerces a string literal to a boolean or number type if it matches a recognized pattern, or leaves it as a string otherwise.\n */",
+        "summary": "A conditional type that coerces a string literal to a boolean or number type if it matchesa recognized pattern, or leaves it as a string otherwise."
+      }
+    }
+  ]
+}

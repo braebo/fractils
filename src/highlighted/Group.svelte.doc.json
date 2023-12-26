@@ -1,0 +1,28 @@
+{
+  "type": "svelte",
+  "fileName": "Group.svelte",
+  "filePath": "src/lib/components/inspector/Group.svelte",
+  "componentName": "Group",
+  "props": [
+    {
+      "name": "store",
+      "type": "Writable<any> | Readable<any>"
+    },
+    {
+      "name": "isOpen",
+      "type": "boolean"
+    },
+    {
+      "name": "label",
+      "type": "string"
+    }
+  ],
+  "events": [
+    {
+      "name": "toggle",
+      "type": "CustomEvent<any>"
+    }
+  ],
+  "slots": [],
+  "exports": []
+}

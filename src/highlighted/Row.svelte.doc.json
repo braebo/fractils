@@ -1,0 +1,39 @@
+{
+  "type": "svelte",
+  "fileName": "Row.svelte",
+  "filePath": "src/lib/components/inspector/Row.svelte",
+  "componentName": "Row",
+  "props": [
+    {
+      "name": "key",
+      "type": "string"
+    },
+    {
+      "name": "value",
+      "type": "unknown"
+    },
+    {
+      "name": "store",
+      "type": "Writable<any> | Readable<any>"
+    },
+    {
+      "name": "path",
+      "type": "string"
+    },
+    {
+      "name": "simple",
+      "type": "boolean"
+    },
+    {
+      "name": "label",
+      "type": "boolean"
+    },
+    {
+      "name": "depth",
+      "type": "number"
+    }
+  ],
+  "events": [],
+  "slots": [],
+  "exports": []
+}

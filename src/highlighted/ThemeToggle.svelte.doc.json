@@ -1,0 +1,55 @@
+{
+  "type": "svelte",
+  "fileName": "ThemeToggle.svelte",
+  "filePath": "src/lib/components/ThemeToggle.svelte",
+  "comment": {
+    "raw": "/**\n * A theme toggle button with slots for light and dark mode icons.\n */",
+    "summary": "<p>A theme toggle button with slots for light and dark mode icons.</p>\n"
+  },
+  "componentName": "ThemeToggle",
+  "props": [
+    {
+      "comment": {
+        "raw": "/**\n * Whether `initTheme` should be called automatically.\n *\n * @default\n *\n * true\n */",
+        "summary": "<p>Whether<code>initTheme</code>should be called automatically.</p>\n",
+        "defaultValue": "true"
+      },
+      "name": "init",
+      "type": "boolean"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * Icon transition animation options.\n *\n * @default\n *\n * { y: -35, duration: 1000, easing: expoOut }\n */",
+        "summary": "<p>Icon transition animation options.</p>\n",
+        "defaultValue": "{y: -35, duration: 1000, easing: expoOut}"
+      },
+      "name": "transitionOptions",
+      "type": "{ y: number; duration: number; easing: (t: number) => number; }"
+    }
+  ],
+  "events": [
+    {
+      "comment": {
+        "raw": "/**\n * Fires when the toggle is clicked and provides `event.detail.theme` as the new theme.\n */",
+        "summary": "<p>Fires when the toggle is clicked and provides<code>event.detail.theme</code>as the new theme.</p>\n"
+      },
+      "name": "toggle",
+      "type": "CustomEvent<{ theme: \"light\" | \"dark\"; }>"
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "props": []
+    },
+    {
+      "name": "light",
+      "props": []
+    },
+    {
+      "name": "dark",
+      "props": []
+    }
+  ],
+  "exports": []
+}

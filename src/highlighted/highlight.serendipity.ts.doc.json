@@ -1,0 +1,27 @@
+{
+  "type": "ts",
+  "fileName": "highlight.serendipity.ts",
+  "filePath": "src/lib/utils/highlight.serendipity.ts",
+  "exports": [
+    {
+      "name": "serendipity",
+      "type": "j",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * The default shikiji theme for `highlight`.\n *\n * @internal\n */",
+        "summary": "<p>The default shikiji theme for<code>highlight</code>.</p>\n",
+        "internal": true
+      }
+    },
+    {
+      "name": "default",
+      "type": "j",
+      "isDefaultExport": true,
+      "comment": {
+        "raw": "/**\n * The default shikiji theme for `highlight`.\n *\n * @internal\n */",
+        "summary": "<p>The default shikiji theme for<code>highlight</code>.</p>\n",
+        "internal": true
+      }
+    }
+  ]
+}

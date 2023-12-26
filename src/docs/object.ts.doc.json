@@ -1,0 +1,85 @@
+{
+  "type": "ts",
+  "fileName": "object.ts",
+  "filePath": "src/lib/utils/object.ts",
+  "exports": [
+    {
+      "name": "entries",
+      "type": "typeof entries",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * A type-preserving version of `Object.entries`.\n *\n * @param obj - Any object.\n *\n * @returns An array of key-value pairs with their types preserved.\n *\n * @example\n *\n * Immutable\n * ```ts\n * const foo2 = { a: 1, b: '✨' } as const\n * entries(foo2) // (['a', 1] | ['b', '✨'])[]\n * Object.entries(foo2) // [string, 1 | '✨'][]\n * ```\n *\n * @example\n *\n * Mutable\n * ```ts\n * const foo1 = { a: 1, b: '✨' }\n * entries(foo1) // ['a', number] | ['b', string])[]\n * Object.entries(foo1) // [string, string | number][]\n * ```\n *\n */",
+        "summary": "A type-preserving version of`Object.entries`.",
+        "params": [
+          {
+            "name": "obj",
+            "description": "Any object."
+          }
+        ],
+        "returns": "An array of key-value pairs with their types preserved.",
+        "examples": [
+          {
+            "name": "Immutable",
+            "content": " \n```ts\nconst foo2 = { a: 1, b: '✨' } as const\nentries(foo2) // (['a', 1] | ['b', '✨'])[]\nObject.entries(foo2) // [string, 1 | '✨'][]\n```\n\n"
+          },
+          {
+            "name": "Mutable",
+            "content": " \n```ts\nconst foo1 = { a: 1, b: '✨' }\nentries(foo1) // ['a', number] | ['b', string])[]\nObject.entries(foo1) // [string, string | number][]\n```\n"
+          }
+        ]
+      }
+    },
+    {
+      "name": "keys",
+      "type": "typeof keys",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * A type-preserving version of `Object.keys`.\n *\n * @param obj - Any object.\n *\n * @returns An array of the keys with their types preserved.\n *\n * @example\n *\n * Immutable\n * ```ts\n * const foo2 = { a: 1, b: '✨' } as const\n * keys(foo2) // ('a' | 'b')[]\n * Object.keys(foo2) // string[]\n * ```\n *\n * @example\n *\n * Mutable\n * ```ts\n * const foo1 = { a: 1, b: '✨' }\n * keys(foo1) // readonly ('a' | 'b')[]\n * Object.keys(foo1) // string[]\n * ```\n *\n */",
+        "summary": "A type-preserving version of`Object.keys`.",
+        "params": [
+          {
+            "name": "obj",
+            "description": "Any object."
+          }
+        ],
+        "returns": "An array of the keys with their types preserved.",
+        "examples": [
+          {
+            "name": "Immutable",
+            "content": " \n```ts\nconst foo2 = { a: 1, b: '✨' } as const\nkeys(foo2) // ('a' | 'b')[]\nObject.keys(foo2) // string[]\n```\n\n"
+          },
+          {
+            "name": "Mutable",
+            "content": " \n```ts\nconst foo1 = { a: 1, b: '✨' }\nkeys(foo1) // readonly ('a' | 'b')[]\nObject.keys(foo1) // string[]\n```\n"
+          }
+        ]
+      }
+    },
+    {
+      "name": "values",
+      "type": "typeof values",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * A type-preserving version of `Object.values`.\n *\n * @param obj - Any object.\n *\n * @returns An array of values with their types preserved.\n *\n * @example\n *\n * Immutable\n * ```ts\n * const foo2 = { a: 1, b: '✨' } as const\n * values(foo2) // (1 | '✨')[]\n * Object.values(foo2) // (1 | '✨')[]\n * ```\n *\n * @example\n *\n * Mutable\n * ```ts\n * const foo1 = { a: 1, b: '✨' }\n * values(foo1) // readonly (number | string)[]\n * Object.values(foo1) // (number | string)[]\n * ```\n *\n */",
+        "summary": "A type-preserving version of`Object.values`.",
+        "params": [
+          {
+            "name": "obj",
+            "description": "Any object."
+          }
+        ],
+        "returns": "An array of values with their types preserved.",
+        "examples": [
+          {
+            "name": "Immutable",
+            "content": " \n```ts\nconst foo2 = { a: 1, b: '✨' } as const\nvalues(foo2) // (1 | '✨')[]\nObject.values(foo2) // (1 | '✨')[]\n```\n\n"
+          },
+          {
+            "name": "Mutable",
+            "content": " \n```ts\nconst foo1 = { a: 1, b: '✨' }\nvalues(foo1) // readonly (number | string)[]\nObject.values(foo1) // (number | string)[]\n```\n"
+          }
+        ]
+      }
+    }
+  ]
+}

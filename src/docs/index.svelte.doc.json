@@ -1,0 +1,23 @@
+{
+  "type": "svelte",
+  "fileName": "index.svelte",
+  "filePath": "src/lib/components/inspector/index.svelte",
+  "componentName": "index",
+  "props": [],
+  "events": [],
+  "slots": [],
+  "exports": [
+    {
+      "name": "IndexProps",
+      "type": "Record<string, never>"
+    },
+    {
+      "name": "IndexEvents",
+      "type": "{ [evt: string]: CustomEvent<any>; }"
+    },
+    {
+      "name": "IndexSlots",
+      "type": "{}"
+    }
+  ]
+}

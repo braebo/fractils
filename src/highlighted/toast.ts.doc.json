@@ -1,0 +1,17 @@
+{
+  "type": "ts",
+  "fileName": "toast.ts",
+  "filePath": "src/lib/components/toast/toast.ts",
+  "exports": [
+    {
+      "name": "Toast",
+      "type": "Toast",
+      "isDefaultExport": false
+    },
+    {
+      "name": "toast",
+      "type": "Writable<Partial<Toast>>",
+      "isDefaultExport": false
+    }
+  ]
+}

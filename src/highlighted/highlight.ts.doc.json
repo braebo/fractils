@@ -1,0 +1,45 @@
+{
+  "type": "ts",
+  "fileName": "highlight.ts",
+  "filePath": "src/lib/utils/highlight.ts",
+  "exports": [
+    {
+      "name": "highlight",
+      "type": "typeof highlight",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Converts text to HTML with syntax highlighting using shikiji.\n */",
+        "summary": "<p>Converts text to HTML with syntax highlighting using shikiji.</p>\n"
+      }
+    },
+    {
+      "name": "getHighlighterInstance",
+      "type": "typeof getHighlighterInstance",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Highlighter instance singleton used internally.\n */",
+        "summary": "<p>Highlighter instance singleton used internally.</p>\n"
+      }
+    },
+    {
+      "name": "loadLanguage",
+      "type": "typeof loadLanguage",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Load a language into the highlighter.\n *\n * @internal\n */",
+        "summary": "<p>Load a language into the highlighter.</p>\n",
+        "internal": true
+      }
+    },
+    {
+      "name": "HighlightOptions",
+      "type": "HighlightOptions",
+      "isDefaultExport": false
+    },
+    {
+      "name": "HIGHLIGHT_DEFAULTS",
+      "type": "HighlightOptions",
+      "isDefaultExport": false
+    }
+  ]
+}

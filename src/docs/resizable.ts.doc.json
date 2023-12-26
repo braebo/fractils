@@ -1,0 +1,12 @@
+{
+  "type": "ts",
+  "fileName": "resizable.ts",
+  "filePath": "src/lib/utils/resizable.ts",
+  "exports": [
+    {
+      "name": "resize",
+      "type": "(node: HTMLElement, options: ResizeOptions) => { destroy: () => void; }",
+      "isDefaultExport": false
+    }
+  ]
+}

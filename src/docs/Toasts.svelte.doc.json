@@ -1,0 +1,35 @@
+{
+  "type": "svelte",
+  "fileName": "Toasts.svelte",
+  "filePath": "src/lib/components/toast/Toasts.svelte",
+  "componentName": "Toasts",
+  "props": [
+    {
+      "name": "top",
+      "type": "string"
+    },
+    {
+      "name": "right",
+      "type": "string"
+    },
+    {
+      "name": "bottom",
+      "type": "string"
+    },
+    {
+      "name": "left",
+      "type": "string"
+    },
+    {
+      "name": "margin",
+      "type": "string"
+    },
+    {
+      "name": "direction",
+      "type": "\"from-top\" | \"from-bottom\""
+    }
+  ],
+  "events": [],
+  "slots": [],
+  "exports": []
+}

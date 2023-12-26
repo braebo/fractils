@@ -1,0 +1,22 @@
+{
+  "type": "ts",
+  "fileName": "timestamp.ts",
+  "filePath": "src/lib/utils/timestamp.ts",
+  "exports": [
+    {
+      "name": "timestamp",
+      "type": "typeof timestamp",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Short timestamp.\n *\n * @param length - Timestamp character length.\n */",
+        "summary": "Short timestamp.",
+        "params": [
+          {
+            "name": "length",
+            "description": "Timestamp character length."
+          }
+        ]
+      }
+    }
+  ]
+}

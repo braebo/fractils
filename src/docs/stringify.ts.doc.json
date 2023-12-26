@@ -1,0 +1,36 @@
+{
+  "type": "ts",
+  "fileName": "stringify.ts",
+  "filePath": "src/lib/utils/stringify.ts",
+  "exports": [
+    {
+      "name": "serialize",
+      "type": "typeof serialize",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Replaces circular references, undefined values, and functions with strings. - Circular references are replaced with the string `[Circular ~<path>]` where `<path>` is the path to the circular reference relative to the root object, i.e. `[Circular ~.b.c]`. - `undefined` values are replaced with the string `\"undefined\"`. - Functions are replaced with the string `\"function\"`.\n *\n * @returns A replacer function for JSON.stringify.\n */",
+        "summary": "Replaces circular references, undefined values, and functions with strings.- Circular references are replaced with the string`[Circular ~<path>]`where`<path>`is the path to the circular reference relative to theroot object, i.e.`[Circular ~.b.c]`.-`undefined`values are replaced with the string`\"undefined\"`.- Functions are replaced with the string`\"function\"`.",
+        "returns": "A replacer function for JSON.stringify."
+      }
+    },
+    {
+      "name": "stringify",
+      "type": "(input: unknown, indentation?: number) => string",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * JSON.stringify() with circular reference support. - Circular references are replaced with the string `[Circular ~<path>]` where `<path>` is the path to the circular reference. - `undefined` -> `\"undefined\"` - `function` -> `\"function\"`\n *\n * @param obj - The object to stringify.\n *\n * @param indentation - Number of spaces for indentation. Optional.\n */",
+        "summary": "JSON.stringify() with circular reference support.- Circular references are replaced with the string`[Circular ~<path>]`where`<path>`is the path to the circular reference.-`undefined`->`\"undefined\"`-`function`->`\"function\"`",
+        "params": [
+          {
+            "name": "obj",
+            "description": "The object to stringify."
+          },
+          {
+            "name": "indentation",
+            "description": "Number of spaces for indentation. Optional."
+          }
+        ]
+      }
+    }
+  ]
+}

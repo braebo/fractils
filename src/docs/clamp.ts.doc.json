@@ -1,0 +1,16 @@
+{
+  "type": "ts",
+  "fileName": "clamp.ts",
+  "filePath": "src/lib/utils/clamp.ts",
+  "exports": [
+    {
+      "name": "clamp",
+      "type": "(value: number, min: number, max: number) => number",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Clamps a value between a min and max.\n */",
+        "summary": "Clamps a value between a min and max."
+      }
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "type": "svelte",
+  "fileName": "Menu.svelte",
+  "filePath": "src/lib/components/inspector/Menu.svelte",
+  "comment": {
+    "raw": "/**\n * A menu component used internally by the Inspector.\n *\n * @internal\n */",
+    "summary": "A menu component used internally by the Inspector.",
+    "internal": true
+  },
+  "componentName": "Menu",
+  "props": [
+    {
+      "name": "isOpen",
+      "type": "boolean"
+    },
+    {
+      "name": "right",
+      "type": "boolean"
+    },
+    {
+      "name": "top",
+      "type": "string"
+    },
+    {
+      "name": "theme",
+      "type": "string"
+    },
+    {
+      "name": "nub",
+      "type": "string"
+    },
+    {
+      "name": "links",
+      "type": "{ text: string; path?: string; }[]"
+    },
+    {
+      "name": "position",
+      "type": "{ top: string; right: string; bottom: string; left: string; }"
+    }
+  ],
+  "events": [
+    {
+      "name": "menuToggle",
+      "type": "CustomEvent<any>"
+    }
+  ],
+  "slots": [
+    {
+      "name": "default",
+      "props": []
+    }
+  ],
+  "exports": []
+}

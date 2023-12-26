@@ -1,0 +1,142 @@
+{
+  "type": "ts",
+  "fileName": "l.ts",
+  "filePath": "src/lib/utils/l.ts",
+  "exports": [
+    {
+      "name": "l",
+      "type": "typeof l",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * console.log\n */",
+        "summary": "console.log"
+      }
+    },
+    {
+      "name": "r",
+      "type": "typeof r",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * chalk.red\n */",
+        "summary": "chalk.red"
+      }
+    },
+    {
+      "name": "g",
+      "type": "typeof g",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * chalk.green\n */",
+        "summary": "chalk.green"
+      }
+    },
+    {
+      "name": "b",
+      "type": "typeof b",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * chalk.blue\n */",
+        "summary": "chalk.blue"
+      }
+    },
+    {
+      "name": "c",
+      "type": "typeof c",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * chalk.cyan\n */",
+        "summary": "chalk.cyan"
+      }
+    },
+    {
+      "name": "y",
+      "type": "typeof y",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * chalk.yellow\n */",
+        "summary": "chalk.yellow"
+      }
+    },
+    {
+      "name": "m",
+      "type": "typeof m",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * chalk.magenta\n */",
+        "summary": "chalk.magenta"
+      }
+    },
+    {
+      "name": "o",
+      "type": "typeof o",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * orange chalk.hex('#cc6630')\n */",
+        "summary": "orange chalk.hex('#cc6630')"
+      }
+    },
+    {
+      "name": "p",
+      "type": "typeof p",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * pink chalk.hex('#eaa')\n */",
+        "summary": "pink chalk.hex('#eaa')"
+      }
+    },
+    {
+      "name": "lg",
+      "type": "typeof lg",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * lightGreen chalk.hex('#aea')\n */",
+        "summary": "lightGreen chalk.hex('#aea')"
+      }
+    },
+    {
+      "name": "dim",
+      "type": "typeof dim",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * chalk.dim\n */",
+        "summary": "chalk.dim"
+      }
+    },
+    {
+      "name": "bd",
+      "type": "typeof bd",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * chalk.bold\n */",
+        "summary": "chalk.bold"
+      }
+    },
+    {
+      "name": "i",
+      "type": "typeof i",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * chalk.italic\n */",
+        "summary": "chalk.italic"
+      }
+    },
+    {
+      "name": "n",
+      "type": "typeof n",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Logs an empty line.\n */",
+        "summary": "Logs an empty line."
+      }
+    },
+    {
+      "name": "j",
+      "type": "typeof j",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * JSON.Stringify\n */",
+        "summary": "JSON.Stringify"
+      }
+    }
+  ]
+}
