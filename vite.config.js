@@ -6,4 +6,7 @@ export default defineConfig({
 	optimizeDeps: {
 		exclude: ['fractils'],
 	},
+	server: {
+		hmr: false
+	}
 })
