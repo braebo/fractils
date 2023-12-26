@@ -17,13 +17,13 @@ import { logger } from '$lib/utils/logger'
 import { fmtTime } from './time'
 import { dim } from './l'
 
-const DEBUG = true
-const log = logger('highlight', { fg: '#94b8ff', deferred: true, browser: DEBUG })
+const DEBUG = false
+const log = logger('highlight', { fg: '#94b8ff', deferred: false, browser: DEBUG })
 
 export type HighlightOptions = CodeToHastOptions<Lang, Theme> & {
 	/**
 	 * The language to highlight.
-	 * @defaultValue 'json'
+	 * @defaultValue 'svelte'
 	 */
 	lang: Lang
 	/**
@@ -34,7 +34,7 @@ export type HighlightOptions = CodeToHastOptions<Lang, Theme> & {
 }
 
 export const HIGHLIGHT_DEFAULTS: HighlightOptions = {
-	lang: 'json',
+	lang: 'svelte',
 	theme: 'serendipity',
 	// transformers: [
 	// 	transformerNotationHighlight(),
@@ -103,14 +103,14 @@ export async function highlight(text: string, options?: Partial<HighlightOptions
 
 let highlighterInstance: HighlighterCore
 /**
- * Highlighter instance singleton.
- * @internal
+ * Highlighter instance singleton used internally.
  */
 export async function getHighlighterInstance() {
 	if (!highlighterInstance) {
 		highlighterInstance = await getHighlighterCore({
 			loadWasm: getWasmInlined,
 			themes: [serendipity],
+			// langs: [import('shikiji/langs/svelte.mjs')],
 			langs: [],
 		})
 	}

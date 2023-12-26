@@ -237,3 +237,5 @@ export const serendipity: ThemeInput = {
 		// }
 	],
 }
+
+export default serendipity
