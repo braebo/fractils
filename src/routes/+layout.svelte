@@ -6,9 +6,8 @@
 
 	import MacScrollbar from '$lib/components/MacScrollbar.svelte'
 	import Github from '$lib/icons/Github.svelte'
-	import { scrollY } from '$examples/stores'
-	import { onMount, tick } from 'svelte'
 	import { Device, wait } from '$lib'
+	import { onMount } from 'svelte'
 
 	// https://github.com/sveltejs/kit/pull/8724
 	onMount(async () => {
@@ -17,20 +16,19 @@
 	})
 </script>
 
-<template lang="pug">
+<Device />
 
-	Device
+<MacScrollbar --color="var(--bg-d)" />
 
-	MacScrollbar(--color='var(--bg-d)')
+<slot />
 
-	slot
-
-	footer
-		a(href='https://github.com/fractalhq/fractils' alt='Github' target='_blank' rel='noopener noreferrer')
-			.gh
-				Github
-
-</template>
+<footer>
+	<a href="https://github.com/fractalhq/fractils" rel="noopener noreferrer" target="_blank">
+		<div class="gh">
+			<Github />
+		</div>
+	</a>
+</footer>
 
 <style lang="scss">
 	footer {

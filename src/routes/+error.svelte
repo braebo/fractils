@@ -8,17 +8,14 @@
 	}
 </script>
 
-<template lang="pug">
+<FourOhFour />
 
-	FourOhFour
-
-	+if('DEV && $page.status != "404"')
-		.error
-			a(href="/") go back
-			pre.message {$page.error.message}
-			pre.stack {$page.error.stack?.split($page.error.message)[1]}
-
-</template>
+{#if DEV && $page.status !== 404}
+	<div class="error">
+		<a href="/"> go back</a>
+		<pre class="message">{$page.error?.message}</pre>
+	</div>
+{/if}
 
 <slot />
 
@@ -63,12 +60,6 @@
 			background: transparent;
 			border: 1px solid var(--light-d);
 			border-radius: var(--radius-lg);
-		}
-
-		.stack {
-			color: rgba(var(--dark-d-rgb), 0.5);
-			max-height: 40vh;
-			overflow-y: auto;
 		}
 
 		::-webkit-scrollbar {
