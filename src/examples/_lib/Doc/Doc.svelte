@@ -1,9 +1,11 @@
 <script lang="ts">
 	import type { ParsedSvelteFile } from '$scripts/extractinator/src/types'
 
-	import { micromark } from 'micromark'
-	import Bits from './Bits.svelte'
+	// import { transformerTwoSlash } from 'shikiji-twoslash'
+	// import { highlight } from '$lib'
 	import { mobile } from '$lib'
+	// import { micromark } from 'micromark'
+	import Bits from './Bits.svelte'
 
 	export let doc: ParsedSvelteFile
 
@@ -18,7 +20,11 @@
 	// 	.replaceAll('\n *', '\n ')
 
 	// const html_summary = stripped_raw ? micromark(stripped_raw) : ''
-	const summary = micromark(comment?.summary ?? '')
+	// const summary = micromark(comment?.summary ?? '')
+	// const highlight_examples =
+	// 	comment?.examples?.map((e) => ({ ...e, content: micromark(e.content) })) ?? []
+	// const summary = comment?.summary ?? ''
+	// const highlight_examples = comment?.examples?.map((e) => ({ ...e, content: e.content })) ?? []
 </script>
 
 <div class="item" class:mobile={$mobile}>
@@ -29,8 +35,26 @@
 
 	<div class="description" class:mobile={$mobile}>
 		<slot name="description">
-			{#if comment?.summary}
-				{@html summary}
+			{#if comment}
+				{#if comment.summary}
+					{@html comment.summary}
+				{/if}
+
+				{#if comment.examples}
+					<hr />
+					<div class="examples">
+						<h4 class="subtitle">{comment.examples.length > 1 ? 'Examples' : 'Example'}</h4>
+
+						{#each comment.examples as { name, content } (name)}
+							<div class="example">
+								<div class="name">
+									{name}
+								</div>
+								{@html content}
+							</div>
+						{/each}
+					</div>
+				{/if}
 			{/if}
 		</slot>
 	</div>
@@ -75,7 +99,7 @@
 	}
 
 	.item h1 {
-		font-size: 1.5rem; 
+		font-size: 1.5rem;
 		color: var(--fg-a);
 	}
 

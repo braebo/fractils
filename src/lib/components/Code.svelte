@@ -9,11 +9,13 @@ required in this case, as it's used for screen readers and the copy button.
 
 @example CSR
 
+A simple browser example:
+
 ```svelte
 <script>
-	import Code from 'fractils'
+ 	import Code from 'fractils'
 
-	const text = `console.log('hello world')`
+ 	const text = `console.log('hello world')`
 </script>
 
 <Code {text} />
@@ -24,10 +26,10 @@ required in this case, as it's used for screen readers and the copy button.
 +page.svelte
 ```svelte
 <script>
-	import Code from 'fractils'
+ 	import Code from 'fractils'
 
-	export let data
-	const { text, highlightedText } = data
+ 	export let data
+ 	const { text, highlightedText } = data
 </script>
 
 <Code ssr {text} {highlightedText} />

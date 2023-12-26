@@ -49,13 +49,13 @@
 			</div>
 
 			{#if p.comment?.summary}
-				<div class="description">{@html micromark(p.comment.summary)}</div>
+				<div class="description">{@html p.comment.summary}</div>
 			{/if}
 
 			{#if p.comment?.defaultValue}
 				<div class="row default"
 					><span class="tagname">@default</span>
-					{@html micromark(p.comment.defaultValue)}</div
+					{@html p.comment.defaultValue}</div
 				>
 			{/if}
 		</div>
