@@ -1,33 +1,12 @@
 import type { ParsedFile, TSDocComment } from '$scripts/extractinator/src/types'
 import type { Lang } from 'shiki'
 
+import { copyFile, mkdir, readdir, rename, rm, writeFile } from 'node:fs/promises'
 import { markedHighlight } from 'marked-highlight'
-import { mkdir, readdir, writeFile } from 'node:fs/promises'
-import { getHighlighterInstance, highlight } from './highlight'
-// import { codeToHtml } from 'shikiji'
-import MarkdownIt from 'markdown-it'
-import { Marked } from 'marked'
-import { l, d, b, r, n } from './l'
+import { Marked, Renderer } from 'marked'
+import { highlight } from './highlight'
+import { l, d, r, n, b, m } from './l'
 import { resolve } from 'node:path'
-import { fromHighlighter } from 'markdown-it-shikiji/core'
-
-const hl = new Marked(
-	markedHighlight({
-		async: true,
-		async highlight(code, lang) {
-			// return await codeToHtml(code, { lang, theme: 'one-dark-pro'})
-			return await highlight(code, { lang: lang as Lang, theme: 'serendipity' })
-		},
-	}),
-)
-
-// const code = `# Hello World
-// \`\`\`js
-// const a = 1
-// \`\`\`
-// `
-
-// console.log(await marked.parse(code))
 
 const args = process.argv.slice(2)
 
@@ -52,14 +31,85 @@ if (!input || !output) {
 			r('<output>'),
 		)
 } else {
+	await rm('./src/docs/test/out/Code.svelte.doc.json').catch(() => {})
+	await copyFile(
+		'./src/docs/test/Code.svelte.doc.json',
+		'./src/docs/test/highlighted/Code.svelte.doc.json',
+	).catch((err) => {
+		if (err) throw err
+		console.log('File moved successfully')
+	})
 	main(input, output)
 }
 
+export interface Block {
+	type: 'code' | 'other' | (string & {})
+	content: string
+}
+
+export interface HighlightedBlock extends Block {
+	type: 'code'
+	content: string
+	lang: string
+	raw: string
+	title?: string
+}
+
+export type Blocks = (Block | HighlightedBlock)[]
+
+class CustomRenderer extends Renderer {
+	blocks: HighlightedBlock[] = []
+	codeBlockCounter = 0
+
+	constructor() {
+		super()
+	}
+
+	async = true
+
+	code(code: string, lang: string | undefined) {
+		this.codeBlockCounter++
+		// this.blocks.push({ type: 'code', content: code, lang })
+		return `<__DOCINATOREPLACE__>${code}</__DOCINATOREPLACE__>`
+	}
+}
+
+const renderer = new CustomRenderer()
+
+interface ParsedHighlightedBlock {
+	code: string
+	info: string
+	lang: Lang
+	theme: string
+}
+const HL_MAP = new Map<string, ParsedHighlightedBlock>()
+
+const instance = new Marked(
+	markedHighlight({
+		async: true,
+		async highlight(code, lang, info) {
+			const highlighted = await highlight(code, { lang: lang as Lang, theme: 'serendipity' })
+			HL_MAP.set(highlighted, { code, info, lang: lang as Lang, theme: 'serendipity' })
+			return highlighted
+		},
+	}),
+)
+
+instance.setOptions({ renderer })
+
+let i = 0
+
+/**
+ * Converts rich-text from examples to {@link Blocks} with syntax highlighting using shikiji.
+ */
 async function main(input_path: string, output_path: string) {
 	// Resolve the input and output paths to absolute paths.
 	const input = resolve(input_path)
 	const output = resolve(output_path)
 
+	n()
+	l(b(d('╭') + m('  docinator  ') + d('╭')))
+	l(b(d('⎲⎲⎲⎲⎲⎲⎲⎲⎲⎲⎲⎲⎲⎲⎲')))
 	n()
 	l('Input:', d(input))
 	l('Output:', d(output))
@@ -94,18 +144,13 @@ async function main(input_path: string, output_path: string) {
 			await writeFile(path, JSON.stringify(doc, null, 2), 'utf-8')
 		}),
 	)
+
+	l('\ncode blocks:', HL_MAP.size)
+	const end = Date.now()
+	l('\nDone in', b(end - start), d('ms'))
 }
 
 async function highlightDocs(docs: ParsedFile[]) {
-	const md = MarkdownIt()
-
-	md.use(
-		// @ts-expect-error - shikiji's fault
-		fromHighlighter(await getHighlighterInstance(), {
-			theme: 'serendipity',
-		}),
-	)
-
 	const highlighted = await Promise.all(
 		docs.map(async (doc) => {
 			if (!doc) return doc
@@ -113,7 +158,7 @@ async function highlightDocs(docs: ParsedFile[]) {
 			if (doc.type === 'svelte') {
 				// A top-level comment describing the svelte component.
 				if (doc.comment) {
-					doc.comment = await highlightComment(doc.comment, md)
+					doc.comment = await highlightComment(doc.comment)
 				}
 
 				const hasComment = ['props', 'slots', 'events', 'exports'] as const
@@ -124,7 +169,7 @@ async function highlightDocs(docs: ParsedFile[]) {
 
 					for (const [index, item] of Object.entries(value)) {
 						if (!item.comment) continue
-						doc[key][index].comment = await highlightComment(item.comment, md)
+						doc[key][index].comment = await highlightComment(item.comment)
 					}
 				}
 			}
@@ -137,43 +182,116 @@ async function highlightDocs(docs: ParsedFile[]) {
 						const { comment } = file
 						if (!comment) continue
 
-						doc.exports[index].comment = await highlightComment(comment, md)
+						doc.exports[index].comment = await highlightComment(comment)
 					}
 				}
 			}
 
 			return doc
 		}),
-	)
+	).catch((err) => {
+		console.error(err)
+		throw err
+	})
 
 	return highlighted
 }
 
-async function highlightComment(comment: TSDocComment, md: MarkdownIt) {
-	const { summary, examples } = comment
+async function highlightComment(_comment: TSDocComment) {
+	const comment = structuredClone(_comment)
 
-	let summary_h = summary
-	if (summary) {
-		// summary_h = md.render(summary)
-		summary_h = await hl.parse(summary)
+	// // @ts-expect-error
+	// delete comment.raw
+
+	if (comment.summary) {
+		const split = await instance.parse(comment.summary, {
+			async: true,
+		})
+		if (split) {
+			console.log('split', split)
+			comment.summary = split
+		}
 	}
 
-	let examples_h = examples
-	if (examples) {
-		examples_h = await Promise.all(
-			examples.map(async ({ name, content }) => {
+	let examples = comment.examples
+	if (comment.examples) {
+		examples = await Promise.all(
+			comment.examples.map(async (example) => {
 				return {
-					name,
-					// content: md.render(content),
-					content: await hl.parse(content),
+					...example,
+					blocks: await hl(example.content),
 				}
 			}),
 		)
+
+		return {
+			...comment,
+			examples,
+		}
 	}
 
-	return {
-		...comment,
-		summary: summary_h,
-		examples: examples_h,
+	return comment
+}
+
+async function hl(str: string) {
+	const highlighted = await instance.parse(str)
+	const blocks = splitContent(highlighted)
+
+	return blocks ?? highlighted
+}
+
+function splitContent(input: string): Blocks | null {
+	const regex = /<__DOCINATOREPLACE__>(.*?)<\/__DOCINATOREPLACE__>/gs
+	let result: Blocks = []
+	let lastIndex = 0
+
+	input.replace(regex, (match, p1, offset) => {
+		// Add 'other' content before the code block, if any
+		if (offset > lastIndex) {
+			const block: Block = {
+				type: 'other',
+				content: input.slice(lastIndex, offset),
+			}
+			result.push(block)
+		}
+
+		// Add 'code' content
+		const content = p1.trim()
+		const og = HL_MAP.get(content)!
+
+		const codeBlock: HighlightedBlock = {
+			type: 'code',
+			content,
+			lang: og.lang,
+			raw: og.code,
+			title: getTitle(og) ?? '',
+		}
+		result.push(codeBlock)
+		// console.log(result)
+
+		// Update lastIndex to end of current match
+		lastIndex = offset + match.length
+		return match // Return value not used
+	})
+
+	// Add any remaining 'other' content after the last code block
+	if (lastIndex < input.length) {
+		result.push({ type: 'other', content: input.slice(lastIndex).trim() })
 	}
+
+	if (!result.some((b) => b.type === 'code')) {
+		return null
+	}
+
+	return result
+}
+
+function getTitle(block: ParsedHighlightedBlock): string | undefined {
+	const info = block.info.replace(block.lang, '').trim()
+	if (!info) return undefined
+
+	const title = info.split(' ')[0]
+	if (!title) return undefined
+
+	return title
 }
