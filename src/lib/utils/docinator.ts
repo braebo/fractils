@@ -1,7 +1,7 @@
 import type { ParsedFile, TSDocComment } from '$scripts/extractinator/src/types'
 import type { Lang } from 'shiki'
 
-import { copyFile, mkdir, readdir, rename, rm, writeFile } from 'node:fs/promises'
+import { mkdir, readdir, writeFile } from 'node:fs/promises'
 import { markedHighlight } from 'marked-highlight'
 import { Marked, Renderer } from 'marked'
 import { highlight } from './highlight'
@@ -30,16 +30,6 @@ if (!input || !output) {
 			d('<input>'),
 			r('<output>'),
 		)
-} else {
-	await rm('./src/docs/test/out/Code.svelte.doc.json').catch(() => {})
-	await copyFile(
-		'./src/docs/test/Code.svelte.doc.json',
-		'./src/docs/test/highlighted/Code.svelte.doc.json',
-	).catch((err) => {
-		if (err) throw err
-		console.log('File moved successfully')
-	})
-	main(input, output)
 }
 
 export interface Block {
@@ -88,9 +78,21 @@ const instance = new Marked(
 	markedHighlight({
 		async: true,
 		async highlight(code, lang, info) {
-			const highlighted = await highlight(code, { lang: lang as Lang, theme: 'serendipity' })
+			// try {
+			if (!code || !lang) return await highlight(code)
+
+			console.log('highlighting', { code, lang, info })
+
+			const highlighted = await highlight(code, {
+				lang: lang as Lang,
+				theme: 'serendipity',
+			})
 			HL_MAP.set(highlighted, { code, info, lang: lang as Lang, theme: 'serendipity' })
 			return highlighted
+			// } catch (e) {
+			// 	console.trace()
+			// 	throw e
+			// }
 		},
 	}),
 )
@@ -208,7 +210,6 @@ async function highlightComment(_comment: TSDocComment) {
 			async: true,
 		})
 		if (split) {
-			console.log('split', split)
 			comment.summary = split
 		}
 	}
@@ -234,10 +235,15 @@ async function highlightComment(_comment: TSDocComment) {
 }
 
 async function hl(str: string) {
-	const highlighted = await instance.parse(str)
-	const blocks = splitContent(highlighted)
+	try {
+		const highlighted = await instance.parse(str)
+		const blocks = splitContent(highlighted)
 
-	return blocks ?? highlighted
+		return blocks ?? highlighted
+	} catch (error) {
+		console.trace()
+		throw error
+	}
 }
 
 function splitContent(input: string): Blocks | null {
@@ -257,7 +263,13 @@ function splitContent(input: string): Blocks | null {
 
 		// Add 'code' content
 		const content = p1.trim()
-		const og = HL_MAP.get(content)!
+		const og = HL_MAP.get(content)
+
+		if (!og) {
+			console.error('Unable to find original code block')
+			// console.log({ content, og, HL_MAP })
+			return match
+		}
 
 		const codeBlock: HighlightedBlock = {
 			type: 'code',
@@ -267,7 +279,7 @@ function splitContent(input: string): Blocks | null {
 			title: getTitle(og) ?? '',
 		}
 		result.push(codeBlock)
-		// console.log(result)
+		// console.log({result})
 
 		// Update lastIndex to end of current match
 		lastIndex = offset + match.length
@@ -295,3 +307,5 @@ function getTitle(block: ParsedHighlightedBlock): string | undefined {
 
 	return title
 }
+
+await main(input, output)

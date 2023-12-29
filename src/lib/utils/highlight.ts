@@ -13,12 +13,12 @@ import {
 } from 'shikiji-transformers'
 
 import { bundledLanguages } from 'shikiji'
-import { logger } from '$lib/utils/logger'
+import { logger } from './logger'
 import { fmtTime } from './time'
 import { dim, o } from './l'
 
-const DEBUG = false
-const log = logger('highlight', { fg: '#94b8ff', deferred: false, browser: DEBUG })
+const DEBUG = true
+const log = logger('highlight', { fg: '#94b8ff', deferred: false, browser: DEBUG, server: DEBUG })
 
 export type HighlightOptions = CodeToHastOptions<Lang, Theme> & {
 	/**
@@ -54,13 +54,15 @@ themes.add('serendipity' as Theme)
 export async function highlight(text: string, options?: Partial<HighlightOptions>) {
 	const opts = { ...HIGHLIGHT_DEFAULTS, ...options } as HighlightOptions
 
-	const lang = opts.lang
+	const lang = opts.lang === 'ts' ? 'typescript' : opts.lang
 	const theme = opts.theme as Theme
 
 	log('highlighting', { lang, theme })
 	const start = performance.now()
 
 	const highlighter = await getHighlighterInstance()
+
+	if (!highlighter) throw new Error('Unable to load highlighter')
 
 	await loadLanguage(highlighter, lang)
 
@@ -70,6 +72,12 @@ export async function highlight(text: string, options?: Partial<HighlightOptions
 		log(o('Language not loaded:'), lang, all)
 
 		await highlighter.loadLanguage(bundledLanguages[lang])
+
+		log('loaded', lang)
+
+		if (!all.includes(lang)) {
+			throw new Error(`Unable to load language "${lang}"`)
+		}
 	}
 
 	if (!themes.has(theme)) {
@@ -111,8 +119,15 @@ export async function getHighlighterInstance() {
 		highlighterInstance = await getHighlighterCore({
 			loadWasm: getWasmInlined,
 			themes: [serendipity],
-			// langs: [import('shikiji/langs/svelte.mjs')],
-			langs: [],
+			langs: [
+				//@ts-expect-error
+				import('shikiji/langs/svelte.mjs'),
+				//@ts-expect-error
+				import('shikiji/langs/typescript.mjs'),
+				//@ts-expect-error
+				import('shikiji/langs/javascript.mjs'),
+			],
+			// langs: [],
 		})
 	}
 	return highlighterInstance
