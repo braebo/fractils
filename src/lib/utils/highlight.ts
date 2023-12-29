@@ -67,8 +67,9 @@ export async function highlight(text: string, options?: Partial<HighlightOptions
 	const all = highlighter.getLoadedLanguages()
 
 	if (!all.includes(lang)) {
-		log('Language not loaded:', lang, all)
-		throw new Error(`Language not loaded: ${lang}`)
+		log(o('Language not loaded:'), lang, all)
+
+		await highlighter.loadLanguage(bundledLanguages[lang])
 	}
 
 	if (!themes.has(theme)) {
