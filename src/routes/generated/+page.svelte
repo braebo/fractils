@@ -10,7 +10,7 @@
 	export let data: PageData
 
 	function isSvelteFile(file: any): file is ParsedSvelteFile {
-		return file.componentName !== undefined
+		return file.type === 'svelte'
 	}
 
 	if (BROWSER) console.log(data.docs[0])
