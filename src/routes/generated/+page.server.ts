@@ -17,7 +17,9 @@ export const load: Load = async () => {
 	console.clear()
 
 	const modules = import.meta.glob<{ default: ParsedFile }>(
-		'../../highlighted/Code.svelte.doc.json',
+		'../../docs/highlighted/*.doc.json',
+		// '../../docs/highlighted/Code.svelte.doc.json',
+		// '../../docs/highlighted/test/Test.svelte.doc.json',
 		{
 			eager: true,
 		},
