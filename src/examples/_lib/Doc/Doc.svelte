@@ -29,14 +29,11 @@
 			{#if comment}
 				<div class="summary">
 					{#if comment.summary}
-						<!-- <pre>{comment.summary}</pre> -->
-						<!-- <br> -->
 						{@html comment.summary}
 					{/if}
 				</div>
 
 				{#if comment.examples}
-					<!-- <hr /> -->
 
 					<div class="br-sm" />
 
@@ -47,16 +44,13 @@
 
 						{#each comment.examples as example}
 							{@const { name, blocks } = hasHTMLBlocks(example)}
-							<!-- <div class="example">
-								<div class="name">
-									{name}
-								</div>
-								{@html content}
-							</div> -->
 							<div class="example col">
+								{#if name}
 								<h4 class="name">
 									{name}
 								</h4>
+								{/if}
+								
 								{#each blocks as block}
 									{#if block.type === 'code'}
 										<div class="block">
@@ -80,7 +74,7 @@
 		</slot>
 	</div>
 
-	{#if props}
+	{#if props.length}
 		<!-- <pre>{JSON.stringify(props, null, 2)}</pre> -->
 		<Bits title="Props" bits={props} />
 	{/if}
