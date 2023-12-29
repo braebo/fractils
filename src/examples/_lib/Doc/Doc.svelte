@@ -46,9 +46,9 @@
 							{@const { name, blocks } = hasHTMLBlocks(example)}
 							<div class="example col">
 								{#if name}
-								<h4 class="name">
-									{name}
-								</h4>
+									<h4 class="name">
+										{name}
+									</h4>
 								{/if}
 								
 								{#each blocks as block}

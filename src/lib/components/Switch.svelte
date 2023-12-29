@@ -1,36 +1,36 @@
 <!--
-@component
-A native checkbox that looks like a switch.
+	@component
+	A native checkbox that looks like a switch.
 
-@remarks The switch is designed to have a fixed size for consistency. It's best placed within a passive container that softly wraps the input, such as one with a width set to 'fit-content'. If the switch is placed in a parent container that's too small, adjust the size of the switch using the `--switch-width` and `--switch-height` custom properties, or adjust the size of the parent container. The switch does not automatically adjust its size based on the parent container.
+	@remarks The switch is designed to have a fixed size for consistency. It's best placed within a passive container that softly wraps the input, such as one with a width set to 'fit-content'. If the switch is placed in a parent container that's too small, adjust the size of the switch using the `--switch-width` and `--switch-height` custom properties, or adjust the size of the parent container. The switch does not automatically adjust its size based on the parent container.
 
-@example Basic
-```html
-<script>
-	import Switch from '$lib/components/Switch.svelte';
-	let checked = false;
-	$: console.log(checked ? 'on' : 'off');
-</script>
+	@example Basic
+	```html
+	<script>
+		import Switch from '$lib/components/Switch.svelte'
+		let checked = false
+		$: console.log(checked ? 'on' : 'off')
+	</script>
 
-<Switch bind:checked />
-```
+	<Switch bind:checked />
+	```
 
-@example Theme Switcher
-```html
-<script>
-	import { theme, toggleTheme } from 'fractils'
-	import Switch from '$lib/components/Switch.svelte';
-</script>
+	@example Theme Switcher
+	```html
+	<script>
+		import { theme, toggleTheme } from 'fractils'
+		import Switch from '$lib/components/Switch.svelte'
+	</script>
 
-<Switch
-	on="🌞"
-	off="🌙"
-	title="theme switcher"
-	checked={$theme === 'dark'}
-	on:click={toggleTheme}
-	--switch-accent="var(--bg-d)"
-/>
-```
+	<Switch
+		on="🌞"
+		off="🌙"
+		title="theme switcher"
+		checked={$theme === 'dark'}
+		on:click={toggleTheme}
+		--switch-accent="var(--bg-d)"
+	/>
+	```
 -->
 
 <script lang="ts">
