@@ -1,0 +1,71 @@
+{
+  "type": "ts",
+  "fileName": "visibility.ts",
+  "filePath": "src/lib/actions/visibility.ts",
+  "exports": [
+    {
+      "name": "Event",
+      "type": "Event",
+      "isDefaultExport": false
+    },
+    {
+      "name": "Position",
+      "type": "Position",
+      "isDefaultExport": false
+    },
+    {
+      "name": "Direction",
+      "type": "Direction",
+      "isDefaultExport": false
+    },
+    {
+      "name": "ScrollDirection",
+      "type": "ScrollDirection",
+      "isDefaultExport": false
+    },
+    {
+      "name": "VisibilityEventDetail",
+      "type": "VisibilityEventDetail",
+      "isDefaultExport": false
+    },
+    {
+      "name": "VisibilityEvent",
+      "type": "VisibilityEvent",
+      "isDefaultExport": false
+    },
+    {
+      "name": "VisibilityAttr",
+      "type": "VisibilityAttr",
+      "isDefaultExport": false
+    },
+    {
+      "name": "VisibilityOptions",
+      "type": "VisibilityOptions",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Optional config for `visibility` action.\n */",
+        "summary": "Optional config for `visibility` action."
+      }
+    },
+    {
+      "name": "visibility",
+      "type": "Action<HTMLElement, VisibilityOptions, VisibilityAttr>",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Observes an element's current viewport visibility and dispatches relevant events.\n *\n * @param options - Optional config, see {@link VisibilityOptions}.\n *\n * @event change - Triggered when element enters or leaves view.  @event enter - Triggered when element enters view.  @event exit - Triggered when element exits view.\n *\n * @example\n * ```svelte\n * <script>\n * \tlet visible, scrollDir, options = {threshold: 0.25}\n *\n *  <!-- TypeScript users can import the VisibilityEvent or VisibilityEventDetail type -->\n * \tfunction handleChange({ detail }) {\n * \t\tvisible = detail.isVisible\n * \t\tscrollDir = detail.scrollDirection\n * \t}\n * </script>\n *\n * <div\n * \tuse:visibility={options}\n * \ton:v-change={handleChange}\n * \ton:v-enter={doSomething}\n * \ton:v-exit={doSomethingElse}\n * \tclass:visible\n * >\n * \t{scrollDir}\n * </div>\n *\n * ```\n *\n */",
+        "summary": "Observes an element's current viewport visibility and dispatches relevant events.",
+        "params": [
+          {
+            "name": "options",
+            "description": "Optional config, see{@linkVisibilityOptions}.@eventchange - Triggered when element enters or leaves view.@evententer - Triggered when element enters view.@eventexit - Triggered when element exits view."
+          }
+        ],
+        "examples": [
+          {
+            "content": "```svelte\n<script>\n\tlet visible, scrollDir, options = {threshold: 0.25}\n\n<!-- TypeScript users can import the VisibilityEvent or VisibilityEventDetail type -->\n\tfunction handleChange({ detail }) {\n\t\tvisible = detail.isVisible\n\t\tscrollDir = detail.scrollDirection\n\t}\n</script>\n\n<div\n\tuse:visibility={options}\n\ton:v-change={handleChange}\n\ton:v-enter={doSomething}\n\ton:v-exit={doSomethingElse}\n\tclass:visible\n>\n\t{scrollDir}\n</div>\n\n```"
+          }
+        ]
+      }
+    }
+  ]
+}

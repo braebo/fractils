@@ -1,0 +1,131 @@
+{
+  "type": "svelte",
+  "fileName": "Switch.svelte",
+  "filePath": "src/lib/components/Switch.svelte",
+  "comment": {
+    "raw": "/**\n * A native checkbox that looks like a switch.\n *\n * @remarks\n *\n * The switch is designed to have a fixed size for consistency. It's best placed within a passive container that softly wraps the input, such as one with a width set to 'fit-content'. If the switch is placed in a parent container that's too small, adjust the size of the switch using the `--switch-width` and `--switch-height` custom properties, or adjust the size of the parent container. The switch does not automatically adjust its size based on the parent container.\n *\n * @example\n *\n * Basic\n * ```html\n * <script>\n * \timport Switch from '$lib/components/Switch.svelte'\n * \tlet checked = false\n * \t$: console.log(checked ? 'on' : 'off')\n * </script>\n *\n * <Switch bind:checked />\n * ```\n *\n * @example\n *\n * Theme Switcher\n * ```html\n * <script>\n * \timport { theme, toggleTheme } from 'fractils'\n * \timport Switch from '$lib/components/Switch.svelte'\n * </script>\n *\n * <Switch\n * \ton=\"🌞\"\n * \toff=\"🌙\"\n * \ttitle=\"theme switcher\"\n * \tchecked={$theme === 'dark'}\n * \ton:click={toggleTheme}\n * \t--switch-accent=\"var(--bg-d)\"\n * />\n * ```\n *\n */",
+    "summary": "A native checkbox that looks like a switch.",
+    "remarks": "The switch is designed to have a fixed size for consistency. It's best placed within a passive container that softly wraps the input, such as one with a width set to 'fit-content'. If the switch is placed in a parent container that's too small, adjust the size of the switch using the`--switch-width`and`--switch-height`custom properties, or adjust the size of the parent container. The switch does not automatically adjust its size based on the parent container.",
+    "examples": [
+      {
+        "name": "Basic",
+        "content": "\n```html\n<script>\n\timport Switch from '$lib/components/Switch.svelte'\n\tlet checked = false\n\t$: console.log(checked ? 'on' : 'off')\n</script>\n\n<Switch bind:checked />\n```"
+      },
+      {
+        "name": "Theme Switcher",
+        "content": "\n```html\n<script>\n\timport { theme, toggleTheme } from 'fractils'\n\timport Switch from '$lib/components/Switch.svelte'\n</script>\n\n<Switch\n\ton=\"🌞\"\n\toff=\"🌙\"\n\ttitle=\"theme switcher\"\n\tchecked={$theme === 'dark'}\n\ton:click={toggleTheme}\n\t--switch-accent=\"var(--bg-d)\"\n/>\n```"
+      }
+    ]
+  },
+  "componentName": "Switch",
+  "props": [
+    {
+      "name": "on",
+      "type": "string"
+    },
+    {
+      "name": "off",
+      "type": "string"
+    },
+    {
+      "name": "title",
+      "type": "string"
+    },
+    {
+      "name": "checked",
+      "type": "boolean"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The outline color of the switch.\n */",
+        "summary": "The outline color of the switch."
+      },
+      "name": "--switch-outline",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The primary color of the switch, used for the thumb.\n */",
+        "summary": "The primary color of the switch, used for the thumb."
+      },
+      "name": "--switch-primary",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The secondary color of the switch, used for the slider.\n */",
+        "summary": "The secondary color of the switch, used for the slider."
+      },
+      "name": "--switch-secondary",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The accent color of the switch.\n */",
+        "summary": "The accent color of the switch."
+      },
+      "name": "--switch-accent",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The width of the switch.\n */",
+        "summary": "The width of the switch."
+      },
+      "name": "--switch-width",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The padding of the switch.\n */",
+        "summary": "The padding of the switch."
+      },
+      "name": "--switch-padding",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The size of the switch thumb.\n */",
+        "summary": "The size of the switch thumb."
+      },
+      "name": "--switch-thumb-size",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The ratio of the switch thumb's width to height.\n */",
+        "summary": "The ratio of the switch thumb's width to height."
+      },
+      "name": "--switch-thumb-ratio",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The border-radius of the switch slider.\n */",
+        "summary": "The border-radius of the switch slider."
+      },
+      "name": "--switch-slider-radius",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The border-radius of the switch thumb.\n */",
+        "summary": "The border-radius of the switch thumb."
+      },
+      "name": "--switch-thumb-radius",
+      "type": "string"
+    }
+  ],
+  "events": [
+    {
+      "comment": {
+        "raw": "/**\n * Toggles the switch.\n */",
+        "summary": "Toggles the switch."
+      },
+      "name": "click",
+      "type": "MouseEvent"
+    }
+  ],
+  "slots": [],
+  "exports": []
+}

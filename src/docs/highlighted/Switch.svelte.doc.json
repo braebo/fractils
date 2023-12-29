@@ -1,0 +1,149 @@
+{
+  "type": "svelte",
+  "fileName": "Switch.svelte",
+  "filePath": "src/lib/components/Switch.svelte",
+  "comment": {
+    "raw": "/**\n * A native checkbox that looks like a switch.\n *\n * @remarks\n *\n * The switch is designed to have a fixed size for consistency. It's best placed within a passive container that softly wraps the input, such as one with a width set to 'fit-content'. If the switch is placed in a parent container that's too small, adjust the size of the switch using the `--switch-width` and `--switch-height` custom properties, or adjust the size of the parent container. The switch does not automatically adjust its size based on the parent container.\n *\n * @example\n *\n * Basic\n * ```html\n * <script>\n * \timport Switch from '$lib/components/Switch.svelte'\n * \tlet checked = false\n * \t$: console.log(checked ? 'on' : 'off')\n * </script>\n *\n * <Switch bind:checked />\n * ```\n *\n * @example\n *\n * Theme Switcher\n * ```html\n * <script>\n * \timport { theme, toggleTheme } from 'fractils'\n * \timport Switch from '$lib/components/Switch.svelte'\n * </script>\n *\n * <Switch\n * \ton=\"🌞\"\n * \toff=\"🌙\"\n * \ttitle=\"theme switcher\"\n * \tchecked={$theme === 'dark'}\n * \ton:click={toggleTheme}\n * \t--switch-accent=\"var(--bg-d)\"\n * />\n * ```\n *\n */",
+    "summary": "<p>A native checkbox that looks like a switch.</p>\n",
+    "remarks": "The switch is designed to have a fixed size for consistency. It's best placed within a passive container that softly wraps the input, such as one with a width set to 'fit-content'. If the switch is placed in a parent container that's too small, adjust the size of the switch using the`--switch-width`and`--switch-height`custom properties, or adjust the size of the parent container. The switch does not automatically adjust its size based on the parent container.",
+    "examples": [
+      {
+        "name": "Basic",
+        "content": "\n```html\n<script>\n\timport Switch from '$lib/components/Switch.svelte'\n\tlet checked = false\n\t$: console.log(checked ? 'on' : 'off')\n</script>\n\n<Switch bind:checked />\n```",
+        "blocks": [
+          {
+            "type": "code",
+            "content": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#777D8F\">&#x3C;</span><span style=\"color:#94B8FF\">script</span><span style=\"color:#777D8F\">></span></span>\n<span class=\"line\"><span style=\"color:#5BA2D0\">    import </span><span style=\"color:#DEE0EF\">Switch</span><span style=\"color:#5BA2D0\"> from </span><span style=\"color:#A78BFA\">'$lib/components/Switch.svelte'</span></span>\n<span class=\"line\"><span style=\"color:#5BA2D0\">    let</span><span style=\"color:#DEE0EF\"> checked</span><span style=\"color:#5BA2D0\"> =</span><span style=\"color:#F8D2C9\"> false</span></span>\n<span class=\"line\"><span style=\"color:#F8D2C9\">    $</span><span style=\"color:#8D8F9E\">:</span><span style=\"color:#DEE0EF\"> console</span><span style=\"color:#5BA2D0\">.</span><span style=\"color:#F8D2C9\">log</span><span style=\"color:#DEE0EF\">(checked</span><span style=\"color:#5BA2D0\"> ?</span><span style=\"color:#A78BFA\"> 'on'</span><span style=\"color:#5BA2D0\"> :</span><span style=\"color:#A78BFA\"> 'off'</span><span style=\"color:#DEE0EF\">)</span></span>\n<span class=\"line\"><span style=\"color:#777D8F\">&#x3C;/</span><span style=\"color:#94B8FF\">script</span><span style=\"color:#777D8F\">></span></span>\n<span class=\"line\"></span>\n<span class=\"line\"><span style=\"color:#777D8F\">&#x3C;</span><span style=\"color:#EE8679\">Switch</span><span style=\"color:#9CCFD8;font-style:italic\"> bind:checked</span><span style=\"color:#777D8F\"> /></span></span></code></pre>",
+            "lang": "html",
+            "raw": "<script>\n    import Switch from '$lib/components/Switch.svelte'\n    let checked = false\n    $: console.log(checked ? 'on' : 'off')\n</script>\n\n<Switch bind:checked />",
+            "title": ""
+          }
+        ]
+      },
+      {
+        "name": "Theme Switcher",
+        "content": "\n```html\n<script>\n\timport { theme, toggleTheme } from 'fractils'\n\timport Switch from '$lib/components/Switch.svelte'\n</script>\n\n<Switch\n\ton=\"🌞\"\n\toff=\"🌙\"\n\ttitle=\"theme switcher\"\n\tchecked={$theme === 'dark'}\n\ton:click={toggleTheme}\n\t--switch-accent=\"var(--bg-d)\"\n/>\n```",
+        "blocks": [
+          {
+            "type": "code",
+            "content": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#777D8F\">&#x3C;</span><span style=\"color:#94B8FF\">script</span><span style=\"color:#777D8F\">></span></span>\n<span class=\"line\"><span style=\"color:#5BA2D0\">    import </span><span style=\"color:#8D8F9E\">{</span><span style=\"color:#DEE0EF\"> theme</span><span style=\"color:#8D8F9E\">,</span><span style=\"color:#DEE0EF\"> toggleTheme</span><span style=\"color:#8D8F9E\"> }</span><span style=\"color:#5BA2D0\"> from </span><span style=\"color:#A78BFA\">'fractils'</span></span>\n<span class=\"line\"><span style=\"color:#5BA2D0\">    import </span><span style=\"color:#DEE0EF\">Switch</span><span style=\"color:#5BA2D0\"> from </span><span style=\"color:#A78BFA\">'$lib/components/Switch.svelte'</span></span>\n<span class=\"line\"><span style=\"color:#777D8F\">&#x3C;/</span><span style=\"color:#94B8FF\">script</span><span style=\"color:#777D8F\">></span></span>\n<span class=\"line\"></span>\n<span class=\"line\"><span style=\"color:#777D8F\">&#x3C;</span><span style=\"color:#EE8679\">Switch</span></span>\n<span class=\"line\"><span style=\"color:#9CCFD8;font-style:italic\">    on</span><span style=\"color:#8D8F9E\">=</span><span style=\"color:#A78BFA\">\"🌞\"</span></span>\n<span class=\"line\"><span style=\"color:#9CCFD8;font-style:italic\">    off</span><span style=\"color:#8D8F9E\">=</span><span style=\"color:#A78BFA\">\"🌙\"</span></span>\n<span class=\"line\"><span style=\"color:#9CCFD8;font-style:italic\">    title</span><span style=\"color:#8D8F9E\">=</span><span style=\"color:#A78BFA\">\"theme switcher\"</span></span>\n<span class=\"line\"><span style=\"color:#9CCFD8;font-style:italic\">    checked</span><span style=\"color:#8D8F9E\">=</span><span style=\"color:#A78BFA\">{$theme</span><span style=\"color:#EE8679\"> ===</span><span style=\"color:#A78BFA\"> 'dark'</span><span style=\"color:#9CCFD8;font-style:italic\">}</span></span>\n<span class=\"line\"><span style=\"color:#9CCFD8;font-style:italic\">    on:click</span><span style=\"color:#8D8F9E\">=</span><span style=\"color:#A78BFA\">{toggleTheme}</span></span>\n<span class=\"line\"><span style=\"color:#9CCFD8;font-style:italic\">    --switch-accent</span><span style=\"color:#8D8F9E\">=</span><span style=\"color:#A78BFA\">\"var(--bg-d)\"</span></span>\n<span class=\"line\"><span style=\"color:#777D8F\">/></span></span></code></pre>",
+            "lang": "html",
+            "raw": "<script>\n    import { theme, toggleTheme } from 'fractils'\n    import Switch from '$lib/components/Switch.svelte'\n</script>\n\n<Switch\n    on=\"🌞\"\n    off=\"🌙\"\n    title=\"theme switcher\"\n    checked={$theme === 'dark'}\n    on:click={toggleTheme}\n    --switch-accent=\"var(--bg-d)\"\n/>",
+            "title": ""
+          }
+        ]
+      }
+    ]
+  },
+  "componentName": "Switch",
+  "props": [
+    {
+      "name": "on",
+      "type": "string"
+    },
+    {
+      "name": "off",
+      "type": "string"
+    },
+    {
+      "name": "title",
+      "type": "string"
+    },
+    {
+      "name": "checked",
+      "type": "boolean"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The outline color of the switch.\n */",
+        "summary": "<p>The outline color of the switch.</p>\n"
+      },
+      "name": "--switch-outline",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The primary color of the switch, used for the thumb.\n */",
+        "summary": "<p>The primary color of the switch, used for the thumb.</p>\n"
+      },
+      "name": "--switch-primary",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The secondary color of the switch, used for the slider.\n */",
+        "summary": "<p>The secondary color of the switch, used for the slider.</p>\n"
+      },
+      "name": "--switch-secondary",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The accent color of the switch.\n */",
+        "summary": "<p>The accent color of the switch.</p>\n"
+      },
+      "name": "--switch-accent",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The width of the switch.\n */",
+        "summary": "<p>The width of the switch.</p>\n"
+      },
+      "name": "--switch-width",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The padding of the switch.\n */",
+        "summary": "<p>The padding of the switch.</p>\n"
+      },
+      "name": "--switch-padding",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The size of the switch thumb.\n */",
+        "summary": "<p>The size of the switch thumb.</p>\n"
+      },
+      "name": "--switch-thumb-size",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The ratio of the switch thumb's width to height.\n */",
+        "summary": "<p>The ratio of the switch thumb&#39;s width to height.</p>\n"
+      },
+      "name": "--switch-thumb-ratio",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The border-radius of the switch slider.\n */",
+        "summary": "<p>The border-radius of the switch slider.</p>\n"
+      },
+      "name": "--switch-slider-radius",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The border-radius of the switch thumb.\n */",
+        "summary": "<p>The border-radius of the switch thumb.</p>\n"
+      },
+      "name": "--switch-thumb-radius",
+      "type": "string"
+    }
+  ],
+  "events": [
+    {
+      "comment": {
+        "raw": "/**\n * Toggles the switch.\n */",
+        "summary": "<p>Toggles the switch.</p>\n"
+      },
+      "name": "click",
+      "type": "MouseEvent"
+    }
+  ],
+  "slots": [],
+  "exports": []
+}

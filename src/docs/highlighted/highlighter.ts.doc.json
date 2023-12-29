@@ -1,0 +1,45 @@
+{
+  "type": "ts",
+  "fileName": "highlighter.ts",
+  "filePath": "src/lib/actions/highlighter.ts",
+  "exports": [
+    {
+      "name": "HighlightEventDetail",
+      "type": "HighlightEventDetail",
+      "isDefaultExport": false
+    },
+    {
+      "name": "HighlightEvent",
+      "type": "HighlightEvent",
+      "isDefaultExport": false
+    },
+    {
+      "name": "HighlightAttr",
+      "type": "HighlightAttr",
+      "isDefaultExport": false
+    },
+    {
+      "name": "highlighter",
+      "type": "Action<HTMLElement, HighlightOptions, HighlightAttr>",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * A syntax highlighter action.\n *\n * @example\n * ```svelte\n * <pre use:highlight={{ lang: 'json' }}>\n * \t{JSON.stringify({ hello: 'world' }, null, 2)}\n * </pre>\n * ```\n *\n */",
+        "summary": "<p>A syntax highlighter action.</p>\n",
+        "examples": [
+          {
+            "content": "```svelte\n<pre use:highlight={{ lang: 'json' }}>\n\t{JSON.stringify({ hello: 'world' }, null, 2)}\n</pre>\n```",
+            "blocks": [
+              {
+                "type": "code",
+                "content": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#777D8F\">&#x3C;pre</span><span style=\"color:#5BA2D0\"> use</span><span style=\"color:#8D8F9E\">:</span><span style=\"color:#DEE0EF\">highlight</span><span style=\"color:#777D8F\">=</span><span style=\"color:#8D8F9E\">{{</span><span style=\"color:#DEE0EF\"> lang</span><span style=\"color:#8D8F9E\">:</span><span style=\"color:#A78BFA\"> 'json'</span><span style=\"color:#8D8F9E\"> }}</span><span style=\"color:#777D8F\">></span></span>\n<span class=\"line\"><span style=\"color:#8D8F9E\">    {</span><span style=\"color:#DEE0EF\">JSON</span><span style=\"color:#5BA2D0\">.</span><span style=\"color:#F8D2C9\">stringify</span><span style=\"color:#DEE0EF\">(</span><span style=\"color:#8D8F9E\">{</span><span style=\"color:#777D8F\"> hello</span><span style=\"color:#8D8F9E\">:</span><span style=\"color:#A78BFA\"> 'world'</span><span style=\"color:#8D8F9E\"> },</span><span style=\"color:#F8D2C9\"> null</span><span style=\"color:#8D8F9E\">,</span><span style=\"color:#F8D2C9\"> 2</span><span style=\"color:#DEE0EF\">)</span><span style=\"color:#8D8F9E\">}</span></span>\n<span class=\"line\"><span style=\"color:#777D8F\">&#x3C;/pre></span></span></code></pre>",
+                "lang": "svelte",
+                "raw": "<pre use:highlight={{ lang: 'json' }}>\n    {JSON.stringify({ hello: 'world' }, null, 2)}\n</pre>",
+                "title": ""
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

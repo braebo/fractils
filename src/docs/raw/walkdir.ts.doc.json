@@ -1,0 +1,35 @@
+{
+  "type": "ts",
+  "fileName": "walkdir.ts",
+  "filePath": "src/lib/utils/walkdir.ts",
+  "exports": [
+    {
+      "name": "walk",
+      "type": "typeof walk",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Walks a directory recursively and calls a callback for each file.\n *\n * @param dir - The directory to walk.\n *\n * @param cb - The callback to call for each file.\n *\n * @param filter - Optional regex to filter files names by.\n *\n * @example\n * ```ts\n * import { walkdir } from 'fractils'\n *\n * walkdir('./static', console.log, /\\.jpg$/)\n * ```\n *\n * @nodejs\n */",
+        "summary": "Walks a directory recursively and calls a callback for each file.",
+        "params": [
+          {
+            "name": "dir",
+            "description": "The directory to walk."
+          },
+          {
+            "name": "cb",
+            "description": "The callback to call for each file."
+          },
+          {
+            "name": "filter",
+            "description": "Optional regex to filter files names by."
+          }
+        ],
+        "examples": [
+          {
+            "content": "```ts\nimport { walkdir } from 'fractils'\n\nwalkdir('./static', console.log, /\\.jpg$/)\n```\n\n@nodejs"
+          }
+        ]
+      }
+    }
+  ]
+}

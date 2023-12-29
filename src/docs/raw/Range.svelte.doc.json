@@ -1,0 +1,89 @@
+{
+  "type": "svelte",
+  "fileName": "Range.svelte",
+  "filePath": "src/lib/components/Range.svelte",
+  "comment": {
+    "raw": "/**\n * A custom range input slider component.\n */",
+    "summary": "A custom range input slider component."
+  },
+  "componentName": "Range",
+  "props": [
+    {
+      "comment": {
+        "raw": "/**\n * The value to be controled by the slider.\n */",
+        "summary": "The value to be controled by the slider."
+      },
+      "name": "value",
+      "type": "number"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The minimum value allowed.\n */",
+        "summary": "The minimum value allowed."
+      },
+      "name": "min",
+      "type": "number"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The maximum value allowed.\n */",
+        "summary": "The maximum value allowed."
+      },
+      "name": "max",
+      "type": "number"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The amount to increment each change.\n */",
+        "summary": "The amount to increment each change."
+      },
+      "name": "step",
+      "type": "number"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * An optional title to be displayed above the slider.\n */",
+        "summary": "An optional title to be displayed above the slider."
+      },
+      "name": "name",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * Whether the slider should be vertical.\n */",
+        "summary": "Whether the slider should be vertical."
+      },
+      "name": "vertical",
+      "type": "boolean"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * Whether to truncate the value to the step.\n */",
+        "summary": "Whether to truncate the value to the step."
+      },
+      "name": "truncate",
+      "type": "boolean"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * Callback function to be called on change. Passes the updated value as an argument (and expects it to be returned).\n */",
+        "summary": "Callback function to be called on change. Passes the updated value as an argument (and expects it to be returned)."
+      },
+      "name": "callback",
+      "type": "(value: number) => number"
+    }
+  ],
+  "events": [
+    {
+      "comment": {
+        "raw": "/**\n * Triggered when the slider value changes. Contains the new value, `event.detail.value`.\n *\n * @remarks\n *\n * If the `callback` prop is set, the value will be the result of the callback.\n */",
+        "summary": "Triggered when the slider value changes. Contains the new value, `event.detail.value`.",
+        "remarks": "If the`callback`prop is set, the value will be the result of the callback."
+      },
+      "name": "change",
+      "type": "{ value: number; }"
+    }
+  ],
+  "slots": [],
+  "exports": []
+}

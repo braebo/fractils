@@ -1,0 +1,84 @@
+{
+  "type": "svelte",
+  "fileName": "Tooltip.svelte",
+  "filePath": "src/lib/components/Tooltip.svelte",
+  "comment": {
+    "raw": "/**\n * A tooltip that appears on hover.\n *\n * @example\n * ```svelte\n * <script>\n * import { Tooltip } from 'fractils';\n * </script>\n *\n * <Tooltip content=\"Hello World\">\n * <div class=\"hover-1\"> Hover over me! </div>\n * </Tooltip>\n * ```\n *\n */",
+    "summary": "A tooltip that appears on hover.",
+    "examples": [
+      {
+        "content": "```svelte\n<script>\nimport { Tooltip } from 'fractils';\n</script>\n\n<Tooltip content=\"Hello World\">\n<div class=\"hover-1\"> Hover over me! </div>\n</Tooltip>\n```"
+      }
+    ]
+  },
+  "componentName": "Tooltip",
+  "props": [
+    {
+      "comment": {
+        "raw": "/**\n * Text content of the tooltip.\n */",
+        "summary": "Text content of the tooltip."
+      },
+      "name": "content",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * Placement of the tooltip.\n *\n * @defaultValue\n *\n * 'right'\n */",
+        "summary": "Placement of the tooltip.",
+        "defaultValue": "'right'"
+      },
+      "name": "placement",
+      "type": "(string & {}) | \"left\" | \"right\" | \"top\" | \"bottom\""
+    },
+    {
+      "comment": {
+        "raw": "/**\n * Intro & outro delay in ms.\n *\n * @defaultValue\n *\n * [500, 100]\n */",
+        "summary": "Intro & outro delay in ms.",
+        "defaultValue": "[500, 100]"
+      },
+      "name": "delay",
+      "type": "[number, number]"
+    },
+    {
+      "name": "interactive",
+      "type": "boolean"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * Whether to show the arrow connecting the tooltip to the target.\n */",
+        "summary": "Whether to show the arrow connecting the tooltip to the target."
+      },
+      "name": "arrow",
+      "type": "boolean"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * X and Y offset in px.\n *\n * @defaultValue\n *\n * [10, 0]\n */",
+        "summary": "X and Y offset in px.",
+        "defaultValue": "[10, 0]"
+      },
+      "name": "offset",
+      "type": "number[]"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * Used to hide the tooltip.\n */",
+        "summary": "Used to hide the tooltip."
+      },
+      "name": "display",
+      "type": "(string & {}) | \"none\" | \"contents\""
+    },
+    {
+      "name": "instance",
+      "type": "Instance<PopperElement<Props>>"
+    }
+  ],
+  "events": [],
+  "slots": [
+    {
+      "name": "default",
+      "props": []
+    }
+  ],
+  "exports": []
+}

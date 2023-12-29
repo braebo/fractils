@@ -1,0 +1,37 @@
+{
+  "type": "ts",
+  "fileName": "wait.ts",
+  "filePath": "src/lib/utils/wait.ts",
+  "exports": [
+    {
+      "name": "wait",
+      "type": "(t: number) => Promise<unknown>",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * A simple wait timer.\n *\n * @param t - time to wait in ms\n *\n * @returns a promise that resolves after t ms\n *\n * @example\n * ```ts\n * await wait(1000)\n * ```\n *\n */",
+        "summary": "<p>A simple wait timer.</p>\n",
+        "params": [
+          {
+            "name": "t",
+            "description": "time to wait in ms"
+          }
+        ],
+        "returns": "a promise that resolves after t ms",
+        "examples": [
+          {
+            "content": "```ts\nawait wait(1000)\n```",
+            "blocks": [
+              {
+                "type": "code",
+                "content": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#5BA2D0\">await</span><span style=\"color:#F8D2C9\"> wait</span><span style=\"color:#DEE0EF\">(</span><span style=\"color:#F8D2C9\">1000</span><span style=\"color:#DEE0EF\">)</span></span></code></pre>",
+                "lang": "ts",
+                "raw": "await wait(1000)",
+                "title": ""
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

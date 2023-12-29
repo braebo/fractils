@@ -1,0 +1,48 @@
+{
+  "type": "ts",
+  "fileName": "walkdir.ts",
+  "filePath": "src/lib/utils/walkdir.ts",
+  "exports": [
+    {
+      "name": "walk",
+      "type": "typeof walk",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Walks a directory recursively and calls a callback for each file.\n *\n * @param dir - The directory to walk.\n *\n * @param cb - The callback to call for each file.\n *\n * @param filter - Optional regex to filter files names by.\n *\n * @example\n * ```ts\n * import { walkdir } from 'fractils'\n *\n * walkdir('./static', console.log, /\\.jpg$/)\n * ```\n *\n * @nodejs\n */",
+        "summary": "<p>Walks a directory recursively and calls a callback for each file.</p>\n",
+        "params": [
+          {
+            "name": "dir",
+            "description": "The directory to walk."
+          },
+          {
+            "name": "cb",
+            "description": "The callback to call for each file."
+          },
+          {
+            "name": "filter",
+            "description": "Optional regex to filter files names by."
+          }
+        ],
+        "examples": [
+          {
+            "content": "```ts\nimport { walkdir } from 'fractils'\n\nwalkdir('./static', console.log, /\\.jpg$/)\n```\n\n@nodejs",
+            "blocks": [
+              {
+                "type": "code",
+                "content": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#5BA2D0\">import </span><span style=\"color:#8D8F9E\">{</span><span style=\"color:#DEE0EF\"> walkdir</span><span style=\"color:#8D8F9E\"> }</span><span style=\"color:#5BA2D0\"> from </span><span style=\"color:#A78BFA\">'fractils'</span></span>\n<span class=\"line\"></span>\n<span class=\"line\"><span style=\"color:#F8D2C9\">walkdir</span><span style=\"color:#DEE0EF\">(</span><span style=\"color:#A78BFA\">'./static'</span><span style=\"color:#8D8F9E\">,</span><span style=\"color:#DEE0EF\"> console</span><span style=\"color:#5BA2D0\">.</span><span style=\"color:#DEE0EF\">log</span><span style=\"color:#8D8F9E\">,</span><span style=\"color:#A78BFA\"> /</span><span style=\"color:#5BA2D0\">\\.</span><span style=\"color:#A78BFA\">jpg</span><span style=\"color:#5BA2D0\">$</span><span style=\"color:#A78BFA\">/</span><span style=\"color:#DEE0EF\">)</span></span></code></pre>",
+                "lang": "ts",
+                "raw": "import { walkdir } from 'fractils'\n\nwalkdir('./static', console.log, /\\.jpg$/)",
+                "title": ""
+              },
+              {
+                "type": "other",
+                "content": "<p>@nodejs</p>"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

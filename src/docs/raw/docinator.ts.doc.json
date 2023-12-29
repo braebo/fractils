@@ -1,0 +1,22 @@
+{
+  "type": "ts",
+  "fileName": "docinator.ts",
+  "filePath": "src/lib/utils/docinator.ts",
+  "exports": [
+    {
+      "name": "Block",
+      "type": "Block",
+      "isDefaultExport": false
+    },
+    {
+      "name": "HighlightedBlock",
+      "type": "HighlightedBlock",
+      "isDefaultExport": false
+    },
+    {
+      "name": "Blocks",
+      "type": "Blocks",
+      "isDefaultExport": false
+    }
+  ]
+}

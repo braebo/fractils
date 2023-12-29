@@ -1,0 +1,94 @@
+{
+  "type": "svelte",
+  "fileName": "Code.svelte",
+  "filePath": "src/lib/components/Code.svelte",
+  "comment": {
+    "raw": "/**\n * A styled code block with syntax highlighting. On the client, the code is highlighted using [Shikiji](https://github.com/antfu/shikiji) using the {@link highlight} util unless the `ssr` prop is set to true and the highlighted text is provided as the `highlightedText` prop. The raw `text` prop is still required in this case, as it's used for screen readers and the copy button.\n *\n * @example\n *\n * CSR\n *\n * A simple browser example:\n *\n * ```svelte <script> import Code from 'fractils'\n *\n * const text = `console.log('hello world')` </script>\n *\n * <Code {text} /> ```\n *\n * @example\n *\n * SSR\n *\n * ```svelte +page.svelte <script> import Code from 'fractils'\n *\n * export let data const { text, highlightedText } = data </script>\n *\n * <Code ssr {text} {highlightedText} /> ```\n *\n * ```typescript +page.ts import { highlight } from 'fractils/utils/highlight'\n *\n * export async function load({ page, fetch }) { const text = `console.log('hello world')` const highlightedText = await highlight(text, { lang: 'js' })\n *\n * return { text, highlightedText, } } ```\n */",
+    "summary": "A styled code block with syntax highlighting. On the client, the code is\nhighlighted using [Shikiji](https://github.com/antfu/shikiji) using the\n{@link highlight} util unless the `ssr` prop is set to true and the highlighted\ntext is provided as the `highlightedText` prop. The raw `text` prop is still\nrequired in this case, as it's used for screen readers and the copy button.",
+    "examples": [
+      {
+        "name": "CSR",
+        "content": "\n\nA simple browser example:\n\n```svelte\n<script>\n\timport Code from 'fractils'\n\n\tconst text = `console.log('hello world')`\n</script>\n\n<Code {text} />\n```"
+      },
+      {
+        "name": "SSR",
+        "content": "\n\n```svelte +page.svelte\n<script>\n\timport Code from 'fractils'\n\n\texport let data\n\tconst { text, highlightedText } = data\n</script>\n\n<Code ssr {text} {highlightedText} />\n```\n\n```typescript +page.ts\nimport { highlight } from 'fractils/utils/highlight'\n\nexport async function load({ page, fetch }) {\n\tconst text = `console.log('hello world')`\n\tconst highlightedText = await highlight(text, { lang: 'js' })\n\n\treturn {\n\t\ttext,\n\t\thighlightedText,\n\t}\n}\n```"
+      }
+    ]
+  },
+  "componentName": "Code",
+  "props": [
+    {
+      "comment": {
+        "raw": "/**\n * The string to highlight.\n */",
+        "summary": "The string to highlight."
+      },
+      "name": "text",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * Effectively just disables the client-side highlighting, assuming the text has already been highlighted on the server.\n *\n * @defaultValue\n *\n * false\n */",
+        "summary": "Effectively just disables the client-side highlighting,\nassuming the text has already been highlighted on the server.",
+        "defaultValue": "false"
+      },
+      "name": "ssr",
+      "type": "boolean"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * Optional pre-highlighted text. If this is provided _and_ the {@link ssr} prop is `true`, the highlighter will not be loaded / run on the client.\n */",
+        "summary": "Optional pre-highlighted text. If this is provided _and_ the {@link ssr}\nprop is `true`, the highlighter will not be loaded / run on the client."
+      },
+      "name": "highlightedText",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * An optional title to display above the code block.\n *\n * @defaultValue\n *\n * 'code'\n */",
+        "summary": "An optional title to display above the code block.",
+        "defaultValue": "'code'"
+      },
+      "name": "title",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The language to use. Must be a {@link ValidLanguage}.\n *\n * @defaultValue\n *\n * 'json'\n */",
+        "summary": "The language to use. Must be a {@link ValidLanguage}.",
+        "defaultValue": "'json'"
+      },
+      "name": "lang",
+      "type": "Lang"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * The theme to use.\n *\n * @defaultValue\n *\n * 'github'\n */",
+        "summary": "The theme to use.",
+        "defaultValue": "'github'"
+      },
+      "name": "theme",
+      "type": "Theme"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * If true, a button will be displayed to copy the code to the clipboard.\n *\n * @defaultValue\n *\n * true\n */",
+        "summary": "If true, a button will be displayed to copy the code to the clipboard.",
+        "defaultValue": "true"
+      },
+      "name": "copyButton",
+      "type": "boolean"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * If true, the code block will be collapsed by default.\n */",
+        "summary": "If true, the code block will be collapsed by default."
+      },
+      "name": "collapsed",
+      "type": "boolean"
+    }
+  ],
+  "events": [],
+  "slots": [],
+  "exports": []
+}
