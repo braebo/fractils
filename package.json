@@ -33,8 +33,15 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"generate:css": "bash src/scripts/generate-css.sh",
 		"generate:shiki": "vite-node ./src/scripts/shiki/syntax-highlighter.ts",
-		"generate:docs": "bun src/scripts/extractinator/src/exports/cli.ts extract src/lib src/docs",
-		"generate:docs:watch": "bun --watch src/scripts/extractinator/src/exports/cli.ts extract src/lib src/docs",
+		"extractinator": "bun src/scripts/extractinator/src/exports/cli.ts extract src/lib src/docs/raw",
+		"extractinator:watch": "bun --watch src/scripts/extractinator/src/exports/cli.ts extract src/lib src/docs/raw",
+		"extractinator:test": "bun src/scripts/extractinator/src/exports/cli.ts extract src/lib/test src/docs/raw/test",
+		"extractinator:test:watch": "bun --watch src/scripts/extractinator/src/exports/cli.ts extract src/lib/test src/docs/raw/test --verbose",
+		"docinator": "bun run src/lib/utils/docinator.ts ./src/docs/raw ./src/docs/highlighted",
+		"docinator:watch": "bun run --watch src/lib/utils/docinator.ts ./src/docs/raw ./src/docs/highlighted",
+		"docinator:test": "bun run src/lib/utils/docinator.ts ./src/docs/raw/test ./src/docs/highlighted/test",
+		"docinator:test:watch": "bun run --watch src/lib/utils/docinator.ts ./src/docs/raw/test ./src/docs/highlighted/test",
+		"generate:docs": "pnpm extractinator && pnpm docinator",
 		"generate:all": "run-p generate:docs generate:css generate:shiki"
 	},
 	"dependencies": {

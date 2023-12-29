@@ -1,0 +1,40 @@
+{
+  "type": "svelte",
+  "fileName": "Test.svelte",
+  "filePath": "src/lib/test/Test.svelte",
+  "comment": {
+    "raw": "/**\n * This is a [multiline](https://example.com) line comment.\n *\n * With a second {@link paragraph}.\n *\n * And two examples, the first unnamed, and the second named with a filename/title.\n *\n * @example\n * ```typescript\n * console.log('hello world')\n * ```\n *\n * @example\n *\n * Svelte Example\n * ```svelte Example.svelte\n * <script>\n *     console.log('hello world')\n * </script>\n * ```\n *\n * And using this comp:\n * ```svelte +page.svelte\n * <Test text=\"duder\" />\n * ```\n *\n */",
+    "summary": "This is a [multiline](https://example.com)\nline comment.\n\nWith a second {@link paragraph}.\n\nAnd two examples, the first unnamed, and the second named with a filename/title.",
+    "examples": [
+      {
+        "content": "```typescript\nconsole.log('hello world')\n```"
+      },
+      {
+        "name": "Svelte Example",
+        "content": "\n\n```svelte Example.svelte\n<script>\n  console.log('hello world')\n</script>\n```\n\nAnd using this comp:\n\n```svelte +page.svelte\n<Test text=\"duder\" />\n```"
+      }
+    ]
+  },
+  "componentName": "Test",
+  "props": [
+    {
+      "comment": {
+        "raw": "/**\n * Super duper important text.\n */",
+        "summary": "Super duper important text."
+      },
+      "name": "text",
+      "type": "string"
+    },
+    {
+      "comment": {
+        "raw": "/**\n * Super duper important text.\n */",
+        "summary": "Super duper important text."
+      },
+      "name": "mynan",
+      "type": "string"
+    }
+  ],
+  "events": [],
+  "slots": [],
+  "exports": []
+}
