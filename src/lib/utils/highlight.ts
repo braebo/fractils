@@ -15,7 +15,7 @@ import {
 import { bundledLanguages } from 'shikiji'
 import { logger } from '$lib/utils/logger'
 import { fmtTime } from './time'
-import { dim } from './l'
+import { dim, o } from './l'
 
 const DEBUG = false
 const log = logger('highlight', { fg: '#94b8ff', deferred: false, browser: DEBUG })
@@ -131,4 +131,6 @@ export async function loadLanguage(highlighter: HighlighterCore, lang: Lang) {
 	log('loaded | ' + lang)
 
 	langs.add(lang)
+
+	return lang
 }
