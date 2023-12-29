@@ -1,54 +1,52 @@
 <!-- 
-@component
-
-A styled code block with syntax highlighting.  On the client, the code is
-highlighted using [Shikiji](https://github.com/antfu/shikiji) using the
-{@link highlight} util unless the `ssr` prop is set to true and the highlighted
-text is provided as the `highlightedText` prop.  The raw `text` prop is still
-required in this case, as it's used for screen readers and the copy button.
-
-@example CSR
-
-A simple browser example:
-
-```svelte
-<script>
- 	import Code from 'fractils'
-
- 	const text = `console.log('hello world')`
-</script>
-
-<Code {text} />
-```
-
-@example SSR
-
-+page.svelte
-```svelte
-<script>
- 	import Code from 'fractils'
-
- 	export let data
- 	const { text, highlightedText } = data
-</script>
-
-<Code ssr {text} {highlightedText} />
-```
-
-+page.ts
-```typescript
-import { highlight } from 'fractils/utils/highlight'
-
-export async function load({ page, fetch }) {
-	const text = `console.log('hello world')`
-	const highlightedText = await highlight(text, { lang: 'js' })
-
-	return {
-		text,
-		highlightedText,
-	}
-}
-```
+	 @component
+ 
+	 A styled code block with syntax highlighting.  On the client, the code is 
+	 highlighted using [Shikiji](https://github.com/antfu/shikiji) using the 
+	 {@link highlight} util unless the `ssr` prop is set to true and the highlighted 
+	 text is provided as the `highlightedText` prop.  The raw `text` prop is still 
+	 required in this case, as it's used for screen readers and the copy button.
+ 
+	 @example CSR
+ 
+	 A simple browser example:
+ 
+	 ```svelte
+	 <script>
+	 	import Code from 'fractils'
+ 
+	 	const text = `console.log('hello world')`
+	 </script>
+ 
+	 <Code {text} />
+	 ```
+ 
+	 @example SSR
+	 
+	 ```svelte +page.svelte
+	 <script>
+	 	import Code from 'fractils'
+ 
+	 	export let data
+	 	const { text, highlightedText } = data
+	 </script>
+ 
+	 <Code ssr {text} {highlightedText} />
+	 ```
+	 
+	 ```typescript +page.ts
+	 import { highlight } from 'fractils/utils/highlight'
+ 
+	 export async function load({ page, fetch }) {
+	 	const text = `console.log('hello world')`
+	 	const highlightedText = await highlight(text, { lang: 'js' })
+ 
+	 	return {
+	 		text,
+	 		highlightedText,
+	 	}
+	 }
+	 ```
 -->
 
 <script context="module">
@@ -61,12 +59,13 @@ export async function load({ page, fetch }) {
 	import type { Lang, Theme } from 'shiki'
 
 	import CopyButton from './CopyButton.svelte'
-	import { BROWSER } from 'esm-env'
+	import { BROWSER, DEV } from 'esm-env'
+	import '../css/shiki.scss'
 
 	/**
 	 * The string to highlight.
 	 */
-	export let text: string
+	export let text = ''
 
 	/**
 	 * Effectively just disables the client-side highlighting,
@@ -79,7 +78,17 @@ export async function load({ page, fetch }) {
 	 * Optional pre-highlighted text.  If this is provided _and_ the {@link ssr}
 	 * prop is `true`, the highlighter will not be loaded / run on the client.
 	 */
-	export let highlightedText = ssr ? text : sanitize(text)
+	export let highlightedText = ssr ? text : sanitize(text ?? '')
+
+	if (DEV && !text && !highlightedText) {
+		console.error('<Code /> component requires either the `text` or `highlightedText` prop.')
+
+		if (!text && highlightedText) {
+			console.warn(
+				'`highlightedText` was provided, but unhighlighted `text` prop is required for copy/paste and screen-reader support.',
+			)
+		}
+	}
 
 	/**
 	 * An optional title to display above the code block.
@@ -110,7 +119,7 @@ export async function load({ page, fetch }) {
 	 */
 	export let collapsed = false
 
-	$: if (!ssr && text && BROWSER) {
+	$: if (!ssr && text && !highlightedText && BROWSER) {
 		update()
 	}
 
@@ -124,7 +133,7 @@ export async function load({ page, fetch }) {
 
 	async function update() {
 		const { highlight } = await import('../utils/highlight')
-		highlightedText = await highlight(text, { lang, theme })
+		highlightedText = await highlight(text ?? '', { lang, theme })
 		console.log('update')
 	}
 </script>
@@ -132,7 +141,7 @@ export async function load({ page, fetch }) {
 <!-- invisible plain text version for screen readers -->
 <div class="sr-only" aria-label={`code snippet titled ${title}`}>{text}</div>
 
-<div aria-hidden="true" class="window">
+<div aria-hidden="true" class="code-window">
 	<div class="nav" aria-hidden="true">
 		<div class="dots">
 			<button class="dot red" on:click={() => (collapsed = true)} />
@@ -146,7 +155,7 @@ export async function load({ page, fetch }) {
 	</div>
 
 	<div class="codeblock" class:collapsed>
-		{#if text && copyButton && BROWSER}
+		{#if text && copyButton}
 			<div class="copy-container">
 				<div class="sticky">
 					<CopyButton {text} />
@@ -158,209 +167,13 @@ export async function load({ page, fetch }) {
 	</div>
 </div>
 
-<style lang="scss">
-	.window {
-		position: relative;
 
-		width: 100%;
 
-		margin: auto;
 
-		background: var(--bg, var(--bg-a, #15161d));
-		border-radius: 0.25rem;
-		outline: 1px solid var(--bg-b, #282a36);
-		box-shadow: var(--shadow-sm);
 
-		font-size: 0.8rem;
 
-		overflow: hidden;
-	}
 
-	.codeblock {
-		position: relative;
-		display: flex;
-		flex-direction: column;
-		flex-shrink: 1;
-		flex-grow: 1;
 
-		width: 100%;
 
-		overflow-y: auto;
 
-		// transition: max-height 1s cubic-bezier(0.23,1,0.320,1);
-		transition: max-height 0.75s;
-		transition-timing-function: cubic-bezier(0.56, 0.48, 0.16, 1);
-		&.collapsed {
-			transition-timing-function: cubic-bezier(0.08, 1.12, 0.3, 0.97);
-		}
-	}
 
-	.codeblock {
-		max-height: min(var(--max-height, 450px), min(50vh, 450px));
-
-		&.collapsed {
-			max-height: 0px;
-		}
-	}
-
-	////// SHIKI //////
-
-	:global(.shiki.has-focused) {
-		:global(.line) {
-			transition: 0.25s;
-		}
-
-		:global(.line) {
-			filter: blur(1px) saturate(0.5) brightness(0.8);
-		}
-
-		:global(.line.focused) {
-			filter: blur(0) saturate(1) brightness(1);
-			font-variation-settings: 'wght' 700;
-		}
-	}
-
-	:global(.has-focused:hover .line) {
-		filter: none;
-	}
-
-	:global(.shiki .line.focused) {
-		filter: none;
-	}
-
-	pre {
-		padding: var(--padding-sm, 0.5rem);
-
-		line-height: 1.25rem;
-		font-family: var(--font-mono);
-		box-shadow: var(--shadow-inset);
-	}
-
-	.copy-container {
-		position: sticky;
-		top: 0;
-		right: 0;
-		max-height: 0px;
-	}
-
-	.sticky {
-		position: absolute;
-		right: 0rem;
-		top: 0rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.nav {
-		position: sticky;
-		top: 0;
-
-		display: flex;
-		justify-content: center;
-
-		padding: 0.33rem 0.5rem;
-
-		background: var(--bg-b, #282a36);
-	}
-	.title {
-		color: var(--fg-d, #dfe1e9);
-		transition: color 0.15s;
-	}
-	.window:hover .title {
-		color: var(--fg-c, #c3c4c7);
-	}
-
-	.dots {
-		position: absolute;
-		top: 0.55rem;
-		left: 0.55rem;
-
-		display: flex;
-		gap: 0.3rem;
-
-		width: 2rem;
-		height: 0.5rem;
-
-		$red: var(--red, #ff605c);
-		$yellow: var(--yellow, #febc2e);
-		$green: var(--green, #28c941);
-
-		.dot {
-			all: unset;
-			cursor: pointer;
-			min-width: 0.5rem;
-			min-height: 0.5rem;
-
-			border-radius: 1rem;
-
-			transition: 0.2s;
-
-			&.red {
-				background: $red;
-				&:focus {
-					outline-offset: 2px;
-					outline: 1px solid $red;
-				}
-			}
-			&.yellow {
-				background: $yellow;
-				&:focus {
-					outline-offset: 2px;
-					outline: 1px solid $yellow;
-				}
-			}
-			&.green {
-				background: $green;
-				&:focus {
-					outline-offset: 2px;
-					outline: 1px solid $green;
-				}
-			}
-		}
-
-		filter: saturate(0.5);
-		transition: filter 0.1s;
-	}
-
-	.window:hover .dots {
-		filter: saturate(1);
-	}
-
-	////// Scrollbars //////
-
-	$scrollbar-width: 7px;
-	:global(pre.shiki-wrapper) {
-		scrollbar-gutter: stable;
-		// margin-right: calc(-1 * $scrollbar-width) !important;
-		// margin-left: $scrollbar-width !important;
-	}
-	:global(pre.shiki-wrapper::-webkit-scrollbar) {
-		height: $scrollbar-width;
-		width: $scrollbar-width;
-
-		border-radius: 0.25rem;
-		background: transparent; /* make scrollbar transparent */
-	}
-	:global(pre.shiki-wrapper::-webkit-scrollbar-thumb) {
-		border: 1px solid var(--bg-a);
-		background: var(--bg-b);
-		border-radius: 0.125rem;
-	}
-	:global(pre.shiki-wrapper::-webkit-scrollbar-corner) {
-		background: transparent;
-	}
-
-	:global(.shiki) {
-		filter: brightness(0.9);
-	}
-	:global(.shiki:focus) {
-		filter: brightness(1.1);
-
-		border: none;
-		border-radius: 0.1px !important;
-		// outline: 1px solid var(--bg-b, #282a36);
-		// outline-offset: 0.45rem;
-		outline: none;
-	}
-</style>

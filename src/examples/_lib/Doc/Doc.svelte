@@ -1,33 +1,24 @@
 <script lang="ts">
 	import type { ParsedSvelteFile } from '$scripts/extractinator/src/types'
+	import type { HighlightedBlock } from '$lib/utils/docinator'
 
-	// import { transformerTwoSlash } from 'shikiji-twoslash'
-	// import { highlight } from '$lib'
-	import { mobile } from '$lib'
-	// import { micromark } from 'micromark'
+	import { mobile } from '$lib/stores/Device.svelte'
+	import Code from '$lib/components/Code.svelte'
 	import Bits from './Bits.svelte'
 
 	export let doc: ParsedSvelteFile
 
-	const { exports, fileName, filePath, comment, componentName, events, props, slots } = doc
+	const { filePath, comment, componentName, props } = doc
 
 	const title = componentName
 	const type = componentName ? 'Svelte Component' : 'Module'
 
-	// const stripped_raw = comment?.raw
-	// 	.replaceAll('/**', '')
-	// 	.replaceAll('*/', '')
-	// 	.replaceAll('\n *', '\n ')
-
-	// const html_summary = stripped_raw ? micromark(stripped_raw) : ''
-	// const summary = micromark(comment?.summary ?? '')
-	// const highlight_examples =
-	// 	comment?.examples?.map((e) => ({ ...e, content: micromark(e.content) })) ?? []
-	// const summary = comment?.summary ?? ''
-	// const highlight_examples = comment?.examples?.map((e) => ({ ...e, content: e.content })) ?? []
+	const hasHTMLBlocks = (comment: any) => {
+		return comment as { name: string; content: string; blocks: HighlightedBlock[] }
+	}
 </script>
 
-<div class="item" class:mobile={$mobile}>
+<div class="doc" class:mobile={$mobile}>
 	<header>
 		<a href="#{title}"><h1 id={title}>{title}</h1></a>
 		<p class="code">{type}</p>
@@ -36,21 +27,51 @@
 	<div class="description" class:mobile={$mobile}>
 		<slot name="description">
 			{#if comment}
-				{#if comment.summary}
-					{@html comment.summary}
-				{/if}
+				<div class="summary">
+					{#if comment.summary}
+						<!-- <pre>{comment.summary}</pre> -->
+						<!-- <br> -->
+						{@html comment.summary}
+					{/if}
+				</div>
 
 				{#if comment.examples}
-					<hr />
-					<div class="examples">
-						<h4 class="subtitle">{comment.examples.length > 1 ? 'Examples' : 'Example'}</h4>
+					<!-- <hr /> -->
 
-						{#each comment.examples as { name, content } (name)}
-							<div class="example">
+					<div class="br-sm" />
+
+					<div class="examples col">
+						<h3 class="subtitle"
+							>{comment.examples.length > 1 ? 'Examples' : 'Example'}</h3
+						>
+
+						{#each comment.examples as example}
+							{@const { name, blocks } = hasHTMLBlocks(example)}
+							<!-- <div class="example">
 								<div class="name">
 									{name}
 								</div>
 								{@html content}
+							</div> -->
+							<div class="example col">
+								<h4 class="name">
+									{name}
+								</h4>
+								{#each blocks as block}
+									{#if block.type === 'code'}
+										<div class="block">
+											<Code
+												title={block.title || block.lang || ''}
+												text={block.raw}
+												highlightedText={block.content}
+											/>
+										</div>
+									{:else}
+										<div class="block">
+											{@html block.content}
+										</div>
+									{/if}
+								{/each}
 							</div>
 						{/each}
 					</div>
@@ -73,8 +94,8 @@
 	>
 </div>
 
-<style lang="css">
-	.item {
+<style lang="scss">
+	.doc {
 		display: flex;
 		position: relative;
 		flex-direction: column;
@@ -91,14 +112,32 @@
 		box-shadow: var(--shadow-lg);
 
 		font-family: var(--font-b);
-		font-variation-settings: 'wght' 300 !important;
+		font-variation-settings: 'wght' 300;
 		letter-spacing: 0.5px;
 
 		outline: none;
 		z-index: 1;
 	}
 
-	.item h1 {
+	.summary {
+		padding-top: 1rem;
+
+		font-size: 1rem;
+		line-height: 1.6rem;
+		letter-spacing: 0.6px;
+		word-spacing: 1px;
+
+		:global(code:not(pre code)) {
+			background: var(--bg-a);
+			font-size: 13px !important;
+
+			padding: 0.1rem 0.4rem;
+			margin: 0 0.2rem;
+			border-radius: 0.2rem;
+		}
+	}
+
+	.doc h1 {
 		font-size: 1.5rem;
 		color: var(--fg-a);
 	}
@@ -107,7 +146,11 @@
 		scroll-padding-top: 3rem !important;
 	}
 
-	.item a {
+	h3 {
+		text-align: center;
+	}
+
+	.doc a {
 		font-family: var(--font-a);
 		text-decoration: none;
 
@@ -117,7 +160,7 @@
 			scroll-padding-top: 3rem;
 		}
 	}
-	.item a:hover {
+	.doc a:hover {
 		text-decoration: underline;
 	}
 
@@ -155,5 +198,12 @@
 	.link:hover {
 		font-variation-settings: 'wght' 900 !important;
 		text-decoration: none !important;
+	}
+
+	.examples {
+		gap: 2rem;
+	}
+	.example {
+		gap: 1rem;
 	}
 </style>
