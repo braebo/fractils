@@ -129,6 +129,10 @@
 			margin: 0 0.2rem;
 			border-radius: 0.2rem;
 		}
+
+		:global(a) {
+			color: var(--brand-a) !important;
+		}
 	}
 
 	.doc h1 {
