@@ -1,29 +1,8 @@
 <script lang="ts">
 	import type { Bit } from '$scripts/extractinator/src/types'
 
-	import { micromark } from 'micromark'
-
 	export let bits: Bit[]
 	export let title = ''
-
-	// let connectorStart = 0
-	// let connectorEnd = 0
-	// let height = 0
-	// let nodeHeight = 0
-
-	// const hasChild = (p: Bit) => p.children != undefined
-
-	// function setConnectorLength(node: Element, options: { position: 'first' | 'last' }) {
-	// 	nodeHeight = Math.max(node.clientHeight, nodeHeight)
-
-	// 	if (options.position === 'first') {
-	// 		connectorStart = node.getBoundingClientRect().top + nodeHeight
-	// 	} else {
-	// 		connectorEnd = node.getBoundingClientRect().top + nodeHeight / 2
-
-	// 		height = Math.min(connectorEnd - connectorStart, nodeHeight)
-	// 	}
-	// }
 </script>
 
 <div class="bits">
@@ -32,30 +11,28 @@
 	{/if}
 
 	{#each bits as p}
+		{@const defaultValue = p.comment?.defaultValue}
 		<div class="bit col">
 			<div class="keys row">
-				<!-- <div class="key name"> -->
-				<!-- <div>{p.name}</div> : <div class="code">{p.type}</div> -->
 				<div class="key top">
 					<div class="row">
 						<div class="key name">{p.name}</div>
-						<!-- <span class="colon">:</span> -->
 					</div>
+
 					<div class="code">{p.type}</div>
 				</div>
-				<!-- </div> -->
-
-				<!-- <div class="seperator" /> -->
 			</div>
 
 			{#if p.comment?.summary}
 				<div class="description">{@html p.comment.summary}</div>
 			{/if}
 
-			{#if p.comment?.defaultValue}
-				<div class="row default"
-					><span class="tagname">@default</span>
-					{@html p.comment.defaultValue}</div
+			{#if defaultValue}
+				<div
+					class="row default"
+					class:bool={defaultValue == 'true' || defaultValue == 'false'}
+					><span class="tagname">default</span>
+					{@html defaultValue}</div
 				>
 			{/if}
 		</div>
@@ -80,7 +57,6 @@
 
 	.description {
 		padding-left: 0.33rem;
-		// white-space: pre-wrap;
 		line-height: 1.4;
 	}
 
@@ -90,15 +66,9 @@
 		padding-right: 0.33rem;
 	}
 
-	// .colon {
-	// 	color: var(--fg-d);
-	// }
-
 	.keys {
 		display: flex;
 		flex-shrink: 0;
-
-		// width: var(--width, 140px);
 
 		font-family: var(--font-mono);
 	}
@@ -112,27 +82,42 @@
 	.key.name {
 		padding: 1px 5px;
 
-		color: var(--brand-a);
+		color: var(--fg-a);
 		background: var(--bg-a);
 		border-radius: 5px;
 
-		font-variation-settings: 'wght' 400;
+		font-variation-settings: 'wght' 300;
+		letter-spacing: 2px;
 		font-size: 1.1rem;
 	}
 
 	.key {
 		display: flex;
-		justify-content: center;
+		// justify-content: center;
 		align-items: center;
 
 		&,
 		.key div {
 			width: max-content;
 			height: max-content;
+			min-width: fit-content;
+			flex-wrap: wrap;
 		}
 
 		&.top {
 			gap: 0.5rem;
+			// width: 100%;
+			// justify-content: flex-start;
+
+			// .default {
+			// 	margin-left: auto;
+			// }
+		}
+
+		* {
+			// overflow-x: hidden;
+			word-wrap: pre-wrap;
+			// white-space: pre-wrap;
 		}
 	}
 
@@ -172,5 +157,12 @@
 	.row {
 		display: flex;
 		flex-direction: row;
+	}
+
+	.default {
+		filter: saturate(0.5);
+		&.bool {
+			color: var(--brand-c);
+		}
 	}
 </style>
