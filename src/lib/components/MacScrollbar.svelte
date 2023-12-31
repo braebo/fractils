@@ -5,22 +5,22 @@
 
 	/**
 	 * The scrollbar root element or it's query selector.
-	 * @default `document.body`
+	 * @default document.body
 	 */
 	export let root: string | Element | null = null
 
 	/**
 	 * Destroys the component.
-	 * @default `true` on mobile if not overridden.
+	 * @default `true` on mobile
 	 * @note This component only works on viewport-sized elements.
 	 */
 	export let disabled: boolean | undefined = undefined
 
 	/**
 	 * % of the scrollbar track to pad at the top and bottom.
-	 * @default `0.2`
+	 * @default 0.2
 	 */
-	export const padding = 0.2
+	export const padding: number = 0.2
 	$: disabled = disabled || $mobile
 
 	let viewHeight: number
