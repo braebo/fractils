@@ -141,6 +141,7 @@
 }
 
 pre.shiki-wrapper {
+	overflow: auto;
 	padding: var(--padding-sm, 0.5rem);
 
 	line-height: 1.25rem;
@@ -149,18 +150,29 @@ pre.shiki-wrapper {
 }
 
 .sticky {
-    position: absolute;
+	position: absolute;
 	right: 0rem;
 	top: 0rem;
-	
-    display: flex;
+
+	display: flex;
 	align-items: center;
 	justify-content: center;
 
-    z-index: 1;
+	z-index: 1;
+}
+
+// @defaultValue text
+pre.shiki code span.line {
+	font-size: 0.7rem;
+	font-variation-settings: 'wght' 300;
+	margin-left: auto;
 }
 
 ////// Scrollbars //////
+
+pre.shiki {
+	overflow-x: visible;
+}
 
 $scrollbar-width: 7px;
 pre.shiki-wrapper {
