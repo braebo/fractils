@@ -81,7 +81,7 @@ const instance = new Marked(
 			// try {
 			if (!code || !lang) return await highlight(code)
 
-			console.log('highlighting', { code, lang, info })
+			// console.log('highlighting', { code, lang, info })
 
 			const highlighted = await highlight(code, {
 				lang: lang as Lang,
@@ -172,6 +172,15 @@ async function highlightDocs(docs: ParsedFile[]) {
 					for (const [index, item] of Object.entries(value)) {
 						if (!item.comment) continue
 						doc[key][index].comment = await highlightComment(item.comment)
+						
+						// Highlight default values.
+						const { defaultValue } = item.comment
+						if (defaultValue) {
+							doc[key][index].comment.defaultValue =
+								await highlight(defaultValue, {
+									lang: 'ts'
+								})
+						}
 					}
 				}
 			}
