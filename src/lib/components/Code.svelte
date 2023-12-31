@@ -166,14 +166,3 @@
 		<pre class="shiki-wrapper" style:font-size={$fontSize}>{@html highlightedText}</pre>
 	</div>
 </div>
-
-
-
-
-
-
-
-
-
-
-
