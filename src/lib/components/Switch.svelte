@@ -8,6 +8,7 @@
 	```html
 	<script>
 		import Switch from '$lib/components/Switch.svelte'
+		
 		let checked = false
 		$: console.log(checked ? 'on' : 'off')
 	</script>
@@ -40,9 +41,16 @@
 	}
 
 	interface $$Props {
+		/** The content to display when the switch is on. */
 		on?: string
+		/** The content to display when the switch is off. */
 		off?: string
+		/** Visible to screen readers / tooltips. */
 		title?: string
+		/**
+		 * Whether the switch is checked or not.
+		 * @default false
+		 */
 		checked?: boolean
 		// Colors
 		/** The outline color of the switch. */
@@ -68,13 +76,9 @@
 		'--switch-thumb-radius'?: string
 	}
 
-	/** The content to display when the switch is on. */
 	export let on = ''
-	/** The content to display when the switch is off. */
 	export let off = ''
-	/** Visible to screen readers / tooltips. */
 	export let title = ''
-	/** Whether the switch is checked or not. */
 	export let checked = false
 </script>
 
