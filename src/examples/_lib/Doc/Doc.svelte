@@ -1,10 +1,9 @@
 <script lang="ts">
 	import type { ParsedSvelteFile } from '$scripts/extractinator/src/types'
-	import type { HighlightedBlock } from '$lib/utils/docinator'
 
 	import { mobile } from '$lib/stores/Device.svelte'
-	import Code from '$lib/components/Code.svelte'
 	import Bits from './Bits.svelte'
+	import Examples from './Examples.svelte'
 
 	export let doc: ParsedSvelteFile
 
@@ -12,10 +11,6 @@
 
 	const title = componentName
 	const type = componentName ? 'Svelte Component' : 'Module'
-
-	const hasHTMLBlocks = (comment: any) => {
-		return comment as { name: string; content: string; blocks: HighlightedBlock[] }
-	}
 </script>
 
 <div class="doc" class:mobile={$mobile}>
@@ -34,41 +29,7 @@
 				</div>
 
 				{#if comment.examples}
-
-					<div class="br-sm" />
-
-					<div class="examples col">
-						<h3 class="subtitle"
-							>{comment.examples.length > 1 ? 'Examples' : 'Example'}</h3
-						>
-
-						{#each comment.examples as example}
-							{@const { name, blocks } = hasHTMLBlocks(example)}
-							<div class="example col">
-								{#if name}
-									<h4 class="name">
-										{name}
-									</h4>
-								{/if}
-								
-								{#each blocks as block}
-									{#if block.type === 'code'}
-										<div class="block">
-											<Code
-												title={block.title || block.lang || ''}
-												text={block.raw}
-												highlightedText={block.content}
-											/>
-										</div>
-									{:else}
-										<div class="block">
-											{@html block.content}
-										</div>
-									{/if}
-								{/each}
-							</div>
-						{/each}
-					</div>
+					<Examples examples={comment.examples} />
 				{/if}
 			{/if}
 		</slot>
@@ -144,10 +105,6 @@
 		scroll-padding-top: 3rem !important;
 	}
 
-	h3 {
-		text-align: center;
-	}
-
 	.doc a {
 		font-family: var(--font-a);
 		text-decoration: none;
@@ -196,12 +153,5 @@
 	.link:hover {
 		font-variation-settings: 'wght' 900 !important;
 		text-decoration: none !important;
-	}
-
-	.examples {
-		gap: 2rem;
-	}
-	.example {
-		gap: 1rem;
 	}
 </style>
