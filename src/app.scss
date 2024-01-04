@@ -6,6 +6,7 @@ $mobile: 1000px;
 :root {
 	@include shadows;
 	@include units;
+	@include font;
 
 	--mobile: #{$mobile};
 

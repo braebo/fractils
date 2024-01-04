@@ -1,0 +1,26 @@
+@mixin font {
+	@include fontSizes;
+    @include fontRendering;
+}
+
+@mixin fontSizes {
+	// --font-xxs: 0.75rem;
+	--font-xxs: clamp(0.5rem, 2vw, 0.75rem);
+	// --font-xs: 0.9rem;
+	--font-xs: clamp(0.75rem, 3vw, 0.9rem);
+	--font-sm: clamp(0.9rem, 4vw, 1rem);
+	--font: 1.1rem;
+	--font-md: clamp(1rem, 5vw, 1.25rem);
+	--font-lg: clamp(1.25rem, 5vw, 1.75rem);
+	--font-xl: clamp(1.5rem, 6vw, 2.25rem);
+	--font-xxl: clamp(1.75rem, 7vw, 3rem);
+	--font-xxxl: clamp(3rem, 10vw, 5rem);
+}
+
+@mixin fontRendering {
+	font-synthesis: none;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	-webkit-text-size-adjust: 100%;
+}
