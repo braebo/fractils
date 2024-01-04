@@ -5,7 +5,6 @@
 	import type { PageData } from './$types'
 
 	import Doc from '$examples/_lib/Doc/Doc.svelte'
-	import { BROWSER } from 'esm-env'
 
 	export let data: PageData
 
@@ -13,13 +12,11 @@
 		return file.type === 'svelte'
 	}
 
-	if (BROWSER) console.log(data.docs[0])
+	// if (BROWSER) console.log(data.docs[0])
 </script>
 
 {#each data.docs as contents}
-	{#if isSvelteFile(contents)}
-		<Doc doc={contents}  />
-	{:else}
-		<center><h3>{contents.fileName}</h3></center>
+	{#if contents}
+		<Doc doc={contents} />
 	{/if}
 {/each}
