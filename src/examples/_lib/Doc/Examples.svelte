@@ -11,11 +11,7 @@
 	}
 </script>
 
-<div class="br-sm" />
-
 <div class="examples col">
-	<h3 class="subtitle">{examples.length > 1 ? 'Examples' : 'Example'}</h3>
-
 	{#each examples as example}
 		{@const { name, blocks } = hasHTMLBlocks(example)}
 		<div class="example col">
@@ -46,13 +42,17 @@
 
 <style lang="scss">
 	.examples {
-		gap: 2rem;
-	}
-	.example {
 		gap: 1rem;
 	}
+	.example {
+		gap: 0.5rem;
+	}
 
-	h3 {
-		text-align: center;
+	h4 {
+		font-size: var(--font);
+	}
+
+	.block {
+		font-size: var(--font-sm);
 	}
 </style>

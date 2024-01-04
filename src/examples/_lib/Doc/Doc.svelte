@@ -1,17 +1,42 @@
 <script lang="ts">
-	import type { ParsedSvelteFile } from '$scripts/extractinator/src/types'
+	import type { ParsedSvelteFile, ParsedTSFile } from '$scripts/extractinator/src/types'
 
 	import { mobile } from '$lib/stores/Device.svelte'
-	import Bits from './Bits.svelte'
 	import Examples from './Examples.svelte'
+	import Bits from './Bits.svelte'
 
-	export let doc: ParsedSvelteFile
+	type Exp = ParsedTSFile['exports'][0]
 
-	const { filePath, comment, componentName, props } = doc
+	export let doc: ParsedSvelteFile | ParsedTSFile | Exp
+	export let filePath = (doc as ParsedSvelteFile | ParsedTSFile).filePath
 
-	const title = componentName
-	const type = componentName ? 'Svelte Component' : 'Module'
+	const type = doc.type === 'svelte' ? 'Svelte Component' : 'Module'
+	const title =
+		doc.type === 'svelte' ? (doc as ParsedSvelteFile).componentName : (doc as Exp).name
+
+	const comment = (doc as ParsedSvelteFile | Exp).comment
+
+	const props = (doc as ParsedSvelteFile).props
+	const events = (doc as ParsedSvelteFile).events
+	const slots = (doc as ParsedSvelteFile).slots
+
+	const exports = (doc as ParsedSvelteFile | ParsedTSFile).exports
+
+	function isTs(doc: ParsedSvelteFile | ParsedTSFile | Exp): doc is ParsedTSFile {
+		return doc.type === 'ts'
+	}
+
+	function pluralize(arr: any[], word: string) {
+		const n = arr.length
+		return n === 1 ? word : word + 's'
+	}
 </script>
+
+{#if isTs(doc)}
+	{#each exports as d}
+		<svelte:self doc={d} {filePath} />
+	{/each}
+{/if}
 
 <div class="doc" class:mobile={$mobile}>
 	<header>
@@ -23,21 +48,35 @@
 		<slot name="description">
 			{#if comment}
 				<div class="summary">
-					{#if comment.summary}
-						{@html comment.summary}
-					{/if}
+					{@html comment.summary}
 				</div>
 
 				{#if comment.examples}
+					<h3>{pluralize(comment.examples, 'Example')}</h3>
 					<Examples examples={comment.examples} />
 				{/if}
 			{/if}
 		</slot>
 	</div>
 
-	{#if props.length}
-		<!-- <pre>{JSON.stringify(props, null, 2)}</pre> -->
-		<Bits title="Props" bits={props} />
+	{#if props?.length}
+		<h3>{pluralize(props, 'Prop')}</h3>
+		<Bits bits={props} />
+	{/if}
+
+	{#if events?.length}
+		<h3>{pluralize(events, 'Event')}</h3>
+		<Bits bits={events} />
+	{/if}
+
+	{#if slots?.length}
+		<h3>{pluralize(slots, 'Slot')}</h3>
+		<Bits bits={slots} />
+	{/if}
+
+	{#if exports?.length}
+		<h3>{pluralize(exports, 'Export')}</h3>
+		<Bits bits={exports} />
 	{/if}
 
 	<slot />
@@ -61,7 +100,8 @@
 		padding: 1.5rem;
 
 		color: var(--fg-c);
-		background: var(--bg-b);
+		// background: var(--bg-b);
+		background: hsl(228, 15%, 7%);
 
 		border-radius: var(--radius);
 		box-shadow: var(--shadow-lg);
@@ -72,6 +112,8 @@
 
 		outline: none;
 		z-index: 1;
+
+		font-size: var(--font-sm);
 	}
 
 	.summary {
@@ -84,6 +126,7 @@
 
 		:global(code:not(pre code)) {
 			background: var(--bg-a);
+			color: var(--brand-b);
 			font-size: 13px !important;
 
 			padding: 0.1rem 0.4rem;
@@ -96,13 +139,21 @@
 		}
 	}
 
-	.doc h1 {
-		font-size: 1.5rem;
+	h1 {
 		color: var(--fg-a);
+
+		font-size: 1.5rem;
+
+		scroll-padding-top: 3rem !important;
 	}
 
-	h1 {
-		scroll-padding-top: 3rem !important;
+	h3 {
+		margin-top: 1.5rem;
+		margin-bottom: 0.5rem;
+
+		text-align: center;
+		font-size: var(--font-md);
+		color: var(--fg-a);
 	}
 
 	.doc a {
@@ -123,10 +174,6 @@
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-	}
-
-	.mobile {
-		font-size: 0.9rem;
 	}
 
 	:global(.param) {

@@ -1,15 +1,10 @@
 <script lang="ts">
-	import type { Bit } from '$scripts/extractinator/src/types'
+	import type { Bit, SlotBit } from '$scripts/extractinator/src/types'
 
-	export let bits: Bit[]
-	export let title = ''
+	export let bits: (Bit | SlotBit)[]
 </script>
 
 <div class="bits">
-	{#if title}
-		<h2 class="title">{title}</h2>
-	{/if}
-
 	{#each bits as p}
 		{@const defaultValue = p.comment?.defaultValue}
 		<div class="bit col">
@@ -19,7 +14,9 @@
 						<div class="key name">{p.name}</div>
 					</div>
 
-					<div class="code">{p.type}</div>
+					{#if 'type' in p}
+						<div class="code">{p.type}</div>
+					{/if}
 				</div>
 			</div>
 
@@ -45,8 +42,6 @@
 		flex-direction: column;
 		gap: 1.5rem;
 
-		padding: 1.5rem 0;
-
 		font-family: var(--font-b);
 	}
 
@@ -58,6 +53,7 @@
 	.description {
 		padding-left: 0.33rem;
 		line-height: 1.4;
+		color: var(--fg-d);
 	}
 
 	.tagname {
@@ -82,12 +78,19 @@
 	.key.name {
 		padding: 1px 5px;
 
-		color: var(--fg-a);
-		background: var(--bg-a);
-		border-radius: 5px;
+		// color: var(--fg-a);
+		// background: var(--bg-a);
 
+		color: var(--brand-a);
+		background: rgb(26, 26, 26);
+		// background: black;
+		border-radius: var(--radius-sm);
+		font-variation-settings: 'wght' 400;
 		font-variation-settings: 'wght' 300;
-		letter-spacing: 2px;
+
+		// outline: 1px solid rgba(var(--fg-d-rgb), 0.25);
+
+		// letter-spacing: 1px;
 		font-size: 1.1rem;
 	}
 
@@ -128,20 +131,22 @@
 	:global(.description span.code) {
 		font-size: 0.85rem;
 		font-variation-settings: 'wght' 500;
-		background: var(--bg-b) !important;
+		// background: var(--bg-b) !important;
 		padding: 3px 7px 4px 7px;
 		color: var(--fg-a) !important;
 	}
 
 	.code,
 	:global(.bit .default code) {
-		background: var(--bg-c);
+		// background: var(--bg-c);
+		background: none;
 		color: var(--fg-d);
 		color: var(--brand-b);
 		font-size: 0.85rem;
 		padding: 3px 7px 4px 7px;
 		border-radius: 5px;
-		font-variation-settings: 'wght' 200;
+		font-variation-settings: 'wght' 250;
+		font-family: var(--font-mono);
 	}
 
 	.col {
@@ -160,9 +165,14 @@
 	}
 
 	.default {
-		filter: saturate(0.5);
+		font-family: var(--font-mono);
+		font-size: var(--font-xs);
 		&.bool {
 			color: var(--brand-c);
+		}
+
+		.tagname {
+			color: var(--bg-d);
 		}
 	}
 </style>
