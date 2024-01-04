@@ -6,18 +6,18 @@
   "props": [
     {
       "comment": {
-        "raw": "/**\n * The scrollbar root element or it's query selector.\n *\n * @default\n *\n * `document.body`\n */",
+        "raw": "/**\n * The scrollbar root element or it's query selector.\n *\n * @default\n *\n * document.body\n */",
         "summary": "<p>The scrollbar root element or it&#39;s query selector.</p>\n",
-        "defaultValue": "`document.body`"
+        "defaultValue": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#DEE0EF\">document</span><span style=\"color:#5BA2D0\">.</span><span style=\"color:#DEE0EF\">body</span></span></code></pre>"
       },
       "name": "root",
       "type": "string | Element"
     },
     {
       "comment": {
-        "raw": "/**\n * Destroys the component.\n *\n * @default\n *\n * `true` on mobile if not overridden.\n *\n * @note\n *\n * This component only works on viewport-sized elements.\n */",
+        "raw": "/**\n * Destroys the component.\n *\n * @default\n *\n * `true` on mobile\n *\n * @note\n *\n * This component only works on viewport-sized elements.\n */",
         "summary": "<p>Destroys the component.</p>\n",
-        "defaultValue": "`true`on mobile if not overridden.",
+        "defaultValue": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#A78BFA\">`true`</span><span style=\"color:#DEE0EF\">on</span><span style=\"color:#DEE0EF\"> mobile</span></span></code></pre>",
         "notes": [
           "This component only works on viewport-sized elements."
         ]
@@ -27,12 +27,12 @@
     },
     {
       "comment": {
-        "raw": "/**\n * % of the scrollbar track to pad at the top and bottom.\n *\n * @default\n *\n * `0.2`\n */",
+        "raw": "/**\n * % of the scrollbar track to pad at the top and bottom.\n *\n * @default\n *\n * 0.2\n */",
         "summary": "<p>% of the scrollbar track to pad at the top and bottom.</p>\n",
-        "defaultValue": "`0.2`"
+        "defaultValue": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#F8D2C9\">0.2</span></span></code></pre>"
       },
       "name": "padding",
-      "type": "0.2"
+      "type": "number"
     }
   ],
   "events": [],

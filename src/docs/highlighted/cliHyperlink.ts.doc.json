@@ -8,7 +8,7 @@
       "type": "typeof cliHyperlink",
       "isDefaultExport": false,
       "comment": {
-        "raw": "/**\n * Creates an ANSI escape code formatted string for a clickable hyperlink in the terminal.\n *\n * @param url - The URL that the hyperlink will point to.\n *\n * @param displayText - The text to be displayed in the terminal, which will be clickable. If not provided, the URL will be used.\n *\n * @returns The formatted string with ANSI escape codes for the hyperlink.\n *\n * @example\n *\n * console.log(createHyperlink(\"https://example.com\", \"Visit Example\")); // This will print a clickable hyperlink with the text \"Visit Example\" that opens https://example.com\n */",
+        "raw": "/**\n * Creates an ANSI escape code formatted string for a clickable hyperlink in the terminal.\n *\n * @param url - The URL that the hyperlink will point to.\n *\n * @param displayText - The text to be displayed in the terminal, which will be clickable. If not provided, the URL will be used.\n *\n * @returns The formatted string with ANSI escape codes for the hyperlink.\n *\n * @example\n * ```ts\n * console.log(createHyperlink(\"https://example.com\", \"Visit Example\"));\n * // This will print a clickable hyperlink with the text \"Visit Example\" that opens https://example.com\n * ```\n *\n */",
         "summary": "<p>Creates an ANSI escape code formatted string for a clickable hyperlink in the terminal.</p>\n",
         "params": [
           {
@@ -23,9 +23,16 @@
         "returns": "The formatted string with ANSI escape codes for the hyperlink.",
         "examples": [
           {
-            "name": "console.log(createHyperlink(\"https://example.com\", \"Visit Example\"));",
-            "content": "\n// This will print a clickable hyperlink with the text \"Visit Example\" that opens https://example.com",
-            "blocks": "<p>// This will print a clickable hyperlink with the text &quot;Visit Example&quot; that opens <a href=\"https://example.com\">https://example.com</a></p>\n"
+            "content": "```ts\nconsole.log(createHyperlink(\"https://example.com\", \"Visit Example\"));\n// This will print a clickable hyperlink with the text \"Visit Example\" that opens https://example.com\n```",
+            "blocks": [
+              {
+                "type": "code",
+                "content": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#DEE0EF\">console</span><span style=\"color:#5BA2D0\">.</span><span style=\"color:#F8D2C9\">log</span><span style=\"color:#DEE0EF\">(</span><span style=\"color:#F8D2C9\">createHyperlink</span><span style=\"color:#DEE0EF\">(</span><span style=\"color:#A78BFA\">\"https://example.com\"</span><span style=\"color:#8D8F9E\">,</span><span style=\"color:#A78BFA\"> \"Visit Example\"</span><span style=\"color:#DEE0EF\">))</span><span style=\"color:#777D8F\">;</span></span>\n<span class=\"line\"><span style=\"color:#8D8F9E;font-style:italic\">//</span><span style=\"color:#6B6D7C;font-style:italic\"> This will print a clickable hyperlink with the text \"Visit Example\" that opens https://example.com</span></span></code></pre>",
+                "lang": "ts",
+                "raw": "console.log(createHyperlink(\"https://example.com\", \"Visit Example\"));\n// This will print a clickable hyperlink with the text \"Visit Example\" that opens https://example.com",
+                "title": ""
+              }
+            ]
           }
         ]
       }

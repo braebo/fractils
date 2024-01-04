@@ -4,7 +4,7 @@
   "filePath": "src/lib/test/Test.svelte",
   "comment": {
     "raw": "/**\n * This is a [multiline](https://example.com) line comment.\n *\n * With a second {@link paragraph}.\n *\n * And two examples, the first unnamed, and the second named with a filename/title.\n *\n * @example\n * ```typescript\n * console.log('hello world')\n * ```\n *\n * @example\n *\n * Svelte Example\n * ```svelte Example.svelte\n * <script>\n *     console.log('hello world')\n * </script>\n * ```\n *\n * And using this comp:\n * ```svelte +page.svelte\n * <Test text=\"duder\" />\n * ```\n *\n */",
-    "summary": "<p>This is a <a href=\"https://example.com\">multiline</a>\nline comment.</p>\n<p>With a second {@link paragraph}.</p>\n<p>And two examples, the first unnamed, and the second named with a filename/title.</p>\n",
+    "summary": "<p>This is a <a href=\"https://example.com\">multiline</a>\nline comment.</p>\n<p>With a second <a href=\"#paragraph\">paragraph</a>.</p>\n<p>And two examples, the first unnamed, and the second named with a filename/title.</p>\n",
     "examples": [
       {
         "content": "```typescript\nconsole.log('hello world')\n```",

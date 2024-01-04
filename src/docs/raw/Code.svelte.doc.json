@@ -4,7 +4,7 @@
   "filePath": "src/lib/components/Code.svelte",
   "comment": {
     "raw": "/**\n * A styled code block with syntax highlighting. On the client, the code is highlighted using [Shikiji](https://github.com/antfu/shikiji) using the {@link highlight} util unless the `ssr` prop is set to true and the highlighted text is provided as the `highlightedText` prop. The raw `text` prop is still required in this case, as it's used for screen readers and the copy button.\n *\n * @example\n *\n * CSR\n *\n * A simple browser example:\n *\n * ```svelte <script> import Code from 'fractils'\n *\n * const text = `console.log('hello world')` </script>\n *\n * <Code {text} /> ```\n *\n * @example\n *\n * SSR\n *\n * ```svelte +page.svelte <script> import Code from 'fractils'\n *\n * export let data const { text, highlightedText } = data </script>\n *\n * <Code ssr {text} {highlightedText} /> ```\n *\n * ```typescript +page.ts import { highlight } from 'fractils/utils/highlight'\n *\n * export async function load({ page, fetch }) { const text = `console.log('hello world')` const highlightedText = await highlight(text, { lang: 'js' })\n *\n * return { text, highlightedText, } } ```\n */",
-    "summary": "A styled code block with syntax highlighting. On the client, the code is\nhighlighted using [Shikiji](https://github.com/antfu/shikiji) using the\n{@link highlight} util unless the `ssr` prop is set to true and the highlighted\ntext is provided as the `highlightedText` prop. The raw `text` prop is still\nrequired in this case, as it's used for screen readers and the copy button.",
+    "summary": "A styled code block with syntax highlighting. On the client, the code is\nhighlighted using [Shikiji](https://github.com/antfu/shikiji) using the\n[highlight](#highlight) util unless the `ssr` prop is set to true and the highlighted\ntext is provided as the `highlightedText` prop. The raw `text` prop is still\nrequired in this case, as it's used for screen readers and the copy button.",
     "examples": [
       {
         "name": "CSR",
@@ -38,7 +38,7 @@
     {
       "comment": {
         "raw": "/**\n * Optional pre-highlighted text. If this is provided _and_ the {@link ssr} prop is `true`, the highlighter will not be loaded / run on the client.\n */",
-        "summary": "Optional pre-highlighted text. If this is provided _and_ the {@link ssr}\nprop is `true`, the highlighter will not be loaded / run on the client."
+        "summary": "Optional pre-highlighted text. If this is provided _and_ the [ssr](#ssr)\nprop is `true`, the highlighter will not be loaded / run on the client."
       },
       "name": "highlightedText",
       "type": "string"
@@ -55,7 +55,7 @@
     {
       "comment": {
         "raw": "/**\n * The language to use. Must be a {@link ValidLanguage}.\n *\n * @defaultValue\n *\n * 'json'\n */",
-        "summary": "The language to use. Must be a {@link ValidLanguage}.",
+        "summary": "The language to use. Must be a [ValidLanguage](#ValidLanguage).",
         "defaultValue": "'json'"
       },
       "name": "lang",

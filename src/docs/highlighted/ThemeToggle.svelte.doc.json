@@ -12,7 +12,7 @@
       "comment": {
         "raw": "/**\n * Whether `initTheme` should be called automatically.\n *\n * @default\n *\n * true\n */",
         "summary": "<p>Whether <code>initTheme</code> should be called automatically.</p>\n",
-        "defaultValue": "true"
+        "defaultValue": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#F8D2C9\">true</span></span></code></pre>"
       },
       "name": "init",
       "type": "boolean"
@@ -21,7 +21,7 @@
       "comment": {
         "raw": "/**\n * Icon transition animation options.\n *\n * @default\n *\n * { y: -35, duration: 1000, easing: expoOut }\n */",
         "summary": "<p>Icon transition animation options.</p>\n",
-        "defaultValue": "{y: -35, duration: 1000, easing: expoOut}"
+        "defaultValue": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#8D8F9E\">{</span><span style=\"color:#F8D2C9\">y</span><span style=\"color:#8D8F9E\">:</span><span style=\"color:#5BA2D0\"> -</span><span style=\"color:#F8D2C9\">35</span><span style=\"color:#8D8F9E\">,</span><span style=\"color:#F8D2C9\"> duration</span><span style=\"color:#8D8F9E\">:</span><span style=\"color:#F8D2C9\"> 1000</span><span style=\"color:#8D8F9E\">,</span><span style=\"color:#F8D2C9\"> easing</span><span style=\"color:#8D8F9E\">:</span><span style=\"color:#DEE0EF\"> expoOut</span><span style=\"color:#8D8F9E\">}</span></span></code></pre>"
       },
       "name": "transitionOptions",
       "type": "{ y: number; duration: number; easing: (t: number) => number; }"

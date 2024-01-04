@@ -18,7 +18,7 @@
       "isDefaultExport": false,
       "comment": {
         "raw": "/**\n * Configuration for {@link debrief}.\n */",
-        "summary": "Configuration for {@link debrief}."
+        "summary": "Configuration for [debrief](#debrief)."
       }
     }
   ]

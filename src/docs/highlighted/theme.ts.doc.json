@@ -18,7 +18,7 @@
       "isDefaultExport": false,
       "comment": {
         "raw": "/**\n * Toggles {@link theme} to and from light / dark mode\n */",
-        "summary": "<p>Toggles {@link theme} to and from light / dark mode</p>\n"
+        "summary": "<p>Toggles <a href=\"#theme\">theme</a> to and from light / dark mode</p>\n"
       }
     },
     {

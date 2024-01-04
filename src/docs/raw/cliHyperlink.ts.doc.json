@@ -8,7 +8,7 @@
       "type": "typeof cliHyperlink",
       "isDefaultExport": false,
       "comment": {
-        "raw": "/**\n * Creates an ANSI escape code formatted string for a clickable hyperlink in the terminal.\n *\n * @param url - The URL that the hyperlink will point to.\n *\n * @param displayText - The text to be displayed in the terminal, which will be clickable. If not provided, the URL will be used.\n *\n * @returns The formatted string with ANSI escape codes for the hyperlink.\n *\n * @example\n *\n * console.log(createHyperlink(\"https://example.com\", \"Visit Example\")); // This will print a clickable hyperlink with the text \"Visit Example\" that opens https://example.com\n */",
+        "raw": "/**\n * Creates an ANSI escape code formatted string for a clickable hyperlink in the terminal.\n *\n * @param url - The URL that the hyperlink will point to.\n *\n * @param displayText - The text to be displayed in the terminal, which will be clickable. If not provided, the URL will be used.\n *\n * @returns The formatted string with ANSI escape codes for the hyperlink.\n *\n * @example\n * ```ts\n * console.log(createHyperlink(\"https://example.com\", \"Visit Example\"));\n * // This will print a clickable hyperlink with the text \"Visit Example\" that opens https://example.com\n * ```\n *\n */",
         "summary": "Creates an ANSI escape code formatted string for a clickable hyperlink in the terminal.",
         "params": [
           {
@@ -23,8 +23,7 @@
         "returns": "The formatted string with ANSI escape codes for the hyperlink.",
         "examples": [
           {
-            "name": "console.log(createHyperlink(\"https://example.com\", \"Visit Example\"));",
-            "content": "\n// This will print a clickable hyperlink with the text \"Visit Example\" that opens https://example.com"
+            "content": "```ts\nconsole.log(createHyperlink(\"https://example.com\", \"Visit Example\"));\n// This will print a clickable hyperlink with the text \"Visit Example\" that opens https://example.com\n```"
           }
         ]
       }

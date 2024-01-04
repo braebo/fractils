@@ -18,7 +18,7 @@
       "comment": {
         "raw": "/**\n * Tracks the screen height.\n *\n * @default\n *\n * 900\n */",
         "summary": "<p>Tracks the screen height.</p>\n",
-        "defaultValue": "900"
+        "defaultValue": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#F8D2C9\">900</span></span></code></pre>"
       },
       "name": "screenH",
       "type": "Writable<number>"
@@ -27,7 +27,7 @@
       "comment": {
         "raw": "/**\n * Tracks the screen width.\n *\n * @default\n *\n * 900\n */",
         "summary": "<p>Tracks the screen width.</p>\n",
-        "defaultValue": "900"
+        "defaultValue": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#F8D2C9\">900</span></span></code></pre>"
       },
       "name": "screenW",
       "type": "Writable<number>"
@@ -36,7 +36,7 @@
       "comment": {
         "raw": "/**\n * Adjusts the $mobile 'breakpoint' threshold.\n *\n * @default\n *\n * 900\n */",
         "summary": "<p>Adjusts the $mobile &#39;breakpoint&#39; threshold.</p>\n",
-        "defaultValue": "900"
+        "defaultValue": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#F8D2C9\">900</span></span></code></pre>"
       },
       "name": "mobileThreshold",
       "type": "Writable<number>"
@@ -45,7 +45,7 @@
       "comment": {
         "raw": "/**\n * Detects screen width below 900px\n *\n * @default\n *\n * false\n */",
         "summary": "<p>Detects screen width below 900px</p>\n",
-        "defaultValue": "false"
+        "defaultValue": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#F8D2C9\">false</span></span></code></pre>"
       },
       "name": "mobile",
       "type": "Readable<boolean>"
@@ -54,7 +54,7 @@
       "comment": {
         "raw": "/**\n * Tracks the users scroll position.\n *\n * @default\n *\n * 0\n */",
         "summary": "<p>Tracks the users scroll position.</p>\n",
-        "defaultValue": "0"
+        "defaultValue": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#F8D2C9\">0</span></span></code></pre>"
       },
       "name": "scrollY",
       "type": "Writable<number>"
@@ -63,7 +63,7 @@
       "comment": {
         "raw": "/**\n * Tracks the users x and y mouse positions.\n *\n * @default\n *\n * '{ x: 0, y: 0 }'\n */",
         "summary": "<p>Tracks the users x and y mouse positions.</p>\n",
-        "defaultValue": "'{x: 0, y: 0}'"
+        "defaultValue": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#A78BFA\">'{x: 0, y: 0}'</span></span></code></pre>"
       },
       "name": "mouse",
       "type": "Writable<{ x: number; y: number; }>"

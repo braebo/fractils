@@ -4,7 +4,7 @@
   "filePath": "src/lib/components/Code.svelte",
   "comment": {
     "raw": "/**\n * A styled code block with syntax highlighting. On the client, the code is highlighted using [Shikiji](https://github.com/antfu/shikiji) using the {@link highlight} util unless the `ssr` prop is set to true and the highlighted text is provided as the `highlightedText` prop. The raw `text` prop is still required in this case, as it's used for screen readers and the copy button.\n *\n * @example\n *\n * CSR\n *\n * A simple browser example:\n *\n * ```svelte <script> import Code from 'fractils'\n *\n * const text = `console.log('hello world')` </script>\n *\n * <Code {text} /> ```\n *\n * @example\n *\n * SSR\n *\n * ```svelte +page.svelte <script> import Code from 'fractils'\n *\n * export let data const { text, highlightedText } = data </script>\n *\n * <Code ssr {text} {highlightedText} /> ```\n *\n * ```typescript +page.ts import { highlight } from 'fractils/utils/highlight'\n *\n * export async function load({ page, fetch }) { const text = `console.log('hello world')` const highlightedText = await highlight(text, { lang: 'js' })\n *\n * return { text, highlightedText, } } ```\n */",
-    "summary": "<p>A styled code block with syntax highlighting. On the client, the code is\nhighlighted using <a href=\"https://github.com/antfu/shikiji\">Shikiji</a> using the\n{@link highlight} util unless the <code>ssr</code> prop is set to true and the highlighted\ntext is provided as the <code>highlightedText</code> prop. The raw <code>text</code> prop is still\nrequired in this case, as it&#39;s used for screen readers and the copy button.</p>\n",
+    "summary": "<p>A styled code block with syntax highlighting. On the client, the code is\nhighlighted using <a href=\"https://github.com/antfu/shikiji\">Shikiji</a> using the\n<a href=\"#highlight\">highlight</a> util unless the <code>ssr</code> prop is set to true and the highlighted\ntext is provided as the <code>highlightedText</code> prop. The raw <code>text</code> prop is still\nrequired in this case, as it&#39;s used for screen readers and the copy button.</p>\n",
     "examples": [
       {
         "name": "CSR",
@@ -59,7 +59,7 @@
       "comment": {
         "raw": "/**\n * Effectively just disables the client-side highlighting, assuming the text has already been highlighted on the server.\n *\n * @defaultValue\n *\n * false\n */",
         "summary": "<p>Effectively just disables the client-side highlighting,\nassuming the text has already been highlighted on the server.</p>\n",
-        "defaultValue": "false"
+        "defaultValue": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#F8D2C9\">false</span></span></code></pre>"
       },
       "name": "ssr",
       "type": "boolean"
@@ -67,7 +67,7 @@
     {
       "comment": {
         "raw": "/**\n * Optional pre-highlighted text. If this is provided _and_ the {@link ssr} prop is `true`, the highlighter will not be loaded / run on the client.\n */",
-        "summary": "<p>Optional pre-highlighted text. If this is provided <em>and</em> the {@link ssr}\nprop is <code>true</code>, the highlighter will not be loaded / run on the client.</p>\n"
+        "summary": "<p>Optional pre-highlighted text. If this is provided <em>and</em> the <a href=\"#ssr\">ssr</a>\nprop is <code>true</code>, the highlighter will not be loaded / run on the client.</p>\n"
       },
       "name": "highlightedText",
       "type": "string"
@@ -76,7 +76,7 @@
       "comment": {
         "raw": "/**\n * An optional title to display above the code block.\n *\n * @defaultValue\n *\n * 'code'\n */",
         "summary": "<p>An optional title to display above the code block.</p>\n",
-        "defaultValue": "'code'"
+        "defaultValue": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#A78BFA\">'code'</span></span></code></pre>"
       },
       "name": "title",
       "type": "string"
@@ -84,8 +84,8 @@
     {
       "comment": {
         "raw": "/**\n * The language to use. Must be a {@link ValidLanguage}.\n *\n * @defaultValue\n *\n * 'json'\n */",
-        "summary": "<p>The language to use. Must be a {@link ValidLanguage}.</p>\n",
-        "defaultValue": "'json'"
+        "summary": "<p>The language to use. Must be a <a href=\"#ValidLanguage\">ValidLanguage</a>.</p>\n",
+        "defaultValue": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#A78BFA\">'json'</span></span></code></pre>"
       },
       "name": "lang",
       "type": "Lang"
@@ -94,7 +94,7 @@
       "comment": {
         "raw": "/**\n * The theme to use.\n *\n * @defaultValue\n *\n * 'github'\n */",
         "summary": "<p>The theme to use.</p>\n",
-        "defaultValue": "'github'"
+        "defaultValue": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#A78BFA\">'github'</span></span></code></pre>"
       },
       "name": "theme",
       "type": "Theme"
@@ -103,7 +103,7 @@
       "comment": {
         "raw": "/**\n * If true, a button will be displayed to copy the code to the clipboard.\n *\n * @defaultValue\n *\n * true\n */",
         "summary": "<p>If true, a button will be displayed to copy the code to the clipboard.</p>\n",
-        "defaultValue": "true"
+        "defaultValue": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#F8D2C9\">true</span></span></code></pre>"
       },
       "name": "copyButton",
       "type": "boolean"

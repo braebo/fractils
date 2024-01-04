@@ -3,13 +3,13 @@
   "fileName": "Switch.svelte",
   "filePath": "src/lib/components/Switch.svelte",
   "comment": {
-    "raw": "/**\n * A native checkbox that looks like a switch.\n *\n * @remarks\n *\n * The switch is designed to have a fixed size for consistency. It's best placed within a passive container that softly wraps the input, such as one with a width set to 'fit-content'. If the switch is placed in a parent container that's too small, adjust the size of the switch using the `--switch-width` and `--switch-height` custom properties, or adjust the size of the parent container. The switch does not automatically adjust its size based on the parent container.\n *\n * @example\n *\n * Basic\n * ```html\n * <script>\n * \timport Switch from '$lib/components/Switch.svelte'\n * \tlet checked = false\n * \t$: console.log(checked ? 'on' : 'off')\n * </script>\n *\n * <Switch bind:checked />\n * ```\n *\n * @example\n *\n * Theme Switcher\n * ```html\n * <script>\n * \timport { theme, toggleTheme } from 'fractils'\n * \timport Switch from '$lib/components/Switch.svelte'\n * </script>\n *\n * <Switch\n * \ton=\"🌞\"\n * \toff=\"🌙\"\n * \ttitle=\"theme switcher\"\n * \tchecked={$theme === 'dark'}\n * \ton:click={toggleTheme}\n * \t--switch-accent=\"var(--bg-d)\"\n * />\n * ```\n *\n */",
+    "raw": "/**\n * A native checkbox that looks like a switch.\n *\n * @remarks\n *\n * The switch is designed to have a fixed size for consistency. It's best placed within a passive container that softly wraps the input, such as one with a width set to 'fit-content'. If the switch is placed in a parent container that's too small, adjust the size of the switch using the `--switch-width` and `--switch-height` custom properties, or adjust the size of the parent container. The switch does not automatically adjust its size based on the parent container.\n *\n * @example\n *\n * Basic\n * ```html\n * <script>\n * \timport Switch from '$lib/components/Switch.svelte'\n *\n * \tlet checked = false\n * \t$: console.log(checked ? 'on' : 'off')\n * </script>\n *\n * <Switch bind:checked />\n * ```\n *\n * @example\n *\n * Theme Switcher\n * ```html\n * <script>\n * \timport { theme, toggleTheme } from 'fractils'\n * \timport Switch from '$lib/components/Switch.svelte'\n * </script>\n *\n * <Switch\n * \ton=\"🌞\"\n * \toff=\"🌙\"\n * \ttitle=\"theme switcher\"\n * \tchecked={$theme === 'dark'}\n * \ton:click={toggleTheme}\n * \t--switch-accent=\"var(--bg-d)\"\n * />\n * ```\n *\n */",
     "summary": "A native checkbox that looks like a switch.",
     "remarks": "The switch is designed to have a fixed size for consistency. It's best placed within a passive container that softly wraps the input, such as one with a width set to 'fit-content'. If the switch is placed in a parent container that's too small, adjust the size of the switch using the`--switch-width`and`--switch-height`custom properties, or adjust the size of the parent container. The switch does not automatically adjust its size based on the parent container.",
     "examples": [
       {
         "name": "Basic",
-        "content": "\n```html\n<script>\n\timport Switch from '$lib/components/Switch.svelte'\n\tlet checked = false\n\t$: console.log(checked ? 'on' : 'off')\n</script>\n\n<Switch bind:checked />\n```"
+        "content": "\n```html\n<script>\n\timport Switch from '$lib/components/Switch.svelte'\n\n\tlet checked = false\n\t$: console.log(checked ? 'on' : 'off')\n</script>\n\n<Switch bind:checked />\n```"
       },
       {
         "name": "Theme Switcher",
@@ -20,18 +20,35 @@
   "componentName": "Switch",
   "props": [
     {
+      "comment": {
+        "raw": "/**\n * The content to display when the switch is on.\n */",
+        "summary": "The content to display when the switch is on."
+      },
       "name": "on",
       "type": "string"
     },
     {
+      "comment": {
+        "raw": "/**\n * The content to display when the switch is off.\n */",
+        "summary": "The content to display when the switch is off."
+      },
       "name": "off",
       "type": "string"
     },
     {
+      "comment": {
+        "raw": "/**\n * Visible to screen readers / tooltips.\n */",
+        "summary": "Visible to screen readers / tooltips."
+      },
       "name": "title",
       "type": "string"
     },
     {
+      "comment": {
+        "raw": "/**\n * Whether the switch is checked or not.\n *\n * @default\n *\n * false\n */",
+        "summary": "Whether the switch is checked or not.",
+        "defaultValue": "false"
+      },
       "name": "checked",
       "type": "boolean"
     },

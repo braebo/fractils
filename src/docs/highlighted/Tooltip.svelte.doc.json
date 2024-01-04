@@ -34,7 +34,7 @@
       "comment": {
         "raw": "/**\n * Placement of the tooltip.\n *\n * @defaultValue\n *\n * 'right'\n */",
         "summary": "<p>Placement of the tooltip.</p>\n",
-        "defaultValue": "'right'"
+        "defaultValue": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#A78BFA\">'right'</span></span></code></pre>"
       },
       "name": "placement",
       "type": "(string & {}) | \"left\" | \"right\" | \"top\" | \"bottom\""
@@ -43,7 +43,7 @@
       "comment": {
         "raw": "/**\n * Intro & outro delay in ms.\n *\n * @defaultValue\n *\n * [500, 100]\n */",
         "summary": "<p>Intro &amp; outro delay in ms.</p>\n",
-        "defaultValue": "[500, 100]"
+        "defaultValue": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#DEE0EF\">[</span><span style=\"color:#F8D2C9\">500</span><span style=\"color:#8D8F9E\">,</span><span style=\"color:#F8D2C9\"> 100</span><span style=\"color:#DEE0EF\">]</span></span></code></pre>"
       },
       "name": "delay",
       "type": "[number, number]"
@@ -64,7 +64,7 @@
       "comment": {
         "raw": "/**\n * X and Y offset in px.\n *\n * @defaultValue\n *\n * [10, 0]\n */",
         "summary": "<p>X and Y offset in px.</p>\n",
-        "defaultValue": "[10, 0]"
+        "defaultValue": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#DEE0EF\">[</span><span style=\"color:#F8D2C9\">10</span><span style=\"color:#8D8F9E\">,</span><span style=\"color:#F8D2C9\"> 0</span><span style=\"color:#DEE0EF\">]</span></span></code></pre>"
       },
       "name": "offset",
       "type": "number[]"
