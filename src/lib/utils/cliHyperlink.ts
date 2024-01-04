@@ -6,8 +6,10 @@
  * @returns The formatted string with ANSI escape codes for the hyperlink.
  *
  * @example
+ * ```ts
  * console.log(createHyperlink("https://example.com", "Visit Example"));
  * // This will print a clickable hyperlink with the text "Visit Example" that opens https://example.com
+ * ```
  */
 export function cliHyperlink(url: string, displayText = url): string {
 	return `\u001b]8;;${url}\u0007${displayText}\u001b]8;;\u0007`
