@@ -19,7 +19,7 @@
 	"bugs": {
 		"url": "https://github.com/fractalhq/fractils/issues"
 	},
-	"homepage": "https://github.com/fractalhq/fractils#readme",
+	"homepage": "https://fractils.fractal-hq.com",
 	"scripts": {
 		"dev": "vite dev",
 		"test": "vitest",
@@ -42,7 +42,8 @@
 		"docinator:test": "bun run src/lib/utils/docinator.ts ./src/docs/raw/test ./src/docs/highlighted/test",
 		"docinator:test:watch": "bun run --watch src/lib/utils/docinator.ts ./src/docs/raw/test ./src/docs/highlighted/test",
 		"generate:docs": "pnpm extractinator && pnpm docinator",
-		"generate:all": "run-p generate:docs generate:css generate:shiki"
+		"generate:api": "pnpm package && api-extractor run --local",
+		"generate:all": "run-s generate:docs generate:css generate:shiki generate:api"
 	},
 	"dependencies": {
 		"esm-env": "^1.0.0"
@@ -54,17 +55,18 @@
 		"@changesets/cli": "^2.27.1",
 		"@fastify/deepmerge": "^1.3.0",
 		"@microsoft/api-documenter": "^7.23.16",
+		"@microsoft/api-extractor": "^7.39.1",
 		"@microsoft/tsdoc": "^0.14.2",
 		"@microsoft/tsdoc-config": "^0.16.2",
-		"@sveltejs/adapter-vercel": "4.0.3",
+		"@sveltejs/adapter-vercel": "4.0.4",
 		"@sveltejs/kit": "2.0.6",
 		"@sveltejs/package": "2.2.5",
 		"@svitejs/changesets-changelog-github-compact": "^1.1.0",
-		"@types/node": "^20.10.5",
+		"@types/node": "^20.10.6",
 		"@types/prismjs": "^1.26.3",
-		"@vitest/ui": "^1.1.0",
-		"bun": "^1.0.20",
-		"bun-types": "^1.0.20",
+		"@vitest/ui": "^1.1.2",
+		"bun": "^1.0.21",
+		"bun-types": "^1.0.21",
 		"chalk": "^5.3.0",
 		"chokidar": "^3.5.3",
 		"colors": "^1.4.0",
@@ -72,7 +74,7 @@
 		"greset": "2.0.0",
 		"highlight.js": "^11.9.0",
 		"kleur": "^4.1.5",
-		"marked": "^11.1.0",
+		"marked": "^11.1.1",
 		"marked-highlight": "^2.1.0",
 		"micromark": "^4.0.0",
 		"nanoid": "^5.0.4",
@@ -82,13 +84,13 @@
 		"prismjs": "^1.29.0",
 		"pug": "^3.0.2",
 		"sade": "^1.8.1",
-		"sass": "^1.69.6",
+		"sass": "^1.69.7",
 		"semver": "^7.5.4",
 		"shiki": "^0.14.7",
 		"shiki-twoslash": "^3.1.2",
-		"shikiji": "^0.9.13",
-		"shikiji-transformers": "^0.9.13",
-		"shikiji-twoslash": "^0.9.13",
+		"shikiji": "^0.9.17",
+		"shikiji-transformers": "^0.9.17",
+		"shikiji-twoslash": "^0.9.17",
 		"svelte": "^4.2.8",
 		"svelte-check": "^3.6.2",
 		"svelte-preprocess": "^5.1.3",
@@ -98,10 +100,11 @@
 		"ts-morph": "^21.0.1",
 		"tslib": "^2.6.2",
 		"tsutils": "^3.21.0",
+		"typedoc": "^0.25.6",
 		"typescript": "^5.3.3",
 		"vite": "^5.0.10",
-		"vite-node": "^1.1.0",
-		"vitest": "^1.1.0"
+		"vite-node": "^1.1.2",
+		"vitest": "^1.1.2"
 	},
 	"exports": {
 		".": {
