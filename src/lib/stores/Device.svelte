@@ -2,7 +2,7 @@
 	@component
 	A series of device related stores.
 
-	@see {@link https://fractils.fractal-hq.com/#Device Device documentation}
+	@see {@link https://fractils.fractal-hq.com/#Device|Device documentation}
  -->
 <script context="module" lang="ts">
 	import { writable, derived } from 'svelte/store'
@@ -42,7 +42,6 @@
 
 	/**
 	 * Tracks the users x and y mouse positions.
-	 * @default '{ x: 0, y: 0 }'
 	 */
 	export const mouse = writable({ x: 0, y: 0 })
 
