@@ -74,11 +74,12 @@ const dispatch = (node: HTMLElement, name: Event, detail: VisibilityEventDetail)
 /**
  * Observes an element's current viewport visibility and dispatches relevant events.
  *
- * @param options - Optional config, see {@link VisibilityOptions}.
+ * Events:
+ * - on:change - Triggered when element enters or leaves view.
+ * - on:enter - Triggered when element enters view.
+ * - on:exit - Triggered when element exits view.
  *
- * @event change - Triggered when element enters or leaves view.
- * @event enter - Triggered when element enters view.
- * @event exit - Triggered when element exits view.
+ * @param options - Optional config, see {@link VisibilityOptions}.
  *
  * @example
  *```svelte
