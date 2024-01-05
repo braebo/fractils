@@ -343,8 +343,8 @@ body {
   --brand-a-rgb: 0, 188, 212;
   --brand-b: #f8d2c9;
   --brand-b-rgb: 248, 210, 201;
-  --brand-c: #ff8ba9;
-  --brand-c-rgb: 255, 139, 169;
+  --brand-c: #ba788a;
+  --brand-c-rgb: 186, 120, 138;
 }
 body[theme=light] {
   --fg-a: #15161d;
