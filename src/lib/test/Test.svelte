@@ -4,7 +4,7 @@
     This is a [multiline](https://example.com)
     line comment.
 
-    With a second {@link paragraph}.
+    With a second {@link Paragraph}.
 
     And two examples, the first unnamed, and the second named with a filename/title.
 
@@ -29,6 +29,10 @@
     ```
  -->
 
+<script lang="ts" context="module">
+	export type Paragraph = string;
+</script>
+
 <script lang="ts">
 	/**
 	 * Super duper important text.
@@ -39,7 +43,7 @@
 	 */
 	export let mynan = 'based'
 
-    console.log(mynan)
+	console.log(mynan)
 </script>
 
 <h1>Hello {text}</h1>
