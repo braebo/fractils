@@ -1,12 +1,13 @@
 <script>
-	import { mobile, screenH, screenW, scrollY, mouse } from '$lib';
-	import Example from '$examples/_lib/Item/Example.svelte';
-	import Params from '$examples/_lib/Item/Params.svelte';
-	import Item from '../_lib/Item/Item.svelte';
-	import html2 from './Device2.html?raw';
-	import html1 from './Device.html?raw';
+	import { mobile, screenH, screenW, scrollY, mouse } from '$lib'
+	import Example from '$examples/_lib/Item/Example.svelte'
+	import Params from '$examples/_lib/Item/Params.svelte'
+	import Item from '../_lib/Item/Item.svelte'
+	import html2 from './Device2.html?raw'
+	import html1 from './Device.html?raw'
+	// import { Device } from '$lib'
 
-	const path = 'stores/Device.svelte';
+	const path = 'stores/Device.svelte'
 
 	$: stores = {
 		mobile: $mobile,
@@ -14,7 +15,7 @@
 		screenH: $screenH,
 		scrollY: Math.floor($scrollY),
 		mouse: `${$mouse.x}, ${$mouse.y}`,
-	};
+	}
 
 	const params = [
 		{
@@ -47,7 +48,7 @@
 			title: 'mouse',
 			description: `Tracks the users mouse position.`,
 		},
-	];
+	]
 </script>
 
 <Item title="device" type="stores" {path}>
