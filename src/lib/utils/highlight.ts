@@ -120,11 +120,8 @@ export async function getHighlighterInstance() {
 			loadWasm: getWasmInlined,
 			themes: [serendipity],
 			langs: [
-				//@ts-expect-error
 				import('shikiji/langs/svelte.mjs'),
-				//@ts-expect-error
 				import('shikiji/langs/typescript.mjs'),
-				//@ts-expect-error
 				import('shikiji/langs/javascript.mjs'),
 			],
 			// langs: [],
