@@ -2,8 +2,8 @@
  * JSON.stringify() with circular reference support.
  * - Circular references are replaced with the string `[Circular ~<path>]`
  * where `<path>` is the path to the circular reference.
- * - `undefined` -> `"undefined"`
- * - `function` -> `"function"`
+ * - `undefined` -\> `"undefined"`
+ * - `function` -\> `"function"`
  *
  * @param obj - The object to stringify.
  * @param indentation - Number of spaces for indentation. Optional.
