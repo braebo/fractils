@@ -33,7 +33,7 @@ export class ArgMap {
 			return long
 		}
 
-		// Find the key-value pair with the first letter of the name matching the short name
+		//? Find the key-value pair with the first letter of the name matching the short name
 		const char = name.charAt(0)
 		const short = Array.from(this.map.entries()).find(([k]) => k.charAt(0) === char)
 		if (short) {
@@ -53,18 +53,18 @@ export function resolveArg(name: string, args: string[]) {
 
 	for (let i = 0; i < args.length; i++) {
 		if (kvRegex.test(args[i])) {
-			// Handle key-value pairs like --input=/path
+			//? Handle key-value pairs like --input=/path
 			return args[i].split('=')[1]
 		} else if (args[i] === `-${name.charAt(0)}` || args[i] === `--${name}`) {
-			// Handle separated key and value like --input /path
+			//? Handle separated key and value like --input /path
 			if (i + 1 < args.length && !args[i + 1].startsWith('-')) {
 				return args[i + 1]
 			}
-			return true // Handle boolean flags when no following value is present
+			return true //? Handle boolean flags when no following value is present
 		}
 	}
 
-	// After checking for key-value pairs, check for a standalone boolean flag
+	//? After checking for key-value pairs, check for a standalone boolean flag
 	for (let i = 0; i < args.length; i++) {
 		if (flagRegex.test(args[i])) {
 			return true
@@ -76,11 +76,12 @@ export function resolveArg(name: string, args: string[]) {
 
 /**
  * Converts an array of args to a Map of key-value pairs.
+ * @param args - The array of arguments to convert.
+ * @param coerce - Whether to coerce numbers and booleans, or leave them as strings.  Defaults to true.
+ * @remarks
  * - Arguments starting with -- support spaces and `=` as a separator, e.g. `--name=John` or `--name John`
  * - Arguments starting with - support k/v with spaces, e.g. `-n John` or boolean flags, e.g. `-n`
  * - Arguments without a leading - or -- are treated as positional arguments and ignored.
- * @param args The array of arguments to convert.
- * @param coerce Whether to coerce numbers and booleans, or leave them as strings.  Defaults to true.
  */
 export function mapArgs(args: string[], coerce = true): Map<string, string | number | boolean> {
 	const map = new Map<string, string | number | boolean>()
