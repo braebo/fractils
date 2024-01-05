@@ -38,7 +38,7 @@ type Entry<T extends {}> = T extends readonly [unknown, ...unknown[]]
 
 /**
  * A type-preserving version of `Object.entries`.
- * @param obj Any object.
+ * @param obj - Any object.
  * @returns An array of key-value pairs with their types preserved.
  *
  * @example Immutable
@@ -66,7 +66,7 @@ export function entries<T extends {}>(object: T) {
 
 /**
  * A type-preserving version of `Object.keys`.
- * @param obj Any object.
+ * @param obj - Any object.
  * @returns An array of the keys with their types preserved.
  *
  * @example Immutable
@@ -93,7 +93,7 @@ export function keys<T extends {}>(object: T): ReadonlyArray<keyof T> {
 
 /**
  * A type-preserving version of `Object.values`.
- * @param obj Any object.
+ * @param obj - Any object.
  * @returns An array of values with their types preserved.
  *
  * @example Immutable

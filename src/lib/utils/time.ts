@@ -42,12 +42,14 @@ export interface StartOptions {
 
 /**
  * Like `console.time`, returning a `console.timeEnd` function.
- * @param label Console label.
+ * @param label - Console label.
  * @returns `console.timeEnd` for the given label.
  * @example
+ * ```ts
  * const end = start('foo')
  * // do stuff
  * end() // foo 1.2s
+ * ```
  */
 export function start(label: string, options?: StartOptions) {
 	const { randomColor, pad, logStart } = Object.assign(
@@ -87,7 +89,7 @@ export function start(label: string, options?: StartOptions) {
  * Formats a number representing time.  Smaller numbers are formatted in
  * milliseconds, and larger numbers in seconds. In both cases, precision
  * is kept to a minimum and trailing zeroes are removed.
- * @param n Time in milliseconds.
+ * @param n - Time in milliseconds.
  * @returns Formatted time string.
  */
 export function fmtTime(n: number): string {
