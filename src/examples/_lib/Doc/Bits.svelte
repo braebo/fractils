@@ -78,11 +78,11 @@
 	.key.name {
 		padding: 1px 5px;
 
-		// color: var(--fg-a);
-		// background: var(--bg-a);
+		color: var(--fg-a);
+		background: var(--bg-a);
 
-		color: var(--brand-a);
-		background: rgb(26, 26, 26);
+		// color: var(--brand-a);
+		// background: rgb(26, 26, 26);
 		// background: black;
 		border-radius: var(--radius-sm);
 		font-variation-settings: 'wght' 400;

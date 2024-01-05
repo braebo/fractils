@@ -84,7 +84,8 @@
 	<a
 		class="link"
 		target="_blank"
-		href="https://github.com/FractalHQ/fractils/blob/main/{filePath}">{'</>'}</a
+		title="View source on GitHub"
+		href="https://github.com/fractalhq/fractils/tree/main/{filePath}">{'</>'}</a
 	>
 </div>
 
@@ -95,13 +96,16 @@
 		flex-direction: column;
 		gap: 0.5rem;
 
-		width: var(--col);
+		// width: var(--col);
+		width: clamp(20rem, 100%, 50rem);
 		margin: 3rem auto;
 		padding: 1.5rem;
+		padding-bottom: 3rem;
 
 		color: var(--fg-c);
 		// background: var(--bg-b);
-		background: hsl(228, 15%, 7%);
+		// background: hsl(228, 15%, 7%);
+		background: rgba(var(--bg-b-rgb), 0.5);
 
 		border-radius: var(--radius);
 		box-shadow: var(--shadow-lg);
@@ -126,7 +130,8 @@
 
 		:global(code:not(pre code)) {
 			background: var(--bg-a);
-			color: var(--brand-b);
+			// color: var(--brand-b);
+			color: var(--brand-c);
 			font-size: 13px !important;
 
 			padding: 0.1rem 0.4rem;
@@ -176,21 +181,31 @@
 		justify-content: space-between;
 	}
 
-	:global(.param) {
+	:global(.doc .param) {
 		display: flex;
 		gap: 0.5rem;
 
 		margin-top: 0.5rem;
 	}
+	
+	:global(.doc ul) {
+		margin-top: 0.5rem;
+		margin-left: 1rem;
+	}
+	:global(.doc li) {
+		margin-top: 0.5rem;
+		margin-left: 1rem;
+		line-height: 1.25rem;
+	}
 
 	.link {
 		position: absolute;
-		bottom: 0;
-		right: 0;
+		bottom: 0.75rem;
+		right: 1.25rem;
 
-		padding: 1.2rem;
+		// padding: 1.2rem;
 
-		color: var(--bg-a);
+		color: var(--bg-c);
 
 		font-family: var(--font-mono) !important;
 		font-variation-settings: 'wght' 500 !important;
