@@ -1,4 +1,12 @@
 /**
+ * some stuff I often use
+ *
+ * @remarks perpetual WIP
+ *
+ * @packageDocumentation
+ */
+
+/**
  * Undocumented modules are marked with // todo
  */
 
