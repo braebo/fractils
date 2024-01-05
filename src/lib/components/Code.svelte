@@ -1,56 +1,59 @@
 <!-- 
-	 @component
- 
-	 A styled code block with syntax highlighting.  On the client, the code is 
-	 highlighted using [Shikiji](https://github.com/antfu/shikiji) using the 
-	 {@link highlight} util unless the `ssr` prop is set to true and the highlighted 
-	 text is provided as the `highlightedText` prop.  The raw `text` prop is still 
-	 required in this case, as it's used for screen readers and the copy button.
- 
-	 @example CSR
- 
-	 A simple browser example:
- 
-	 ```svelte
-	 <script>
-	 	import Code from 'fractils'
- 
-	 	const text = `console.log('hello world')`
-	 </script>
- 
-	 <Code {text} />
-	 ```
- 
-	 @example SSR
-	 
-	 ```svelte +page.svelte
-	 <script>
-	 	import Code from 'fractils'
- 
-	 	export let data
-	 	const { text, highlightedText } = data
-	 </script>
- 
-	 <Code ssr {text} {highlightedText} />
-	 ```
-	 
-	 ```typescript +page.ts
-	 import { highlight } from 'fractils/utils/highlight'
- 
-	 export async function load({ page, fetch }) {
-	 	const text = `console.log('hello world')`
-	 	const highlightedText = await highlight(text, { lang: 'js' })
- 
-	 	return {
-	 		text,
-	 		highlightedText,
-	 	}
-	 }
-	 ```
+	@component
+
+	A styled code block with syntax highlighting.  On the client, the code is 
+	highlighted using [Shikiji](https://github.com/antfu/shikiji) using the 
+	{@link highlight} util unless the `ssr` prop is set to true and the highlighted 
+	text is provided as the `highlightedText` prop.  The raw `text` prop is still 
+	required in this case, as it's used for screen readers and the copy button.
+
+	@example CSR
+
+	A simple browser example:
+
+	```svelte
+	<script>
+		import Code from 'fractils'
+
+		const text = `console.log('hello world')`
+	</script>
+
+	<Code {text} />
+	```
+
+	@example SSR
+	
+	```svelte +page.svelte
+	<script>
+		import Code from 'fractils'
+
+		export let data
+		const { text, highlightedText } = data
+	</script>
+
+	<Code ssr {text} {highlightedText} />
+	```
+	
+	```typescript +page.ts
+	import { highlight } from 'fractils/utils/highlight'
+
+	export async function load({ page, fetch }) {
+		const text = `console.log('hello world')`
+		const highlightedText = await highlight(text, { lang: 'js' })
+
+		return {
+			text,
+			highlightedText,
+		}
+	}
+	```
 -->
 
-<script context="module">
+<script lang="ts" context="module">
+	import type { highlight } from '../utils/highlight'
+
 	import { localStorageStore } from '../utils/localStorageStore'
+	import { BROWSER, DEV } from 'esm-env'
 
 	const fontSize = localStorageStore('fractils::settings::codeblock::fontSize', '0.8rem')
 </script>
@@ -59,7 +62,6 @@
 	import type { Lang, Theme } from 'shiki'
 
 	import CopyButton from './CopyButton.svelte'
-	import { BROWSER, DEV } from 'esm-env'
 	import '../css/shiki.scss'
 
 	/**
