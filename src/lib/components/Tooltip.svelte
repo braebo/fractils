@@ -1,16 +1,16 @@
-<!-- @component
-A tooltip that appears on hover.
+<!--
+	@component A tooltip that appears on hover.
 
-@example
-```svelte
-<script>
-	import { Tooltip } from 'fractils';
-</script>
+	@example
+	```svelte
+	<script>
+		import { Tooltip } from 'fractils';
+	</script>
 
-<Tooltip content="Hello World">
-	<div class="hover-1"> Hover over me! </div>
-</Tooltip>
-```
+	<Tooltip content="Hello World">
+		<div class="hover-1"> Hover over me! </div>
+	</Tooltip>
+	```
 -->
 
 <script context="module">
