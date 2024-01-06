@@ -38,7 +38,10 @@ async function main() {
 	// TypeDoc's tsconfig.json/package.json/typedoc.json option readers
 	const app = await TypeDoc.Application.bootstrapWithPlugins({
 		entryPoints: ['src/lib/index.ts'],
+		// entryPoints: ['dist/index.js'],
 		validation: false,
+		treatValidationWarningsAsErrors: false,
+		treatWarningsAsErrors: false,
 	})
 
 	const project = await app.convert()
@@ -50,7 +53,7 @@ async function main() {
 		// Rendered docs
 		await app.generateDocs(project, outputDir)
 		// Alternatively generate JSON output
-		await app.generateJson(project, outputDir + '/json')
+		await app.generateJson(project, 'src/fractils.typedoc.json')
 	}
 }
 

@@ -1213,7 +1213,7 @@
         {
           "kind": "Function",
           "canonicalReference": "fractils!coerce:function(1)",
-          "docComment": "/**\n * Attempts to parse a string value to a boolean or number if possible, returning the string unchanged if not.\n *\n * @example\n *\n * const a = coerce('21') //=\\> const a: number const b = coerce('true') //=\\> const b: true const c = coerce('False') //=\\> const c: \"False\"\n */\n",
+          "docComment": "/**\n * Attempts to parse a string value to a boolean or number if possible, returning the string unchanged if not.\n *\n * @example\n * ```ts\n * const a = coerce('21') //=\\> const a: number\n * const b = coerce('true') //=\\> const b: true\n * const c = coerce('False') //=\\> const c: \"False\"\n * ```\n *\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",

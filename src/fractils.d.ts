@@ -463,9 +463,11 @@ declare type CodeSlots = typeof __propDef_9.slots;
  * possible, returning the string unchanged if not.
  *
  * @example
+ * ```ts
  * const a = coerce('21') //=\> const a: number
  * const b = coerce('true') //=\> const b: true
  * const c = coerce('False') //=\> const c: "False"
+ * ```
  */
 export declare function coerce<T extends string>(value: T): CoerceValue<T>;
 
