@@ -18,6 +18,12 @@
       "isDefaultExport": false,
       "comment": {
         "raw": "/**\n * Toggles {@link theme} to and from light / dark mode\n */",
+        "links": [
+          {
+            "target": "theme",
+            "text": "theme"
+          }
+        ],
         "summary": "Toggles [theme](#theme) to and from light / dark mode"
       }
     },

@@ -8,7 +8,7 @@
       "type": "typeof start",
       "isDefaultExport": false,
       "comment": {
-        "raw": "/**\n * Like `console.time`, returning a `console.timeEnd` function.\n *\n * @param label - Console label.\n *\n * @returns `console.timeEnd` for the given label.\n *\n * @example\n *\n * const end = start('foo') // do stuff end() // foo 1.2s\n */",
+        "raw": "/**\n * Like `console.time`, returning a `console.timeEnd` function.\n *\n * @param label - Console label.\n *\n * @returns `console.timeEnd` for the given label.\n *\n * @example\n * ```ts\n * const end = start('foo')\n * // do stuff\n * end() // foo 1.2s\n * ```\n *\n */",
         "summary": "<p>Like <code>console.time</code>, returning a <code>console.timeEnd</code> function.</p>\n",
         "params": [
           {
@@ -19,9 +19,16 @@
         "returns": "`console.timeEnd`for the given label.",
         "examples": [
           {
-            "name": "const end = start('foo')",
-            "content": "\n// do stuff\nend() // foo 1.2s",
-            "blocks": "<p>// do stuff\nend() // foo 1.2s</p>\n"
+            "content": "```ts\nconst end = start('foo')\n// do stuff\nend() // foo 1.2s\n```",
+            "blocks": [
+              {
+                "type": "code",
+                "content": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#5BA2D0\">const</span><span style=\"color:#DEE0EF\"> end</span><span style=\"color:#5BA2D0\"> =</span><span style=\"color:#F8D2C9\"> start</span><span style=\"color:#DEE0EF\">(</span><span style=\"color:#A78BFA\">'foo'</span><span style=\"color:#DEE0EF\">)</span></span>\n<span class=\"line\"><span style=\"color:#8D8F9E;font-style:italic\">//</span><span style=\"color:#6B6D7C;font-style:italic\"> do stuff</span></span>\n<span class=\"line\"><span style=\"color:#F8D2C9\">end</span><span style=\"color:#DEE0EF\">()</span><span style=\"color:#8D8F9E;font-style:italic\"> //</span><span style=\"color:#6B6D7C;font-style:italic\"> foo 1.2s</span></span></code></pre>",
+                "lang": "ts",
+                "raw": "const end = start('foo')\n// do stuff\nend() // foo 1.2s",
+                "title": ""
+              }
+            ]
           }
         ]
       }

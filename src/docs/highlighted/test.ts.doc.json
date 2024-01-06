@@ -1,0 +1,21 @@
+{
+  "type": "ts",
+  "fileName": "test.ts",
+  "filePath": "src/lib/test/test.ts",
+  "exports": [
+    {
+      "name": "Foobar",
+      "type": "Foobar",
+      "isDefaultExport": false
+    },
+    {
+      "name": "Test",
+      "type": "Test",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * This is a test class.\n */",
+        "summary": "<p>This is a test class.</p>\n"
+      }
+    }
+  ]
+}

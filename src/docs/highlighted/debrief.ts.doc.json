@@ -18,6 +18,12 @@
       "isDefaultExport": false,
       "comment": {
         "raw": "/**\n * Configuration for {@link debrief}.\n */",
+        "links": [
+          {
+            "target": "debrief",
+            "text": "debrief"
+          }
+        ],
         "summary": "<p>Configuration for <a href=\"#debrief\">debrief</a>.</p>\n"
       }
     }

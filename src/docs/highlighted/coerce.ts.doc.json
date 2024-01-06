@@ -8,13 +8,20 @@
       "type": "typeof coerce",
       "isDefaultExport": false,
       "comment": {
-        "raw": "/**\n * Attempts to parse a string value to a boolean or number if possible, returning the string unchanged if not.\n *\n * @example\n *\n * const a = coerce('21') //=> const a: number const b = coerce('true') //=> const b: true const c = coerce('False') //=> const c: \"False\"\n */",
+        "raw": "/**\n * Attempts to parse a string value to a boolean or number if possible, returning the string unchanged if not.\n *\n * @example\n * ```ts\n * const a = coerce('21') //=\\> const a: number\n * const b = coerce('true') //=\\> const b: true\n * const c = coerce('False') //=\\> const c: \"False\"\n * ```\n *\n */",
         "summary": "<p>Attempts to parse a string value to a boolean or number if\npossible, returning the string unchanged if not.</p>\n",
         "examples": [
           {
-            "name": "const a = coerce('21') //=> const a: number",
-            "content": "\nconst b = coerce('true') //=> const b: true\nconst c = coerce('False') //=> const c: \"False\"",
-            "blocks": "<p>const b = coerce(&#39;true&#39;) //=&gt; const b: true\nconst c = coerce(&#39;False&#39;) //=&gt; const c: &quot;False&quot;</p>\n"
+            "content": "```ts\nconst a = coerce('21') //=\\> const a: number\nconst b = coerce('true') //=\\> const b: true\nconst c = coerce('False') //=\\> const c: \"False\"\n```",
+            "blocks": [
+              {
+                "type": "code",
+                "content": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#5BA2D0\">const</span><span style=\"color:#DEE0EF\"> a</span><span style=\"color:#5BA2D0\"> =</span><span style=\"color:#F8D2C9\"> coerce</span><span style=\"color:#DEE0EF\">(</span><span style=\"color:#A78BFA\">'21'</span><span style=\"color:#DEE0EF\">)</span><span style=\"color:#8D8F9E;font-style:italic\"> //</span><span style=\"color:#6B6D7C;font-style:italic\">=\\> const a: number</span></span>\n<span class=\"line\"><span style=\"color:#5BA2D0\">const</span><span style=\"color:#DEE0EF\"> b</span><span style=\"color:#5BA2D0\"> =</span><span style=\"color:#F8D2C9\"> coerce</span><span style=\"color:#DEE0EF\">(</span><span style=\"color:#A78BFA\">'true'</span><span style=\"color:#DEE0EF\">)</span><span style=\"color:#8D8F9E;font-style:italic\"> //</span><span style=\"color:#6B6D7C;font-style:italic\">=\\> const b: true</span></span>\n<span class=\"line\"><span style=\"color:#5BA2D0\">const</span><span style=\"color:#DEE0EF\"> c</span><span style=\"color:#5BA2D0\"> =</span><span style=\"color:#F8D2C9\"> coerce</span><span style=\"color:#DEE0EF\">(</span><span style=\"color:#A78BFA\">'False'</span><span style=\"color:#DEE0EF\">)</span><span style=\"color:#8D8F9E;font-style:italic\"> //</span><span style=\"color:#6B6D7C;font-style:italic\">=\\> const c: \"False\"</span></span></code></pre>",
+                "lang": "ts",
+                "raw": "const a = coerce('21') //=\\> const a: number\nconst b = coerce('true') //=\\> const b: true\nconst c = coerce('False') //=\\> const c: \"False\"",
+                "title": ""
+              }
+            ]
           }
         ]
       }

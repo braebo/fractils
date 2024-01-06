@@ -52,12 +52,18 @@
       "type": "Action<HTMLElement, VisibilityOptions, VisibilityAttr>",
       "isDefaultExport": false,
       "comment": {
-        "raw": "/**\n * Observes an element's current viewport visibility and dispatches relevant events.\n *\n * @param options - Optional config, see {@link VisibilityOptions}.\n *\n * @event change - Triggered when element enters or leaves view.  @event enter - Triggered when element enters view.  @event exit - Triggered when element exits view.\n *\n * @example\n * ```svelte\n * <script>\n * \tlet visible, scrollDir, options = {threshold: 0.25}\n *\n *  <!-- TypeScript users can import the VisibilityEvent or VisibilityEventDetail type -->\n * \tfunction handleChange({ detail }) {\n * \t\tvisible = detail.isVisible\n * \t\tscrollDir = detail.scrollDirection\n * \t}\n * </script>\n *\n * <div\n * \tuse:visibility={options}\n * \ton:v-change={handleChange}\n * \ton:v-enter={doSomething}\n * \ton:v-exit={doSomethingElse}\n * \tclass:visible\n * >\n * \t{scrollDir}\n * </div>\n *\n * ```\n *\n */",
-        "summary": "Observes an element's current viewport visibility and dispatches relevant events.",
+        "raw": "/**\n * Observes an element's current viewport visibility and dispatches relevant events.\n *\n * Events: - on:change - Triggered when element enters or leaves view. - on:enter - Triggered when element enters view. - on:exit - Triggered when element exits view.\n *\n * @param options - Optional config, see {@link VisibilityOptions}.\n *\n * @example\n * ```svelte\n * <script>\n * \tlet visible, scrollDir, options = {threshold: 0.25}\n *\n *  <!-- TypeScript users can import the VisibilityEvent or VisibilityEventDetail type -->\n * \tfunction handleChange({ detail }) {\n * \t\tvisible = detail.isVisible\n * \t\tscrollDir = detail.scrollDirection\n * \t}\n * </script>\n *\n * <div\n * \tuse:visibility={options}\n * \ton:v-change={handleChange}\n * \ton:v-enter={doSomething}\n * \ton:v-exit={doSomethingElse}\n * \tclass:visible\n * >\n * \t{scrollDir}\n * </div>\n *\n * ```\n *\n */",
+        "links": [
+          {
+            "target": "VisibilityOptions",
+            "text": "VisibilityOptions"
+          }
+        ],
+        "summary": "Observes an element's current viewport visibility and dispatches relevant events.\n\nEvents:\n- on:change - Triggered when element enters or leaves view.\n- on:enter - Triggered when element enters view.\n- on:exit - Triggered when element exits view.",
         "params": [
           {
             "name": "options",
-            "description": "Optional config, see{@linkVisibilityOptions}.@eventchange - Triggered when element enters or leaves view.@evententer - Triggered when element enters view.@eventexit - Triggered when element exits view."
+            "description": "Optional config, see{@linkVisibilityOptions}."
           }
         ],
         "examples": [

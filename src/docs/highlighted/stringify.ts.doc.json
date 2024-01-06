@@ -18,7 +18,7 @@
       "type": "(input: unknown, indentation?: number) => string",
       "isDefaultExport": false,
       "comment": {
-        "raw": "/**\n * JSON.stringify() with circular reference support. - Circular references are replaced with the string `[Circular ~<path>]` where `<path>` is the path to the circular reference. - `undefined` -> `\"undefined\"` - `function` -> `\"function\"`\n *\n * @param obj - The object to stringify.\n *\n * @param indentation - Number of spaces for indentation. Optional.\n */",
+        "raw": "/**\n * JSON.stringify() with circular reference support. - Circular references are replaced with the string `[Circular ~<path>]` where `<path>` is the path to the circular reference. - `undefined` -\\> `\"undefined\"` - `function` -\\> `\"function\"`\n *\n * @param obj - The object to stringify.\n *\n * @param indentation - Number of spaces for indentation. Optional.\n */",
         "summary": "<p>JSON.stringify() with circular reference support.</p>\n<ul>\n<li>Circular references are replaced with the string <code>[Circular ~&lt;path&gt;]</code>\nwhere <code>&lt;path&gt;</code> is the path to the circular reference.</li>\n<li><code>undefined</code> -&gt; <code>&quot;undefined&quot;</code></li>\n<li><code>function</code> -&gt; <code>&quot;function&quot;</code></li>\n</ul>\n",
         "params": [
           {

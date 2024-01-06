@@ -3,10 +3,16 @@
   "fileName": "Device.svelte",
   "filePath": "src/lib/stores/Device.svelte",
   "comment": {
-    "raw": "/**\n * A series of device related stores.\n *\n * @see\n *\n * {@link https://fractils.fractal-hq.com/#Device Device documentation}\n */",
+    "raw": "/**\n * A series of device related stores.\n *\n * @see\n *\n * {@link https://fractils.fractal-hq.com/#Device | Device documentation}\n */",
+    "links": [
+      {
+        "target": "https://fractils.fractal-hq.com/#Device",
+        "text": "Device documentation"
+      }
+    ],
     "summary": "A series of device related stores.",
     "seeBlocks": [
-      "{@linkhttps://fractils.fractal-hq.com/#Device Device documentation}"
+      "{@linkhttps://fractils.fractal-hq.com/#Device|Device documentation}"
     ]
   },
   "componentName": "Device",
@@ -61,9 +67,8 @@
     },
     {
       "comment": {
-        "raw": "/**\n * Tracks the users x and y mouse positions.\n *\n * @default\n *\n * '{ x: 0, y: 0 }'\n */",
-        "summary": "Tracks the users x and y mouse positions.",
-        "defaultValue": "'{x: 0, y: 0}'"
+        "raw": "/**\n * Tracks the users x and y mouse positions.\n */",
+        "summary": "Tracks the users x and y mouse positions."
       },
       "name": "mouse",
       "type": "Writable<{ x: number; y: number; }>"

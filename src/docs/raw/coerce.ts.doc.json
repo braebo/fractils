@@ -8,12 +8,11 @@
       "type": "typeof coerce",
       "isDefaultExport": false,
       "comment": {
-        "raw": "/**\n * Attempts to parse a string value to a boolean or number if possible, returning the string unchanged if not.\n *\n * @example\n *\n * const a = coerce('21') //=> const a: number const b = coerce('true') //=> const b: true const c = coerce('False') //=> const c: \"False\"\n */",
+        "raw": "/**\n * Attempts to parse a string value to a boolean or number if possible, returning the string unchanged if not.\n *\n * @example\n * ```ts\n * const a = coerce('21') //=\\> const a: number\n * const b = coerce('true') //=\\> const b: true\n * const c = coerce('False') //=\\> const c: \"False\"\n * ```\n *\n */",
         "summary": "Attempts to parse a string value to a boolean or number if\npossible, returning the string unchanged if not.",
         "examples": [
           {
-            "name": "const a = coerce('21') //=> const a: number",
-            "content": "\nconst b = coerce('true') //=> const b: true\nconst c = coerce('False') //=> const c: \"False\""
+            "content": "```ts\nconst a = coerce('21') //=\\> const a: number\nconst b = coerce('true') //=\\> const b: true\nconst c = coerce('False') //=\\> const c: \"False\"\n```"
           }
         ]
       }

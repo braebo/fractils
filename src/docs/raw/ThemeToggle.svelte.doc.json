@@ -19,9 +19,8 @@
     },
     {
       "comment": {
-        "raw": "/**\n * Icon transition animation options.\n *\n * @default\n *\n * { y: -35, duration: 1000, easing: expoOut }\n */",
-        "summary": "Icon transition animation options.",
-        "defaultValue": "{y: -35, duration: 1000, easing: expoOut}"
+        "raw": "/**\n * Icon transition animation options.\n */",
+        "summary": "Icon transition animation options."
       },
       "name": "transitionOptions",
       "type": "{ y: number; duration: number; easing: (t: number) => number; }"

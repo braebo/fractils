@@ -6,8 +6,8 @@
     "raw": "/**\n * This is a [multiline](https://example.com) line comment.\n *\n * With a second {@link Paragraph}.\n *\n * And two examples, the first unnamed, and the second named with a filename/title.\n *\n * @example\n * ```typescript\n * console.log('hello world')\n * ```\n *\n * @example\n *\n * Svelte Example\n * ```svelte Example.svelte\n * <script>\n *     console.log('hello world')\n * </script>\n * ```\n *\n * And using this comp:\n * ```svelte +page.svelte\n * <Test text=\"duder\" />\n * ```\n *\n */",
     "links": [
       {
-        "target": "",
-        "text": ""
+        "target": "Paragraph",
+        "text": "Paragraph"
       }
     ],
     "summary": "This is a [multiline](https://example.com)\nline comment.\n\nWith a second [Paragraph](#Paragraph).\n\nAnd two examples, the first unnamed, and the second named with a filename/title.",
