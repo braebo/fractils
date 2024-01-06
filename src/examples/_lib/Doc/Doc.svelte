@@ -4,11 +4,13 @@
 	import { mobile } from '$lib/stores/Device.svelte'
 	import Examples from './Examples.svelte'
 	import Bits from './Bits.svelte'
+	import { stringify } from '$lib'
 
 	type Exp = ParsedTSFile['exports'][0]
 
 	export let doc: ParsedSvelteFile | ParsedTSFile | Exp
 	export let filePath = (doc as ParsedSvelteFile | ParsedTSFile).filePath
+	export let depth = 0
 
 	const type = doc.type === 'svelte' ? 'Svelte Component' : 'Module'
 	const title =
@@ -32,62 +34,64 @@
 	}
 </script>
 
+<!-- <pre>{stringify(doc, 2)}</pre> -->
+
 {#if isTs(doc)}
 	{#each exports as d}
-		<svelte:self doc={d} {filePath} />
+		<svelte:self doc={d} {filePath} depth={depth + 1} />
 	{/each}
-{/if}
+{:else}
+	<div class="doc" class:mobile={$mobile}>
+		<header>
+			<a href="#{title}"><h1 id={title}>{title}</h1></a>
+			<p class="code">{type}</p>
+		</header>
 
-<div class="doc" class:mobile={$mobile}>
-	<header>
-		<a href="#{title}"><h1 id={title}>{title}</h1></a>
-		<p class="code">{type}</p>
-	</header>
+		<div class="description" class:mobile={$mobile}>
+			<slot name="description">
+				{#if comment}
+					<div class="summary">
+						{@html comment.summary}
+					</div>
 
-	<div class="description" class:mobile={$mobile}>
-		<slot name="description">
-			{#if comment}
-				<div class="summary">
-					{@html comment.summary}
-				</div>
-
-				{#if comment.examples}
-					<h3>{pluralize(comment.examples, 'Example')}</h3>
-					<Examples examples={comment.examples} />
+					{#if comment.examples}
+						<h3>{pluralize(comment.examples, 'Example')}</h3>
+						<Examples examples={comment.examples} />
+					{/if}
 				{/if}
-			{/if}
-		</slot>
+			</slot>
+		</div>
+
+		{#if props?.length}
+			<h3>{pluralize(props, 'Prop')}</h3>
+			<Bits bits={props} />
+		{/if}
+
+		{#if events?.length}
+			<h3>{pluralize(events, 'Event')}</h3>
+			<Bits bits={events} />
+		{/if}
+
+		{#if slots?.length}
+			<h3>{pluralize(slots, 'Slot')}</h3>
+			<Bits bits={slots} />
+		{/if}
+
+		{#if exports?.length}
+			<h3>{pluralize(exports, 'Export')}</h3>
+			<Bits bits={exports} />
+		{/if}
+
+		<slot />
+
+		<a
+			class="link"
+			target="_blank"
+			title="View source on GitHub"
+			href="https://github.com/fractalhq/fractils/tree/main/{filePath}">{'</>'}</a
+		>
 	</div>
-
-	{#if props?.length}
-		<h3>{pluralize(props, 'Prop')}</h3>
-		<Bits bits={props} />
-	{/if}
-
-	{#if events?.length}
-		<h3>{pluralize(events, 'Event')}</h3>
-		<Bits bits={events} />
-	{/if}
-
-	{#if slots?.length}
-		<h3>{pluralize(slots, 'Slot')}</h3>
-		<Bits bits={slots} />
-	{/if}
-
-	{#if exports?.length}
-		<h3>{pluralize(exports, 'Export')}</h3>
-		<Bits bits={exports} />
-	{/if}
-
-	<slot />
-
-	<a
-		class="link"
-		target="_blank"
-		title="View source on GitHub"
-		href="https://github.com/fractalhq/fractils/tree/main/{filePath}">{'</>'}</a
-	>
-</div>
+{/if}
 
 <style lang="scss">
 	.doc {
@@ -187,7 +191,7 @@
 
 		margin-top: 0.5rem;
 	}
-	
+
 	:global(.doc ul) {
 		margin-top: 0.5rem;
 		margin-left: 1rem;
