@@ -17,7 +17,7 @@ import { logger } from './logger'
 import { fmtTime } from './time'
 import { dim, o } from './l'
 
-const DEBUG = true
+const DEBUG = false
 const log = logger('highlight', { fg: '#94b8ff', deferred: false, browser: DEBUG, server: DEBUG })
 
 export type HighlightOptions = CodeToHastOptions<Lang, Theme> & {

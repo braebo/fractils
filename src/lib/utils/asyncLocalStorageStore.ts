@@ -41,7 +41,9 @@ const getAsync = async <T = any>(key: string): Promise<T | null> => {
  * @param value - The initial value of the store.
  * @returns a writable store.
  * @example
+ * ```ts
  * const store = asyncLocalStorageStore('foo', 'bar')
+ * ```
  */
 export const asyncLocalStorageStore = <T = any>(key: string, value: T): Writable<T> => {
 	const { set: setStore, ...readableStore } = writable(value, () => {
