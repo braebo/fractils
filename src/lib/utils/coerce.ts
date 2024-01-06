@@ -15,9 +15,11 @@ export type CoerceValue<T extends string> = T extends 'true'
  * possible, returning the string unchanged if not.
  *
  * @example
+ * ```ts
  * const a = coerce('21') //=\> const a: number
  * const b = coerce('true') //=\> const b: true
  * const c = coerce('False') //=\> const c: "False"
+ * ```
  */
 export function coerce<T extends string>(value: T): CoerceValue<T> {
 	if (value === 'true') return true as CoerceValue<T>
