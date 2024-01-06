@@ -80,9 +80,11 @@
 	 * Optional pre-highlighted text.  If this is provided _and_ the {@link ssr}
 	 * prop is `true`, the highlighter will not be loaded / run on the client.
 	 */
-	export let highlightedText = ssr ? text : sanitize(text ?? '')
+	export let highlightedText = ''
+	const highlightedTextProvided = !!highlightedText
+	highlightedText ??= ssr ? text : sanitize(text ?? '')
 
-	if (DEV && !text && !highlightedText) {
+	if (DEV && !text && !highlightedTextProvided) {
 		console.error('<Code /> component requires either the `text` or `highlightedText` prop.')
 
 		if (!text && highlightedText) {
@@ -102,7 +104,7 @@
 	 * The language to use.  Must be a {@link ValidLanguage}.
 	 * @defaultValue 'json'
 	 */
-	export let lang = 'json' as Lang
+	export let lang = 'json5' as Lang | (string & {})
 
 	/**
 	 * The theme to use.
@@ -121,7 +123,7 @@
 	 */
 	export let collapsed = false
 
-	$: if (!ssr && text && !highlightedText && BROWSER) {
+	$: if (!ssr && text && BROWSER) {
 		update()
 	}
 
@@ -135,8 +137,7 @@
 
 	async function update() {
 		const { highlight } = await import('../utils/highlight')
-		highlightedText = await highlight(text ?? '', { lang, theme })
-		console.log('update')
+		highlightedText = await highlight(text ?? '', { lang: lang as Lang, theme })
 	}
 </script>
 
