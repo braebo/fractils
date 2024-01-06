@@ -28,6 +28,7 @@
 							title={block.title || block.lang || ''}
 							text={block.raw}
 							highlightedText={block.content}
+							lang={block.lang}
 						/>
 					</div>
 				{:else}
