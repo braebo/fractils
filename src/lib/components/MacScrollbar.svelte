@@ -1,7 +1,20 @@
+<!-- 
+	@component
+	Turns the scrollbar into a macOS-like scrollbar that only appears when scrolling (or when the user hovers over it).
+	It aims to be fully functional and accessible.
+ -->
+
 <script lang="ts">
 	import { scrollY, mobile } from '../stores/Device.svelte'
 	import { onDestroy, onMount, tick } from 'svelte'
-	import { mapRange } from '../utils/mapRange.js'
+	import { stringify } from '../utils/stringify'
+	import { mapRange } from '../utils/mapRange'
+	import Code from './Code.svelte'
+
+	/**
+	 * Displays debug info when true.
+	 */
+	export let debug = false
 
 	/**
 	 * The scrollbar root element or it's query selector.
@@ -29,6 +42,9 @@
 	let scrollbarHeight: number
 	let scrollbarHeightRatio: number
 	let scrollPercentage: number
+	let grabbing = false
+	let hovering = false
+	let scrollbarEl: HTMLElement
 
 	onMount(async () => {
 		if (typeof root === 'string') {
@@ -64,24 +80,164 @@
 		if (timer) clearTimeout(timer)
 		reveal = true
 		timer = setTimeout(() => {
-			reveal = false
+			if (!hovering) reveal = false
 		}, 1000)
 	}
 
-	onDestroy(() => clearTimeout(timer))
+	function grab() {
+		grabbing = true
+		scrollbarEl?.addEventListener('blur', blur, { once: true })
+
+		if (typeof window === 'undefined') return
+
+		window.addEventListener('mouseup', blur, { once: true })
+		window.addEventListener('mousemove', move)
+		window.addEventListener('touchmove', move)
+	}
+
+	function blur() {
+		grabbing = false
+
+		if (typeof window === 'undefined') return
+
+		scrollbarEl?.removeEventListener('blur', blur)
+		window.removeEventListener('mouseup', blur)
+		window.removeEventListener('mousemove', move)
+		window.removeEventListener('touchmove', move)
+	}
+
+	function move(
+		e: MouseEvent | TouchEvent,
+		options?: {
+			force?: boolean
+			behavior?: ScrollBehavior
+		},
+	) {
+		const force = options?.force ?? false
+		const behavior = options?.behavior ?? 'instant'
+		if (!force && !grabbing) return
+
+		const { clientY } = e instanceof MouseEvent ? e : e.touches[0]
+		const y = mapRange(clientY, 0, screen.availHeight, 0, 100)
+		window.scroll({
+			top: mapRange(
+				y,
+				0,
+				100,
+				0,
+				(root as Element)?.scrollHeight ?? document.documentElement.scrollHeight,
+			),
+			behavior,
+		})
+	}
+
+	onDestroy(() => {
+		clearTimeout(timer)
+		blur()
+	})
 </script>
+
+{#if debug}
+	<div
+		style="
+	position: fixed;
+	top: 1rem;
+	right: 1rem;
+"
+	>
+		{#key $scrollY}
+			<Code
+				lang="json5"
+				text={stringify(
+					{
+						$scrollY,
+						viewHeight,
+						containerHeight,
+						ratio,
+						scrollbarHeight,
+						scrollbarHeightRatio,
+						scrollPercentage,
+						grabbing,
+						reveal,
+						timer,
+					},
+					2,
+				)}
+			/>
+		{/key}
+	</div>
+{/if}
 
 <svelte:window on:scroll={() => update()} />
 
 {#if !disabled}
 	<div
+		id="scrollbar-gutter"
+		on:mouseover={() => {
+			hovering = true
+			showScrollbar()
+		}}
+		on:focus={() => {
+			hovering = true
+			showScrollbar()
+		}}
+		on:mouseout={() => {
+			hovering = false
+			showScrollbar()
+		}}
+		on:blur={() => {
+			hovering = false
+			showScrollbar()
+		}}
+		on:click={(e) => move(e, { force: true, behavior: 'smooth' })}
+		on:mousedown|preventDefault={grab}
+		on:mousemove={(e) => move(e, { behavior: 'instant' })}
+		class:debug
+		aria-hidden={true}
+	/>
+	<div
 		class:reveal
 		id="scrollbar"
+		bind:this={scrollbarEl}
 		style="--scrollbar-height: {scrollbarHeight}px; top: {scrollPercentage}%"
+		on:mouseover={() => {
+			hovering = true
+			showScrollbar()
+		}}
+		on:focus={() => {
+			hovering = true
+			showScrollbar()
+		}}
+		on:mouseout={() => {
+			hovering = false
+			showScrollbar()
+		}}
+		on:blur={() => {
+			hovering = false
+			showScrollbar()
+		}}
+		on:mousedown|preventDefault={grab}
+		on:touchstart={grab}
+		on:mousemove={move}
+		on:touchmove={() => {
+			if (grabbing) {
+				$scrollY = mapRange(
+					scrollPercentage,
+					0 + padding,
+					100 - padding * 2,
+					0,
+					containerHeight - viewHeight,
+				)
+			}
+		}}
+		role="scrollbar"
+		aria-controls="scrollbar-root"
+		aria-valuenow={scrollPercentage}
+		tabindex="0"
 	/>
 {/if}
 
-<style>
+<style lang="scss">
 	:global(body::-webkit-scrollbar) {
 		display: none;
 	}
@@ -107,8 +263,27 @@
 
 		overflow: hidden;
 		transition: opacity 0.25s;
+
+		user-select: contain;
+		pointer-events: all;
 	}
 	.reveal {
 		opacity: 1 !important;
+	}
+
+	#scrollbar-gutter {
+		position: fixed;
+		top: 0;
+		right: 0;
+
+		width: 15px;
+		height: 100vh;
+
+		pointer-events: all;
+		z-index: 9998;
+
+		&.debug {
+			background: red;
+		}
 	}
 </style>
