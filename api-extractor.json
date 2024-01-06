@@ -161,7 +161,7 @@
      * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>
      * DEFAULT VALUE: "<projectFolder>/temp/"
      */
-    "reportFolder": "<projectFolder>/temp/",
+    "reportFolder": "<projectFolder>/src/",
 
     /**
      * Specifies the folder where the temporary report file is written.  The file name portion is determined by
