@@ -74,7 +74,6 @@ export const logger = (
 				console.log(`| ${filename} |\n| ${title} |`, ...args)
 			}
 		: (...args: any[]) => {
-				// let messageConfig = '%c%s%c%s%c   ';
 				let messageConfig = '%c%s%c '
 
 				args.forEach((argument) => {
@@ -82,7 +81,6 @@ export const logger = (
 					switch (type) {
 						case 'bigint':
 						case 'number':
-						case 'boolean':
 							messageConfig += '%d   '
 							break
 
@@ -91,6 +89,7 @@ export const logger = (
 							break
 
 						case 'object':
+						case 'boolean':
 						case 'undefined':
 						default:
 							messageConfig += '%o   '
@@ -99,14 +98,9 @@ export const logger = (
 
 				messageConfig += '%c%s'
 
-				// const width = 10
-				// const pad = Math.floor((width - title.length) / 2)
-				// const paddedTitle = title.padStart(pad + title.length, ' ').padEnd(width, ' ')
-
 				console.log(
 					messageConfig,
 					`color:${fg};background:${bg};padding:0.1rem;${css}`,
-					// `${paddedTitle} |`,
 					`${title.padEnd(10, ' ')} |`,
 					`color:initial;background:${bg};padding:0.1rem;${css}`,
 					...args,
