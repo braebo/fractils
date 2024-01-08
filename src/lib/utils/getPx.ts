@@ -37,9 +37,11 @@ export function getPx(
 		case 'rem':
 			return n * parseInt(fontSize)
 		case 'vw':
-			return (n * screen.width) / 100
+			const width = typeof window === 'undefined' ? 1000 : window.innerWidth
+			return (n * width) / 100
 		case 'vh':
-			return (n * screen.height) / 100
+			const height = typeof window === 'undefined' ? 1000 : window.innerHeight
+			return (n * height) / 100
 		case '%':
 			if (typeof relativeParentSize === 'undefined') {
 				log(r('ERROR: Got `%` unit, but no relative parent size was provided.'))

@@ -1,3 +1,4 @@
+import type { Action } from 'svelte/action'
 import type { CSSLength } from './types'
 
 import { localStorageStore } from './localStorageStore'
@@ -7,13 +8,18 @@ import { logger } from './logger'
 import { clamp } from './clamp'
 import { getPx } from './getPx'
 import { r, y, gr } from './l'
-import type { Action } from 'svelte/action'
 
-type Side = 'left' | 'right' | 'top' | 'bottom'
+/**
+ * The sides of an element that can be resized by the {@link resize} action.
+ */
+export type Side = 'top' | 'right' | 'bottom' | 'left'
 
+/**
+ * Options for the {@link resize} action.
+ */
 interface ResizeOptions {
 	/**
-	 * The side of the element to make draggable.  If not specified, all sides will be draggable.
+	 * To only allow resizing on certain sides, specify them here.
 	 * @default []
 	 */
 	sides?: Side[]
@@ -24,7 +30,7 @@ interface ResizeOptions {
 	gutterSize?: number | string
 	/**
 	 * Minimum width in `px`, `rem`, `vw`, or `vh`.
-	 * @default '100px'
+	 * @default '15px'
 	 */
 	minWidth?: CSSLength
 	/**
@@ -76,24 +82,36 @@ const px = (size: number | string) => {
 
 let globalStylesSet = false
 
+/**
+ * Makes an element resizable by dragging its edges.
+ *
+ * @param node - The element to make resizable.
+ * @param options - {@link ResizeOptions}
+ *
+ * @example Basic
+ * ```svelte
+ * <div use:resize> Resize Me </div>
+ * ```
+ *
+ * @example Kitchen Sink
+ * ```svelte
+ * <div use:resize={{
+ * 	sides = ['left', 'bottom'], // Only allow resizing on the left and bottom sides.
+ * 	gutterSize = 3, // The size of the resize handle in pixels.
+ * 	minWidth = '15px', // Minimum width in `px`, `rem`, `vw`, or `vh`.
+ * 	maxWidth = '75vw', // Maximum width in `px`, `rem`, `vw`, or `vh`.
+ * 	minHeight = node.initialHeight, // Minimum height in `px`, `rem`, `vw`, or `vh`.
+ * 	maxHeight = (getPx(node.initialHeight) * 2 + 'px') as CSSLength, // Maximum height in `px`, `rem`, `vw`, or `vh`.
+ * 	onResize = () => {}, // Callback function that runs when the element is resized.
+ * 	persistent = false, // Persist width in local storage.
+ * 	visible = false, // Use a visible or invisible gutter.
+ * 	color = 'var(--fg-d)', // Gutter css color (if visible = `true`)
+ * 	borderRadius = '0.5rem', // Border radius of the element.
+ * }} />
+ * ```
+ */
 export const resize: Action<HTMLElement, ResizeOptions> = (node, options) => {
 	const initialStyle = getComputedStyle(node)
-
-	if (initialStyle.position.match(/absolute|fixed/)) {
-		log(
-			y('WARNING: node.style.position: ') + r(initialStyle.position),
-			'\n\tNote that ' +
-				gr('right') +
-				' and ' +
-				gr('top') +
-				' resizing requires ' +
-				gr('absolute') +
-				' or ' +
-				gr('fixed') +
-				' positioning.',
-			{ node, options, initialStyle },
-		)
-	}
 
 	let activeGrabber: HTMLElement | null = null
 	let grabbing = false
@@ -101,13 +119,12 @@ export const resize: Action<HTMLElement, ResizeOptions> = (node, options) => {
 	const initialHeight = initialStyle.height as CSSLength
 
 	const {
-		// sides = [],
-		sides = ['right', 'top', 'bottom'],
+		sides = ['top', 'right', 'bottom', 'left'],
 		gutterSize = 3,
 		minWidth = '15px',
 		maxWidth = '75vw',
-		minHeight = initialHeight,
-		maxHeight = (getPx(initialHeight) * 2 + 'px') as CSSLength,
+		minHeight = '16px',
+		maxHeight = null,
 		onResize = () => {},
 		persistent = false,
 		visible = false,
@@ -117,30 +134,38 @@ export const resize: Action<HTMLElement, ResizeOptions> = (node, options) => {
 	} = options
 
 	const size = localStorageStore(
-		'fractils::resizable::size:' + node.id || Array.from(node.classList).join('_'),
+		'fractils::resizable::size:' + Array.from(node.classList).join('_'),
 		'300px',
 	)
 
-	const updateSize = debounce(() => {
+	const saveSize = debounce(() => {
 		size.set(node.offsetWidth + 'px')
 	}, 50)
 
-	let maxW = 0
-	let minW = 0
-	let maxH = 0
-	let minH = 0
-
-	function updateClamps() {
-		maxW = getPx(maxWidth, node.offsetParent?.clientWidth)
-		minW = getPx(minWidth, node.offsetParent?.clientWidth)
-		maxH = getPx(maxHeight, node.offsetParent?.clientHeight)
-		minH = getPx(minHeight, node.offsetParent?.clientHeight)
+	// Set size from local storage.
+	if (persistent) {
+		const persistentSize = get(size)
+		node.style.width =
+			clamp(parseFloat(persistentSize), getPx(minWidth), getPx(maxWidth)) + 'px'
 	}
 
-	updateClamps()
+	let maxW: number | null = null
+	let minW: number | null = null
+	let maxH: number | null = null
+	let minH: number | null = null
 
-	node.style.width = clamp(getPx(initialStyle.width as CSSLength), minW, maxW) + 'px'
-	node.style.height = clamp(getPx(initialStyle.height as CSSLength), minH, maxH) + 'px'
+	updateClamps()
+	function updateClamps() {
+		maxW = maxWidth ? getPx(maxWidth, node.offsetParent?.clientWidth) : null
+		minW = minWidth ? getPx(minWidth, node.offsetParent?.clientWidth) : null
+		maxH = maxHeight ? getPx(maxHeight, node.offsetParent?.clientHeight) : null
+		minH = minHeight ? getPx(minHeight, node.offsetParent?.clientHeight) : null
+	}
+
+	node.style.width =
+		clamp(getPx(initialStyle.width as CSSLength), minW || 0, maxW || Infinity) + 'px'
+	node.style.height =
+		clamp(getPx(initialStyle.height as CSSLength), minH || 0, maxH || Infinity) + 'px'
 
 	log({
 		initialHeight,
@@ -157,9 +182,6 @@ export const resize: Action<HTMLElement, ResizeOptions> = (node, options) => {
 			minH,
 		},
 	})
-
-	// node.style.height = clampSize(parseFloat(initialStyle.height)) + 'px'
-	// node.style.outline = '1px solid transparent'
 
 	function globalStyles() {
 		if (globalStylesSet) return
@@ -276,11 +298,6 @@ export const resize: Action<HTMLElement, ResizeOptions> = (node, options) => {
 		bottom: createGrabber('bottom'),
 	}
 
-	if (persistent) {
-		const persistentSize = get(size)
-		node.style.width = persistentSize
-	}
-
 	function onMouseOver(e: MouseEvent) {
 		if (grabbing) return
 		const grabber = e.currentTarget as HTMLElement
@@ -315,52 +332,67 @@ export const resize: Action<HTMLElement, ResizeOptions> = (node, options) => {
 
 		const rect = node.getBoundingClientRect()
 
-		const { clientX } = e
-		const { clientY } = e
-
 		// const newWidth = right - clientX - 16
 		// const newHeight = bottom - clientY
 
+		// const mode: 'absolute' | 'relative' = 'absolute'
+
+		log('maxHeight', maxHeight)
+		log('maxH', maxH)
+		log('minHeight', minHeight)
+		log('minH', minH)
+		log('maxWidth', maxWidth)
+		log('maxW', maxW)
+		log('minWidth', minWidth)
+		log('minW', minW)
+
 		switch (side) {
 			case 'left': {
-				node.style.width =
-					clamp(rect.right - clientX, getPx(minWidth), getPx(maxWidth)) + 'px'
+				const delta = e.movementX * -1
+				const newWidth = clamp(rect.width + delta, getPx(minWidth), getPx(maxWidth))
+				node.style.width = newWidth + 'px'
+
 				break
 			}
 			case 'right': {
-				const newWidth = clamp(clientX - rect.left, getPx(minWidth), getPx(maxWidth))
+				const delta = e.movementX
+				const newWidth = clamp(rect.width + delta, getPx(minWidth), getPx(maxWidth))
 				node.style.width = newWidth + 'px'
 
-				//? We need to offset the node's right position by the
-				//? difference between the new width and the old width.
 				const currentRight = parseFloat(node.style.right) || 0
 				const newRight = currentRight + (rect.width - newWidth)
 				node.style.right = newRight + 'px'
 				break
 			}
 			case 'top': {
-				const newHeight = clamp(rect.bottom - clientY, getPx(minHeight), getPx(maxHeight))
+				const delta = e.movementY * -1
+				const newHeight = clamp(
+					rect.height + delta,
+					minHeight ? getPx(minHeight) : 0,
+					maxHeight ? getPx(maxHeight) : Infinity,
+				)
 				node.style.height = newHeight + 'px'
 
-				//? We need to offset the node's top position by the
-				//? difference between the new height and the old height.
 				const currentTop = parseFloat(node.style.top) || 0
 				const newTop = currentTop + (rect.height - newHeight)
 				node.style.top = newTop + 'px'
 				break
 			}
 			case 'bottom': {
-				node.style.height =
-					clamp(clientY - rect.top, getPx(minHeight), getPx(maxHeight)) + 'px'
+				const delta = e.movementY
+				const newHeight = clamp(
+					rect.height + delta,
+					minHeight ? getPx(minHeight) : 0,
+					maxHeight ? getPx(maxHeight) : Infinity,
+				)
+				node.style.height = newHeight + 'px'
 				break
 			}
-			default:
-				throw new Error('Invalid side: ' + side)
 		}
 
 		onResize()
 
-		updateSize()
+		saveSize()
 	}
 
 	// function clampSize(size: number) {
