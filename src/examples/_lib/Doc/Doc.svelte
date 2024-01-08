@@ -4,12 +4,13 @@
 	import { mobile } from '$lib/stores/Device.svelte'
 	import Examples from './Examples.svelte'
 	import Bits from './Bits.svelte'
-	import { stringify } from '$lib'
 
 	type Exp = ParsedTSFile['exports'][0]
+	type Bits = 'props' | 'events' | 'slots' | 'exports'
 
 	export let doc: ParsedSvelteFile | ParsedTSFile | Exp
 	export let filePath = (doc as ParsedSvelteFile | ParsedTSFile).filePath
+	export let exclude: Bits[] = []
 	export let depth = 0
 
 	const type = doc.type === 'svelte' ? 'Svelte Component' : 'Module'
@@ -28,9 +29,22 @@
 		return doc.type === 'ts'
 	}
 
+	function isSvelte(doc: ParsedSvelteFile | ParsedTSFile | Exp): doc is ParsedSvelteFile {
+		return doc.type === 'svelte'
+	}
+
 	function pluralize(arr: any[], word: string) {
 		const n = arr.length
 		return n === 1 ? word : word + 's'
+	}
+
+	/**
+	 * Filter out empty and excluded sections.
+	 */
+	function include(key: 'props' | 'events' | 'slots' | 'exports') {
+		if (!isSvelte(doc)) return false
+		if (exclude.includes(key)) return false
+		return doc[key]?.length
 	}
 </script>
 
@@ -62,22 +76,22 @@
 			</slot>
 		</div>
 
-		{#if props?.length}
+		{#if include('props')}
 			<h3>{pluralize(props, 'Prop')}</h3>
 			<Bits bits={props} />
 		{/if}
 
-		{#if events?.length}
+		{#if include('events')}
 			<h3>{pluralize(events, 'Event')}</h3>
 			<Bits bits={events} />
 		{/if}
 
-		{#if slots?.length}
+		{#if include('slots')}
 			<h3>{pluralize(slots, 'Slot')}</h3>
 			<Bits bits={slots} />
 		{/if}
 
-		{#if exports?.length}
+		{#if include('exports')}
 			<h3>{pluralize(exports, 'Export')}</h3>
 			<Bits bits={exports} />
 		{/if}
@@ -107,12 +121,10 @@
 		padding-bottom: 3rem;
 
 		color: var(--fg-c);
-		// background: var(--bg-b);
 		// background: hsl(228, 15%, 7%);
-		background: rgba(var(--bg-b-rgb), 0.5);
+		background: var(--bg-b);
 
 		border-radius: var(--radius);
-		box-shadow: var(--shadow-lg);
 
 		font-family: var(--font-b);
 		font-variation-settings: 'wght' 300;
@@ -122,6 +134,11 @@
 		z-index: 1;
 
 		font-size: var(--font-sm);
+
+		&.theme-a {
+			background: rgba(var(--bg-b-rgb), 0.5);
+			box-shadow: var(--shadow-lg);
+		}
 	}
 
 	.summary {
