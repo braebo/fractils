@@ -67,6 +67,11 @@ export function d(...args: unknown[]) {
 	return dim(...args)
 }
 
+/** chalk.gray */
+export function gr(...args: unknown[]) {
+	return ch.gray(...args)
+}
+
 /** chalk.bold */
 export function bd(...args: unknown[]) {
 	return ch.bold(...args)
