@@ -31,7 +31,7 @@ export const load: Load = async () => {
 	const docs = Object.values(modules).map((m) => m.default)
 
 	const end = performance.now()
-	console.log('highlighted in', end - start + 'ms')
+	// console.log('highlighted in', end - start + 'ms')
 
 	return { docs }
 }
