@@ -6,15 +6,26 @@
 
 	import MacScrollbar from '$lib/components/MacScrollbar.svelte'
 	import Github from '$lib/icons/Github.svelte'
-	import { Device, wait } from '$lib'
-	import { onMount } from 'svelte'
+	import { Device, ThemerComponent as Themer, wait } from '$lib'
+	import { onDestroy, onMount } from 'svelte'
+	import { BROWSER } from 'esm-env'
 
 	// https://github.com/sveltejs/kit/pull/8724
 	onMount(async () => {
 		await wait(1)
 		document.documentElement.style.scrollBehavior = 'smooth'
 	})
+
+	onDestroy(() => {
+		if (BROWSER) {
+			console.clear()
+			document.documentElement.style.scrollBehavior = ''
+			window.location.reload()
+		}
+	})
 </script>
+
+<Themer />
 
 <Device />
 
