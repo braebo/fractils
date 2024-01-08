@@ -1,30 +1,24 @@
 <script lang="ts">
 	import { resize } from '$lib/utils/resizable'
+	import THEME_A from './themes/theme-a.json'
 	import { Themer } from './Themer'
 	import { onMount } from 'svelte'
 
 	const themer = new Themer({
 		theme: 'theme-default',
 		autoInit: true,
-		mode: 'system',
-		nodes: [globalThis?.document?.body, globalThis?.document?.documentElement],
-	})
-
-	import THEME_A from './themes/theme-a.json'
-
-	onMount(() => {
-		themer.addTheme(THEME_A)
-		key = !key
 	})
 
 	let key = false
 	const toggleKey = () => (key = !key)
+
+	onMount(toggleKey)
 </script>
 
 {#if themer}
 	{#key themer && key}
 		<div class="container" use:resize={{ persistent: true }}>
-			<div class="themer" >
+			<div class="themer">
 				<div class="kv mode">
 					<div class="k">Mode</div>
 					<options class="v" on:change={toggleKey}>
@@ -46,6 +40,25 @@
 						</select>
 					</options>
 				</div>
+
+				<div class="kv toJSON">
+					<div class="k">console.log</div>
+					<div class="v">
+						<button on:click={() => console.log(themer.toJSON())}>toJSON</button>
+					</div>
+				</div>
+
+				<div class="kv theme-a">
+					<div class="v">
+						<button on:click={() => themer.addTheme(THEME_A)}>add theme-a</button>
+					</div>
+				</div>
+
+				<div class="kv clear">
+					<div class="v">
+						<button on:click={() => themer.clear()}>clear</button>
+					</div>
+				</div>
 			</div>
 		</div>
 	{/key}
@@ -64,7 +77,7 @@
 		border-radius: var(--radius-lg);
 		background: rgba(var(--bg-a-rgb), 0.75);
 		backdrop-filter: blur(0.2rem);
-		
+
 		overflow: hidden;
 		z-index: 9999;
 	}
@@ -118,6 +131,32 @@
 			width: 100%;
 
 			select {
+				all: unset;
+				cursor: pointer;
+
+				width: 100%;
+				margin: auto;
+				padding: 0.2rem 0.5rem 0.23rem 0.5rem;
+				text-align: center;
+
+				color: var(--brand-a);
+				background: var(--bg-b);
+				border-radius: var(--radius-sm);
+				border: 1px solid var(--bg-c);
+
+				font-weight: 300;
+				transition:
+					border-color 0.15s,
+					font-weight 0.6s;
+
+				&:hover {
+					border-color: rgba(var(--brand-a-rgb), 0.33);
+
+					font-weight: 500;
+				}
+			}
+
+			button {
 				all: unset;
 				cursor: pointer;
 

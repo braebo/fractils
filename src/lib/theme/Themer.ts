@@ -2,23 +2,28 @@
  * @module themer
  *
  * @description
- *
- * Themer is a module that allows you to change the theme of the application.
+ * Manages multiple customizable application themes.
  */
 
 import THEME_DEFAULT from './theme-default.json'
 import { hexToRgb } from '$lib/utils/hexToRgb'
 import { entries } from '$lib/utils/object'
 import { logger } from '$lib/utils/logger'
-import { writable } from 'svelte/store'
-import { DEV } from 'esm-env'
+import { g, o } from '../utils/l'
 
 export type ThemeName = 'theme-default' | 'theme-a' | 'theme-b' | 'theme-c' | (string & {})
 export type ThemeVariant = 'light' | 'dark'
 export type ThemeMode = ThemeVariant | 'system' | (string & {})
 export type ThemeNode = HTMLElement | Element | null
 
+/**
+ * A theme variant config contains hex colors. All {@link ThemeConfig | ThemeConfigs}
+ * contain both a light and dark variant, defined here.
+ */
 export interface ThemeVariantConfig {
+	'brand-a': string
+	'brand-b': string
+	'brand-c': string
 	'fg-a': string
 	'fg-b': string
 	'fg-c': string
@@ -29,18 +34,20 @@ export interface ThemeVariantConfig {
 	'bg-d': string
 }
 
+/**
+ * Represents a theme configuration.
+ */
 export interface ThemeConfig {
 	id: string
 	name: ThemeName
-
-	'brand-a': string
-	'brand-b': string
-	'brand-c': string
 
 	dark: ThemeVariantConfig
 	light: ThemeVariantConfig
 }
 
+/**
+ * Options for the {@link Themer} class.
+ */
 export interface ThemerOptions {
 	/**
 	 * Whether to automatically initialize the theme.
@@ -49,35 +56,76 @@ export interface ThemerOptions {
 	themes?: Array<ThemeConfig>
 	theme?: ThemeName
 	mode?: ThemeMode
-	nodes?: ThemeNode[]
 }
 
+/**
+ * A JSON representation of the {@link Themer} class. Used in the
+ * {@link Themer.toJSON | toJSON()} and {@link Themer.fromJSON | fromJSON()},
+ * methods, and subsequently, in {@link Themer.save | save()}
+ * and {@link Themer.load | load()}.
+ */
 export type ThemerJSON = {
 	themes: ThemeConfig[]
 	theme: ThemeName
 	mode: ThemeMode
-	nodes: string[]
 }
 
+/**
+ * Default {@link ThemerOptions} object.
+ */
 const THEMER_DEFAULTS = {
+	autoInit: true,
 	themes: [THEME_DEFAULT],
 	theme: 'theme-default',
 	mode: 'system',
-	nodes: [] as ThemeNode[],
 } as const satisfies ThemerOptions
 
-const log = logger('themer', {
-	fg: 'RoyalBlue',
-	deferred: false,
-})
-
 export class Themer<T extends ThemeName> {
+	_theme: ThemeName | T
+	_mode: ThemeMode
 	themes: ThemeConfig[]
 
-	_theme: ThemeName | T
-	/**
-	 * The currently active theme.
-	 */
+	#initialized = false
+	#style!: HTMLStyleElement
+
+	log = logger('themer', {
+		fg: 'RoyalBlue',
+		deferred: false,
+	})
+
+	constructor(options: ThemerOptions) {
+		const opts = Object.assign({}, THEMER_DEFAULTS, options)
+		this.log(g('constructor') + '()', { opts, this: this })
+
+		this._theme = opts.theme
+		this._mode = opts.mode
+		this.themes = opts.themes
+
+		if (opts.autoInit) {
+			this.init()
+		}
+	}
+
+	/** Initializes the Themer. */
+	init() {
+		this.log(o('init') + '()', { theme: this.theme, this: this })
+		if (typeof document === 'undefined') return
+
+		if (this.#initialized) return this
+		this.#initialized = true
+
+		const style = document.createElement('style')
+		style.setAttribute('type', 'text/css')
+		style.setAttribute('id', 'themer')
+		document.head.appendChild(style)
+		this.#style = style
+
+		this.load()?.setTheme(this.theme)
+
+		return this
+	}
+
+	/** The currently active theme. */
 	get theme() {
 		return this._theme
 	}
@@ -86,84 +134,60 @@ export class Themer<T extends ThemeName> {
 		this.setTheme(theme)
 	}
 
-	/**
-	 * The current theme mode.
-	 */
-	mode: ThemeMode
-	nodes: Set<ThemeNode>
-	#style!: HTMLStyleElement
-
-	get activeTheme() {
-		return this.getTheme(this.theme)
+	/** The current theme mode. */
+	get mode() {
+		return this._mode
 	}
-
-	get activeMode() {
-		switch (this.mode) {
-			case 'light':
-			case 'dark':
-				return this.mode
-			case 'system':
-				return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-			default:
-				return 'dark'
-		}
-	}
-
-	constructor(options: ThemerOptions) {
-		const opts = Object.assign({}, THEMER_DEFAULTS, options)
-		log('constructor()', { opts, this: this })
-
-		this._theme = opts.theme
-		this.themes = opts.themes
-		this.mode = opts.mode
-
-		this.nodes = new Set()
-		for (const node of opts.nodes) {
-			// if (typeof node === 'undefined' || !node) continue
-			this.nodes.add(node)
-		}
-
-		if (opts.autoInit) {
-			this.init()
-		}
-	}
-
-	init() {
-		log('init()', { theme: this.theme, this: this })
-		if (typeof document === 'undefined') return
-
-		this.#style ||= this.#createStyleElement()
+	set mode(mode: ThemeMode) {
+		this._mode = mode
 		this.setTheme(this.theme)
-		// this.#update()
 	}
 
-	#createStyleElement() {
-		const style = document.createElement('style')
-		style.setAttribute('type', 'text/css')
-		style.setAttribute('id', 'themer')
-		document.head.appendChild(style)
-		return style
+	/** The current mode, taking into account the system preferences. */
+	get activeMode(): 'light' | 'dark' {
+		const mode = this.mode
+
+		if (mode === 'system') {
+			if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+				return 'light'
+			}
+			if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+				return 'dark'
+			}
+		}
+
+		return mode as 'light' | 'dark'
 	}
 
+	/** The current {@link ThemeConfig} object. */
+	get activeTheme() {
+		return this.getThemeConfig(this.theme)
+	}
+
+	/** Adds a new theme to the Themer and saves it to localStorage. */
 	addTheme(config: ThemeConfig) {
-		log('addTheme', { theme: config.name, config, this: this })
-		this.themes.push(config)
+		this.log(o('addTheme') + '()', { theme: config.name, config, this: this })
+		this.themes = [...new Set([...this.themes, config])]
+		this.save()
+
+		return this
 	}
 
-	getTheme(theme: ThemeName | T) {
+	/** Resolves a {@link ThemeConfig} by name. */
+	getThemeConfig(theme: ThemeName | T) {
 		return this.themes.find((t) => t.name === theme)
 	}
 
+	/** Changes the active theme of the application. */
 	setTheme(theme: ThemeName | T) {
 		if (!('document' in globalThis)) return
-		log('setTheme', { theme, this: this })
+		this.log(o('setTheme') + '()', { theme, this: this })
 
-		document.documentElement.setAttribute('data-theme', theme)
 		this._theme = theme
 
-		const themeConfig = this.getTheme(theme)
+		const themeConfig = this.getThemeConfig(theme)
 		if (!themeConfig) {
-			log('themeConfig not found', { theme, this: this })
+			this.log('themeConfig not found', { theme, this: this })
 			throw new Error(`Theme "${theme}" not found.`)
 		}
 
@@ -171,38 +195,87 @@ export class Themer<T extends ThemeName> {
 		this.#style.innerHTML = css
 
 		document.body.setAttribute('theme', theme)
+
+		this.save()
+
+		return this
 	}
 
-	#generateCSS(config: ThemeConfig) {
-		let css = ''
+	/** Updates Themer state from JSON. */
+	fromJSON(json: ThemerJSON) {
+		const isNewTheme = this._theme !== json.theme
 
-		const mode = this.activeMode
+		this.themes = json.themes
+		this._mode = json.mode
+		this._theme = json.theme
 
-		const visit = (config: ThemeConfig | ThemeVariantConfig) => {
-			for (const [key, value] of entries(config)) {
-				if (key === 'id') continue
-				if (key === 'name') continue
+		if (isNewTheme) {
+			this.setTheme(this.theme)
+		}
+	}
 
-				if (typeof value === 'object') {
-					if (key === mode) {
-						visit(value)
-					}
-					continue
-				}
+	/** Serializes the current Themer state to JSON. */
+	toJSON() {
+		return {
+			themes: this.themes,
+			theme: this.theme,
+			mode: this.mode,
+			// nodes: Array.from(this.nodes).map((node) => node?.id || node?.tagName || ''),
+		} satisfies ThemerJSON
+	}
 
-				if (typeof value !== 'string') {
-					if (DEV) {
-						console.error('non-string value', { key, value, this: this })
-					}
-					continue
-				}
+	/**
+	 * Loads Themer state from localStorage.
+	 * @returns The JSON that was loaded (if found).
+	 */
+	load() {
+		this.log(o('load') + '()', { this: this })
 
-				css += `--${key}: ${value};\n`
-				css += `--${key}-rgb: ${hexToRgb(value)};\n`
+		if ('localStorage' in globalThis) {
+			const json = localStorage.getItem('fractils::themer')
+
+			if (json) {
+				this.fromJSON(JSON.parse(json))
 			}
 		}
 
-		visit(config)
+		return this
+	}
+
+	/**
+	 * Saves the current Themer state to localStorage.
+	 * @returns The JSON that was saved.
+	 */
+	save() {
+		this.log(o('save') + '()', { this: this })
+		if (!('localStorage' in globalThis)) return
+		const json = this.toJSON()
+		localStorage.setItem('fractils::themer', JSON.stringify(json))
+		return json
+	}
+
+	/**
+	 * Removes the current Themer state from localStorage.
+	 */
+	clear() {
+		this.log(o('clear') + '()', { this: this })
+		if (!('localStorage' in globalThis)) return
+		localStorage.removeItem('fractils::themer')
+	}
+
+	/**
+	 * Generates CSS custom properties from a theme config.
+	 * @param config - The theme config to generate CSS from.
+	 * @returns A string of CSS custom properties.
+	 * @internal
+	 */
+	#generateCSS(config: ThemeConfig) {
+		let css = ''
+
+		for (const [key, value] of entries(config[this.activeMode])) {
+			css += `--${key}: ${value};\n`
+			css += `--${key}-rgb: ${hexToRgb(value)};\n`
+		}
 
 		return `body[theme=${config.name}] {\n${css}\n}`
 	}

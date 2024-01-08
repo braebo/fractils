@@ -1,10 +1,10 @@
 {
 	"id": "gHzmj58q2P8qLTwMAR9oP",
 	"name": "theme-a",
-	"brand-a": "#ff4221",
-	"brand-b": "#ff9215",
-	"brand-c": "#ff8bd3",
 	"dark": {
+		"brand-a": "#ff4221",
+		"brand-b": "#ff9215",
+		"brand-c": "#ff8bd3",
 		"bg-a": "#15161d",
 		"bg-b": "#282a36",
 		"bg-c": "#1d252e",
@@ -15,12 +15,15 @@
 		"fg-d": "#777d8f"
 	},
 	"light": {
+		"brand-a": "#ff4221",
+		"brand-b": "#ff9215",
+		"brand-c": "#ff8bd3",
 		"fg-a": "#15161d",
 		"fg-b": "#282a36",
 		"fg-c": "#1d252e",
 		"fg-d": "#3a3a44",
-		"bg-a": "#ffffff",
-		"bg-b": "#dfe1e9",
+		"bg-a": "#dfe1e9",
+		"bg-b": "#ffffff",
 		"bg-c": "#c3c4c7",
 		"bg-d": "#777d8f"
 	}
