@@ -134,8 +134,10 @@
 		z-index: 1;
 
 		font-size: var(--font-sm);
+	}
 
-		&.theme-a {
+	:global(body[theme='theme-a']) {
+		.doc {
 			background: rgba(var(--bg-b-rgb), 0.5);
 			box-shadow: var(--shadow-lg);
 		}
