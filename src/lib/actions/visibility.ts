@@ -86,7 +86,7 @@ const dispatch = (node: HTMLElement, name: Event, detail: VisibilityEventDetail)
  * <script>
  * 	let visible, scrollDir, options = {threshold: 0.25}
  *
- *  <!-- TypeScript users can import the VisibilityEvent or VisibilityEventDetail type -->
+ * 	// TypeScript users can import the VisibilityEvent or VisibilityEventDetail type
  * 	function handleChange({ detail }) {
  * 		visible = detail.isVisible
  * 		scrollDir = detail.scrollDirection
