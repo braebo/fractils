@@ -31,8 +31,11 @@ export { default as Code } from './components/Code.svelte' // todo
 // Theme
 
 export { initTheme, toggleTheme, applyTheme, theme } from './theme/theme'
+export { default as ThemerComponent } from './theme/Themer.svelte' // todo
+export { Themer } from './theme/Themer' // todo
 
 // Icons
+
 export { default as Github } from './icons/Github.svelte' // todo
 export { default as Copy } from './icons/Copy.svelte' // todo
 
@@ -51,10 +54,14 @@ export { decimalToPow } from './utils/decimalToPow' // todo
 export { colors, randomColor } from './utils/color' // todo
 export { cliHyperlink } from './utils/cliHyperlink' // todo
 export { timestamp } from './utils/timestamp' // todo
+export { rgbToHex } from './utils/rgbToHex' // todo
+export { hexToRgb } from './utils/hexToRgb' // todo
 export { truncate } from './utils/truncate' // todo
+export { fontSize } from './utils/fontSize' // todo
 export { mapRange } from './utils/mapRange'
 export { defer } from './utils/defer' // todo
 export { clamp } from './utils/clamp'
+export { getPx } from './utils/getPx' // todo
 export { wait } from './utils/wait'
 export { log } from './utils/log'
 
