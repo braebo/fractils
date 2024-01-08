@@ -2,7 +2,7 @@
 	import { resize } from './resizable'
 </script>
 
-<div class="container flex center" use:resize={{ persistent: true }}>
+<div class="container flex center" use:resize={{}}>
 	<slot>
 		<div>Resizable Default Slot Content</div>
 	</slot>

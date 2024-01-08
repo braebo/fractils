@@ -1,13 +1,9 @@
 import type { Action } from 'svelte/action'
-import type { CSSLength } from './types'
 
 import { localStorageStore } from './localStorageStore'
 import { debounce } from './debounce'
 import { get } from 'svelte/store'
 import { logger } from './logger'
-import { clamp } from './clamp'
-import { getPx } from './getPx'
-import { r, y, gr } from './l'
 
 /**
  * The sides of an element that can be resized by the {@link resize} action.
@@ -20,35 +16,24 @@ export type Side = 'top' | 'right' | 'bottom' | 'left'
 interface ResizeOptions {
 	/**
 	 * To only allow resizing on certain sides, specify them here.
-	 * @default []
+	 * @default ['top', 'right', 'bottom', 'left']
 	 */
 	sides?: Side[]
 	/**
 	 * The size of the resize handle in pixels.
-	 * @default '5px'
+	 * @default 3
 	 */
 	gutterSize?: number | string
 	/**
-	 * Minimum width in `px`, `rem`, `vw`, or `vh`.
-	 * @default '15px'
+	 * Optional callback function that runs when the element is resized.
+	 * @default () => void
 	 */
-	minWidth?: CSSLength
-	/**
-	 * Maximum width in `px`, `rem`, `vw`, or `vh`.
-	 * @default '75vw'
-	 */
-	maxWidth?: CSSLength
-	/**
-	 * Minimum height in `px`, `rem`, `vw`, or `vh`.
-	 * @default initial
-	 */
-	minHeight?: CSSLength
-	/**
-	 * Maximum height in `px`, `rem`, `vw`, or `vh`.
-	 * @default initial*2
-	 */
-	maxHeight?: CSSLength
 	onResize?: () => void
+	/**
+	 * Persist width in local storage.
+	 * @default false
+	 */
+	persistent?: boolean
 	/**
 	 * Use a visible or invisible gutter.
 	 * @default false
@@ -56,17 +41,12 @@ interface ResizeOptions {
 	visible?: boolean
 	/**
 	 * Gutter css color (if visible = `true`)
-	 * @default '#1d1d1d'
+	 * @default 'var(--fg-d, #1d1d1d)'
 	 */
 	color?: string
 	/**
-	 * Persist width in local storage.
-	 * @default false
-	 */
-	persistent?: boolean
-	/**
 	 * Border radius of the element.
-	 * @default '0.25rem'
+	 * @default '0.5rem'
 	 */
 	borderRadius?: string
 }
@@ -96,17 +76,13 @@ let globalStylesSet = false
  * @example Kitchen Sink
  * ```svelte
  * <div use:resize={{
- * 	sides = ['left', 'bottom'], // Only allow resizing on the left and bottom sides.
- * 	gutterSize = 3, // The size of the resize handle in pixels.
- * 	minWidth = '15px', // Minimum width in `px`, `rem`, `vw`, or `vh`.
- * 	maxWidth = '75vw', // Maximum width in `px`, `rem`, `vw`, or `vh`.
- * 	minHeight = node.initialHeight, // Minimum height in `px`, `rem`, `vw`, or `vh`.
- * 	maxHeight = (getPx(node.initialHeight) * 2 + 'px') as CSSLength, // Maximum height in `px`, `rem`, `vw`, or `vh`.
- * 	onResize = () => {}, // Callback function that runs when the element is resized.
- * 	persistent = false, // Persist width in local storage.
- * 	visible = false, // Use a visible or invisible gutter.
- * 	color = 'var(--fg-d)', // Gutter css color (if visible = `true`)
- * 	borderRadius = '0.5rem', // Border radius of the element.
+ * 	sides: ['left', 'bottom'],
+ * 	gutterSize: 3,
+ * 	onResize: () => console.log('resized'),
+ * 	persistent: false,
+ * 	visible: false,
+ * 	color: 'var(--fg-d)',
+ * 	borderRadius: '0.5rem',
  * }} />
  * ```
  */
@@ -116,38 +92,33 @@ export const resize: Action<HTMLElement, ResizeOptions> = (node, options) => {
 	let activeGrabber: HTMLElement | null = null
 	let grabbing = false
 
-	const initialHeight = initialStyle.height as CSSLength
-
 	const {
 		sides = ['top', 'right', 'bottom', 'left'],
 		gutterSize = 3,
-		minWidth = '15px',
-		maxWidth = '75vw',
-		minHeight = '16px',
-		maxHeight = null,
 		onResize = () => {},
 		persistent = false,
 		visible = false,
-		// color = '#1d1d1d',
-		color = 'var(--fg-d)',
-		borderRadius = '0.5rem',
+		color = 'var(--fg-d, #1d1d1d)',
+		borderRadius = '0.25rem',
 	} = options
 
 	const size = localStorageStore(
 		'fractils::resizable::size:' + Array.from(node.classList).join('_'),
-		'300px',
+		// todo - `size` store should be { width, height } instead of just width.
+		node.offsetWidth,
 	)
 
+	//? Save/Load size from local storage.
+
 	const saveSize = debounce(() => {
-		size.set(node.offsetWidth + 'px')
+		size.set(node.offsetWidth)
 	}, 50)
 
-	// Set size from local storage.
 	if (persistent) {
-		const persistentSize = get(size)
-		node.style.width =
-			clamp(parseFloat(persistentSize), getPx(minWidth), getPx(maxWidth)) + 'px'
+		node.style.width = get(size) + 'px'
 	}
+
+	//? Create global stylesheet (but only once).
 
 	function globalStyles() {
 		if (globalStylesSet) return
@@ -242,9 +213,12 @@ export const resize: Action<HTMLElement, ResizeOptions> = (node, options) => {
 
 	globalStyles()
 
+	//? Create resize grabbers.
+
+	/** Stores `removeEventListener` functions for cleanup. */
 	const listeners = [] as (() => void)[]
 
-	function createGrabber(side: Side) {
+	for (const side of sides) {
 		const grabber = document.createElement('div')
 		grabber.classList.add('fractils-resize-grabber')
 		grabber.classList.add('grabber-' + side)
@@ -256,12 +230,6 @@ export const resize: Action<HTMLElement, ResizeOptions> = (node, options) => {
 
 		grabber.addEventListener('mouseover', onMouseOver)
 		listeners.push(() => grabber.removeEventListener('mouseover', onMouseOver))
-
-		return grabber
-	}
-
-	for (const side of sides) {
-		createGrabber(side)
 	}
 
 	function onMouseOver(e: MouseEvent) {
@@ -292,6 +260,9 @@ export const resize: Action<HTMLElement, ResizeOptions> = (node, options) => {
 		document.addEventListener('mouseup', onUp, { once: true })
 	}
 
+	/**
+	 * This is where all the resizing logic happens.
+	 */
 	function onMove(e: MouseEvent) {
 		if (!activeGrabber) {
 			console.error('No active grabber')
@@ -331,15 +302,14 @@ export const resize: Action<HTMLElement, ResizeOptions> = (node, options) => {
 			}
 		}
 
-		onResize()
-
 		saveSize()
+
+		onResize()
 	}
 
 	const onUp = () => {
 		grabbing = false
 		cleanupGrabListener?.()
-		//? Remove the global cursor.
 		document.body.classList.remove('grabbing')
 		activeGrabber?.classList.remove('grabbing')
 	}
