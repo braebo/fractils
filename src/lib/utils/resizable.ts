@@ -149,40 +149,6 @@ export const resize: Action<HTMLElement, ResizeOptions> = (node, options) => {
 			clamp(parseFloat(persistentSize), getPx(minWidth), getPx(maxWidth)) + 'px'
 	}
 
-	let maxW: number | null = null
-	let minW: number | null = null
-	let maxH: number | null = null
-	let minH: number | null = null
-
-	updateClamps()
-	function updateClamps() {
-		maxW = maxWidth ? getPx(maxWidth, node.offsetParent?.clientWidth) : null
-		minW = minWidth ? getPx(minWidth, node.offsetParent?.clientWidth) : null
-		maxH = maxHeight ? getPx(maxHeight, node.offsetParent?.clientHeight) : null
-		minH = minHeight ? getPx(minHeight, node.offsetParent?.clientHeight) : null
-	}
-
-	node.style.width =
-		clamp(getPx(initialStyle.width as CSSLength), minW || 0, maxW || Infinity) + 'px'
-	node.style.height =
-		clamp(getPx(initialStyle.height as CSSLength), minH || 0, maxH || Infinity) + 'px'
-
-	log({
-		initialHeight,
-		initial: {
-			maxWidth,
-			minWidth,
-			maxHeight,
-			minHeight,
-		},
-		parsed: {
-			maxW,
-			minW,
-			maxH,
-			minH,
-		},
-	})
-
 	function globalStyles() {
 		if (globalStylesSet) return
 
@@ -276,9 +242,9 @@ export const resize: Action<HTMLElement, ResizeOptions> = (node, options) => {
 
 	globalStyles()
 
-	function createGrabber(side: Side) {
-		if (!sides.includes(side)) return
+	const listeners = [] as (() => void)[]
 
+	function createGrabber(side: Side) {
 		const grabber = document.createElement('div')
 		grabber.classList.add('fractils-resize-grabber')
 		grabber.classList.add('grabber-' + side)
@@ -286,16 +252,16 @@ export const resize: Action<HTMLElement, ResizeOptions> = (node, options) => {
 		node.appendChild(grabber)
 
 		grabber.addEventListener('mousedown', onGrab)
+		listeners.push(() => grabber.removeEventListener('mousedown', onGrab))
+
 		grabber.addEventListener('mouseover', onMouseOver)
+		listeners.push(() => grabber.removeEventListener('mouseover', onMouseOver))
 
 		return grabber
 	}
 
-	const grabbers = {
-		left: createGrabber('left'),
-		right: createGrabber('right'),
-		top: createGrabber('top'),
-		bottom: createGrabber('bottom'),
+	for (const side of sides) {
+		createGrabber(side)
 	}
 
 	function onMouseOver(e: MouseEvent) {
@@ -305,6 +271,8 @@ export const resize: Action<HTMLElement, ResizeOptions> = (node, options) => {
 
 		node.style.setProperty('border-' + side + '-color', color)
 	}
+
+	let cleanupGrabListener: (() => void) | null = null
 
 	function onGrab(e: MouseEvent) {
 		grabbing = true
@@ -316,7 +284,11 @@ export const resize: Action<HTMLElement, ResizeOptions> = (node, options) => {
 		e.preventDefault()
 		e.stopPropagation()
 
+		cleanupGrabListener?.()
 		document.addEventListener('mousemove', onMove)
+		cleanupGrabListener = () => document.removeEventListener('mousemove', onMove)
+
+		// This doesn't need to be cleaned up because it's a `once` listener.
 		document.addEventListener('mouseup', onUp, { once: true })
 	}
 
@@ -326,37 +298,17 @@ export const resize: Action<HTMLElement, ResizeOptions> = (node, options) => {
 			return
 		}
 
-		updateClamps()
-
 		const { side } = activeGrabber.dataset
 
 		const rect = node.getBoundingClientRect()
 
-		// const newWidth = right - clientX - 16
-		// const newHeight = bottom - clientY
-
-		// const mode: 'absolute' | 'relative' = 'absolute'
-
-		log('maxHeight', maxHeight)
-		log('maxH', maxH)
-		log('minHeight', minHeight)
-		log('minH', minH)
-		log('maxWidth', maxWidth)
-		log('maxW', maxW)
-		log('minWidth', minWidth)
-		log('minW', minW)
-
 		switch (side) {
 			case 'left': {
-				const delta = e.movementX * -1
-				const newWidth = clamp(rect.width + delta, getPx(minWidth), getPx(maxWidth))
-				node.style.width = newWidth + 'px'
-
+				node.style.width = rect.width - e.movementX + 'px'
 				break
 			}
 			case 'right': {
-				const delta = e.movementX
-				const newWidth = clamp(rect.width + delta, getPx(minWidth), getPx(maxWidth))
+				const newWidth = rect.width + e.movementX
 				node.style.width = newWidth + 'px'
 
 				const currentRight = parseFloat(node.style.right) || 0
@@ -365,12 +317,7 @@ export const resize: Action<HTMLElement, ResizeOptions> = (node, options) => {
 				break
 			}
 			case 'top': {
-				const delta = e.movementY * -1
-				const newHeight = clamp(
-					rect.height + delta,
-					minHeight ? getPx(minHeight) : 0,
-					maxHeight ? getPx(maxHeight) : Infinity,
-				)
+				const newHeight = rect.height - e.movementY
 				node.style.height = newHeight + 'px'
 
 				const currentTop = parseFloat(node.style.top) || 0
@@ -379,13 +326,7 @@ export const resize: Action<HTMLElement, ResizeOptions> = (node, options) => {
 				break
 			}
 			case 'bottom': {
-				const delta = e.movementY
-				const newHeight = clamp(
-					rect.height + delta,
-					minHeight ? getPx(minHeight) : 0,
-					maxHeight ? getPx(maxHeight) : Infinity,
-				)
-				node.style.height = newHeight + 'px'
+				node.style.height = rect.height + e.movementY + 'px'
 				break
 			}
 		}
@@ -395,33 +336,20 @@ export const resize: Action<HTMLElement, ResizeOptions> = (node, options) => {
 		saveSize()
 	}
 
-	// function clampSize(size: number) {
-	// 	if (size < minWidthPx) return minWidthPx
-	// 	if (maxWidthPx && size > maxWidthPx) return maxWidthPx
-	// 	return size
-	// }
-
 	const onUp = () => {
 		grabbing = false
-		document.removeEventListener('mousemove', onMove)
+		cleanupGrabListener?.()
 		//? Remove the global cursor.
 		document.body.classList.remove('grabbing')
 		activeGrabber?.classList.remove('grabbing')
 	}
 
-	document.addEventListener('mouseup', onUp)
-
-	// updateHeight()
-
 	return {
 		destroy: () => {
-			document.removeEventListener('mousemove', onMove)
-			document.removeEventListener('mouseup', onUp)
-
-			grabbers.top?.removeEventListener('mousedown', onGrab)
-			grabbers.right?.removeEventListener('mousedown', onGrab)
-			grabbers.bottom?.removeEventListener('mousedown', onGrab)
-			grabbers.left?.removeEventListener('mousedown', onGrab)
+			for (const cleanup of listeners) {
+				cleanup()
+			}
+			cleanupGrabListener?.()
 		},
 	}
 }
