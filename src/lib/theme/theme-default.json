@@ -1,0 +1,27 @@
+{
+	"id": "default",
+	"name": "theme-default",
+	"brand-a": "#00bcd4",
+	"brand-b": "#f8d2c9",
+	"brand-c": "#ff8ba9",
+	"dark": {
+		"bg-a": "#15161d",
+		"bg-b": "#282a36",
+		"bg-c": "#1d252e",
+		"bg-d": "#3a3a44",
+		"fg-a": "#ffffff",
+		"fg-b": "#dfe1e9",
+		"fg-c": "#c3c4c7",
+		"fg-d": "#777d8f"
+	},
+	"light": {
+		"fg-a": "#15161d",
+		"fg-b": "#282a36",
+		"fg-c": "#1d252e",
+		"fg-d": "#3a3a44",
+		"bg-a": "#ffffff",
+		"bg-b": "#dfe1e9",
+		"bg-c": "#c3c4c7",
+		"bg-d": "#777d8f"
+	}
+}
