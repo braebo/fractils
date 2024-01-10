@@ -1,26 +1,80 @@
+// {
+// 	"files.associations": {
+// 		"[*.md, *.svx, *.mdsvex]": "mdx", //* https://github.com/pngwn/MDsveX/issues/121#issuecomment-675106929
+// 		"*.xml": "html",
+// 		"*.svg": "html"
+// 	},
+
+// 	"editor.defaultFormatter": "esbenp.prettier-vscode",
+
+	// "[svelte]": {
+	// 	"editor.defaultFormatter": "svelte.svelte-vscode"
+	// },
+
+// 	"[shellscript]": {
+// 		"editor.defaultFormatter": "shakram02.bash-beautify"
+// 	},
+// }
+
 {
+	//- General
+
 	"files.associations": {
-		"[*.md, *.svx, *.mdsvex]": "mdx", //* https://github.com/pngwn/MDsveX/issues/121#issuecomment-675106929
-		"*.xml": "html",
-		"*.svg": "html"
+		"*.svg": "html",
+		"*.json": "jsonc"
+	},
+	"editor.minimap.enabled": false,
+	"explorer.confirmDragAndDrop": false,
+	"liveshare.accessibility.voiceEnabled": true,
+	"editor.accessibilitySupport": "off",
+	"explorer.confirmDelete": false,
+	"editor.stickyScroll.enabled": true,
+	"explorer.sortOrder": "foldersNestsFiles",
+	"editor.guides.bracketPairs": true,
+
+	//- Git
+
+	"git.enableSmartCommit": true,
+	"git.autofetch": true,
+	"git.confirmSync": false,
+	"github.copilot.enable": {
+		"*": true,
+		"plaintext": false,
+		"markdown": false,
+		"scminput": false
 	},
 
-	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	//- Third party
 
-	"[svelte]": {
-		"editor.defaultFormatter": "svelte.svelte-vscode"
+	"explicitFolding.rules": {
+		"*": {
+			"beginRegex": "[ \\t]*?\\/\\/\\·(?:.*)?",
+			"endRegex": "[ \\t]*?\\/\\/\\⌟(?:.*)?"
+		}
 	},
+	"vscode-color-picker.languages": [
+		"jsonc",
+		"json",
+		"html",
+		"svelte",
+		"svg",
+		"python",
+		"javascript",
+		"typescript",
+		"shellscript"
+	],
 
-	"[shellscript]": {
-		"editor.defaultFormatter": "shakram02.bash-beautify"
-	},
+	//- Theming
 
+	"workbench.colorTheme": "Mo Darker",
+	"workbench.preferredDarkColorTheme": "Mo Darker",
+	"workbench.preferredLightColorTheme": "Moxer Light",
 	"workbench.iconTheme": "material-icon-theme",
+	"window.autoDetectColorScheme": true,
 
-	//* Theming
 	"editor.tokenColorCustomizations": {
 		"textMateRules": [
-			//* More subtle Template Tags
+			//? More subtle Template Tags
 			{
 				"scope": [
 					"punctuation.definition.tag",
@@ -32,7 +86,7 @@
 					"foreground": "#5a86ff36"
 				}
 			},
-			//* More subtle Template Tags
+			//? Boilerplate supressor.
 			{
 				"scope": ["punctuation.terminator"],
 				"settings": {
@@ -40,5 +94,128 @@
 				}
 			}
 		]
-	}
+	},
+
+	"better-comments.tags": [
+		{
+			"tag": "!",
+			"color": "#FF2D00",
+			"strikethrough": false,
+			"underline": false,
+			"backgroundColor": "transparent",
+			"bold": false,
+			"italic": false
+		},
+		{
+			"tag": "-",
+			"color": "#a35645",
+			"strikethrough": false,
+			"underline": false,
+			"backgroundColor": "transparent",
+			"bold": false,
+			"italic": false
+		},
+		{
+			"tag": "?",
+			// "color": "#4B84A5",
+			"color": "#4B6DA5",
+			"strikethrough": false,
+			"underline": false,
+			"backgroundColor": "transparent",
+			"bold": false,
+			"italic": false
+		},
+		{
+			"tag": "//",
+			"color": "#474747",
+			"strikethrough": true,
+			"underline": false,
+			"backgroundColor": "transparent",
+			"bold": false,
+			"italic": false
+		},
+		{
+			"tag": "todo",
+			"color": "#FF8C00",
+			"strikethrough": false,
+			"underline": false,
+			"backgroundColor": "transparent",
+			"bold": false,
+			"italic": false
+		},
+		{
+			"tag": "*",
+			"color": "#98C379",
+			"strikethrough": false,
+			"underline": false,
+			"backgroundColor": "transparent",
+			"bold": false,
+			"italic": false
+		},
+		//? Custom region folding tag.
+		{
+			"tag": "·",
+			"color": "#374fa6",
+			"bold": true
+		},
+		{
+			"tag": "⌟",
+			"color": "#002255",
+			"bold": true
+		}
+	],
+
+	//- Formatting
+
+	"editor.formatOnSave": false,
+	"prettier.semi": false,
+	"prettier.singleQuote": true,
+	"prettier.trailingComma": "none",
+	"prettier.useTabs": true,
+	"prettier.tabWidth": 4,
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"[jsonc]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[yaml]": {
+		"editor.defaultFormatter": "redhat.vscode-yaml"
+	},
+	"[shellscript]": {
+		"editor.defaultFormatter": "shakram02.bash-beautify"
+	},
+	"[html]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"[svelte]": {
+		"editor.defaultFormatter": "svelte.svelte-vscode"
+	},
+	"svelte.enable-ts-plugin": true,
+
+	//- File nesting.
+
+	"explorer.fileNesting.enabled": true,
+	"explorer.fileNesting.expand": false,
+	"explorer.fileNesting.patterns": {
+		".gitignore": ".gitattributes, .gitmodules, .gitmessage, .mailmap, .git-blame*",
+		"*.js": "$(capture).js.map, $(capture).min.js, $(capture).d.ts",
+		"*.ts": "$(capture).js, $(capture).*.ts",
+		"*.svelte": "$(capture).js, $(capture).ts, $(capture).*.ts",
+		"*.scss": "$(capture).css.map, $(capture).css",
+		"vite.config.js": "vite.config.js*",
+		"index.d.ts": "*.d.ts",
+		"shims.d.ts": "*.d.ts",
+		".env": "*.env, .env.*, env.d.ts",
+		"package.json": ".editorconfig, .github*, .gitignore, .gitpod*, .node-version, .npm*, .nvmrc, .pnpm*, .stylelint*, .vscode*, api-extractor.json, package-lock.json, pm2.*, pnpm*, rollup.config.*, stylelint*, tsdoc.*, tslint*, tsup.config.*, turbo*, typedoc*, vetur.config.*, vitest.config.*, workspace.json, xo.config.*",
+		"readme.*": "authors, backers.md, changelog*, citation*, code_of_conduct.md, codeowners, contributing.md, contributors, copying, credits, governance.md, history.md, license*, maintainers, readme*, security.md, sponsors.md",
+		"cargo.toml": ".clippy.toml, .rustfmt.toml, cargo.lock, clippy.toml, cross.toml, rust-toolchain.toml, rustfmt.toml",
+		"svelte.config.*": "bunfig.toml, *.env, .eslint*, .cssnanorc*, .env.*, env.d.ts, .prettier*, mdsvex.config.js, postcss.config.*, tsdoc.*, vercel*, vite.config.*, vitest.config.*",
+		"favicon.ico": "robots.txt, safari-pinned-tab.svg, browserconfig.xml, site.webmanifest, *.png"
+	},
+	"terminal.integrated.env.osx": {},
+	"editor.acceptSuggestionOnCommitCharacter": false,
+	"diffEditor.ignoreTrimWhitespace": false,
+	"editor.renderWhitespace": "none",
+	"workbench.panel.defaultLocation": "left",
+	"window.zoomLevel": -1,
+	"focus.highlightRange": "block"
 }
