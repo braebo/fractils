@@ -124,7 +124,12 @@ function getCallSite() {
 	const callSite = stackLines?.[1]?.trim()
 
 	// todo - test this on different browsers
-	const match = callSite?.split('at ')[1]
+	let match: string | undefined
+
+	// Class instances
+	match ??= callSite?.split('at <instance_members_initializer> (')[1]
+	// Regular functions
+	match ??= callSite?.split('at ')[1]
 
 	if (!match) return failed()
 
@@ -144,7 +149,14 @@ function getCallSite() {
 	}
 
 	function failed() {
-		if (DEV) console.warn('Failed to parse call site from stack trace.')
+		if (DEV && BROWSER) {
+			console.warn('getCallSite(): Failed to parse call site from stack trace.')
+			console.groupCollapsed('getCallSite(): debug info')
+			console.log('match:', match)
+			console.log('stackLines:', stackLines)
+			console.log('err:', err)
+			console.groupEnd()
+		}
 		return {
 			callsite: '/unknown:0:0',
 			filename: 'unknown',
