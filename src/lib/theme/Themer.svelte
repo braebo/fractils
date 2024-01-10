@@ -4,25 +4,22 @@
 	import { Themer } from './Themer'
 	import { onMount } from 'svelte'
 
-	const themer = new Themer({
-		theme: 'theme-default',
-		autoInit: true,
-	})
+	const themer = new Themer()
 
-	let key = false
-	const toggleKey = () => (key = !key)
+	let renderKey = false
+	const render = () => (renderKey = !renderKey)
 
-	onMount(toggleKey)
+	onMount(render)
 </script>
 
 {#if themer}
-	{#key themer && key}
+	{#key themer && renderKey}
 		<div class="container" use:resize={{ persistent: true }}>
 			<div class="themer">
 				<div class="kv mode">
 					<div class="k">Mode</div>
-					<options class="v" on:change={toggleKey}>
-						<select bind:value={themer.mode} on:change={toggleKey}>
+					<options class="v" on:change={render}>
+						<select bind:value={themer.mode} on:change={render}>
 							<option value="dark">dark</option>
 							<option value="light">light</option>
 							<option value="system">system</option>
@@ -33,9 +30,9 @@
 				<div class="kv theme">
 					<div class="k">Theme</div>
 					<options class="v">
-						<select bind:value={themer.theme} on:change={toggleKey}>
+						<select bind:value={themer.theme.title} on:change={render}>
 							{#each themer.themes as value}
-								<option value={value.name}>{value.name}</option>
+								<option value={value.title}>{value.title}</option>
 							{/each}
 						</select>
 					</options>
@@ -50,7 +47,9 @@
 
 				<div class="kv theme-a">
 					<div class="v">
-						<button on:click={() => themer.addTheme(THEME_A)}>add theme-a</button>
+						<button on:click={() => themer.addTheme(THEME_A) && render()}>
+							add theme-a
+						</button>
 					</div>
 				</div>
 

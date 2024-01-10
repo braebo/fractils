@@ -1,6 +1,5 @@
 {
-	"id": "default",
-	"name": "theme-default",
+	"title": "default",
 	"dark": {
 		"brand-a": "#00bcd4",
 		"brand-b": "#f8d2c9",

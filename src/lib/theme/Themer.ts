@@ -5,16 +5,16 @@
  * Manages multiple customizable application themes.
  */
 
-import THEME_DEFAULT from './theme-default.json'
+import THEME_DEFAULT from './themes/default.json'
+import { partition } from '../utils/partition'
 import { hexToRgb } from '$lib/utils/hexToRgb'
 import { entries } from '$lib/utils/object'
 import { logger } from '$lib/utils/logger'
-import { g, o } from '../utils/l'
+import { g, o, r } from '../utils/l'
 
-export type ThemeName = 'theme-default' | 'theme-a' | 'theme-b' | 'theme-c' | (string & {})
+export type ThemeTitle = 'theme-default' | 'theme-a' | 'theme-b' | 'theme-c' | (string & {})
 export type ThemeVariant = 'light' | 'dark'
 export type ThemeMode = ThemeVariant | 'system' | (string & {})
-export type ThemeNode = HTMLElement | Element | null
 
 /**
  * A theme variant config contains hex colors. All {@link ThemeConfig | ThemeConfigs}
@@ -24,10 +24,12 @@ export interface ThemeVariantConfig {
 	'brand-a': string
 	'brand-b': string
 	'brand-c': string
+	// Foreground shades
 	'fg-a': string
 	'fg-b': string
 	'fg-c': string
 	'fg-d': string
+	// Background shades.
 	'bg-a': string
 	'bg-b': string
 	'bg-c': string
@@ -38,24 +40,9 @@ export interface ThemeVariantConfig {
  * Represents a theme configuration.
  */
 export interface ThemeConfig {
-	id: string
-	name: ThemeName
-
+	title: ThemeTitle
 	dark: ThemeVariantConfig
 	light: ThemeVariantConfig
-}
-
-/**
- * Options for the {@link Themer} class.
- */
-export interface ThemerOptions {
-	/**
-	 * Whether to automatically initialize the theme.
-	 */
-	autoInit?: boolean
-	themes?: Array<ThemeConfig>
-	theme?: ThemeName
-	mode?: ThemeMode
 }
 
 /**
@@ -64,10 +51,28 @@ export interface ThemerOptions {
  * methods, and subsequently, in {@link Themer.save | save()}
  * and {@link Themer.load | load()}.
  */
-export type ThemerJSON = {
+export interface ThemerJSON {
 	themes: ThemeConfig[]
-	theme: ThemeName
+	activeTheme: ThemeTitle
 	mode: ThemeMode
+}
+
+/**
+ * Options for the {@link Themer} class.
+ */
+export interface ThemerOptions {
+	/**
+	 * Whether to automatically initialize the theme.
+	 * @default true
+	 */
+	autoInit?: boolean
+	/**
+	 * The default theme to use.
+	 * @default A theme titled 'default'.
+	 */
+	theme?: ThemeConfig
+	themes?: Array<ThemeConfig>
+	mode?: ThemeMode
 }
 
 /**
@@ -75,15 +80,15 @@ export type ThemerJSON = {
  */
 const THEMER_DEFAULTS = {
 	autoInit: true,
-	themes: [THEME_DEFAULT],
-	theme: 'theme-default',
+	themes: [],
+	theme: THEME_DEFAULT,
 	mode: 'system',
 } as const satisfies ThemerOptions
 
-export class Themer<T extends ThemeName> {
-	_theme: ThemeName | T
-	_mode: ThemeMode
-	themes: ThemeConfig[]
+export class Themer<T extends ThemeTitle> {
+	#theme: ThemeConfig
+	#mode: ThemeMode
+	#themes: ThemeConfig[]
 
 	#initialized = false
 	#style!: HTMLStyleElement
@@ -91,15 +96,17 @@ export class Themer<T extends ThemeName> {
 	log = logger('themer', {
 		fg: 'RoyalBlue',
 		deferred: false,
+		server: false,
 	})
 
-	constructor(options: ThemerOptions) {
+	constructor(options?: ThemerOptions) {
 		const opts = Object.assign({}, THEMER_DEFAULTS, options)
 		this.log(g('constructor') + '()', { opts, this: this })
 
-		this._theme = opts.theme
-		this._mode = opts.mode
-		this.themes = opts.themes
+		this.#theme = opts.theme
+		this.#mode = opts.mode
+		this.#themes = opts.themes
+		this.addTheme(this.#theme)
 
 		if (opts.autoInit) {
 			this.init()
@@ -120,27 +127,39 @@ export class Themer<T extends ThemeName> {
 		document.head.appendChild(style)
 		this.#style = style
 
-		this.load()?.setTheme(this.theme)
+		this.load()?.applyTheme()
 
 		return this
 	}
 
-	/** The currently active theme. */
+	/**
+	 * The currently active theme.
+	 */
 	get theme() {
-		return this._theme
+		return this.#theme
 	}
-	set theme(theme: ThemeName | T) {
-		this._theme = theme
-		this.setTheme(theme)
+	set theme(theme: ThemeConfig) {
+		this.#theme = theme
+		this.applyTheme()
 	}
 
 	/** The current theme mode. */
 	get mode() {
-		return this._mode
+		return this.#mode
 	}
 	set mode(mode: ThemeMode) {
-		this._mode = mode
-		this.setTheme(this.theme)
+		this.#mode = mode
+		this.applyTheme()
+	}
+
+	/**
+	 * All themes.
+	 */
+	get themes() {
+		return this.#themes
+	}
+	set themes(themes: ThemeConfig[]) {
+		this.#themes = themes
 	}
 
 	/** The current mode, taking into account the system preferences. */
@@ -158,43 +177,71 @@ export class Themer<T extends ThemeName> {
 
 		return mode as 'light' | 'dark'
 	}
-
-	/** The current {@link ThemeConfig} object. */
-	get activeTheme() {
-		return this.getThemeConfig(this.theme)
-	}
-
 	/** Adds a new theme to the Themer and saves it to localStorage. */
-	addTheme(config: ThemeConfig) {
-		this.log(o('addTheme') + '()', { theme: config.name, config, this: this })
-		this.themes = [...new Set([...this.themes, config])]
-		this.save()
+	addTheme(
+		newTheme: ThemeConfig,
+		options?: {
+			/**
+			 * Whether to overwrite an existing theme with the same title,
+			 * or increment the title with a number suffix.
+			 * @default false
+			 */
+			overwrite?: boolean
+			/**
+			 * Whether to re-save the Themer state to localStorage
+			 * after adding the new theme.
+			 * @default true
+			 */
+			save?: boolean
+		},
+	) {
+		this.log(o('addTheme') + '()', { theme: newTheme.title, config: newTheme, this: this })
+
+		const overwrite = options?.overwrite ?? false
+		const save = options?.save ?? true
+
+		const [dupes, themes] = partition(this.#themes, (t) => t.title === newTheme.title)
+		const alreadyExists = dupes.length > 0
+
+		if (!overwrite && alreadyExists) {
+			this.log('Incrementing theme title', { theme: newTheme.title, this: this })
+
+			let i = 0
+			while (this.#themes.find((t) => t.title === `${newTheme.title} (${++i})`)) {}
+			newTheme.title = `${newTheme.title} (${i})`
+		}
+
+		this.#themes = [...themes, newTheme]
+
+		if (save) this.save()
 
 		return this
 	}
 
-	/** Resolves a {@link ThemeConfig} by name. */
-	getThemeConfig(theme: ThemeName | T) {
-		return this.themes.find((t) => t.name === theme)
+	/** Resolves a {@link ThemeConfig} by title. */
+	getThemeConfig(themeTitle: ThemeTitle | T) {
+		return this.#themes.find((t) => t.title === themeTitle)
 	}
 
 	/** Changes the active theme of the application. */
-	setTheme(theme: ThemeName | T) {
+	applyTheme() {
 		if (!('document' in globalThis)) return
-		this.log(o('setTheme') + '()', { theme, this: this })
 
-		this._theme = theme
+		const theme = this.#theme
 
-		const themeConfig = this.getThemeConfig(theme)
-		if (!themeConfig) {
+		if (!theme) {
 			this.log('themeConfig not found', { theme, this: this })
-			throw new Error(`Theme "${theme}" not found.`)
+			throw new Error(`Theme not found.`)
 		}
 
-		const css = this.#generateCSS(themeConfig)
-		this.#style.innerHTML = css
+		const css = this.#generateCSS(theme)
+		if (this.#style.innerHTML !== css) {
+			this.#style.innerHTML = css
+		}
 
-		document.body.setAttribute('theme', theme)
+		if (document.body.getAttribute('theme') !== theme.title) {
+			document.body.setAttribute('theme', theme.title)
+		}
 
 		this.save()
 
@@ -203,22 +250,30 @@ export class Themer<T extends ThemeName> {
 
 	/** Updates Themer state from JSON. */
 	fromJSON(json: ThemerJSON) {
-		const isNewTheme = this._theme !== json.theme
+		const isNewTheme = this.#theme.title !== json.activeTheme
 
-		this.themes = json.themes
-		this._mode = json.mode
-		this._theme = json.theme
+		const theme = this.#themes.find((t) => t.title === json.activeTheme)
+		if (!theme) {
+			this.log(r('Error') + ': `activeTheme` not found in `themes` array.', {
+				json,
+				this: this,
+			})
+			throw new Error(`Theme not found.`)
+		}
+
+		this.#themes = json.themes
+		this.#mode = json.mode
 
 		if (isNewTheme) {
-			this.setTheme(this.theme)
+			this.applyTheme()
 		}
 	}
 
 	/** Serializes the current Themer state to JSON. */
 	toJSON() {
 		return {
-			themes: this.themes,
-			theme: this.theme,
+			themes: this.#themes,
+			activeTheme: this.theme.title,
 			mode: this.mode,
 			// nodes: Array.from(this.nodes).map((node) => node?.id || node?.tagName || ''),
 		} satisfies ThemerJSON
@@ -250,7 +305,23 @@ export class Themer<T extends ThemeName> {
 		this.log(o('save') + '()', { this: this })
 		if (!('localStorage' in globalThis)) return
 		const json = this.toJSON()
-		localStorage.setItem('fractils::themer', JSON.stringify(json))
+
+		const exists = 'fractils::themer' in localStorage
+
+		try {
+			const identical =
+				exists &&
+				JSON.parse(JSON.stringify(json)) ===
+					JSON.parse(localStorage.getItem('fractils::themer') || '')
+
+			if (!identical) {
+				localStorage.setItem('fractils::themer', JSON.stringify(json))
+			}
+		} catch (error) {
+			console.error(r('Error') + ': Failed to save to localStorage.', { error, this: this })
+			throw new Error(`Failed to save to localStorage.`)
+		}
+
 		return json
 	}
 
@@ -277,6 +348,6 @@ export class Themer<T extends ThemeName> {
 			css += `--${key}-rgb: ${hexToRgb(value)};\n`
 		}
 
-		return `body[theme=${config.name}] {\n${css}\n}`
+		return `body[theme=${config.title}] {\n${css}\n}`
 	}
 }
