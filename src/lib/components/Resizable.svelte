@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { resize } from './resizable'
+	import { resizable } from '../actions/resizable'
 </script>
 
-<div class="container flex center" use:resize={{}}>
+<div class="container flex center" use:resizable={{}}>
 	<slot>
 		<div>Resizable Default Slot Content</div>
 	</slot>
@@ -10,9 +10,6 @@
 
 <style lang="scss">
 	.container {
-		// position: fixed;
-		// inset: 0;
-
 		width: var(--width, 10rem);
 		height: var(--height, 10rem);
 

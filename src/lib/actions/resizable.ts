@@ -1,19 +1,19 @@
 import type { Action } from 'svelte/action'
 
-import { localStorageStore } from './localStorageStore'
-import { debounce } from './debounce'
+import { localStorageStore } from '../utils/localStorageStore'
+import { debounce } from '../utils/debounce'
 import { get } from 'svelte/store'
-import { logger } from './logger'
+import { logger } from '../utils/logger'
 
 /**
- * The sides of an element that can be resized by the {@link resize} action.
+ * The sides of an element that can be resized by the {@link resizable} action.
  */
 export type Side = 'top' | 'right' | 'bottom' | 'left'
 
 /**
- * Options for the {@link resize} action.
+ * Options for the {@link resizable} action.
  */
-interface ResizeOptions {
+export interface ResizableOptions {
 	/**
 	 * To only allow resizing on certain sides, specify them here.
 	 * @default ['top', 'right', 'bottom', 'left']
@@ -51,6 +51,13 @@ interface ResizeOptions {
 	borderRadius?: string
 }
 
+interface ResizableEvents {
+	/**
+	 * Dispatched when the element is resized.
+	 */
+	'on:resize'?: (event: CustomEvent) => void
+}
+
 const debug = true
 
 const log = logger('resizable', { fg: 'GreenYellow', browser: debug, deferred: false })
@@ -66,7 +73,7 @@ let globalStylesSet = false
  * Makes an element resizable by dragging its edges.
  *
  * @param node - The element to make resizable.
- * @param options - {@link ResizeOptions}
+ * @param options - {@link ResizableOptions}
  *
  * @example Basic
  * ```svelte
@@ -86,9 +93,10 @@ let globalStylesSet = false
  * }} />
  * ```
  */
-export const resize: Action<HTMLElement, ResizeOptions> = (node, options) => {
-	const initialStyle = getComputedStyle(node)
-
+export const resizable: Action<HTMLElement, ResizableOptions, ResizableEvents> = (
+	node,
+	options,
+) => {
 	let activeGrabber: HTMLElement | null = null
 	let grabbing = false
 
@@ -116,6 +124,7 @@ export const resize: Action<HTMLElement, ResizeOptions> = (node, options) => {
 
 	if (persistent) {
 		node.style.width = get(size) + 'px'
+		node.dispatchEvent(new CustomEvent('resize'))
 	}
 
 	//? Create global stylesheet (but only once).
@@ -301,6 +310,8 @@ export const resize: Action<HTMLElement, ResizeOptions> = (node, options) => {
 				break
 			}
 		}
+
+		node.dispatchEvent(new CustomEvent('resize'))
 
 		saveSize()
 
