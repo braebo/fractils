@@ -153,6 +153,9 @@ export { Event_2 as Event }
 // @public
 export function fmtTime(n: number): string;
 
+// @public
+export const fontSize: `${number}px`;
+
 // @public (undocumented)
 export const fullscreen: Action;
 
@@ -177,12 +180,18 @@ export { FullscreenOptions_2 as FullscreenOptions }
 export function g(...args: unknown[]): string;
 
 // @public
+export function getPx(str: `${number}${'px' | 'rem' | 'vw' | 'vh' | '%'}`, relativeParentSize?: number): number;
+
+// @public
 export class Github extends SvelteComponent<{
     [x: string]: never;
 }, {
     [evt: string]: CustomEvent<any>;
 }, {}> {
 }
+
+// @public
+export function hexToRgb(hex: string): string;
 
 // @public
 export function highlight(text: string, options?: Partial<HighlightOptions>): Promise<string>;
@@ -253,7 +262,7 @@ export function m(...args: unknown[]): string;
 // Warning: (ae-forgotten-export) The symbol "MacScrollbarEvents" needs to be exported by the entry point index.d.ts
 // Warning: (ae-forgotten-export) The symbol "MacScrollbarSlots" needs to be exported by the entry point index.d.ts
 //
-// @public (undocumented)
+// @public
 export class MacScrollbar extends SvelteComponent<MacScrollbarProps, MacScrollbarEvents, MacScrollbarSlots> {
     // (undocumented)
     get padding(): number;
@@ -297,6 +306,9 @@ export class OnMount extends SvelteComponent<{
 // @public
 export function p(...args: unknown[]): string;
 
+// @public
+export function partition<const T>(array: T[], predicate: (element: T) => boolean): [T[], T[]];
+
 // @public (undocumented)
 export type Position = {
     x?: number;
@@ -320,6 +332,9 @@ export { Range_2 as Range }
 
 // @public
 export function resolveArg(name: string, args: string[]): string | true | undefined;
+
+// @public
+export function rgbToHex(r: number, g: number, b: number): string;
 
 // @public
 export const screenH: Writable<number>;
@@ -366,6 +381,58 @@ export class Switch extends SvelteComponent<SwitchProps, SwitchEvents, SwitchSlo
 
 // @public
 export const theme: Writable<Theme_2>;
+
+// Warning: (ae-forgotten-export) The symbol "ThemeTitle" needs to be exported by the entry point index.d.ts
+//
+// @public
+export class Themer<T extends ThemeTitle> {
+    // Warning: (ae-forgotten-export) The symbol "ThemerOptions" needs to be exported by the entry point index.d.ts
+    constructor(options?: Partial<ThemerOptions>);
+    get activeMode(): 'light' | 'dark';
+    addTheme(newTheme: ThemeConfig, options?: {
+        overwrite?: boolean;
+        save?: boolean;
+    }): this;
+    applyTheme(): this | undefined;
+    clear(): void;
+    // Warning: (ae-forgotten-export) The symbol "ThemerJSON" needs to be exported by the entry point index.d.ts
+    fromJSON(json: ThemerJSON): void;
+    getThemeConfig(themeTitle: ThemeTitle | T): ThemeConfig | undefined;
+    // (undocumented)
+    init(): this | undefined;
+    load(): this;
+    // (undocumented)
+    log: (...args: any[]) => void;
+    // Warning: (ae-forgotten-export) The symbol "ThemeMode" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    mode: State<ThemeMode>;
+    save(): {
+        themes: ThemeConfig[];
+        activeTheme: ThemeTitle;
+        mode: "dark" | "light" | "system";
+    } | undefined;
+    // Warning: (ae-forgotten-export) The symbol "State" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "ThemeConfig" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    theme: State<ThemeConfig>;
+    // (undocumented)
+    themes: State<ThemeConfig[]>;
+    toJSON(): {
+        themes: ThemeConfig[];
+        activeTheme: ThemeTitle;
+        mode: "dark" | "light" | "system";
+    };
+}
+
+// Warning: (ae-forgotten-export) The symbol "ThemerProps" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "ThemerEvents" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "ThemerSlots" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export class ThemerComponent extends SvelteComponent<ThemerProps, ThemerEvents, ThemerSlots> {
+}
 
 // Warning: (ae-forgotten-export) The symbol "ThemeToggleProps" needs to be exported by the entry point index.d.ts
 // Warning: (ae-forgotten-export) The symbol "ThemeToggleEvents" needs to be exported by the entry point index.d.ts

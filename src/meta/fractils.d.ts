@@ -27,6 +27,14 @@ declare const __propDef: {
     slots: {};
 };
 
+declare const __propDef_10: {
+    props: Record<string, never>;
+    events: {
+        [evt: string]: CustomEvent<any>;
+    };
+    slots: {};
+};
+
 declare const __propDef_2: {
     props: {
         register: Record<string, Writable<unknown> | Readable<unknown>>;
@@ -41,6 +49,9 @@ declare const __propDef_2: {
 
 declare const __propDef_3: {
     props: {
+        /**
+         * Displays debug info when true.
+         */ debug?: boolean | undefined;
         /**
          * The scrollbar root element or it's query selector.
          * @default document.body
@@ -125,7 +136,7 @@ declare const __propDef_6: {
         /**
          * Placement of the tooltip.
          * @defaultValue 'right'
-         */ placement?: (string & {}) | "left" | "right" | "top" | "bottom" | undefined;
+         */ placement?: (string & {}) | "top" | "right" | "bottom" | "left" | undefined;
         /**
          * Intro & outro delay in ms.
          * @defaultValue [500, 100]
@@ -261,7 +272,7 @@ declare const __propDef_9: {
         /**
          * The language to use.  Must be a {@link ValidLanguage}.
          * @defaultValue 'json'
-         */ lang?: Lang | undefined;
+         */ lang?: (string & {}) | Lang | undefined;
         /**
          * The theme to use.
          * @defaultValue 'github'
@@ -333,13 +344,19 @@ export declare class ArgMap {
     resolve(name: string): string | number | boolean | undefined;
 }
 
+declare interface ArrayState<T> extends PrimitiveState<T[]> {
+    push: (item: T) => void;
+}
+
 /**
  * A Svelte store that uses localStorage to store data asyncronously.
  * @param key - The key to store the data under.
  * @param value - The initial value of the store.
  * @returns a writable store.
  * @example
+ * ```ts
  * const store = asyncLocalStorageStore('foo', 'bar')
+ * ```
  */
 export declare const asyncLocalStorageStore: <T = any>(key: string, value: T) => Writable<T>;
 
@@ -564,6 +581,12 @@ export { Event_2 as Event }
  */
 export declare function fmtTime(n: number): string;
 
+/**
+ * Gets the font size of the root element (on the
+ * server, this will always return `16px`).
+ */
+export declare const fontSize: `${number}px`;
+
 export declare const fullscreen: Action;
 
 declare interface FullscreenOptions_2 {
@@ -579,6 +602,23 @@ export { FullscreenOptions_2 as FullscreenOptions }
 /** chalk.green */
 export declare function g(...args: unknown[]): string;
 
+/**
+ * Accepts `rem`, `vw`, and `vh` css units, and returns the
+ * corresponding pixel value.
+ *
+ * @param str A string containing a css unit.
+ * @param relativeParentSize The size of the parent element, if the unit is `%`.
+ *
+ * @throws If the string is not a valid css unit.
+ *
+ * @example
+ * ```ts
+ * measure('1rem') // 16
+ * measure('100vw') // 1920 (on a 1920x1080 screen)
+ * ```
+ */
+export declare function getPx(str: `${number}${'px' | 'rem' | 'vw' | 'vh' | '%'}`, relativeParentSize?: number): number;
+
 /** @typedef {typeof __propDef.props}  GithubProps */
 /** @typedef {typeof __propDef.events}  GithubEvents */
 /** @typedef {typeof __propDef.slots}  GithubSlots */
@@ -588,6 +628,12 @@ export declare class Github extends SvelteComponent<{
     [evt: string]: CustomEvent<any>;
 }, {}> {
 }
+
+/**
+ * Converts a hex color string to an array of rgb values.
+ * @param hex - A css hex color string, i.e. `#fff` or `#ffffff`
+ */
+export declare function hexToRgb(hex: string): string;
 
 /**
  * Converts text to HTML with syntax highlighting using shikiji.
@@ -706,6 +752,10 @@ export declare const log: (msg: string | any, color?: string, bgColor?: string, 
 /** chalk.magenta */
 export declare function m(...args: unknown[]): string;
 
+/**
+ * Turns the scrollbar into a macOS-like scrollbar that only appears when scrolling (or when the user hovers over it).
+ * It aims to be fully functional and accessible.
+ */
 export declare class MacScrollbar extends SvelteComponent<MacScrollbarProps, MacScrollbarEvents, MacScrollbarSlots> {
     get padding(): number;
 }
@@ -738,6 +788,17 @@ export declare function mapArgs(args: string[], coerce?: boolean): Map<string, s
  * @returns a number mapped from the input range to the output range
  */
 export declare const mapRange: (value: number, x1: number, x2: number, y1: number, y2: number) => number;
+
+declare interface MapState<K, V> extends PrimitiveState<Map<K, V>> {
+    /**
+     * Set value and inform subscribers.
+     *
+     * Note: To update a map, use the `setKey` and `deleteKey` methods.
+     */
+    set: (value: Map<K, V>) => void;
+    setKey: (key: K, value: V) => void;
+    deleteKey: (key: K) => void;
+}
 
 /**
  * Detects screen width below 900px
@@ -797,10 +858,31 @@ export declare class OnMount extends SvelteComponent<{
 /** pink chalk.hex('#eaa') */
 export declare function p(...args: unknown[]): string;
 
+/**
+ * Partitions an array into two arrays based on a predicate.  The second argument
+ * is a callback that takes an element from the array and returns a boolean.
+ * - If it returns true, the element will be placed in the first array.
+ * - If it returns false, the element will be placed in the second array.
+ *
+ * @example
+ * ```ts
+ * const [even, odd] = partition([1, 2, 3, 4, 5], (n) => n % 2 === 0)
+ *
+ * console.log(even) // [2, 4]
+ * console.log(odd) // [1, 3, 5]
+ * ```
+ */
+export declare function partition<const T>(array: T[], predicate: (element: T) => boolean): [T[], T[]];
+
 export declare type Position = {
     x?: number;
     y?: number;
 };
+
+declare interface PrimitiveState<T> extends Writable<T> {
+    get(): T;
+    readonly value: T;
+}
 
 /** chalk.red */
 export declare function r(...args: unknown[]): string;
@@ -822,6 +904,11 @@ declare type RangeSlots = typeof __propDef_8.slots;
  * Get the value of a command line argument by name from an array of arguments.
  */
 export declare function resolveArg(name: string, args: string[]): string | true | undefined;
+
+/**
+ * Converts an array of rgb values to a css hex color string.
+ */
+export declare function rgbToHex(r: number, g: number, b: number): string;
 
 /**
  * Tracks the screen height.
@@ -858,6 +945,11 @@ export { scrollY_2 as scrollY }
  * @returns A replacer function for JSON.stringify.
  */
 export declare function serialize(): (this: unknown, key: string, value: unknown) => unknown;
+
+declare interface SetState<T> extends PrimitiveState<Set<T>> {
+    add: (item: T) => void;
+    delete: (item: T) => void;
+}
 
 /**
  * Like `console.time`, returning a `console.timeEnd` function.
@@ -907,6 +999,8 @@ export declare interface StartOptions {
      */
     endSymbol?: string;
 }
+
+declare type State<T> = T extends Array<infer U> ? ArrayState<U> : T extends Map<infer K, infer V> ? MapState<K, V> : T extends Set<infer U> ? SetState<U> : PrimitiveState<T>;
 
 /**
  * JSON.stringify() with circular reference support.
@@ -970,6 +1064,154 @@ export declare const theme: Writable<Theme_2>;
 
 declare type Theme_2 = 'light' | 'dark' | (string & {});
 
+/**
+ * Represents a theme configuration.
+ */
+declare interface ThemeConfig {
+    title: ThemeTitle;
+    dark: ThemeVariantConfig;
+    light: ThemeVariantConfig;
+}
+
+declare type ThemeMode = ThemeVariant | 'system';
+
+/**
+ * The Themer class manages multiple customizable application themes.
+ * It can be used to store and retrieve themes, create new themes,
+ * and apply themes to the document.  Each theme has a light and dark
+ * variant, and the active variant is determined by the current
+ * {@link ThemeMode}, which can be set to 'light', 'dark', or 'system'.
+ *
+ * @example
+ * ```svelte
+ * <script lang="ts">
+ * 	import { Themer } from 'fractils'
+ * 	import my_theme from './themes/my_theme.json'
+ *
+ * 	const themer = new Themer({
+ * 		theme: my_theme,
+ * 	})
+ * </script>
+ *
+ * <h1>{theme.theme.title}</h1>
+ * <button on:click={() => themer.mode = 'dark'}>dark mode</button>
+ * <button on:click={() => themer.addTheme({...})}>add theme</button>
+ */
+export declare class Themer<T extends ThemeTitle> {
+    #private;
+    theme: State<ThemeConfig>;
+    mode: State<ThemeMode>;
+    themes: State<ThemeConfig[]>;
+    log: (...args: any[]) => void;
+    constructor(options?: Partial<ThemerOptions>);
+    init(): this | undefined;
+    /**
+     * The current mode, taking into account the system preferences.
+     */
+    get activeMode(): 'light' | 'dark';
+    /**
+     * Adds a new theme to the Themer and optionally saves it to localStorage.
+     */
+    addTheme(newTheme: ThemeConfig, options?: {
+        /**
+         * Whether to overwrite an existing theme with the same title,
+         * or increment the title with a number suffix.
+         * @default false
+         */
+        overwrite?: boolean;
+        /**
+         * Whether to re-save the Themer state to localStorage
+         * after adding the new theme.
+         * @default true
+         */
+        save?: boolean;
+    }): this;
+    /**
+     * Resolves a {@link ThemeConfig} by title.
+     */
+    getThemeConfig(themeTitle: ThemeTitle | T): ThemeConfig | undefined;
+    /**
+     * Applies the current theme to the document.
+     */
+    applyTheme(): this | undefined;
+    /**
+     * Updates Themer state from JSON.
+     */
+    fromJSON(json: ThemerJSON): void;
+    /**
+     * Serializes the current Themer state to JSON.
+     */
+    toJSON(): {
+        themes: ThemeConfig[];
+        activeTheme: ThemeTitle;
+        mode: "dark" | "light" | "system";
+    };
+    /**
+     * Loads Themer state from localStorage.
+     * @returns The JSON that was loaded (if found).
+     */
+    load(): this;
+    /**
+     * Saves the current Themer state to localStorage.
+     * @returns The JSON that was saved.
+     */
+    save(): {
+        themes: ThemeConfig[];
+        activeTheme: ThemeTitle;
+        mode: "dark" | "light" | "system";
+    } | undefined;
+    /**
+     * Removes the current Themer state from localStorage.
+     */
+    clear(): void;
+}
+
+export declare class ThemerComponent extends SvelteComponent<ThemerProps, ThemerEvents, ThemerSlots> {
+}
+
+declare type ThemerEvents = typeof __propDef_10.events;
+
+/**
+ * A JSON representation of the {@link Themer} class. Used in the
+ * {@link Themer.toJSON | toJSON()} and {@link Themer.fromJSON | fromJSON()},
+ * methods, and subsequently, in {@link Themer.save | save()}
+ * and {@link Themer.load | load()}.
+ */
+declare interface ThemerJSON {
+    themes: ThemeConfig[];
+    activeTheme: ThemeTitle;
+    mode: ThemeMode;
+}
+
+/**
+ * Options for the {@link Themer} class.
+ */
+declare interface ThemerOptions {
+    /**
+     * Whether to automatically initialize the theme.
+     * @default true
+     */
+    autoInit: boolean;
+    /**
+     * Whether to persist the Themer state in localStorage.
+     * @default true
+     */
+    persistent: boolean;
+    /**
+     * The default theme to use.
+     * @default A theme titled 'default'.
+     */
+    theme: ThemeConfig;
+    themes: Array<ThemeConfig>;
+    mode: ThemeMode;
+}
+
+declare type ThemerProps = typeof __propDef_10.props;
+
+declare type ThemerSlots = typeof __propDef_10.slots;
+
+declare type ThemeTitle = 'theme-default' | 'theme-a' | 'theme-b' | 'theme-c' | (string & {});
+
 /** A theme toggle button with slots for light and dark mode icons. */
 export declare class ThemeToggle extends SvelteComponent<ThemeToggleProps, ThemeToggleEvents, ThemeToggleSlots> {
 }
@@ -979,6 +1221,26 @@ declare type ThemeToggleEvents = typeof __propDef_4.events;
 declare type ThemeToggleProps = typeof __propDef_4.props;
 
 declare type ThemeToggleSlots = typeof __propDef_4.slots;
+
+declare type ThemeVariant = 'light' | 'dark';
+
+/**
+ * A theme variant config contains hex colors. All {@link ThemeConfig | ThemeConfigs}
+ * contain both a light and dark variant, defined here.
+ */
+declare interface ThemeVariantConfig {
+    'brand-a': string;
+    'brand-b': string;
+    'brand-c': string;
+    'fg-a': string;
+    'fg-b': string;
+    'fg-c': string;
+    'fg-d': string;
+    'bg-a': string;
+    'bg-b': string;
+    'bg-c': string;
+    'bg-d': string;
+}
 
 /**
  * Short timestamp.
@@ -1016,11 +1278,11 @@ export declare function toggleTheme(): void;
  * @example
  * ```svelte
  * <script>
- * import { Tooltip } from 'fractils';
+ * 	import { Tooltip } from 'fractils';
  * </script>
  *
  * <Tooltip content="Hello World">
- * <div class="hover-1"> Hover over me! </div>
+ * 	<div class="hover-1"> Hover over me! </div>
  * </Tooltip>
  * ```
  */
@@ -1091,7 +1353,7 @@ export declare function values<T extends {}>(object: T): ReadonlyArray<T[keyof T
  * <script>
  * 	let visible, scrollDir, options = {threshold: 0.25}
  *
- *  <!-- TypeScript users can import the VisibilityEvent or VisibilityEventDetail type -->
+ * 	// TypeScript users can import the VisibilityEvent or VisibilityEventDetail type
  * 	function handleChange({ detail }) {
  * 		visible = detail.isVisible
  * 		scrollDir = detail.scrollDirection

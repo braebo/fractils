@@ -714,7 +714,7 @@
         {
           "kind": "Variable",
           "canonicalReference": "fractils!asyncLocalStorageStore:var",
-          "docComment": "/**\n * A Svelte store that uses localStorage to store data asyncronously.\n *\n * @param key - The key to store the data under.\n *\n * @param value - The initial value of the store.\n *\n * @returns a writable store.\n *\n * @example\n *\n * const store = asyncLocalStorageStore('foo', 'bar')\n */\n",
+          "docComment": "/**\n * A Svelte store that uses localStorage to store data asyncronously.\n *\n * @param key - The key to store the data under.\n *\n * @param value - The initial value of the store.\n *\n * @returns a writable store.\n *\n * @example\n * ```ts\n * const store = asyncLocalStorageStore('foo', 'bar')\n * ```\n *\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -1905,6 +1905,29 @@
         },
         {
           "kind": "Variable",
+          "canonicalReference": "fractils!fontSize:var",
+          "docComment": "/**\n * Gets the font size of the root element (on the server, this will always return `16px`).\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "fontSize: "
+            },
+            {
+              "kind": "Content",
+              "text": "`${number}px`"
+            }
+          ],
+          "fileUrlPath": "dist/utils/fontSize.d.ts",
+          "isReadonly": true,
+          "releaseTag": "Public",
+          "name": "fontSize",
+          "variableTypeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
+        },
+        {
+          "kind": "Variable",
           "canonicalReference": "fractils!fullscreen:var",
           "docComment": "",
           "excerptTokens": [
@@ -2154,6 +2177,67 @@
           "name": "g"
         },
         {
+          "kind": "Function",
+          "canonicalReference": "fractils!getPx:function(1)",
+          "docComment": "/**\n * Accepts `rem`, `vw`, and `vh` css units, and returns the corresponding pixel value.\n *\n * @param str - A string containing a css unit.\n *\n * @param relativeParentSize - The size of the parent element, if the unit is `%`.\n *\n * @throws\n *\n * If the string is not a valid css unit.\n *\n * @example\n * ```ts\n * measure('1rem') // 16\n * measure('100vw') // 1920 (on a 1920x1080 screen)\n * ```\n *\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare function getPx(str: "
+            },
+            {
+              "kind": "Content",
+              "text": "`${number}${'px' | 'rem' | 'vw' | 'vh' | '%'}`"
+            },
+            {
+              "kind": "Content",
+              "text": ", relativeParentSize?: "
+            },
+            {
+              "kind": "Content",
+              "text": "number"
+            },
+            {
+              "kind": "Content",
+              "text": "): "
+            },
+            {
+              "kind": "Content",
+              "text": "number"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/utils/getPx.d.ts",
+          "returnTypeTokenRange": {
+            "startIndex": 5,
+            "endIndex": 6
+          },
+          "releaseTag": "Public",
+          "overloadIndex": 1,
+          "parameters": [
+            {
+              "parameterName": "str",
+              "parameterTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isOptional": false
+            },
+            {
+              "parameterName": "relativeParentSize",
+              "parameterTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "isOptional": true
+            }
+          ],
+          "name": "getPx"
+        },
+        {
           "kind": "Class",
           "canonicalReference": "fractils!Github:class",
           "docComment": "/**\n * @typedef {typeof __propDef.slots} GithubSlots\n */\n",
@@ -2241,6 +2325,51 @@
             "endIndex": 5
           },
           "implementsTokenRanges": []
+        },
+        {
+          "kind": "Function",
+          "canonicalReference": "fractils!hexToRgb:function(1)",
+          "docComment": "/**\n * Converts a hex color string to an array of rgb values.\n *\n * @param hex - A css hex color string, i.e. `#fff` or `#ffffff`\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare function hexToRgb(hex: "
+            },
+            {
+              "kind": "Content",
+              "text": "string"
+            },
+            {
+              "kind": "Content",
+              "text": "): "
+            },
+            {
+              "kind": "Content",
+              "text": "string"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/utils/hexToRgb.d.ts",
+          "returnTypeTokenRange": {
+            "startIndex": 3,
+            "endIndex": 4
+          },
+          "releaseTag": "Public",
+          "overloadIndex": 1,
+          "parameters": [
+            {
+              "parameterName": "hex",
+              "parameterTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isOptional": false
+            }
+          ],
+          "name": "hexToRgb"
         },
         {
           "kind": "Variable",
@@ -3084,7 +3213,7 @@
         {
           "kind": "Class",
           "canonicalReference": "fractils!MacScrollbar:class",
-          "docComment": "",
+          "docComment": "/**\n * Turns the scrollbar into a macOS-like scrollbar that only appears when scrolling (or when the user hovers over it). It aims to be fully functional and accessible.\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -3611,6 +3740,80 @@
           "name": "p"
         },
         {
+          "kind": "Function",
+          "canonicalReference": "fractils!partition:function(1)",
+          "docComment": "/**\n * Partitions an array into two arrays based on a predicate. The second argument is a callback that takes an element from the array and returns a boolean. - If it returns true, the element will be placed in the first array. - If it returns false, the element will be placed in the second array.\n *\n * @example\n * ```ts\n * const [even, odd] = partition([1, 2, 3, 4, 5], (n) => n % 2 === 0)\n *\n * console.log(even) // [2, 4]\n * console.log(odd) // [1, 3, 5]\n * ```\n *\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare function partition<const T>(array: "
+            },
+            {
+              "kind": "Content",
+              "text": "T[]"
+            },
+            {
+              "kind": "Content",
+              "text": ", predicate: "
+            },
+            {
+              "kind": "Content",
+              "text": "(element: T) => boolean"
+            },
+            {
+              "kind": "Content",
+              "text": "): "
+            },
+            {
+              "kind": "Content",
+              "text": "[T[], T[]]"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/utils/partition.d.ts",
+          "returnTypeTokenRange": {
+            "startIndex": 5,
+            "endIndex": 6
+          },
+          "releaseTag": "Public",
+          "overloadIndex": 1,
+          "parameters": [
+            {
+              "parameterName": "array",
+              "parameterTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isOptional": false
+            },
+            {
+              "parameterName": "predicate",
+              "parameterTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "isOptional": false
+            }
+          ],
+          "typeParameters": [
+            {
+              "typeParameterName": "T",
+              "constraintTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              },
+              "defaultTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              }
+            }
+          ],
+          "name": "partition"
+        },
+        {
           "kind": "TypeAlias",
           "canonicalReference": "fractils!Position:type",
           "docComment": "",
@@ -3826,6 +4029,83 @@
             }
           ],
           "name": "resolveArg"
+        },
+        {
+          "kind": "Function",
+          "canonicalReference": "fractils!rgbToHex:function(1)",
+          "docComment": "/**\n * Converts an array of rgb values to a css hex color string.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare function rgbToHex(r: "
+            },
+            {
+              "kind": "Content",
+              "text": "number"
+            },
+            {
+              "kind": "Content",
+              "text": ", g: "
+            },
+            {
+              "kind": "Content",
+              "text": "number"
+            },
+            {
+              "kind": "Content",
+              "text": ", b: "
+            },
+            {
+              "kind": "Content",
+              "text": "number"
+            },
+            {
+              "kind": "Content",
+              "text": "): "
+            },
+            {
+              "kind": "Content",
+              "text": "string"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/utils/rgbToHex.d.ts",
+          "returnTypeTokenRange": {
+            "startIndex": 7,
+            "endIndex": 8
+          },
+          "releaseTag": "Public",
+          "overloadIndex": 1,
+          "parameters": [
+            {
+              "parameterName": "r",
+              "parameterTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isOptional": false
+            },
+            {
+              "parameterName": "g",
+              "parameterTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "isOptional": false
+            },
+            {
+              "parameterName": "b",
+              "parameterTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 6
+              },
+              "isOptional": false
+            }
+          ],
+          "name": "rgbToHex"
         },
         {
           "kind": "Variable",
@@ -4365,6 +4645,741 @@
         },
         {
           "kind": "Class",
+          "canonicalReference": "fractils!Themer:class",
+          "docComment": "/**\n * The Themer class manages multiple customizable application themes. It can be used to store and retrieve themes, create new themes, and apply themes to the document. Each theme has a light and dark variant, and the active variant is determined by the current {@link ThemeMode}, which can be set to 'light', 'dark', or 'system'.\n *\n * @example\n *\n * ```svelte <script lang=\"ts\"> import { Themer } from 'fractils' import my_theme from './themes/my_theme.json'\n *\n * const themer = new Themer({ theme: my_theme, }) </script>\n *\n * <h1>{theme.theme.title}</h1> <button on:click={() => themer.mode = 'dark'}>dark mode</button> <button on:click={() => themer.addTheme({...})}>add theme</button>\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare class Themer<T extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "ThemeTitle",
+              "canonicalReference": "fractils!~ThemeTitle:type"
+            },
+            {
+              "kind": "Content",
+              "text": "> "
+            }
+          ],
+          "fileUrlPath": "dist/theme/Themer.d.ts",
+          "releaseTag": "Public",
+          "typeParameters": [
+            {
+              "typeParameterName": "T",
+              "constraintTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "defaultTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              }
+            }
+          ],
+          "isAbstract": false,
+          "name": "Themer",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "Constructor",
+              "canonicalReference": "fractils!Themer:constructor(1)",
+              "docComment": "/**\n * Constructs a new instance of the `Themer` class\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "constructor(options?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Partial",
+                  "canonicalReference": "!Partial:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ThemerOptions",
+                  "canonicalReference": "fractils!~ThemerOptions:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ");"
+                }
+              ],
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 5
+                  },
+                  "isOptional": true
+                }
+              ]
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "fractils!Themer#activeMode:member",
+              "docComment": "/**\n * The current mode, taking into account the system preferences.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "get activeMode(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "'light' | 'dark'"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": true,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "activeMode",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "fractils!Themer#addTheme:member(1)",
+              "docComment": "/**\n * Adds a new theme to the Themer and optionally saves it to localStorage.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "addTheme(newTheme: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ThemeConfig",
+                  "canonicalReference": "fractils!~ThemeConfig:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        overwrite?: boolean;\n        save?: boolean;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "this"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "newTheme",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "addTheme"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "fractils!Themer#applyTheme:member(1)",
+              "docComment": "/**\n * Applies the current theme to the document.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "applyTheme(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "this | undefined"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "applyTheme"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "fractils!Themer#clear:member(1)",
+              "docComment": "/**\n * Removes the current Themer state from localStorage.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "clear(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "clear"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "fractils!Themer#fromJSON:member(1)",
+              "docComment": "/**\n * Updates Themer state from JSON.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "fromJSON(json: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ThemerJSON",
+                  "canonicalReference": "fractils!~ThemerJSON:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "json",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "fromJSON"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "fractils!Themer#getThemeConfig:member(1)",
+              "docComment": "/**\n * Resolves a {@link ThemeConfig} by title.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "getThemeConfig(themeTitle: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ThemeTitle",
+                  "canonicalReference": "fractils!~ThemeTitle:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | T"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ThemeConfig",
+                  "canonicalReference": "fractils!~ThemeConfig:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | undefined"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 4,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "themeTitle",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 3
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "getThemeConfig"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "fractils!Themer#init:member(1)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "init(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "this | undefined"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "init"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "fractils!Themer#load:member(1)",
+              "docComment": "/**\n * Loads Themer state from localStorage.\n *\n * @returns The JSON that was loaded (if found).\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "load(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "this"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "load"
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "fractils!Themer#log:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "log: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "(...args: any[]) => void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "log",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "fractils!Themer#mode:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "mode: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "State",
+                  "canonicalReference": "fractils!~State:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ThemeMode",
+                  "canonicalReference": "fractils!~ThemeMode:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "mode",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 5
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "fractils!Themer#save:member(1)",
+              "docComment": "/**\n * Saves the current Themer state to localStorage.\n *\n * @returns The JSON that was saved.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "save(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        themes: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ThemeConfig",
+                  "canonicalReference": "fractils!~ThemeConfig:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[];\n        activeTheme: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ThemeTitle",
+                  "canonicalReference": "fractils!~ThemeTitle:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        mode: \"dark\" | \"light\" | \"system\";\n    } | undefined"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "save"
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "fractils!Themer#theme:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "theme: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "State",
+                  "canonicalReference": "fractils!~State:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ThemeConfig",
+                  "canonicalReference": "fractils!~ThemeConfig:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ">"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "theme",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 5
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Property",
+              "canonicalReference": "fractils!Themer#themes:member",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "themes: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "State",
+                  "canonicalReference": "fractils!~State:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "<"
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ThemeConfig",
+                  "canonicalReference": "fractils!~ThemeConfig:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]>"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": false,
+              "releaseTag": "Public",
+              "name": "themes",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 5
+              },
+              "isStatic": false,
+              "isProtected": false,
+              "isAbstract": false
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "fractils!Themer#toJSON:member(1)",
+              "docComment": "/**\n * Serializes the current Themer state to JSON.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "toJSON(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        themes: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ThemeConfig",
+                  "canonicalReference": "fractils!~ThemeConfig:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[];\n        activeTheme: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ThemeTitle",
+                  "canonicalReference": "fractils!~ThemeTitle:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";\n        mode: \"dark\" | \"light\" | \"system\";\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "toJSON"
+            }
+          ],
+          "implementsTokenRanges": []
+        },
+        {
+          "kind": "Class",
+          "canonicalReference": "fractils!ThemerComponent:class",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export default class Themer extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "SvelteComponent",
+              "canonicalReference": "!\"\\\"svelte\\\"\".SvelteComponent:class"
+            },
+            {
+              "kind": "Content",
+              "text": "<"
+            },
+            {
+              "kind": "Reference",
+              "text": "ThemerProps",
+              "canonicalReference": "fractils!~ThemerProps:type"
+            },
+            {
+              "kind": "Content",
+              "text": ", "
+            },
+            {
+              "kind": "Reference",
+              "text": "ThemerEvents",
+              "canonicalReference": "fractils!~ThemerEvents:type"
+            },
+            {
+              "kind": "Content",
+              "text": ", "
+            },
+            {
+              "kind": "Reference",
+              "text": "ThemerSlots",
+              "canonicalReference": "fractils!~ThemerSlots:type"
+            },
+            {
+              "kind": "Content",
+              "text": ">"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "fileUrlPath": "dist/theme/Themer.svelte.d.ts",
+          "releaseTag": "Public",
+          "isAbstract": false,
+          "name": "ThemerComponent",
+          "preserveMemberOrder": false,
+          "members": [],
+          "extendsTokenRange": {
+            "startIndex": 1,
+            "endIndex": 9
+          },
+          "implementsTokenRanges": []
+        },
+        {
+          "kind": "Class",
           "canonicalReference": "fractils!ThemeToggle:class",
           "docComment": "/**\n * A theme toggle button with slots for light and dark mode icons.\n */\n",
           "excerptTokens": [
@@ -4775,7 +5790,7 @@
         {
           "kind": "Class",
           "canonicalReference": "fractils!Tooltip:class",
-          "docComment": "/**\n * A tooltip that appears on hover.\n *\n * @example\n * ```svelte\n * <script>\n * import { Tooltip } from 'fractils';\n * </script>\n *\n * <Tooltip content=\"Hello World\">\n * <div class=\"hover-1\"> Hover over me! </div>\n * </Tooltip>\n * ```\n *\n */\n",
+          "docComment": "/**\n * A tooltip that appears on hover.\n *\n * @example\n * ```svelte\n * <script>\n * \timport { Tooltip } from 'fractils';\n * </script>\n *\n * <Tooltip content=\"Hello World\">\n * \t<div class=\"hover-1\"> Hover over me! </div>\n * </Tooltip>\n * ```\n *\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -4969,7 +5984,7 @@
         {
           "kind": "Variable",
           "canonicalReference": "fractils!visibility:var",
-          "docComment": "/**\n * Observes an element's current viewport visibility and dispatches relevant events.\n *\n * Events: - on:change - Triggered when element enters or leaves view. - on:enter - Triggered when element enters view. - on:exit - Triggered when element exits view.\n *\n * @param options - Optional config, see {@link VisibilityOptions}.\n *\n * @example\n * ```svelte\n * <script>\n * \tlet visible, scrollDir, options = {threshold: 0.25}\n *\n *  <!-- TypeScript users can import the VisibilityEvent or VisibilityEventDetail type -->\n * \tfunction handleChange({ detail }) {\n * \t\tvisible = detail.isVisible\n * \t\tscrollDir = detail.scrollDirection\n * \t}\n * </script>\n *\n * <div\n * \tuse:visibility={options}\n * \ton:v-change={handleChange}\n * \ton:v-enter={doSomething}\n * \ton:v-exit={doSomethingElse}\n * \tclass:visible\n * >\n * \t{scrollDir}\n * </div>\n *\n * ```\n *\n */\n",
+          "docComment": "/**\n * Observes an element's current viewport visibility and dispatches relevant events.\n *\n * Events: - on:change - Triggered when element enters or leaves view. - on:enter - Triggered when element enters view. - on:exit - Triggered when element exits view.\n *\n * @param options - Optional config, see {@link VisibilityOptions}.\n *\n * @example\n * ```svelte\n * <script>\n * \tlet visible, scrollDir, options = {threshold: 0.25}\n *\n * \t// TypeScript users can import the VisibilityEvent or VisibilityEventDetail type\n * \tfunction handleChange({ detail }) {\n * \t\tvisible = detail.isVisible\n * \t\tscrollDir = detail.scrollDirection\n * \t}\n * </script>\n *\n * <div\n * \tuse:visibility={options}\n * \ton:v-change={handleChange}\n * \ton:v-enter={doSomething}\n * \ton:v-exit={doSomethingElse}\n * \tclass:visible\n * >\n * \t{scrollDir}\n * </div>\n *\n * ```\n *\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
