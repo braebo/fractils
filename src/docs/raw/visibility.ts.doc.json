@@ -52,7 +52,7 @@
       "type": "Action<HTMLElement, VisibilityOptions, VisibilityAttr>",
       "isDefaultExport": false,
       "comment": {
-        "raw": "/**\n * Observes an element's current viewport visibility and dispatches relevant events.\n *\n * Events: - on:change - Triggered when element enters or leaves view. - on:enter - Triggered when element enters view. - on:exit - Triggered when element exits view.\n *\n * @param options - Optional config, see {@link VisibilityOptions}.\n *\n * @example\n * ```svelte\n * <script>\n * \tlet visible, scrollDir, options = {threshold: 0.25}\n *\n *  <!-- TypeScript users can import the VisibilityEvent or VisibilityEventDetail type -->\n * \tfunction handleChange({ detail }) {\n * \t\tvisible = detail.isVisible\n * \t\tscrollDir = detail.scrollDirection\n * \t}\n * </script>\n *\n * <div\n * \tuse:visibility={options}\n * \ton:v-change={handleChange}\n * \ton:v-enter={doSomething}\n * \ton:v-exit={doSomethingElse}\n * \tclass:visible\n * >\n * \t{scrollDir}\n * </div>\n *\n * ```\n *\n */",
+        "raw": "/**\n * Observes an element's current viewport visibility and dispatches relevant events.\n *\n * Events: - on:change - Triggered when element enters or leaves view. - on:enter - Triggered when element enters view. - on:exit - Triggered when element exits view.\n *\n * @param options - Optional config, see {@link VisibilityOptions}.\n *\n * @example\n * ```svelte\n * <script>\n * \tlet visible, scrollDir, options = {threshold: 0.25}\n *\n * \t// TypeScript users can import the VisibilityEvent or VisibilityEventDetail type\n * \tfunction handleChange({ detail }) {\n * \t\tvisible = detail.isVisible\n * \t\tscrollDir = detail.scrollDirection\n * \t}\n * </script>\n *\n * <div\n * \tuse:visibility={options}\n * \ton:v-change={handleChange}\n * \ton:v-enter={doSomething}\n * \ton:v-exit={doSomethingElse}\n * \tclass:visible\n * >\n * \t{scrollDir}\n * </div>\n *\n * ```\n *\n */",
         "links": [
           {
             "target": "VisibilityOptions",
@@ -68,7 +68,7 @@
         ],
         "examples": [
           {
-            "content": "```svelte\n<script>\n\tlet visible, scrollDir, options = {threshold: 0.25}\n\n<!-- TypeScript users can import the VisibilityEvent or VisibilityEventDetail type -->\n\tfunction handleChange({ detail }) {\n\t\tvisible = detail.isVisible\n\t\tscrollDir = detail.scrollDirection\n\t}\n</script>\n\n<div\n\tuse:visibility={options}\n\ton:v-change={handleChange}\n\ton:v-enter={doSomething}\n\ton:v-exit={doSomethingElse}\n\tclass:visible\n>\n\t{scrollDir}\n</div>\n\n```"
+            "content": "```svelte\n<script>\n\tlet visible, scrollDir, options = {threshold: 0.25}\n\n\t// TypeScript users can import the VisibilityEvent or VisibilityEventDetail type\n\tfunction handleChange({ detail }) {\n\t\tvisible = detail.isVisible\n\t\tscrollDir = detail.scrollDirection\n\t}\n</script>\n\n<div\n\tuse:visibility={options}\n\ton:v-change={handleChange}\n\ton:v-enter={doSomething}\n\ton:v-exit={doSomethingElse}\n\tclass:visible\n>\n\t{scrollDir}\n</div>\n\n```"
           }
         ]
       }

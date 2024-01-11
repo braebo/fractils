@@ -106,7 +106,7 @@
         "defaultValue": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#A78BFA\">'json'</span></span></code></pre>"
       },
       "name": "lang",
-      "type": "Lang"
+      "type": "(string & {}) | Lang"
     },
     {
       "comment": {

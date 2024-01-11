@@ -8,7 +8,7 @@
       "type": "<T = any>(key: string, value: T) => Writable<T>",
       "isDefaultExport": false,
       "comment": {
-        "raw": "/**\n * A Svelte store that uses localStorage to store data asyncronously.\n *\n * @param key - The key to store the data under.\n *\n * @param value - The initial value of the store.\n *\n * @returns a writable store.\n *\n * @example\n *\n * const store = asyncLocalStorageStore('foo', 'bar')\n */",
+        "raw": "/**\n * A Svelte store that uses localStorage to store data asyncronously.\n *\n * @param key - The key to store the data under.\n *\n * @param value - The initial value of the store.\n *\n * @returns a writable store.\n *\n * @example\n * ```ts\n * const store = asyncLocalStorageStore('foo', 'bar')\n * ```\n *\n */",
         "summary": "<p>A Svelte store that uses localStorage to store data asyncronously.</p>\n",
         "params": [
           {
@@ -23,9 +23,16 @@
         "returns": "a writable store.",
         "examples": [
           {
-            "name": "const store = asyncLocalStorageStore('foo', 'bar')",
-            "content": "",
-            "blocks": ""
+            "content": "```ts\nconst store = asyncLocalStorageStore('foo', 'bar')\n```",
+            "blocks": [
+              {
+                "type": "code",
+                "content": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#5BA2D0\">const</span><span style=\"color:#DEE0EF\"> store</span><span style=\"color:#5BA2D0\"> =</span><span style=\"color:#F8D2C9\"> asyncLocalStorageStore</span><span style=\"color:#DEE0EF\">(</span><span style=\"color:#A78BFA\">'foo'</span><span style=\"color:#8D8F9E\">,</span><span style=\"color:#A78BFA\"> 'bar'</span><span style=\"color:#DEE0EF\">)</span></span></code></pre>",
+                "lang": "ts",
+                "raw": "const store = asyncLocalStorageStore('foo', 'bar')",
+                "title": ""
+              }
+            ]
           }
         ]
       }

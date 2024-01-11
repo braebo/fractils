@@ -3,11 +3,11 @@
   "fileName": "Tooltip.svelte",
   "filePath": "src/lib/components/Tooltip.svelte",
   "comment": {
-    "raw": "/**\n * A tooltip that appears on hover.\n *\n * @example\n * ```svelte\n * <script>\n * import { Tooltip } from 'fractils';\n * </script>\n *\n * <Tooltip content=\"Hello World\">\n * <div class=\"hover-1\"> Hover over me! </div>\n * </Tooltip>\n * ```\n *\n */",
+    "raw": "/**\n * A tooltip that appears on hover.\n *\n * @example\n * ```svelte\n * <script>\n * \timport { Tooltip } from 'fractils';\n * </script>\n *\n * <Tooltip content=\"Hello World\">\n * \t<div class=\"hover-1\"> Hover over me! </div>\n * </Tooltip>\n * ```\n *\n */",
     "summary": "A tooltip that appears on hover.",
     "examples": [
       {
-        "content": "```svelte\n<script>\nimport { Tooltip } from 'fractils';\n</script>\n\n<Tooltip content=\"Hello World\">\n<div class=\"hover-1\"> Hover over me! </div>\n</Tooltip>\n```"
+        "content": "```svelte\n<script>\n\timport { Tooltip } from 'fractils';\n</script>\n\n<Tooltip content=\"Hello World\">\n\t<div class=\"hover-1\"> Hover over me! </div>\n</Tooltip>\n```"
       }
     ]
   },

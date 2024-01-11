@@ -1,0 +1,16 @@
+{
+  "type": "ts",
+  "fileName": "fontSize.ts",
+  "filePath": "src/lib/utils/fontSize.ts",
+  "exports": [
+    {
+      "name": "fontSize",
+      "type": "`${number}px`",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Gets the font size of the root element (on the server, this will always return `16px`).\n */",
+        "summary": "Gets the font size of the root element (on the\nserver, this will always return `16px`)."
+      }
+    }
+  ]
+}

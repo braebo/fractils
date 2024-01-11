@@ -1,0 +1,22 @@
+{
+  "type": "ts",
+  "fileName": "hexToRgb.ts",
+  "filePath": "src/lib/utils/hexToRgb.ts",
+  "exports": [
+    {
+      "name": "hexToRgb",
+      "type": "typeof hexToRgb",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Converts a hex color string to an array of rgb values.\n *\n * @param hex - A css hex color string, i.e. `#fff` or `#ffffff`\n */",
+        "summary": "<p>Converts a hex color string to an array of rgb values.</p>\n",
+        "params": [
+          {
+            "name": "hex",
+            "description": "A css hex color string, i.e.`#fff`or`#ffffff`"
+          }
+        ]
+      }
+    }
+  ]
+}

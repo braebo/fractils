@@ -4,9 +4,72 @@
   "filePath": "src/lib/utils/resizable.ts",
   "exports": [
     {
+      "name": "Side",
+      "type": "Side",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * The sides of an element that can be resized by the {@link resize} action.\n */",
+        "links": [
+          {
+            "target": "resize",
+            "text": "resize"
+          }
+        ],
+        "summary": "<p>The sides of an element that can be resized by the <a href=\"#resize\">resize</a> action.</p>\n"
+      }
+    },
+    {
       "name": "resize",
-      "type": "(node: HTMLElement, options: ResizeOptions) => { destroy: () => void; }",
-      "isDefaultExport": false
+      "type": "Action<HTMLElement, ResizeOptions, Record<never, any>>",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Makes an element resizable by dragging its edges.\n *\n * @param node - The element to make resizable.\n *\n * @param options - {@link ResizeOptions}\n *\n * @example\n *\n * Basic\n * ```svelte\n * <div use:resize> Resize Me </div>\n * ```\n *\n * @example\n *\n * Kitchen Sink\n * ```svelte\n * <div use:resize={{\n * \tsides: ['left', 'bottom'],\n * \tgutterSize: 3,\n * \tonResize: () => console.log('resized'),\n * \tpersistent: false,\n * \tvisible: false,\n * \tcolor: 'var(--fg-d)',\n * \tborderRadius: '0.5rem',\n * }} />\n * ```\n *\n */",
+        "links": [
+          {
+            "target": "ResizeOptions",
+            "text": "ResizeOptions"
+          }
+        ],
+        "summary": "<p>Makes an element resizable by dragging its edges.</p>\n",
+        "params": [
+          {
+            "name": "node",
+            "description": "The element to make resizable."
+          },
+          {
+            "name": "options",
+            "description": "{@linkResizeOptions}"
+          }
+        ],
+        "examples": [
+          {
+            "name": "Basic",
+            "content": "\n```svelte\n<div use:resize> Resize Me </div>\n```",
+            "blocks": [
+              {
+                "type": "code",
+                "content": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#777D8F\">&#x3C;div</span><span style=\"color:#5BA2D0\"> use</span><span style=\"color:#8D8F9E\">:</span><span style=\"color:#DEE0EF\">resize</span><span style=\"color:#777D8F\">> Resize Me &#x3C;/div></span></span></code></pre>",
+                "lang": "svelte",
+                "raw": "<div use:resize> Resize Me </div>",
+                "title": ""
+              }
+            ]
+          },
+          {
+            "name": "Kitchen Sink",
+            "content": "\n```svelte\n<div use:resize={{\n\tsides: ['left', 'bottom'],\n\tgutterSize: 3,\n\tonResize: () => console.log('resized'),\n\tpersistent: false,\n\tvisible: false,\n\tcolor: 'var(--fg-d)',\n\tborderRadius: '0.5rem',\n}} />\n```",
+            "blocks": [
+              {
+                "type": "code",
+                "content": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#777D8F\">&#x3C;div</span><span style=\"color:#5BA2D0\"> use</span><span style=\"color:#8D8F9E\">:</span><span style=\"color:#DEE0EF\">resize</span><span style=\"color:#777D8F\">=</span><span style=\"color:#8D8F9E\">{{</span></span>\n<span class=\"line\"><span style=\"color:#DEE0EF\">    sides</span><span style=\"color:#8D8F9E\">:</span><span style=\"color:#DEE0EF\"> [</span><span style=\"color:#A78BFA\">'left'</span><span style=\"color:#8D8F9E\">,</span><span style=\"color:#A78BFA\"> 'bottom'</span><span style=\"color:#DEE0EF\">]</span><span style=\"color:#8D8F9E\">,</span></span>\n<span class=\"line\"><span style=\"color:#DEE0EF\">    gutterSize</span><span style=\"color:#8D8F9E\">:</span><span style=\"color:#F8D2C9\"> 3</span><span style=\"color:#8D8F9E\">,</span></span>\n<span class=\"line\"><span style=\"color:#F8D2C9\">    onResize</span><span style=\"color:#8D8F9E\">:</span><span style=\"color:#8D8F9E\"> ()</span><span style=\"color:#5BA2D0\"> =></span><span style=\"color:#DEE0EF\"> console</span><span style=\"color:#5BA2D0\">.</span><span style=\"color:#F8D2C9\">log</span><span style=\"color:#DEE0EF\">(</span><span style=\"color:#A78BFA\">'resized'</span><span style=\"color:#DEE0EF\">)</span><span style=\"color:#8D8F9E\">,</span></span>\n<span class=\"line\"><span style=\"color:#DEE0EF\">    persistent</span><span style=\"color:#8D8F9E\">:</span><span style=\"color:#F8D2C9\"> false</span><span style=\"color:#8D8F9E\">,</span></span>\n<span class=\"line\"><span style=\"color:#DEE0EF\">    visible</span><span style=\"color:#8D8F9E\">:</span><span style=\"color:#F8D2C9\"> false</span><span style=\"color:#8D8F9E\">,</span></span>\n<span class=\"line\"><span style=\"color:#DEE0EF\">    color</span><span style=\"color:#8D8F9E\">:</span><span style=\"color:#A78BFA\"> 'var(--fg-d)'</span><span style=\"color:#8D8F9E\">,</span></span>\n<span class=\"line\"><span style=\"color:#DEE0EF\">    borderRadius</span><span style=\"color:#8D8F9E\">:</span><span style=\"color:#A78BFA\"> '0.5rem'</span><span style=\"color:#8D8F9E\">,</span></span>\n<span class=\"line\"><span style=\"color:#8D8F9E\">}}</span><span style=\"color:#777D8F\"> /></span></span></code></pre>",
+                "lang": "svelte",
+                "raw": "<div use:resize={{\n    sides: ['left', 'bottom'],\n    gutterSize: 3,\n    onResize: () => console.log('resized'),\n    persistent: false,\n    visible: false,\n    color: 'var(--fg-d)',\n    borderRadius: '0.5rem',\n}} />",
+                "title": ""
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

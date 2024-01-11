@@ -1,0 +1,12 @@
+{
+  "type": "ts",
+  "fileName": "stateSimple.ts",
+  "filePath": "src/lib/utils/stateSimple.ts",
+  "exports": [
+    {
+      "name": "state",
+      "type": "typeof state",
+      "isDefaultExport": false
+    }
+  ]
+}

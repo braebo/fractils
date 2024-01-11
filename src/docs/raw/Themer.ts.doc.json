@@ -1,0 +1,112 @@
+{
+  "type": "ts",
+  "fileName": "Themer.ts",
+  "filePath": "src/lib/theme/Themer.ts",
+  "exports": [
+    {
+      "name": "ThemeTitle",
+      "type": "ThemeTitle",
+      "isDefaultExport": false
+    },
+    {
+      "name": "ThemeVariant",
+      "type": "ThemeVariant",
+      "isDefaultExport": false
+    },
+    {
+      "name": "ThemeMode",
+      "type": "ThemeMode",
+      "isDefaultExport": false
+    },
+    {
+      "name": "ThemeVariantConfig",
+      "type": "ThemeVariantConfig",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * A theme variant config contains hex colors. All {@link ThemeConfig | ThemeConfigs} contain both a light and dark variant, defined here.\n */",
+        "links": [
+          {
+            "target": "ThemeConfig",
+            "text": "ThemeConfigs"
+          }
+        ],
+        "summary": "A theme variant config contains hex colors. All [ThemeConfig | ThemeConfigs](#ThemeConfig | ThemeConfigs)\ncontain both a light and dark variant, defined here."
+      }
+    },
+    {
+      "name": "ThemeConfig",
+      "type": "ThemeConfig",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Represents a theme configuration.\n */",
+        "summary": "Represents a theme configuration."
+      }
+    },
+    {
+      "name": "ThemerJSON",
+      "type": "ThemerJSON",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * A JSON representation of the {@link Themer} class. Used in the {@link Themer.toJSON | toJSON()} and {@link Themer.fromJSON | fromJSON()}, methods, and subsequently, in {@link Themer.save | save()} and {@link Themer.load | load()}.\n */",
+        "links": [
+          {
+            "target": "Themer",
+            "text": "Themer"
+          },
+          {
+            "target": "Themer",
+            "text": "toJSON()"
+          },
+          {
+            "target": "Themer",
+            "text": "fromJSON()"
+          },
+          {
+            "target": "Themer",
+            "text": "save()"
+          },
+          {
+            "target": "Themer",
+            "text": "load()"
+          }
+        ],
+        "summary": "A JSON representation of the [Themer](#Themer) class. Used in the\n[Themer.toJSON | toJSON()](#Themer.toJSON | toJSON()) and [Themer.fromJSON | fromJSON()](#Themer.fromJSON | fromJSON()),\nmethods, and subsequently, in [Themer.save | save()](#Themer.save | save())\nand [Themer.load | load()](#Themer.load | load())."
+      }
+    },
+    {
+      "name": "ThemerOptions",
+      "type": "ThemerOptions",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Options for the {@link Themer} class.\n */",
+        "links": [
+          {
+            "target": "Themer",
+            "text": "Themer"
+          }
+        ],
+        "summary": "Options for the [Themer](#Themer) class."
+      }
+    },
+    {
+      "name": "Themer",
+      "type": "Themer<T>",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * The Themer class manages multiple customizable application themes. It can be used to store and retrieve themes, create new themes, and apply themes to the document. Each theme has a light and dark variant, and the active variant is determined by the current {@link ThemeMode}, which can be set to 'light', 'dark', or 'system'.\n *\n * @example\n *\n * ```svelte <script lang=\"ts\"> import { Themer } from 'fractils' import my_theme from './themes/my_theme.json'\n *\n * const themer = new Themer({ theme: my_theme, }) </script>\n *\n * <h1>{theme.theme.title}</h1> <button on:click={() => themer.mode = 'dark'}>dark mode</button> <button on:click={() => themer.addTheme({...})}>add theme</button>\n */",
+        "links": [
+          {
+            "target": "ThemeMode",
+            "text": "ThemeMode"
+          }
+        ],
+        "summary": "The Themer class manages multiple customizable application themes.\nIt can be used to store and retrieve themes, create new themes,\nand apply themes to the document. Each theme has a light and dark\nvariant, and the active variant is determined by the current\n[ThemeMode](#ThemeMode), which can be set to 'light', 'dark', or 'system'.",
+        "examples": [
+          {
+            "content": "```svelte\n<script lang=\"ts\">\n\timport { Themer } from 'fractils'\n\timport my_theme from './themes/my_theme.json'\n\n\tconst themer = new Themer({\n\t\ttheme: my_theme,\n\t})\n</script>\n\n<h1>{theme.theme.title}</h1>\n<button on:click={() => themer.mode = 'dark'}>dark mode</button>\n<button on:click={() => themer.addTheme({...})}>add theme</button>"
+          }
+        ]
+      }
+    }
+  ]
+}

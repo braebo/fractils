@@ -1,0 +1,16 @@
+{
+  "type": "ts",
+  "fileName": "rgbToHex.ts",
+  "filePath": "src/lib/utils/rgbToHex.ts",
+  "exports": [
+    {
+      "name": "rgbToHex",
+      "type": "typeof rgbToHex",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Converts an array of rgb values to a css hex color string.\n */",
+        "summary": "<p>Converts an array of rgb values to a css hex color string.</p>\n"
+      }
+    }
+  ]
+}

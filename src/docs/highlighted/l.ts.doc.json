@@ -112,6 +112,15 @@
       }
     },
     {
+      "name": "gr",
+      "type": "typeof gr",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * chalk.gray\n */",
+        "summary": "<p>chalk.gray</p>\n"
+      }
+    },
+    {
       "name": "bd",
       "type": "typeof bd",
       "isDefaultExport": false,

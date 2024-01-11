@@ -2,8 +2,20 @@
   "type": "svelte",
   "fileName": "MacScrollbar.svelte",
   "filePath": "src/lib/components/MacScrollbar.svelte",
+  "comment": {
+    "raw": "/**\n * Turns the scrollbar into a macOS-like scrollbar that only appears when scrolling (or when the user hovers over it). It aims to be fully functional and accessible.\n */",
+    "summary": "Turns the scrollbar into a macOS-like scrollbar that only appears when scrolling (or when the user hovers over it).\nIt aims to be fully functional and accessible."
+  },
   "componentName": "MacScrollbar",
   "props": [
+    {
+      "comment": {
+        "raw": "/**\n * Displays debug info when true.\n */",
+        "summary": "Displays debug info when true."
+      },
+      "name": "debug",
+      "type": "boolean"
+    },
     {
       "comment": {
         "raw": "/**\n * The scrollbar root element or it's query selector.\n *\n * @default\n *\n * document.body\n */",

@@ -1,0 +1,37 @@
+{
+  "type": "ts",
+  "fileName": "state.ts",
+  "filePath": "src/lib/utils/state.ts",
+  "exports": [
+    {
+      "name": "state",
+      "type": "typeof state",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * An advanced store factory that adds support for Maps, Sets, and Arrays (enabling methods `.push` and `.add`), as well as a second argument for overriding the default store methods like `.set` and `.update`. It also adds a `.get` method for retrieving the current value of the store without subscribing to it.\n *\n * @remarks\n *\n * `state` boasts comprehensive type safety, leveraging conditional types and inference to provide the correct types and methods for the store based on the `defaultValue` argument (or the provided generic type).\n *\n * @param defaultValue - The default value of the store.\n *\n * @param options - Optional overrides for the default store methods.\n *\n * @example\n * ```svelte\n * <script lang=\"ts\">\n * \timport { state } from 'fractils'\n *\n * \tconst foo = state([1, 2, 3])\n * \tfoo.push(4)\n * \tfoo.push('5') // Type error\n *\n * \tconst bar = state(new Map<string, number>())\n * \tbar.setKey('count', 21) // note: `set` is taken, so we use `setKey` and `deleteKey`\n *\n * \tconst baz = state(new Set<number>())\n * \tbaz.add(5)\n *  baz.push(6) // Type error\n * </script>\n *\n * <h1>{$foo} {$bar} {$baz}</h1>\n * ```\n *\n */",
+        "summary": "An advanced store factory that adds support for Maps, Sets, and Arrays\n(enabling methods `.push` and `.add`), as well as a second argument for\noverriding the default store methods like `.set` and `.update`. It also\nadds a `.get` method for retrieving the current value of the store without\nsubscribing to it.",
+        "params": [
+          {
+            "name": "defaultValue",
+            "description": "The default value of the store."
+          },
+          {
+            "name": "options",
+            "description": "Optional overrides for the default store methods."
+          }
+        ],
+        "remarks": "`state`boasts comprehensive type safety, leveraging conditionaltypes and inference to provide the correct types and methods for the storebased on the`defaultValue`argument (or the provided generic type).",
+        "examples": [
+          {
+            "content": "```svelte\n<script lang=\"ts\">\n\timport { state } from 'fractils'\n\n\tconst foo = state([1, 2, 3])\n\tfoo.push(4)\n\tfoo.push('5') // Type error\n\n\tconst bar = state(new Map<string, number>())\n\tbar.setKey('count', 21) // note: `set` is taken, so we use `setKey` and `deleteKey`\n\n\tconst baz = state(new Set<number>())\n\tbaz.add(5)\nbaz.push(6) // Type error\n</script>\n\n<h1>{$foo} {$bar} {$baz}</h1>\n```"
+          }
+        ]
+      }
+    },
+    {
+      "name": "State",
+      "type": "State<T>",
+      "isDefaultExport": false
+    }
+  ]
+}

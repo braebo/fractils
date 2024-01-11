@@ -1,0 +1,12 @@
+{
+  "type": "ts",
+  "fileName": "nanoid.ts",
+  "filePath": "src/lib/utils/nanoid.ts",
+  "exports": [
+    {
+      "name": "nanoid",
+      "type": "typeof nanoid",
+      "isDefaultExport": false
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "type": "ts",
+  "fileName": "types.ts",
+  "filePath": "src/lib/utils/types.ts",
+  "exports": [
+    {
+      "name": "CSSLength",
+      "type": "`${number}px` | `${number}rem` | `${number}vw` | `${number}vh`",
+      "isDefaultExport": false
+    }
+  ]
+}

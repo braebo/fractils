@@ -4,9 +4,54 @@
   "filePath": "src/lib/utils/resizable.ts",
   "exports": [
     {
+      "name": "Side",
+      "type": "Side",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * The sides of an element that can be resized by the {@link resize} action.\n */",
+        "links": [
+          {
+            "target": "resize",
+            "text": "resize"
+          }
+        ],
+        "summary": "The sides of an element that can be resized by the [resize](#resize) action."
+      }
+    },
+    {
       "name": "resize",
-      "type": "(node: HTMLElement, options: ResizeOptions) => { destroy: () => void; }",
-      "isDefaultExport": false
+      "type": "Action<HTMLElement, ResizeOptions, Record<never, any>>",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Makes an element resizable by dragging its edges.\n *\n * @param node - The element to make resizable.\n *\n * @param options - {@link ResizeOptions}\n *\n * @example\n *\n * Basic\n * ```svelte\n * <div use:resize> Resize Me </div>\n * ```\n *\n * @example\n *\n * Kitchen Sink\n * ```svelte\n * <div use:resize={{\n * \tsides: ['left', 'bottom'],\n * \tgutterSize: 3,\n * \tonResize: () => console.log('resized'),\n * \tpersistent: false,\n * \tvisible: false,\n * \tcolor: 'var(--fg-d)',\n * \tborderRadius: '0.5rem',\n * }} />\n * ```\n *\n */",
+        "links": [
+          {
+            "target": "ResizeOptions",
+            "text": "ResizeOptions"
+          }
+        ],
+        "summary": "Makes an element resizable by dragging its edges.",
+        "params": [
+          {
+            "name": "node",
+            "description": "The element to make resizable."
+          },
+          {
+            "name": "options",
+            "description": "{@linkResizeOptions}"
+          }
+        ],
+        "examples": [
+          {
+            "name": "Basic",
+            "content": "\n```svelte\n<div use:resize> Resize Me </div>\n```"
+          },
+          {
+            "name": "Kitchen Sink",
+            "content": "\n```svelte\n<div use:resize={{\n\tsides: ['left', 'bottom'],\n\tgutterSize: 3,\n\tonResize: () => console.log('resized'),\n\tpersistent: false,\n\tvisible: false,\n\tcolor: 'var(--fg-d)',\n\tborderRadius: '0.5rem',\n}} />\n```"
+          }
+        ]
+      }
     }
   ]
 }

@@ -1,0 +1,121 @@
+{
+  "type": "ts",
+  "fileName": "Themer.ts",
+  "filePath": "src/lib/theme/Themer.ts",
+  "exports": [
+    {
+      "name": "ThemeTitle",
+      "type": "ThemeTitle",
+      "isDefaultExport": false
+    },
+    {
+      "name": "ThemeVariant",
+      "type": "ThemeVariant",
+      "isDefaultExport": false
+    },
+    {
+      "name": "ThemeMode",
+      "type": "ThemeMode",
+      "isDefaultExport": false
+    },
+    {
+      "name": "ThemeVariantConfig",
+      "type": "ThemeVariantConfig",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * A theme variant config contains hex colors. All {@link ThemeConfig | ThemeConfigs} contain both a light and dark variant, defined here.\n */",
+        "links": [
+          {
+            "target": "ThemeConfig",
+            "text": "ThemeConfigs"
+          }
+        ],
+        "summary": "<p>A theme variant config contains hex colors. All [ThemeConfig | ThemeConfigs](#ThemeConfig | ThemeConfigs)\ncontain both a light and dark variant, defined here.</p>\n"
+      }
+    },
+    {
+      "name": "ThemeConfig",
+      "type": "ThemeConfig",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Represents a theme configuration.\n */",
+        "summary": "<p>Represents a theme configuration.</p>\n"
+      }
+    },
+    {
+      "name": "ThemerJSON",
+      "type": "ThemerJSON",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * A JSON representation of the {@link Themer} class. Used in the {@link Themer.toJSON | toJSON()} and {@link Themer.fromJSON | fromJSON()}, methods, and subsequently, in {@link Themer.save | save()} and {@link Themer.load | load()}.\n */",
+        "links": [
+          {
+            "target": "Themer",
+            "text": "Themer"
+          },
+          {
+            "target": "Themer",
+            "text": "toJSON()"
+          },
+          {
+            "target": "Themer",
+            "text": "fromJSON()"
+          },
+          {
+            "target": "Themer",
+            "text": "save()"
+          },
+          {
+            "target": "Themer",
+            "text": "load()"
+          }
+        ],
+        "summary": "<p>A JSON representation of the <a href=\"#Themer\">Themer</a> class. Used in the\n[Themer.toJSON | toJSON()](#Themer.toJSON | toJSON()) and [Themer.fromJSON | fromJSON()](#Themer.fromJSON | fromJSON()),\nmethods, and subsequently, in [Themer.save | save()](#Themer.save | save())\nand [Themer.load | load()](#Themer.load | load()).</p>\n"
+      }
+    },
+    {
+      "name": "ThemerOptions",
+      "type": "ThemerOptions",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Options for the {@link Themer} class.\n */",
+        "links": [
+          {
+            "target": "Themer",
+            "text": "Themer"
+          }
+        ],
+        "summary": "<p>Options for the <a href=\"#Themer\">Themer</a> class.</p>\n"
+      }
+    },
+    {
+      "name": "Themer",
+      "type": "Themer<T>",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * The Themer class manages multiple customizable application themes. It can be used to store and retrieve themes, create new themes, and apply themes to the document. Each theme has a light and dark variant, and the active variant is determined by the current {@link ThemeMode}, which can be set to 'light', 'dark', or 'system'.\n *\n * @example\n *\n * ```svelte <script lang=\"ts\"> import { Themer } from 'fractils' import my_theme from './themes/my_theme.json'\n *\n * const themer = new Themer({ theme: my_theme, }) </script>\n *\n * <h1>{theme.theme.title}</h1> <button on:click={() => themer.mode = 'dark'}>dark mode</button> <button on:click={() => themer.addTheme({...})}>add theme</button>\n */",
+        "links": [
+          {
+            "target": "ThemeMode",
+            "text": "ThemeMode"
+          }
+        ],
+        "summary": "<p>The Themer class manages multiple customizable application themes.\nIt can be used to store and retrieve themes, create new themes,\nand apply themes to the document. Each theme has a light and dark\nvariant, and the active variant is determined by the current\n<a href=\"#ThemeMode\">ThemeMode</a>, which can be set to &#39;light&#39;, &#39;dark&#39;, or &#39;system&#39;.</p>\n",
+        "examples": [
+          {
+            "content": "```svelte\n<script lang=\"ts\">\n\timport { Themer } from 'fractils'\n\timport my_theme from './themes/my_theme.json'\n\n\tconst themer = new Themer({\n\t\ttheme: my_theme,\n\t})\n</script>\n\n<h1>{theme.theme.title}</h1>\n<button on:click={() => themer.mode = 'dark'}>dark mode</button>\n<button on:click={() => themer.addTheme({...})}>add theme</button>",
+            "blocks": [
+              {
+                "type": "code",
+                "content": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#777D8F\">&#x3C;script</span><span style=\"color:#9CCFD8;font-style:italic\"> lang</span><span style=\"color:#777D8F\">=</span><span style=\"color:#A78BFA\">\"ts\"</span><span style=\"color:#777D8F\">></span></span>\n<span class=\"line\"><span style=\"color:#5BA2D0\">    import </span><span style=\"color:#8D8F9E\">{</span><span style=\"color:#DEE0EF\"> Themer</span><span style=\"color:#8D8F9E\"> }</span><span style=\"color:#5BA2D0\"> from </span><span style=\"color:#A78BFA\">'fractils'</span></span>\n<span class=\"line\"><span style=\"color:#5BA2D0\">    import </span><span style=\"color:#DEE0EF\">my_theme</span><span style=\"color:#5BA2D0\"> from </span><span style=\"color:#A78BFA\">'./themes/my_theme.json'</span></span>\n<span class=\"line\"></span>\n<span class=\"line\"><span style=\"color:#5BA2D0\">    const</span><span style=\"color:#DEE0EF\"> themer</span><span style=\"color:#5BA2D0\"> =</span><span style=\"color:#5BA2D0\"> new</span><span style=\"color:#F8D2C9\"> Themer</span><span style=\"color:#DEE0EF\">(</span><span style=\"color:#8D8F9E\">{</span></span>\n<span class=\"line\"><span style=\"color:#777D8F\">        theme</span><span style=\"color:#8D8F9E\">:</span><span style=\"color:#DEE0EF\"> my_theme</span><span style=\"color:#8D8F9E\">,</span></span>\n<span class=\"line\"><span style=\"color:#8D8F9E\">    }</span><span style=\"color:#DEE0EF\">)</span></span>\n<span class=\"line\"><span style=\"color:#777D8F\">&#x3C;/script></span></span>\n<span class=\"line\"></span>\n<span class=\"line\"><span style=\"color:#777D8F\">&#x3C;h1></span><span style=\"color:#8D8F9E\">{</span><span style=\"color:#DEE0EF\">theme</span><span style=\"color:#5BA2D0\">.</span><span style=\"color:#DEE0EF\">theme</span><span style=\"color:#5BA2D0\">.</span><span style=\"color:#DEE0EF\">title</span><span style=\"color:#8D8F9E\">}</span><span style=\"color:#777D8F\">&#x3C;/h1></span></span>\n<span class=\"line\"><span style=\"color:#777D8F\">&#x3C;button</span><span style=\"color:#5BA2D0\"> on</span><span style=\"color:#8D8F9E\">:</span><span style=\"color:#94B8FF\">click</span><span style=\"color:#777D8F\">=</span><span style=\"color:#8D8F9E\">{()</span><span style=\"color:#5BA2D0\"> =></span><span style=\"color:#DEE0EF\"> themer</span><span style=\"color:#5BA2D0\">.</span><span style=\"color:#DEE0EF\">mode </span><span style=\"color:#5BA2D0\">=</span><span style=\"color:#A78BFA\"> 'dark'</span><span style=\"color:#8D8F9E\">}</span><span style=\"color:#777D8F\">>dark mode&#x3C;/button></span></span>\n<span class=\"line\"><span style=\"color:#777D8F\">&#x3C;button</span><span style=\"color:#5BA2D0\"> on</span><span style=\"color:#8D8F9E\">:</span><span style=\"color:#94B8FF\">click</span><span style=\"color:#777D8F\">=</span><span style=\"color:#8D8F9E\">{()</span><span style=\"color:#5BA2D0\"> =></span><span style=\"color:#DEE0EF\"> themer</span><span style=\"color:#5BA2D0\">.</span><span style=\"color:#F8D2C9\">addTheme</span><span style=\"color:#DEE0EF\">(</span><span style=\"color:#8D8F9E\">{</span><span style=\"color:#5BA2D0\">...</span><span style=\"color:#8D8F9E\">}</span><span style=\"color:#DEE0EF\">)</span><span style=\"color:#8D8F9E\">}</span><span style=\"color:#777D8F\">>add theme&#x3C;/button></span></span></code></pre>",
+                "lang": "svelte",
+                "raw": "<script lang=\"ts\">\n    import { Themer } from 'fractils'\n    import my_theme from './themes/my_theme.json'\n\n    const themer = new Themer({\n        theme: my_theme,\n    })\n</script>\n\n<h1>{theme.theme.title}</h1>\n<button on:click={() => themer.mode = 'dark'}>dark mode</button>\n<button on:click={() => themer.addTheme({...})}>add theme</button>",
+                "title": ""
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

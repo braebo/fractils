@@ -1,0 +1,37 @@
+{
+  "type": "ts",
+  "fileName": "getPx.ts",
+  "filePath": "src/lib/utils/getPx.ts",
+  "exports": [
+    {
+      "name": "getPx",
+      "type": "typeof getPx",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Accepts `rem`, `vw`, and `vh` css units, and returns the corresponding pixel value.\n *\n * @param str - A string containing a css unit.\n *\n * @param relativeParentSize - The size of the parent element, if the unit is `%`.\n *\n * @throws\n *\n * If the string is not a valid css unit.\n *\n * @example\n * ```ts\n * measure('1rem') // 16\n * measure('100vw') // 1920 (on a 1920x1080 screen)\n * ```\n *\n */",
+        "summary": "Accepts `rem`, `vw`, and `vh` css units, and returns the\ncorresponding pixel value.",
+        "params": [
+          {
+            "name": "str",
+            "description": "A string containing a css unit."
+          },
+          {
+            "name": "relativeParentSize",
+            "description": "The size of the parent element, if the unit is`%`."
+          }
+        ],
+        "customBlocks": [
+          {
+            "tagName": "@throws",
+            "content": "If the string is not a valid css unit."
+          }
+        ],
+        "examples": [
+          {
+            "content": "```ts\nmeasure('1rem') // 16\nmeasure('100vw') // 1920 (on a 1920x1080 screen)\n```"
+          }
+        ]
+      }
+    }
+  ]
+}
