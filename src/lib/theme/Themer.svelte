@@ -1,71 +1,108 @@
 <script lang="ts">
-	import { resize } from '$lib/utils/resizable'
+	import { hovering } from '$lib/actions/hovering'
+	import { quadOut, quadIn } from 'svelte/easing'
+	import autoAnimate from '@formkit/auto-animate'
+	import { resizable } from '$lib/actions/resizable'
 	import THEME_A from './themes/theme-a.json'
+	import { fly } from 'svelte/transition'
 	import { Themer } from './Themer'
-	import { onMount } from 'svelte'
 
 	const themer = new Themer()
 
-	let renderKey = false
-	const render = () => (renderKey = !renderKey)
+	const { theme, mode, themes } = themer
 
-	onMount(render)
+	let showDeleteText = Array.from({ length: themes.get().length }, () => false)
 </script>
 
 {#if themer}
-	{#key themer && renderKey}
-		<div class="container" use:resize={{ persistent: true }}>
-			<div class="themer">
-				<div class="kv mode">
-					<div class="k">Mode</div>
-					<options class="v" on:change={render}>
-						<select bind:value={themer.mode} on:change={render}>
-							<option value="dark">dark</option>
-							<option value="light">light</option>
-							<option value="system">system</option>
-						</select>
-					</options>
+	<div class="container" use:resizable={{ persistent: true }}>
+		<div class="themer">
+			<div class="kv mode">
+				<div class="k">Mode</div>
+				<div class="v">
+					<select bind:value={$mode}>
+						<option value="dark">dark</option>
+						<option value="light">light</option>
+						<option value="system">system</option>
+					</select>
 				</div>
+			</div>
 
-				<div class="kv theme">
-					<div class="k">Theme</div>
-					<options class="v">
-						<select bind:value={themer.theme.title} on:change={render}>
-							{#each themer.themes as value}
-								<option value={value.title}>{value.title}</option>
-							{/each}
-						</select>
-					</options>
+			<div class="kv theme">
+				<div class="k">Theme</div>
+				<div class="v">
+					<select bind:value={$theme}>
+						{#each $themes.sort((a, b) => a.title.localeCompare(b.title)) as value}
+							<option selected {value}>{value.title}</option>
+						{/each}
+					</select>
 				</div>
+			</div>
 
-				<div class="kv toJSON">
-					<div class="k">console.log</div>
-					<div class="v">
-						<button on:click={() => console.log(themer.toJSON())}>toJSON</button>
-					</div>
-				</div>
-
-				<div class="kv theme-a">
-					<div class="v">
-						<button on:click={() => themer.addTheme(THEME_A) && render()}>
-							add theme-a
+			<div class="kv themes">
+				<div class="k">Themes</div>
+				<div class="v col" use:autoAnimate>
+					{#each $themes as t, i (t.title)}
+						<button
+							class:active={$theme.title === t.title}
+							on:click={() => themer.theme.set(t)}
+						>
+							<!-- <Tooltip content="delete"> -->
+							<!-- on:mouseenter={() => (showDeleteText[i] = true)}
+								on:mouseleave={() => (showDeleteText[i] = false)} -->
+							<button
+								use:hovering={{ pollRate: 100 }}
+								on:hoverIn={() => (showDeleteText[i] = true)}
+								on:hoverOut={() => (showDeleteText[i] = false)}
+								title="delete theme"
+								class="delete"
+								on:click={() => themer.delete(t)}
+							>
+								🆇
+							</button>
+							<!-- </Tooltip> -->
+							{#if showDeleteText[i]}
+								<div
+									in:fly={{ x: 5, easing: quadIn }}
+									out:fly={{ x: 20, easing: quadOut, duration: 300 }}
+									class="delete-text">delete</div
+								>
+							{:else}
+								<div
+									in:fly={{ x: -5, easing: quadIn }}
+									out:fly={{ x: -20, easing: quadOut, duration: 300 }}
+									>{t.title}</div
+								>
+							{/if}
 						</button>
-					</div>
+					{/each}
 				</div>
+			</div>
 
-				<div class="kv clear">
-					<div class="v">
-						<button on:click={() => themer.clear()}>clear</button>
-					</div>
+			<div class="kv toJSON">
+				<div class="k">console.log</div>
+				<div class="v">
+					<button on:click={() => console.log(themer.toJSON())}>toJSON</button>
+				</div>
+			</div>
+
+			<div class="kv theme-a">
+				<div class="v">
+					<button on:click={() => themer.create(THEME_A)}> add theme-a </button>
+				</div>
+			</div>
+
+			<div class="kv clear">
+				<div class="v">
+					<button on:click={() => themer.clear()}>clear</button>
 				</div>
 			</div>
 		</div>
-	{/key}
+	</div>
 {/if}
 
 <style lang="scss">
 	.container {
-		// outline: 1px solid pink;
 		position: fixed;
 		top: 0;
 		right: 0;
@@ -86,19 +123,11 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 1rem;
-
-		// min-width: 20rem;
-		// min-height: 20rem;
-		// background: rgba(10, 10, 20, 1);
-
-		// transition: 0.2s;
+		gap: 0.5rem;
 
 		div {
 			font-size: 1rem;
 			color: var(--fg-c);
-
-			padding: 0.5rem;
 		}
 	}
 
@@ -108,33 +137,46 @@
 		// justify-content: center;
 		gap: 0.5rem;
 
-		font-size: 1rem;
-		color: var(--fg-c);
-		outline: 1px solid var(--bg-b);
-		border-radius: var(--radius);
-
+		width: 100%;
 		padding: 0.5rem;
 
-		width: 100%;
+		color: var(--fg-c);
+		outline: 1px solid rgba(var(--bg-b-rgb), 0.5);
+		border-radius: var(--radius);
+
+		font-size: 1rem;
 
 		.k {
 			display: flex;
-			width: 8rem;
+
+			width: fit-content;
+			min-width: 5rem;
+			max-width: 50%;
+
 			font-weight: 600;
+			font-size: var(--font-xs);
 			font-family: var(--font-b);
 		}
 
 		.v {
+			all: unset;
+			box-sizing: border-box;
+
 			display: flex;
-			font-family: var(--font-mono);
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			gap: 0.25rem;
+
 			width: 100%;
 
+			font-family: var(--font-mono);
+
 			select {
-				all: unset;
+				// all: unset;
 				cursor: pointer;
 
 				width: 100%;
-				margin: auto;
 				padding: 0.2rem 0.5rem 0.23rem 0.5rem;
 				text-align: center;
 
@@ -157,6 +199,8 @@
 
 			button {
 				all: unset;
+				position: relative;
+				box-sizing: border-box;
 				cursor: pointer;
 
 				width: 100%;
@@ -164,10 +208,17 @@
 				padding: 0.2rem 0.5rem 0.23rem 0.5rem;
 				text-align: center;
 
-				color: var(--brand-a);
+				display: grid;
+				div {
+					grid-area: 1 / 1;
+				}
+
 				background: var(--bg-b);
 				border-radius: var(--radius-sm);
 				border: 1px solid var(--bg-c);
+				div {
+					color: var(--brand-a);
+				}
 
 				font-weight: 300;
 				transition:
@@ -178,6 +229,54 @@
 					border-color: rgba(var(--brand-a-rgb), 0.33);
 
 					font-weight: 500;
+				}
+
+				&.active:not(:has(.delete:hover)) {
+					div {
+						color: var(--bg-b);
+					}
+					background: var(--brand-a);
+					// border-color: var(--brand-a);
+				}
+
+				&:has(.delete:hover) {
+					div {
+						color: tomato;
+					}
+				}
+
+				.delete {
+					all: unset;
+					position: absolute;
+					right: 0.25rem;
+					top: 0;
+					bottom: 0;
+
+					width: 1rem;
+					height: 1rem;
+					margin: auto;
+					padding: 0.05rem;
+					// padding-top: 0;
+
+					color: var(--bg-a);
+					// outline: 1px solid rgba(255, 99, 71, 0.45);
+					border-radius: 0.2rem;
+
+					opacity: 0;
+					transition-property: opacity, color, background;
+					transition-duration: 0.15s;
+					z-index: 1;
+
+					&:hover {
+						background: var(--fg-a);
+						// background: tomato;
+						// color: var(--bg-a);
+						color: tomato !important;
+					}
+				}
+
+				&:hover .delete {
+					opacity: 1;
 				}
 			}
 		}
