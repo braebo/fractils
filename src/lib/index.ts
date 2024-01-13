@@ -21,6 +21,7 @@ export { default as Device } from './stores/Device.svelte'
 export { default as Inspector } from './components/inspector/Inspector.svelte' // todo
 export { default as MacScrollbar } from './components/MacScrollbar.svelte'
 export { default as ThemeToggle } from './components/ThemeToggle.svelte'
+export { default as Resizable } from './components/Resizable.svelte' // todo
 export { Toasts, toast, type Toast } from './components/toast/index' // todo
 export { default as OnMount } from './components/OnMount.svelte'
 export { default as Tooltip } from './components/Tooltip.svelte' // todo
