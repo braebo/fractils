@@ -12,9 +12,6 @@ import { hexToRgb } from '../utils/hexToRgb'
 import { entries } from '../utils/object'
 import { logger } from '../utils/logger'
 import { c, g, o, r } from '../utils/l'
-import { onDestroy } from 'svelte'
-import { BROWSER } from 'esm-env'
-import type { Unsubscriber } from 'svelte/motion'
 
 export type ThemeTitle = 'theme-default' | 'theme-a' | 'theme-b' | 'theme-c' | (string & {})
 export type ThemeVariant = 'light' | 'dark'
@@ -118,7 +115,7 @@ const THEMER_DEFAULTS: ThemerOptions = {
  * <button on:click={() => themer.mode = 'dark'}>dark mode</button>
  * <button on:click={() => themer.addTheme({...})}>add theme</button>
  */
-export class Themer<T extends ThemeTitle> {
+export class Themer {
 	theme: State<ThemeConfig>
 	mode: State<'light' | 'dark' | 'system'>
 	themes: State<ThemeConfig[]>
@@ -161,17 +158,17 @@ export class Themer<T extends ThemeTitle> {
 			this.init()
 		}
 
-		try {
-			onDestroy(() => {
-				this.dispose()
-				if (BROWSER) {
-					this.log(c('onDestroy') + '()', 'disposed')
-				}
-			})
-		} catch (e) {
-			console.error(e)
-			// Swallow... (just means we're not in a Svelte component)
-		}
+		// try {
+		// 	onDestroy(() => {
+		// 		this.dispose()
+		// 		if (BROWSER) {
+		// 			this.log(c('onDestroy') + '()', 'disposed')
+		// 		}
+		// 	})
+		// } catch (e) {
+		// 	console.error(e)
+		// 	// Swallow... (just means we're not in a Svelte component)
+		// }
 	}
 
 	#addSub<
@@ -298,7 +295,7 @@ export class Themer<T extends ThemeTitle> {
 		return this
 	}
 
-	delete(themeOrTitle: ThemeTitle | T | ThemeConfig) {
+	delete(themeOrTitle: ThemeTitle | ThemeConfig) {
 		this.log(c('deleteTheme') + '()', { themeOrTitle, this: this })
 
 		const themeTitle = typeof themeOrTitle === 'string' ? themeOrTitle : themeOrTitle.title
@@ -333,7 +330,7 @@ export class Themer<T extends ThemeTitle> {
 	/**
 	 * Resolves a {@link ThemeConfig} by title.
 	 */
-	getThemeConfig(themeTitle: ThemeTitle | T) {
+	getThemeConfig(themeTitle: ThemeTitle) {
 		return this.themes.get().find((t) => t.title === themeTitle)
 	}
 
