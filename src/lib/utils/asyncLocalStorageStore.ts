@@ -1,10 +1,10 @@
 import type { Writable } from 'svelte/store'
-import { writable } from 'svelte/store'
 
-const browser = typeof globalThis.window !== undefined
+import { writable } from 'svelte/store'
+import { BROWSER } from 'esm-env'
 
 const setAsync = async <T>(key: string, value: T): Promise<void> => {
-	if (!browser) return
+	if (!BROWSER) return
 	return Promise.resolve().then(() => {
 		typeof value != 'string'
 			? localStorage.setItem(key, JSON.stringify(value))
@@ -13,7 +13,7 @@ const setAsync = async <T>(key: string, value: T): Promise<void> => {
 }
 
 const getAsync = async <T = any>(key: string): Promise<T | null> => {
-	if (browser) {
+	if (BROWSER) {
 		return Promise.resolve().then(() => {
 			const value = localStorage.getItem(key)
 			// Return object if valid json
@@ -47,7 +47,7 @@ const getAsync = async <T = any>(key: string): Promise<T | null> => {
  */
 export const asyncLocalStorageStore = <T = any>(key: string, value: T): Writable<T> => {
 	const { set: setStore, ...readableStore } = writable(value, () => {
-		if (!browser) return
+		if (!BROWSER) return
 
 		getAndSetFromLocalStorage()
 
