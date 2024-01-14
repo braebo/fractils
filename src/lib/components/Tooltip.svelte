@@ -118,10 +118,10 @@
 	:global(.tippy-box) {
 		position: relative;
 
-		color: var(--tooltip-color, var(--bg-d));
+		color: var(--tooltip-color, var(--fg-b));
 		border-radius: 0.25rem;
-		outline: 0.03rem solid var(--fg-c);
-		background: var(--tooltip-bg, var(--fg-a));
+		outline: 0.03rem solid var(--bg-c);
+		background: var(--tooltip-bg, var(--bg-a));
 		box-shadow: 0 0.125rem 0.3125rem #0001;
 
 		transition-property: transform, visibility, opacity;
