@@ -8,7 +8,8 @@
 }
 
 @mixin radius {
-	--radius-xxs: 0.125rem;
+	--radius-xxs: 0.075rem;
+	--radius-xs: 0.125rem;
 	--radius-sm: 0.1875rem;
 	--radius: 0.3125rem;
 	--radius-md: 0.4375rem;
