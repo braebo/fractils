@@ -2,13 +2,15 @@ import type { Action } from 'svelte/action'
 
 import { localStorageStore } from '../utils/localStorageStore'
 import { debounce } from '../utils/debounce'
-import { get } from 'svelte/store'
 import { logger } from '../utils/logger'
+import { get } from 'svelte/store'
 
 /**
  * The sides of an element that can be resized by the {@link resizable} action.
  */
 export type Side = 'top' | 'right' | 'bottom' | 'left'
+
+export type Resizable = ReturnType<typeof resizable>
 
 /**
  * Options for the {@link resizable} action.
@@ -51,7 +53,7 @@ export interface ResizableOptions {
 	borderRadius?: string
 }
 
-interface ResizableEvents {
+export interface ResizableEvents {
 	/**
 	 * Dispatched when the element is resized.
 	 */
@@ -113,19 +115,29 @@ export const resizable: Action<HTMLElement, ResizableOptions, ResizableEvents> =
 	const size = localStorageStore(
 		'fractils::resizable::size:' + Array.from(node.classList).join('_'),
 		// todo - `size` store should be { width, height } instead of just width.
-		node.offsetWidth,
+		{
+			width: node.offsetWidth,
+			height: node.offsetHeight,
+		},
 	)
 
 	//? Save/Load size from local storage.
 
 	const saveSize = debounce(() => {
-		size.set(node.offsetWidth)
+		if (!persistent) return
+		size.set({
+			width: node.offsetWidth,
+			height: node.offsetHeight,
+		})
 	}, 50)
 
-	if (persistent) {
-		node.style.width = get(size) + 'px'
+	const updateSize = (dimensions = get(size)) => {
+		node.style.width = dimensions.width + 'px'
+		node.style.height = dimensions.height + 'px'
 		node.dispatchEvent(new CustomEvent('resize'))
 	}
+
+	if (persistent) updateSize()
 
 	//? Create global stylesheet (but only once).
 
