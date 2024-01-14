@@ -1,0 +1,41 @@
+{
+	"Svelte script tag": {
+		"scope": "svelte",
+		"prefix": "ss",
+		// prettier-ignore
+		"body": [
+			"<script lang=\"ts\">",
+			"\t$0",
+			"</script>"
+		],
+		"description": "Log output to console"
+	},
+	"Svelte style tag": {
+		"scope": "svelte",
+		"prefix": "sst",
+		// prettier-ignore
+		"body": [
+			"<style lang=\"scss\">",
+			"\t$0",
+			"</style>"
+		],
+		"description": "Log output to console"
+	},
+	"Svelte boilerplate": {
+		"scope": "svelte",
+		"prefix": "bp",
+		// prettier-ignore
+		"body": [
+			"<script lang=\"ts\">",
+			"\t",
+			"</script>",
+			"",
+			"$0",
+			"",
+			"<style lang=\"scss\">",
+			"\t",
+			"</style>"
+		],
+		"description": "Log output to console"
+	}
+}

@@ -1,0 +1,28 @@
+{
+	"Region Start": {
+		"scope": "javascript,typescript,svelte",
+		"prefix": "re",
+		"body": [
+			"//· $1 ···································································¬",
+			"",
+			"$0"
+		],
+		"description": "Create a custom folding region start."
+	},
+	"Region End": {
+		"scope": "javascript,typescript,svelte",
+		"prefix": "ree",
+		"body": ["//⌟"],
+		"description": "Create a custom folding region end."
+	},
+	"Region Start End": {
+		"scope": "javascript,typescript,svelte",
+		"prefix": "reee",
+		"body": [
+			"//· $1 ····································································¬",
+			"",
+			"$0",
+			"//⌟"
+		]
+	}
+}
