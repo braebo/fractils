@@ -5,9 +5,9 @@
 
 <script lang="ts">
 	import { screenH } from '../../stores/Device.svelte'
+	import { resizable } from '$lib/actions/resizable'
 	import MacScrollbar from '../MacScrollbar.svelte'
 	import { createEventDispatcher } from 'svelte'
-	import { resize } from '$lib/utils/resizable'
 
 	export let isOpen = false
 	export let right = false
@@ -48,7 +48,7 @@
 </script>
 
 <div
-	use:resize={{ side: 'left', color: 'hsla(0, 0%, 10%, 0.8)' }}
+	use:resizable={{ sides: ['left'], color: 'hsla(0, 0%, 10%, 0.8)' }}
 	style={`--sm-top: ${top};` + css}
 	class="side-menu {theme}"
 	id="inspector-side-menu"
