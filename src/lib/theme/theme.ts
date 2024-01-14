@@ -1,17 +1,17 @@
 import { localStorageStore } from '../utils/localStorageStore'
 import { get, writable } from 'svelte/store'
 
+export type Theme = 'light' | 'dark' | 'system'
+
 const initialTheme =
 	typeof window !== 'undefined' && globalThis.localStorage && 'theme' in localStorage
 		? localStorage.getItem('theme') ?? 'dark'
 		: 'dark'
 
-export type Theme = 'light' | 'dark' | (string & {})
-
 /**
  * A store for the current theme persisted in local storage.
  */
-export const theme = localStorageStore<Theme>('theme', initialTheme)
+export const theme = localStorageStore<Theme>('theme', initialTheme as Theme)
 
 const detectSystemPreference = (e: MediaQueryListEvent) => applyTheme(e.matches ? 'dark' : 'light')
 
@@ -29,7 +29,7 @@ export async function initTheme() {
 			try {
 				const pref = get(theme)
 				if (pref) {
-					applyTheme(pref as string)
+					applyTheme(pref as Theme)
 				}
 			} catch (err) {
 				console.log(
