@@ -5,7 +5,7 @@
 
 <script lang="ts">
 	import { screenH } from '../../stores/Device.svelte'
-	import { resizable } from '$lib/actions/resizable'
+	import { resizable } from '../../actions/resizable'
 	import MacScrollbar from '../MacScrollbar.svelte'
 	import { createEventDispatcher } from 'svelte'
 
