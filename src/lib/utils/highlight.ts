@@ -5,14 +5,13 @@ import type { Lang, Theme } from 'shiki'
 // import { transformerTwoSlash } from 'shikiji-twoslash'
 import { serendipity } from './highlight.serendipity'
 import { getHighlighterCore } from 'shikiji/core'
-import { getWasmInlined } from 'shikiji/wasm'
 import {
 	transformerNotationHighlight,
 	transformerNotationFocus,
 	transformerNotationDiff,
 } from 'shikiji-transformers'
 
-import { bundledLanguages } from 'shikiji'
+import { getWasmInlined, bundledLanguages } from 'shikiji'
 import { logger } from './logger'
 import { fmtTime } from './time'
 import { dim, o } from './l'
