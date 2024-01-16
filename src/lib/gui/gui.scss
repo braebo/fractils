@@ -1,9 +1,58 @@
+//* Variables
+
 .gui-root {
 	--header-height: 2rem;
 	--min-width: 20rem;
 	--min-height: 1rem;
 	--max-width: 30rem;
 }
+
+//* Open / Close animations
+
+$closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
+
+@keyframes open {
+	from {
+		clip-path: $closed-inset;
+	}
+	to {
+		clip-path: inset(0);
+	}
+}
+
+@keyframes close {
+	from {
+		clip-path: inset(0);
+	}
+	to {
+		clip-path: $closed-inset;
+	}
+}
+
+.gui-root {
+	animation-name: reveal, open;
+
+	animation-duration: 1s, 1s;
+	animation-direction: normal, forwards;
+	animation-timing-function: cubic-bezier(0.1, 1, 0.1, 1);
+
+	&.closed {
+		animation-name: close;
+		animation-duration: 0.5s;
+		animation-fill-mode: forwards;
+		animation-timing-function: cubic-bezier(0.05, 1, 0.2, 1);
+	}
+}
+
+.gui-folder,
+gui-root {
+	max-height: fit-content;
+	&.closed > .gui-content {
+		max-height: 1px;
+	}
+}
+
+//* Main styles
 
 .gui-root {
 	position: fixed;
@@ -13,18 +62,15 @@
 	flex-direction: column;
 	justify-content: flex-start;
 
-	// width: var(--min-width, 20rem);
 	min-width: var(--min-width, 20rem);
 	max-width: var(--max-width);
 
 	height: fit-content;
-	max-height: fit-content;
 	min-height: 5rem;
 
+	contain: paint;
 	user-select: none;
 	z-index: 99;
-
-	animation: swipe-in-down 0.2s cubic-bezier(0.19, 1, 0.22, 1);
 
 	> .gui-header {
 		display: flex;
@@ -79,10 +125,6 @@
 		overflow: hidden;
 		transition: max-height 0.2s cubic-bezier(0.19, 1, 0.22, 1);
 	}
-
-	&.closed > .gui-content {
-		max-height: 1px;
-	}
 }
 
 .gui-folder {
@@ -95,10 +137,6 @@
 	min-height: 1rem;
 
 	border-radius: var(--radius-sm);
-
-	&.closed {
-		max-height: 0;
-	}
 
 	.gui-header {
 		display: flex;

@@ -1,5 +1,5 @@
+import type { Draggable, DragOptions, computeBoundRect } from '../utils/draggable'
 import type { Resizable, ResizableOptions } from '../actions/resizable'
-import type { Draggable, DragOptions } from '../utils/draggable'
 import type { ThemerOptions } from '../theme/Themer'
 
 import { state, type State } from '../utils/state'
@@ -576,40 +576,23 @@ export class Gui extends Folder {
 
 		setTimeout(() => {
 			this.container.appendChild(this.element)
-			this.animateIn()
+			
+			// A quick fade can mask ssr/hydration jank.
+			this.element.animate(
+				[
+					{ opacity: 0, clipPath: 'inset(100%,0,0,0)' },
+					{ opacity: 1, clipPath: 'inset(0,0,0,0)' },
+				],
+				{
+					fill: 'none',
+					duration: 400,
+				},
+			)
 
 			// this.draggable?.updateOptions()
 		}, 15)
 
 		return this
-	}
-
-	animateIn() {
-		// this.element.style.setProperty('opacity', '0')
-		this.element.style.animationDuration = '1s'
-		this.element.classList.add('fly-in')
-
-		// document.body.appendChild(this.element)
-
-		// const currentTransform = this.element.style.transform
-
-		// const anim = this.element.animate(
-		// 	[
-		// 		{ opacity: 0, transform: 'scale(0.5) ' + currentTransform },
-		// 		{ opacity: 1, transform: 'scale(1) ' + currentTransform },
-		// 	],
-		// 	{
-		// 		duration: 200,
-		// 		easing: 'ease-out',
-		// 		fill: 'forwards',
-		// 	},
-		// )
-
-		// anim.onfinish = () => {
-		// 	// Reset style properties to initial states
-		// 	this.element.style.opacity = '';
-		// 	this.element.style.transform = currentTransform;
-		// };
 	}
 
 	#setupPersistence(opts: GuiOptions) {
