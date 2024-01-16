@@ -26,8 +26,15 @@ export { Toasts, toast, type Toast } from './components/toast/index' // todo
 export { default as OnMount } from './components/OnMount.svelte'
 export { default as Tooltip } from './components/Tooltip.svelte' // todo
 export { default as Switch } from './components/Switch.svelte' // todo
+export { default as Froggo } from './components/Froggo.svelte' // wow
 export { default as Range } from './components/Range.svelte' // todo
 export { default as Code } from './components/Code.svelte' // todo
+
+// Gui
+
+export { default as Select } from './gui/controls/Select.svelte' // todo
+export { default as Socket } from './gui/Socket.svelte' // todo
+export { default as Root } from './gui/Gui.svelte' // todo
 
 // Theme
 
@@ -50,6 +57,7 @@ export { start, fmtTime, type StartOptions } from './utils/time' // todo
 export { localStorageStore } from './utils/localStorageStore'
 export { ArgMap, mapArgs, resolveArg } from './utils/args' // todo
 export { stringify, serialize } from './utils/stringify' // todo
+export { isTouchEvent, isMouseEvent } from './utils/is' // todo
 export { entries, keys, values } from './utils/object' // todo
 export { decimalToPow } from './utils/decimalToPow' // todo
 export { colors, randomColor } from './utils/color' // todo
@@ -60,6 +68,7 @@ export { rgbToHex } from './utils/rgbToHex' // todo
 export { hexToRgb } from './utils/hexToRgb' // todo
 export { truncate } from './utils/truncate' // todo
 export { fontSize } from './utils/fontSize' // todo
+export { create } from './utils/create' // todo
 export { mapRange } from './utils/mapRange'
 export { defer } from './utils/defer' // todo
 export { clamp } from './utils/clamp'
@@ -94,3 +103,6 @@ export type {
 
 export { highlighter } from './actions/highlighter' // todo
 export type { HighlightEventDetail, HighlightEvent, HighlightAttr } from './actions/highlighter' // todo
+
+export { resizable } from './actions/resizable' // todo
+export type { ResizableOptions, ResizableEvents, Side } from './actions/resizable' // todo
