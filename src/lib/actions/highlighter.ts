@@ -3,7 +3,7 @@ import type { Action } from 'svelte/action'
 import type { Theme } from 'shiki'
 
 import { highlight, HIGHLIGHT_DEFAULTS } from '../utils/highlight'
-import { logger } from '$lib/utils/logger'
+import { logger } from '../utils/logger'
 
 const DEBUG = true
 const log = logger('highlight', { fg: '#94b8ff', deferred: true, browser: DEBUG })
