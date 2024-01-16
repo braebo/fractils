@@ -120,7 +120,7 @@ export const logger = (
  */
 function getCallSite() {
 	const err = new Error()
-	const stackLines = err.stack?.split('\n').slice(2)
+	const stackLines = err.stack?.split('\n').slice(2).filter(Boolean)
 	const callSite = stackLines?.[1]?.trim()
 
 	// todo - test this on different browsers
@@ -130,6 +130,8 @@ function getCallSite() {
 	match ??= callSite?.split('at <instance_members_initializer> (')[1]
 	// Regular functions
 	match ??= callSite?.split('at ')[1]
+	// Firefox
+	match ??= callSite?.split('@')[1]
 
 	if (!match) return failed()
 
