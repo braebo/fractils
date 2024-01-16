@@ -166,6 +166,10 @@
 			</div>
 		{/if}
 
-		<pre class="shiki-wrapper" style:font-size={$fontSize}>{@html highlightedText}</pre>
+		{#if highlightedText}
+			<pre class="shiki-wrapper">{@html highlightedText}</pre>
+		{:else}
+			<pre class="shiki-wrapper">{text}</pre>
+		{/if}
 	</div>
 </div>
