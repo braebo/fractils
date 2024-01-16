@@ -35,6 +35,8 @@ const config = {
 					return
 				}
 			},
+			// todo - remove
+			handleMissingId: 'ignore',
 		},
 	},
 	vitePlugin: {
