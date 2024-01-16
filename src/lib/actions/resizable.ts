@@ -4,6 +4,8 @@ import { localStorageStore } from '../utils/localStorageStore'
 import { debounce } from '../utils/debounce'
 import { logger } from '../utils/logger'
 import { get } from 'svelte/store'
+import { state } from '$lib/utils/state'
+import { BROWSER } from 'esm-env'
 
 /**
  * The sides of an element that can be resized by the {@link resizable} action.
@@ -25,12 +27,12 @@ export interface ResizableOptions {
 	 * The size of the resize handle in pixels.
 	 * @default 3
 	 */
-	gutterSize?: number | string
+	grabberSize?: number | string
 	/**
 	 * Optional callback function that runs when the element is resized.
 	 * @default () => void
 	 */
-	onResize?: () => void
+	onResize?: (size: { width: number; height: number }) => void
 	/**
 	 * Persist width in local storage.
 	 * @default false
@@ -52,6 +54,16 @@ export interface ResizableOptions {
 	 */
 	borderRadius?: string
 }
+
+const RESIZABLE_DEFAULTS = {
+	sides: ['top', 'right', 'bottom', 'left'],
+	grabberSize: 6,
+	onResize: () => {},
+	persistent: false,
+	visible: false,
+	color: 'var(--fg-d, #1d1d1d)',
+	borderRadius: '0.25rem',
+} as const satisfies ResizableOptions
 
 export interface ResizableEvents {
 	/**
@@ -86,7 +98,7 @@ let globalStylesSet = false
  * ```svelte
  * <div use:resize={{
  * 	sides: ['left', 'bottom'],
- * 	gutterSize: 3,
+ * 	grabberSize: 3,
  * 	onResize: () => console.log('resized'),
  * 	persistent: false,
  * 	visible: false,
@@ -102,24 +114,17 @@ export const resizable: Action<HTMLElement, ResizableOptions, ResizableEvents> =
 	let activeGrabber: HTMLElement | null = null
 	let grabbing = false
 
-	const {
-		sides = ['top', 'right', 'bottom', 'left'],
-		gutterSize = 3,
-		onResize = () => {},
-		persistent = false,
-		visible = false,
-		color = 'var(--fg-d, #1d1d1d)',
-		borderRadius = '0.25rem',
-	} = options
+	const opts = Object.assign({}, RESIZABLE_DEFAULTS, options)
 
-	const size = localStorageStore(
-		'fractils::resizable::size:' + Array.from(node.classList).join('_'),
-		// todo - `size` store should be { width, height } instead of just width.
-		{
-			width: node.offsetWidth,
-			height: node.offsetHeight,
-		},
-	)
+	const { sides, grabberSize, onResize, persistent, visible, color, borderRadius } = opts
+
+	// todo - add a persistent option to the `state` util
+	const size = persistent
+		? localStorageStore('fractils::resizable::size', {
+				width: node.offsetWidth,
+				height: node.offsetHeight,
+			})
+		: state({ width: node.offsetWidth, height: node.offsetHeight })
 
 	//? Save/Load size from local storage.
 
@@ -131,13 +136,12 @@ export const resizable: Action<HTMLElement, ResizableOptions, ResizableEvents> =
 		})
 	}, 50)
 
-	const updateSize = (dimensions = get(size)) => {
-		node.style.width = dimensions.width + 'px'
-		node.style.height = dimensions.height + 'px'
+	if (persistent) {
+		const { width, height } = get(size)
+		node.style.width = width + 'px'
+		node.style.height = height + 'px'
 		node.dispatchEvent(new CustomEvent('resize'))
 	}
-
-	if (persistent) updateSize()
 
 	//? Create global stylesheet (but only once).
 
@@ -152,9 +156,9 @@ export const resizable: Action<HTMLElement, ResizableOptions, ResizableEvents> =
 			.fractils-resize-grabber {
 				position: absolute;
 				display: flex;
-				flex-grow: 1;
+				/* flex-grow: 1; */
 
-				padding: ${px(gutterSize)};
+				padding: ${px(grabberSize)};
 				
 				opacity: ${visible ? 1 : 0};
 				border-radius: ${borderRadius} !important;
@@ -175,10 +179,10 @@ export const resizable: Action<HTMLElement, ResizableOptions, ResizableEvents> =
 			css += /*css*/ `
 			.grabber-top {
 				cursor: ns-resize;
-				top: 0;
+				top: -${+grabberSize / 2}px;
 				
 				width: 100%;
-				height: ${gutterSize}px;
+				height: ${grabberSize}px;
 				
 				background: linear-gradient(to bottom, ${color} 0%, ${color} 10%, transparent 33%, transparent 100%);
 			}
@@ -187,10 +191,10 @@ export const resizable: Action<HTMLElement, ResizableOptions, ResizableEvents> =
 			css += /*css*/ `
 			.grabber-right {
 				cursor: ew-resize;
-				right: 0;
+				right: -${+grabberSize / 2}px;
 				top: 0;
 				
-				width: ${gutterSize}px;
+				width: ${grabberSize}px;
 				height: 100%;
 				
 				background: linear-gradient(to left, ${color} 0%, ${color} 10%, transparent 33%, transparent 100%);
@@ -200,10 +204,10 @@ export const resizable: Action<HTMLElement, ResizableOptions, ResizableEvents> =
 			css += /*css*/ `
 			.grabber-bottom {
 				cursor: ns-resize;
-				bottom: 0;
+				bottom: -${+grabberSize / 2}px;
 				
 				width: 100%;
-				height: ${gutterSize}px;
+				height: ${grabberSize}px;
 				
 				background: linear-gradient(to top, ${color} 0%, ${color} 10%, transparent 33%, transparent 100%);
 			}
@@ -212,10 +216,10 @@ export const resizable: Action<HTMLElement, ResizableOptions, ResizableEvents> =
 			css += /*css*/ `
 				.grabber-left {
 					cursor: ew-resize;
-					left: 0;
+					left: -${+grabberSize / 2}px;
 					top: 0;
 		
-					width: ${gutterSize}px;
+					width: ${grabberSize}px;
 					height: 100%;
 		
 					background: linear-gradient(to right, ${color} 0%, ${color} 10%, transparent 33%, transparent 100%);
@@ -327,7 +331,10 @@ export const resizable: Action<HTMLElement, ResizableOptions, ResizableEvents> =
 
 		saveSize()
 
-		onResize()
+		onResize({
+			width: node.offsetWidth,
+			height: node.offsetHeight,
+		})
 	}
 
 	const onUp = () => {
