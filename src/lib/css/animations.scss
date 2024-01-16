@@ -33,7 +33,39 @@
 	}
 }
 
-@keyframes swipe-out {
+@keyframes swipe-out-up {
+	from {
+		clip-path: inset(0);
+		opacity: 1;
+	}
+	to {
+		clip-path: inset(100% 0 0 0);
+		opacity: 0;
+	}
+}
+
+@keyframes swipe-out-right {
+	from {
+		clip-path: inset(0);
+		opacity: 1;
+	}
+	to {
+		clip-path: inset(0 100% 0 0);
+		opacity: 0;
+	}
+}
+
+@keyframes swipe-out-down {
+	from {
+		clip-path: inset(0);
+		opacity: 1;
+	}
+	to {
+		clip-path: inset(0 0 100% 0);
+		opacity: 0;
+	}
+}
+@keyframes swipe-out-left {
 	from {
 		clip-path: inset(0);
 		opacity: 1;
@@ -43,9 +75,43 @@
 		opacity: 0;
 	}
 }
-@keyframes swipe-in {
+
+@keyframes swipe-in-up {
+	from {
+		clip-path: inset(100% 0 0 0);
+		opacity: 0;
+	}
+	to {
+		clip-path: inset(0);
+		opacity: 1;
+	}
+}
+
+@keyframes swipe-in-right {
 	from {
 		clip-path: inset(0 100% 0 0);
+		opacity: 0;
+	}
+	to {
+		clip-path: inset(0);
+		opacity: 1;
+	}
+}
+
+@keyframes swipe-in-down {
+	from {
+		clip-path: inset(0 0 100% 0);
+		opacity: 0;
+	}
+	to {
+		clip-path: inset(0);
+		opacity: 1;
+	}
+}
+
+@keyframes swipe-in-left {
+	from {
+		clip-path: inset(0 0 0 100%);
 		opacity: 0;
 	}
 	to {
