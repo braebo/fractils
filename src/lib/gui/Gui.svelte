@@ -13,7 +13,7 @@
 		if (!gui) {
 			gui = new module.Gui({
 				element: options.container || containerEl,
-				persistent: options.persistent ?? true,
+				persistence: options.persistence ?? true,
 			})
 		}
 	})

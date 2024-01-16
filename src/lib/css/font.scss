@@ -4,9 +4,7 @@
 }
 
 @mixin fontSizes {
-	// --font-xxs: 0.75rem;
 	--font-xxs: clamp(0.5rem, 2vw, 0.75rem);
-	// --font-xs: 0.9rem;
 	--font-xs: clamp(0.75rem, 3vw, 0.9rem);
 	--font-sm: clamp(0.9rem, 4vw, 1rem);
 	--font: 1.1rem;
