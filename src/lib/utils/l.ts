@@ -40,7 +40,6 @@ export function m(...args: unknown[]) {
 }
 
 const orange = ch.hex('#cc6630')
-/** orange chalk.hex('#cc6630') */
 export function o(...args: unknown[]) {
 	return orange(...args)
 }
@@ -98,4 +97,8 @@ export function n(
 /** JSON.Stringify */
 export function j(o: unknown) {
 	return stringify(o, 2)
+}
+
+export function fn(functionName: string, color = gr) {
+	return color(functionName) + dim('()')
 }
