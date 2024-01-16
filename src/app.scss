@@ -48,9 +48,14 @@ $mobile: 1000px;
 	outline-color: var(--brand-a);
 }
 
-body {
-	// background: hsl(228, 15%, 7%) !important;
+#svelte {
+	position: relative;
+
+	display: flex;
 	color: var(--fg-d);
+	flex-direction: column;
+
+	max-width: 100vw;
 }
 
 a {
