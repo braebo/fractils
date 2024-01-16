@@ -5,9 +5,10 @@
 	import '../app.scss'
 
 	import MacScrollbar from '$lib/components/MacScrollbar.svelte'
+	import Device from '$lib/stores/Device.svelte'
 	import Github from '$lib/icons/Github.svelte'
-	import { Device, ThemerComponent as Themer, wait } from '$lib'
 	import { onDestroy, onMount } from 'svelte'
+	import { wait } from '$lib/utils/wait'
 	import { BROWSER } from 'esm-env'
 
 	// https://github.com/sveltejs/kit/pull/8724
@@ -24,8 +25,6 @@
 		}
 	})
 </script>
-
-<Themer />
 
 <Device />
 

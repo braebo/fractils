@@ -1,41 +1,115 @@
 <script lang="ts">
 	// import Gui from '$lib/gui/Gui.svelte'
 
-	import { theme, ThemeToggle } from '$lib'
+	import { highlight } from '$lib/utils/highlight'
+	import Code from '$lib/components/Code.svelte'
+	import { fade } from 'svelte/transition'
 	import { Gui } from '$lib/gui/Gui'
 	import { onMount } from 'svelte'
 
+	let gui: Gui
+
+	let closed: Gui['closed']
+	let state: Gui['state']
+
 	onMount(() => {
-		const gui = new Gui({
-			persistent: true,
-			resizable: {},
-			themerOptions: {
-				mode: $theme as 'light' | 'dark' | 'system',
+		gui = new Gui({
+			container: document.getElementById('svelte')!,
+			persistence: true,
+			resizable: {
+				visible: true,
+				sides: ['left', 'right']
+			},
+			themer: false,
+			draggable: {
+				position: {
+					x: 16,
+					y: 0,
+				},
 			},
 		})
+
+		closed = gui.closed
+		state = gui.state
 
 		const f1 = gui.addFolder()
 
 		f1.addFolder({ title: 'Nested' })
 
 		gui.addFolder({ title: 'Titled' })
-
-		const unsub = theme.subscribe((v) => {
-			const color = v === 'light' ? 'white' : 'black'
-			gui.themer?.mode.set(v)
-			document.body.style.backgroundColor = color
-			document.documentElement.style.backgroundColor = color
-		})
-
-		return () => {
-			unsub()
-			gui.dispose()
-		}
 	})
+
+	const fallback = `{
+  "title": "Controls",
+  "closed": false,
+  "state": {
+    "position": {
+      "x": 87,
+      "y": 60
+    },
+    "size": {
+      "width": 16,
+      "height": 16
+    },
+    "closed": false
+  }
+}`
+
+	const getState = () =>
+		JSON.stringify(
+			{
+				title: gui.title,
+				closed: $closed,
+				state: $state,
+			},
+			null,
+			2,
+		)
 </script>
 
-<div style="position: fixed; right: 1rem; top: 1rem;">
-	<ThemeToggle />
+<!-- <Gui /> -->
+<div class="page">
+	{#if gui}
+		{#if state}
+			{#await highlight(getState())}
+				<pre style="filter: blur(4px)">{fallback}</pre>
+			{:then $state}
+				<pre>{@html $state}</pre>
+			{/await}
+		{/if}
+
+		<button on:click={() => console.log(gui)}>Log Gui</button>
+
+		{#key $state}
+			<div class="code-fade">
+				<Code text={getState()} />
+			</div>
+		{/key}
+	{/if}
 </div>
 
-<!-- <Gui /> -->
+<style lang="scss">
+	.page {
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-start;
+		align-items: flex-start;
+		gap: 1rem;
+
+		max-width: 400px;
+		height: 100%;
+		flex-grow: 1;
+		min-height: 85vh;
+		margin: auto;
+
+		padding: 1rem;
+	}
+
+	.code-fade {
+		display: grid;
+	}
+
+	:global(.code-fade .code-window) {
+		grid-area: 1 / 1;
+	}
+</style>
