@@ -46,19 +46,24 @@
 	let hovering = false
 	let scrollbarEl: HTMLElement
 
-	onMount(async () => {
+	function getRoot(root: string | Element | null): HTMLElement {
 		if (typeof root === 'string') {
 			root = document.querySelector(root)
 		}
 
+		root ??= document.querySelector('#scrollbar-root')
+
 		if (!root) {
-			const userDefinedroot = document.querySelector('#scrollbar-root')
-			root = userDefinedroot ?? document.body
+			let maybeSvelteRoot = document.body.firstChild as HTMLElement
+			if (maybeSvelteRoot.id === 'svelte') {
+				root ??= maybeSvelteRoot
+			}
+
+			root ??= document.body
 		}
 
-		root!.id += ' scrollbar-root'
-		update()
-	})
+		return root as HTMLElement
+	}
 
 	async function update() {
 		if (disabled) return
@@ -130,6 +135,14 @@
 			behavior,
 		})
 	}
+
+	onMount(async () => {
+		root = getRoot(root)
+
+		await tick()
+
+		update()
+	})
 
 	onDestroy(() => {
 		clearTimeout(timer)
