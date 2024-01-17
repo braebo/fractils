@@ -1,8 +1,10 @@
-import { get, writable, type Writable } from 'svelte/store'
+import { derived, get, writable, type Writable } from 'svelte/store'
+import { localStorageStore } from './localStorageStore'
 
 export interface PrimitiveState<T> extends Writable<T> {
 	get(): T
 	readonly value: T
+	afterUpdate: (v: T) => void
 }
 
 interface ArrayState<T> extends PrimitiveState<T[]> {
@@ -33,36 +35,49 @@ type IsUnion<T> = [T] extends [UnionToIntersection<T>] ? false : true
 
 type UnionState<T> = { set: (value: T) => void } & Omit<PrimitiveState<T>, 'set'>
 
-export type State<T> = IsUnion<T> extends true
-	? UnionState<T>
-	: T extends Array<infer U>
-		? ArrayState<U>
-		: T extends Map<infer K, infer V>
-			? MapState<K, V>
-			: T extends Set<infer U>
-				? SetState<U>
-				: PrimitiveState<T>
+export type State<T> =
+	IsUnion<T> extends true
+		? UnionState<T>
+		: T extends Array<infer U>
+			? ArrayState<U>
+			: T extends Map<infer K, infer V>
+				? MapState<K, V>
+				: T extends Set<infer U>
+					? SetState<U>
+					: PrimitiveState<T>
+
+export interface StateOptions<T> extends Partial<Writable<T>> {
+	/**
+	 * If provided, the store will be persisted to local storage
+	 * under the specified key.  If not, the store will not be
+	 * persisted.
+	 * @default undefined
+	 */
+	key?: string
+	/**
+	 * Optional callback function that runs after the store is
+	 * updated and all subscribers have been notified.
+	 */
+	afterUpdate?: (v: T) => void
+}
 
 /**
- * An advanced store factory that adds support for Maps, Sets, and Arrays
- * (enabling methods `.push` and `.add`), as well as a second argument for
- * overriding the default store methods like `.set` and `.update`.  It also
- * adds a `.get` method for retrieving the current value of the store without
- * subscribing to it.
+ * An advanced store factory with additional features:
  *
- * @remarks `state` boasts comprehensive type safety, leveraging conditional
- * types and inference to provide the correct types and methods for the store
- * based on the `defaultValue` argument (or the provided generic type).
+ * - Support for Maps, Sets, and Arrays (enabling methods like `.push` and `.add`).
+ * - A `.get` method for retrieving the current value of the store.
+ * - Optional `afterUpdate` callback for adding side effects without subscribing.
+ * - Optional `key` argument for persisting the store to local storage.
  *
- * @param defaultValue The default value of the store.
- * @param options Optional overrides for the default store methods.
+ * @param defaultValue - The default value of the store.
+ * @param options - {@link StateOptions}
  *
  * @example
  * ```svelte
  * <script lang="ts">
  * 	import { state } from 'fractils'
  *
- * 	const foo = state([1, 2, 3])
+ * 	const foo = state([1, 2, 3], { key: 'foo' }) // persisted to local storage
  * 	foo.push(4)
  * 	foo.push('5') // Type error
  *
@@ -71,17 +86,26 @@ export type State<T> = IsUnion<T> extends true
  *
  * 	const baz = state(new Set<number>())
  * 	baz.add(5)
- *  baz.push(6) // Type error
+ * 	baz.push(6) // Type error
  * </script>
  *
  * <h1>{$foo} {$bar} {$baz}</h1>
  * ```
  */
-export function state<T>(defaultValue: T, options?: Partial<Writable<T>>): State<T> {
-	const store = writable(defaultValue)
+export function state<T>(defaultValue: T, options?: StateOptions<T>): State<T> {
+	const { key } = options ?? {}
+	const store = key ? localStorageStore(key, defaultValue) : writable(defaultValue)
 
 	function enhanceStore<S>(enhancer: (store: State<S>) => void) {
 		if (enhancer) enhancer(store as unknown as State<S>)
+	}
+
+	if (options?.afterUpdate) {
+		const { afterUpdate } = options
+		derived(store, (v) => {
+			afterUpdate(v)
+			return v
+		})
 	}
 
 	enhanceStore<T[]>((store) => {
@@ -124,9 +148,9 @@ export function state<T>(defaultValue: T, options?: Partial<Writable<T>>): State
 
 	return {
 		...store,
-		set: options?.set ?? store.set,
-		update: options?.update ?? store.update,
-		subscribe: options?.subscribe ?? store.subscribe,
+		set: store.set,
+		update: store.update,
+		subscribe: store.subscribe,
 		get() {
 			return get(store)
 		},
