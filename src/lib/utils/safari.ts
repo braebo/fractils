@@ -4,7 +4,7 @@
 export function isSafari() {
 	return (
 		typeof globalThis.navigator !== 'undefined' &&
-		/^((?!chrome|android).)*safari/i.test(navigator?.userAgent)
+		/^((?!chrome|android).)*safari/i.test(globalThis.navigator?.userAgent)
 	)
 }
 
