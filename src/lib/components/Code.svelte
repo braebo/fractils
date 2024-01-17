@@ -129,7 +129,7 @@
 
 	/**
 	 * Replace all `<` and `>` with their HTML entities to avoid
-	 * early script tag termination cus Conduitry is stubborn.
+	 * early script tag termination.
 	 */
 	function sanitize(text: string) {
 		return text.replaceAll('<', '&lt;').replaceAll('>', '&gt;')
