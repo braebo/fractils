@@ -1,9 +1,5 @@
 <script lang="ts">
-	// import Gui from '$lib/gui/Gui.svelte'
-
-	import { highlight } from '$lib/utils/highlight'
 	import Code from '$lib/components/Code.svelte'
-	import { fade } from 'svelte/transition'
 	import { Gui } from '$lib/gui/Gui'
 	import { onMount } from 'svelte'
 
@@ -42,33 +38,6 @@
 
 		gui.addFolder({ title: 'Titled' })
 	})
-
-	const fallback = `{
-  "title": "Controls",
-  "closed": false,
-  "state": {
-    "position": {
-      "x": 87,
-      "y": 60
-    },
-    "size": {
-      "width": 16,
-      "height": 16
-    },
-    "closed": false
-  }
-}`
-
-	const getState = () =>
-		JSON.stringify(
-			{
-				title: gui.title,
-				closed: $closed,
-				state: $state,
-			},
-			null,
-			2,
-		)
 </script>
 
 <!-- <Gui /> -->
@@ -78,7 +47,7 @@
 
 		{#key $state}
 			<div class="code-fade">
-				<Code text={getState()} />
+				<Code text={JSON.stringify($state, null, 2)} />
 			</div>
 		{/key}
 	{/if}
