@@ -15,10 +15,14 @@
 	onMount(() => {
 		gui = new Gui({
 			container: document.getElementById('svelte')!,
-			persistence: true,
+			localStorageKeys: {
+				closed: 'fractils::gui::closed',
+				position: 'fractils::gui::position',
+				size: 'fractils::gui::size',
+			},
 			resizable: {
 				visible: true,
-				sides: ['left', 'right']
+				sides: ['left', 'right'],
 			},
 			themer: false,
 			draggable: {
@@ -70,14 +74,6 @@
 <!-- <Gui /> -->
 <div class="page">
 	{#if gui}
-		{#if state}
-			{#await highlight(getState())}
-				<pre style="filter: blur(4px)">{fallback}</pre>
-			{:then $state}
-				<pre>{@html $state}</pre>
-			{/await}
-		{/if}
-
 		<button on:click={() => console.log(gui)}>Log Gui</button>
 
 		{#key $state}
@@ -99,17 +95,8 @@
 		max-width: 400px;
 		height: 100%;
 		flex-grow: 1;
-		min-height: 85vh;
 		margin: auto;
 
 		padding: 1rem;
-	}
-
-	.code-fade {
-		display: grid;
-	}
-
-	:global(.code-fade .code-window) {
-		grid-area: 1 / 1;
 	}
 </style>
