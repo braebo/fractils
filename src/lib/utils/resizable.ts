@@ -1,5 +1,5 @@
+import type { resizable } from '../actions/resizable'
 import type { State } from '../utils/state'
-import type { Action } from 'svelte/action'
 
 import { debounce } from '../utils/debounce'
 import { logger } from '../utils/logger'
@@ -69,13 +69,6 @@ const RESIZABLE_DEFAULTS = {
 	color: 'var(--fg-d, #1d1d1d)',
 	borderRadius: '0.25rem',
 } as const satisfies ResizableOptions
-
-export interface ResizableEvents {
-	/**
-	 * Dispatched when the element is resized.
-	 */
-	'on:resize'?: (event: CustomEvent) => void
-}
 
 const px = (size: number | string) => {
 	if (typeof size === 'number') return `${size}px`
@@ -395,41 +388,5 @@ export class Resizable implements Omit<ResizableOptions, 'size'> {
 			cleanup()
 		}
 		this.#cleanupGrabListener?.()
-	}
-}
-
-/**
- * Svelte-action version of {@link Resizable}.
- *
- * @example Basic
- * ```svelte
- * <div use:resize> Resize Me </div>
- * ```
- *
- * @example Advanced
- * ```svelte
- * <script>
- * 	import { resize } from 'fractils'
- * </script>
- *
- * <div use:resize={{
- * 	sides: ['left', 'bottom'],
- * 	grabberSize: 3,
- * 	onResize: () => console.log('resized'),
- * 	localStorageKey: 'resizable::size',
- * 	visible: false,
- * 	color: 'var(--fg-d)',
- * 	borderRadius: '0.5rem',
- * }} />
- * ```
- */
-export const resizable: Action<HTMLElement, ResizableOptions, ResizableEvents> = (
-	node,
-	options,
-) => {
-	const resizeable = new Resizable(node, options)
-
-	return {
-		destroy: () => resizeable.destroy(),
 	}
 }
