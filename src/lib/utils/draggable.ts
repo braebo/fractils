@@ -652,7 +652,7 @@ function getCancelElements(cancel: DragOptions['cancel'], node: HTMLElement): HT
 const cancelElementContains = (cancelElements: HTMLElement[], dragElements: HTMLElement[]) =>
 	cancelElements.some((cancelEl) => dragElements.some((el) => cancelEl.contains(el)))
 
-function computeBoundRect(bounds: DragOptions['bounds'], rootNode: HTMLElement) {
+export function computeBoundRect(bounds: DragOptions['bounds'], rootNode: HTMLElement) {
 	if (bounds === undefined) return
 
 	if (isHTMLElement(bounds)) return bounds.getBoundingClientRect()
