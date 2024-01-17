@@ -1,16 +1,7 @@
 <script script lang="ts">
-	import { add } from '$lib';
-
-	export let result = true;
-	export let file: string | null = null;
-	export let html: string | null = null;
-
-	const addScrollbars = {
-		class: 'scrollbars',
-		target: (node: HTMLElement) => {
-			return node.querySelector('pre')!;
-		},
-	};
+	export let result = true
+	export let file: string | null = null
+	export let html: string | null = null
 </script>
 
 <div class="codeblock">
@@ -19,7 +10,7 @@
 	{/if}
 
 	{#if html}
-		<div class="shiki" use:add={addScrollbars}>
+		<div class="shiki">
 			{@html html}
 		</div>
 	{/if}
@@ -51,6 +42,7 @@
 		padding: 1rem 1.25rem;
 
 		transition: 0.2s;
+		overflow: auto;
 	}
 
 	:global(.shiki *) {
