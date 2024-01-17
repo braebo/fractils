@@ -1,5 +1,5 @@
-import type { Draggable, DragOptions, computeBoundRect } from '../utils/draggable'
-import type { Resizable, ResizableOptions } from '../actions/resizable'
+import type { Resizable, ResizableOptions } from '../utils/resizable'
+import type { Draggable, DragOptions } from '../utils/draggable'
 import type { ThemerOptions } from '../theme/Themer'
 
 import { state, type State } from '../utils/state'
@@ -9,6 +9,7 @@ import { logger } from '../utils/logger'
 import { Themer } from '../theme/Themer'
 import { nanoid } from '../utils/nanoid'
 import { fn, g, r } from '../utils/l'
+import { BROWSER } from 'esm-env'
 import './gui.scss'
 
 type InputType =
@@ -80,12 +81,33 @@ export class Input<T = InputType, V = InputValue<T>> {
 	}
 }
 
+/**
+ * @internal
+ */
 export interface FolderOptions {
+	/**
+	 * The title of the folder.
+	 * @default ''
+	 */
 	title: string
+	/**
+	 * The child folders of this folder.
+	 */
 	children: Folder[]
+	/**
+	 * Any controls this folder should contain.
+	 */
 	controls: Map<string, Input>
 	parentFolder: Folder
+	/**
+	 * Whether the folder should be collapsed by default.
+	 * @default false
+	 */
 	closed: boolean
+	/**
+	 * The element to append the folder to (usually
+	 * the parent folder's content element).
+	 */
 	element?: HTMLElement
 }
 
@@ -149,16 +171,16 @@ export class Folder {
 	/**
 	 * Used to disable clicking the header to open/close the folder.
 	 */
-	disabledTimer?: NodeJS.Timeout
+	#disabledTimer?: NodeJS.Timeout
 	/**
 	 * The time in ms to wait after mousedown before
 	 * disabling toggle for a potential drag.
 	 */
-	clickTime = 200
+	#clickTime = 200
 	/**
 	 * Whether clicking the header to open/close the folder is disabled.
 	 */
-	disabled = false
+	#disabled = false
 
 	#skip_header_click_if_drag = (event: PointerEvent) => {
 		if (event.button !== 0) return
@@ -167,34 +189,34 @@ export class Folder {
 
 		// We need to watch for the mouseup event within a certain timeframe
 		// to make sure we don't accidentally trigger a click after dragging.
-		clearTimeout(this.disabledTimer)
+		clearTimeout(this.#disabledTimer)
 		// First we delay the drag check to allow for messy clicks.
-		this.disabledTimer = setTimeout(() => {
+		this.#disabledTimer = setTimeout(() => {
 			this.headerElement.addEventListener('pointermove', this.disable, { once: true })
 
 			// Then we set a timer to disable the drag check.
-			this.disabledTimer = setTimeout(() => {
+			this.#disabledTimer = setTimeout(() => {
 				this.headerElement.removeEventListener('pointermove', this.disable)
-				this.disabled = false
-			}, this.clickTime)
+				this.#disabled = false
+			}, this.#clickTime)
 		}, 150)
 
-		if (this.disabled) return
+		if (this.#disabled) return
 	}
 
 	disable = () => {
-		if (!this.disabled) {
-			this.disabled = true
+		if (!this.#disabled) {
+			this.#disabled = true
 			this.log(fn('disable'), 'Clicks DISABLED')
 		}
-		this.disabled = true
-		clearTimeout(this.disabledTimer)
+		this.#disabled = true
+		clearTimeout(this.#disabledTimer)
 	}
 
 	reset() {
 		this.log(fn('cancel'), ' Clicks ENABLED')
 		removeEventListener('pointerup', this.toggle)
-		this.disabled = false
+		this.#disabled = false
 	}
 
 	#createElements(el?: HTMLElement) {
@@ -263,8 +285,8 @@ export class Folder {
 
 	toggle = () => {
 		if (this.isGui()) {
-			clearTimeout(this.disabledTimer)
-			if (this.disabled) {
+			clearTimeout(this.#disabledTimer)
+			if (this.#disabled) {
 				this.reset()
 				return
 			}
@@ -276,13 +298,13 @@ export class Folder {
 	open() {
 		this.element.classList.remove('closed')
 		this.closed.set(false)
-		this.disabled = false
+		this.#disabled = false
 	}
 
 	close() {
 		this.element.classList.add('closed')
 		this.closed.set(true)
-		this.disabled = false
+		this.#disabled = false
 	}
 
 	/**
@@ -308,25 +330,63 @@ export class Folder {
 	}
 }
 
-interface PersistenceOptions {
-	/** Persists {@link Draggable} gui's position in local storage. */
-	position?: boolean
-	size?: boolean
-	closed?: boolean
+/**
+ * Each key provided will result in a state property being persisted
+ * to localStorage under the specified key.  When persisting, the
+ * state will be loaded from localStorage on initialization, and
+ * saved to localStorage on update.
+ */
+interface LocalStorageKeys {
+	/**
+	 * Specify to load and save the gui's position to localStorage.
+	 * @default 'fractils::gui::position'
+	 */
+	position?: string
+	/**
+	 * Specify to load and save the gui's size to localStorage.
+	 * @default 'fractils::gui::size'
+	 */
+	size?: string
+	/**
+	 * Specify to load and save the gui's closed state to localStorage.
+	 * @default 'fractils::gui::closed'
+	 */
+	closed?: string
 }
 
 export interface GuiOptions extends FolderOptions {
 	/**
-	 * Determines what to store in localStorage.  If `true`, stores all.  If
-	 * `false`, stores nothing.  If an object, stores only the specified
-	 * properties from {@link PersistenceOptions} (e.g. `{ position: true, size: true }`).
-	 * @default false
+	 * Determines what to persist in localStorage, and under what keys.
+	 * @default undefined
 	 */
-	persistence: boolean | PersistenceOptions
+	localStorageKeys?: LocalStorageKeys
+	/**
+	 * The container to append the gui to.
+	 * @default document.body
+	 */
 	container?: HTMLElement
+	/**
+	 * Optional {@link Themer} instance for syncing the gui's theme
+	 * with your app's theme.  If `true`, a new themer will be created
+	 * for you. If `false` or `undefined`, no themer will be created.
+	 * @default true
+	 */
 	themer: Themer | boolean
+	/**
+	 * Options for the {@link Themer} instance when `themer` is `true`.
+	 */
 	themerOptions: Partial<ThemerOptions>
+	/**
+	 * Whether the gui should be resizable.  Can be a boolean, or
+	 * your own {@link ResizableOptions}.  If `false` or `undefined`,
+	 * the gui will not be resizable.
+	 */
 	resizable: boolean | ResizableOptions
+	/**
+	 * Whether the gui should be draggable.  Can be a boolean, or
+	 * your own {@link DragOptions}.  If `false` or `undefined`,
+	 * the gui will not be resizable.
+	 */
 	draggable: boolean | DragOptions
 }
 
@@ -336,7 +396,7 @@ export const GUI_DEFAULTS: Omit<GuiOptions, 'parentFolder'> = {
 	children: [],
 	themer: true,
 	themerOptions: {},
-	persistence: false,
+	localStorageKeys: undefined,
 	resizable: true,
 	draggable: true,
 	closed: false,
@@ -354,15 +414,14 @@ export class Gui extends Folder {
 	resizable?: Resizable
 	draggable?: Draggable
 
-	/** Whether the gui is currently being dragged. */
-	// dragging = false
-	// dragEndTimer?: ReturnType<Window['setTimeout']>
-	// dragStartTimer?: ReturnType<Window['setTimeout']>
-	/** Wether to persist state, i.e. position/size/closed/etc. */
+	/**
+	 * Which state properties to persist to localStorage,
+	 * and under what keys.
+	 */
 	persist = {
-		position: false,
-		size: false,
-		closed: false,
+		position: 'fractils::gui::position',
+		size: 'fractils::gui::size',
+		closed: 'fractils::gui::closed',
 	}
 
 	state = state(
@@ -449,17 +508,13 @@ export class Gui extends Folder {
 		if (opts.resizable) {
 			const resizeOptions = typeof opts.resizable === 'object' ? opts.resizable : {}
 
-			import('../actions/resizable').then(({ resizable }) => {
-				const options: ResizableOptions = {
-					...resizeOptions,
-					// persistent: resizeOptions.persistent ?? this.#persist.size ?? undefined,
-					persistent: false,
-				}
+			import('../utils/resizable').then(({ Resizable }) => {
+				const opts: ResizableOptions = resizeOptions
 
 				if (this.persist.size) {
 					let debounce: NodeJS.Timeout
 
-					options.onResize = (size) => {
+					opts.onResize = (size) => {
 						if (!size) {
 							this.log(fn('onResize'), r('Error: No size to save'))
 							return
@@ -476,17 +531,17 @@ export class Gui extends Folder {
 					}
 				}
 
-				resizable(this.element, options)
+				this.resizable = new Resizable(this.element, opts)
 
 				if (this.persist.size) {
 					const state = this.state.get()
 
 					this.log(fn('constructor'), 'Loading size from state.', state.size)
 
-					if (options?.sides?.includes('left') || options?.sides?.includes('right')) {
+					if (opts?.sides?.includes('left') || opts?.sides?.includes('right')) {
 						this.element.style.width = `${state.size.width}px`
 					}
-					if (options?.sides?.includes('top') || options?.sides?.includes('bottom')) {
+					if (opts?.sides?.includes('top') || opts?.sides?.includes('bottom')) {
 						this.element.style.height = `${state.size.height}px`
 					}
 				}
@@ -539,11 +594,13 @@ export class Gui extends Folder {
 				return { x, y }
 			}
 
-			addEventListener?.('resize', () => {
-				if (this.persist.position) {
-					this.draggable?.updateOptions({ position: offscreenCheck() })
-				}
-			})
+			if (BROWSER) {
+				window.addEventListener('resize', () => {
+					if (this.persist.position) {
+						this.draggable?.updateOptions({ position: offscreenCheck() })
+					}
+				})
+			}
 
 			dragOptions.position = offscreenCheck()
 
@@ -576,37 +633,23 @@ export class Gui extends Folder {
 
 		setTimeout(() => {
 			this.container.appendChild(this.element)
-			
-			// A quick fade can mask ssr/hydration jank.
-			this.element.animate(
-				[
-					{ opacity: 0, clipPath: 'inset(100%,0,0,0)' },
-					{ opacity: 1, clipPath: 'inset(0,0,0,0)' },
-				],
-				{
-					fill: 'none',
-					duration: 400,
-				},
-			)
 
-			// this.draggable?.updateOptions()
+			// A quick fade can mask ssr/hydration jank.
+			this.element.animate([{ opacity: 0 }, { opacity: 1 }], {
+				fill: 'none',
+				duration: 400,
+			})
 		}, 15)
 
 		return this
 	}
 
 	#setupPersistence(opts: GuiOptions) {
-		if (opts.persistence === true) {
+		if (opts.localStorageKeys !== undefined) {
 			this.persist = {
-				position: opts.persistence,
-				size: opts.persistence,
-				closed: opts.persistence,
-			}
-		} else if (typeof opts.persistence === 'object') {
-			this.persist = {
-				position: opts.persistence?.position ?? false,
-				size: opts.persistence?.size ?? false,
-				closed: opts.persistence?.closed ?? false,
+				position: opts.localStorageKeys?.position ?? '',
+				size: opts.localStorageKeys?.size ?? '',
+				closed: opts.localStorageKeys?.closed ?? '',
 			}
 		}
 
