@@ -123,15 +123,17 @@ function getCallSite() {
 	const stackLines = err.stack?.split('\n').slice(2).filter(Boolean)
 	const callSite = stackLines?.[1]?.trim()
 
-	// todo - test this on different browsers
 	let match: string | undefined
 
 	// Class instances
 	match ??= callSite?.split('at <instance_members_initializer> (')[1]
 	// Regular functions
-	match ??= callSite?.split('at ')[1]
+	if (!isValidMatch(match)) match = callSite?.split('at ')[1]
 	// Firefox
-	match ??= callSite?.split('@')[1]
+	if (!isValidMatch(match)) match = callSite?.split('@')[1]
+	// Class instantiations
+	if (!isValidMatch(match)) match = callSite?.split('at new ')[1]?.split(' (')[1]
+	if (match?.endsWith(')')) match = match.slice(0, -1)
 
 	if (!match) return failed()
 
@@ -150,9 +152,21 @@ function getCallSite() {
 		return failed()
 	}
 
+	function isValidMatch(match: any) {
+		return match && match.startsWith('http')
+	}
+
 	function failed() {
 		if (DEV && BROWSER) {
 			console.warn('getCallSite(): Failed to parse call site from stack trace.')
+
+			//! debuggin
+			console.error("callSite?.split('at new ')[1]:  " + callSite?.split('at new ')[1])
+			console.error(
+				"callSite?.split('at new ')[1]?.split(' ')[1]:  " +
+					callSite?.split('at new ')[1]?.split(' (')[1],
+			)
+
 			console.groupCollapsed('getCallSite(): debug info')
 			console.log('match:', match)
 			console.log('stackLines:', stackLines)
