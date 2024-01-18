@@ -1,11 +1,13 @@
-import type { Resizable, ResizableOptions } from '../utils/resizable'
+// import type { Resizable, ResizableOptions } from '../utils/resizable'
+import type { ResizableOptions } from '../utils/resizable'
+import { Resizable } from '../utils/resizable'
+
 import type { Draggable, DragOptions } from '../utils/draggable'
 import type { ThemerOptions } from '../theme/Themer'
 import type { FolderOptions } from './Folder'
 
-import { entries } from '../utils/object'
+import { state, type PrimitiveState } from '../utils/state'
 import { logger } from '../utils/logger'
-import { state, type PrimitiveState, type State } from '../utils/state'
 import { fn, g, r } from '../utils/l'
 
 import { Themer } from '../theme/Themer'
@@ -14,59 +16,37 @@ import { Folder } from './Folder'
 import { BROWSER } from 'esm-env'
 import './gui.scss'
 
-// /**
-//  * Each key provided will result in a state property being persisted
-//  * to localStorage under the specified key.  When persisting, the
-//  * state will be loaded from localStorage on initialization, and
-//  * saved to localStorage on update.
-//  */
-// interface LocalStorageKeys {
-// 	/**
-// 	 * Specify to load and save the gui's position to localStorage.
-// 	 * @default 'fractils::gui::position'
-// 	 */
-// 	position?: string
-// 	/**
-// 	 * Specify to load and save the gui's size to localStorage.
-// 	 * @default 'fractils::gui::size'
-// 	 */
-// 	size?: string
-// 	/**
-// 	 * Specify to load and save the gui's closed state to localStorage.
-// 	 * @default 'fractils::gui::closed'
-// 	 */
-// 	closed?: string
-// }
-
 export interface GuiOptions extends FolderOptions {
-	// /**
-	//  * Determines what to persist in localStorage, and under what keys.
-	//  * @default undefined
-	//  */
-	// localStorageKeys?: LocalStorageKeys
 	/**
 	 * Persist the gui's state to localStorage by specifying the key
 	 * to save the state under.
 	 * @default undefined
 	 */
-	persist?: {
-		/**
-		 * @default "fractils::gui"
-		 */
-		key: string
-		/**
-		 * @default true
-		 */
-		size?: boolean
-		/**
-		 * @default true
-		 */
-		position?: boolean
-		/**
-		 * @default true
-		 */
-		closed?: boolean
-	}
+	storage?:
+		| true
+		| {
+				/**
+				 * @default "fractils::gui"
+				 */
+				key: string
+				/**
+				 * @default true
+				 */
+				size?: boolean
+				/**
+				 * @default true
+				 */
+				position?: boolean
+				/**
+				 * @default true
+				 */
+				closed?: boolean
+				/**
+				 * How long to debounce writes to localStorage (0 to disable).
+				 * @default 50
+				 */
+				debounce?: number
+		  }
 	/**
 	 * The container to append the gui to.
 	 * @default document.body
@@ -95,9 +75,15 @@ export interface GuiOptions extends FolderOptions {
 	 * the gui will not be resizable.
 	 */
 	draggable: boolean | DragOptions
+
+	position: { x: number; y: number }
+	size: { width: number; height: number }
+	closed: boolean
 }
 
-export const GUI_DEFAULTS: Omit<GuiOptions, 'parentFolder'> = {
+type StorageOptions = typeof GUI_DEFAULTS.storage
+
+export const GUI_DEFAULTS = {
 	title: 'Controls',
 	controls: new Map(),
 	children: [],
@@ -105,10 +91,20 @@ export const GUI_DEFAULTS: Omit<GuiOptions, 'parentFolder'> = {
 	themerOptions: {},
 	resizable: true,
 	draggable: true,
+	storage: {
+		key: 'fractils::gui',
+		size: true,
+		position: true,
+		closed: true,
+		debounce: 50,
+		// todo - [{ key: 'Foo Folder', open: true }, ... }] ?
+		// children: 'fractils::gui::children',
+	},
 	closed: false,
-	persist: undefined,
+	size: { width: 0, height: 0 },
+	position: { x: 16, y: 16 },
 	// localStorageKeys: undefined,
-}
+} as const satisfies Omit<GuiOptions, 'parentFolder'>
 
 /**
  * The root Gui instance.  This is the entry point for creating
@@ -124,66 +120,14 @@ export class Gui extends Folder {
 	resizable?: Resizable
 	draggable?: Draggable
 
-	// /**
-	//  * Which state properties to persist to localStorage,
-	//  * and under what keys.
-	//  */
-	// persist = {
-	// 	position: 'fractils::gui::position',
-	// 	size: 'fractils::gui::size',
-	// 	closed: 'fractils::gui::closed',
-	// 	// todo - [{ key: 'Foo Folder', open: true }, ... }] ?
-	// 	// children: 'fractils::gui::children',
-	// }
+	closed: PrimitiveState<boolean>
+	size: PrimitiveState<{ width: number; height: number }>
+	position: PrimitiveState<{ x: number; y: number }>
 
 	/**
 	 * Which state properties to persist to localStorage.
 	 */
-	persist = {
-		key: 'fractils::gui',
-		position: false,
-		size: false,
-		closed: false,
-		// todo - [{ key: 'Foo Folder', open: true }, ... }] ?
-		// children: 'fractils::gui::children',
-	}
-
-	state: PrimitiveState<{
-		position: { x: number; y: number }
-		size: { width: number; height: number }
-		closed: boolean
-	}>
-
-	// /**
-	//  * Safely saves a single state property to localStorage.
-	//  * @param key - The key to save the state under.
-	//  * @param data - The data to save.
-	//  */
-	// save(key: string, data: any) {
-	// 	if (typeof window === 'undefined') return
-	// 	if (typeof localStorage === 'undefined') return
-
-	// 	if (typeof data !== 'string') data = JSON.stringify(data)
-
-	// 	localStorage.setItem(key, data)
-
-	// 	this.log(fn('save'), { key, data })
-	// }
-
-	// /**
-	//  * Loads the gui's state from localStorage.
-	//  */
-	// load(config = this.persist) {
-	// 	this.log(fn('load'), { config })
-	// 	for (const [key, persist] of entries(config)) {
-	// 		if (persist) {
-	// 			const state = localStorage.getItem(`fractils::gui::${key}`)
-	// 			if (state) {
-	// 				this.state.update((v) => ({ ...v, [key]: JSON.parse(state) }))
-	// 			}
-	// 		}
-	// 	}
-	// }
+	storage: StorageOptions | Record<string, any>
 
 	log = logger('Gui', {
 		fg: 'PaleVioletRed',
@@ -192,6 +136,8 @@ export class Gui extends Folder {
 	})
 
 	constructor(options?: Partial<GuiOptions>) {
+		//· Setup ···································································¬
+
 		const opts = Object.assign({}, GUI_DEFAULTS, options, {
 			// Hack to force this to be the root in the super call.
 			parentFolder: null as any,
@@ -204,28 +150,42 @@ export class Gui extends Folder {
 
 		this.root = this
 		this.container = opts.container
-		this.state = state(
-			{
-				position: { x: 0, y: 0 },
-				size: { width: 16, height: 16 },
-				// todo - Booleans are messed up...
-				// closed: false, //! TypeError: Type 'boolean' is not assignable to type 'false'
-				// closed: false as boolean, // 👀
-				closed: opts.closed,
-			},
-			{
-				key: 'fractils::gui::state',
-				debounce: 50,
-			},
-		)
-		this.closed = state(opts.closed, {
-			onChange: (v) => {
-				this.log(fn('state.onChange'), v)
-				if (this.persist.closed) {
-					this.state.update((vv) => ({ ...vv, closed: v }))
-				}
-			},
-		})
+		this.storage = !opts.storage
+			? {}
+			: opts.storage === true
+				? GUI_DEFAULTS.storage
+				: Object.assign({}, opts.storage, GUI_DEFAULTS.storage)
+		//⌟
+
+		//· State ···································································¬
+
+		const getState = <T>(value: T, key: 'size' | 'position' | 'closed') => {
+			if (opts.storage === true)
+				return state<T>(value, { key: 'fractils::gui::' + key, debounce: 50 })
+
+			if (typeof opts.storage === 'object') {
+				const { storage } = this
+
+				if (!storage[key]) return state<T>(value)
+
+				return state<T>(value, {
+					key: storage.key + '::' + key,
+					debounce: storage.debounce,
+				})
+			}
+
+			this.log(r('Error initializing state:'), { key, value, opts, this: this })
+			return state<T>(value)
+		}
+
+		this.size = getState(opts.size, 'size')
+		this.position = getState(opts.position, 'position')
+		this.closed = getState(closed, 'closed')
+
+		if (this.closed.value) this.close()
+		//⌟
+
+		//· Themer ···································································¬
 
 		if (opts.themer) {
 			if (opts.themer === true) {
@@ -234,55 +194,51 @@ export class Gui extends Folder {
 				this.themer = opts.themer
 			}
 		}
+		//⌟
 
-		Object.assign(this.persist, opts.persist ?? {})
-		// this.#setupPersistence(opts)
+		//· Resizable ···································································¬
 
 		if (opts.resizable) {
-			const resizeOptions = typeof opts.resizable === 'object' ? opts.resizable : {}
+			const resizeOpts: ResizableOptions =
+				typeof opts.resizable === 'object' ? opts.resizable : {}
 
 			import('../utils/resizable').then(({ Resizable }) => {
-				const opts: ResizableOptions = resizeOptions
-
-				if (this.persist.size) {
-					// let debounce: NodeJS.Timeout
-
-					opts.onResize = (size) => {
-						this.state.update((v) => ({ ...v, size }))
-						// if (!size) {
-						// 	this.log(fn('onResize'), r('Error: No size to save'))
-						// 	return
-						// }
-
-						// clearTimeout(debounce)
-
-						// debounce = setTimeout(() => {
-						// this.state.update((v) => ({ ...v, size }))
-
-						// this.log(fn('resizable.onResize'), 'Saving size.', size)
-						// this.save('fractils::gui::size', size)
-						// }, 100)
+				if (opts.storage === true || this.storage?.size) {
+					resizeOpts.onResize = (size) => {
+						this.size.set(size)
 					}
 				}
 
-				this.resizable = new Resizable(this.element, opts)
+				this.resizable = new Resizable(this.element, {
+					...resizeOpts,
+				})
 
 				// Load size from state.
-				if (this.persist.size) {
-					const state = this.state.get()
-					this.log(fn('constructor'), 'Loading size from state.', state.size)
-					if (opts?.sides?.includes('left') || opts?.sides?.includes('right')) {
-						this.element.style.width = `${state.size.width}px`
+				if (opts.storage === true || opts.storage?.size) {
+					const size = this.size.get()
+					this.log(fn('constructor'), 'Loading size from state:', size)
+					if (
+						resizeOpts?.sides?.includes('left') ||
+						resizeOpts?.sides?.includes('right')
+					) {
+						this.element.style.width = `${size.width}px`
 					}
-					if (opts?.sides?.includes('top') || opts?.sides?.includes('bottom')) {
-						this.element.style.height = `${state.size.height}px`
+					if (
+						resizeOpts?.sides?.includes('top') ||
+						resizeOpts?.sides?.includes('bottom')
+					) {
+						this.element.style.height = `${size.height}px`
 					}
 				}
 			})
 		}
+		//⌟
+
+		//· Draggable ···································································¬
 
 		if (opts.draggable) {
-			const dragOptions = typeof opts.draggable === 'object' ? opts.draggable : {}
+			const dragOptions: DragOptions =
+				typeof opts.draggable === 'object' ? opts.draggable : {}
 			dragOptions.handle = this.headerElement
 			dragOptions.bounds = this.container
 			dragOptions.recomputeBounds = {
@@ -291,17 +247,19 @@ export class Gui extends Folder {
 				drag: true,
 			}
 
-			//· todo - move this into the draggable class ··································¬
+			// todo - move this into the draggable class
 			// This makes sure the gui is in the viewport.
 			const offscreenCheck = () => {
-				const state = this.state.get()
-				this.log(fn('constructor'), 'Loading position from state.', state.position)
+				const position = this.position.get()
+				const size = this.size.get()
 
-				let x = state.position.x
-				let y = state.position.y
+				this.log(fn('offscreenCheck'), { position, size })
 
-				const w = this.element.offsetWidth || state.size.width
-				const h = this.element.offsetHeight || state.size.height
+				let x = position.x
+				let y = position.y
+
+				const w = this.element.offsetWidth || size.width
+				const h = this.element.offsetHeight || size.height
 
 				const diff = x + w - this.container.offsetWidth
 
@@ -329,58 +287,37 @@ export class Gui extends Folder {
 			}
 
 			if (BROWSER) {
-				window.addEventListener('resize', () => {
-					if (this.persist.position) {
-						this.draggable?.updateOptions({ position: offscreenCheck() })
-					}
-				})
+				window.addEventListener(
+					'resize',
+					() => {
+						if (opts.storage.position) {
+							this.draggable?.updateOptions({ position: offscreenCheck() })
+						}
+					},
+					{ passive: true },
+				)
 			}
 
 			dragOptions.position = offscreenCheck()
-			//⌟
 
-			// let debounce: NodeJS.Timeout
 			import('../utils/draggable').then(({ Draggable }) => {
 				this.draggable = new Draggable(this.element, {
 					...dragOptions,
-					onDragEnd: this.persist.position
+					onDragEnd: this.storage.position
 						? (data) => {
-								this.state.update((v) => ({
-									...v,
-									position: { x: data.offsetX, y: data.offsetY },
-								}))
-								// const pos = { x: data.offsetX, y: data.offsetY }
-								// if (!pos) {
-								// 	this.log(r('onDragEnd'), 'No position to save')
-								// 	return
-								// }
+								const { offsetX: x, offsetY: y } = data
+								if (x === 0 && y === 0) return
 
-								// this.log(fn('onDragEnd'), 'Saving position', pos)
-
-								// clearTimeout(debounce)
-								// debounce = setTimeout(() => {
-								// this.state.update((v) => ({ ...v, position: pos }))
-
-								// this.log(fn('gui.draggable.onDragEnd'), 'Saving position.', pos)
-								// 	this.save('fractils::gui::position', pos)
-								// }, 100)
+								this.position.set({ x, y })
 							}
 						: undefined,
 				})
 			})
 		}
-
-		// Load closed from state.
-		if (this.persist.closed) {
-			const { closed } = this.state.get()
-			this.log(fn('constructor'), 'Loading closed from state.', closed)
-			closed ? this.open() : this.close()
-		}
+		//⌟
 
 		setTimeout(() => {
 			this.container.appendChild(this.element)
-
-			// A quick fade can mask ssr/hydration jank.
 			this.element.animate([{ opacity: 0 }, { opacity: 1 }], {
 				fill: 'none',
 				duration: 400,
@@ -390,20 +327,10 @@ export class Gui extends Folder {
 		return this
 	}
 
-	// #setupPersistence(opts: GuiOptions) {
-	// 	if (opts.localStorageKeys !== undefined) {
-	// 		this.persist = {
-	// 			position: opts.localStorageKeys?.position ?? '',
-	// 			size: opts.localStorageKeys?.size ?? '',
-	// 			closed: opts.localStorageKeys?.closed ?? '',
-	// 		}
-	// 	}
-	// 	this.load()
-	// }
-
 	dispose() {
 		super.dispose()
 
+		window.addEventListener
 		this.themer?.dispose()
 		this.resizable?.destroy?.()
 		this.draggable?.destroy?.()
