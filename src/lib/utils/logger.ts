@@ -46,6 +46,10 @@ export const logger = (
 		 * @defaultValue true
 		 */
 		browser?: boolean
+		/**
+		 * Print's the url of the file that called the logger.
+		 */
+		callsite?: boolean
 	},
 ) => {
 	options ??= {}
@@ -67,11 +71,14 @@ export const logger = (
 
 	if (!ENABLED) return () => void 0
 
-	const { filename } = getCallSite()
+	let callsite: URL | undefined = undefined
+	if (options.callsite || true) {
+		callsite = getCallSite().url
+	}
 
 	const fn = !styled
 		? (...args: any[]) => {
-				console.log(`| ${filename} |\n| ${title} |`, ...args)
+				console.log(`| ${callsite} |\n| ${title} |`, ...args)
 			}
 		: (...args: any[]) => {
 				let messageConfig = '%c%s%c '
@@ -105,7 +112,7 @@ export const logger = (
 					`color:initial;background:${bg};padding:0.1rem;${css}`,
 					...args,
 					`color:#666;background:${bg};padding:0.1rem;${css};font-size:0.66rem;`,
-					`${filename}`,
+					options?.callsite ? `${callsite}` : '',
 				)
 			}
 
@@ -121,19 +128,14 @@ export const logger = (
 function getCallSite() {
 	const err = new Error()
 	const stackLines = err.stack?.split('\n').slice(2).filter(Boolean)
-	const callSite = stackLines?.[1]?.trim()
 
 	let match: string | undefined
+	let matches = [] as (string | undefined)[]
 
-	// Class instances
-	match ??= callSite?.split('at <instance_members_initializer> (')[1]
-	// Regular functions
-	if (!isValidMatch(match)) match = callSite?.split('at ')[1]
-	// Firefox
-	if (!isValidMatch(match)) match = callSite?.split('@')[1]
-	// Class instantiations
-	if (!isValidMatch(match)) match = callSite?.split('at new ')[1]?.split(' (')[1]
-	if (match?.endsWith(')')) match = match.slice(0, -1)
+	// Everything
+	while (!match && stackLines?.length) {
+		match = matchLine(stackLines.shift())
+	}
 
 	if (!match) return failed()
 
@@ -152,23 +154,22 @@ function getCallSite() {
 		return failed()
 	}
 
-	function isValidMatch(match: any) {
-		return match && match.startsWith('http')
+	function matchLine(line: any) {
+		if (!line) return ''
+		if (line.includes('logger.ts')) return ''
+
+		const regex = /https?:\/\/[^\s)]+(?=\)?)/g //? advanced
+		const match = line.match(regex)?.[0]
+		return match || ''
 	}
 
 	function failed() {
 		if (DEV && BROWSER) {
 			console.warn('getCallSite(): Failed to parse call site from stack trace.')
 
-			//! debuggin
-			console.error("callSite?.split('at new ')[1]:  " + callSite?.split('at new ')[1])
-			console.error(
-				"callSite?.split('at new ')[1]?.split(' ')[1]:  " +
-					callSite?.split('at new ')[1]?.split(' (')[1],
-			)
-
 			console.groupCollapsed('getCallSite(): debug info')
 			console.log('match:', match)
+			console.log('match attempts:', matches)
 			console.log('stackLines:', stackLines)
 			console.log('err:', err)
 			console.groupEnd()
