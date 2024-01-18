@@ -1,11 +1,11 @@
-import type { Action } from 'svelte/action';
+import type { Action } from 'svelte/action'
 
 /**
  * Options for the `add` action.
  */
 export interface AddOptions {
 	/** The class(es) to add to the element. */
-	class?: string | string[];
+	class?: string | string[]
 	/**
 	 * The target element.  Defaults to the element itself,
 	 * but can be used to target a child element.
@@ -18,23 +18,23 @@ export interface AddOptions {
 	target?: (
 		/** The dom element using the action. */
 		node: HTMLElement,
-	) => HTMLElement;
-	transform?: (node: HTMLElement) => void;
+	) => HTMLElement
+	transform?: (node: HTMLElement) => void
 }
 
 const ADD_OPTIONS_DEFAULTS = {
 	class: '' as string | string[],
 	target: (node: HTMLElement) => node,
-} as const satisfies AddOptions;
+} as const satisfies AddOptions
 
 /**
- * Calls a function when the user clicks outside the element.
+ * Adds a class to an element.
  * @example
  * ```svelte
- * <div on:outclick={someFunction} use:add={{ whitelist: ['.burger'] }}>
+ * <div use:add={{class: 'foo'}} />
  * ```
  */
 export const add: Action<Element, AddOptions> = (node, options = {}) => {
-	const { class: c } = { ...ADD_OPTIONS_DEFAULTS, ...options };
-	Array.isArray(c) ? node.classList.add(...c) : node.classList.add(c);
-};
+	const { class: c } = { ...ADD_OPTIONS_DEFAULTS, ...options }
+	Array.isArray(c) ? node.classList.add(...c) : node.classList.add(c)
+}
