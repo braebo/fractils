@@ -50,6 +50,7 @@ export { default as Copy } from './icons/Copy.svelte' // todo
 // Utils
 
 export { highlight, HIGHLIGHT_DEFAULTS, type HighlightOptions } from './utils/highlight' // todo
+export { isTouchEvent, isMouseEvent, isDefined, isString } from './utils/is' // todo
 export { l, n, r, g, lg, b, y, c, o, m, p, dim, bd, i, j } from './utils/l' // todo
 export { coerce, coerceObject, type CoerceValue } from './utils/coerce' // todo
 export { asyncLocalStorageStore } from './utils/asyncLocalStorageStore'
@@ -57,7 +58,6 @@ export { start, fmtTime, type StartOptions } from './utils/time' // todo
 export { localStorageStore } from './utils/localStorageStore'
 export { ArgMap, mapArgs, resolveArg } from './utils/args' // todo
 export { stringify, serialize } from './utils/stringify' // todo
-export { isTouchEvent, isMouseEvent } from './utils/is' // todo
 export { entries, keys, values } from './utils/object' // todo
 export { decimalToPow } from './utils/decimalToPow' // todo
 export { colors, randomColor } from './utils/color' // todo
@@ -105,4 +105,5 @@ export { highlighter } from './actions/highlighter' // todo
 export type { HighlightEventDetail, HighlightEvent, HighlightAttr } from './actions/highlighter' // todo
 
 export { resizable } from './actions/resizable' // todo
-export type { ResizableOptions, ResizableEvents, Side } from './actions/resizable' // todo
+export type { ResizableEvents, } from './actions/resizable' // todo
+export type { ResizableOptions, Side } from './utils/resizable' // todo
