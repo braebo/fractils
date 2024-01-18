@@ -1,10 +1,12 @@
-import { derived, get, writable, type Writable } from 'svelte/store'
+import type { Writable } from 'svelte/store'
+
 import { localStorageStore } from './localStorageStore'
+import { get, writable } from 'svelte/store'
 
 export interface PrimitiveState<T> extends Writable<T> {
 	get(): T
 	readonly value: T
-	afterUpdate: (v: T) => void
+	onChange: (v: T) => void
 }
 
 interface ArrayState<T> extends PrimitiveState<T[]> {
@@ -55,10 +57,16 @@ export interface StateOptions<T> extends Partial<Writable<T>> {
 	 */
 	key?: string
 	/**
+	 * If provided, localStorage updates will be debounced by
+	 * the specified number of milliseconds. If both `debounce`
+	 * and `throttle` are provided, `debounce` will take precedence.
+	 */
+	debounce?: number
+	/**
 	 * Optional callback function that runs after the store is
 	 * updated and all subscribers have been notified.
 	 */
-	afterUpdate?: (v: T) => void
+	onChange?: (v: T) => void
 }
 
 /**
@@ -66,7 +74,7 @@ export interface StateOptions<T> extends Partial<Writable<T>> {
  *
  * - Support for Maps, Sets, and Arrays (enabling methods like `.push` and `.add`).
  * - A `.get` method for retrieving the current value of the store.
- * - Optional `afterUpdate` callback for adding side effects without subscribing.
+ * - Optional `onChange` callback for adding side effects without subscribing.
  * - Optional `key` argument for persisting the store to local storage.
  *
  * @param defaultValue - The default value of the store.
@@ -82,7 +90,7 @@ export interface StateOptions<T> extends Partial<Writable<T>> {
  * 	foo.push('5') // Type error
  *
  * 	const bar = state(new Map<string, number>())
- * 	bar.setKey('count', 21) // note: `set` is taken, so we use `setKey` and `deleteKey`
+ * 	bar.setKey('count', 21) // `set` is taken, so we use `setKey` and `deleteKey`
  *
  * 	const baz = state(new Set<number>())
  * 	baz.add(5)
@@ -93,19 +101,15 @@ export interface StateOptions<T> extends Partial<Writable<T>> {
  * ```
  */
 export function state<T>(defaultValue: T, options?: StateOptions<T>): State<T> {
-	const { key } = options ?? {}
-	const store = key ? localStorageStore(key, defaultValue) : writable(defaultValue)
+	const store = options?.key
+		? localStorageStore(options.key, defaultValue, {
+				debounce: options?.debounce,
+				onChange: options?.onChange,
+			})
+		: writable(defaultValue)
 
 	function enhanceStore<S>(enhancer: (store: State<S>) => void) {
 		if (enhancer) enhancer(store as unknown as State<S>)
-	}
-
-	if (options?.afterUpdate) {
-		const { afterUpdate } = options
-		derived(store, (v) => {
-			afterUpdate(v)
-			return v
-		})
 	}
 
 	enhanceStore<T[]>((store) => {
@@ -148,9 +152,6 @@ export function state<T>(defaultValue: T, options?: StateOptions<T>): State<T> {
 
 	return {
 		...store,
-		set: store.set,
-		update: store.update,
-		subscribe: store.subscribe,
 		get() {
 			return get(store)
 		},
@@ -161,21 +162,22 @@ export function state<T>(defaultValue: T, options?: StateOptions<T>): State<T> {
 }
 
 //- Test cases
+{
+	const numArray = state([1, 2, 3])
+	numArray.push(4)
 
-const numArray = state([1, 2, 3])
-numArray.push(4)
+	const myMap = state(new Map<string, number>())
+	myMap.setKey('key1', 100)
+	myMap.set(new Map())
 
-const myMap = state(new Map<string, number>())
-myMap.setKey('key1', 100)
-myMap.set(new Map())
+	const mySet = state(new Set<number>())
+	mySet.set(new Set())
+	mySet.add(5)
 
-const mySet = state(new Set<number>())
-mySet.set(new Set())
-mySet.add(5)
+	const myString = state('hello')
+	myString.set('world')
 
-const myString = state('hello')
-myString.set('world')
-
-type MyType = 'foo' | 'bar'
-const myType = state<MyType>('foo')
-myType.set('bar') // ERROR: Argument of type 'string' is not assignable to parameter of type 'never'.ts(2345)
+	type MyType = 'foo' | 'bar'
+	const myType = state<MyType>('foo')
+	myType.set('bar')
+}
