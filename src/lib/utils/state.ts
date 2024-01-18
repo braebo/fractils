@@ -6,7 +6,7 @@ import { get, writable } from 'svelte/store'
 export interface PrimitiveState<T> extends Writable<T> {
 	get(): T
 	readonly value: T
-	onChange: (v: T) => void
+	onChange: (cb: (v: T) => void) => void
 }
 
 interface ArrayState<T> extends PrimitiveState<T[]> {
