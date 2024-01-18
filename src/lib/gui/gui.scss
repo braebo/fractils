@@ -32,7 +32,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 .gui-root {
 	animation-name: reveal, open;
 
-	animation-duration: 1s, 1s;
+	animation-duration: 1s, 0.5s;
 	animation-direction: normal, forwards;
 	animation-timing-function: cubic-bezier(0.1, 1, 0.1, 1);
 
