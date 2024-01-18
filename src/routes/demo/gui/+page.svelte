@@ -5,19 +5,20 @@
 
 	let gui: Gui
 
-	let closed: Gui['closed']
 	let state: Gui['state']
 
 	onMount(() => {
 		gui = new Gui({
 			container: document.getElementById('svelte')!,
-			localStorageKeys: {
-				closed: 'fractils::gui::closed',
-				position: 'fractils::gui::position',
-				size: 'fractils::gui::size',
+			persist: {
+				key: 'fractils::gui',
+				closed: true,
+				size: true,
+				position: true,
 			},
 			resizable: {
-				visible: true,
+				// todo - `visible` is broken
+				// visible: true,
 				sides: ['left', 'right'],
 			},
 			themer: false,
@@ -27,9 +28,9 @@
 					y: 0,
 				},
 			},
+			closed: false
 		})
 
-		closed = gui.closed
 		state = gui.state
 
 		const f1 = gui.addFolder()
