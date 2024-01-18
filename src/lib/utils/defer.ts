@@ -1,14 +1,13 @@
 export const defer =
-	typeof globalThis?.window?.requestIdleCallback !== 'undefined'
-		? globalThis.window.requestIdleCallback
+	typeof requestIdleCallback !== 'undefined'
+		? requestIdleCallback
 		: typeof requestAnimationFrame !== 'undefined'
-		? requestAnimationFrame
-		: // @ts-expect-error - This _is_ a number but they typed it as a Timeout?
-		  (fn: () => void) => setTimeout(fn, 0) as number;
+			? requestAnimationFrame
+			: (fn: () => void) => setTimeout(fn, 0) as unknown as number // node types are wrong..?
 
 export const cancelDefer =
 	typeof globalThis?.window?.cancelIdleCallback !== 'undefined'
 		? globalThis.window.cancelIdleCallback
 		: typeof cancelAnimationFrame !== 'undefined'
-		? cancelAnimationFrame
-		: clearTimeout;
+			? cancelAnimationFrame
+			: clearTimeout
