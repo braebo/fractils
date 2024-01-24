@@ -3,6 +3,16 @@
 $scrollbar-width: 8px;
 $mobile: 1000px;
 
+html {
+	--body-bg: hsl(228, 15%, 7%);
+	background: var(--body-bg);
+}
+
+html[theme=light] {
+	--body-bg: var(--bg-b);
+	background: var(--body-bg);
+}
+
 :root {
 	@include shadows;
 	@include units;
@@ -91,6 +101,10 @@ button {
 	transition: 0.1s;
 }
 
+html[theme='light'] button {
+	font-variation-settings: 'wght' 500;
+}
+
 .code {
 	min-width: fit-content;
 	height: max-content;
@@ -109,4 +123,8 @@ button {
 
 		padding: 1px 7px 3px 7px;
 	}
+}
+
+h1 {
+	scroll-margin-top: 3rem !important;
 }
