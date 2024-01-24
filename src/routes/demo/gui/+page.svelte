@@ -1,16 +1,28 @@
 <script lang="ts">
+	import { stringify } from '$lib'
 	import Code from '$lib/components/Code.svelte'
 	import { Gui } from '$lib/gui/Gui'
+	import { debrief } from '$lib/utils/debrief'
+	import { state, type State } from '$lib/utils/state'
 	import { onMount } from 'svelte'
 
 	let gui: Gui
 
-	let state: Gui['state']
+	let ok = state({} as Gui)
+	let key = false
+
+	$: if ($ok.size || $ok.position || $ok.closed) {
+		key = !key
+	}
+
+	let size: Gui['size']
+	let position: Gui['position']
+	let closed: Gui['closed']
 
 	onMount(() => {
 		gui = new Gui({
 			container: document.getElementById('svelte')!,
-			persist: {
+			storage: {
 				key: 'fractils::gui',
 				closed: true,
 				size: true,
@@ -28,10 +40,16 @@
 					y: 0,
 				},
 			},
-			closed: false
+			closed: false,
 		})
 
-		state = gui.state
+		ok.set(gui)
+
+		size = gui.size
+		position = gui.position
+		closed = gui.closed
+
+		// state = gui.state
 
 		const f1 = gui.addFolder()
 
@@ -39,18 +57,22 @@
 
 		gui.addFolder({ title: 'Titled' })
 	})
+
+	$: console.log(gui)
 </script>
 
 <!-- <Gui /> -->
 <div class="page">
-	{#if gui}
+	{#if ok}
 		<button on:click={() => console.log(gui)}>Log Gui</button>
 
-		{#key $state}
-			<div class="code-fade">
-				<Code text={JSON.stringify($state, null, 2)} />
-			</div>
-		{/key}
+		{#if size && position && closed}
+			{#key $size || $position || $closed}
+				<div class="code-fade">
+					<Code --max-height="100%" text={stringify(debrief(gui), 2)} />
+				</div>
+			{/key}
+		{/if}
 	{/if}
 </div>
 

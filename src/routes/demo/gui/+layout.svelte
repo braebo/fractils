@@ -1,5 +1,5 @@
 <script lang="ts">
-	import ThemeToggle from '$lib/components/ThemeToggle.svelte'
+	// import ThemeToggle from '$lib/components/ThemeToggle.svelte'
 	import ThemerComponent from '$lib/theme/Themer.svelte'
 	import { Themer } from '$lib/theme/Themer'
 	import { theme } from '$lib/theme/theme'
@@ -13,10 +13,10 @@
 		})
 
 		const unsub = theme.subscribe((v) => {
-			const color = v === 'light' ? 'white' : 'black'
+			// const color = v === 'light' ? 'white' : 'black'
 			themer.mode.set(v)
-			document.body.style.backgroundColor = color
-			document.documentElement.style.backgroundColor = color
+			// document.body.style.backgroundColor = color
+			// document.documentElement.style.backgroundColor = color
 		})
 
 		return () => {
@@ -26,12 +26,12 @@
 	})
 </script>
 
-<div style="position: fixed; right: 1rem; top: 1rem;">
+<!-- <div style="position: fixed; right: 1rem; top: 1rem;">
 	<ThemeToggle />
-</div>
+</div> -->
 
 {#if themer}
-	<ThemerComponent {themer} --right="2rem" --top="-.75rem" />
+	<ThemerComponent {themer} --right="-0.75rem" --top="1.5rem" />
 {/if}
 
 <slot />
