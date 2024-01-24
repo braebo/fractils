@@ -1,13 +1,10 @@
-// import type { Resizable, ResizableOptions } from '../utils/resizable'
-import type { ResizableOptions } from '../utils/resizable'
-import { Resizable } from '../utils/resizable'
-
 import type { Draggable, DragOptions } from '../utils/draggable'
 import type { ThemerOptions } from '../theme/Themer'
 import type { FolderOptions } from './Folder'
 
+import { Resizable, type ResizableOptions } from '../utils/resizable'
 import { state, type PrimitiveState } from '../utils/state'
-import { logger } from '../utils/logger'
+import { Logger } from '../utils/logger'
 import { fn, g, r } from '../utils/l'
 
 import { Themer } from '../theme/Themer'
@@ -81,8 +78,6 @@ export interface GuiOptions extends FolderOptions {
 	closed: boolean
 }
 
-type StorageOptions = typeof GUI_DEFAULTS.storage
-
 export const GUI_DEFAULTS = {
 	title: 'Controls',
 	controls: new Map(),
@@ -105,6 +100,8 @@ export const GUI_DEFAULTS = {
 	position: { x: 16, y: 16 },
 	// localStorageKeys: undefined,
 } as const satisfies Omit<GuiOptions, 'parentFolder'>
+
+type StorageOptions = typeof GUI_DEFAULTS.storage
 
 /**
  * The root Gui instance.  This is the entry point for creating
@@ -129,9 +126,9 @@ export class Gui extends Folder {
 	 */
 	storage: StorageOptions | Record<string, any>
 
-	log = logger('Gui', {
+	log = new Logger('Gui', {
 		fg: 'PaleVioletRed',
-		deferred: false,
+		deferred: true,
 		server: false,
 	})
 
@@ -146,7 +143,7 @@ export class Gui extends Folder {
 		opts.container ??= document.body
 
 		super(opts, opts.container)
-		this.log(g('constructor') + '()', { opts, this: this })
+		this.log.fn('constructor').info({ opts, this: this })
 
 		this.root = this
 		this.container = opts.container
@@ -185,7 +182,7 @@ export class Gui extends Folder {
 		if (this.closed.value) this.close()
 		//⌟
 
-		//· Themer ···································································¬
+		//· Themer ··································································¬
 
 		if (opts.themer) {
 			if (opts.themer === true) {
@@ -196,7 +193,7 @@ export class Gui extends Folder {
 		}
 		//⌟
 
-		//· Resizable ···································································¬
+		//· Resizable ·······························································¬
 
 		if (opts.resizable) {
 			const resizeOpts: ResizableOptions =
@@ -216,7 +213,7 @@ export class Gui extends Folder {
 				// Load size from state.
 				if (opts.storage === true || opts.storage?.size) {
 					const size = this.size.get()
-					this.log(fn('constructor'), 'Loading size from state:', size)
+					this.log.fn('constructor').info('Loading size from state:', size)
 					if (
 						resizeOpts?.sides?.includes('left') ||
 						resizeOpts?.sides?.includes('right')
@@ -234,7 +231,7 @@ export class Gui extends Folder {
 		}
 		//⌟
 
-		//· Draggable ···································································¬
+		//· Draggable ·······························································¬
 
 		if (opts.draggable) {
 			const dragOptions: DragOptions =
@@ -253,7 +250,7 @@ export class Gui extends Folder {
 				const position = this.position.get()
 				const size = this.size.get()
 
-				this.log(fn('offscreenCheck'), { position, size })
+				this.log.fn('offscreenCheck').info({ position, size })
 
 				let x = position.x
 				let y = position.y

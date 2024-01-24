@@ -2,11 +2,56 @@ import { randomColor, type CSSColor } from './color'
 
 import { BROWSER, DEV } from 'esm-env'
 import { isSafari } from './safari'
+import { b, fn, r, y } from './l'
 import { defer } from './defer'
 
-const ENABLED = DEV
+// todo - Is there a reliable way to type an ImportMetaEnv entry globally for consumers?
+const ENABLED = DEV && import.meta.env.LOG_LEVEL !== 'none'
 const bypassStyles = false
 const bypassDefer = false
+
+export class Logger {
+	log: ReturnType<typeof logger>
+
+	constructor(
+		public title: string,
+		public options?: Parameters<typeof logger>[1],
+	) {
+		this.log = logger(title, options)
+	}
+
+	l(prefix: string, ...args: any[]) {
+		if (this.buffer.length) {
+			this.log(prefix, ...this.buffer, ...args)
+			this.buffer = []
+		} else {
+			this.log(...args)
+		}
+	}
+
+	debug(...args: any[]) {
+		if (DEV) this.l('🐞', ...args)
+	}
+
+	info(...args: any[]) {
+		if (DEV) this.l(b('ⓘ'), ...args)
+	}
+
+	warn(...args: any[]) {
+		this.l(y('⚠'), ...args)
+	}
+
+	error(...args: any[]) {
+		this.log(r('⛔'), ...args)
+	}
+
+	buffer = [] as any[]
+
+	fn(str: string) {
+		this.buffer.push(fn(str))
+		return this
+	}
+}
 
 export const logger = (
 	title = 'LOG',
@@ -108,7 +153,8 @@ export const logger = (
 				console.log(
 					messageConfig,
 					`color:${fg};background:${bg};padding:0.1rem;${css}`,
-					`${title.padEnd(10, ' ')} |`,
+					// `${title.padEnd(10, ' ')} |`,
+					`${title.padEnd(10, ' ')}`,
 					`color:initial;background:${bg};padding:0.1rem;${css}`,
 					...args,
 					`color:#666;background:${bg};padding:0.1rem;${css};font-size:0.66rem;`,
