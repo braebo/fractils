@@ -44,14 +44,6 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	}
 }
 
-.gui-folder,
-gui-root {
-	max-height: fit-content;
-	&.closed > .gui-content {
-		max-height: 1px;
-	}
-}
-
 //* Main styles
 
 .gui-root {
@@ -73,6 +65,8 @@ gui-root {
 	z-index: 99;
 
 	> .gui-header {
+		position: relative;
+
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -108,7 +102,7 @@ gui-root {
 	> .gui-content {
 		display: flex;
 		flex-direction: column;
-		gap: 0.5rem;
+		// gap: 0.5rem;
 
 		width: 100%;
 		height: 100%;
@@ -132,13 +126,15 @@ gui-root {
 
 	display: flex;
 	flex-direction: column;
-	gap: 0.5rem;
+	// gap: 0.5rem;
 
 	min-height: 1rem;
 
 	border-radius: var(--radius-sm);
 
 	.gui-header {
+		position: relative;
+
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -153,6 +149,8 @@ gui-root {
 		outline: 1px solid rgba(var(--bg-b-rgb), 0.5);
 		outline-offset: -1px;
 		border-radius: var(--radius-sm);
+
+		box-shadow: 0 0 0.25rem #000 inset;
 
 		font-size: 1rem;
 
@@ -176,7 +174,6 @@ gui-root {
 			padding: 0.05rem;
 
 			color: var(--fg-c);
-			// outline: 1px solid rgba(255, 99, 71, 0.45);
 			border-radius: 0.2rem;
 
 			opacity: 0.5;
@@ -186,10 +183,25 @@ gui-root {
 
 			&:hover {
 				background: var(--fg-a);
-				// background: tomato;
-				// color: var(--bg-a);
 				color: tomato !important;
 			}
+		}
+
+		svg.icon-folder {
+			position: absolute;
+			left: 0.5rem;
+
+			width: 1.1rem !important;
+			height: 1.1rem !important;
+
+			color: var(--fg-c);
+
+			opacity: 0.5;
+			transition: opacity 0.15s;
+		}
+
+		&:hover svg.icon-folder {
+			opacity: 0.75;
 		}
 	}
 
@@ -200,9 +212,42 @@ gui-root {
 		height: 100%;
 		width: 100%;
 		padding-left: $padding-left;
+		padding-top: $padding-left;
 
 		// background: #a0f1;
-		background: var(--bg-a);
+		background: var(--bg-c);
+		overflow: hidden;
+
+		transition: max-height 0.2s cubic-bezier(0.19, 1, 0.22, 1);
+
+		.gui-header {
+			filter: contrast(1.075);
+		}
+	}
+
+	svg.icon-folder.closed {
+		display: none;
+	}
+	svg.icon-folder.open {
+		display: block;
+	}
+	&.closed {
+		svg.icon-folder.closed {
+			display: block;
+		}
+		svg.icon-folder.open {
+			display: none;
+		}
+	}
+}
+
+// .gui-folder,
+.gui-root
+{
+	// max-height: fit-content;
+	// transition: max-height 0.2s cubic-bezier(0.19, 1, 0.22, 1);
+	&.closed > .gui-content {
+		max-height: 1px;
 	}
 }
 

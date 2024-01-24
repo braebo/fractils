@@ -1,11 +1,13 @@
-import type { Input } from './Input'
 import type { Gui } from './Gui'
 
+import { Input, type InputOptions } from './Input'
 import { create } from '../utils/create'
 import { nanoid } from '../utils/nanoid'
-import { logger } from '../utils/logger'
+import { Logger } from '../utils/logger'
 import { state } from '../utils/state'
-import { fn, g, r } from '../utils/l'
+
+import icon_closed from './icon_closed.svg?raw'
+import icon_open from './icon_open.svg?raw'
 
 /**
  * @internal
@@ -60,15 +62,18 @@ export class Folder {
 
 	closed = state(false)
 
-	log = logger('Folder', {
+	log = new Logger('Folder', {
 		fg: 'DarkSalmon',
 		deferred: false,
 		server: false,
 	})
 
+	#iconOpen?: SVGElement
+	#iconClosed?: SVGElement
+
 	constructor(options: FolderOptions, rootContainer: HTMLElement | null = null) {
 		const opts = Object.assign({}, options)
-		this.log(g('constructor') + '()', { opts, this: this })
+		this.log.fn('constructor').info({ opts, this: this })
 
 		this.title = opts.title ?? ''
 		this.children = opts.children ?? []
@@ -81,6 +86,7 @@ export class Folder {
 			const rootEl = this.#createRootElement(rootContainer)
 			this.element = this.#createElements(rootEl)
 		} else {
+			this.#createIcons()
 			this.parentFolder = opts.parentFolder
 			this.root = this.parentFolder.root
 			this.element = this.#createElements(opts.element)
@@ -133,14 +139,14 @@ export class Folder {
 	disable = () => {
 		if (!this.#disabled) {
 			this.#disabled = true
-			this.log(fn('disable'), 'Clicks DISABLED')
+			this.log.fn('disable').info('Clicks DISABLED')
 		}
 		this.#disabled = true
 		clearTimeout(this.#disabledTimer)
 	}
 
 	reset() {
-		this.log(fn('cancel'), ' Clicks ENABLED')
+		this.log.fn('cancel').info('Clicks ENABLED')
 		removeEventListener('pointerup', this.toggle)
 		this.#disabled = false
 	}
@@ -159,6 +165,10 @@ export class Folder {
 			classes: ['gui-header'],
 		})
 		this.headerElement.addEventListener('pointerdown', this.#skip_header_click_if_drag)
+		if (!this.isRoot) {
+			this.headerElement.appendChild(this.#iconClosed!)
+			this.headerElement.appendChild(this.#iconOpen!)
+		}
 
 		this.titleElement = create('h2', {
 			parent: this.headerElement,
@@ -186,6 +196,18 @@ export class Folder {
 		return rootEl
 	}
 
+	#createIcons() {
+		this.#iconOpen = createSvg(icon_open, 'open')
+		this.#iconClosed = createSvg(icon_closed, 'closed')
+
+		function createSvg(html: string, classname: string) {
+			const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+			svg.innerHTML = html
+			svg.classList.add('icon-folder', classname)
+			return svg
+		}
+	}
+
 	addFolder(options?: { title?: string; closed?: boolean }) {
 		const folder = new Folder({
 			title: options?.title ?? '',
@@ -200,7 +222,8 @@ export class Folder {
 		return folder
 	}
 
-	addInput(input: Input) {
+	addInput(options: InputOptions) {
+		const input = new Input(options)
 		this.controls.set(input.title, input)
 		this.contentElement.appendChild(input.element)
 	}
@@ -221,16 +244,34 @@ export class Folder {
 		this.closed.get() ? this.open() : this.close()
 	}
 
+	#contentHeight = null as null | number | '100%'
+
 	open() {
 		this.element.classList.remove('closed')
 		this.closed.set(false)
 		this.#disabled = false
+
+		if (this.#contentHeight === null) {
+			this.#contentHeight = '100%'
+		}
+		this.contentElement.animate([{ height: 0 }, { height: this.#contentHeight + 'px' }], {
+			duration: 200,
+			easing: 'cubic-bezier(0.19, 1, 0.22, 1)',
+			fill: 'forwards',
+		})
 	}
 
 	close() {
 		this.element.classList.add('closed')
 		this.closed.set(true)
 		this.#disabled = false
+
+		this.#contentHeight = this.contentElement.getBoundingClientRect().height
+		this.contentElement.animate([{ height: this.#contentHeight + 'px' }, { height: 0 }], {
+			duration: 200,
+			easing: 'cubic-bezier(0.19, 1, 0.22, 1)',
+			fill: 'forwards',
+		})
 	}
 
 	/**
@@ -251,7 +292,7 @@ export class Folder {
 		try {
 			this.parentFolder.children.splice(this.parentFolder.children.indexOf(this), 1)
 		} catch (err) {
-			this.log(r('Error removing folder from parent'), { err })
+			this.log.fn('dispose').error('Error removing folder from parent', { err })
 		}
 	}
 }
