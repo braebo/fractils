@@ -97,19 +97,19 @@
 		stroke-dashoffset: 7rem;
 	}
 	path {
-		stroke-dasharray: 100 1300;
+		stroke-dasharray: 100 1400;
 		stroke: var(--fg-a);
 
-		&.dark {
-			stroke: var(--black);
-		}
+		// &.dark {
+		// 	stroke: var(--black);
+		// }
 	}
 	.pulsate {
 		animation: pulsate 1s ease-out;
 	}
 	@keyframes pulsate {
 		0% {
-			stroke-dashoffset: 311%;
+			stroke-dashoffset: 333%;
 		}
 		100% {
 			stroke-dashoffset: 101%;

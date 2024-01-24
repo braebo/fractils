@@ -11,14 +11,16 @@
 	header {
 		padding-top: 0.5rem;
 
-		color: white;
+		color: var(--fg-a);
+
+		user-select: none;
 	}
 
 	h1,
 	p {
 		padding: 0 1rem;
 
-		color: white;
+		color: var(--fg-a);
 	}
 
 	span {
@@ -27,5 +29,9 @@
 		font-size: 0.9rem;
 
 		opacity: 0.5;
+	}
+
+	:global(html[theme='light']) span {
+		font-variation-settings: 'wght' 500;
 	}
 </style>

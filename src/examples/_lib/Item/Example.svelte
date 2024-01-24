@@ -31,7 +31,12 @@
 		box-shadow: var(--shadow-inset);
 		background: var(--bg-a);
 
-		line-height: 1.5;
+		line-height: 1.2rem;
+		letter-spacing: 0.1px;
+	}
+
+	:global(html[theme='light']) .codeblock {
+		background: var(--fg-d);
 	}
 
 	.shiki {
@@ -46,8 +51,13 @@
 	}
 
 	:global(.shiki *) {
-		font-family: var(--font-mono) !important;
-		font-variation-settings: 'wght' 400 !important;
+		font-family: var(--font-mono);
+		font-variation-settings: 'wght' 500;
+	}
+
+	:global(html[theme='light']) :global(.shiki *) {
+		font-family: var(--font-mono);
+		font-variation-settings: 'wght' 600;
 	}
 
 	:global(.shiki pre.shiki)::-webkit-scrollbar {
@@ -75,6 +85,7 @@
 
 		text-align: center;
 
+		color: white;
 		background: var(--result-bg, var(--bg-a));
 		border-radius: var(--radius);
 		box-shadow: var(--shadow-inset-b);
@@ -88,6 +99,10 @@
 
 	:global(.result:first-child) {
 		padding: 1rem;
+	}
+
+	:global(html[theme='light']) .result {
+		background: var(--fg-d);
 	}
 
 	.file {

@@ -46,5 +46,6 @@
 		border-radius: var(--radius);
 
 		overflow: hidden;
+		color: white;
 	}
 </style>

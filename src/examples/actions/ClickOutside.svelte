@@ -73,11 +73,12 @@
 
 		width: 50%;
 		height: 50px;
-		background: var(--bg-d);
+		background: var(--bg-c);
 
-		color: white;
+		color: var(--fg-a);
 
 		transition: color 0.2s ease;
+		cursor: not-allowed;
 
 		&:hover {
 			color: #666666;
@@ -93,7 +94,6 @@
 		justify-content: space-around;
 		align-items: center;
 
-		background: var(--bg-a);
 		border-radius: var(--radius);
 	}
 
@@ -109,5 +109,6 @@
 		filter: saturate(0);
 
 		user-select: none;
+		cursor: not-allowed;
 	}
 </style>

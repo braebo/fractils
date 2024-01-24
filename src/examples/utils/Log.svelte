@@ -108,6 +108,10 @@
 		font-weight: bold;
 	}
 
+	:global(html[theme='light']) pre.helloworld {
+		background: var(--fg-b);
+	}
+
 	.timestamp {
 		font-size: 11px;
 		padding: 2px 12px 0 0.5rem;

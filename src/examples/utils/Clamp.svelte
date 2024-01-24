@@ -1,12 +1,12 @@
 <script>
-	import Example from '$examples/_lib/Item/Example.svelte';
-	import Params from '$examples/_lib/Item/Params.svelte';
-	import Range from '$lib/components/Range.svelte';
-	import Item from '../_lib/Item/Item.svelte';
-	import html from './Clamp.html?raw';
-	import { clamp } from '$lib';
+	import Example from '$examples/_lib/Item/Example.svelte'
+	import Params from '$examples/_lib/Item/Params.svelte'
+	import Range from '$lib/components/Range.svelte'
+	import Item from '../_lib/Item/Item.svelte'
+	import html from './Clamp.html?raw'
+	import { clamp } from '$lib'
 
-	const path = 'utils/clamp.ts';
+	const path = 'utils/clamp.ts'
 
 	const params = [
 		{
@@ -28,9 +28,9 @@
 			type: 'returns',
 			description: 'The value clamped between the minimum and maximum.',
 		},
-	];
+	]
 
-	$: value = clamp(value ?? 50, 25, 75);
+	$: value = clamp(value ?? 50, 25, 75)
 </script>
 
 <Item title="clamp" type="function" {path}>
@@ -63,6 +63,7 @@
 		display: flex;
 
 		padding: 5px;
+		color: var(--fg-a);
 	}
 
 	.col {

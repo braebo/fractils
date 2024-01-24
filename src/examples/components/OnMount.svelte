@@ -1,20 +1,20 @@
 <script>
-	import Example from '$examples/_lib/Item/Example.svelte';
-	import Item from '../_lib/Item/Item.svelte';
-	import { fly } from 'svelte/transition';
-	import html from './OnMount.html?raw';
-	import { OnMount } from '$lib';
+	import Example from '$examples/_lib/Item/Example.svelte'
+	import Item from '../_lib/Item/Item.svelte'
+	import { fly } from 'svelte/transition'
+	import html from './OnMount.html?raw'
+	import { OnMount } from '$lib'
 
-	let mounted = true;
+	let mounted = true
 
 	const reload = () => {
-		mounted = false;
+		mounted = false
 		setTimeout(() => {
-			mounted = true;
-		}, 0);
-	};
+			mounted = true
+		}, 0)
+	}
 
-	const path = 'components/OnMount.svelte';
+	const path = 'components/OnMount.svelte'
 </script>
 
 <Item title="OnMount" type="component" {path}>
@@ -46,5 +46,6 @@
 		overflow: hidden;
 
 		border-radius: var(--radius);
+		color: white;
 	}
 </style>

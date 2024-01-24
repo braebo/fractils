@@ -101,6 +101,10 @@
 		}
 	}
 
+	:global(html[theme='light']) .path {
+		font-variation-settings: 'wght' 600;
+	}
+
 	:global(.child-active) {
 		color: var(--fg-a);
 		filter: brightness(1);

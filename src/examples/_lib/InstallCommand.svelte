@@ -17,4 +17,10 @@
 		border-radius: var(--radius);
 		background-color: rgb(21, 22, 29);
 	}
+
+	:global(html[theme='light']) h2 {
+		color: var(--brand-a);
+		font-weight: 500;
+		background-color: var(--fg-d);
+	}
 </style>

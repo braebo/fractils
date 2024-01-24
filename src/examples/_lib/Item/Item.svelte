@@ -1,9 +1,9 @@
 <script>
-	import { mobile } from '$lib';
+	import { mobile } from '$lib'
 
-	export let title = 'title';
-	export let type = 'type';
-	export let path = '';
+	export let title = 'title'
+	export let type = 'type'
+	export let path = ''
 </script>
 
 <div class="item" class:mobile={$mobile}>
@@ -25,7 +25,7 @@
 	>
 </div>
 
-<style lang="css">
+<style lang="scss">
 	.item {
 		display: flex;
 		position: relative;
@@ -44,17 +44,23 @@
 
 		font-family: var(--font-b);
 		font-variation-settings: 'wght' 300 !important;
-		letter-spacing: 0.5px;
+		letter-spacing: 0.25px;
 
 		outline: none;
 		z-index: 1;
+	}
+
+	:global(html[theme='light']) .item {
+		color: var(--fg-a);
+		background: var(--bg-a);
+		font-variation-settings: 'wght' 500 !important;
 	}
 
 	.item h1 {
 		font-size: 1.5rem;
 		color: var(--fg-a);
 	}
-	
+
 	h1 {
 		scroll-padding-top: 3rem !important;
 	}
@@ -79,6 +85,10 @@
 		justify-content: space-between;
 	}
 
+	:global(html[theme="light"]) header p.code {
+		background: var(--fg-d);
+	}
+
 	.mobile {
 		font-size: 0.9rem;
 	}
@@ -97,7 +107,7 @@
 
 		padding: 1.2rem;
 
-		color: var(--bg-a);
+		color: var(--fg-d);
 
 		font-family: var(--font-mono) !important;
 		font-variation-settings: 'wght' 500 !important;

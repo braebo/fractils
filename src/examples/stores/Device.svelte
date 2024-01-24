@@ -85,6 +85,8 @@
 		transform: translateY(-2px);
 	}
 	.value {
+		color: var(--fg-a);
 		min-width: 75px;
+		border-radius: var(--radius-sm);
 	}
 </style>
