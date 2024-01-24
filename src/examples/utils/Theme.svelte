@@ -8,7 +8,7 @@
 	import html from './Theme.html?raw';
 	import { onMount } from 'svelte';
 
-	let theme2 = $theme;
+	let theme2: string = $theme;
 	let timer: ReturnType<typeof setTimeout> | null = null;
 	const updateTheme = (theme: string) => {
 		if (timer) clearTimeout(timer);
@@ -19,7 +19,7 @@
 
 	$: {
 		$pulse;
-		updateTheme($theme!);
+		updateTheme($theme);
 	}
 
 	// $: {
@@ -37,7 +37,7 @@
 	}
 
 	onMount(() => {
-		applyTheme('dark');
+		// applyTheme('dark');
 	});
 
 	const path = 'theme/index.ts';
