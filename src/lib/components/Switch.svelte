@@ -35,9 +35,12 @@
 -->
 
 <script lang="ts">
+	import { createEventDispatcher } from "svelte"
+	const dispatch = createEventDispatcher()
+
 	interface $$Events {
 		/** Toggles the switch. */
-		click: MouseEvent
+		change: MouseEvent
 	}
 
 	interface $$Props {
@@ -52,6 +55,8 @@
 		 * @default false
 		 */
 		checked?: boolean
+		/** Whether the switch is disabled or not. */
+		disabled?: boolean
 		// Colors
 		/** The outline color of the switch. */
 		'--switch-outline'?: string
@@ -78,68 +83,116 @@
 
 	export let on = ''
 	export let off = ''
+	export let thumbOn = ''
+	export let thumbOff = ''
 	export let title = ''
 	export let checked = false
+	export let disabled = false
+
+	const id = title.replace(' ', '') + '-switch'
+
+	function toggle() {
+		checked = !checked
+		dispatch('change', { checked })
+	}
 </script>
 
-<label class="switch" {title}>
-	<input type="checkbox" bind:checked on:click />
-	<span class="slider round" />
-	<span class="on" aria-hidden="true">{on}</span>
-	<span class="off" aria-hidden="true">{off}</span>
-</label>
+<button class="switch" {title} class:disabled on:click={toggle}>
+	<input type="checkbox" bind:checked {disabled} on:change name={id} />
+	<span class="slider round" class:disabled>
+		<span class="thumb-content on" aria-hidden="true">
+			<slot name="thumb-content-on">
+				{thumbOn}
+			</slot>
+		</span>
+
+		<span class="thumb-content off" aria-hidden="true">
+			<slot name="thumb-content-off">
+				{thumbOff}
+			</slot>
+		</span>
+
+		<span class="slider-content on" aria-hidden="true">
+			<slot name="on">
+				{on}
+			</slot>
+		</span>
+
+		<span class="slider-content off" aria-hidden="true">
+			<slot name="off">
+				{off}
+			</slot>
+		</span>
+	</span>
+</button>
 
 <style lang="scss">
+	$thumb: '.slider:before';
+	$dark: ':global(:root[theme="dark"])';
+
 	.switch {
-		--width: var(--switch-width, 3rem);
-		--padding: var(--switch-padding, 0.2rem);
+		/* User-facing */
+		all: unset;
+
+		--width: var(--switch-width, 3.25rem);
+		--padding: var(--switch-padding, 0.25rem);
 		--accent: var(--switch-accent, #2196f3);
-		--thumb-size: var(--switch-thumb-size, 1.25rem);
+		--thumb-size: var(--switch-thumb-size, 1.1rem);
 		--thumb-ratio: var(--switch-thumb-ratio, 1);
 		--slider-radius: var(--switch-slider-radius, 1.25rem);
 		--thumb-radius: var(--switch-thumb-radius, 1rem);
 
-		--outline: var(--switch-outline, var(--accent));
+		--thumb: var(--switch-thumb, var(--bg-a, white));
+		--thumb-dark: var(--switch-thumb, var(--bg-a, white));
 
-		--primary: var(--switch-primary, var(--bg-a, white));
-		--secondary: var(--switch-secondary, var(--bg-c, lightgray));
+		--thumb-on: var(--switch-thumb-on, var(--thumb));
+		--thumb-on-dark: var(--switch-thumb-on-dark, var(--thumb));
 
-		--primary-dark: var(--switch-primary, var(--bg-a, white));
-		--secondary-dark: var(--switch-secondary, var(--bg-c, lightgray));
+		--thumb-off: var(--switch-thumb-off, var(--thumb));
+		--thumb-off-dark: var(--switch-thumb-off-dark, var(--thumb));
 
-		--primary-on: var(--switch-primary-on, var(--primary));
-		--secondary-on: var(--switch-secondary-on, var(--accent));
-		--primary-on-dark: var(--switch-primary-on-dark, var(--primary));
-		--secondary-on-dark: var(--switch-secondary-on-dark, var(--accent));
+		--slider: var(--switch-slider, var(--bg-b, lightgray));
+		--slider-dark: var(--switch-slider, var(--bg-c, lightgray));
 
-		--primary-off: var(--switch-primary-off, var(--primary));
-		--secondary-off: var(--switch-secondary-off, var(--secondary));
-		--primary-off-dark: var(--switch-primary-off-dark, var(--primary));
-		--secondary-off-dark: var(--switch-secondary-off-dark, var(--secondary));
+		--slider-on: var(--switch-slider-on, var(--accent));
+		--slider-on-dark: var(--switch-slider-on-dark, var(--accent));
+
+		--slider-off: var(--switch-slider-off, var(--slider));
+		--slider-off-dark: var(--switch-slider-off-dark, var(--slider));
+
+		--outline: var(--switch-outline, var(--slider));
+		--outline-dark: var(--switch-outline, var(--slider));
+		--outline-focus: var(--switch-outline-focus, var(--bg-c));
+		--outline-focus-dark: var(--switch-outline-focus-dark, var(--bg-d));
+
+		/* Internal */
 
 		--height: calc(var(--thumb-size) * var(--thumb-ratio) + var(--padding) * 2);
-		--transition: 0.4s cubic-bezier(0.29, 0.68, 0.29, 0.96);
-		/* prettier-ignore */
-		--transform: translateX(
-		calc(
-			var(--width) -
-			var(--thumb-size) -
-			var(--padding) *
-			2
-		)
-	);
+		// --transition: 0.4s cubic-bezier(0.29, 0.68, 0.29, 0.96);
+		--transition: 1s cubic-bezier(0.15, 1.19, 0, 1);
+		--transform: calc(var(--width) - var(--thumb-size) - var(--padding) * 2);
 	}
+
+	// This is breaking the theme system for some reason...
+	// There must be some behavior around :global, CSS variable
+	// mutation, or the :root el that I'm not aware of.
 
 	:global(:root[theme='dark'] .switch) {
-		--primary: var(--primary-dark, var(--primary, var(--bg-d, #aaa)));
-		--secondary: var(--secondary-dark, var(--secondary, var(--bg-b, #333)));
-		--primary-on: var(--primary-on-dark, var(--primary, var(--bg-d, #aaa)));
-		--secondary-on: var(--secondary-on-dark, var(--accent, var(--bg-b, #333)));
-		--primary-off: var(--primary-off-dark, var(--primary, var(--bg-d, #aaa)));
-		--secondary-off: var(--secondary-off-dark, var(--secondary, var(--bg-b, #333)));
-	}
+		--thumb: var(--thumb-dark, var(--thumb, var(--bg-d, #aaa)));
+		--slider: var(--slider-dark, var(--slider, var(--bg-b, #333)));
+		--thumb-on: var(--thumb-on-dark, var(--thumb, var(--bg-d, #aaa)));
+		--slider-on: var(--slider-on-dark, var(--accent, var(--bg-b, #333)));
+		--thumb-off: var(--thumb-off-dark, var(--thumb, var(--bg-d, #aaa)));
+		--slider-off: var(--slider-off-dark, var(--slider, var(--bg-c, #333)));
+		--outline: var(--outline-dark, var(--slider, var(--bg-c, #333)));
+		--outline-focus: var(--outline-focus-dark, var(--bg-c, #333));
 
-	$thumb: '.slider:before';
+		.slider {
+			box-shadow:
+				-1px 1.5px 0.3rem rgba(0, 0, 0, 0.5) inset,
+				0px 0.5px 0.1rem rgba(0, 0, 0, 0.5) inset;
+		}
+	}
 
 	/* Switch Container */
 
@@ -153,38 +206,57 @@
 		max-height: 100%;
 
 		cursor: pointer;
+		// overflow: hidden;
+		&.disabled {
+			cursor: not-allowed;
+		}
 	}
 
 	/* Slider */
 
 	.slider {
+		background-color: var(--slider-off);
+		outline-color: var(--outline, var(--slider));
+
 		position: absolute;
 		inset: 0;
 
 		max-width: 100%;
 		max-height: 100%;
 
-		background-color: var(--secondary-off);
-		outline: 2px solid transparent;
-		box-shadow:
-			-1px 1px 0.3rem rgba(0, 0, 0, 0.5) inset,
-			0px 1px 0.1rem rgba(0, 0, 0, 0.5) inset;
-
-		outline-width: 1px;
+		outline-width: 1.5px;
 		outline-style: solid;
 		border-radius: var(--slider-radius);
+		box-shadow:
+			-1px 1px 0.33rem rgba(0, 0, 0, 0.33) inset,
+			0px 1px 0.1rem rgba(0, 0, 0, 0.33) inset;
 
 		cursor: pointer;
-		transition: var(--transition);
+		transition:
+			var(--transition),
+			outline 0.15s;
+
+		overflow: hidden;
+
+		&.disabled {
+			pointer-events: none;
+			opacity: 0.33;
+			cursor: not-allowed;
+		}
 	}
 
 	input:focus + .slider {
-		outline-color: var(--outline);
+		&:not(:active) {
+			outline-color: var(--outline-focus);
+			outline-width: 2px;
+		}
 	}
 
 	/* Slider Thumb */
 
 	#{$thumb} {
+		background-color: var(--thumb-off);
+
 		content: '';
 		position: absolute;
 		left: var(--padding);
@@ -195,12 +267,11 @@
 		max-width: 100%;
 		max-height: 100%;
 
-		background-color: var(--primary-off);
 		box-shadow:
 			0.3px 1px 0 rgba(var(--bg-d-rgb, rgb(1, 1, 1)), 0.5),
-			-0.3px 0.3px 0.1px rgba(var(--fg-d-rgb, rgb(200, 200, 200)), 0.1) inset,
+			-0.3px 0.3px 0.1px rgba(var(--fg-d-rgb, rgb(255, 255, 255)), 0.25) inset,
 			-1px 1px 1px rgba(var(--fg-d-rgb, rgb(200, 200, 200)), 0.1) inset,
-			1px -1px 0.15px rgba(var(--bg-a-rgb, rgb(1, 1, 1)), 0.1) inset;
+			0px -1px 0.1px rgba(1, 1, 1, 0.1) inset;
 
 		border-radius: var(--thumb-radius);
 
@@ -227,7 +298,9 @@
 		margin: auto;
 		padding-left: var(--padding);
 
-		opacity: 0;
+		&.thumb-content {
+			opacity: 0;
+		}
 
 		user-select: none;
 		pointer-events: none;
@@ -237,44 +310,74 @@
 			transform var(--transition);
 	}
 
-	/* Checked - On */
+	/* Checked */
 
 	input:checked + .slider {
-		background-color: var(--secondary-on);
+		background-color: var(--slider-on);
 	}
 	input:checked + #{$thumb} {
-		transform: var(--transform);
-		box-shadow: -0.3px 1px 0 rgba(var(--bg-d-rgb, rgb(255, 255, 255)), 0.5);
-		background-color: var(--primary-on);
+		background-color: var(--thumb-on);
+
+		transform: translateX(var(--transform));
+		// box-shadow: -0.3px 1px 0 rgba(var(--bg-d-rgb, rgb(255, 255, 255)), 0.5);
 	}
 
-	label:has(input:checked) {
+	button:has(input:checked) {
 		.on {
-			opacity: 1;
-			transform: var(--transform);
+			&.thumb-content {
+				opacity: 1;
+				transform: translateX(var(--transform));
+			}
+
+			&.slider-content {
+				transform: translateX(0);
+			}
 		}
 
 		.off {
-			opacity: 0;
-			transform: var(--transform);
+			&.thumb-content {
+				opacity: 0;
+				transform: translateX(var(--transform));
+			}
+
+			&.slider-content {
+				transform: translateX(calc(var(--transform) * 2));
+			}
 		}
 	}
 
-	/* Unchecked - Off */
+	/* Unchecked */
 
-	label:has(input:not(:checked)) {
+	button:has(input:not(:checked)) {
 		.on {
-			opacity: 0;
-			transform: translateX(0);
+			&.thumb-content {
+				opacity: 0;
+				transform: translateX(0);
+			}
+
+			&.slider-content {
+				opacity: 1;
+				// transform: translateX(var(--transform));
+				transform: translateX(0);
+				transform: translateX(calc(var(--transform) * -1));
+			}
 		}
 
 		.off {
-			opacity: 1;
-			transform: translateX(0);
+			&.thumb-content {
+				opacity: 1;
+				transform: translateX(0);
+			}
+
+			&.slider-content {
+				opacity: 1;
+				transform: translateX(var(--transform));
+			}
 		}
 	}
 
 	/* Hide default HTML checkbox. */
+
 	.switch input {
 		opacity: 0;
 		width: 0;
