@@ -200,6 +200,9 @@ pre.shiki-wrapper::-webkit-scrollbar-corner {
 	border-radius: 0.1px !important;
 	outline: none;
 }
+html[theme="light"] .shiki {
+	filter: brightness(1.1);
+}
 
 // .code-window .codeblock pre.shiki-wrapper {
 div.code-window > div.codeblock > pre > pre > code,
