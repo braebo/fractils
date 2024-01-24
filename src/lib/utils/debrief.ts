@@ -35,7 +35,7 @@ export function debrief<T>(
 
 		if (Array.isArray(o)) {
 			if (depthReached) return `[...${o.length} ${o.length === 1 ? 'item' : 'items'}]`
-			if (o.length <= siblings) return o.map((s) => parse(s, d + 1))
+			if (o.length <= siblings || d === 0) return o.map((s) => parse(s, d + 1))
 			return [
 				...o.slice(0, siblings).map((s) => parse(s, d)),
 				`...${o.length - siblings} more`,
@@ -46,7 +46,7 @@ export function debrief<T>(
 			const keyCount = Object.keys(o).length
 			if (depthReached) return `{...${keyCount} ${keyCount === 1 ? 'entry' : 'entries'}}`
 
-			if (keyCount <= siblings) {
+			if (keyCount <= siblings || d === 0) {
 				return Object.fromEntries(Object.entries(o).map(([k, v]) => [k, parse(v, d + 1)]))
 			}
 
