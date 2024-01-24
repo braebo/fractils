@@ -10,12 +10,12 @@
 
 <FourOhFour />
 
-{#if DEV && $page.status !== 404}
-	<div class="error">
-		<a href="/"> go back</a>
+<div class="error">
+	<a href="/"> go back</a>
+	{#if DEV}
 		<pre class="message">{$page.error?.message}</pre>
-	</div>
-{/if}
+	{/if}
+</div>
 
 <slot />
 
@@ -40,7 +40,6 @@
 		align-items: center;
 		gap: 1rem;
 
-		margin-top: 10vh;
 		text-align: center;
 	}
 
