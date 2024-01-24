@@ -1,17 +1,31 @@
-import { localStorageStore } from '../utils/localStorageStore'
 import { get, writable } from 'svelte/store'
+import { Logger } from '$lib/utils/logger'
+import { state } from '../utils/state'
+import { bd, r } from '../utils/l'
 
 export type Theme = 'light' | 'dark' | 'system'
 
-const initialTheme =
+const initialTheme: Theme =
 	typeof window !== 'undefined' && globalThis.localStorage && 'theme' in localStorage
-		? localStorage.getItem('theme') ?? 'dark'
+		? (localStorage.getItem('theme') as Theme) ?? 'dark'
 		: 'dark'
+
+const log = new Logger('themer', { fg: 'white' })
+
+// export const theme = localStorageStore<Theme>('theme', initialTheme as Theme)
 
 /**
  * A store for the current theme persisted in local storage.
  */
-export const theme = localStorageStore<Theme>('theme', initialTheme as Theme)
+export const theme = state<Theme>(initialTheme, {
+	key: 'fractils::theme',
+	// todo - add cookie mode to `state` and use that here
+	// storage: 'cookie' as 'cookie' | 'localStorage'
+	onChange: () => {
+		if (typeof window === 'undefined') return
+		document.documentElement.setAttribute('theme', get(theme))
+	},
+})
 
 const detectSystemPreference = (e: MediaQueryListEvent) => applyTheme(e.matches ? 'dark' : 'light')
 
@@ -24,24 +38,15 @@ export async function initTheme() {
 		?.matchMedia('(prefers-color-scheme: dark)')
 		.addEventListener('change', detectSystemPreference)
 
-	if (localStorage)
-		if ('theme' in localStorage && theme) {
-			try {
-				const pref = get(theme)
-				if (pref) {
-					applyTheme(pref as Theme)
-				}
-			} catch (err) {
-				console.log(
-					'%c Unable to access theme preference in local storage 😕',
-					'color:coral',
-				)
-				console.error(err)
-				localStorage.removeItem('theme')
-			}
-		} else {
-			applySystemTheme()
-		}
+	const pref = theme.get()
+
+	if (!pref) {
+		log.fn('initTheme').info('No theme found - applying system theme.')
+		applySystemTheme()
+		return
+	}
+
+	applyTheme(pref)
 }
 
 /**
@@ -50,16 +55,20 @@ export async function initTheme() {
 export function toggleTheme() {
 	if (typeof window === 'undefined') return
 	const activeTheme = theme ? get(theme) : initialTheme
-	activeTheme == 'light' ? applyTheme('dark') : applyTheme('light')
+	const newTheme = activeTheme == 'light' ? 'dark' : 'light'
+	log.fn('toggleTheme')
+
+	applyTheme(newTheme)
 }
 
 export const initComplete = writable(false)
 
 const applySystemTheme = (): void => {
 	if (typeof window === 'undefined') return
-	window?.matchMedia('(prefers-color-scheme: dark)').matches
-		? applyTheme('dark')
-		: applyTheme('light')
+	const newTheme = window?.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+
+	log.fn('applySystemTheme').info('Setting theme to ' + bd(newTheme) + '.')
+	applyTheme(newTheme)
 }
 
 /**
@@ -68,10 +77,10 @@ const applySystemTheme = (): void => {
  */
 export function applyTheme(newTheme: Theme) {
 	if (typeof window === 'undefined') return
-	document?.documentElement?.setAttribute('theme', newTheme)
 	try {
+		log.fn('applyTheme').info('Setting theme to ' + bd(newTheme) + '.')
 		theme?.set(newTheme)
 	} catch (err) {
-		console.error('%c Unable to save theme preference in local storage 😕', 'color:coral')
+		log.error('Unable to save theme preference in local storage 😕')
 	}
 }

@@ -4,7 +4,6 @@
  * @description
  * Manages multiple customizable application themes.
  */
-
 import { state, type PrimitiveState, type State } from '../utils/state'
 import THEME_DEFAULT from './themes/default.json'
 import { partition } from '../utils/partition'
@@ -157,18 +156,6 @@ export class Themer {
 		if (opts.autoInit) {
 			this.init()
 		}
-
-		// try {
-		// 	onDestroy(() => {
-		// 		this.dispose()
-		// 		if (BROWSER) {
-		// 			this.log(c('onDestroy') + '()', 'disposed')
-		// 		}
-		// 	})
-		// } catch (e) {
-		// 	console.error(e)
-		// 	// Swallow... (just means we're not in a Svelte component)
-		// }
 	}
 
 	#addSub<
@@ -354,8 +341,8 @@ export class Themer {
 			this.#style.innerHTML = css
 		}
 
-		if (document.body.getAttribute('theme') !== theme.title) {
-			document.body.setAttribute('theme', theme.title)
+		if (document.documentElement.getAttribute('theme') !== theme.title) {
+			document.documentElement.setAttribute('theme', theme.title)
 		}
 
 		return this
@@ -473,7 +460,7 @@ export class Themer {
 			css += `--${key}-rgb: ${hexToRgb(value)};\n`
 		}
 
-		return `body[theme="${config.title}"] {\n${css}\n}`
+		return `html[theme="${config.title}"] {\n${css}\n}`
 	}
 
 	dispose() {
