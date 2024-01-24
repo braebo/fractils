@@ -1,0 +1,27 @@
+{
+  "type": "ts",
+  "fileName": "Input.ts",
+  "filePath": "src/lib/gui/Input.ts",
+  "exports": [
+    {
+      "name": "InputType",
+      "type": "InputType",
+      "isDefaultExport": false
+    },
+    {
+      "name": "InputValue",
+      "type": "InputValue<T>",
+      "isDefaultExport": false
+    },
+    {
+      "name": "InputOptions",
+      "type": "InputOptions<T, V>",
+      "isDefaultExport": false
+    },
+    {
+      "name": "Input",
+      "type": "Input<T, V>",
+      "isDefaultExport": false
+    }
+  ]
+}

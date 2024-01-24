@@ -1,0 +1,10 @@
+{
+  "type": "svelte",
+  "fileName": "Select.svelte",
+  "filePath": "src/lib/gui/controls/Select.svelte",
+  "componentName": "Select",
+  "props": [],
+  "events": [],
+  "slots": [],
+  "exports": []
+}

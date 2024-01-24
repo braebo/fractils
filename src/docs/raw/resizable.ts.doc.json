@@ -8,29 +8,48 @@
       "type": "Side",
       "isDefaultExport": false,
       "comment": {
-        "raw": "/**\n * The sides of an element that can be resized by the {@link resize} action.\n */",
+        "raw": "/**\n * The sides of an element that can be resized by the {@link resizable} action.\n */",
         "links": [
           {
-            "target": "resize",
-            "text": "resize"
+            "target": "resizable",
+            "text": "resizable"
           }
         ],
-        "summary": "The sides of an element that can be resized by the [resize](#resize) action."
+        "summary": "The sides of an element that can be resized by the [resizable](#resizable) action."
       }
     },
     {
-      "name": "resize",
-      "type": "Action<HTMLElement, ResizeOptions, Record<never, any>>",
+      "name": "ResizableOptions",
+      "type": "ResizableOptions",
       "isDefaultExport": false,
       "comment": {
-        "raw": "/**\n * Makes an element resizable by dragging its edges.\n *\n * @param node - The element to make resizable.\n *\n * @param options - {@link ResizeOptions}\n *\n * @example\n *\n * Basic\n * ```svelte\n * <div use:resize> Resize Me </div>\n * ```\n *\n * @example\n *\n * Kitchen Sink\n * ```svelte\n * <div use:resize={{\n * \tsides: ['left', 'bottom'],\n * \tgutterSize: 3,\n * \tonResize: () => console.log('resized'),\n * \tpersistent: false,\n * \tvisible: false,\n * \tcolor: 'var(--fg-d)',\n * \tborderRadius: '0.5rem',\n * }} />\n * ```\n *\n */",
+        "raw": "/**\n * Options for the {@link resizable} action.\n */",
         "links": [
           {
-            "target": "ResizeOptions",
-            "text": "ResizeOptions"
+            "target": "resizable",
+            "text": "resizable"
           }
         ],
-        "summary": "Makes an element resizable by dragging its edges.",
+        "summary": "Options for the [resizable](#resizable) action."
+      }
+    },
+    {
+      "name": "Resizable",
+      "type": "Resizable",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * Makes an element resizable by dragging its edges. For the svelte-action version, see {@link resizable}.\n *\n * @param node - The element to make resizable.\n *\n * @param options - {@link ResizableOptions}\n *\n * @example\n *\n * Basic\n * ```ts\n * import { Resizable } from 'fractils'\n *\n * const node = document.createElement('div')\n * new Resizable(node)\n * ```\n *\n * @example\n *\n * Advanced\n * ```ts\n * import { Resizable } from 'fractils'\n *\n * const node = document.createElement('div')\n * new Resizable(node, {\n * \tsides: ['left', 'bottom'],\n * \tgrabberSize: 3,\n * \tonResize: () => console.log('resized'),\n * \tlocalStorageKey: 'resizableL::size',\n * \tvisible: false,\n * \tcolor: 'var(--fg-d)',\n * \tborderRadius: '0.5rem',\n * })\n * ```\n *\n */",
+        "links": [
+          {
+            "target": "resizable",
+            "text": "resizable"
+          },
+          {
+            "target": "ResizableOptions",
+            "text": "ResizableOptions"
+          }
+        ],
+        "summary": "Makes an element resizable by dragging its edges. For the\nsvelte-action version, see [resizable](#resizable).",
         "params": [
           {
             "name": "node",
@@ -38,17 +57,17 @@
           },
           {
             "name": "options",
-            "description": "{@linkResizeOptions}"
+            "description": "{@linkResizableOptions}"
           }
         ],
         "examples": [
           {
             "name": "Basic",
-            "content": "\n```svelte\n<div use:resize> Resize Me </div>\n```"
+            "content": "\n```ts\nimport { Resizable } from 'fractils'\n\nconst node = document.createElement('div')\nnew Resizable(node)\n```"
           },
           {
-            "name": "Kitchen Sink",
-            "content": "\n```svelte\n<div use:resize={{\n\tsides: ['left', 'bottom'],\n\tgutterSize: 3,\n\tonResize: () => console.log('resized'),\n\tpersistent: false,\n\tvisible: false,\n\tcolor: 'var(--fg-d)',\n\tborderRadius: '0.5rem',\n}} />\n```"
+            "name": "Advanced",
+            "content": "\n```ts\nimport { Resizable } from 'fractils'\n\nconst node = document.createElement('div')\nnew Resizable(node, {\n\tsides: ['left', 'bottom'],\n\tgrabberSize: 3,\n\tonResize: () => console.log('resized'),\n\tlocalStorageKey: 'resizableL::size',\n\tvisible: false,\n\tcolor: 'var(--fg-d)',\n\tborderRadius: '0.5rem',\n})\n```"
           }
         ]
       }

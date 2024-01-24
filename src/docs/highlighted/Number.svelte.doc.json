@@ -1,0 +1,10 @@
+{
+  "type": "svelte",
+  "fileName": "Number.svelte",
+  "filePath": "src/lib/gui/controls/Number.svelte",
+  "componentName": "Number",
+  "props": [],
+  "events": [],
+  "slots": [],
+  "exports": []
+}

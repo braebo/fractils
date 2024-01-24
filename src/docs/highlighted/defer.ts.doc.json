@@ -5,7 +5,7 @@
   "exports": [
     {
       "name": "defer",
-      "type": "(((callback: IdleRequestCallback, options?: IdleRequestOptions) => number) & typeof requestIdleCallback) | ((fn: () => void) => number)",
+      "type": "typeof requestIdleCallback | ((fn: () => void) => number)",
       "isDefaultExport": false
     },
     {

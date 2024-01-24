@@ -77,7 +77,7 @@
         "defaultValue": "'json'"
       },
       "name": "lang",
-      "type": "(string & {}) | Lang"
+      "type": "Lang | (string & {})"
     },
     {
       "comment": {

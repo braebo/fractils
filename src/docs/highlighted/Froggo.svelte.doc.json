@@ -1,0 +1,10 @@
+{
+  "type": "svelte",
+  "fileName": "Froggo.svelte",
+  "filePath": "src/lib/components/Froggo.svelte",
+  "componentName": "Froggo",
+  "props": [],
+  "events": [],
+  "slots": [],
+  "exports": []
+}

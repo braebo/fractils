@@ -1,7 +1,7 @@
 {
   "metadata": {
     "toolPackage": "@microsoft/api-extractor",
-    "toolVersion": "7.39.1",
+    "toolVersion": "7.39.3",
     "schemaVersion": 1011,
     "oldestForwardsCompatibleVersion": 1001,
     "tsdocConfig": {
@@ -193,7 +193,7 @@
         {
           "kind": "Variable",
           "canonicalReference": "fractils!add:var",
-          "docComment": "/**\n * Calls a function when the user clicks outside the element.\n *\n * @example\n * ```svelte\n * <div on:outclick={someFunction} use:add={{ whitelist: ['.burger'] }}>\n * ```\n *\n */\n",
+          "docComment": "/**\n * Adds a class to an element.\n *\n * @example\n * ```svelte\n * <div use:add={{class: 'foo'}} />\n * ```\n *\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -1531,6 +1531,112 @@
         },
         {
           "kind": "Function",
+          "canonicalReference": "fractils!create:function(1)",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare function create(tagnameOrElement: "
+            },
+            {
+              "kind": "Content",
+              "text": "string | "
+            },
+            {
+              "kind": "Reference",
+              "text": "HTMLElement",
+              "canonicalReference": "!HTMLElement:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ", options: "
+            },
+            {
+              "kind": "Content",
+              "text": "{\n    parent?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "HTMLElement",
+              "canonicalReference": "!HTMLElement:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ";\n    classes?: string[];\n    id?: string;\n    dataset?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "Record",
+              "canonicalReference": "!Record:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<string, string>;\n    textContent?: string;\n}"
+            },
+            {
+              "kind": "Content",
+              "text": ", ...children: "
+            },
+            {
+              "kind": "Reference",
+              "text": "HTMLElement",
+              "canonicalReference": "!HTMLElement:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "[]"
+            },
+            {
+              "kind": "Content",
+              "text": "): "
+            },
+            {
+              "kind": "Reference",
+              "text": "HTMLElement",
+              "canonicalReference": "!HTMLElement:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/utils/create.d.ts",
+          "returnTypeTokenRange": {
+            "startIndex": 13,
+            "endIndex": 14
+          },
+          "releaseTag": "Public",
+          "overloadIndex": 1,
+          "parameters": [
+            {
+              "parameterName": "tagnameOrElement",
+              "parameterTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              },
+              "isOptional": false
+            },
+            {
+              "parameterName": "options",
+              "parameterTypeTokenRange": {
+                "startIndex": 4,
+                "endIndex": 9
+              },
+              "isOptional": false
+            },
+            {
+              "parameterName": "children",
+              "parameterTypeTokenRange": {
+                "startIndex": 10,
+                "endIndex": 12
+              },
+              "isOptional": false
+            }
+          ],
+          "name": "create"
+        },
+        {
+          "kind": "Function",
           "canonicalReference": "fractils!decimalToPow:function(1)",
           "docComment": "/**\n * Converts a decimal to a power of 10.\n */\n",
           "excerptTokens": [
@@ -1585,25 +1691,7 @@
             },
             {
               "kind": "Content",
-              "text": "(((callback: "
-            },
-            {
-              "kind": "Reference",
-              "text": "IdleRequestCallback",
-              "canonicalReference": "!IdleRequestCallback:interface"
-            },
-            {
-              "kind": "Content",
-              "text": ", options?: "
-            },
-            {
-              "kind": "Reference",
-              "text": "IdleRequestOptions",
-              "canonicalReference": "!IdleRequestOptions:interface"
-            },
-            {
-              "kind": "Content",
-              "text": " | undefined) => number) & typeof "
+              "text": "typeof "
             },
             {
               "kind": "Reference",
@@ -1612,7 +1700,7 @@
             },
             {
               "kind": "Content",
-              "text": ") | ((fn: () => void) => number)"
+              "text": " | ((fn: () => void) => number)"
             }
           ],
           "fileUrlPath": "dist/utils/defer.d.ts",
@@ -1621,7 +1709,7 @@
           "name": "defer",
           "variableTypeTokenRange": {
             "startIndex": 1,
-            "endIndex": 8
+            "endIndex": 4
           }
         },
         {
@@ -1925,6 +2013,95 @@
             "startIndex": 1,
             "endIndex": 2
           }
+        },
+        {
+          "kind": "Class",
+          "canonicalReference": "fractils!Froggo:class",
+          "docComment": "/**\n * @typedef {typeof __propDef.slots} FroggoSlots\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export default class Froggo extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "SvelteComponent",
+              "canonicalReference": "!\"\\\"svelte\\\"\".SvelteComponent:class"
+            },
+            {
+              "kind": "Content",
+              "text": "<{\n    [x: string]: never;\n}, {\n    [evt: string]: "
+            },
+            {
+              "kind": "Reference",
+              "text": "CustomEvent",
+              "canonicalReference": "!CustomEvent:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "<any>;\n}, {}>"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "fileUrlPath": "dist/components/Froggo.svelte.d.ts",
+          "releaseTag": "Public",
+          "isAbstract": false,
+          "name": "Froggo",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "IndexSignature",
+              "canonicalReference": "fractils!Froggo:index(1)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "[x: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": "]: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "never"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "returnTypeTokenRange": {
+                "startIndex": 3,
+                "endIndex": 4
+              },
+              "releaseTag": "Public",
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "x",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                }
+              ]
+            }
+          ],
+          "extendsTokenRange": {
+            "startIndex": 1,
+            "endIndex": 5
+          },
+          "implementsTokenRanges": []
         },
         {
           "kind": "Variable",
@@ -2906,6 +3083,231 @@
         },
         {
           "kind": "Function",
+          "canonicalReference": "fractils!isDefined:function(1)",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare function isDefined<T>(value: "
+            },
+            {
+              "kind": "Content",
+              "text": "T | undefined"
+            },
+            {
+              "kind": "Content",
+              "text": "): "
+            },
+            {
+              "kind": "Reference",
+              "text": "value",
+              "canonicalReference": "fractils!~value"
+            },
+            {
+              "kind": "Content",
+              "text": " is T"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/utils/is.d.ts",
+          "returnTypeTokenRange": {
+            "startIndex": 3,
+            "endIndex": 5
+          },
+          "releaseTag": "Public",
+          "overloadIndex": 1,
+          "parameters": [
+            {
+              "parameterName": "value",
+              "parameterTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isOptional": false
+            }
+          ],
+          "typeParameters": [
+            {
+              "typeParameterName": "T",
+              "constraintTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              },
+              "defaultTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              }
+            }
+          ],
+          "name": "isDefined"
+        },
+        {
+          "kind": "Function",
+          "canonicalReference": "fractils!isMouseEvent:function(1)",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare function isMouseEvent(e: "
+            },
+            {
+              "kind": "Reference",
+              "text": "Event",
+              "canonicalReference": "!Event:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "): "
+            },
+            {
+              "kind": "Reference",
+              "text": "e",
+              "canonicalReference": "fractils!~e"
+            },
+            {
+              "kind": "Content",
+              "text": " is "
+            },
+            {
+              "kind": "Reference",
+              "text": "PointerEvent",
+              "canonicalReference": "!PointerEvent:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/utils/is.d.ts",
+          "returnTypeTokenRange": {
+            "startIndex": 3,
+            "endIndex": 6
+          },
+          "releaseTag": "Public",
+          "overloadIndex": 1,
+          "parameters": [
+            {
+              "parameterName": "e",
+              "parameterTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isOptional": false
+            }
+          ],
+          "name": "isMouseEvent"
+        },
+        {
+          "kind": "Function",
+          "canonicalReference": "fractils!isString:function(1)",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare function isString(value: "
+            },
+            {
+              "kind": "Content",
+              "text": "unknown"
+            },
+            {
+              "kind": "Content",
+              "text": "): "
+            },
+            {
+              "kind": "Reference",
+              "text": "value",
+              "canonicalReference": "fractils!~value"
+            },
+            {
+              "kind": "Content",
+              "text": " is string"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/utils/is.d.ts",
+          "returnTypeTokenRange": {
+            "startIndex": 3,
+            "endIndex": 5
+          },
+          "releaseTag": "Public",
+          "overloadIndex": 1,
+          "parameters": [
+            {
+              "parameterName": "value",
+              "parameterTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isOptional": false
+            }
+          ],
+          "name": "isString"
+        },
+        {
+          "kind": "Function",
+          "canonicalReference": "fractils!isTouchEvent:function(1)",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export declare function isTouchEvent(e: "
+            },
+            {
+              "kind": "Reference",
+              "text": "Event",
+              "canonicalReference": "!Event:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "): "
+            },
+            {
+              "kind": "Reference",
+              "text": "e",
+              "canonicalReference": "fractils!~e"
+            },
+            {
+              "kind": "Content",
+              "text": " is "
+            },
+            {
+              "kind": "Reference",
+              "text": "TouchEvent",
+              "canonicalReference": "!TouchEvent:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/utils/is.d.ts",
+          "returnTypeTokenRange": {
+            "startIndex": 3,
+            "endIndex": 6
+          },
+          "releaseTag": "Public",
+          "overloadIndex": 1,
+          "parameters": [
+            {
+              "parameterName": "e",
+              "parameterTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "isOptional": false
+            }
+          ],
+          "name": "isTouchEvent"
+        },
+        {
+          "kind": "Function",
           "canonicalReference": "fractils!j:function(1)",
           "docComment": "/**\n * JSON.Stringify\n */\n",
           "excerptTokens": [
@@ -3113,7 +3515,7 @@
         {
           "kind": "Variable",
           "canonicalReference": "fractils!localStorageStore:var",
-          "docComment": "/**\n * A Svelte store that uses localStorage to store data asyncronously.\n *\n * @param key - The key to store the data under.\n *\n * @param initial - The initial value of the store.\n *\n * @example\n *\n * const store = localStorageStore('foo', 'bar')\n */\n",
+          "docComment": "/**\n * A Svelte store that uses localStorage to store data asyncronously. It supports debouncing and deferring localStorage updates, and syncronizes with localStorage events across tabs.\n *\n * @param key - The key to store the data under.\n *\n * @param initial - The initial value of the store.\n *\n * @param options - {@link StateOptions}\n *\n * @example\n * ```ts\n * const store = localStorageStore('foo', 5)\n * ```\n *\n */\n",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -3121,7 +3523,16 @@
             },
             {
               "kind": "Content",
-              "text": "<T>(key: string, initial: T) => "
+              "text": "<T>(key: string, initial: T, options?: "
+            },
+            {
+              "kind": "Reference",
+              "text": "StateOptions",
+              "canonicalReference": "fractils!~StateOptions:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "<T> | undefined) => "
             },
             {
               "kind": "Reference",
@@ -3139,7 +3550,7 @@
           "name": "localStorageStore",
           "variableTypeTokenRange": {
             "startIndex": 1,
-            "endIndex": 4
+            "endIndex": 6
           }
         },
         {
@@ -3536,7 +3947,7 @@
         {
           "kind": "Function",
           "canonicalReference": "fractils!o:function(1)",
-          "docComment": "/**\n * orange chalk.hex('#cc6630')\n */\n",
+          "docComment": "",
           "excerptTokens": [
             {
               "kind": "Content",
@@ -3970,6 +4381,389 @@
           "implementsTokenRanges": []
         },
         {
+          "kind": "Class",
+          "canonicalReference": "fractils!Resizable:class",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export default class Resizable extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "SvelteComponent",
+              "canonicalReference": "!\"\\\"svelte\\\"\".SvelteComponent:class"
+            },
+            {
+              "kind": "Content",
+              "text": "<"
+            },
+            {
+              "kind": "Reference",
+              "text": "ResizableProps",
+              "canonicalReference": "fractils!~ResizableProps:type"
+            },
+            {
+              "kind": "Content",
+              "text": ", "
+            },
+            {
+              "kind": "Reference",
+              "text": "ResizableEvents",
+              "canonicalReference": "fractils!~ResizableEvents_2:type"
+            },
+            {
+              "kind": "Content",
+              "text": ", "
+            },
+            {
+              "kind": "Reference",
+              "text": "ResizableSlots",
+              "canonicalReference": "fractils!~ResizableSlots:type"
+            },
+            {
+              "kind": "Content",
+              "text": ">"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "fileUrlPath": "dist/components/Resizable.svelte.d.ts",
+          "releaseTag": "Public",
+          "isAbstract": false,
+          "name": "Resizable",
+          "preserveMemberOrder": false,
+          "members": [],
+          "extendsTokenRange": {
+            "startIndex": 1,
+            "endIndex": 9
+          },
+          "implementsTokenRanges": []
+        },
+        {
+          "kind": "Variable",
+          "canonicalReference": "fractils!resizable:var",
+          "docComment": "/**\n * Svelte-action version of {@link Resizable}.\n *\n * @example\n *\n * Basic\n * ```svelte\n * <div use:resize> Resize Me </div>\n * ```\n *\n * @example\n *\n * Advanced\n * ```svelte\n * <script>\n * \timport { resize } from 'fractils'\n * </script>\n *\n * <div use:resize={{\n * \tsides: ['left', 'bottom'],\n * \tgrabberSize: 3,\n * \tonResize: () => console.log('resized'),\n * \tlocalStorageKey: 'resizable::size',\n * \tvisible: false,\n * \tcolor: 'var(--fg-d)',\n * \tborderRadius: '0.5rem',\n * }} />\n * ```\n *\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "resizable: "
+            },
+            {
+              "kind": "Reference",
+              "text": "Action",
+              "canonicalReference": "!\"\\\"svelte/action\\\"\".Action:interface"
+            },
+            {
+              "kind": "Content",
+              "text": "<"
+            },
+            {
+              "kind": "Reference",
+              "text": "HTMLElement",
+              "canonicalReference": "!HTMLElement:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ", "
+            },
+            {
+              "kind": "Reference",
+              "text": "ResizableOptions",
+              "canonicalReference": "fractils!ResizableOptions:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ", "
+            },
+            {
+              "kind": "Reference",
+              "text": "ResizableEvents",
+              "canonicalReference": "fractils!ResizableEvents:interface"
+            },
+            {
+              "kind": "Content",
+              "text": ">"
+            }
+          ],
+          "fileUrlPath": "dist/actions/resizable.d.ts",
+          "isReadonly": true,
+          "releaseTag": "Public",
+          "name": "resizable",
+          "variableTypeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 9
+          }
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "fractils!ResizableEvents:interface",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface ResizableEvents "
+            }
+          ],
+          "fileUrlPath": "dist/actions/resizable.d.ts",
+          "releaseTag": "Public",
+          "name": "ResizableEvents",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "fractils!ResizableEvents#\"on:resize\":member",
+              "docComment": "/**\n * Dispatched when the element is resized.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "'on:resize'?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "(event: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "CustomEvent",
+                  "canonicalReference": "!CustomEvent:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ") => void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "\"on:resize\"",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 4
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
+          "kind": "Interface",
+          "canonicalReference": "fractils!ResizableOptions:interface",
+          "docComment": "/**\n * Options for the {@link resizable} action.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export interface ResizableOptions "
+            }
+          ],
+          "fileUrlPath": "dist/utils/resizable.d.ts",
+          "releaseTag": "Public",
+          "name": "ResizableOptions",
+          "preserveMemberOrder": false,
+          "members": [
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "fractils!ResizableOptions#borderRadius:member",
+              "docComment": "/**\n * Border radius of the element.\n *\n * @default\n *\n * '0.5rem'\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "borderRadius?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "borderRadius",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "fractils!ResizableOptions#color:member",
+              "docComment": "/**\n * Gutter css color (if visible = `true`)\n *\n * @default\n *\n * 'var(--fg-d, #1d1d1d)'\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "color?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "color",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "fractils!ResizableOptions#grabberSize:member",
+              "docComment": "/**\n * The size of the resize handle in pixels.\n *\n * @default\n *\n * 3\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "grabberSize?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "number | string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "grabberSize",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "fractils!ResizableOptions#localStorageKey:member",
+              "docComment": "/**\n * If provided, the size of the element will be persisted to local storage under the specified key.\n *\n * @default\n *\n * undefined\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "localStorageKey?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "string"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "localStorageKey",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "fractils!ResizableOptions#onResize:member",
+              "docComment": "/**\n * Optional callback function that runs when the element is resized.\n *\n * @default\n *\n * () => void\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "onResize?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "(size: {\n        width: number;\n        height: number;\n    }) => void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "onResize",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "fractils!ResizableOptions#sides:member",
+              "docComment": "/**\n * To only allow resizing on certain sides, specify them here.\n *\n * @default\n *\n * ['top', 'right', 'bottom', 'left']\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "sides?: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "Side",
+                  "canonicalReference": "fractils!Side:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": "[]"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "sides",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 3
+              }
+            },
+            {
+              "kind": "PropertySignature",
+              "canonicalReference": "fractils!ResizableOptions#visible:member",
+              "docComment": "/**\n * Use a visible or invisible gutter.\n *\n * @default\n *\n * false\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "visible?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "boolean"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isReadonly": false,
+              "isOptional": true,
+              "releaseTag": "Public",
+              "name": "visible",
+              "propertyTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              }
+            }
+          ],
+          "extendsTokenRanges": []
+        },
+        {
           "kind": "Function",
           "canonicalReference": "fractils!resolveArg:function(1)",
           "docComment": "/**\n * Get the value of a command line argument by name from an array of arguments.\n */\n",
@@ -4106,6 +4900,68 @@
             }
           ],
           "name": "rgbToHex"
+        },
+        {
+          "kind": "Class",
+          "canonicalReference": "fractils!Root:class",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export default class Gui extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "SvelteComponent",
+              "canonicalReference": "!\"\\\"svelte\\\"\".SvelteComponent:class"
+            },
+            {
+              "kind": "Content",
+              "text": "<"
+            },
+            {
+              "kind": "Reference",
+              "text": "GuiProps",
+              "canonicalReference": "fractils!~GuiProps:type"
+            },
+            {
+              "kind": "Content",
+              "text": ", "
+            },
+            {
+              "kind": "Reference",
+              "text": "GuiEvents",
+              "canonicalReference": "fractils!~GuiEvents:type"
+            },
+            {
+              "kind": "Content",
+              "text": ", "
+            },
+            {
+              "kind": "Reference",
+              "text": "GuiSlots",
+              "canonicalReference": "fractils!~GuiSlots:type"
+            },
+            {
+              "kind": "Content",
+              "text": ">"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "fileUrlPath": "dist/gui/Gui.svelte.d.ts",
+          "releaseTag": "Public",
+          "isAbstract": false,
+          "name": "Root",
+          "preserveMemberOrder": false,
+          "members": [],
+          "extendsTokenRange": {
+            "startIndex": 1,
+            "endIndex": 9
+          },
+          "implementsTokenRanges": []
         },
         {
           "kind": "Variable",
@@ -4248,6 +5104,81 @@
           }
         },
         {
+          "kind": "Class",
+          "canonicalReference": "fractils!Select:class",
+          "docComment": "",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export default class Select<V> extends "
+            },
+            {
+              "kind": "Reference",
+              "text": "SvelteComponent",
+              "canonicalReference": "!\"\\\"svelte\\\"\".SvelteComponent:class"
+            },
+            {
+              "kind": "Content",
+              "text": "<"
+            },
+            {
+              "kind": "Reference",
+              "text": "SelectProps",
+              "canonicalReference": "fractils!~SelectProps:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<V>, "
+            },
+            {
+              "kind": "Reference",
+              "text": "SelectEvents",
+              "canonicalReference": "fractils!~SelectEvents:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<V>, "
+            },
+            {
+              "kind": "Reference",
+              "text": "SelectSlots",
+              "canonicalReference": "fractils!~SelectSlots:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<V>>"
+            },
+            {
+              "kind": "Content",
+              "text": " "
+            }
+          ],
+          "fileUrlPath": "dist/gui/controls/Select.svelte.d.ts",
+          "releaseTag": "Public",
+          "typeParameters": [
+            {
+              "typeParameterName": "V",
+              "constraintTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              },
+              "defaultTypeTokenRange": {
+                "startIndex": 0,
+                "endIndex": 0
+              }
+            }
+          ],
+          "isAbstract": false,
+          "name": "Select",
+          "preserveMemberOrder": false,
+          "members": [],
+          "extendsTokenRange": {
+            "startIndex": 1,
+            "endIndex": 9
+          },
+          "implementsTokenRanges": []
+        },
+        {
           "kind": "Function",
           "canonicalReference": "fractils!serialize:function(1)",
           "docComment": "/**\n * Replaces circular references, undefined values, and functions with strings. - Circular references are replaced with the string `[Circular ~<path>]` where `<path>` is the path to the circular reference relative to the root object, i.e. `[Circular ~.b.c]`. - `undefined` values are replaced with the string `\"undefined\"`. - Functions are replaced with the string `\"function\"`.\n *\n * @returns A replacer function for JSON.stringify.\n */\n",
@@ -4274,6 +5205,32 @@
           "overloadIndex": 1,
           "parameters": [],
           "name": "serialize"
+        },
+        {
+          "kind": "TypeAlias",
+          "canonicalReference": "fractils!Side:type",
+          "docComment": "/**\n * The sides of an element that can be resized by the {@link resizable} action.\n */\n",
+          "excerptTokens": [
+            {
+              "kind": "Content",
+              "text": "export type Side = "
+            },
+            {
+              "kind": "Content",
+              "text": "'top' | 'right' | 'bottom' | 'left'"
+            },
+            {
+              "kind": "Content",
+              "text": ";"
+            }
+          ],
+          "fileUrlPath": "dist/utils/resizable.d.ts",
+          "releaseTag": "Public",
+          "name": "Side",
+          "typeTokenRange": {
+            "startIndex": 1,
+            "endIndex": 2
+          }
         },
         {
           "kind": "Function",
@@ -4613,12 +5570,30 @@
             },
             {
               "kind": "Content",
-              "text": "import(\"svelte/store\")."
+              "text": "{\n    set: (value: "
             },
             {
               "kind": "Reference",
-              "text": "Writable",
-              "canonicalReference": "!\"\\\"svelte/store\\\"\".Writable:interface"
+              "text": "Theme",
+              "canonicalReference": "fractils!~Theme_2:type"
+            },
+            {
+              "kind": "Content",
+              "text": ") => void;\n} & "
+            },
+            {
+              "kind": "Reference",
+              "text": "Omit",
+              "canonicalReference": "!Omit:type"
+            },
+            {
+              "kind": "Content",
+              "text": "<import(\"../utils/state\")."
+            },
+            {
+              "kind": "Reference",
+              "text": "PrimitiveState",
+              "canonicalReference": "fractils!~PrimitiveState:interface"
             },
             {
               "kind": "Content",
@@ -4631,7 +5606,7 @@
             },
             {
               "kind": "Content",
-              "text": ">"
+              "text": ">, \"set\">"
             }
           ],
           "fileUrlPath": "dist/theme/theme.d.ts",
@@ -4640,7 +5615,7 @@
           "name": "theme",
           "variableTypeTokenRange": {
             "startIndex": 1,
-            "endIndex": 6
+            "endIndex": 10
           }
         },
         {
@@ -4650,33 +5625,11 @@
           "excerptTokens": [
             {
               "kind": "Content",
-              "text": "export declare class Themer<T extends "
-            },
-            {
-              "kind": "Reference",
-              "text": "ThemeTitle",
-              "canonicalReference": "fractils!~ThemeTitle:type"
-            },
-            {
-              "kind": "Content",
-              "text": "> "
+              "text": "export declare class Themer "
             }
           ],
           "fileUrlPath": "dist/theme/Themer.d.ts",
           "releaseTag": "Public",
-          "typeParameters": [
-            {
-              "typeParameterName": "T",
-              "constraintTokenRange": {
-                "startIndex": 1,
-                "endIndex": 2
-              },
-              "defaultTypeTokenRange": {
-                "startIndex": 0,
-                "endIndex": 0
-              }
-            }
-          ],
           "isAbstract": false,
           "name": "Themer",
           "preserveMemberOrder": false,
@@ -4759,71 +5712,6 @@
             },
             {
               "kind": "Method",
-              "canonicalReference": "fractils!Themer#addTheme:member(1)",
-              "docComment": "/**\n * Adds a new theme to the Themer and optionally saves it to localStorage.\n */\n",
-              "excerptTokens": [
-                {
-                  "kind": "Content",
-                  "text": "addTheme(newTheme: "
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ThemeConfig",
-                  "canonicalReference": "fractils!~ThemeConfig:interface"
-                },
-                {
-                  "kind": "Content",
-                  "text": ", options?: "
-                },
-                {
-                  "kind": "Content",
-                  "text": "{\n        overwrite?: boolean;\n        save?: boolean;\n    }"
-                },
-                {
-                  "kind": "Content",
-                  "text": "): "
-                },
-                {
-                  "kind": "Content",
-                  "text": "this"
-                },
-                {
-                  "kind": "Content",
-                  "text": ";"
-                }
-              ],
-              "isStatic": false,
-              "returnTypeTokenRange": {
-                "startIndex": 5,
-                "endIndex": 6
-              },
-              "releaseTag": "Public",
-              "isProtected": false,
-              "overloadIndex": 1,
-              "parameters": [
-                {
-                  "parameterName": "newTheme",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 1,
-                    "endIndex": 2
-                  },
-                  "isOptional": false
-                },
-                {
-                  "parameterName": "options",
-                  "parameterTypeTokenRange": {
-                    "startIndex": 3,
-                    "endIndex": 4
-                  },
-                  "isOptional": true
-                }
-              ],
-              "isOptional": false,
-              "isAbstract": false,
-              "name": "addTheme"
-            },
-            {
-              "kind": "Method",
               "canonicalReference": "fractils!Themer#applyTheme:member(1)",
               "docComment": "/**\n * Applies the current theme to the document.\n */\n",
               "excerptTokens": [
@@ -4883,6 +5771,160 @@
               "isOptional": false,
               "isAbstract": false,
               "name": "clear"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "fractils!Themer#create:member(1)",
+              "docComment": "/**\n * Adds a new theme to the Themer and optionally saves it to localStorage.\n */\n",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "create(\n    newTheme: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ThemeConfig",
+                  "canonicalReference": "fractils!~ThemeConfig:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": ", options?: "
+                },
+                {
+                  "kind": "Content",
+                  "text": "{\n        overwrite?: boolean;\n        save?: boolean;\n    }"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "this"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "newTheme",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 2
+                  },
+                  "isOptional": false
+                },
+                {
+                  "parameterName": "options",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 3,
+                    "endIndex": 4
+                  },
+                  "isOptional": true
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "create"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "fractils!Themer#delete:member(1)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "delete(themeOrTitle: "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ThemeTitle",
+                  "canonicalReference": "fractils!~ThemeTitle:type"
+                },
+                {
+                  "kind": "Content",
+                  "text": " | "
+                },
+                {
+                  "kind": "Reference",
+                  "text": "ThemeConfig",
+                  "canonicalReference": "fractils!~ThemeConfig:interface"
+                },
+                {
+                  "kind": "Content",
+                  "text": "): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "this"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 5,
+                "endIndex": 6
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [
+                {
+                  "parameterName": "themeOrTitle",
+                  "parameterTypeTokenRange": {
+                    "startIndex": 1,
+                    "endIndex": 4
+                  },
+                  "isOptional": false
+                }
+              ],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "delete"
+            },
+            {
+              "kind": "Method",
+              "canonicalReference": "fractils!Themer#dispose:member(1)",
+              "docComment": "",
+              "excerptTokens": [
+                {
+                  "kind": "Content",
+                  "text": "dispose(): "
+                },
+                {
+                  "kind": "Content",
+                  "text": "void"
+                },
+                {
+                  "kind": "Content",
+                  "text": ";"
+                }
+              ],
+              "isStatic": false,
+              "returnTypeTokenRange": {
+                "startIndex": 1,
+                "endIndex": 2
+              },
+              "releaseTag": "Public",
+              "isProtected": false,
+              "overloadIndex": 1,
+              "parameters": [],
+              "isOptional": false,
+              "isAbstract": false,
+              "name": "dispose"
             },
             {
               "kind": "Method",
@@ -4949,10 +5991,6 @@
                 },
                 {
                   "kind": "Content",
-                  "text": " | T"
-                },
-                {
-                  "kind": "Content",
                   "text": "): "
                 },
                 {
@@ -4971,8 +6009,8 @@
               ],
               "isStatic": false,
               "returnTypeTokenRange": {
-                "startIndex": 4,
-                "endIndex": 6
+                "startIndex": 3,
+                "endIndex": 5
               },
               "releaseTag": "Public",
               "isProtected": false,
@@ -4982,7 +6020,7 @@
                   "parameterName": "themeTitle",
                   "parameterTypeTokenRange": {
                     "startIndex": 1,
-                    "endIndex": 3
+                    "endIndex": 2
                   },
                   "isOptional": false
                 }
@@ -5099,16 +6137,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": "<"
-                },
-                {
-                  "kind": "Reference",
-                  "text": "ThemeMode",
-                  "canonicalReference": "fractils!~ThemeMode:type"
-                },
-                {
-                  "kind": "Content",
-                  "text": ">"
+                  "text": "<'light' | 'dark' | 'system'>"
                 },
                 {
                   "kind": "Content",
@@ -5121,7 +6150,7 @@
               "name": "mode",
               "propertyTypeTokenRange": {
                 "startIndex": 1,
-                "endIndex": 5
+                "endIndex": 3
               },
               "isStatic": false,
               "isProtected": false,
@@ -5156,7 +6185,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ";\n        mode: \"dark\" | \"light\" | \"system\";\n    } | undefined"
+                  "text": ";\n        mode: \"light\" | \"dark\" | \"system\";\n    } | undefined"
                 },
                 {
                   "kind": "Content",
@@ -5293,7 +6322,7 @@
                 },
                 {
                   "kind": "Content",
-                  "text": ";\n        mode: \"dark\" | \"light\" | \"system\";\n    }"
+                  "text": ";\n        mode: \"light\" | \"dark\" | \"system\";\n    }"
                 },
                 {
                   "kind": "Content",

@@ -1,0 +1,24 @@
+{
+  "type": "svelte",
+  "fileName": "Socket.svelte",
+  "filePath": "src/lib/gui/Socket.svelte",
+  "comment": {
+    "raw": "/**\n * A generic wrapper around a control to ease integration with the {@link Root} component.\n *\n * @see\n *\n * [Root](/gui/Root)\n *\n * @internal\n */",
+    "links": [
+      {
+        "target": "Root",
+        "text": "Root"
+      }
+    ],
+    "summary": "<p>A generic wrapper around a control to ease integration with the\n<a href=\"#Root\">Root</a> component.</p>\n",
+    "seeBlocks": [
+      "[Root](/gui/Root)"
+    ],
+    "internal": true
+  },
+  "componentName": "Socket",
+  "props": [],
+  "events": [],
+  "slots": [],
+  "exports": []
+}

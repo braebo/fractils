@@ -8,8 +8,14 @@
       "type": "typeof state",
       "isDefaultExport": false,
       "comment": {
-        "raw": "/**\n * An advanced store factory that adds support for Maps, Sets, and Arrays (enabling methods `.push` and `.add`), as well as a second argument for overriding the default store methods like `.set` and `.update`. It also adds a `.get` method for retrieving the current value of the store without subscribing to it.\n *\n * @remarks\n *\n * `state` boasts comprehensive type safety, leveraging conditional types and inference to provide the correct types and methods for the store based on the `defaultValue` argument (or the provided generic type).\n *\n * @param defaultValue - The default value of the store.\n *\n * @param options - Optional overrides for the default store methods.\n *\n * @example\n * ```svelte\n * <script lang=\"ts\">\n * \timport { state } from 'fractils'\n *\n * \tconst foo = state([1, 2, 3])\n * \tfoo.push(4)\n * \tfoo.push('5') // Type error\n *\n * \tconst bar = state(new Map<string, number>())\n * \tbar.setKey('count', 21) // note: `set` is taken, so we use `setKey` and `deleteKey`\n *\n * \tconst baz = state(new Set<number>())\n * \tbaz.add(5)\n *  baz.push(6) // Type error\n * </script>\n *\n * <h1>{$foo} {$bar} {$baz}</h1>\n * ```\n *\n */",
-        "summary": "An advanced store factory that adds support for Maps, Sets, and Arrays\n(enabling methods `.push` and `.add`), as well as a second argument for\noverriding the default store methods like `.set` and `.update`. It also\nadds a `.get` method for retrieving the current value of the store without\nsubscribing to it.",
+        "raw": "/**\n * An advanced store factory with additional features:\n *\n * - Support for Maps, Sets, and Arrays (enabling methods like `.push` and `.add`). - A `.get` method for retrieving the current value of the store. - Optional `onChange` callback for adding side effects without subscribing. - Optional `key` argument for persisting the store to local storage.\n *\n * @param defaultValue - The default value of the store.\n *\n * @param options - {@link StateOptions}\n *\n * @example\n * ```svelte\n * <script lang=\"ts\">\n * \timport { state } from 'fractils'\n *\n * \tconst foo = state([1, 2, 3], { key: 'foo' }) // persisted to local storage\n * \tfoo.push(4)\n * \tfoo.push('5') // Type error\n *\n * \tconst bar = state(new Map<string, number>())\n * \tbar.setKey('count', 21) // `set` is taken, so we use `setKey` and `deleteKey`\n *\n * \tconst baz = state(new Set<number>())\n * \tbaz.add(5)\n * \tbaz.push(6) // Type error\n * </script>\n *\n * <h1>{$foo} {$bar} {$baz}</h1>\n * ```\n *\n */",
+        "links": [
+          {
+            "target": "StateOptions",
+            "text": "StateOptions"
+          }
+        ],
+        "summary": "An advanced store factory with additional features:\n\n- Support for Maps, Sets, and Arrays (enabling methods like `.push` and `.add`).\n- A `.get` method for retrieving the current value of the store.\n- Optional `onChange` callback for adding side effects without subscribing.\n- Optional `key` argument for persisting the store to local storage.",
         "params": [
           {
             "name": "defaultValue",
@@ -17,20 +23,29 @@
           },
           {
             "name": "options",
-            "description": "Optional overrides for the default store methods."
+            "description": "{@linkStateOptions}"
           }
         ],
-        "remarks": "`state`boasts comprehensive type safety, leveraging conditionaltypes and inference to provide the correct types and methods for the storebased on the`defaultValue`argument (or the provided generic type).",
         "examples": [
           {
-            "content": "```svelte\n<script lang=\"ts\">\n\timport { state } from 'fractils'\n\n\tconst foo = state([1, 2, 3])\n\tfoo.push(4)\n\tfoo.push('5') // Type error\n\n\tconst bar = state(new Map<string, number>())\n\tbar.setKey('count', 21) // note: `set` is taken, so we use `setKey` and `deleteKey`\n\n\tconst baz = state(new Set<number>())\n\tbaz.add(5)\nbaz.push(6) // Type error\n</script>\n\n<h1>{$foo} {$bar} {$baz}</h1>\n```"
+            "content": "```svelte\n<script lang=\"ts\">\n\timport { state } from 'fractils'\n\n\tconst foo = state([1, 2, 3], { key: 'foo' }) // persisted to local storage\n\tfoo.push(4)\n\tfoo.push('5') // Type error\n\n\tconst bar = state(new Map<string, number>())\n\tbar.setKey('count', 21) // `set` is taken, so we use `setKey` and `deleteKey`\n\n\tconst baz = state(new Set<number>())\n\tbaz.add(5)\n\tbaz.push(6) // Type error\n</script>\n\n<h1>{$foo} {$bar} {$baz}</h1>\n```"
           }
         ]
       }
     },
     {
+      "name": "PrimitiveState",
+      "type": "PrimitiveState<T>",
+      "isDefaultExport": false
+    },
+    {
       "name": "State",
       "type": "State<T>",
+      "isDefaultExport": false
+    },
+    {
+      "name": "StateOptions",
+      "type": "StateOptions<T>",
       "isDefaultExport": false
     }
   ]

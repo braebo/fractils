@@ -1,0 +1,26 @@
+{
+  "type": "ts",
+  "fileName": "Gui.ts",
+  "filePath": "src/lib/gui/Gui.ts",
+  "exports": [
+    {
+      "name": "GuiOptions",
+      "type": "GuiOptions",
+      "isDefaultExport": false
+    },
+    {
+      "name": "GUI_DEFAULTS",
+      "type": "{ readonly title: \"Controls\"; readonly controls: Map<any, any>; readonly children: []; readonly themer: true; readonly themerOptions: {}; readonly resizable: true; readonly draggable: true; readonly storage: { readonly key: \"fractils::gui\"; readonly size: true; readonly position: true; readonly closed: true; readonly debounce: 50; }; readonly closed: false; readonly size: { readonly width: 0; readonly height: 0; }; readonly position: { readonly x: 16; readonly y: 16; }; }",
+      "isDefaultExport": false
+    },
+    {
+      "name": "Gui",
+      "type": "Gui",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * The root Gui instance. This is the entry point for creating a gui. You can create multiple root guis, but each gui can only have one root.\n */",
+        "summary": "The root Gui instance. This is the entry point for creating\na gui. You can create multiple root guis, but each gui\ncan only have one root."
+      }
+    }
+  ]
+}

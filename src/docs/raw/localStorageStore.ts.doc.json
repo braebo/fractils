@@ -4,12 +4,23 @@
   "filePath": "src/lib/utils/localStorageStore.ts",
   "exports": [
     {
+      "name": "StateOptions",
+      "type": "StateOptions<T>",
+      "isDefaultExport": false
+    },
+    {
       "name": "localStorageStore",
-      "type": "<T>(key: string, initial: T) => Writable<T>",
+      "type": "<T>(key: string, initial: T, options?: StateOptions<T>) => Writable<T>",
       "isDefaultExport": false,
       "comment": {
-        "raw": "/**\n * A Svelte store that uses localStorage to store data asyncronously.\n *\n * @param key - The key to store the data under.\n *\n * @param initial - The initial value of the store.\n *\n * @example\n *\n * const store = localStorageStore('foo', 'bar')\n */",
-        "summary": "A Svelte store that uses localStorage to store data asyncronously.",
+        "raw": "/**\n * A Svelte store that uses localStorage to store data asyncronously. It supports debouncing and deferring localStorage updates, and syncronizes with localStorage events across tabs.\n *\n * @param key - The key to store the data under.\n *\n * @param initial - The initial value of the store.\n *\n * @param options - {@link StateOptions}\n *\n * @example\n * ```ts\n * const store = localStorageStore('foo', 5)\n * ```\n *\n */",
+        "links": [
+          {
+            "target": "StateOptions",
+            "text": "StateOptions"
+          }
+        ],
+        "summary": "A Svelte store that uses localStorage to store data asyncronously.\nIt supports debouncing and deferring localStorage updates, and\nsyncronizes with localStorage events across tabs.",
         "params": [
           {
             "name": "key",
@@ -18,12 +29,15 @@
           {
             "name": "initial",
             "description": "The initial value of the store."
+          },
+          {
+            "name": "options",
+            "description": "{@linkStateOptions}"
           }
         ],
         "examples": [
           {
-            "name": "const store = localStorageStore('foo', 'bar')",
-            "content": ""
+            "content": "```ts\nconst store = localStorageStore('foo', 5)\n```"
           }
         ]
       }

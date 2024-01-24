@@ -28,7 +28,7 @@
         "defaultValue": "'right'"
       },
       "name": "placement",
-      "type": "(string & {}) | \"left\" | \"right\" | \"top\" | \"bottom\""
+      "type": "\"left\" | \"right\" | \"top\" | \"bottom\" | (string & {})"
     },
     {
       "comment": {

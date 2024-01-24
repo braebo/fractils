@@ -161,7 +161,7 @@
      * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>
      * DEFAULT VALUE: "<projectFolder>/temp/"
      */
-    "reportFolder": "<projectFolder>/src/",
+    "reportFolder": "<projectFolder>/src/meta/",
 
     /**
      * Specifies the folder where the temporary report file is written.  The file name portion is determined by
@@ -206,7 +206,7 @@
      * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>
      * DEFAULT VALUE: "<projectFolder>/temp/<unscopedPackageName>.api.json"
      */
-    "apiJsonFilePath": "<projectFolder>/src/<unscopedPackageName>.api.json",
+    "apiJsonFilePath": "<projectFolder>/src/meta/<unscopedPackageName>.api.json",
 
     /**
      * Whether "forgotten exports" should be included in the doc model file. Forgotten exports are declarations
@@ -255,7 +255,7 @@
      * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>
      * DEFAULT VALUE: "<projectFolder>/dist/<unscopedPackageName>.d.ts"
      */
-    "untrimmedFilePath": "<projectFolder>/src/<unscopedPackageName>.d.ts"
+    "untrimmedFilePath": "<projectFolder>/src/meta/<unscopedPackageName>.d.ts"
 
     /**
      * Specifies the output path for a .d.ts rollup file to be generated with trimming for an "alpha" release.

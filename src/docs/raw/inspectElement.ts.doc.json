@@ -1,0 +1,12 @@
+{
+  "type": "ts",
+  "fileName": "inspectElement.ts",
+  "filePath": "src/lib/actions/inspectElement.ts",
+  "exports": [
+    {
+      "name": "inspectElement",
+      "type": "Action<HTMLElement, undefined, Record<never, any>>",
+      "isDefaultExport": false
+    }
+  ]
+}

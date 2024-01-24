@@ -69,11 +69,7 @@
     {
       "name": "o",
       "type": "typeof o",
-      "isDefaultExport": false,
-      "comment": {
-        "raw": "/**\n * orange chalk.hex('#cc6630')\n */",
-        "summary": "orange chalk.hex('#cc6630')"
-      }
+      "isDefaultExport": false
     },
     {
       "name": "p",
@@ -155,6 +151,11 @@
         "raw": "/**\n * JSON.Stringify\n */",
         "summary": "JSON.Stringify"
       }
+    },
+    {
+      "name": "fn",
+      "type": "typeof fn",
+      "isDefaultExport": false
     }
   ]
 }

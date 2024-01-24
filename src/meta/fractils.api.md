@@ -119,11 +119,20 @@ export class Copy extends SvelteComponent<{
 }, {}> {
 }
 
+// @public (undocumented)
+export function create(tagnameOrElement: string | HTMLElement, options: {
+    parent?: HTMLElement;
+    classes?: string[];
+    id?: string;
+    dataset?: Record<string, string>;
+    textContent?: string;
+}, ...children: HTMLElement[]): HTMLElement;
+
 // @public
 export function decimalToPow(value: number): number;
 
 // @public (undocumented)
-export const defer: (((callback: IdleRequestCallback, options?: IdleRequestOptions | undefined) => number) & typeof requestIdleCallback) | ((fn: () => void) => number);
+export const defer: typeof requestIdleCallback | ((fn: () => void) => number);
 
 // Warning: (ae-forgotten-export) The symbol "DeviceProps" needs to be exported by the entry point index.d.ts
 // Warning: (ae-forgotten-export) The symbol "DeviceEvents" needs to be exported by the entry point index.d.ts
@@ -155,6 +164,14 @@ export function fmtTime(n: number): string;
 
 // @public
 export const fontSize: `${number}px`;
+
+// @public
+export class Froggo extends SvelteComponent<{
+    [x: string]: never;
+}, {
+    [evt: string]: CustomEvent<any>;
+}, {}> {
+}
 
 // @public (undocumented)
 export const fullscreen: Action;
@@ -237,6 +254,18 @@ export function initTheme(): Promise<void>;
 export class Inspector extends SvelteComponent<InspectorProps, InspectorEvents, InspectorSlots> {
 }
 
+// @public (undocumented)
+export function isDefined<T>(value: T | undefined): value is T;
+
+// @public (undocumented)
+export function isMouseEvent(e: Event): e is PointerEvent;
+
+// @public (undocumented)
+export function isString(value: unknown): value is string;
+
+// @public (undocumented)
+export function isTouchEvent(e: Event): e is TouchEvent;
+
 // @public
 export function j(o: unknown): string;
 
@@ -249,8 +278,10 @@ export function l(...args: unknown[]): void;
 // @public
 export function lg(...args: unknown[]): string;
 
+// Warning: (ae-forgotten-export) The symbol "StateOptions" needs to be exported by the entry point index.d.ts
+//
 // @public
-export const localStorageStore: <T>(key: string, initial: T) => Writable<T>;
+export const localStorageStore: <T>(key: string, initial: T, options?: StateOptions<T> | undefined) => Writable<T>;
 
 // @public
 export const log: (msg: string | any, color?: string, bgColor?: string, fontSize?: number, css?: string) => void;
@@ -290,7 +321,7 @@ y: number;
 export function n(
 count?: number): void;
 
-// @public
+// @public (undocumented)
 export function o(...args: unknown[]): string;
 
 // @public
@@ -330,11 +361,49 @@ class Range_2 extends SvelteComponent<RangeProps, RangeEvents, RangeSlots> {
 }
 export { Range_2 as Range }
 
+// Warning: (ae-forgotten-export) The symbol "ResizableProps" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "ResizableEvents_2" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "ResizableSlots" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export class Resizable extends SvelteComponent<ResizableProps, ResizableEvents_2, ResizableSlots> {
+}
+
+// @public
+export const resizable: Action<HTMLElement, ResizableOptions, ResizableEvents>;
+
+// @public (undocumented)
+export interface ResizableEvents {
+    'on:resize'?: (event: CustomEvent) => void;
+}
+
+// @public
+export interface ResizableOptions {
+    borderRadius?: string;
+    color?: string;
+    grabberSize?: number | string;
+    localStorageKey?: string;
+    onResize?: (size: {
+        width: number;
+        height: number;
+    }) => void;
+    sides?: Side[];
+    visible?: boolean;
+}
+
 // @public
 export function resolveArg(name: string, args: string[]): string | true | undefined;
 
 // @public
 export function rgbToHex(r: number, g: number, b: number): string;
+
+// Warning: (ae-forgotten-export) The symbol "GuiProps" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "GuiEvents" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "GuiSlots" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export class Root extends SvelteComponent<GuiProps, GuiEvents, GuiSlots> {
+}
 
 // @public
 export const screenH: Writable<number>;
@@ -352,8 +421,29 @@ export type ScrollDirection = {
 const scrollY_2: Writable<number>;
 export { scrollY_2 as scrollY }
 
+// Warning: (ae-forgotten-export) The symbol "SelectProps" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "SelectEvents" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "SelectSlots" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export class Select<V> extends SvelteComponent<SelectProps<V>, SelectEvents<V>, SelectSlots<V>> {
+}
+
 // @public
 export function serialize(): (this: unknown, key: string, value: unknown) => unknown;
+
+// @public
+export type Side = 'top' | 'right' | 'bottom' | 'left';
+
+// Warning: (ae-internal-missing-underscore) The name "Socket" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal
+export class Socket extends SvelteComponent<{
+    [x: string]: never;
+}, {
+    [evt: string]: CustomEvent<any>;
+}, {}> {
+}
 
 // @public
 export function start(label: string, options?: StartOptions): () => void;
@@ -379,38 +469,45 @@ export const stringify: (input: unknown, indentation?: number) => string;
 export class Switch extends SvelteComponent<SwitchProps, SwitchEvents, SwitchSlots> {
 }
 
-// @public
-export const theme: Writable<Theme_2>;
-
-// Warning: (ae-forgotten-export) The symbol "ThemeTitle" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "PrimitiveState" needs to be exported by the entry point index.d.ts
 //
 // @public
-export class Themer<T extends ThemeTitle> {
+export const theme: {
+    set: (value: Theme_2) => void;
+} & Omit<PrimitiveState<Theme_2>, "set">;
+
+// @public
+export class Themer {
     // Warning: (ae-forgotten-export) The symbol "ThemerOptions" needs to be exported by the entry point index.d.ts
     constructor(options?: Partial<ThemerOptions>);
     get activeMode(): 'light' | 'dark';
-    addTheme(newTheme: ThemeConfig, options?: {
+    applyTheme(): this | undefined;
+    clear(): void;
+    create(
+    newTheme: ThemeConfig, options?: {
         overwrite?: boolean;
         save?: boolean;
     }): this;
-    applyTheme(): this | undefined;
-    clear(): void;
+    // Warning: (ae-forgotten-export) The symbol "ThemeTitle" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    delete(themeOrTitle: ThemeTitle | ThemeConfig): this;
+    // (undocumented)
+    dispose(): void;
     // Warning: (ae-forgotten-export) The symbol "ThemerJSON" needs to be exported by the entry point index.d.ts
     fromJSON(json: ThemerJSON): void;
-    getThemeConfig(themeTitle: ThemeTitle | T): ThemeConfig | undefined;
+    getThemeConfig(themeTitle: ThemeTitle): ThemeConfig | undefined;
     // (undocumented)
     init(): this | undefined;
     load(): this;
     // (undocumented)
     log: (...args: any[]) => void;
-    // Warning: (ae-forgotten-export) The symbol "ThemeMode" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
-    mode: State<ThemeMode>;
+    mode: State<'light' | 'dark' | 'system'>;
     save(): {
         themes: ThemeConfig[];
         activeTheme: ThemeTitle;
-        mode: "dark" | "light" | "system";
+        mode: "light" | "dark" | "system";
     } | undefined;
     // Warning: (ae-forgotten-export) The symbol "State" needs to be exported by the entry point index.d.ts
     // Warning: (ae-forgotten-export) The symbol "ThemeConfig" needs to be exported by the entry point index.d.ts
@@ -422,7 +519,7 @@ export class Themer<T extends ThemeTitle> {
     toJSON(): {
         themes: ThemeConfig[];
         activeTheme: ThemeTitle;
-        mode: "dark" | "light" | "system";
+        mode: "light" | "dark" | "system";
     };
 }
 

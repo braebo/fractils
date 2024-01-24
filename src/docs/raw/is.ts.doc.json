@@ -1,0 +1,27 @@
+{
+  "type": "ts",
+  "fileName": "is.ts",
+  "filePath": "src/lib/utils/is.ts",
+  "exports": [
+    {
+      "name": "isTouchEvent",
+      "type": "typeof isTouchEvent",
+      "isDefaultExport": false
+    },
+    {
+      "name": "isMouseEvent",
+      "type": "typeof isMouseEvent",
+      "isDefaultExport": false
+    },
+    {
+      "name": "isDefined",
+      "type": "typeof isDefined",
+      "isDefaultExport": false
+    },
+    {
+      "name": "isString",
+      "type": "typeof isString",
+      "isDefaultExport": false
+    }
+  ]
+}

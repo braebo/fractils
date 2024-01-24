@@ -109,8 +109,6 @@
 pre.shiki-wrapper {
   overflow: auto;
   padding: var(--padding-sm, 0.5rem);
-  line-height: 1.25rem;
-  font-family: var(--font-mono);
   box-shadow: var(--shadow-inset);
 }
 
@@ -125,7 +123,6 @@ pre.shiki-wrapper {
 }
 
 pre.shiki code span.line {
-  font-variation-settings: "wght" 300;
   margin-left: auto;
 }
 
@@ -163,6 +160,18 @@ pre.shiki-wrapper::-webkit-scrollbar-corner {
   border: none;
   border-radius: 0.1px !important;
   outline: none;
+}
+
+html[theme=light] .shiki {
+  filter: brightness(1.1);
+}
+
+div.code-window > div.codeblock > pre > pre > code,
+div.code-window > div.codeblock > * {
+  font-family: var(--font-mono) !important;
+  font-size: 0.9rem;
+  line-height: 1.25rem !important;
+  font-variation-settings: "wght" 500 !important;
 }
 
 /*# sourceMappingURL=shiki.css.map */

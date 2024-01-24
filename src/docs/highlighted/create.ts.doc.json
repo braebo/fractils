@@ -1,0 +1,12 @@
+{
+  "type": "ts",
+  "fileName": "create.ts",
+  "filePath": "src/lib/utils/create.ts",
+  "exports": [
+    {
+      "name": "create",
+      "type": "typeof create",
+      "isDefaultExport": false
+    }
+  ]
+}

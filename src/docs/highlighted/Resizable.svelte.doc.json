@@ -1,7 +1,7 @@
 {
   "type": "svelte",
   "fileName": "Resizable.svelte",
-  "filePath": "src/lib/utils/Resizable.svelte",
+  "filePath": "src/lib/components/Resizable.svelte",
   "componentName": "Resizable",
   "props": [],
   "events": [],

@@ -1,0 +1,47 @@
+{
+  "type": "ts",
+  "fileName": "draggable.ts",
+  "filePath": "src/lib/utils/draggable.ts",
+  "exports": [
+    {
+      "name": "computeBoundRect",
+      "type": "typeof computeBoundRect",
+      "isDefaultExport": false
+    },
+    {
+      "name": "Draggable",
+      "type": "Draggable",
+      "isDefaultExport": false
+    },
+    {
+      "name": "DragBoundsCoords",
+      "type": "DragBoundsCoords",
+      "isDefaultExport": false
+    },
+    {
+      "name": "DragAxis",
+      "type": "DragAxis",
+      "isDefaultExport": false
+    },
+    {
+      "name": "DragBounds",
+      "type": "DragBounds",
+      "isDefaultExport": false
+    },
+    {
+      "name": "DragEventData",
+      "type": "DragEventData",
+      "isDefaultExport": false
+    },
+    {
+      "name": "DragOptions",
+      "type": "DragOptions",
+      "isDefaultExport": false
+    },
+    {
+      "name": "draggable",
+      "type": "(node: HTMLElement, options?: DragOptions) => { destroy: () => void; update: (options: DragOptions) => void; }",
+      "isDefaultExport": false
+    }
+  ]
+}

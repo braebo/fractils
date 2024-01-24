@@ -49,7 +49,7 @@
     },
     {
       "name": "theme",
-      "type": "Writable<Theme>",
+      "type": "{ set: (value: Theme) => void; } & Omit<PrimitiveState<Theme>, \"set\">",
       "isDefaultExport": false,
       "comment": {
         "raw": "/**\n * A store for the current theme persisted in local storage.\n */",

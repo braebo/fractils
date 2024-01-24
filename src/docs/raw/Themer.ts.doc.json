@@ -90,7 +90,7 @@
     },
     {
       "name": "Themer",
-      "type": "Themer<T>",
+      "type": "Themer",
       "isDefaultExport": false,
       "comment": {
         "raw": "/**\n * The Themer class manages multiple customizable application themes. It can be used to store and retrieve themes, create new themes, and apply themes to the document. Each theme has a light and dark variant, and the active variant is determined by the current {@link ThemeMode}, which can be set to 'light', 'dark', or 'system'.\n *\n * @example\n *\n * ```svelte <script lang=\"ts\"> import { Themer } from 'fractils' import my_theme from './themes/my_theme.json'\n *\n * const themer = new Themer({ theme: my_theme, }) </script>\n *\n * <h1>{theme.theme.title}</h1> <button on:click={() => themer.mode = 'dark'}>dark mode</button> <button on:click={() => themer.addTheme({...})}>add theme</button>\n */",

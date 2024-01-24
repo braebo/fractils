@@ -1,80 +1,10 @@
 {
   "type": "svelte",
   "fileName": "Test.svelte",
-  "filePath": "src/lib/test/Test.svelte",
-  "comment": {
-    "raw": "/**\n * This is a [multiline](https://example.com) line comment.\n *\n * With a second {@link Paragraph}.\n *\n * And two examples, the first unnamed, and the second named with a filename/title.\n *\n * @example\n * ```typescript\n * console.log('hello world')\n * ```\n *\n * @example\n *\n * Svelte Example\n * ```svelte Example.svelte\n * <script>\n *     console.log('hello world')\n * </script>\n * ```\n *\n * And using this comp:\n * ```svelte +page.svelte\n * <Test text=\"duder\" />\n * ```\n *\n */",
-    "links": [
-      {
-        "target": "Paragraph",
-        "text": "Paragraph"
-      }
-    ],
-    "summary": "<p>This is a <a href=\"https://example.com\">multiline</a>\nline comment.</p>\n<p>With a second <a href=\"#Paragraph\">Paragraph</a>.</p>\n<p>And two examples, the first unnamed, and the second named with a filename/title.</p>\n",
-    "examples": [
-      {
-        "content": "```typescript\nconsole.log('hello world')\n```",
-        "blocks": [
-          {
-            "type": "code",
-            "content": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#DEE0EF\">console</span><span style=\"color:#5BA2D0\">.</span><span style=\"color:#F8D2C9\">log</span><span style=\"color:#DEE0EF\">(</span><span style=\"color:#A78BFA\">'hello world'</span><span style=\"color:#DEE0EF\">)</span></span></code></pre>",
-            "lang": "typescript",
-            "raw": "console.log('hello world')",
-            "title": ""
-          }
-        ]
-      },
-      {
-        "name": "Svelte Example",
-        "content": "\n\n```svelte Example.svelte\n<script>\n  console.log('hello world')\n</script>\n```\n\nAnd using this comp:\n\n```svelte +page.svelte\n<Test text=\"duder\" />\n```",
-        "blocks": [
-          {
-            "type": "code",
-            "content": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#777D8F\">&#x3C;script></span></span>\n<span class=\"line\"><span style=\"color:#DEE0EF\">  console</span><span style=\"color:#5BA2D0\">.</span><span style=\"color:#F8D2C9\">log</span><span style=\"color:#DEE0EF\">(</span><span style=\"color:#A78BFA\">'hello world'</span><span style=\"color:#DEE0EF\">)</span></span>\n<span class=\"line\"><span style=\"color:#777D8F\">&#x3C;/script></span></span></code></pre>",
-            "lang": "svelte",
-            "raw": "<script>\n  console.log('hello world')\n</script>",
-            "title": "Example.svelte"
-          },
-          {
-            "type": "other",
-            "content": "<p>And using this comp:</p>\n"
-          },
-          {
-            "type": "code",
-            "content": "<pre class=\"shiki serendipity\" style=\"background-color:#0000;color:#d4d4d4\" tabindex=\"0\"><code><span class=\"line\"><span style=\"color:#777D8F\">&#x3C;</span><span style=\"color:#F8D2C9\">Test</span><span style=\"color:#9CCFD8;font-style:italic\"> text</span><span style=\"color:#777D8F\">=</span><span style=\"color:#A78BFA\">\"duder\"</span><span style=\"color:#777D8F\"> /></span></span></code></pre>",
-            "lang": "svelte",
-            "raw": "<Test text=\"duder\" />",
-            "title": "+page.svelte"
-          }
-        ]
-      }
-    ]
-  },
+  "filePath": "src/lib/theme/Test.svelte",
   "componentName": "Test",
-  "props": [
-    {
-      "comment": {
-        "raw": "/**\n * Super duper important text.\n */",
-        "summary": "<p>Super duper important text.</p>\n"
-      },
-      "name": "text",
-      "type": "string"
-    },
-    {
-      "comment": {
-        "raw": "/**\n * Super duper important text.\n */",
-        "summary": "<p>Super duper important text.</p>\n"
-      },
-      "name": "mynan",
-      "type": "string"
-    }
-  ],
+  "props": [],
   "events": [],
   "slots": [],
-  "exports": [
-    {
-      "name": "Paragraph",
-      "type": "string"
-    }
-  ]
+  "exports": []
 }

@@ -54,6 +54,14 @@
     },
     {
       "comment": {
+        "raw": "/**\n * Whether the switch is disabled or not.\n */",
+        "summary": "Whether the switch is disabled or not."
+      },
+      "name": "disabled",
+      "type": "boolean"
+    },
+    {
+      "comment": {
         "raw": "/**\n * The outline color of the switch.\n */",
         "summary": "The outline color of the switch."
       },
@@ -139,10 +147,27 @@
         "raw": "/**\n * Toggles the switch.\n */",
         "summary": "Toggles the switch."
       },
-      "name": "click",
+      "name": "change",
       "type": "MouseEvent"
     }
   ],
-  "slots": [],
+  "slots": [
+    {
+      "name": "thumb-content-on",
+      "props": []
+    },
+    {
+      "name": "thumb-content-off",
+      "props": []
+    },
+    {
+      "name": "on",
+      "props": []
+    },
+    {
+      "name": "off",
+      "props": []
+    }
+  ],
   "exports": []
 }

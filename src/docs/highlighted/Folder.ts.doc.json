@@ -1,0 +1,27 @@
+{
+  "type": "ts",
+  "fileName": "Folder.ts",
+  "filePath": "src/lib/gui/Folder.ts",
+  "exports": [
+    {
+      "name": "FolderOptions",
+      "type": "FolderOptions",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * @internal\n */",
+        "summary": "",
+        "internal": true
+      }
+    },
+    {
+      "name": "Folder",
+      "type": "Folder",
+      "isDefaultExport": false,
+      "comment": {
+        "raw": "/**\n * @internal\n */",
+        "summary": "",
+        "internal": true
+      }
+    }
+  ]
+}

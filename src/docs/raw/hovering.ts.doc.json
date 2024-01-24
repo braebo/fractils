@@ -1,0 +1,27 @@
+{
+  "type": "ts",
+  "fileName": "hovering.ts",
+  "filePath": "src/lib/actions/hovering.ts",
+  "exports": [
+    {
+      "name": "HoveringOptions",
+      "type": "HoveringOptions",
+      "isDefaultExport": false
+    },
+    {
+      "name": "HoveringAttributes",
+      "type": "HoveringAttributes",
+      "isDefaultExport": false
+    },
+    {
+      "name": "HOVERING_DEFAULTS",
+      "type": "HoveringOptions",
+      "isDefaultExport": false
+    },
+    {
+      "name": "hovering",
+      "type": "Action<HTMLElement, Partial<HoveringOptions>, HoveringAttributes>",
+      "isDefaultExport": false
+    }
+  ]
+}

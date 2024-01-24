@@ -1,0 +1,24 @@
+{
+  "type": "svelte",
+  "fileName": "Gui.svelte",
+  "filePath": "src/lib/gui/Gui.svelte",
+  "componentName": "Gui",
+  "props": [
+    {
+      "name": "gui",
+      "type": "Gui"
+    },
+    {
+      "name": "options",
+      "type": "Partial<GuiOptions>"
+    }
+  ],
+  "events": [],
+  "slots": [
+    {
+      "name": "default",
+      "props": []
+    }
+  ],
+  "exports": []
+}
