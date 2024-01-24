@@ -6,7 +6,7 @@
 	}
 }
 
-body {
+html {
 	--black: #0b0e11;
 	@include variables(
 		(
@@ -17,9 +17,30 @@ body {
 		)
 	);
 
+	// &[theme='dark'] {
+	@include variables(
+		(
+			brand-a: #00bcd4,
+			brand-b: #f8d2c9,
+			brand-c: #ba788a,
+			bg-a: #15161d,
+			bg-b: #282a36,
+			bg-c: #1d252e,
+			bg-d: #3a3a44,
+			fg-a: #ffffff,
+			fg-b: #dfe1e9,
+			fg-c: #c3c4c7,
+			fg-d: #777d8f,
+		)
+	);
+	// }
+
 	&[theme='light'] {
 		@include variables(
 			(
+				brand-a: #00d2ee,
+				brand-b: #c0705e,
+				brand-c: #ba788a,
 				fg-a: #15161d,
 				fg-b: #282a36,
 				fg-c: #1d252e,
@@ -28,21 +49,6 @@ body {
 				bg-b: #dfe1e9,
 				bg-c: #c3c4c7,
 				bg-d: #777d8f,
-			)
-		);
-	}
-
-	&[theme='dark'] {
-		@include variables(
-			(
-				bg-a: #15161d,
-				bg-b: #282a36,
-				bg-c: #1d252e,
-				bg-d: #3a3a44,
-				fg-a: #ffffff,
-				fg-b: #dfe1e9,
-				fg-c: #c3c4c7,
-				fg-d: #777d8f,
 			)
 		);
 	}
