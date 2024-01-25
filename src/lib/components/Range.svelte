@@ -204,7 +204,6 @@
 		width: 100%;
 
 		background: none;
-		box-shadow: 0 2px 3px 0 rgba(var(--bg-a-rgb), 0.5);
 
 		user-select: none;
 
@@ -223,6 +222,7 @@
 		border: 0.2px solid var(--bg-a);
 		border-radius: 50px;
 		background: var(--bg-d);
+		box-shadow: 0 2px 3px 0 rgba(#000, 0.5);
 
 		cursor: pointer;
 		transition: 200ms;

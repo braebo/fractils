@@ -1,32 +1,32 @@
 <script context="module" lang="ts">
 	export interface Param {
-		id?: string;
-		type: string;
-		title?: string;
-		description?: string;
-		children?: Param[];
+		id?: string
+		type: string
+		title?: string
+		description?: string
+		children?: Param[]
 	}
 </script>
 
 <script lang="ts">
-	export let params: Param[] = [];
+	export let params: Param[] = []
 
-	let connectorStart = 0;
-	let connectorEnd = 0;
-	let height = 0;
-	let nodeHeight = 0;
+	let connectorStart = 0
+	let connectorEnd = 0
+	let height = 0
+	let nodeHeight = 0
 
-	const hasChild = (p: Param) => p.children != undefined;
+	const hasChild = (p: Param) => p.children != undefined
 
 	function setConnectorLength(node: Element, options: { position: 'first' | 'last' }) {
-		nodeHeight = Math.max(node.clientHeight, nodeHeight);
+		nodeHeight = Math.max(node.clientHeight, nodeHeight)
 
 		if (options.position === 'first') {
-			connectorStart = node.getBoundingClientRect().top + nodeHeight;
+			connectorStart = node.getBoundingClientRect().top + nodeHeight
 		} else {
-			connectorEnd = node.getBoundingClientRect().top + nodeHeight / 2;
+			connectorEnd = node.getBoundingClientRect().top + nodeHeight / 2
 
-			height = Math.min(connectorEnd - connectorStart, nodeHeight);
+			height = Math.min(connectorEnd - connectorStart, nodeHeight)
 		}
 	}
 </script>
@@ -192,6 +192,15 @@
 		background: var(--bg-a) !important;
 		padding: 3px 7px 4px 7px;
 		color: var(--fg-b) !important;
+	}
+	:global(html[theme='light']) {
+		:global(span.code) {
+			color: var(--bg-b) !important;
+		}
+		:global(span.code),
+		:global(.type .code) {
+			background: var(--fg-d) !important;
+		}
 	}
 
 	.col {
