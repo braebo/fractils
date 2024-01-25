@@ -324,7 +324,7 @@ export class Themer {
 	/**
 	 * Applies the current theme to the document.
 	 */
-	applyTheme() {
+	applyTheme = () => {
 		if (!('document' in globalThis)) return
 
 		const theme = this.theme.get()
@@ -455,7 +455,16 @@ export class Themer {
 	#generateCSS(config: ThemeConfig) {
 		let css = ''
 
-		for (const [key, value] of entries(config[this.activeMode])) {
+		const theme = config[this.activeMode]
+		if (!theme) {
+			this.log(r('Error') + ': `theme` not found in `config`.', {
+				'this.activeMode': this.activeMode,
+				config,
+				this: this,
+			})
+			throw new Error(`Theme not found.`)
+		}
+		for (const [key, value] of entries(theme)) {
 			css += `--${key}: ${value};\n`
 			css += `--${key}-rgb: ${hexToRgb(value)};\n`
 		}
