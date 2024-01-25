@@ -1,4 +1,4 @@
-//* Variables
+//· Variables ································································¬
 
 .gui-root {
 	--root-header-height: 1.75rem;
@@ -7,8 +7,46 @@
 	--min-height: 1rem;
 	--max-width: 30rem;
 }
+//⌟
 
-//* Open / Close animations
+//· Open / Close Animations ··················································¬
+
+.gui-root,
+.gui-folder {
+	.gui-content-wrapper {
+		display: grid;
+		grid-template-rows: 1fr;
+
+		animation-name: open;
+		animation-duration: 0.5s;
+		animation-direction: forwards;
+		animation-timing-function: cubic-bezier(0.1, 1, 0.1, 1);
+
+		overflow: hidden;
+	}
+	.gui-header {
+		height: var(--header-height);
+		max-height: var(--header-height);
+
+		overflow: hidden;
+	}
+
+	&.closed {
+		.gui-content-wrapper {
+			animation-name: close;
+			animation-duration: 0.5s;
+			animation-fill-mode: forwards;
+			animation-timing-function: cubic-bezier(0.05, 1, 0.2, 1);
+		}
+		.gui-folder .gui-header {
+			max-height: 0;
+		}
+	}
+}
+
+.gui-root.closed .gui-folder .gui-header {
+	max-height: 0;
+}
 
 $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
@@ -19,20 +57,6 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	to {
 		grid-template-rows: 1fr;
 	}
-}
-
-.wrapper {
-	display: grid;
-	grid-template-rows: 0fr;
-	// transition: grid-template-rows 0.5s cubic-bezier(0.19, 1, 0.22, 1);
-}
-
-.wrapper.is-open {
-	grid-template-rows: 1fr;
-}
-
-.inner {
-	overflow: hidden;
 }
 
 @keyframes open {
@@ -57,59 +81,9 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	}
 }
 
-// .gui-root,
-// .gui-folder {
-// 	animation-name: reveal, open;
+//⌟
 
-// 	animation-duration: 1s, 0.5s;
-// 	animation-direction: normal, forwards;
-// 	animation-timing-function: cubic-bezier(0.1, 1, 0.1, 1);
-
-// 	&.closed {
-// 		animation-name: close;
-// 		animation-duration: 0.5s;
-// 		animation-fill-mode: forwards;
-// 		animation-timing-function: cubic-bezier(0.05, 1, 0.2, 1);
-// 	}
-// }
-
-.gui-root,
-.gui-folder {
-	.gui-content-wrapper {
-		display: grid;
-		grid-template-rows: 1fr;
-		animation-name: open;
-		overflow: hidden;
-
-		animation-duration: 0.5s;
-		animation-direction: forwards;
-		animation-timing-function: cubic-bezier(0.1, 1, 0.1, 1);
-	}
-	.gui-header {
-		height: var(--header-height);
-		max-height: var(--header-height);
-		overflow: hidden;
-		// transition: 0.25s;
-	}
-
-	&.closed {
-		.gui-content-wrapper {
-			animation-name: close;
-			animation-duration: 0.5s;
-			animation-fill-mode: forwards;
-			animation-timing-function: cubic-bezier(0.05, 1, 0.2, 1);
-		}
-		.gui-folder .gui-header {
-			max-height: 0;
-		}
-	}
-}
-
-.gui-root.closed .gui-folder .gui-header {
-	max-height: 0;
-}
-
-//* Main styles
+//· Gui Root ·································································¬
 
 .gui-root {
 	position: fixed;
@@ -180,78 +154,82 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		overflow: hidden;
 	}
 }
+//⌟
+
+//· Gui Folders ······························································¬
+
+$padding-left: var(--padding-left, 0.25rem);
 
 .gui-folder {
-	$padding-left: var(--padding-left, 0.25rem);
-
 	height: fit-content;
 
 	border-radius: var(--radius-sm);
+}
 
-	.gui-header {
-		position: relative;
+.gui-folder .gui-header {
+	position: relative;
 
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
 
-		width: 100%;
-		padding-left: $padding-left;
+	width: 100%;
+	padding-left: $padding-left;
+
+	color: var(--fg-c);
+	background: var(--bg-b);
+	outline: 1px solid rgba(var(--bg-b-rgb), 0.5);
+	outline-offset: -1px;
+	border-radius: var(--radius-sm);
+
+	box-shadow: 0 0 0.1rem #000 inset;
+
+	font-size: 1rem;
+
+	cursor: pointer;
+
+	.gui-title {
+		font-weight: 600;
+		font-size: var(--font-xs);
+		font-family: var(--font-gui);
+		width: fit-content;
+	}
+
+	.icon-folder-container {
+		position: absolute;
+		left: 0.5rem;
+
+		width: 1.1rem !important;
+		height: 1.1rem !important;
 
 		color: var(--fg-c);
-		background: var(--bg-b);
-		outline: 1px solid rgba(var(--bg-b-rgb), 0.5);
-		outline-offset: -1px;
-		border-radius: var(--radius-sm);
 
-		box-shadow: 0 0 0.1rem #000 inset;
-
-		font-size: 1rem;
-
-		cursor: pointer;
-
-		.gui-title {
-			font-weight: 600;
-			font-size: var(--font-xs);
-			font-family: var(--font-gui);
-			width: fit-content;
-		}
-
-		.icon-folder-container {
-			position: absolute;
-			left: 0.5rem;
-
-			width: 1.1rem !important;
-			height: 1.1rem !important;
-
-			color: var(--fg-c);
-
-			opacity: 0.5;
-			transition: opacity 0.15s;
-		}
-
-		&:hover svg.icon-folder {
-			opacity: 0.75;
-		}
+		opacity: 0.5;
+		transition: opacity 0.15s;
 	}
 
-	.gui-content {
-		display: flex;
-		flex-direction: column;
-
-		width: 100%;
-		padding-left: $padding-left;
-		padding-top: $padding-left;
-
-		background: rgba(var(--bg-a-rgb), 0.1);
-		overflow: hidden;
-
-		.gui-header {
-			filter: contrast(1.075);
-		}
+	&:hover svg.icon-folder {
+		opacity: 0.75;
 	}
 }
+
+.gui-folder .gui-content {
+	display: flex;
+	flex-direction: column;
+
+	width: 100%;
+	padding-left: $padding-left;
+	padding-top: $padding-left;
+
+	background: rgba(var(--bg-a-rgb), 0.1);
+	overflow: hidden;
+
+	.gui-header {
+		filter: contrast(1.075);
+	}
+}
+//⌟
 
 .kv {
 	display: flex;

@@ -1,21 +1,3 @@
-// {
-// 	"files.associations": {
-// 		"[*.md, *.svx, *.mdsvex]": "mdx", //* https://github.com/pngwn/MDsveX/issues/121#issuecomment-675106929
-// 		"*.xml": "html",
-// 		"*.svg": "html"
-// 	},
-
-// 	"editor.defaultFormatter": "esbenp.prettier-vscode",
-
-	// "[svelte]": {
-	// 	"editor.defaultFormatter": "svelte.svelte-vscode"
-	// },
-
-// 	"[shellscript]": {
-// 		"editor.defaultFormatter": "shakram02.bash-beautify"
-// 	},
-// }
-
 {
 	//- Editor
 	"$schema": "vscode://schemas/settings/json",
@@ -228,5 +210,5 @@
 	"workbench.panel.defaultLocation": "left",
 	"window.zoomLevel": 0,
 	"focus.highlightRange": "block",
-	"workbench.colorTheme": "Quiet Light"
+	"workbench.colorTheme": "Mo Darker"
 }

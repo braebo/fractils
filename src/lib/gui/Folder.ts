@@ -6,10 +6,6 @@ import { nanoid } from '../utils/nanoid'
 import { Logger } from '../utils/logger'
 import { state } from '../utils/state'
 
-import icon_folder from './icon-folder.svg?raw'
-import { debounce } from '$lib/utils/debounce'
-import { r } from '$lib'
-
 /**
  * @internal
  */
