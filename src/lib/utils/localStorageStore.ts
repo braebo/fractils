@@ -51,13 +51,6 @@ export const localStorageStore = <T>(
 	initial: T,
 	options?: StateOptions<T>,
 ): Writable<T> => {
-	// const log = logger('localStorageStore > ' + key, {
-	// 	fg: 'royalblue',
-	// 	deferred: false,
-	// })
-
-	// log('Initializing localStorageStore:', { key, initial, options })
-
 	let currentValue = initial
 
 	const { set: setStore, ...readableStore } = writable<T>(initial, () => {
@@ -75,17 +68,20 @@ export const localStorageStore = <T>(
 	})
 
 	const set = (value: T) => {
-		// log('set()', { value })
 		currentValue = value
+		if (typeof value === 'string' && value.startsWith('"') && value.endsWith('"')) {
+			console.log(value)
+			value = JSON.parse(value)
+		}
 		setStore(value)
 		setItem(value)
 		options?.onChange?.(value)
 	}
 
 	let setItem = (value: T) => {
-		// log('setItem()', { value })
 		try {
-			localStorage.setItem(key, JSON.stringify(value))
+			value = JSON.stringify(value) as T
+			localStorage.setItem(key, value as string)
 		} catch (e) {
 			console.error(`Failed to set localStorageStore value.\nkey: ${key}\nvalue: ${value}`)
 			console.error(e)
@@ -116,21 +112,17 @@ export const localStorageStore = <T>(
 	}
 
 	const getAndSetFromLocalStorage = () => {
-		// log('getAndSetFromLocalStorage()')
-
 		let localValue: string | null = null
 
 		localValue = localStorage.getItem(key) ?? null
 
 		if (localValue === null) {
-			// log('localStorageStore value not found, setting initial value: ', { initial })
 			set(initial)
 		} else {
-			// log('localStorageStore value found, parsing: ', { localValue })
 			try {
 				const parsed = JSON.parse(localValue)
-				setStore(parsed)
-				currentValue = parsed
+				setStore(parsed as T)
+				currentValue = parsed as T
 			} catch (e) {
 				console.error(`Failed to parse localStorageStore value.\nkey: ${key}`)
 				console.error(e)
