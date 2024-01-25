@@ -38,7 +38,7 @@ export type InputValue<T = InputType> = T extends 'Text'
 export interface InputOptions<T = InputType, V = InputValue<T>> {
 	value: V
 	title: string
-	type: string
+	type?: string
 	folder: Folder
 }
 
@@ -52,7 +52,7 @@ export class Input<T = InputType, V = InputValue<T>> {
 	constructor(options: InputOptions<T, V>) {
 		this.state = state(options.value)
 		this.title = options.title
-		this.type = options.type
+		this.type = options.type ?? typeof options.value
 		this.folder = options.folder
 		this.element = this.#createElement()
 	}
@@ -60,7 +60,7 @@ export class Input<T = InputType, V = InputValue<T>> {
 	#createElement() {
 		const element = create('div', {
 			classes: ['gui-control'],
-			parent: this.folder.contentElement,
+			parent: this.folder.elements.content,
 		})
 
 		create('label', {

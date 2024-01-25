@@ -1,9 +1,7 @@
 <script lang="ts">
-	import { stringify } from '$lib'
 	import Code from '$lib/components/Code.svelte'
+	import { state } from '$lib/utils/state'
 	import { Gui } from '$lib/gui/Gui'
-	import { debrief } from '$lib/utils/debrief'
-	import { state, type State } from '$lib/utils/state'
 	import { onMount } from 'svelte'
 
 	let gui: Gui
@@ -49,16 +47,16 @@
 		position = gui.position
 		closed = gui.closed
 
-		// state = gui.state
+		const f1 = gui.addFolder({ title: '1a' })
 
-		const f1 = gui.addFolder()
+		const f2 = f1.addFolder({ title: '2a' })
+		f2.addFolder({ title: '3a' })
+		f1.addFolder({ title: '2b' }).addInput({ title: '2b', value: 0, folder: f2, type: 'number' })
 
-		f1.addFolder({ title: 'Nested' })
+		gui.addFolder({ title: 'sibling' })
 
-		gui.addFolder({ title: 'Titled' })
+		return gui.dispose
 	})
-
-	$: console.log(gui)
 </script>
 
 <!-- <Gui /> -->
@@ -69,7 +67,19 @@
 		{#if size && position && closed}
 			{#key $size || $position || $closed}
 				<div class="code-fade">
-					<Code --max-height="100%" text={stringify(debrief(gui), 2)} />
+					<!-- <Code --max-height="100%" text={stringify(debrief(gui), 2)} /> -->
+					<Code
+						--max-height="100%"
+						text={JSON.stringify(
+							{
+								size: $size,
+								position: $position,
+								closed: $closed,
+							},
+							null,
+							2,
+						)}
+					/>
 				</div>
 			{/key}
 		{/if}
@@ -90,5 +100,9 @@
 		margin: auto;
 
 		padding: 1rem;
+	}
+
+	.code-fade {
+		width: 15rem;
 	}
 </style>

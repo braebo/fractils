@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { hovering } from '$lib/actions/hovering'
+	import { resizable } from '../actions/resizable'
 	import { quadOut, quadIn } from 'svelte/easing'
 	import autoAnimate from '@formkit/auto-animate'
-	import { resizable } from '$lib/actions/resizable'
+	import { hovering } from '../actions/hovering'
 	import THEME_A from './themes/theme-a.json'
 	import { fly } from 'svelte/transition'
 	import { Themer } from './Themer'
 
-	const themer = new Themer()
+	export let themer = new Themer()
 
 	const { theme, mode, themes } = themer
 
@@ -15,7 +15,7 @@
 </script>
 
 {#if themer}
-	<div class="container" use:resizable={{ persistent: true }}>
+	<div class="root" use:resizable={{ localStorageKey: 'fractils::themer::size' }}>
 		<div class="themer">
 			<div class="kv mode">
 				<div class="k">Mode</div>
@@ -31,9 +31,9 @@
 			<div class="kv theme">
 				<div class="k">Theme</div>
 				<div class="v">
-					<select bind:value={$theme}>
+					<select value={$theme.title}>
 						{#each $themes.sort((a, b) => a.title.localeCompare(b.title)) as value}
-							<option selected {value}>{value.title}</option>
+							<option value={value.title}>{value.title}</option>
 						{/each}
 					</select>
 				</div>
@@ -47,9 +47,6 @@
 							class:active={$theme.title === t.title}
 							on:click={() => themer.theme.set(t)}
 						>
-							<!-- <Tooltip content="delete"> -->
-							<!-- on:mouseenter={() => (showDeleteText[i] = true)}
-								on:mouseleave={() => (showDeleteText[i] = false)} -->
 							<button
 								use:hovering={{ pollRate: 100 }}
 								on:hoverIn={() => (showDeleteText[i] = true)}
@@ -60,7 +57,7 @@
 							>
 								🆇
 							</button>
-							<!-- </Tooltip> -->
+
 							{#if showDeleteText[i]}
 								<div
 									in:fly={{ x: 5, easing: quadIn }}
@@ -102,10 +99,10 @@
 {/if}
 
 <style lang="scss">
-	.container {
+	.root {
 		position: fixed;
-		top: 0;
-		right: 0;
+		top: var(--top, 0);
+		right: var(--right, 0);
 
 		padding: 1rem;
 		margin: 2rem;
