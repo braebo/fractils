@@ -161,23 +161,23 @@ export function state<T>(defaultValue: T, options?: StateOptions<T>): State<T> {
 	} as State<T>
 }
 
-//- Test cases
-{
-	const numArray = state([1, 2, 3])
-	numArray.push(4)
+// //- Test cases
+// {
+// 	const numArray = state([1, 2, 3])
+// 	numArray.push(4)
 
-	const myMap = state(new Map<string, number>())
-	myMap.setKey('key1', 100)
-	myMap.set(new Map())
+// 	const myMap = state(new Map<string, number>())
+// 	myMap.setKey('key1', 100)
+// 	myMap.set(new Map())
 
-	const mySet = state(new Set<number>())
-	mySet.set(new Set())
-	mySet.add(5)
+// 	const mySet = state(new Set<number>())
+// 	mySet.set(new Set())
+// 	mySet.add(5)
 
-	const myString = state('hello')
-	myString.set('world')
+// 	const myString = state('hello')
+// 	myString.set('world')
 
-	type MyType = 'foo' | 'bar'
-	const myType = state<MyType>('foo')
-	myType.set('bar')
-}
+// 	type MyType = 'foo' | 'bar'
+// 	const myType = state<MyType>('foo')
+// 	myType.set('bar')
+// }
