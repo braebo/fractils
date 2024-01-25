@@ -6,8 +6,9 @@ import { nanoid } from '../utils/nanoid'
 import { Logger } from '../utils/logger'
 import { state } from '../utils/state'
 
-import icon_closed from './icon_closed.svg?raw'
-import icon_open from './icon_open.svg?raw'
+import icon_folder from './icon-folder.svg?raw'
+import { debounce } from '$lib/utils/debounce'
+import { r } from '$lib'
 
 /**
  * @internal
@@ -55,10 +56,13 @@ export class Folder {
 	parentFolder: Folder
 
 	element: HTMLElement
-	headerElement!: HTMLElement
 
-	titleElement!: HTMLElement
-	contentElement!: HTMLElement
+	elements = {} as {
+		header: HTMLElement
+		title: HTMLElement
+		contentWrapper: HTMLElement
+		content: HTMLElement
+	}
 
 	closed = state(false)
 
@@ -68,8 +72,9 @@ export class Folder {
 		server: false,
 	})
 
-	#iconOpen?: SVGElement
-	#iconClosed?: SVGElement
+	#folderIcon?: HTMLElement
+	// #folderIcon?: SVGElement
+	// #iconClosed?: SVGElement
 
 	constructor(options: FolderOptions, rootContainer: HTMLElement | null = null) {
 		const opts = Object.assign({}, options)
@@ -84,12 +89,16 @@ export class Folder {
 			this.isRoot = true
 			this.parentFolder = this
 			const rootEl = this.#createRootElement(rootContainer)
-			this.element = this.#createElements(rootEl)
+			const { element, elements } = this.#createElements(rootEl)
+			this.element = element
+			this.elements = elements
 		} else {
-			this.#createIcons()
+			this.#createIcon()
 			this.parentFolder = opts.parentFolder
 			this.root = this.parentFolder.root
-			this.element = this.#createElements(opts.element)
+			const { element, elements } = this.#createElements(opts.element)
+			this.element = element
+			this.elements = elements
 		}
 
 		if (opts.closed) this.closed.set(opts.closed)
@@ -124,11 +133,11 @@ export class Folder {
 		clearTimeout(this.#disabledTimer)
 		// First we delay the drag check to allow for messy clicks.
 		this.#disabledTimer = setTimeout(() => {
-			this.headerElement.addEventListener('pointermove', this.disable, { once: true })
+			this.elements.header.addEventListener('pointermove', this.disable, { once: true })
 
 			// Then we set a timer to disable the drag check.
 			this.#disabledTimer = setTimeout(() => {
-				this.headerElement.removeEventListener('pointermove', this.disable)
+				this.elements.header.removeEventListener('pointermove', this.disable)
 				this.#disabled = false
 			}, this.#clickTime)
 		}, 150)
@@ -139,14 +148,14 @@ export class Folder {
 	disable = () => {
 		if (!this.#disabled) {
 			this.#disabled = true
-			this.log.fn('disable').info('Clicks DISABLED')
+			this.log.fn('disable').debug('Clicks DISABLED')
 		}
 		this.#disabled = true
 		clearTimeout(this.#disabledTimer)
 	}
 
 	reset() {
-		this.log.fn('cancel').info('Clicks ENABLED')
+		this.log.fn('cancel').debug('Clicks ENABLED')
 		removeEventListener('pointerup', this.toggle)
 		this.#disabled = false
 	}
@@ -155,33 +164,46 @@ export class Folder {
 		const element =
 			el ??
 			create('div', {
-				parent: this.parentFolder.contentElement,
+				parent: this.parentFolder.elements.content,
 				classes: ['gui-folder'],
 				dataset: { id: this.id },
 			})
+		if (el) el.classList.add('gui-root')
 
-		this.headerElement = create('div', {
+		const header = create('div', {
 			parent: element,
 			classes: ['gui-header'],
 		})
-		this.headerElement.addEventListener('pointerdown', this.#skip_header_click_if_drag)
+		header.addEventListener('pointerdown', this.#skip_header_click_if_drag)
 		if (!this.isRoot) {
-			this.headerElement.appendChild(this.#iconClosed!)
-			this.headerElement.appendChild(this.#iconOpen!)
+			// this.headerElement.appendChild(this.#iconClosed!)
+			header.appendChild(this.#folderIcon!)
 		}
 
-		this.titleElement = create('h2', {
-			parent: this.headerElement,
+		const title = create('h2', {
+			parent: header,
 			classes: ['gui-title'],
 			textContent: this.title,
 		})
 
-		this.contentElement = create('div', {
-			classes: ['gui-content'],
+		const contentWrapper = create('div', {
+			classes: ['gui-content-wrapper'],
 			parent: element,
 		})
+		const content = create('div', {
+			classes: ['gui-content'],
+			parent: contentWrapper,
+		})
 
-		return element
+		return {
+			element,
+			elements: {
+				header,
+				title,
+				contentWrapper,
+				content,
+			},
+		}
 	}
 
 	#createRootElement(container: HTMLElement | null = null) {
@@ -269,14 +291,18 @@ export class Folder {
 		})
 
 		this.children.push(folder)
+		this.#createIcon()
 
 		return folder
 	}
 
-	addInput(options: InputOptions) {
-		const input = new Input(options)
+	addInput(options: Omit<InputOptions, 'folder'> & { folder?: Folder }) {
+		const input = new Input({
+			folder: this,
+			...options,
+		})
 		this.controls.set(input.title, input)
-		this.contentElement.appendChild(input.element)
+		this.elements.content.appendChild(input.element)
 	}
 
 	isGui(): this is Gui {
@@ -295,21 +321,30 @@ export class Folder {
 		this.closed.get() ? this.open() : this.close()
 	}
 
-	#contentHeight = null as null | number | '100%'
+	#contentHeight = null as null | number
+
+	updateDisplay() {
+		this.#createIcon()
+		// this.#updateContentHeight()
+	}
 
 	open() {
+		this.log.fn('open').info({ 'this.#contentHeight': this.#contentHeight })
+
 		this.element.classList.remove('closed')
 		this.closed.set(false)
 		this.#disabled = false
 
-		if (this.#contentHeight === null) {
-			this.#contentHeight = '100%'
-		}
-		this.contentElement.animate([{ height: 0 }, { height: this.#contentHeight + 'px' }], {
-			duration: 200,
-			easing: 'cubic-bezier(0.19, 1, 0.22, 1)',
-			fill: 'forwards',
-		})
+		// if (this.#contentHeight !== null) {
+		// 	// this.#updateContentHeight()
+		// 	this.contentElement.animate([{ height: 0 }, { height: this.#contentHeight + 'px' }], {
+		// 		duration: 200,
+		// 		easing: 'cubic-bezier(0.19, 1, 0.22, 1)',
+		// 		fill: 'forwards',
+		// 	})
+		// }
+
+		// this.contentElement.animate([{ height: 0 }, { height: '100%' }], {
 	}
 
 	close() {
@@ -317,13 +352,51 @@ export class Folder {
 		this.closed.set(true)
 		this.#disabled = false
 
-		this.#contentHeight = this.contentElement.getBoundingClientRect().height
-		this.contentElement.animate([{ height: this.#contentHeight + 'px' }, { height: 0 }], {
-			duration: 200,
-			easing: 'cubic-bezier(0.19, 1, 0.22, 1)',
-			fill: 'forwards',
-		})
+		//todo	how to get the natural height of the expanded content element
+		//todo	regardless of whether it's currently open or closed?
+		//todo  Because if the element is initially collapsed, the height will
+		//todo	always be 0, even after opening it.
+		// this.#contentHeight = this.contentElement.getBoundingClientRect().height
+		// if (this.#contentHeight === null) {
+		// this.contentElement.animate([{ height: this.#contentHeight + 'px' }, { height: 0 }], {
+		// 	// this.contentElement.animate([{ height: 0 }], {
+		// 	duration: 200,
+		// 	easing: 'cubic-bezier(0.19, 1, 0.22, 1)',
+		// 	fill: 'forwards',
+		// })
+		// }
 	}
+
+	// #updateContentHeight = debounce(() => this.#_updateContentHeight(), 0)
+	// #updateContentHeight = async () => {
+	// 	await new Promise((resolve) => setTimeout(resolve, 0))
+	// 	// Clone the element
+	// 	const clone = this.elements.content.cloneNode(true) as HTMLElement
+
+	// 	// Apply styles to ensure the clone is not visible but can expand to its natural height
+	// 	clone.classList.remove('closed')
+	// 	// clone.style.position = 'absolute'
+	// 	// clone.style.visibility = 'hidden'
+	// 	// clone.style.height = '100%'
+	// 	// clone.style.width = this.contentElement.offsetWidth + 'px' // Maintain the same width
+	// 	// clone.style.top = '0'
+	// 	// clone.style.left = '-9999px' // Position it off-screen
+
+	// 	// Append the clone to the body
+	// 	document.body.appendChild(clone)
+
+	// 	// Measure the height
+	// 	const height = clone.getBoundingClientRect().height
+
+	// 	// Remove the clone from the DOM
+	// 	document.body.removeChild(clone)
+
+	// 	// console.log(r('height'), height)
+
+	// 	this.#contentHeight = height
+
+	// 	return this
+	// }
 
 	/**
 	 * A flat array of all children of this folder.
@@ -335,8 +408,8 @@ export class Folder {
 	dispose() {
 		this.#subs.forEach((unsub) => unsub())
 
-		this.headerElement.removeEventListener('click', this.toggle)
-		this.headerElement.addEventListener('pointerdown', this.#skip_header_click_if_drag)
+		this.elements.header.removeEventListener('click', this.toggle)
+		this.elements.header.addEventListener('pointerdown', this.#skip_header_click_if_drag)
 
 		this.element.remove()
 

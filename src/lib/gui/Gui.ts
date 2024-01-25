@@ -5,7 +5,6 @@ import type { FolderOptions } from './Folder'
 import { Resizable, type ResizableOptions } from '../utils/resizable'
 import { state, type PrimitiveState } from '../utils/state'
 import { Logger } from '../utils/logger'
-import { fn, g, r } from '../utils/l'
 
 import { Themer } from '../theme/Themer'
 import { Folder } from './Folder'
@@ -79,7 +78,7 @@ export interface GuiOptions extends FolderOptions {
 }
 
 export const GUI_DEFAULTS = {
-	title: 'Controls',
+	title: 'gui',
 	controls: new Map(),
 	children: [],
 	themer: true,
@@ -98,7 +97,6 @@ export const GUI_DEFAULTS = {
 	closed: false,
 	size: { width: 0, height: 0 },
 	position: { x: 16, y: 16 },
-	// localStorageKeys: undefined,
 } as const satisfies Omit<GuiOptions, 'parentFolder'>
 
 type StorageOptions = typeof GUI_DEFAULTS.storage
@@ -171,7 +169,7 @@ export class Gui extends Folder {
 				})
 			}
 
-			this.log(r('Error initializing state:'), { key, value, opts, this: this })
+			this.log.error('Error initializing state:', { key, value, opts, this: this })
 			return state<T>(value)
 		}
 
@@ -236,7 +234,7 @@ export class Gui extends Folder {
 		if (opts.draggable) {
 			const dragOptions: DragOptions =
 				typeof opts.draggable === 'object' ? opts.draggable : {}
-			dragOptions.handle = this.headerElement
+			dragOptions.handle = this.elements.header
 			dragOptions.bounds = this.container
 			dragOptions.recomputeBounds = {
 				dragStart: true,
@@ -297,6 +295,10 @@ export class Gui extends Folder {
 
 			dragOptions.position = offscreenCheck()
 
+			dragOptions.position = this.position.get()
+
+			this.log.fn('constructor').info(dragOptions)
+
 			import('../utils/draggable').then(({ Draggable }) => {
 				this.draggable = new Draggable(this.element, {
 					...dragOptions,
@@ -306,6 +308,8 @@ export class Gui extends Folder {
 								if (x === 0 && y === 0) return
 
 								this.position.set({ x, y })
+
+								this.log.fn('onDragEnd').info('Position updated:', { x, y })
 							}
 						: undefined,
 				})
@@ -324,7 +328,7 @@ export class Gui extends Folder {
 		return this
 	}
 
-	dispose() {
+	dispose = () => {
 		super.dispose()
 
 		window.addEventListener

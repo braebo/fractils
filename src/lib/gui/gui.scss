@@ -1,7 +1,8 @@
 //* Variables
 
 .gui-root {
-	--header-height: 2rem;
+	--root-header-height: 1.75rem;
+	--header-height: 1.5rem;
 	--min-width: 20rem;
 	--min-height: 1rem;
 	--max-width: 30rem;
@@ -11,37 +12,101 @@
 
 $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
-@keyframes open {
+@keyframes reveal {
 	from {
-		clip-path: $closed-inset;
+		grid-template-rows: 0fr;
 	}
 	to {
-		clip-path: inset(0);
+		grid-template-rows: 1fr;
+	}
+}
+
+.wrapper {
+	display: grid;
+	grid-template-rows: 0fr;
+	// transition: grid-template-rows 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.wrapper.is-open {
+	grid-template-rows: 1fr;
+}
+
+.inner {
+	overflow: hidden;
+}
+
+@keyframes open {
+	from {
+		// clip-path: $closed-inset;
+		grid-template-rows: 0fr;
+	}
+	to {
+		// clip-path: inset(0);
+		grid-template-rows: 1fr;
 	}
 }
 
 @keyframes close {
 	from {
-		clip-path: inset(0);
+		// clip-path: inset(0);
+		grid-template-rows: 1fr;
 	}
 	to {
-		clip-path: $closed-inset;
+		// clip-path: $closed-inset;
+		grid-template-rows: 0fr;
 	}
 }
 
-.gui-root {
-	animation-name: reveal, open;
+// .gui-root,
+// .gui-folder {
+// 	animation-name: reveal, open;
 
-	animation-duration: 1s, 0.5s;
-	animation-direction: normal, forwards;
-	animation-timing-function: cubic-bezier(0.1, 1, 0.1, 1);
+// 	animation-duration: 1s, 0.5s;
+// 	animation-direction: normal, forwards;
+// 	animation-timing-function: cubic-bezier(0.1, 1, 0.1, 1);
+
+// 	&.closed {
+// 		animation-name: close;
+// 		animation-duration: 0.5s;
+// 		animation-fill-mode: forwards;
+// 		animation-timing-function: cubic-bezier(0.05, 1, 0.2, 1);
+// 	}
+// }
+
+.gui-root,
+.gui-folder {
+	.gui-content-wrapper {
+		display: grid;
+		grid-template-rows: 1fr;
+		animation-name: open;
+		overflow: hidden;
+
+		animation-duration: 0.5s;
+		animation-direction: forwards;
+		animation-timing-function: cubic-bezier(0.1, 1, 0.1, 1);
+	}
+	.gui-header {
+		height: var(--header-height);
+		max-height: var(--header-height);
+		overflow: hidden;
+		// transition: 0.25s;
+	}
 
 	&.closed {
-		animation-name: close;
-		animation-duration: 0.5s;
-		animation-fill-mode: forwards;
-		animation-timing-function: cubic-bezier(0.05, 1, 0.2, 1);
+		.gui-content-wrapper {
+			animation-name: close;
+			animation-duration: 0.5s;
+			animation-fill-mode: forwards;
+			animation-timing-function: cubic-bezier(0.05, 1, 0.2, 1);
+		}
+		.gui-folder .gui-header {
+			max-height: 0;
+		}
 	}
+}
+
+.gui-root.closed .gui-folder .gui-header {
+	max-height: 0;
 }
 
 //* Main styles
@@ -50,15 +115,10 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	position: fixed;
 	inset: 0;
 
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-
 	min-width: var(--min-width, 20rem);
 	max-width: var(--max-width);
 
-	height: fit-content;
-	min-height: 5rem;
+	height: fit-content; //- important
 
 	contain: paint;
 	user-select: none;
@@ -73,62 +133,58 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		gap: 0.5rem;
 
 		width: 100%;
+		min-height: var(--root-header-height);
 
 		color: var(--fg-c);
 		background: var(--bg-a);
 		border-radius: var(--radius-md);
 		border-bottom-left-radius: var(--radius-xs);
 		border-bottom-right-radius: var(--radius-xs);
-		outline: 1px solid rgba(var(--bg-d-rgb), 0.5);
-		outline-offset: -1px;
+		// outline: 1px solid rgba(var(--bg-d-rgb), 0.5);
+		// outline-offset: -1px;
+		box-shadow: 0 0 1.5px 0.5px rgba(var(--bg-d-rgb), 0.5) inset;
 
 		cursor: pointer;
 
 		.gui-title {
 			width: fit-content;
-			height: 2rem;
+			height: var(--header-height);
 
-			font-size: 1rem;
+			font-size: 0.75rem;
 			text-align: center;
-			line-height: 2rem;
-			font-family: var(--font-a);
-			font-weight: 500;
-			font-variation-settings: 'wght' 500;
+			line-height: var(--header-height);
+			font-family: var(--font-gui);
+			font-weight: 400;
+			font-variation-settings: 'wght' 300;
+			letter-spacing: 2px;
 
 			pointer-events: none;
 		}
 	}
 
-	> .gui-content {
+	> .gui-content-wrapper > .gui-content {
 		display: flex;
 		flex-direction: column;
-		// gap: 0.5rem;
 
 		width: 100%;
-		height: 100%;
-		height: fit-content;
-		max-height: 100%;
 		margin: 0;
-		padding: 0.25rem;
+		padding: 0.15rem;
 
 		border-radius: var(--radius-md);
 		background: rgba(var(--bg-a-rgb), 0.75);
 		backdrop-filter: blur(0.2rem);
 		outline-offset: -1px;
 
+		box-shadow: 0 0 1.5px 0.5px rgba(var(--bg-d-rgb), 0.5) inset;
+
 		overflow: hidden;
-		transition: max-height 0.2s cubic-bezier(0.19, 1, 0.22, 1);
 	}
 }
 
 .gui-folder {
 	$padding-left: var(--padding-left, 0.25rem);
 
-	display: flex;
-	flex-direction: column;
-	// gap: 0.5rem;
-
-	min-height: 1rem;
+	height: fit-content;
 
 	border-radius: var(--radius-sm);
 
@@ -141,7 +197,6 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		gap: 0.5rem;
 
 		width: 100%;
-		min-height: 2rem;
 		padding-left: $padding-left;
 
 		color: var(--fg-c);
@@ -150,7 +205,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		outline-offset: -1px;
 		border-radius: var(--radius-sm);
 
-		box-shadow: 0 0 0.25rem #000 inset;
+		box-shadow: 0 0 0.1rem #000 inset;
 
 		font-size: 1rem;
 
@@ -159,35 +214,11 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		.gui-title {
 			font-weight: 600;
 			font-size: var(--font-xs);
-			font-family: var(--font-b);
+			font-family: var(--font-gui);
 			width: fit-content;
 		}
 
-		.delete,
-		.close {
-			all: unset;
-			cursor: pointer;
-
-			width: 1rem;
-			height: 1rem;
-			margin: auto;
-			padding: 0.05rem;
-
-			color: var(--fg-c);
-			border-radius: 0.2rem;
-
-			opacity: 0.5;
-			transition-property: opacity, color, background;
-			transition-duration: 0.15s;
-			z-index: 1;
-
-			&:hover {
-				background: var(--fg-a);
-				color: tomato !important;
-			}
-		}
-
-		svg.icon-folder {
+		.icon-folder-container {
 			position: absolute;
 			left: 0.5rem;
 
@@ -209,52 +240,22 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		display: flex;
 		flex-direction: column;
 
-		height: 100%;
 		width: 100%;
 		padding-left: $padding-left;
 		padding-top: $padding-left;
 
-		// background: #a0f1;
-		background: var(--bg-c);
+		background: rgba(var(--bg-a-rgb), 0.1);
 		overflow: hidden;
-
-		transition: max-height 0.2s cubic-bezier(0.19, 1, 0.22, 1);
 
 		.gui-header {
 			filter: contrast(1.075);
 		}
-	}
-
-	svg.icon-folder.closed {
-		display: none;
-	}
-	svg.icon-folder.open {
-		display: block;
-	}
-	&.closed {
-		svg.icon-folder.closed {
-			display: block;
-		}
-		svg.icon-folder.open {
-			display: none;
-		}
-	}
-}
-
-// .gui-folder,
-.gui-root
-{
-	// max-height: fit-content;
-	// transition: max-height 0.2s cubic-bezier(0.19, 1, 0.22, 1);
-	&.closed > .gui-content {
-		max-height: 1px;
 	}
 }
 
 .kv {
 	display: flex;
 	align-items: center;
-	// justify-content: center;
 	gap: 0.5rem;
 
 	width: 100%;
