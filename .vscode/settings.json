@@ -17,6 +17,9 @@
 // }
 
 {
+	//- Editor
+	"$schema": "vscode://schemas/settings/json",
+
 	//- General
 
 	"files.associations": {
@@ -66,14 +69,21 @@
 
 	//- Theming
 
-	"workbench.colorTheme": "focus",
+	// "workbench.colorTheme": "Mo Darker",
 	"workbench.preferredDarkColorTheme": "Mo Darker",
 	"workbench.preferredLightColorTheme": "Moxer Light",
 	"workbench.iconTheme": "material-icon-theme",
 	"window.autoDetectColorScheme": true,
-
 	"editor.tokenColorCustomizations": {
 		"textMateRules": [
+			//? Folded code background.
+			{
+				"scope": ["editor.foldBackground"],
+				"settings": {
+					"foreground": "red",
+					"background": "blue"
+				}
+			},
 			//? More subtle Template Tags
 			{
 				"scope": [
@@ -217,5 +227,6 @@
 	"editor.renderWhitespace": "none",
 	"workbench.panel.defaultLocation": "left",
 	"window.zoomLevel": 0,
-	"focus.highlightRange": "block"
+	"focus.highlightRange": "block",
+	"workbench.colorTheme": "Quiet Light"
 }
