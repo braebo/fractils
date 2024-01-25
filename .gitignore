@@ -8,3 +8,4 @@ bin
 vite.config.js.timestamp*
 .DS_Store
 .extractinator
+scripts/extractinator
