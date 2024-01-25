@@ -196,16 +196,67 @@ export class Folder {
 		return rootEl
 	}
 
-	#createIcons() {
-		this.#iconOpen = createSvg(icon_open, 'open')
-		this.#iconClosed = createSvg(icon_closed, 'closed')
+	#createIcon() {
+		this.#folderIcon ??= document.createElement('div')
+		this.#folderIcon.classList.add('icon-folder-container')
+		const css = /*css*/ `
+			.icon-folder {
+				stroke: var(--brand-a);
+				fill: var(--brand-a);
+				overflow: visible;
+			}
+			.icon-folder circle {
+				transition: 0.25s;
+				transform-origin: center;
+			}
+			.icon-folder circle.b {
+				transform: scale(1);
+			}
+			.closed .icon-folder circle.b {
+				transform: scale(2);
+			}
+			
+			.icon-folder circle.alt {
+				transform: scale(0);
+			}
+			.closed .icon-folder circle.alt {
+				transform: scale(1);
+			}
+		`
+		this.#folderIcon.innerHTML = /*html*/ `
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="100%"
+			height="100%"
+			viewBox="0 0 24 24"
+			fill="none"
+			stroke-width="1"
+			stroke-linecap="round"
+			stroke-linejoin="round"
+			class="icon-folder"
+		>
+			${this.allChildren.map((c, ii) => {
+				const i = ii + 1
+				const x = 14 + i * 6
+				// const y = 12 + i * 3
+				const y = 12
+				const r = Math.pow(2, -i * 0.5)
+				return /*html*/ `<circle class="alt" cx="${x}" cy="${y}" r="${r}" fill="var(--brand-a)" />`
+			})}
+			<circle class="a" cx="12" cy="12" r="3" stroke="var(--brand-a)" fill="var(--brand-a)" />
+			<circle class="b" cx="12" cy="12" r="3" stroke="var(--bg-a)" fill="none" />
+			<style lang="css">
+				${css}
+			</style>
+		</svg>`.trim()
 
-		function createSvg(html: string, classname: string) {
-			const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-			svg.innerHTML = html
-			svg.classList.add('icon-folder', classname)
-			return svg
-		}
+		if (this.closed.get()) this.#folderIcon.classList.add('closed')
+
+		return this.#folderIcon
+	}
+
+	get folderSvg() {
+		return this.#folderIcon!.querySelector('svg.icon-folder')!
 	}
 
 	addFolder(options?: { title?: string; closed?: boolean }) {
