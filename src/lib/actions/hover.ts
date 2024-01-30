@@ -1,20 +1,20 @@
 import type { Action } from 'svelte/action'
 
-export interface HoveringOptions {
+export interface HoverOptions {
 	/**
 	 * The rate at which to poll for hovering, in milliseconds. Set to
 	 * `0` to disable polling.
 	 * @default 100
 	 */
-	pollRate: number
+	pollRate?: number
 	/**
 	 * Whether to include focus state.
 	 * @default true
 	 */
-	focus: boolean
+	focus?: boolean
 }
 
-export interface HoveringAttributes {
+export interface HoverAttributes {
 	/**
 	 * Dispatched when the user hovers over the element (or focuses it, if `focus` is `true`).
 	 */
@@ -25,17 +25,16 @@ export interface HoveringAttributes {
 	'on:hoverOut'?: (event: CustomEvent) => void
 }
 
-export const HOVERING_DEFAULTS: HoveringOptions = {
+export const HOVER_DEFAULTS: HoverOptions = {
 	pollRate: 500,
 	focus: true,
 }
 
-export const hovering: Action<
-	HTMLElement,
-	Partial<HoveringOptions> | undefined,
-	HoveringAttributes
-> = (node, options = HOVERING_DEFAULTS) => {
-	const opts = Object.assign({}, HOVERING_DEFAULTS, options)
+export const hover: Action<HTMLElement, HoverOptions | undefined, HoverAttributes> = (
+	node: HTMLElement,
+	options = HOVER_DEFAULTS,
+) => {
+	const opts = Object.assign({}, HOVER_DEFAULTS, options)
 
 	let timeout: number | null = null
 	let hovering = false
