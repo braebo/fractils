@@ -36,8 +36,8 @@ export interface ResizableEvents {
  * ```
  */
 export const resizable: Action<HTMLElement, ResizableOptions, ResizableEvents> = (
-	node,
-	options,
+	node: HTMLElement,
+	options?: ResizableOptions,
 ) => {
 	const resizeable = new Resizable(node, options)
 
