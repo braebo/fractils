@@ -22,6 +22,12 @@ export interface ResizableOptions {
 	 */
 	sides?: Side[]
 
+	// /**
+	//  * To only allow resizing on certain corners, specify them here.
+	//  * @default ['top-left', 'top-right', 'bottom-right', 'bottom-left']
+	//  */
+	// corners?: ('top-left' | 'top-right' | 'bottom-right' | 'bottom-left')[]
+
 	/**
 	 * The size of the resize handle in pixels.
 	 * @default 3
@@ -62,6 +68,7 @@ export interface ResizableOptions {
 
 const RESIZABLE_DEFAULTS = {
 	sides: ['top', 'right', 'bottom', 'left'],
+	// corners: ['top-left', 'top-right', 'bottom-right', 'bottom-left'],
 	grabberSize: 6,
 	onResize: () => {},
 	localStorageKey: undefined,
@@ -129,7 +136,7 @@ export class Resizable implements Omit<ResizableOptions, 'size'> {
 
 	constructor(
 		public node: HTMLElement,
-		options: ResizableOptions,
+		options?: ResizableOptions,
 	) {
 		const opts = Object.assign({}, RESIZABLE_DEFAULTS, options)
 		Object.assign(this, opts)
@@ -154,7 +161,7 @@ export class Resizable implements Omit<ResizableOptions, 'size'> {
 		//? Figure out if the left inset is undefined.
 
 		const { left } = node.style
-		this.#useLeftInset = !parseFloat(left)
+		this.#useLeftInset = typeof parseFloat(left) !== 'number' && !isNaN(parseFloat(left))
 		this.#log({ left, parsedLeft: parseFloat(left), useLeftInset: this.#useLeftInset })
 
 		//? Load size from local storage.
@@ -233,39 +240,48 @@ export class Resizable implements Omit<ResizableOptions, 'size'> {
 
 		const rect = this.node.getBoundingClientRect()
 
-		const { left, minWidth, maxWidth } = window.getComputedStyle(this.node)
+		const style = window.getComputedStyle(this.node)
 
 		switch (side) {
 			case 'left': {
-				const min = parseFloat(minWidth) || 0
-				const max = parseFloat(maxWidth) || Infinity
-				const newWidth = clamp(rect.width - e.movementX, min, max)
+				const min = parseFloat(style.minWidth) || 25
+				const max = parseFloat(style.maxWidth) || Infinity
 
-				this.node.style.width = newWidth + 'px'
+				// Calculate the new width based on the mouse's current position.
+				let newWidth = rect.right - e.clientX
 
-				// If the left inset is undefined, then the left position will
-				// be set to the new left value to keep the element in place.
-				if (this.#useLeftInset) {
-					const currentLeft = parseFloat(left) || 0
-					const newLeft = currentLeft + (rect.width - newWidth)
-					this.node.style.left = newLeft + 'px'
+				// Clamp the new width to the minimum and maximum values.
+				newWidth = Math.max(Math.min(newWidth, max), min)
+
+				// Calculate the difference in width to adjust the left position accordingly.
+				const widthDiff = rect.width - newWidth
+
+				// Update the left position only if the new width is not set to min due to clamping
+				if (newWidth > min) {
+					const newLeft = rect.left + widthDiff
+
+					this.node.style.left = `${newLeft}px`
+					this.node.style.width = `${newWidth}px`
 				}
+
 				break
 			}
 			case 'right': {
 				const newWidth = rect.width + e.movementX
-				this.node.style.width = newWidth + 'px'
 
-				const currentRight = parseFloat(this.node.style.right) || 0
-				const newRight = currentRight + (rect.width - newWidth)
-				this.node.style.right = newRight + 'px'
+				// Make sure the resize doesn't exceed the window bounds.
+				const max = window.innerWidth - rect.left
+				const min = parseFloat(style.minWidth) || 25
+
+				this.#log('Updating width: ', this.node.style.width, '->', newWidth)
+				this.node.style.width = clamp(newWidth, min, max) + 'px'
 				break
 			}
 			case 'top': {
 				const newHeight = rect.height - e.movementY
 				this.node.style.height = newHeight + 'px'
 
-				const currentTop = parseFloat(this.node.style.top) || 0
+				const currentTop = parseFloat(this.node.style.top) || 25
 				const newTop = currentTop + (rect.height - newHeight)
 				this.node.style.top = newTop + 'px'
 				break
