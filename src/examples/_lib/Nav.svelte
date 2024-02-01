@@ -223,7 +223,7 @@
 
 			border-radius: var(--radius);
 			border: 1px solid var(--bg-a);
-			background: var(--fg-d);
+			background: var(--bg-a);
 			opacity: 0;
 
 			transition: opacity 0.2s;
@@ -244,7 +244,7 @@
 		height: 100vh;
 
 		opacity: 0;
-		background: var(--fg-d);
+		background: var(--bg-d);
 
 		transition: opacity 0.2s;
 		pointer-events: none;

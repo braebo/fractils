@@ -72,7 +72,7 @@
 	.burger {
 		position: fixed;
 		z-index: 20;
-		top: 0.5rem;
+		bottom: 0.5rem;
 		right: 1rem;
 
 		width: 50px;
@@ -82,7 +82,7 @@
 
 		border-radius: 100%;
 
-		background: var(--fg-d);
+		background: var(--bg-a);
 
 		cursor: pointer;
 		transition: box-shadow 0.2s;
