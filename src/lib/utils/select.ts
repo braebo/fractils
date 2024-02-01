@@ -8,7 +8,7 @@ const log = new Logger('select', { fg: 'AliceBlue' })
  * resolves them all into an array of HTMLElements.
  */
 export function select(
-	input: string | string[] | HTMLElement | HTMLElement[] | undefined,
+	input: string | HTMLElement | (string | HTMLElement)[] | undefined,
 	node?: HTMLElement,
 ): HTMLElement[] {
 	if (typeof window === 'undefined') return []
