@@ -41,6 +41,8 @@
 			closed: false,
 		})
 
+		// gui.add(params) // todo
+
 		ok.set(gui)
 
 		size = gui.size
@@ -67,7 +69,6 @@
 		{#if size && position && closed}
 			{#key $size || $position || $closed}
 				<div class="code-fade">
-					<!-- <Code --max-height="100%" text={stringify(debrief(gui), 2)} /> -->
 					<Code
 						--max-height="100%"
 						text={JSON.stringify(
@@ -85,7 +86,7 @@
 		{/if}
 	{/if}
 </div>
-
+	
 <style lang="scss">
 	.page {
 		display: flex;

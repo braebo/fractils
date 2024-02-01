@@ -31,7 +31,7 @@
 </div> -->
 
 {#if themer}
-	<ThemerComponent {themer} --right="-0.75rem" --top="1.5rem" />
+	<!-- <ThemerComponent {themer} --right="-0.75rem" --top="1.5rem" /> -->
 {/if}
 
 <slot />
