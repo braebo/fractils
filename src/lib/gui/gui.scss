@@ -9,6 +9,34 @@
 }
 //⌟
 
+// .gui-root[theme='default'] {
+.gui-root {
+	--gui-header-width: 100%;
+	// --gui-header-padding-left: 0.25rem;
+	--gui-header-padding-left: 0.25rem;
+	--gui-header-color: var(--fg-c);
+	--gui-header-background: var(--bg-b);
+	--gui-header-outline: 1px solid rgba(var(--bg-b-rgb), 0.5);
+	--gui-header-border-radius: var(--radius-sm);
+	--gui-header-box-shadow: 0 0 0.1rem #000 inset;
+	--gui-header-font-size: 1rem;
+}
+
+.gui-root[data-theme='minimal'] {
+	// --gui-header-width: 100%;
+	--gui-header-width: 100%;
+	// --gui-header-padding-left: 0.25rem;
+	--gui-header-padding-left: 0.25rem;
+	--gui-header-color: var(--fg-c);
+	--gui-header-background: transparent;
+	--gui-header-outline: none;
+	--gui-header-border-radius: var(--radius-sm);
+	--gui-header-box-shadow: none;
+	--gui-header-font-size: 1rem;
+
+	--gui-content-padding-left: 0.5rem;
+}
+
 //· Open / Close Animations ··················································¬
 
 .gui-root,
@@ -61,22 +89,18 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 @keyframes open {
 	from {
-		// clip-path: $closed-inset;
 		grid-template-rows: 0fr;
 	}
 	to {
-		// clip-path: inset(0);
 		grid-template-rows: 1fr;
 	}
 }
 
 @keyframes close {
 	from {
-		// clip-path: inset(0);
 		grid-template-rows: 1fr;
 	}
 	to {
-		// clip-path: $closed-inset;
 		grid-template-rows: 0fr;
 	}
 }
@@ -97,68 +121,68 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	contain: paint;
 	user-select: none;
 	z-index: 99;
+}
 
-	> .gui-header {
-		position: relative;
+.gui-root > .gui-header {
+	position: relative;
 
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 0.5rem;
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
+	gap: 0.5rem;
 
-		width: 100%;
-		min-height: var(--root-header-height);
+	width: 100%;
+	min-height: var(--root-header-height);
 
-		color: var(--fg-c);
-		background: var(--bg-a);
-		border-radius: var(--radius-md);
-		border-bottom-left-radius: var(--radius-xs);
-		border-bottom-right-radius: var(--radius-xs);
-		// outline: 1px solid rgba(var(--bg-d-rgb), 0.5);
-		// outline-offset: -1px;
-		box-shadow: 0 0 1.5px 0.5px rgba(var(--bg-d-rgb), 0.5) inset;
+	color: var(--fg-c);
+	background: var(--bg-a);
+	border-radius: var(--radius-md);
+	border-bottom-left-radius: var(--radius-xs);
+	border-bottom-right-radius: var(--radius-xs);
+	// outline: 1px solid rgba(var(--bg-d-rgb), 0.5);
+	// outline-offset: -1px;
+	box-shadow: 0 0 1.5px 0.5px rgba(var(--bg-d-rgb), 0.5) inset;
 
-		cursor: pointer;
+	cursor: pointer;
+	cursor: grab;
 
-		.gui-title {
-			width: fit-content;
-			height: var(--header-height);
+	.gui-title {
+		width: fit-content;
+		height: var(--header-height);
 
-			font-size: 0.75rem;
-			text-align: center;
-			line-height: var(--header-height);
-			font-family: var(--font-gui);
-			font-weight: 400;
-			font-variation-settings: 'wght' 300;
-			letter-spacing: 2px;
+		font-size: 0.75rem;
+		letter-spacing: 2px;
+		line-height: var(--header-height);
+		font-family: var(--font-gui);
+		font-weight: 400;
+		font-variation-settings: 'wght' 300;
 
-			pointer-events: none;
-		}
+		pointer-events: none;
 	}
+}
 
-	> .gui-content-wrapper > .gui-content {
-		display: flex;
-		flex-direction: column;
+.gui-root > .gui-content-wrapper > .gui-content {
+	display: flex;
+	flex-direction: column;
 
-		width: 100%;
-		margin: 0;
-		padding: 0.15rem;
+	width: 100%;
+	margin: 0;
+	padding: 0.15rem;
 
-		border-radius: var(--radius-md);
-		background: rgba(var(--bg-a-rgb), 0.75);
-		backdrop-filter: blur(0.2rem);
-		outline-offset: -1px;
+	border-radius: var(--radius-md);
+	border-top-left-radius: var(--radius-sm);
+	border-top-right-radius: var(--radius-sm);
+	background: rgba(var(--bg-a-rgb), 0.75);
+	backdrop-filter: blur(0.2rem);
+	outline-offset: -1px;
 
-		box-shadow: 0 0 1.5px 0.5px rgba(var(--bg-d-rgb), 0.5) inset;
+	box-shadow: 0 0 1.5px 0.5px rgba(var(--bg-d-rgb), 0.5) inset;
 
-		overflow: hidden;
-	}
+	overflow: hidden;
 }
 //⌟
 
 //· Gui Folders ······························································¬
-
-$padding-left: var(--padding-left, 0.25rem);
 
 .gui-folder {
 	height: fit-content;
@@ -166,26 +190,32 @@ $padding-left: var(--padding-left, 0.25rem);
 	border-radius: var(--radius-sm);
 }
 
+// Indent subfolders, but not immediate children of root.
+.gui-folder .gui-header {
+	&:not(.gui-root > .gui-content-wrapper > .gui-content > .gui-folder > .gui-header) {
+		// padding-left: var(--gui-header-padding-left);
+	}
+}
+
 .gui-folder .gui-header {
 	position: relative;
 
 	display: flex;
 	align-items: center;
-	justify-content: center;
 	gap: 0.5rem;
 
-	width: 100%;
-	padding-left: $padding-left;
+	width: var(--gui-header-width, 100%);
+	// padding-left: var(--gui-header-padding-left);
 
-	color: var(--fg-c);
-	background: var(--bg-b);
-	outline: 1px solid rgba(var(--bg-b-rgb), 0.5);
+	color: var(--gui-header-color, var(--fg-c));
+	background: var(--gui-header-background, var(--bg-b));
+	outline: var(--gui-header-outline, 1px solid rgba(var(--bg-b-rgb), 0.5));
+	border-radius: var(--gui-header-border-radius, var(--radius-sm));
 	outline-offset: -1px;
-	border-radius: var(--radius-sm);
 
-	box-shadow: 0 0 0.1rem #000 inset;
+	box-shadow: var(--gui-header-box-shadow, 0 0 0.1rem #000 inset);
 
-	font-size: 1rem;
+	font-size: var(--gui-header-font-size, 1rem);
 
 	cursor: pointer;
 
@@ -197,8 +227,8 @@ $padding-left: var(--padding-left, 0.25rem);
 	}
 
 	.icon-folder-container {
-		position: absolute;
-		left: 0.5rem;
+		// position: absolute;
+		// left: 0.5rem;
 
 		width: 1.1rem !important;
 		height: 1.1rem !important;
@@ -219,11 +249,13 @@ $padding-left: var(--padding-left, 0.25rem);
 	flex-direction: column;
 
 	width: 100%;
-	padding-left: $padding-left;
-	padding-top: $padding-left;
+	padding-left: var(--gui-content-padding-left);
+	padding-top: 0.25rem;
 
 	background: rgba(var(--bg-a-rgb), 0.1);
+
 	overflow: hidden;
+	contain: paint;
 
 	.gui-header {
 		filter: contrast(1.075);

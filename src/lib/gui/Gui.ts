@@ -12,6 +12,8 @@ import { Folder } from './Folder'
 import { BROWSER } from 'esm-env'
 import './gui.scss'
 
+type GuiTheme = 'default' | 'minimal' | (string & {})
+
 export interface GuiOptions extends FolderOptions {
 	/**
 	 * Persist the gui's state to localStorage by specifying the key
@@ -75,6 +77,7 @@ export interface GuiOptions extends FolderOptions {
 	position: { x: number; y: number }
 	size: { width: number; height: number }
 	closed: boolean
+	theme?: GuiTheme
 }
 
 export const GUI_DEFAULTS = {
@@ -97,6 +100,8 @@ export const GUI_DEFAULTS = {
 	closed: false,
 	size: { width: 0, height: 0 },
 	position: { x: 16, y: 16 },
+	// theme: 'default'
+	theme: 'minimal',
 } as const satisfies Omit<GuiOptions, 'parentFolder'>
 
 type StorageOptions = typeof GUI_DEFAULTS.storage
@@ -123,6 +128,7 @@ export class Gui extends Folder {
 	 * Which state properties to persist to localStorage.
 	 */
 	storage: StorageOptions | Record<string, any>
+	private _theme: GuiOptions['theme']
 
 	log = new Logger('Gui', {
 		fg: 'PaleVioletRed',
@@ -326,6 +332,14 @@ export class Gui extends Folder {
 		}, 15)
 
 		return this
+	}
+
+	set theme(theme: GuiTheme) {
+		this._theme = theme
+		this.root.element.dataset.theme = theme
+	}
+	get theme() {
+		return this._theme!
 	}
 
 	dispose = () => {
