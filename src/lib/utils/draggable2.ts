@@ -1,8 +1,10 @@
 import { isHTMLElement, isString } from './is'
-import { select } from './select'
-import { clamp } from './clamp'
 import type { Action } from 'svelte/action'
+import { tweened } from 'svelte/motion'
+import { select } from './select'
 import { Logger } from './logger'
+import { clamp } from './clamp'
+
 
 export type DragBoundsCoords = {
 	/** Number of pixels from left of the document */
@@ -236,9 +238,12 @@ export class Draggable {
 
 	handleEls: HTMLElement[]
 	cancelEls: HTMLElement[]
-	// obstacleEls: HTMLElement[]
+	obstacleEls: HTMLElement[]
 
 	currentlyDraggedEl!: HTMLElement
+	tween = tweened({ x: 0, y: 0 }, {
+		duration: 100
+	})
 
 	#log: Logger
 
@@ -264,11 +269,18 @@ export class Draggable {
 
 		this.handleEls = this.opts.handle ? select(this.opts.handle, this.node) : [this.node]
 		this.cancelEls = select(this.opts.cancel, this.node)
-		// this.obstacleEls = select(this.opts.obstacles, this.node)
+		this.obstacleEls = select(this.opts.obstacles, document.body)
 
 		this.node.addEventListener('pointerdown', this.dragStart, false)
 		addEventListener('pointerup', this.dragEnd, false)
 		addEventListener('pointermove', this.drag, false)
+
+		// this.tween.subscribe(({ x, y }) => {
+		// 	console.log(x)
+		// 	console.log(y)
+		// 	this.tryTranslate(x, y)
+		// 	// this.node.style.setProperty('translate', `${x}px ${y}px 1px`)
+		// })
 	}
 
 	get nodeRect() {
@@ -438,15 +450,26 @@ export class Draggable {
 			finalY = this.initialY + deltaY
 		}
 
-		if (this.canMoveInX) this.translateX = Math.round((finalX - this.initialX) * inverseScale)
-		if (this.canMoveInY) this.translateY = Math.round((finalY - this.initialY) * inverseScale)
+		console.log(this.initialX)
+		console.log(finalX)
+		console.log(inverseScale)
 
-		this.xOffset = this.translateX
-		this.yOffset = this.translateY
+		const newX = Math.round(finalX - this.initialX)
+		const newY = Math.round(finalY - this.initialY)
+
+		// if (this.canMoveInX) this.translateX = newX
+		// if (this.canMoveInY) this.translateY = newY
+		// this.xOffset = this.translateX
+		// this.yOffset = this.translateY
+
+		console.log(newX)
+		console.log(newY)
+
+		this.tween.set({ x: newX, y: newY })
 
 		this.#fireSvelteDragEvent()
 
-		this.setTranslate()
+		this.tryTranslate(newX, newY)
 	}
 
 	dragEnd = () => {
@@ -470,9 +493,9 @@ export class Draggable {
 		this.active = false
 	}
 
-	setTranslate(xPos?: number, yPos?: number) {
-		xPos ??= this.translateX
-		yPos ??= this.translateY
+	tryTranslate(xPos: number, yPos: number) {
+		// xPos ??= this.translateX
+		// yPos ??= this.translateY
 
 		if (!this.opts.transform) {
 			this.#log
@@ -481,10 +504,10 @@ export class Draggable {
 			return this.#setStyle(this.node, 'translate', `${+xPos}px ${+yPos}px 1px`)
 		}
 
-		// if (this.collidesWithObstacle(xPos, yPos)) {
-		// 	this.#log.fn('setTranslate').debug('Collides with obstacle, not moving')
-		// 	return
-		// }
+		const rect = this.node.getBoundingClientRect()
+
+		let finalX = !this.canMoveInX || this.collisionCheckX(xPos, rect) ? this.translateX : xPos
+		let finalY = !this.canMoveInY || this.collisionCheckY(yPos, rect) ? this.translateY : yPos
 
 		this.#log.fn('setTranslate').debug({
 			xPos,
@@ -499,43 +522,70 @@ export class Draggable {
 
 		// Call transform function if provided
 		const transformCalled = this.opts.transform({
-			offsetX: xPos,
-			offsetY: yPos,
+			offsetX: finalX,
+			offsetY: finalY,
 			rootNode: this.node,
 		})
 
 		if (isString(transformCalled)) {
 			this.#setStyle(this.node, 'translate', transformCalled)
 		} else {
-			this.#setStyle(this.node, 'translate', `${+xPos}px ${+yPos}px`)
+			this.node.style.setProperty('translate', `${finalX}px ${finalY}px 1px`)
 		}
+
+		this.translateX = finalX
+		this.translateY = finalY
+		this.xOffset = this.translateX
+		this.yOffset = this.translateY
 	}
 
-	collidesWithObstacle(x: number, y: number): boolean {
-		const nodeRect = this.nodeRect
+	collisionCheckX(xOffset: number, rect: DOMRect): boolean {
+		const { top, bottom, left, right } = rect
+		const change = xOffset - this.translateX
 
-		const newNodeRect = {
-			left: x,
-			top: y,
-			right: x + nodeRect.width,
-			bottom: y + nodeRect.height,
-		}
+		
+		const collisionDetected = this.obstacleEls.some((obstacle) => {
+			const o = obstacle.getBoundingClientRect()
+			
+			const notAlignedY = top > o.bottom || bottom < o.top
 
-		// this.#log.fn('collidesWithObstacle').debug({ newNodeRect, obstacleEls: this.obstacleEls })
+			if (notAlignedY) return false
 
-		// for (const obstacle of this.obstacleEls) {
-		// 	const obstacleRect = obstacle.getBoundingClientRect()
-		// 	if (
-		// 		newNodeRect.left < obstacleRect.right &&
-		// 		newNodeRect.right > obstacleRect.left &&
-		// 		newNodeRect.top < obstacleRect.bottom &&
-		// 		newNodeRect.bottom > obstacleRect.top
-		// 	) {
-		// 		return true // Collision detected
-		// 	}
-		// }
+			const rightToLeft = left > o.right && left + change - 1 < o.right
+			const leftToRight = right < o.left && right + change + 1 > o.left
+			const bottomToTop = top > o.bottom && top + change - 1 < o.bottom
+			const topToBottom = bottom < o.top && bottom + change + 1 > o.top
 
-		return false // No collision
+			return rightToLeft || leftToRight || bottomToTop || topToBottom
+		})
+
+		console.log(collisionDetected)
+
+		return collisionDetected
+	}
+
+	collisionCheckY(yOffset: number, rect: DOMRect): boolean {
+		const { top, bottom, left, right } = rect
+		const change = yOffset - this.translateY
+
+		const collisionDetected = this.obstacleEls.some((obstacle) => {
+			const o = obstacle.getBoundingClientRect()
+
+			const notAlignedX = left > o.right || right < o.left
+
+			if (notAlignedX) return false
+
+			const rightToLeft = left > o.right && left + change - 1< o.right
+			const leftToRight = right < o.left && right + change + 1 > o.left
+			const bottomToTop = top > o.bottom && top + change - 1 < o.bottom
+			const topToBottom = bottom < o.top && bottom + change + 1 > o.top
+
+			return rightToLeft || leftToRight || bottomToTop || topToBottom
+		})
+
+		console.log(collisionDetected)
+
+		return collisionDetected
 	}
 
 	update = (options: Partial<DragOptions>) => {
@@ -566,7 +616,7 @@ export class Draggable {
 			this.xOffset = this.translateX = options.position?.x ?? this.translateX
 			this.yOffset = this.translateY = options.position?.y ?? this.translateY
 
-			this.setTranslate()
+			this.tryTranslate(this.xOffset, this.yOffset)
 		}
 	}
 
@@ -614,7 +664,7 @@ export class Draggable {
 
 	#calculateInverseScale = () => {
 		// Calculate the current scale of the node
-		let inverseScale = this.node.offsetWidth / this.nodeRect.width
+		let inverseScale = this.node.offsetWidth / this.node.getBoundingClientRect().width
 		if (isNaN(inverseScale)) inverseScale = 1
 		return inverseScale
 	}
