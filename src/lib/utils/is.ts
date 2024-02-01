@@ -13,3 +13,7 @@ export function isDefined<T>(value: T | undefined): value is T {
 export function isString(value: unknown): value is string {
 	return typeof value === 'string'
 }
+
+export function isHTMLElement(value: unknown): value is HTMLElement {
+	return value instanceof HTMLElement
+}
