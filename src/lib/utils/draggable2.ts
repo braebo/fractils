@@ -40,6 +40,8 @@ interface DragEvents {
 	'on:dragStart': (e: DragEventData) => void
 }
 
+type ElementsOrSelectors = string | HTMLElement | (string | HTMLElement)[] | undefined
+
 export type DragOptions = {
 	/**
 	 * Optionally limit the drag area
@@ -55,7 +57,7 @@ export type DragOptions = {
 	 * These mimic the css `top`, `right`, `bottom` and `left`, in the sense that `bottom` starts from the bottom of the window, and `right` from right of window.
 	 * If any of these properties are unspecified, they are assumed to be `0`.
 	 */
-	bounds: DragBounds
+	bounds: DragBounds | 'parent' | 'body'
 	/**
 	 * Axis on which the element can be dragged on. Valid values: `both`, `x`, `y`, `none`.
 	 *
@@ -134,7 +136,7 @@ export type DragOptions = {
 	 *
 	 * @default undefined
 	 */
-	cancel: string | HTMLElement | HTMLElement[] | undefined
+	cancel: ElementsOrSelectors
 	/**
 	 * CSS Selector of an element or multiple elements inside the parent node(on which `use:draggable` is applied). Can be an element or elements too.
 	 *
@@ -142,7 +144,11 @@ export type DragOptions = {
 	 *
 	 * @default undefined
 	 */
-	handle: string | HTMLElement | HTMLElement[] | undefined
+	handle: ElementsOrSelectors
+	/**
+	 * Element's or selectors which will act as collision obstacles for the draggable element.
+	 */
+	obstacles: ElementsOrSelectors
 	/**
 	 * Class to apply on the element on which `use:draggable` is applied.
 	 * Note that if `handle` is provided, it will still apply class on the element to which this action is applied, **NOT** the handle
@@ -197,6 +203,7 @@ const DRAG_DEFAULTS = {
 	position: { x: 0, y: 0 },
 	cancel: undefined,
 	handle: undefined,
+	obstacles: undefined,
 	defaultClass: DEFAULT_CLASSES.MAIN,
 	defaultClassDragging: DEFAULT_CLASSES.DRAGGING,
 	defaultClassDragged: DEFAULT_CLASSES.DRAGGED,
@@ -214,24 +221,6 @@ export class Draggable {
 	active = false
 	disabled = false
 
-	// translateX = 0
-	// translateY = 0
-
-	get translateX() {
-		return +this.node.dataset.translateX! || 0
-	}
-	set translateX(v: number) {
-		console.error('Setting translate to ' + v)
-		this.node.dataset.translateX = String(v)
-	}
-
-	get translateY() {
-		return +this.node.dataset.translateY! || 0
-	}
-	set translateY(v: number) {
-		this.node.dataset.translateY = String(v)
-	}
-
 	initialX = 0
 	initialY = 0
 
@@ -241,37 +230,15 @@ export class Draggable {
 	xOffset: number
 	yOffset: number
 
-	get canMoveInX() {
-		return /(both|x)/.test(this.opts.axis)
-	}
-	get canMoveInY() {
-		return /(both|y)/.test(this.opts.axis)
-	}
-
 	bodyOriginalUserSelectVal = ''
 
 	computedBounds: DragBoundsCoords | undefined
-	get nodeRect() {
-		return this.node.getBoundingClientRect()
-	}
 
-	handleEls: HTMLElement[] //- renamed from handleEls
+	handleEls: HTMLElement[]
 	cancelEls: HTMLElement[]
+	// obstacleEls: HTMLElement[]
 
 	currentlyDraggedEl!: HTMLElement
-
-	get eventData(): DragEventData {
-		return {
-			offsetX: this.xOffset,
-			offsetY: this.yOffset,
-			rootNode: this.node,
-			currentNode: this.currentlyDraggedEl,
-		}
-	}
-
-	get isControlled() {
-		return !!this.opts.position
-	}
 
 	#log: Logger
 
@@ -297,10 +264,49 @@ export class Draggable {
 
 		this.handleEls = this.opts.handle ? select(this.opts.handle, this.node) : [this.node]
 		this.cancelEls = select(this.opts.cancel, this.node)
+		// this.obstacleEls = select(this.opts.obstacles, this.node)
 
 		this.node.addEventListener('pointerdown', this.dragStart, false)
 		addEventListener('pointerup', this.dragEnd, false)
 		addEventListener('pointermove', this.drag, false)
+	}
+
+	get nodeRect() {
+		return this.node.getBoundingClientRect()
+	}
+
+	get translateX() {
+		return +this.node.dataset.translateX! || 0
+	}
+	set translateX(v: number) {
+		this.node.dataset.translateX = String(v)
+	}
+
+	get translateY() {
+		return +this.node.dataset.translateY! || 0
+	}
+	set translateY(v: number) {
+		this.node.dataset.translateY = String(v)
+	}
+
+	get canMoveInX() {
+		return /(both|x)/.test(this.opts.axis)
+	}
+	get canMoveInY() {
+		return /(both|y)/.test(this.opts.axis)
+	}
+
+	get eventData(): DragEventData {
+		return {
+			offsetX: this.xOffset,
+			offsetY: this.yOffset,
+			rootNode: this.node,
+			currentNode: this.currentlyDraggedEl,
+		}
+	}
+
+	get isControlled() {
+		return !!this.opts.position
 	}
 
 	dragStart = (e: PointerEvent) => {
@@ -335,7 +341,7 @@ export class Draggable {
 			)
 		) {
 			this.#log.error('Not a handle element, returning')
-			this.#log.info({ handleEls: this.handleEls, eventTarget })
+			this.#log.debug({ handleEls: this.handleEls, eventTarget })
 			return
 		}
 
@@ -464,6 +470,74 @@ export class Draggable {
 		this.active = false
 	}
 
+	setTranslate(xPos?: number, yPos?: number) {
+		xPos ??= this.translateX
+		yPos ??= this.translateY
+
+		if (!this.opts.transform) {
+			this.#log
+				.fn('setTranslate')
+				.debug('No transform function provided, using default transform')
+			return this.#setStyle(this.node, 'translate', `${+xPos}px ${+yPos}px 1px`)
+		}
+
+		// if (this.collidesWithObstacle(xPos, yPos)) {
+		// 	this.#log.fn('setTranslate').debug('Collides with obstacle, not moving')
+		// 	return
+		// }
+
+		this.#log.fn('setTranslate').debug({
+			xPos,
+			yPos,
+			xOffset: this.xOffset,
+			yOffset: this.yOffset,
+			translateX: this.translateX,
+			translateY: this.translateY,
+			xPosition: this.opts.position?.x,
+			yPosition: this.opts.position?.y,
+		})
+
+		// Call transform function if provided
+		const transformCalled = this.opts.transform({
+			offsetX: xPos,
+			offsetY: yPos,
+			rootNode: this.node,
+		})
+
+		if (isString(transformCalled)) {
+			this.#setStyle(this.node, 'translate', transformCalled)
+		} else {
+			this.#setStyle(this.node, 'translate', `${+xPos}px ${+yPos}px`)
+		}
+	}
+
+	collidesWithObstacle(x: number, y: number): boolean {
+		const nodeRect = this.nodeRect
+
+		const newNodeRect = {
+			left: x,
+			top: y,
+			right: x + nodeRect.width,
+			bottom: y + nodeRect.height,
+		}
+
+		// this.#log.fn('collidesWithObstacle').debug({ newNodeRect, obstacleEls: this.obstacleEls })
+
+		// for (const obstacle of this.obstacleEls) {
+		// 	const obstacleRect = obstacle.getBoundingClientRect()
+		// 	if (
+		// 		newNodeRect.left < obstacleRect.right &&
+		// 		newNodeRect.right > obstacleRect.left &&
+		// 		newNodeRect.top < obstacleRect.bottom &&
+		// 		newNodeRect.bottom > obstacleRect.top
+		// 	) {
+		// 		return true // Collision detected
+		// 	}
+		// }
+
+		return false // No collision
+	}
+
 	update = (options: Partial<DragOptions>) => {
 		// Update all the values that need to be changed
 		this.opts.axis = options.axis || 'both'
@@ -533,40 +607,6 @@ export class Draggable {
 			throw new Error("The selector provided for bound doesn't exists in the document.")
 
 		return node.getBoundingClientRect()
-	}
-
-	setTranslate(xPos?: number, yPos?: number) {
-		xPos ??= this.translateX
-		yPos ??= this.translateY
-
-		this.#log.fn('setTranslate').info({
-			xPos,
-			yPos,
-			xOffset: this.xOffset,
-			yOffset: this.yOffset,
-			translateX: this.translateX,
-			translateY: this.translateY,
-			xPosition: this.opts.position?.x,
-			yPosition: this.opts.position?.y,
-		})
-
-		if (!this.opts.transform) {
-			this.#log.info('No transform function provided, using default transform')
-			return this.#setStyle(this.node, 'translate', `${+xPos}px ${+yPos}px 1px`)
-		}
-
-		// Call transform function if provided
-		const transformCalled = this.opts.transform({
-			offsetX: xPos,
-			offsetY: yPos,
-			rootNode: this.node,
-		})
-
-		if (isString(transformCalled)) {
-			this.#setStyle(this.node, 'transform', transformCalled)
-		} else {
-			this.#setStyle(this.node, 'transform', `translate(${+xPos}px, ${+yPos}px)`)
-		}
 	}
 
 	#setStyle = (el: HTMLElement, style: string, value: string) =>

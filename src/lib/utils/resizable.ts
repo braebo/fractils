@@ -265,32 +265,6 @@ export class Resizable implements Omit<ResizableOptions, 'size'> {
 		document.addEventListener('mouseup', this.onUp, { once: true })
 	}
 
-	// resizeLeft = (x: number) => {
-	// 	const { width, left, right } = this.node.getBoundingClientRect()
-	// 	const style = window.getComputedStyle(this.node)
-
-	// 	const min = Math.min(+style.minWidth, this.boundsRect.width) || 25
-	// 	const max = parseFloat(style.maxWidth) || this.boundsRect.width
-
-	// 	const newWidth = clamp(right - x, min, max)
-
-	// 	if (newWidth <= min || newWidth >= max) return this
-
-	// 	const widthDiff = width - newWidth
-	// 	const newLeft = left + widthDiff
-
-	// 	this.#log(fn('resizeLeft'), 'Updating left and width properties.', { newLeft, newWidth })
-
-	// 	this.node.style.left = `${newLeft}px`
-	// 	this.node.style.width = `${newWidth}px`
-
-	// 	return this
-	// }
-
-	// mat = {
-	// 	x: 0,
-	// 	y: 0,
-	// }
 	get translateX() {
 		return +this.node.dataset.translateX! || 0
 	}
@@ -331,8 +305,8 @@ export class Resizable implements Omit<ResizableOptions, 'size'> {
 		// this.node.style.translate = `translate(${this.translateX}px, ${this.translateY}px)`
 		this.translateX = this.translateX + change
 		this.node.style.setProperty(
-			'transform',
-			`translate(${this.translateX}px, ${this.translateY}px)`,
+			'translate',
+			`${this.translateX}px ${this.translateY}px`,
 		)
 		this.node.style.width = `${newWidth}px`
 
@@ -360,11 +334,6 @@ export class Resizable implements Omit<ResizableOptions, 'size'> {
 
 		this.node.style.width = `${newWidth}px`
 
-		// const widthDiff = width - newWidth
-		// const newRight = right - widthDiff
-		// this.node.style.right = `${newRight}px`
-		// this.node.style.width = `${newWidth}px`
-
 		return this
 	}
 
@@ -381,17 +350,12 @@ export class Resizable implements Omit<ResizableOptions, 'size'> {
 		const newTop = top + heightDiff
 		const change = newTop - top
 
-		// this.mat.y += change
-		// this.node.style.transform = `translate(${this.mat.x}px, ${this.mat.y}px)`
 		this.translateY = this.translateY + change
 		this.node.style.setProperty(
-			'transform',
-			`translate(${this.translateX}px, ${this.translateY}px)`,
+			'translate',
+			`${this.translateX}px ${this.translateY}px`,
 		)
 		this.node.style.height = `${newHeight}px`
-
-		// this.node.style.top = `${newTop}px`
-		// this.node.style.height = `${newHeight}px`
 	}
 
 	resizeBottom = (y: number) => {
