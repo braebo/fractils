@@ -10,7 +10,7 @@
 		height: count * 10,
 		speed: 0.02,
 		mid: count * 5,
-		brightness: .4,
+		brightness: 0.4,
 	}
 	const a1t = tweened(params.a1, { duration: 500 })
 	const a2t = tweened(params.a2, { duration: 500 })
@@ -46,7 +46,7 @@
 			})
 		})
 	}
-	
+
 	onMount(animate)
 </script>
 
@@ -77,9 +77,12 @@
 									<stop
 										offset="0%"
 										style="stop-color:rgb({[
-											10 * (((i + 1) * params.brightness) / params.orbs + 0.5),
-											200 * (((i + 1) * params.brightness) / params.orbs + 0.5),
-											250 * (((i + 1) * params.brightness) / params.orbs + 0.5),
+											10 *
+												(((i + 1) * params.brightness) / params.orbs + 0.5),
+											200 *
+												(((i + 1) * params.brightness) / params.orbs + 0.5),
+											250 *
+												(((i + 1) * params.brightness) / params.orbs + 0.5),
 										]});stop-opacity:1"
 									/>
 									<stop
@@ -105,57 +108,25 @@
 		display: flex;
 		width: 100%;
 		height: 100%;
-		/* position: absolute; */
-		/* inset: 0; */
-		/* top: 30vh; */
-		/* margin: auto; */
 	}
+
 	#die {
 		width: 100%;
 		height: 100%;
 		border-radius: 5px;
 	}
+
 	stop {
 		transition: all 0.6s ease-in-out;
 	}
+
 	.dot,
 	g {
 		transition: all 0.6s ease-in-out;
 	}
+
 	svg {
 		backface-visibility: hidden;
 		overflow: visible;
 	}
-	/* input,
-	p {
-		height: 30px;
-		display: flex;
-		margin: auto;
-	}
-	.controls {
-		display: grid;
-		grid: auto-flow / 1fr 1fr;
-		margin: auto;
-		width: max-content;
-	} */
-	/* .wrapper {
-		display: flex;
-		flex-direction: column;
-		flex-wrap: wrap;
-		margin: auto;
-	}
-	.container {
-		display: flex;
-		flex-direction: column;
-		width: 100vw;
-	} */
-	/* :global(body, html, main) {
-		margin: 0;
-		padding: 0;
-	}
-	:global(h1) {
-		font-family: roboto;
-		text-align: center;
-		color: gray;
-	} */
 </style>

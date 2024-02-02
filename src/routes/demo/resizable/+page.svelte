@@ -8,16 +8,19 @@
 
 <div class="page">
 	<div
-		class="orbs"
+		class="orbs-container"
 		use:resizable={{ visible: true }}
 		use:draggable={{
-			handle: '.orbs',
+			// handle: '.orbs',
 			cancel: '.fractils-resize-grabber',
+			obstacles: ['.bounds', '.bounds2'],
 		}}
 	>
 		<label for="">Free Orbs</label>
 		<Orbs />
 	</div>
+
+	<div class="bounds2"></div>
 
 	<div class="bounds" bind:this={bounds}>
 		<label for="">Bound</label>
@@ -45,32 +48,31 @@
 
 		max-width: 400px;
 		height: 100%;
+		width: 100%;
 		flex-grow: 1;
 		margin: auto;
 
 		padding: 1rem;
 	}
 
-	.orbs {
+	.orbs-container {
 		position: absolute;
-		left: 5vw;
-		top: 5vh;
+		// left: 5vw;
+		// top: 5vh;
 
 		width: 200px;
 		height: 200px;
 
 		background: var(--bg-b);
-		// pointer-events: all;
+		z-index: 1;
 
-		// :global(.svg) {
-		// 	pointer-events: none;
-		// }
+		// transition: 0.15s;
 	}
 
-	.bounds {
+	.bounds, .bounds2 {
 		position: absolute;
 		top: 50vh;
-		right: 10vw;
+		right: 30vw;
 		margin: auto;
 
 		border: 1px solid tomato;
@@ -81,10 +83,15 @@
 		z-index: 0;
 	}
 
+	.bounds2 {
+		top: 30vh;
+		left: 10vw;
+	}
+
 	.bound {
 		position: absolute;
-		left: 25%;
-		top: 25%;
+		// left: 25%;
+		// top: 25%;
 		width: 100px;
 		height: 100px;
 
@@ -92,7 +99,7 @@
 		outline: 1px solid green;
 
 		pointer-events: all;
-		z-index: 1;
+		// z-index: 1;
 	}
 
 	label {
