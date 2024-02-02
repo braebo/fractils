@@ -217,11 +217,11 @@ export class Resizable implements Omit<ResizableOptions, 'size'> {
 			grabber.dataset.side = side
 			this.node.appendChild(grabber)
 
-			grabber.addEventListener('mousedown', this.onGrab)
-			this.#listeners.push(() => grabber.removeEventListener('mousedown', this.onGrab))
+			grabber.addEventListener('pointerdown', this.onGrab)
+			this.#listeners.push(() => grabber.removeEventListener('pointerdown', this.onGrab))
 
-			grabber.addEventListener('mouseover', this.onMouseOver)
-			this.#listeners.push(() => grabber.removeEventListener('mouseover', this.onMouseOver))
+			grabber.addEventListener('pointerover', this.onPointerOver)
+			this.#listeners.push(() => grabber.removeEventListener('pointerover', this.onPointerOver))
 		}
 
 		for (const corner of this.corners) {
@@ -231,15 +231,15 @@ export class Resizable implements Omit<ResizableOptions, 'size'> {
 			grabber.dataset.side = corner
 			this.node.appendChild(grabber)
 
-			grabber.addEventListener('mousedown', this.onGrab)
-			this.#listeners.push(() => grabber.removeEventListener('mousedown', this.onGrab))
+			grabber.addEventListener('pointerdown', this.onGrab)
+			this.#listeners.push(() => grabber.removeEventListener('pointerdown', this.onGrab))
 
-			grabber.addEventListener('mouseover', this.onMouseOver)
-			this.#listeners.push(() => grabber.removeEventListener('mouseover', this.onMouseOver))
+			grabber.addEventListener('pointerover', this.onPointerOver)
+			this.#listeners.push(() => grabber.removeEventListener('pointerover', this.onPointerOver))
 		}
 	}
 
-	onMouseOver = (e: MouseEvent) => {
+	onPointerOver = (e: PointerEvent) => {
 		if (this.#grabbing) return
 		const grabber = e.currentTarget as HTMLElement
 		const { side } = grabber.dataset
@@ -247,7 +247,7 @@ export class Resizable implements Omit<ResizableOptions, 'size'> {
 		this.node.style.setProperty('border-' + side + '-color', this.color)
 	}
 
-	onGrab = (e: MouseEvent) => {
+	onGrab = (e: PointerEvent) => {
 		this.#grabbing = true
 		this.#activeGrabber = e.currentTarget as HTMLElement
 
@@ -258,11 +258,11 @@ export class Resizable implements Omit<ResizableOptions, 'size'> {
 		e.stopPropagation()
 
 		this.#cleanupGrabListener?.()
-		document.addEventListener('mousemove', this.onMove)
-		this.#cleanupGrabListener = () => document.removeEventListener('mousemove', this.onMove)
+		document.addEventListener('pointermove', this.onMove)
+		this.#cleanupGrabListener = () => document.removeEventListener('pointermove', this.onMove)
 
 		// This doesn't need to be cleaned up because it's a `once` listener.
-		document.addEventListener('mouseup', this.onUp, { once: true })
+		document.addEventListener('pointerup', this.onUp, { once: true })
 	}
 
 	get translateX() {
@@ -379,7 +379,7 @@ export class Resizable implements Omit<ResizableOptions, 'size'> {
 	/**
 	 * This is where all the resizing logic happens.
 	 */
-	onMove = (e: MouseEvent) => {
+	onMove = (e: PointerEvent) => {
 		if (!this.#activeGrabber) {
 			console.error('No active grabber')
 			return

@@ -1,5 +1,6 @@
-import { isHTMLElement, isString } from './is'
 import type { Action } from 'svelte/action'
+
+import { isHTMLElement, isString } from './is'
 import { tweened } from 'svelte/motion'
 import { select } from './select'
 import { Logger } from './logger'
@@ -255,7 +256,7 @@ export class Draggable {
 
 	constructor(
 		public node: HTMLElement,
-		options: Partial<DragOptions>,
+		options?: Partial<DragOptions>,
 	) {
 		this.opts = { ...DRAG_DEFAULTS, ...options }
 
@@ -285,6 +286,7 @@ export class Draggable {
 		this.node.addEventListener('pointerdown', this.dragStart, false)
 		addEventListener('pointerup', this.dragEnd, false)
 		addEventListener('pointermove', this.drag, false)
+		addEventListener('resize', this.resize)
 
 		// this.tween.subscribe(({ x, y }) => {
 		// 	console.log(x)
@@ -292,34 +294,34 @@ export class Draggable {
 		// 	this.tryTranslate(x, y)
 		// 	// this.node.style.setProperty('translate', `${x}px ${y}px 1px`)
 		// })
-
-		this.debugSVG = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-		this.debugSVG.setAttribute('viewBox', `0 0 ${window.innerWidth} ${window.innerHeight}`)
-		this.debugSVG.setAttribute('width', '100vw')
-		this.debugSVG.setAttribute('height', '100vh')
-		this.debugSVG.style.cssText += `
-			position: fixed;
-			inset: 0;
-			width: 100vw;
-			height: 100vh;
-		`
-		document.body.appendChild(this.debugSVG)
-		let i = 0
-		this.debugStore.subscribe(({ x, colliding }) => {
-			// console.log(x, colliding)
-			i++
-			const point = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
-			point.setAttribute('cx', String(x + this.defaultPosition.x))
-			point.setAttribute('cy', String(this.translateY + this.defaultPosition.y))
-			point.setAttribute('r', '5')
-			point.setAttribute('fill', colliding ? `hsl(${i * 10}, 100%, 50%)` : 'green')
-			point.setAttribute('opacity', '0.05')
-
-			this.debugSVG.appendChild(point)
-		})
 	}
 
-	debugSVG: SVGSVGElement
+	resize = () => {
+		this.computedBounds = this.#computeBoundRect(this.opts.bounds, this.node)
+
+		const bounds = this.computedBounds!
+
+		const { top, right, bottom, left, width } = this.node.getBoundingClientRect()
+
+		let x = this.translateX
+		let y = this.translateY
+
+		this.initialX = 0
+		this.initialY = 0
+
+		const xdiff = right - bounds.right
+		if (xdiff > 0) x -= xdiff
+
+		const ydiff = bottom - bounds.bottom
+		if (ydiff > 0) y -= ydiff
+
+		if (x !== this.translateX || y !== this.translateY) {
+			console.log(x)
+			console.log(y)
+
+			this.updatePosition(x, y)
+		}
+	}
 
 	get nodeRect() {
 		return this.node.getBoundingClientRect()
@@ -359,13 +361,18 @@ export class Draggable {
 		return !!this.opts.position
 	}
 
+	get bounds() {
+		return this.opts.bounds
+	}
+
 	dragStart = (e: PointerEvent) => {
-		this.debugSVG.innerHTML = ''
 		if (this.disabled) return
 
 		if (e.button === 2) return
 
 		if (this.opts.ignoreMultitouch && !e.isPrimary) return
+
+		e.stopPropagation()
 
 		// Recompute bounds
 		this.computedBounds = this.#computeBoundRect(this.opts.bounds, this.node)
@@ -419,39 +426,42 @@ export class Draggable {
 		// Dispatch custom event
 		this.#fireSvelteDragStartEvent()
 
-		const { clientX, clientY } = e
-		const inverseScale = this.#calculateInverseScale()
+		// const { clientX, clientY } = e
+		// const inverseScale = this.#calculateInverseScale()
 
-		this.xOffset = this.translateX
-		this.yOffset = this.translateY
+		// this.xOffset = this.translateX
+		// this.yOffset = this.translateY
 
-		if (this.canMoveInX) this.initialX = clientX - this.xOffset / inverseScale
-		if (this.canMoveInY) this.initialY = clientY - this.yOffset / inverseScale
+		// if (this.canMoveInX) this.initialX = clientX - this.xOffset / inverseScale
+		// if (this.canMoveInY) this.initialY = clientY - this.yOffset / inverseScale
+		if (this.canMoveInX) this.initialX = e.clientX - this.translateX
+		if (this.canMoveInY) this.initialY = e.clientY - this.translateY
 
 		// Only the bounds uses these properties at the moment,
 		// may open up in the future if others need it
 		if (this.computedBounds) {
-			this.clientToNodeOffsetX = clientX - this.nodeRect.left
-			this.clientToNodeOffsetY = clientY - this.nodeRect.top
+			this.clientToNodeOffsetX = e.clientX - this.nodeRect.left
+			this.clientToNodeOffsetY = e.clientY - this.nodeRect.top
 		}
 	}
 
 	drag = (e: PointerEvent) => {
 		if (!this.active) return
 		// this.#log.fn('drag').info()
+		e.preventDefault()
 
+		this.updatePosition(e.clientX, e.clientY)
+	}
+
+	updatePosition = (finalX: number, finalY: number) => {
 		this.computedBounds = this.#computeBoundRect(this.opts.bounds, this.node)
 
 		// Apply class defaultClassDragging
 		this.node.classList.add(this.opts.defaultClassDragging)
 
-		e.preventDefault()
-
 		// Get final values for clamping
-		let finalX = e.clientX
-		let finalY = e.clientY
 
-		const inverseScale = this.#calculateInverseScale()
+		// const inverseScale = this.#calculateInverseScale()
 
 		if (this.computedBounds) {
 			// Client position is limited to this virtual boundary to prevent node going out of bounds
@@ -467,30 +477,35 @@ export class Draggable {
 			finalY = clamp(finalY, virtualClientBounds.top, virtualClientBounds.bottom)
 		}
 
-		if (this.opts.grid) {
-			let [xSnap, ySnap] = this.opts.grid
+		// if (this.opts.grid) {
+		// 	let [xSnap, ySnap] = this.opts.grid
 
-			if (isNaN(+xSnap) || xSnap < 0)
-				throw new Error('1st argument of `grid` must be a valid positive number')
+		// 	if (isNaN(+xSnap) || xSnap < 0)
+		// 		throw new Error('1st argument of `grid` must be a valid positive number')
 
-			if (isNaN(+ySnap) || ySnap < 0)
-				throw new Error('2nd argument of `grid` must be a valid positive number')
+		// 	if (isNaN(+ySnap) || ySnap < 0)
+		// 		throw new Error('2nd argument of `grid` must be a valid positive number')
 
-			let deltaX = finalX - this.initialX
-			let deltaY = finalY - this.initialY
+		// 	let deltaX = finalX - this.initialX
+		// 	let deltaY = finalY - this.initialY
 
-			;[deltaX, deltaY] = this.#snapToGrid(
-				[xSnap / inverseScale, ySnap / inverseScale],
-				deltaX,
-				deltaY,
-			)
+		// 	;[deltaX, deltaY] = this.#snapToGrid(
+		// 		[xSnap / inverseScale, ySnap / inverseScale],
+		// 		deltaX,
+		// 		deltaY,
+		// 	)
 
-			finalX = this.initialX + deltaX
-			finalY = this.initialY + deltaY
-		}
+		// 	finalX = this.initialX + deltaX
+		// 	finalY = this.initialY + deltaY
+		// }
 
+		// const newX = Math.round(finalX - this.initialX)
 		const newX = Math.round(finalX - this.initialX)
+		// const newY = Math.round(finalY - this.initialY)
 		const newY = Math.round(finalY - this.initialY)
+
+		console.log(newX)
+		console.log(newY)
 
 		this.tween.set({ x: newX, y: newY })
 
@@ -573,6 +588,39 @@ export class Draggable {
 		this.translateY = targetY
 		this.xOffset = this.translateX
 		this.yOffset = this.translateY
+	}
+
+	offscreenCheck = () => {
+		const bounds = this.opts.bounds
+
+		// let x = this.translateX
+		// let y = this.translateY
+
+		// const w = this.node.offsetWidth
+
+		// const diff = x + w - this.
+
+		// if (diff > 0) {
+		// 	x -= diff
+		// }
+
+		// if (x < 0) {
+		// 	x = 0
+		// }
+
+		// if (y + h > this.container.offsetHeight) {
+		// 	const diff = y + h - this.container.offsetHeight
+
+		// 	if (diff > 0) {
+		// 		y -= diff
+		// 	}
+		// }
+
+		// if (y < 0) {
+		// 	y = 0
+		// }
+
+		// return { x, y }
 	}
 
 	collisionCheckX(xOffset: number, rect = this.nodeRect): number | null {
@@ -729,10 +777,11 @@ export class Draggable {
 		this.#callEvent('drag', this.opts.onDrag)
 	}
 
-	destroy() {
+	dispose() {
 		this.node.removeEventListener('pointerdown', this.dragStart, false)
 		removeEventListener('pointerup', this.dragEnd, false)
 		removeEventListener('pointermove', this.drag, false)
+		removeEventListener('resize', this.resize)
 	}
 }
 
@@ -744,7 +793,7 @@ export const draggable: Action<HTMLElement, Partial<DragOptions> | undefined, Dr
 
 	return {
 		destroy: () => {
-			d.destroy()
+			d.dispose()
 		},
 		update: (options: Partial<DragOptions> | undefined) => {
 			// Update all the values that need to be changed
