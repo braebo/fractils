@@ -4,7 +4,7 @@ import { tweened } from 'svelte/motion'
 import { select } from './select'
 import { Logger } from './logger'
 import { clamp } from './clamp'
-
+import { state } from './state'
 
 export type DragBoundsCoords = {
 	/** Number of pixels from left of the document */
@@ -232,6 +232,8 @@ export class Draggable {
 	xOffset: number
 	yOffset: number
 
+	defaultPosition = { x: 0, y: 0 }
+
 	bodyOriginalUserSelectVal = ''
 
 	computedBounds: DragBoundsCoords | undefined
@@ -241,11 +243,15 @@ export class Draggable {
 	obstacleEls: HTMLElement[]
 
 	currentlyDraggedEl!: HTMLElement
-	tween = tweened({ x: 0, y: 0 }, {
-		duration: 100
-	})
+	tween = tweened(
+		{ x: 0, y: 0 },
+		{
+			duration: 100,
+		},
+	)
 
 	#log: Logger
+	debugStore = state({ x: 0, colliding: null })
 
 	constructor(
 		public node: HTMLElement,
@@ -264,6 +270,11 @@ export class Draggable {
 		this.xOffset = this.opts.position ? this.opts.position.x ?? 0 : this.opts.defaultPosition.x
 		this.yOffset = this.opts.position ? this.opts.position.y ?? 0 : this.opts.defaultPosition.y
 
+		this.defaultPosition = {
+			x: this.node.offsetLeft,
+			y: this.node.offsetTop,
+		}
+
 		// On mobile, touch can become extremely janky without it
 		this.#setStyle(node, 'touch-action', 'none')
 
@@ -281,7 +292,34 @@ export class Draggable {
 		// 	this.tryTranslate(x, y)
 		// 	// this.node.style.setProperty('translate', `${x}px ${y}px 1px`)
 		// })
+
+		this.debugSVG = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+		this.debugSVG.setAttribute('viewBox', `0 0 ${window.innerWidth} ${window.innerHeight}`)
+		this.debugSVG.setAttribute('width', '100vw')
+		this.debugSVG.setAttribute('height', '100vh')
+		this.debugSVG.style.cssText += `
+			position: fixed;
+			inset: 0;
+			width: 100vw;
+			height: 100vh;
+		`
+		document.body.appendChild(this.debugSVG)
+		let i = 0
+		this.debugStore.subscribe(({ x, colliding }) => {
+			// console.log(x, colliding)
+			i++
+			const point = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+			point.setAttribute('cx', String(x + this.defaultPosition.x))
+			point.setAttribute('cy', String(this.translateY + this.defaultPosition.y))
+			point.setAttribute('r', '5')
+			point.setAttribute('fill', colliding ? `hsl(${i * 10}, 100%, 50%)` : 'green')
+			point.setAttribute('opacity', '0.05')
+
+			this.debugSVG.appendChild(point)
+		})
 	}
+
+	debugSVG: SVGSVGElement
 
 	get nodeRect() {
 		return this.node.getBoundingClientRect()
@@ -322,6 +360,7 @@ export class Draggable {
 	}
 
 	dragStart = (e: PointerEvent) => {
+		this.debugSVG.innerHTML = ''
 		if (this.disabled) return
 
 		if (e.button === 2) return
@@ -450,20 +489,8 @@ export class Draggable {
 			finalY = this.initialY + deltaY
 		}
 
-		console.log(this.initialX)
-		console.log(finalX)
-		console.log(inverseScale)
-
 		const newX = Math.round(finalX - this.initialX)
 		const newY = Math.round(finalY - this.initialY)
-
-		// if (this.canMoveInX) this.translateX = newX
-		// if (this.canMoveInY) this.translateY = newY
-		// this.xOffset = this.translateX
-		// this.yOffset = this.translateY
-
-		console.log(newX)
-		console.log(newY)
 
 		this.tween.set({ x: newX, y: newY })
 
@@ -506,86 +533,98 @@ export class Draggable {
 
 		const rect = this.node.getBoundingClientRect()
 
-		let finalX = !this.canMoveInX || this.collisionCheckX(xPos, rect) ? this.translateX : xPos
-		let finalY = !this.canMoveInY || this.collisionCheckY(yPos, rect) ? this.translateY : yPos
+		// let targetY = !this.canMoveInY || this.collisionCheckY(yPos, rect) ? this.translateY : yPos
 
-		this.#log.fn('setTranslate').debug({
-			xPos,
-			yPos,
-			xOffset: this.xOffset,
-			yOffset: this.yOffset,
-			translateX: this.translateX,
-			translateY: this.translateY,
-			xPosition: this.opts.position?.x,
-			yPosition: this.opts.position?.y,
-		})
+		let targetX = this.translateX
+		let targetY = this.translateY
+
+		if (this.canMoveInX) {
+			targetX = xPos
+			const distanceToObstacle = this.collisionCheckX(targetX, rect)
+
+			if (distanceToObstacle !== null) {
+				targetX = this.translateX + distanceToObstacle
+			}
+		}
+
+		if (this.canMoveInY) {
+			targetY = yPos
+			const distanceToObstacle = this.collisionCheckY(targetY, rect)
+
+			if (distanceToObstacle !== null) {
+				targetY = this.translateY + distanceToObstacle
+			}
+		}
 
 		// Call transform function if provided
 		const transformCalled = this.opts.transform({
-			offsetX: finalX,
-			offsetY: finalY,
+			offsetX: targetX,
+			offsetY: targetY,
 			rootNode: this.node,
 		})
 
 		if (isString(transformCalled)) {
 			this.#setStyle(this.node, 'translate', transformCalled)
 		} else {
-			this.node.style.setProperty('translate', `${finalX}px ${finalY}px 1px`)
+			this.node.style.setProperty('translate', `${targetX}px ${targetY}px 1px`)
 		}
 
-		this.translateX = finalX
-		this.translateY = finalY
+		this.translateX = targetX
+		this.translateY = targetY
 		this.xOffset = this.translateX
 		this.yOffset = this.translateY
 	}
 
-	collisionCheckX(xOffset: number, rect: DOMRect): boolean {
+	collisionCheckX(xOffset: number, rect = this.nodeRect): number | null {
 		const { top, bottom, left, right } = rect
 		const change = xOffset - this.translateX
 
-		
-		const collisionDetected = this.obstacleEls.some((obstacle) => {
-			const o = obstacle.getBoundingClientRect()
-			
-			const notAlignedY = top > o.bottom || bottom < o.top
+		let closestDistance: number | undefined = undefined
 
-			if (notAlignedY) return false
+		for (const obstacle of this.obstacleEls) {
+			const o = obstacle.getBoundingClientRect()
+
+			if (top > o.bottom || bottom < o.top) continue
 
 			const rightToLeft = left > o.right && left + change - 1 < o.right
 			const leftToRight = right < o.left && right + change + 1 > o.left
-			const bottomToTop = top > o.bottom && top + change - 1 < o.bottom
-			const topToBottom = bottom < o.top && bottom + change + 1 > o.top
 
-			return rightToLeft || leftToRight || bottomToTop || topToBottom
-		})
+			if (rightToLeft) {
+				closestDistance ??= -Infinity
+				closestDistance = Math.max(closestDistance, Math.abs(o.right) - Math.abs(left) + 1)
+			} else if (leftToRight) {
+				closestDistance ??= Infinity
+				closestDistance = Math.min(closestDistance, Math.abs(o.left) - Math.abs(right) - 1)
+			}
+		}
 
-		console.log(collisionDetected)
-
-		return collisionDetected
+		return closestDistance ?? null
 	}
 
-	collisionCheckY(yOffset: number, rect: DOMRect): boolean {
+	collisionCheckY(yOffset: number, rect: DOMRect): number | null {
 		const { top, bottom, left, right } = rect
 		const change = yOffset - this.translateY
 
-		const collisionDetected = this.obstacleEls.some((obstacle) => {
+		let closestDistance: number | undefined = undefined
+
+		for (const obstacle of this.obstacleEls) {
 			const o = obstacle.getBoundingClientRect()
 
-			const notAlignedX = left > o.right || right < o.left
+			if (left > o.right || right < o.left) continue
 
-			if (notAlignedX) return false
-
-			const rightToLeft = left > o.right && left + change - 1< o.right
-			const leftToRight = right < o.left && right + change + 1 > o.left
 			const bottomToTop = top > o.bottom && top + change - 1 < o.bottom
 			const topToBottom = bottom < o.top && bottom + change + 1 > o.top
 
-			return rightToLeft || leftToRight || bottomToTop || topToBottom
-		})
+			if (bottomToTop) {
+				closestDistance ??= -Infinity
+				closestDistance = Math.max(closestDistance, Math.abs(o.bottom) - Math.abs(top) + 1)
+			} else if (topToBottom) {
+				closestDistance ??= Infinity
+				closestDistance = Math.min(closestDistance, Math.abs(o.top) - Math.abs(bottom) - 1)
+			}
+		}
 
-		console.log(collisionDetected)
-
-		return collisionDetected
+		return closestDistance ?? null
 	}
 
 	update = (options: Partial<DragOptions>) => {
