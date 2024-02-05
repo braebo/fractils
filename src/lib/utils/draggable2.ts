@@ -345,9 +345,6 @@ export class Draggable {
 		if (ydiff > 0) y -= ydiff
 
 		if (x !== this.translateX || y !== this.translateY) {
-			console.log(x)
-			console.log(y)
-
 			this.updatePosition(x, y)
 		}
 	}
@@ -473,6 +470,13 @@ export class Draggable {
 			this.clientToNodeOffsetX = e.clientX - this.nodeRect.left
 			this.clientToNodeOffsetY = e.clientY - this.nodeRect.top
 		}
+
+		this.tween.set({
+			x: this.translateX,
+			y: this.translateY,
+		}, {
+			duration: 0
+		})
 	}
 
 	drag = (e: PointerEvent) => {
@@ -528,8 +532,8 @@ export class Draggable {
 
 		this.#fireSvelteDragEndEvent()
 
-		// if (this.canMoveInX) this.clickOffsetX = this.translateX
-		// if (this.canMoveInY) this.clickOffsetY = this.translateY
+		if (this.canMoveInX) this.clickOffsetX = this.translateX
+		if (this.canMoveInY) this.clickOffsetY = this.translateY
 
 		this.active = false
 	}
