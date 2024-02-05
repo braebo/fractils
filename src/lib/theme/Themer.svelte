@@ -2,8 +2,8 @@
 	import { resizable } from '../actions/resizable'
 	import { quadOut, quadIn } from 'svelte/easing'
 	import autoAnimate from '@formkit/auto-animate'
-	import { hovering } from '../actions/hovering'
 	import THEME_A from './themes/theme-a.json'
+	import { hover } from '../actions/hover'
 	import { fly } from 'svelte/transition'
 	import { Themer } from './Themer'
 
@@ -48,7 +48,7 @@
 							on:click={() => themer.theme.set(t)}
 						>
 							<button
-								use:hovering={{ pollRate: 100 }}
+								use:hover={{ pollRate: 100 }}
 								on:hoverIn={() => (showDeleteText[i] = true)}
 								on:hoverOut={() => (showDeleteText[i] = false)}
 								title="delete theme"
