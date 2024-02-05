@@ -588,8 +588,8 @@ export class Draggable {
 
 			if (isString(transformCalled)) {
 				const [x, y] = transformCalled.split(' ')
-				this.tween.set({ x: +x, y: +y })
 				// this.#setStyle(this.node, 'translate', transformCalled)
+				this.tween.set({ x: +x, y: +y })
 			}
 		}
 	}

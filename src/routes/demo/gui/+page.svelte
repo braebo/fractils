@@ -49,11 +49,18 @@
 		position = gui.position
 		closed = gui.closed
 
-		const f1 = gui.addFolder({ title: '1a' })
-
-		const f2 = f1.addFolder({ title: '2a' })
-		f2.addFolder({ title: '3a' })
-		f1.addFolder({ title: '2b' }).addInput({ title: '2b', value: 0, folder: f2, type: 'number' })
+		const f1 = gui.addFolder({ title: 'Controls' })
+		
+		const f2 = f1.addFolder({ title: 'Orbs' })
+		const slidersFolder = f2.addFolder({ title: 'Sliders' })
+		
+		const mySlider = slidersFolder.add({ title: 'Slider 1', value: 0.5 })
+		
+		f1.addFolder({ title: '2b' }).add({
+			title: '2b',
+			value: 0,
+			type: 'Number',
+		})
 
 		gui.addFolder({ title: 'sibling' })
 
@@ -86,7 +93,7 @@
 		{/if}
 	{/if}
 </div>
-	
+
 <style lang="scss">
 	.page {
 		display: flex;
