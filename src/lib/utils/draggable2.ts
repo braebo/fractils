@@ -314,9 +314,9 @@ export class Draggable {
 			removeEventListener('pointermove', this.drag, false)
 		})
 
-		addEventListener('resize', this.resize)
+		addEventListener('resize', this.onWindowResize)
 		this.#listeners.add(() => {
-			removeEventListener('resize', this.resize)
+			removeEventListener('resize', this.onWindowResize)
 		})
 
 		this.#listeners.add(
@@ -327,7 +327,7 @@ export class Draggable {
 		)
 	}
 
-	resize = () => {
+	onWindowResize = () => {
 		this.computedBounds = this.#computeBoundRect(this.opts.bounds, this.node)
 
 		const bounds = this.computedBounds!
@@ -755,7 +755,7 @@ export class Draggable {
 		this.node.removeEventListener('pointerdown', this.dragStart, false)
 		removeEventListener('pointerup', this.dragEnd, false)
 		removeEventListener('pointermove', this.drag, false)
-		removeEventListener('resize', this.resize)
+		removeEventListener('resize', this.onWindowResize)
 	}
 }
 
