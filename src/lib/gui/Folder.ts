@@ -1,6 +1,7 @@
+import type { InferInputType, InputOptions, InputView, InferElementType } from './Input'
 import type { Gui } from './Gui'
 
-import { Input, type InputOptions } from './Input'
+import { Input } from './Input'
 import { create } from '../utils/create'
 import { nanoid } from '../utils/nanoid'
 import { Logger } from '../utils/logger'
@@ -294,11 +295,8 @@ export class Folder {
 		return folder
 	}
 
-	addInput(options: Omit<InputOptions, 'folder'> & { folder?: Folder }) {
-		const input = new Input({
-			folder: this,
-			...options,
-		})
+	add<VT = any, IT extends InputView = InferInputType<VT>>(options: InputOptions<VT, IT>) {
+		const input = new Input<VT, IT>(options, this)
 		this.controls.set(input.title, input)
 		this.elements.content.appendChild(input.element)
 	}
