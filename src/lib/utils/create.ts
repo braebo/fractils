@@ -1,4 +1,4 @@
-export function create(
+export function create<T extends HTMLElement = HTMLElement>(
 	tagnameOrElement: string | HTMLElement,
 	options: {
 		parent?: HTMLElement
@@ -6,6 +6,7 @@ export function create(
 		id?: string
 		dataset?: Record<string, string>
 		textContent?: string
+		[key: string]: any
 	},
 	...children: HTMLElement[]
 ) {
@@ -14,13 +15,21 @@ export function create(
 			? document.createElement(tagnameOrElement)
 			: tagnameOrElement
 
-	if (options.classes) el.classList.add(...options.classes)
-	if (options.id) el.id = options.id
-	if (options.dataset) Object.assign(el.dataset, options.dataset)
-	if (options.textContent) el.textContent = options.textContent
-	if (options.parent) options.parent.appendChild(el)
+	const { parent, classes, id, dataset, textContent, ...rest } = options
+
+	if (classes) el.classList.add(...classes)
+	if (id) el.id = id
+	if (dataset) Object.assign(el.dataset, dataset)
+	if (textContent) el.textContent = textContent
+	if (parent) parent.appendChild(el)
+
+	if (rest) {
+		for (const [key, value] of Object.entries(rest)) {
+			el[key] = value
+		}
+	}
 
 	el.append(...children)
 
-	return el
+	return el as unknown as T
 }
