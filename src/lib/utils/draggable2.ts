@@ -234,7 +234,7 @@ export class Draggable {
 	/**
 	 * The internal
 	 */
-	currentRect = {
+	virtualRect = {
 		top: 0,
 		right: 0,
 		left: 0,
@@ -452,7 +452,7 @@ export class Draggable {
 		if (this.canMoveInY) this.clickOffsetY = e.clientY - this.translateY
 
 		const { top, right, bottom, left } = this.node.getBoundingClientRect()
-		this.currentRect = {
+		this.virtualRect = {
 			top,
 			right,
 			bottom,
@@ -538,54 +538,50 @@ export class Draggable {
 	}
 
 	tryTranslate(xPos: number, yPos: number) {
-		let targetX = this.translateX
 		let targetY = this.translateY
 
 		if (this.canMoveInX) {
-			targetX = xPos
-			const distanceToObstacle = this.collisionCheckX(targetX)
-
-			if (distanceToObstacle !== null) {
-				targetX = this.translateX + distanceToObstacle
-			}
+			const deltaX = this.collisionCheckX(xPos)
+			// Update virtual rectangle with resulting deltaX (!! before checking collisionY !!)
+			this.virtualRect.left += deltaX
+			this.virtualRect.right += deltaX
+			this.translateX += deltaX
 		}
-		const deltaX = targetX - this.translateX
-		// We apply the y delta to prevent clipping through
-		// corners of obstacles during diagonal movement.
-		//const deltaY = yPos - this.translateY
-
-		this.currentRect.left += deltaX
-		this.currentRect.right += deltaX
 
 		if (this.canMoveInY) {
+			const distanceToObstacle = this.collisionCheckY(yPos)
 			targetY = yPos
-			const distanceToObstacle = this.collisionCheckY(targetY)
-
 			if (distanceToObstacle !== null) {
 				targetY = this.translateY + distanceToObstacle
 			}
+			const deltaY = targetY - this.translateY
+			// Update virtual rectangle with resulting deltaY
+			this.virtualRect.top += deltaY
+			this.virtualRect.bottom += deltaY
+			this.translateY = targetY
+
+			// const deltaY =  this.collisionCheckY(yPos)
+			// // Update virtual rectangle with resulting deltaY
+			// this.virtualRect.top += deltaY
+			// this.virtualRect.bottom += deltaY
+			// this.translateY += deltaY
 		}
-		const deltaY = targetY - this.translateY
 
-		this.currentRect.top += deltaY
-		this.currentRect.bottom += deltaY
-
-		this.translateX = targetX
-		this.translateY = targetY
+		//this.translateX = targetX
 
 		if (typeof this.opts.transform === 'undefined') {
 			const { left, top } = this.node.getBoundingClientRect()
 			// Tween slower for longer distances.
 			const duration =
-				Math.abs(this.currentRect.left + this.currentRect.top - (left + top)) * 0.5
+				Math.abs(this.virtualRect.left + this.virtualRect.top - (left + top)) * 0.5
 
 			// Set the tween and let it animate the position.
-			this.tween.set({ x: targetX, y: targetY }, { duration })
+			this.tween.set({ x: this.translateX, y: targetY }, { duration })
 			// this.node.style.setProperty('translate', `${targetX}px ${targetY}px 1px`)
 		} else {
 			// Call transform function if provided
 			const transformCalled = this.opts.transform?.({
-				offsetX: targetX,
+				offsetX: this.translateX, //targetX,
 				offsetY: targetY,
 				rootNode: this.node,
 			})
@@ -598,50 +594,33 @@ export class Draggable {
 		}
 	}
 
-	collisionCheckX(xOffset: number): number | null {
-		const rect = this.currentRect
-
-	
-		// const top = rect.top + deltaY
-		// const bottom = rect.bottom + deltaY
-		// const left = rect.left
-		// const right = rect.right
-
-		const { top, bottom, left, right } = this.currentRect
-
-		const deltaX = xOffset - this.translateX
-		const directionSign = Math.sign(deltaX)
-		const movingRight = directionSign === 1
-
-		let closestDistance = Infinity
-
-		for (const obstacle of this.obstacleEls) {
-			const o = obstacle.getBoundingClientRect()
-
-			if (
-				top > o.bottom || // too high to collide
-				bottom < o.top || // too low to collide
-				(movingRight && left > o.right) || // in the opposite direction
-				(!movingRight && right < o.left) // in the opposite direction
-			)
-				continue
-
-			const obstacleLeft = left >= o.right && left + deltaX <= o.right
-			const obstacleRight = right <= o.left && right + deltaX >= o.left
-
-			if (!movingRight && obstacleLeft) {
-				closestDistance = Math.min(closestDistance, left - o.right)
-			} else if (movingRight && obstacleRight) {
-				closestDistance = Math.min(closestDistance, o.left - right)
+	collisionCheckX(xPos: number): number {
+		const { top, bottom, left, right } = this.virtualRect
+		let deltaX = xPos - this.translateX
+		if (deltaX === 0) return 0
+		// moving right > 0 ... else  left
+		if (deltaX > 0) {
+			for (const obstacle of this.obstacleEls) {
+				const o = obstacle.getBoundingClientRect()
+				// too high, too low or already passed
+				if (top > o.bottom || bottom < o.top || right > o.left) continue
+				const collidingRight = right <= o.left && right + deltaX >= o.left
+				if (collidingRight) deltaX = Math.min(deltaX, o.left - right)
+			}
+		} else {
+			for (const obstacle of this.obstacleEls) {
+				const o = obstacle.getBoundingClientRect()
+				// too high, too low or already passed
+				if (top > o.bottom || bottom < o.top || left < o.right) continue
+				const collidingLeft = left >= o.right && left + deltaX <= o.right
+				if (collidingLeft) deltaX = Math.max(deltaX, o.right - left)
 			}
 		}
-
-		return closestDistance === Infinity ? null : closestDistance * directionSign
+		return deltaX
 	}
 
 	collisionCheckY(yOffset: number): number | null {
-		const { top, bottom, left, right } = this.currentRect
-
+		const { top, bottom, left, right } = this.virtualRect
 		const deltaY = yOffset - this.translateY
 		const directionSign = Math.sign(deltaY)
 		const movingDown = directionSign === 1
@@ -672,13 +651,9 @@ export class Draggable {
 		return closestDistance === Infinity ? null : closestDistance * directionSign
 	}
 
-	collisionCheckXY(xOffset: number, yOffset): { colX: number | null; colY: number | null }
-	{
-		return {colX: null , colY: null}
+	collisionCheckXY(xOffset: number, yOffset): { colX: number | null; colY: number | null } {
+		return { colX: null, colY: null }
 	}
-	
-
-
 
 	// collisionCheck(xOffset: number, yOffset): { colX: number | null; colY: number | null } {
 	// 	const { top, bottom, left, right } = this.currentRect
@@ -856,7 +831,6 @@ export class Draggable {
 	// 			}
 	// 			break
 	// 	}
-
 
 	// 	return { colX: colX, colY: colY } //closestDistance === Infinity ? null : closestDistance * directionSign
 	// }
