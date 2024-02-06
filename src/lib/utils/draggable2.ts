@@ -538,8 +538,6 @@ export class Draggable {
 	}
 
 	tryTranslate(xPos: number, yPos: number) {
-		let targetY = this.translateY
-
 		if (this.canMoveInX) {
 			const deltaX = this.collisionCheckX(xPos)
 			// Update virtual rectangle with resulting deltaX (!! before checking collisionY !!)
@@ -549,25 +547,12 @@ export class Draggable {
 		}
 
 		if (this.canMoveInY) {
-			const distanceToObstacle = this.collisionCheckY(yPos)
-			targetY = yPos
-			if (distanceToObstacle !== null) {
-				targetY = this.translateY + distanceToObstacle
-			}
-			const deltaY = targetY - this.translateY
+			const deltaY = this.collisionCheckY(yPos)
 			// Update virtual rectangle with resulting deltaY
 			this.virtualRect.top += deltaY
 			this.virtualRect.bottom += deltaY
-			this.translateY = targetY
-
-			// const deltaY =  this.collisionCheckY(yPos)
-			// // Update virtual rectangle with resulting deltaY
-			// this.virtualRect.top += deltaY
-			// this.virtualRect.bottom += deltaY
-			// this.translateY += deltaY
+			this.translateY += deltaY
 		}
-
-		//this.translateX = targetX
 
 		if (typeof this.opts.transform === 'undefined') {
 			const { left, top } = this.node.getBoundingClientRect()
@@ -576,13 +561,13 @@ export class Draggable {
 				Math.abs(this.virtualRect.left + this.virtualRect.top - (left + top)) * 0.5
 
 			// Set the tween and let it animate the position.
-			this.tween.set({ x: this.translateX, y: targetY }, { duration })
+			this.tween.set({ x: this.translateX, y: this.translateY }, { duration })
 			// this.node.style.setProperty('translate', `${targetX}px ${targetY}px 1px`)
 		} else {
 			// Call transform function if provided
 			const transformCalled = this.opts.transform?.({
 				offsetX: this.translateX, //targetX,
-				offsetY: targetY,
+				offsetY: this.translateY,
 				rootNode: this.node,
 			})
 
@@ -598,7 +583,7 @@ export class Draggable {
 		const { top, bottom, left, right } = this.virtualRect
 		let deltaX = xPos - this.translateX
 		if (deltaX === 0) return 0
-		// moving right > 0 ... else  left
+		// moving right > 0
 		if (deltaX > 0) {
 			for (const obstacle of this.obstacleEls) {
 				const o = obstacle.getBoundingClientRect()
@@ -619,221 +604,33 @@ export class Draggable {
 		return deltaX
 	}
 
-	collisionCheckY(yOffset: number): number | null {
+	collisionCheckY(yOffset: number): number {
 		const { top, bottom, left, right } = this.virtualRect
-		const deltaY = yOffset - this.translateY
-		const directionSign = Math.sign(deltaY)
-		const movingDown = directionSign === 1
-
-		let closestDistance = Infinity
-
-		for (const obstacle of this.obstacleEls) {
-			const o = obstacle.getBoundingClientRect()
-
-			if (
-				left > o.right || // too far right to collide
-				right < o.left || // too far left to collide
-				(movingDown && top > o.bottom) || // in the opposite direction
-				(!movingDown && bottom < o.top) // in the opposite direction
-			)
-				continue
-
-			const obstacleTop = top >= o.bottom && top + deltaY <= o.bottom
-			const obstacleBottom = bottom <= o.top && bottom + deltaY >= o.top
-
-			if (!movingDown && obstacleTop) {
-				closestDistance = Math.min(closestDistance, top - o.bottom)
-			} else if (movingDown && obstacleBottom) {
-				closestDistance = Math.min(closestDistance, o.top - bottom)
+		let deltaY = yOffset - this.translateY
+		// moving down > 0
+		if (deltaY > 0) {
+			for (const obstacle of this.obstacleEls) {
+				const o = obstacle.getBoundingClientRect()
+				// too high, too low or already passed
+				if (left > o.right || right < o.left || bottom > o.top) continue
+				const collidingBottom = bottom <= o.top && bottom + deltaY >= o.top
+				if (collidingBottom) deltaY = Math.min(deltaY, o.top - bottom)
+			}
+		} else {
+			for (const obstacle of this.obstacleEls) {
+				const o = obstacle.getBoundingClientRect()
+				// too high, too low or already passed
+				if (left > o.right || right < o.left || top < o.bottom) continue
+				const collidingTop = top >= o.bottom && top + deltaY <= o.bottom
+				if (collidingTop) deltaY = Math.max(deltaY, o.bottom - top)
 			}
 		}
-
-		return closestDistance === Infinity ? null : closestDistance * directionSign
+		return deltaY
 	}
 
 	collisionCheckXY(xOffset: number, yOffset): { colX: number | null; colY: number | null } {
 		return { colX: null, colY: null }
 	}
-
-	// collisionCheck(xOffset: number, yOffset): { colX: number | null; colY: number | null } {
-	// 	const { top, bottom, left, right } = this.currentRect
-
-	// 	let colX, colY: number | null
-	// 	colY = null
-	// 	colX = null
-
-	// 	const deltaX = xOffset - this.translateX
-	// 	const deltaY = yOffset - this.translateY
-	// 	// moving map
-	// 	// 0 = noX noY (return)
-	// 	// 1 = toRight noY
-	// 	// 2 = toLeft noY
-	// 	// 3 = noX toBottom
-	// 	// 4 = toRight toBottom
-	// 	// 5 = toLeft toBottom
-	// 	// 6 = noX toTop
-	// 	// 7 = toRight toTop
-	// 	// 8 = toLeft toTop
-
-	// 	const movingX = deltaX > 0 ? 1 : deltaX < 0 ? 2 : 0
-	// 	const movingY = deltaY > 0 ? 3 : deltaY < 0 ? 6 : 0
-	// 	const movingXY: number = movingX + movingY
-
-	// 	switch (movingXY) {
-	// 		case 0:
-	// 			break
-	// 		// 1 = toRight
-	// 		case 1:
-	// 			{
-	// 				let collisionX = Infinity
-	// 				for (const obstacle of this.obstacleEls) {
-	// 					const o = obstacle.getBoundingClientRect()
-	// 					if (top > o.bottom || bottom < o.top || right > o.left) continue
-	// 					if (right <= o.left && right + deltaX >= o.left)
-	// 						collisionX = Math.min(collisionX, o.left - right)
-	// 				}
-	// 				colX = collisionX != Infinity ? collisionX : null
-	// 			}
-	// 			break
-	// 		// 2 = toLeft
-	// 		case 2:
-	// 			{
-	// 				let collisionX = -Infinity
-	// 				for (const obstacle of this.obstacleEls) {
-	// 					const o = obstacle.getBoundingClientRect()
-	// 					if (top > o.bottom || bottom < o.top || left < o.right) continue
-	// 					if (left >= o.right && left + deltaX <= o.right)
-	// 						collisionX = Math.max(collisionX, o.right - left)
-	// 				}
-	// 				colX = collisionX != -Infinity ? collisionX : null
-	// 			}
-	// 			break
-	// 		// 3 = toBottom
-	// 		case 3:
-	// 			{
-	// 				let collisionY = Infinity
-	// 				for (const obstacle of this.obstacleEls) {
-	// 					const o = obstacle.getBoundingClientRect()
-	// 					if (left > o.right || right < o.left || bottom > o.top) continue
-	// 					if (bottom <= o.top && bottom + deltaY >= o.top)
-	// 						collisionY = Math.min(collisionY, o.top - bottom)
-	// 				}
-	// 				colY = collisionY != Infinity ? collisionY : null
-	// 			}
-	// 			break
-	// 		// 4 = toRight toBottom
-	// 		case 4:
-	// 			{
-	// 				let collisionX = Infinity
-	// 				let collisionY = Infinity
-	// 				for (const obstacle of this.obstacleEls) {
-	// 					const o = obstacle.getBoundingClientRect()
-	// 					if (
-	// 						!(left > o.right || right < o.left) &&
-	// 						bottom <= o.top &&
-	// 						bottom + deltaY >= o.top
-	// 					)
-	// 						collisionY = Math.min(collisionY, o.top - bottom)
-	// 					if (
-	// 						!(top > o.bottom || bottom < o.top) &&
-	// 						right <= o.left &&
-	// 						right + deltaX >= o.left
-	// 					)
-	// 						collisionX = Math.min(collisionX, o.left - right)
-	// 				}
-	// 				colX = collisionX != Infinity ? collisionX : null
-	// 				colY = collisionY != Infinity ? collisionY : null
-	// 			}
-	// 			break
-	// 		// 4 = toLeft toBottom
-	// 		case 5:
-	// 			{
-	// 				let collisionX = -Infinity
-	// 				let collisionY = Infinity
-	// 				for (const obstacle of this.obstacleEls) {
-	// 					const o = obstacle.getBoundingClientRect()
-	// 					if (
-	// 						!(left > o.right || right < o.left) &&
-	// 						bottom <= o.top &&
-	// 						bottom + deltaY >= o.top
-	// 					)
-	// 						collisionY = Math.min(collisionY, o.top - bottom)
-	// 					if (
-	// 						!(top > o.bottom || bottom < o.top) &&
-	// 						left >= o.right &&
-	// 						left + deltaX <= o.right
-	// 					)
-	// 						collisionX = Math.max(collisionX, o.right - left)
-	// 				}
-	// 				colX = collisionX != -Infinity ? collisionX : null
-	// 				colY = collisionY != Infinity ? collisionY : null
-	// 			}
-	// 			break
-	// 		// 6 = toTop
-	// 		case 6:
-	// 			{
-	// 				let collisionY = -Infinity
-	// 				for (const obstacle of this.obstacleEls) {
-	// 					const o = obstacle.getBoundingClientRect()
-	// 					if (left > o.right || right < o.left || top < o.bottom) continue
-	// 					if (top >= o.bottom && top + deltaY <= o.bottom)
-	// 						collisionY = Math.max(collisionY, o.bottom - top)
-	// 				}
-	// 				colY = collisionY != -Infinity ? collisionY : null
-	// 			}
-	// 			break
-	// 		// 7 = toRight toTop
-	// 		case 7:
-	// 			{
-	// 				let collisionX = Infinity
-	// 				let collisionY = -Infinity
-	// 				for (const obstacle of this.obstacleEls) {
-	// 					const o = obstacle.getBoundingClientRect()
-	// 					if (
-	// 						!(left + deltaX > o.right || right + deltaX < o.left) &&
-	// 						top >= o.bottom &&
-	// 						top + deltaY <= o.bottom
-	// 					)
-	// 						collisionY = Math.max(collisionY, o.bottom - top)
-	// 					if (
-	// 						!(top > o.bottom || bottom < o.top) &&
-	// 						right <= o.left &&
-	// 						right + deltaX >= o.left
-	// 					)
-	// 						collisionX = Math.min(collisionX, o.left - right)
-	// 				}
-	// 				colX = collisionX != Infinity ? collisionX : null
-	// 				colY = collisionY != -Infinity ? collisionY : null
-	// 			}
-	// 			break
-	// 		// 8 = toLeft toTop
-	// 		case 8:
-	// 			{
-	// 				let collisionX = -Infinity
-	// 				let collisionY = -Infinity
-	// 				for (const obstacle of this.obstacleEls) {
-	// 					const o = obstacle.getBoundingClientRect()
-	// 					if (
-	// 						!(left > o.right || right < o.left) &&
-	// 						top >= o.bottom &&
-	// 						top + deltaY <= o.bottom
-	// 					)
-	// 						collisionY = Math.max(collisionY, o.bottom - top)
-	// 					if (
-	// 						!(top > o.bottom || bottom < o.top) &&
-	// 						left >= o.right &&
-	// 						left + deltaX <= o.right
-	// 					)
-	// 						collisionX = Math.max(collisionX, o.right - left)
-	// 				}
-	// 				colX = collisionX != -Infinity ? collisionX : null
-	// 				colY = collisionY != -Infinity ? collisionY : null
-	// 			}
-	// 			break
-	// 	}
-
-	// 	return { colX: colX, colY: colY } //closestDistance === Infinity ? null : closestDistance * directionSign
-	// }
 
 	update = (options: Partial<DragOptions>) => {
 		// Update all the values that need to be changed
