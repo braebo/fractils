@@ -587,18 +587,20 @@ export class Draggable {
 		if (deltaX > 0) {
 			for (const obstacle of this.obstacleEls) {
 				const o = obstacle.getBoundingClientRect()
-				// too high, too low or already passed
-				if (top > o.bottom || bottom < o.top || right > o.left) continue
-				const collidingRight = right <= o.left && right + deltaX >= o.left
-				if (collidingRight) deltaX = Math.min(deltaX, o.left - right)
+				// too high || too low || already passed || unreachable with delta
+				if (top > o.bottom || bottom < o.top || right > o.left || right + deltaX <= o.left) continue
+				//const collidingRight = right <= o.left && right + deltaX > o.left
+				//if (collidingRight) 
+				deltaX = Math.min(deltaX, o.left - right)
 			}
 		} else {
 			for (const obstacle of this.obstacleEls) {
 				const o = obstacle.getBoundingClientRect()
-				// too high, too low or already passed
-				if (top > o.bottom || bottom < o.top || left < o.right) continue
-				const collidingLeft = left >= o.right && left + deltaX <= o.right
-				if (collidingLeft) deltaX = Math.max(deltaX, o.right - left)
+				// too high || too low || already passed || unreachable with delta
+				if (top > o.bottom || bottom < o.top || left < o.right || left + deltaX >= o.right) continue
+				// const collidingLeft = left >= o.right && left + deltaX < o.right
+				// if (collidingLeft) 
+				deltaX = Math.max(deltaX, o.right - left)
 			}
 		}
 		return deltaX
@@ -611,18 +613,20 @@ export class Draggable {
 		if (deltaY > 0) {
 			for (const obstacle of this.obstacleEls) {
 				const o = obstacle.getBoundingClientRect()
-				// too high, too low or already passed
-				if (left > o.right || right < o.left || bottom > o.top) continue
-				const collidingBottom = bottom <= o.top && bottom + deltaY >= o.top
-				if (collidingBottom) deltaY = Math.min(deltaY, o.top - bottom)
+				// too high || too low || already passed || unreachable with delta
+				if (left > o.right || right < o.left || bottom > o.top || bottom + deltaY <= o.top) continue
+				// const collidingBottom = bottom <= o.top && bottom + deltaY > o.top
+				// if (collidingBottom) 
+				deltaY = Math.min(deltaY, o.top - bottom)
 			}
 		} else {
 			for (const obstacle of this.obstacleEls) {
 				const o = obstacle.getBoundingClientRect()
-				// too high, too low or already passed
-				if (left > o.right || right < o.left || top < o.bottom) continue
-				const collidingTop = top >= o.bottom && top + deltaY <= o.bottom
-				if (collidingTop) deltaY = Math.max(deltaY, o.bottom - top)
+				// too high || too low || already passed || unreachable with delta
+				if (left > o.right || right < o.left || top < o.bottom || top + deltaY >= o.bottom) continue
+				// const collidingTop = top >= o.bottom && top + deltaY < o.bottom
+				// if (collidingTop) 
+				deltaY = Math.max(deltaY, o.bottom - top)
 			}
 		}
 		return deltaY
