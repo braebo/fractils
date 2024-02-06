@@ -6,6 +6,9 @@ import { logger } from '../utils/logger'
 import { state } from '../utils/state'
 import { clamp } from './clamp'
 import { c, fn, gr } from './l'
+import { select } from './select'
+
+type ElementsOrSelectors = string | HTMLElement | (string | HTMLElement)[] | undefined
 
 /**
  * The sides of an element that can be resized by the {@link resizable} action.
@@ -76,6 +79,11 @@ export interface ResizableOptions {
 	 * @default window['document']['documentElement']
 	 */
 	bounds?: HTMLElement
+
+	/**
+	 * Element's or selectors which will act as collision obstacles for the draggable element.
+	 */
+	obstacles?: ElementsOrSelectors
 }
 
 const RESIZABLE_DEFAULTS = {
@@ -87,6 +95,7 @@ const RESIZABLE_DEFAULTS = {
 	visible: false,
 	color: 'var(--fg-d, #1d1d1d)',
 	borderRadius: '0.25rem',
+	obstacles: undefined,
 } as const satisfies ResizableOptions
 
 const px = (size: number | string) => {
@@ -136,6 +145,7 @@ export class Resizable implements Omit<ResizableOptions, 'size'> {
 	grabberSize!: string | number
 	onResize!: (size: { width: number; height: number }) => void
 	bounds: HTMLElement
+	obstacles: HTMLElement[]
 
 	size: State<{ width: number; height: number }>
 	localStorageKey?: string
@@ -168,6 +178,7 @@ export class Resizable implements Omit<ResizableOptions, 'size'> {
 		this.#cornerGrabberSize = +this.grabberSize * 3
 
 		this.bounds = opts.bounds ? opts.bounds : window.document.documentElement
+		this.obstacles = select(opts.obstacles)
 
 		if (!Resizable.initialized) {
 			Resizable.initialized = true
@@ -194,6 +205,11 @@ export class Resizable implements Omit<ResizableOptions, 'size'> {
 		}
 
 		this.createGrabbers()
+
+		if (+this.node.style.minWidth > this.boundsRect.width) {
+			console.error('Min width is greater than bounds width.')
+			return
+		}
 	}
 
 	get boundsRect() {
@@ -221,7 +237,9 @@ export class Resizable implements Omit<ResizableOptions, 'size'> {
 			this.#listeners.push(() => grabber.removeEventListener('pointerdown', this.onGrab))
 
 			grabber.addEventListener('pointerover', this.onPointerOver)
-			this.#listeners.push(() => grabber.removeEventListener('pointerover', this.onPointerOver))
+			this.#listeners.push(() =>
+				grabber.removeEventListener('pointerover', this.onPointerOver),
+			)
 		}
 
 		for (const corner of this.corners) {
@@ -235,7 +253,9 @@ export class Resizable implements Omit<ResizableOptions, 'size'> {
 			this.#listeners.push(() => grabber.removeEventListener('pointerdown', this.onGrab))
 
 			grabber.addEventListener('pointerover', this.onPointerOver)
-			this.#listeners.push(() => grabber.removeEventListener('pointerover', this.onPointerOver))
+			this.#listeners.push(() =>
+				grabber.removeEventListener('pointerover', this.onPointerOver),
+			)
 		}
 	}
 
@@ -284,53 +304,78 @@ export class Resizable implements Omit<ResizableOptions, 'size'> {
 	}
 
 	resizeLeft = (x: number) => {
-		const { width, left } = this.node.getBoundingClientRect()
-
+		const { width, top, bottom, left } = this.node.getBoundingClientRect()
 		const { minWidth, maxWidth } = window.getComputedStyle(this.node)
 
-		const min = +minWidth || 25
-		const max = Math.min(this.boundsRect.width, +maxWidth || Infinity)
+		let closestObstacle = Infinity
 
-		if (min > this.boundsRect.width) {
-			console.error('Min width is greater than bounds width.')
-			return
+		for (const obstacle of this.obstacles) {
+			const o = obstacle.getBoundingClientRect()
+
+			if (
+				// too high to collide
+				top > o.bottom ||
+				// too low to collide
+				bottom < o.top ||
+				// opposite direction
+				o.right > left
+			)
+				continue
+
+			const obstacleLeft = x <= o.right
+
+			if (obstacleLeft) {
+				closestObstacle = Math.min(closestObstacle, left - o.right)
+				console.error('HIT')
+			}
 		}
 
-		const change = x - left
-		const newWidth = clamp(width - change, min, max)
+		const min = +minWidth || 25
+		const max = Math.min(this.boundsRect.width, +maxWidth || Infinity, width + closestObstacle)
 
-		if (newWidth <= min || newWidth >= max) return this
+		let change = Math.min(left - x, closestObstacle)
+		const newWidth = clamp(width + change, min, max)
 
-		// this.mat.x += change
-		// this.node.style.translate = `translate(${this.translateX}px, ${this.translateY}px)`
-		this.translateX = this.translateX + change
-		this.node.style.setProperty(
-			'translate',
-			`${this.translateX}px ${this.translateY}px`,
-		)
+		// Clamp the translation alongside the width.
+		if (newWidth === min) change = newWidth - width
+
+		this.translateX -= change
+		this.node.style.setProperty('translate', `${this.translateX}px ${this.translateY}px`)
 		this.node.style.width = `${newWidth}px`
-
-		this.#log(fn('resizeLeft'), { xPos: this.translateX, yPos: this.translateY })
 
 		return this
 	}
 
 	resizeRight = (x: number) => {
-		const { width, right } = this.node.getBoundingClientRect()
+		const { width, top, right, bottom, left } = this.node.getBoundingClientRect()
 		const { minWidth, maxWidth } = window.getComputedStyle(this.node)
 
 		const min = +minWidth || 25
 		const max = Math.min(this.boundsRect.width, +maxWidth || Infinity)
 
-		if (min > this.boundsRect.width) {
-			console.error('Min width is greater than bounds width.')
-			return
+		let closestObstacle = Infinity
+
+		for (const obstacle of this.obstacles) {
+			const o = obstacle.getBoundingClientRect()
+
+			if (
+				// too high to collide
+				top > o.bottom ||
+				// too low to collide
+				bottom < o.top ||
+				// opposite direction
+				o.left < right
+			)
+				continue
+
+			const obstacleRight = x <= o.left
+
+			if (obstacleRight) {
+				closestObstacle = Math.min(closestObstacle, o.left - right)
+			}
 		}
-
-		const change = x - right
+		let change = Math.min(x - right, closestObstacle)
 		const newWidth = clamp(width + change, min, max)
-
-		if (newWidth <= min || newWidth >= max) return this
 
 		this.node.style.width = `${newWidth}px`
 
@@ -351,10 +396,7 @@ export class Resizable implements Omit<ResizableOptions, 'size'> {
 		const change = newTop - top
 
 		this.translateY = this.translateY + change
-		this.node.style.setProperty(
-			'translate',
-			`${this.translateX}px ${this.translateY}px`,
-		)
+		this.node.style.setProperty('translate', `${this.translateX}px ${this.translateY}px`)
 		this.node.style.height = `${newHeight}px`
 	}
 

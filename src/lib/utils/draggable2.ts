@@ -543,13 +543,19 @@ export class Draggable {
 
 		if (this.canMoveInX) {
 			targetX = xPos
-			const distanceToObstacle = this.collisionCheckX(targetX, yPos)
+			const distanceToObstacle = this.collisionCheckX(targetX)
 
 			if (distanceToObstacle !== null) {
 				targetX = this.translateX + distanceToObstacle
 			}
 		}
 		const deltaX = targetX - this.translateX
+		// We apply the y delta to prevent clipping through
+		// corners of obstacles during diagonal movement.
+		//const deltaY = yPos - this.translateY
+
+		this.currentRect.left += deltaX
+		this.currentRect.right += deltaX
 
 		if (this.canMoveInY) {
 			targetY = yPos
@@ -561,8 +567,6 @@ export class Draggable {
 		}
 		const deltaY = targetY - this.translateY
 
-		this.currentRect.left += deltaX
-		this.currentRect.right += deltaX
 		this.currentRect.top += deltaY
 		this.currentRect.bottom += deltaY
 
@@ -594,17 +598,16 @@ export class Draggable {
 		}
 	}
 
-	collisionCheckX(xOffset: number, yPos: number): number | null {
+	collisionCheckX(xOffset: number): number | null {
 		const rect = this.currentRect
 
-		// We apply the y delta to prevent clipping through
-		// corners of obstacles during diagonal movement.
-		const deltaY = yPos - this.translateY
+	
+		// const top = rect.top + deltaY
+		// const bottom = rect.bottom + deltaY
+		// const left = rect.left
+		// const right = rect.right
 
-		const top = rect.top + deltaY
-		const bottom = rect.bottom + deltaY
-		const left = rect.left
-		const right = rect.right
+		const { top, bottom, left, right } = this.currentRect
 
 		const deltaX = xOffset - this.translateX
 		const directionSign = Math.sign(deltaX)
@@ -623,8 +626,8 @@ export class Draggable {
 			)
 				continue
 
-			const obstacleLeft = left > o.right && left + deltaX <= o.right
-			const obstacleRight = right < o.left && right + deltaX >= o.left
+			const obstacleLeft = left >= o.right && left + deltaX <= o.right
+			const obstacleRight = right <= o.left && right + deltaX >= o.left
 
 			if (!movingRight && obstacleLeft) {
 				closestDistance = Math.min(closestDistance, left - o.right)
@@ -633,7 +636,7 @@ export class Draggable {
 			}
 		}
 
-		return closestDistance === Infinity ? null : (closestDistance - 1) * directionSign
+		return closestDistance === Infinity ? null : closestDistance * directionSign
 	}
 
 	collisionCheckY(yOffset: number): number | null {
@@ -656,8 +659,8 @@ export class Draggable {
 			)
 				continue
 
-			const obstacleTop = top > o.bottom && top + deltaY <= o.bottom
-			const obstacleBottom = bottom < o.top && bottom + deltaY >= o.top
+			const obstacleTop = top >= o.bottom && top + deltaY <= o.bottom
+			const obstacleBottom = bottom <= o.top && bottom + deltaY >= o.top
 
 			if (!movingDown && obstacleTop) {
 				closestDistance = Math.min(closestDistance, top - o.bottom)
@@ -666,8 +669,197 @@ export class Draggable {
 			}
 		}
 
-		return closestDistance === Infinity ? null : (closestDistance - 1) * directionSign
+		return closestDistance === Infinity ? null : closestDistance * directionSign
 	}
+
+	collisionCheckXY(xOffset: number, yOffset): { colX: number | null; colY: number | null }
+	{
+		return {colX: null , colY: null}
+	}
+	
+
+
+
+	// collisionCheck(xOffset: number, yOffset): { colX: number | null; colY: number | null } {
+	// 	const { top, bottom, left, right } = this.currentRect
+
+	// 	let colX, colY: number | null
+	// 	colY = null
+	// 	colX = null
+
+	// 	const deltaX = xOffset - this.translateX
+	// 	const deltaY = yOffset - this.translateY
+	// 	// moving map
+	// 	// 0 = noX noY (return)
+	// 	// 1 = toRight noY
+	// 	// 2 = toLeft noY
+	// 	// 3 = noX toBottom
+	// 	// 4 = toRight toBottom
+	// 	// 5 = toLeft toBottom
+	// 	// 6 = noX toTop
+	// 	// 7 = toRight toTop
+	// 	// 8 = toLeft toTop
+
+	// 	const movingX = deltaX > 0 ? 1 : deltaX < 0 ? 2 : 0
+	// 	const movingY = deltaY > 0 ? 3 : deltaY < 0 ? 6 : 0
+	// 	const movingXY: number = movingX + movingY
+
+	// 	switch (movingXY) {
+	// 		case 0:
+	// 			break
+	// 		// 1 = toRight
+	// 		case 1:
+	// 			{
+	// 				let collisionX = Infinity
+	// 				for (const obstacle of this.obstacleEls) {
+	// 					const o = obstacle.getBoundingClientRect()
+	// 					if (top > o.bottom || bottom < o.top || right > o.left) continue
+	// 					if (right <= o.left && right + deltaX >= o.left)
+	// 						collisionX = Math.min(collisionX, o.left - right)
+	// 				}
+	// 				colX = collisionX != Infinity ? collisionX : null
+	// 			}
+	// 			break
+	// 		// 2 = toLeft
+	// 		case 2:
+	// 			{
+	// 				let collisionX = -Infinity
+	// 				for (const obstacle of this.obstacleEls) {
+	// 					const o = obstacle.getBoundingClientRect()
+	// 					if (top > o.bottom || bottom < o.top || left < o.right) continue
+	// 					if (left >= o.right && left + deltaX <= o.right)
+	// 						collisionX = Math.max(collisionX, o.right - left)
+	// 				}
+	// 				colX = collisionX != -Infinity ? collisionX : null
+	// 			}
+	// 			break
+	// 		// 3 = toBottom
+	// 		case 3:
+	// 			{
+	// 				let collisionY = Infinity
+	// 				for (const obstacle of this.obstacleEls) {
+	// 					const o = obstacle.getBoundingClientRect()
+	// 					if (left > o.right || right < o.left || bottom > o.top) continue
+	// 					if (bottom <= o.top && bottom + deltaY >= o.top)
+	// 						collisionY = Math.min(collisionY, o.top - bottom)
+	// 				}
+	// 				colY = collisionY != Infinity ? collisionY : null
+	// 			}
+	// 			break
+	// 		// 4 = toRight toBottom
+	// 		case 4:
+	// 			{
+	// 				let collisionX = Infinity
+	// 				let collisionY = Infinity
+	// 				for (const obstacle of this.obstacleEls) {
+	// 					const o = obstacle.getBoundingClientRect()
+	// 					if (
+	// 						!(left > o.right || right < o.left) &&
+	// 						bottom <= o.top &&
+	// 						bottom + deltaY >= o.top
+	// 					)
+	// 						collisionY = Math.min(collisionY, o.top - bottom)
+	// 					if (
+	// 						!(top > o.bottom || bottom < o.top) &&
+	// 						right <= o.left &&
+	// 						right + deltaX >= o.left
+	// 					)
+	// 						collisionX = Math.min(collisionX, o.left - right)
+	// 				}
+	// 				colX = collisionX != Infinity ? collisionX : null
+	// 				colY = collisionY != Infinity ? collisionY : null
+	// 			}
+	// 			break
+	// 		// 4 = toLeft toBottom
+	// 		case 5:
+	// 			{
+	// 				let collisionX = -Infinity
+	// 				let collisionY = Infinity
+	// 				for (const obstacle of this.obstacleEls) {
+	// 					const o = obstacle.getBoundingClientRect()
+	// 					if (
+	// 						!(left > o.right || right < o.left) &&
+	// 						bottom <= o.top &&
+	// 						bottom + deltaY >= o.top
+	// 					)
+	// 						collisionY = Math.min(collisionY, o.top - bottom)
+	// 					if (
+	// 						!(top > o.bottom || bottom < o.top) &&
+	// 						left >= o.right &&
+	// 						left + deltaX <= o.right
+	// 					)
+	// 						collisionX = Math.max(collisionX, o.right - left)
+	// 				}
+	// 				colX = collisionX != -Infinity ? collisionX : null
+	// 				colY = collisionY != Infinity ? collisionY : null
+	// 			}
+	// 			break
+	// 		// 6 = toTop
+	// 		case 6:
+	// 			{
+	// 				let collisionY = -Infinity
+	// 				for (const obstacle of this.obstacleEls) {
+	// 					const o = obstacle.getBoundingClientRect()
+	// 					if (left > o.right || right < o.left || top < o.bottom) continue
+	// 					if (top >= o.bottom && top + deltaY <= o.bottom)
+	// 						collisionY = Math.max(collisionY, o.bottom - top)
+	// 				}
+	// 				colY = collisionY != -Infinity ? collisionY : null
+	// 			}
+	// 			break
+	// 		// 7 = toRight toTop
+	// 		case 7:
+	// 			{
+	// 				let collisionX = Infinity
+	// 				let collisionY = -Infinity
+	// 				for (const obstacle of this.obstacleEls) {
+	// 					const o = obstacle.getBoundingClientRect()
+	// 					if (
+	// 						!(left + deltaX > o.right || right + deltaX < o.left) &&
+	// 						top >= o.bottom &&
+	// 						top + deltaY <= o.bottom
+	// 					)
+	// 						collisionY = Math.max(collisionY, o.bottom - top)
+	// 					if (
+	// 						!(top > o.bottom || bottom < o.top) &&
+	// 						right <= o.left &&
+	// 						right + deltaX >= o.left
+	// 					)
+	// 						collisionX = Math.min(collisionX, o.left - right)
+	// 				}
+	// 				colX = collisionX != Infinity ? collisionX : null
+	// 				colY = collisionY != -Infinity ? collisionY : null
+	// 			}
+	// 			break
+	// 		// 8 = toLeft toTop
+	// 		case 8:
+	// 			{
+	// 				let collisionX = -Infinity
+	// 				let collisionY = -Infinity
+	// 				for (const obstacle of this.obstacleEls) {
+	// 					const o = obstacle.getBoundingClientRect()
+	// 					if (
+	// 						!(left > o.right || right < o.left) &&
+	// 						top >= o.bottom &&
+	// 						top + deltaY <= o.bottom
+	// 					)
+	// 						collisionY = Math.max(collisionY, o.bottom - top)
+	// 					if (
+	// 						!(top > o.bottom || bottom < o.top) &&
+	// 						left >= o.right &&
+	// 						left + deltaX <= o.right
+	// 					)
+	// 						collisionX = Math.max(collisionX, o.right - left)
+	// 				}
+	// 				colX = collisionX != -Infinity ? collisionX : null
+	// 				colY = collisionY != -Infinity ? collisionY : null
+	// 			}
+	// 			break
+	// 	}
+
+
+	// 	return { colX: colX, colY: colY } //closestDistance === Infinity ? null : closestDistance * directionSign
+	// }
 
 	update = (options: Partial<DragOptions>) => {
 		// Update all the values that need to be changed

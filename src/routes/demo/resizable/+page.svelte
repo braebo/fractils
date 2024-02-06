@@ -8,7 +8,10 @@
 
 <div
 	class="orbs-container"
-	use:resizable={{ visible: true }}
+	use:resizable={{
+		visible: true,
+		obstacles: ['.bounds', '.obstacle1'],
+	}}
 	use:draggable={{
 		// handle: '.orbs',
 		cancel: '.fractils-resize-grabber',
@@ -27,6 +30,26 @@
 	}}
 >
 	<label for="">Obstacle 1</label>
+</div>
+
+<div
+	class="obstacle1"
+	use:resizable={{}}
+	use:draggable={{
+		cancel: '.fractils-resize-grabber',
+	}}
+>
+	<label for="">Obstacle 2</label>
+</div>
+
+<div
+	class="obstacle1"
+	use:resizable={{}}
+	use:draggable={{
+		cancel: '.fractils-resize-grabber',
+	}}
+>
+	<label for="">Obstacle 3</label>
 </div>
 
 <div
