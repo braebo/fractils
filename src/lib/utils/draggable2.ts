@@ -579,7 +579,7 @@ export class Draggable {
 		}
 	}
 
-	collisionCheckX(xPos: number): number {
+	collisionCheckX(xPos: number) {
 		const { top, bottom, left, right } = this.virtualRect
 		let deltaX = xPos - this.translateX
 		if (deltaX === 0) return 0
@@ -589,8 +589,6 @@ export class Draggable {
 				const o = obstacle.getBoundingClientRect()
 				// too high || too low || already passed || unreachable with delta
 				if (top > o.bottom || bottom < o.top || right > o.left || right + deltaX <= o.left) continue
-				//const collidingRight = right <= o.left && right + deltaX > o.left
-				//if (collidingRight) 
 				deltaX = Math.min(deltaX, o.left - right)
 			}
 		} else {
@@ -598,42 +596,32 @@ export class Draggable {
 				const o = obstacle.getBoundingClientRect()
 				// too high || too low || already passed || unreachable with delta
 				if (top > o.bottom || bottom < o.top || left < o.right || left + deltaX >= o.right) continue
-				// const collidingLeft = left >= o.right && left + deltaX < o.right
-				// if (collidingLeft) 
 				deltaX = Math.max(deltaX, o.right - left)
 			}
 		}
 		return deltaX
 	}
 
-	collisionCheckY(yOffset: number): number {
+	collisionCheckY(yOffset: number) {
 		const { top, bottom, left, right } = this.virtualRect
 		let deltaY = yOffset - this.translateY
 		// moving down > 0
 		if (deltaY > 0) {
 			for (const obstacle of this.obstacleEls) {
 				const o = obstacle.getBoundingClientRect()
-				// too high || too low || already passed || unreachable with delta
+				// too far left || too far right || already passed || unreachable with delta
 				if (left > o.right || right < o.left || bottom > o.top || bottom + deltaY <= o.top) continue
-				// const collidingBottom = bottom <= o.top && bottom + deltaY > o.top
-				// if (collidingBottom) 
 				deltaY = Math.min(deltaY, o.top - bottom)
 			}
 		} else {
 			for (const obstacle of this.obstacleEls) {
 				const o = obstacle.getBoundingClientRect()
-				// too high || too low || already passed || unreachable with delta
+				// too far left || too far right || already passed || unreachable with delta
 				if (left > o.right || right < o.left || top < o.bottom || top + deltaY >= o.bottom) continue
-				// const collidingTop = top >= o.bottom && top + deltaY < o.bottom
-				// if (collidingTop) 
 				deltaY = Math.max(deltaY, o.bottom - top)
 			}
 		}
 		return deltaY
-	}
-
-	collisionCheckXY(xOffset: number, yOffset): { colX: number | null; colY: number | null } {
-		return { colX: null, colY: null }
 	}
 
 	update = (options: Partial<DragOptions>) => {
