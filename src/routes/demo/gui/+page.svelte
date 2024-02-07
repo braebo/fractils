@@ -1,10 +1,13 @@
 <script lang="ts">
+	import type { InputSlider } from '$lib/gui/Input'
+	
 	import Code from '$lib/components/Code.svelte'
 	import { state } from '$lib/utils/state'
 	import { Gui } from '$lib/gui/Gui'
 	import { onMount } from 'svelte'
 
 	let gui: Gui
+	let slider: InputSlider['state']
 
 	let ok = state({} as Gui)
 	let key = false
@@ -54,12 +57,12 @@
 		const f2 = f1.addFolder({ title: 'Orbs' })
 		const slidersFolder = f2.addFolder({ title: 'Sliders' })
 		
-		const mySlider = slidersFolder.add({ title: 'Slider 1', value: 0.5 })
+		slider = slidersFolder.add<InputSlider>({ title: 'Slider 1', value: 0.5, view: 'Slider' }).state
 		
 		f1.addFolder({ title: '2b' }).add({
 			title: '2b',
 			value: 0,
-			type: 'Number',
+			view: 'Slider',
 		})
 
 		gui.addFolder({ title: 'sibling' })
@@ -69,6 +72,10 @@
 </script>
 
 <!-- <Gui /> -->
+{#if slider}
+	{$slider}
+	<input bind:value={$slider} type="range" min="0" max="1" step="0.01" />
+{/if}
 <div class="page">
 	{#if ok}
 		<button on:click={() => console.log(gui)}>Log Gui</button>
