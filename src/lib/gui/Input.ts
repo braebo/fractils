@@ -39,7 +39,7 @@ export type InferInputOptions<IT extends InputView, VT> =
     never;
 
 // prettier-ignore
-export type InferInputType<VT, U = unknown> =
+export type InferInputView<VT, U = unknown> =
     VT extends number ? 'Slider' :
     VT extends boolean ? 'Checkbox' :
 	VT extends HexColor ? 'Color' :
@@ -62,17 +62,67 @@ export type InferElementType<IT extends InputView> =
 	IT extends 'Button' ? HTMLButtonElement :
 	never
 
-export interface NumberInputOptions {
-	min?: number
-	max?: number
-	step?: number
-}
-
-const NUMBER_INPUT_DEFAULTS: NumberInputOptions = {
-	min: 0,
-	max: 1,
-	step: 0.01,
-} as const
+// prettier-ignore
+export type InputMap<T extends InputView> =
+	T extends 'Slider' ?
+	{
+		view: T,
+		element: HTMLInputElement,
+		type: 'number',
+		min?: number,
+		max?: number,
+		step?: number,
+	} :
+	T extends 'Checkbox' ?
+	{
+		view: T,
+		element: HTMLInputElement,
+		type: 'boolean',
+	} :
+	T extends 'Text' ?
+	{
+		view: T,
+		element: HTMLInputElement,
+		type: 'string',
+		maxLength?: number,
+	} :
+	T extends 'TextArea' ?
+	{
+		view: T,
+		element: HTMLInputElement,
+		type: 'string',
+		maxLength?: number,
+	} :
+	T extends 'Color' ?
+	{
+		view: T,
+		element: HTMLInputElement,
+		type: 'string',
+	} :
+	T extends 'Range' ?
+	{
+		view: T,
+		element: HTMLInputElement,
+		type: 'number',
+		min?: number,
+		max?: number,
+		step?: number,
+	} :
+	T extends 'Select' ?
+	{
+		view: T,
+		element: HTMLSelectElement,
+		type: 'string',
+		options: string[],
+	} :
+	T extends 'Button' ?
+	{
+		view: T,
+		element: HTMLButtonElement,
+		type: 'function',
+		onClick: (value: boolean) => void,
+	} :
+	never
 
 export interface BooleanInputOptions {}
 
@@ -104,90 +154,45 @@ export interface FolderInputOptions {
 	children: Folder[]
 }
 
-export type InputOptions<VT, IT extends InputView = InferInputType<VT>> = {
+export interface InputOptions {
 	title: string
-	value: VT
-	type?: IT
-} & InferInputOptions<IT, VT>
+	value: number | string | boolean | HexColor | Function | Record<any, any> | any[]
+	view: InputView
+}
 
-export class Input<
-	VT = any,
-	IT extends InputView = InferInputType<VT>,
-	ET extends Element = InferElementType<IT>,
-> {
-	state: State<VT>
+export interface NumberInputOptions extends InputOptions {
+	value: number
+	min?: number
+	max?: number
+	step?: number
+}
+
+const NUMBER_INPUT_DEFAULTS: NumberInputOptions = {
+	view: 'Slider',
+	title: 'Number',
+	value: 0.5,
+	min: 0,
+	max: 1,
+	step: 0.01,
+} as const
+
+export class Input {
 	title: string
-	type: IT
-
+	view: InputView
 	container: HTMLElement
-	element!: ET
-
+	element!: HTMLElement
+	
 	#log = new Logger('Input', { fg: 'cyan' })
+	#listeners = new Set<() => void>()
 
 	constructor(
-		options: InputOptions<IT>,
+		options: InputOptions,
 		public folder: Folder,
 	) {
-		this.state = state(options.value) as unknown as State<VT>
-
 		this.title = options.title
-
-		this.type = (options.type ?? typeof options.value) as unknown as IT
-		this.type.charAt(0).toUpperCase() + this.type.slice(1) // capitalize
-
+		this.view = options.view
 		this.container = this.#createContainer()
-
 		this.#log.fn('constructor').info(this)
-
-		this.#createInput()
-	}
-
-	#createInput() {
-		switch (this.type) {
-			case 'Slider':
-				this.number()
-				break
-			// case 'Checkbox':
-			// 	this.boolean()
-			// 	break
-			// case 'Text':
-			// case 'TextArea':
-			// 	this.string()
-			// 	break
-			// case 'Color':
-			// 	this.color()
-			// 	break
-			// case 'Range':
-			// 	this.range()
-			// 	break
-			// case 'Select':
-			// 	this.select()
-			// 	break
-			// case 'Button':
-			// 	this.button()
-			// 	break
-		}
-	}
-
-	number(options?: NumberInputOptions) {
-		const { min, max, step } = { ...NUMBER_INPUT_DEFAULTS, ...options }
-
-		// const input = document.createElement('input')
-		// input.classList.add('gui-number-input')
-		const input = create<HTMLInputElement>('input', {
-			classes: ['gui-number-input'],
-			parent: this.container,
-			type: 'number',
-			min: String(min),
-			max: String(max),
-			step: String(step),
-			value: String(this.state.value),
-		})
-
-		this.element = input as unknown as ET
-		this.#log.fn('number').info(this.element)
-
-		return this
 	}
 
 	#createContainer() {
@@ -203,5 +208,58 @@ export class Input<
 		})
 
 		return element
+	}
+
+	listen(event: string, cb: (e: Event) => void) {
+		this.element.addEventListener(event, cb)
+		this.#listeners.add(() => {
+			this.container.removeEventListener(event, cb)
+		})
+	}
+
+	dispose() {
+		this.#log.fn('dispose').info(this)
+		for (const listener of this.#listeners) {
+			listener()
+		}
+	}
+}
+
+export class InputSlider extends Input {
+	state: State<number>
+	element: HTMLInputElement
+	#log = new Logger('InputSlider', { fg: 'cyan' })
+
+	constructor(options: NumberInputOptions, folder: Folder) {
+		const opts = { ...NUMBER_INPUT_DEFAULTS, ...options }
+		super(opts, folder)
+
+		this.state = state(opts.value)
+
+		this.element = create<HTMLInputElement>('input', {
+			classes: ['gui-number-input'],
+			parent: this.container,
+			type: 'range',
+			min: opts.min,
+			max: opts.max,
+			step: opts.step,
+			value: String(this.state.value),
+		})
+
+		this.listen('input', this.updateState)
+
+		this.state.subscribe(v => {
+			this.element.value = String(v)
+		})
+
+		this.#log.fn('number').info(this.element)
+	}
+
+	updateState = (e: Event) => {
+		this.state.set((e.target as HTMLInputElement).valueAsNumber)
+	}
+
+	dispose() {
+		super.dispose()
 	}
 }
