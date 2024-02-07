@@ -1,7 +1,7 @@
 import type { Action } from 'svelte/action'
 
 import { isHTMLElement, isString } from './is'
-import { bounceInOut, cubicOut, quintOut } from 'svelte/easing'
+import { bounceInOut, bounceOut, cubicOut, quintOut } from 'svelte/easing'
 import { tweened } from 'svelte/motion'
 import { select } from './select'
 import { Logger } from './logger'
@@ -539,7 +539,7 @@ export class Draggable {
 
 	tryTranslate(xPos: number, yPos: number) {
 		if (this.canMoveInX) {
-			const deltaX = this.collisionCheckX(xPos)
+			const deltaX = this.collisionAdjustX(xPos)
 			// Update virtual rectangle with resulting deltaX (!! before checking collisionY !!)
 			this.virtualRect.left += deltaX
 			this.virtualRect.right += deltaX
@@ -547,7 +547,7 @@ export class Draggable {
 		}
 
 		if (this.canMoveInY) {
-			const deltaY = this.collisionCheckY(yPos)
+			const deltaY = this.collisionAdjustY(yPos)
 			// Update virtual rectangle with resulting deltaY
 			this.virtualRect.top += deltaY
 			this.virtualRect.bottom += deltaY
@@ -559,9 +559,13 @@ export class Draggable {
 			// Tween slower for longer distances.
 			const duration =
 				Math.abs(this.virtualRect.left + this.virtualRect.top - (left + top)) * 0.5
-
+			// const collisionOccured = this.translateX !== xPos || this.translateY !== yPos
+			// const tweenedOpts = collisionOccured
+			// 	? { duration: 200, easing: bounceOut }
+			// 	: { duration, easing: cubicOut }
+			const tweenedOpts = { duration, easing: cubicOut }
 			// Set the tween and let it animate the position.
-			this.tween.set({ x: this.translateX, y: this.translateY }, { duration })
+			this.tween.set({ x: this.translateX, y: this.translateY }, tweenedOpts)
 			// this.node.style.setProperty('translate', `${targetX}px ${targetY}px 1px`)
 		} else {
 			// Call transform function if provided
@@ -579,7 +583,7 @@ export class Draggable {
 		}
 	}
 
-	collisionCheckX(xPos: number) {
+	collisionAdjustX(xPos: number) {
 		const { top, bottom, left, right } = this.virtualRect
 		let deltaX = xPos - this.translateX
 		if (deltaX === 0) return 0
@@ -588,36 +592,40 @@ export class Draggable {
 			for (const obstacle of this.obstacleEls) {
 				const o = obstacle.getBoundingClientRect()
 				// too high || too low || already passed || unreachable with delta
-				if (top > o.bottom || bottom < o.top || right > o.left || right + deltaX <= o.left) continue
+				if (top > o.bottom || bottom < o.top || right > o.left || right + deltaX <= o.left)
+					continue
 				deltaX = Math.min(deltaX, o.left - right)
 			}
 		} else {
 			for (const obstacle of this.obstacleEls) {
 				const o = obstacle.getBoundingClientRect()
 				// too high || too low || already passed || unreachable with delta
-				if (top > o.bottom || bottom < o.top || left < o.right || left + deltaX >= o.right) continue
+				if (top > o.bottom || bottom < o.top || left < o.right || left + deltaX >= o.right)
+					continue
 				deltaX = Math.max(deltaX, o.right - left)
 			}
 		}
 		return deltaX
 	}
 
-	collisionCheckY(yOffset: number) {
+	collisionAdjustY(yPos: number) {
 		const { top, bottom, left, right } = this.virtualRect
-		let deltaY = yOffset - this.translateY
+		let deltaY = yPos - this.translateY
 		// moving down > 0
 		if (deltaY > 0) {
 			for (const obstacle of this.obstacleEls) {
 				const o = obstacle.getBoundingClientRect()
 				// too far left || too far right || already passed || unreachable with delta
-				if (left > o.right || right < o.left || bottom > o.top || bottom + deltaY <= o.top) continue
+				if (left > o.right || right < o.left || bottom > o.top || bottom + deltaY <= o.top)
+					continue
 				deltaY = Math.min(deltaY, o.top - bottom)
 			}
 		} else {
 			for (const obstacle of this.obstacleEls) {
 				const o = obstacle.getBoundingClientRect()
 				// too far left || too far right || already passed || unreachable with delta
-				if (left > o.right || right < o.left || top < o.bottom || top + deltaY >= o.bottom) continue
+				if (left > o.right || right < o.left || top < o.bottom || top + deltaY >= o.bottom)
+					continue
 				deltaY = Math.max(deltaY, o.bottom - top)
 			}
 		}
