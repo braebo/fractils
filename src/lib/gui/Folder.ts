@@ -1,6 +1,7 @@
+import type { InputOptions, InputView, NumberInputOptions } from './Input'
 import type { Gui } from './Gui'
 
-import { Input, type InputOptions } from './Input'
+import { Input, InputSlider } from './Input'
 import { create } from '../utils/create'
 import { nanoid } from '../utils/nanoid'
 import { Logger } from '../utils/logger'
@@ -294,13 +295,61 @@ export class Folder {
 		return folder
 	}
 
-	addInput(options: Omit<InputOptions, 'folder'> & { folder?: Folder }) {
-		const input = new Input({
-			folder: this,
-			...options,
-		})
+	add<T>(options: InputOptions) {
+		const input = this.#createInput(options)
 		this.controls.set(input.title, input)
 		this.elements.content.appendChild(input.element)
+		return input as T
+	}
+
+	#createInput(options: InputOptions) {
+		options.view ??= this.resolveView(options.value, options.view)
+
+		switch (options.view) {
+			case 'Slider':
+				return new InputSlider(options as NumberInputOptions, this)
+			// case 'Checkbox':
+			// 	this.boolean()
+			// 	break
+			// case 'Text':
+			// case 'TextArea':
+			// 	this.string()
+			// 	break
+			// case 'Color':
+			// 	this.color()
+			// 	break
+			// case 'Range':
+			// 	this.range()
+			// 	break
+			// case 'Select':
+			// 	this.select()
+			// 	break
+			// case 'Button':
+			// 	this.button()
+			// 	break
+		}
+
+		throw new Error('Invalid input view: ' + options.view)
+	}
+
+	resolveView(value: any, view: InputView | undefined): InputView {
+		switch (typeof value) {
+			case 'number':
+				return 'Slider'
+			case 'boolean':
+				return 'Checkbox'
+			case 'string':
+				if (view?.startsWith('#')) return 'Color'
+				return 'Text'
+			case 'function':
+				return 'Button'
+			case 'object':
+				if (Array.isArray(value)) {
+					return 'Select'
+				}
+			default:
+				throw new Error('Invalid input view: ' + view)
+		}
 	}
 
 	isGui(): this is Gui {
