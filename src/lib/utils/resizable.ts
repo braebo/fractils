@@ -78,7 +78,7 @@ export interface ResizableOptions {
 	 * The element to use as the bounds for resizing.
 	 * @default window['document']['documentElement']
 	 */
-	bounds?: HTMLElement
+	bounds?: HTMLElement | (string & {})
 
 	/**
 	 * Element's or selectors which will act as collision obstacles for the draggable element.
@@ -134,7 +134,7 @@ const px = (size: number | string) => {
  * })
  * ```
  */
-export class Resizable implements Omit<ResizableOptions, 'size'|'obstacles'> {
+export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 	static initialized = false
 
 	sides!: Side[]
@@ -177,7 +177,7 @@ export class Resizable implements Omit<ResizableOptions, 'size'|'obstacles'> {
 
 		this.#cornerGrabberSize = +this.grabberSize * 3
 
-		this.bounds = opts.bounds ? opts.bounds : window.document.documentElement
+		this.bounds = select(opts.bounds)[0] ?? globalThis.document?.documentElement
 		this.obstacleEls = select(opts.obstacles)
 
 		if (!Resizable.initialized) {
