@@ -3,14 +3,13 @@ import { c, r } from './l'
 
 const log = new Logger('select', { fg: 'AliceBlue' })
 
+export type ElementsOrSelectors = string | HTMLElement | (string | HTMLElement)[] | undefined
+
 /**
  * Takes in any combination of selectors and elements, and
  * resolves them all into an array of HTMLElements.
  */
-export function select(
-	input: string | HTMLElement | (string | HTMLElement)[] | undefined,
-	node?: HTMLElement,
-): HTMLElement[] {
+export function select(input: ElementsOrSelectors, node?: HTMLElement): HTMLElement[] {
 	if (typeof window === 'undefined') return []
 
 	if (input === undefined) return []
