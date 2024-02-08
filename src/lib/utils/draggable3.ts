@@ -1,201 +1,215 @@
+import type { ElementsOrSelectors } from './select'
 import type { Action } from 'svelte/action'
 
-import { isHTMLElement, isString } from './is'
-import { bounceInOut, bounceOut, cubicOut, quintOut } from 'svelte/easing'
+import { isDefined, isHTMLElement, isString } from './is'
+import { cubicOut } from 'svelte/easing'
 import { tweened } from 'svelte/motion'
 import { select } from './select'
 import { Logger } from './logger'
 import { clamp } from './clamp'
-import { state } from './state'
 
-export type DragBoundsCoords = {
-	/** Number of pixels from left of the document */
+/**
+ * Represents a dom element's bounding rectangle.
+ */
+export type VirtualRect = {
 	left: number
-
-	/** Number of pixels from top of the document */
 	top: number
-
-	/** Number of pixels from the right side of document */
 	right: number
-
-	/** Number of pixels from the bottom of the document */
 	bottom: number
 }
 
-export type DragAxis = 'both' | 'x' | 'y' | 'none'
+/**
+ * Represents the bounds to which the draggable element is limited to.
+ */
+export type DragBounds =
+	| (string & {})
+	| HTMLElement
+	| 'parent'
+	| 'body'
+	| false
+	| Partial<VirtualRect>
 
-export type DragBounds = HTMLElement | Partial<DragBoundsCoords> | 'parent' | 'body' | (string & {})
-
+/**
+ * Data passed to listeners of the {@link DragOptions.onDragStart|onDragStart},
+ * {@link DragOptions.onDrag|onDrag}, {@link DragOptions.onDragEnd|onDragEnd}, and
+ * {@link DragOptions.onCollision|onCollision} events.
+ */
 export type DragEventData = {
-	/** How much element moved from its original position horizontally */
-	offsetX: number
-
-	/** How much element moved from its original position vertically */
-	offsetY: number
-
-	/** The node on which the draggable is applied */
+	/**
+	 * The node on which the draggable is applied
+	 */
 	rootNode: HTMLElement
 
-	/** The element being dragged */
-	currentNode: HTMLElement
-}
+	/**
+	 * Total horizontal movement from the node's original position.
+	 */
+	x: number
 
-interface DragEvents {
-	'on:dragStart': (e: DragEventData) => void
-}
+	/**
+	 * Total vertical movement from the node's original position.
+	 */
+	y: number
 
-type ElementsOrSelectors = string | HTMLElement | (string | HTMLElement)[] | undefined
+	/**
+	 * The complete event object.
+	 */
+	eventTarget: EventTarget
+}
 
 export type DragOptions = {
 	/**
-	 * Optionally limit the drag area
+	 * The boundary to which the draggable element is limited to.
 	 *
-	 * Accepts `parent` as prefixed value, and limits it to its parent.
+	 * Valid values:
 	 *
-	 * Or, you can specify any selector and it will be bound to that.
+	 * - `undefined` - defaults to `document.documentElement`
+	 * - An `HTMLElement` or query selector string, _i.e. `.container` or `#container`_
+	 * - `'parent'` - the element's {@link HTMLElement.offsetParent|offsetParent}
+	 * - `'body'` - `document.body`
+	 * - `false` - no boundary
+	 * - `{ top: number, right: number, bottom: number, left: number }` - A custom {@link VirtualRect rect} relative to the viewport.
 	 *
-	 * **Note**: We don't check whether the selector is bigger than the node element.
-	 * You yourself will have to make sure of that, or it may lead to strange behavior
-	 *
-	 * Or, finally, you can pass an object of type `{ top: number; right: number; bottom: number; left: number }`.
-	 * These mimic the css `top`, `right`, `bottom` and `left`, in the sense that `bottom` starts from the bottom of the window, and `right` from right of window.
-	 * If any of these properties are unspecified, they are assumed to be `0`.
+	 * **Note**: Make sure the bounds is smaller than the node's min size.
+	 * @default 'body'
 	 */
-	bounds: DragBounds | 'parent' | 'body'
+	bounds: DragBounds
+
 	/**
-	 * Axis on which the element can be dragged on. Valid values: `both`, `x`, `y`, `none`.
-	 *
+	 * Axis on which the element can be dragged on.
 	 * - `both` - Element can move in any direction
 	 * - `x` - Only horizontal movement possible
 	 * - `y` - Only vertical movement possible
 	 * - `none` - No movement at all
-	 *
 	 * @default 'both'
 	 */
-	axis: DragAxis
+	axis: 'both' | 'x' | 'y' | 'none'
+
 	/**
-	 * Custom transform function. If provided, this function will be used to apply the DOM transformations to the root node to move it.
+	 * Custom transform function. If provided, this function will be used to
+	 * apply the DOM transformations to the root node to move it.
 	 *
-	 * You can return a string to apply to a `transform` property, or not return anything and apply your transformations using `rootNode.style.transform = VALUE`
-	 *
+	 * You can return a {@link https://developer.mozilla.org/docs/Web/CSS/transform | transform} property
+	 * return nothing to apply your own transformations via
+	 * {@link https://developer.mozilla.org/docs/Web/CSS/transform | node.style.transform}
 	 * @default undefined
 	 */
-	transform?: ({
-		offsetX,
-		offsetY,
-		rootNode,
-	}: {
-		offsetX: number
-		offsetY: number
-		rootNode: HTMLElement
-	}) => string | undefined | void
+	transform?: (data: DragEventData) => { x: number; y: number } | void | undefined
+
 	/**
-	 * Applies `user-select: none` on `<body />` element when dragging,
-	 * to prevent the irritating effect where dragging doesn't happen and the text is selected.
-	 * Applied when dragging starts and removed when it stops.
-	 *
-	 * Can be disabled using this option
-	 *
+	 * Applies `user-select: none` to the `<body />` element when dragging. `false` disables it.
 	 * @default true
 	 */
 	userSelectNone: boolean
+
 	/**
-	 * Ignores touch events with more than 1 touch.
-	 * This helps when you have multiple elements on a canvas where you want to implement
-	 * pinch-to-zoom behaviour.
-	 *
+	 * Ignore touch events with more than 1 touch. Helpful for preserving pinch-to-zoom behavior on a pages with multiple draggable's.
 	 * @default false
 	 */
 	ignoreMultitouch: boolean
+
 	/**
 	 * Disables dragging altogether.
-	 *
 	 * @default false
 	 */
 	disabled: boolean
+
 	/**
-	 * Applies a grid on the page to which the element snaps to when dragging, rather than the default continuous grid.
-	 *
-	 * `Note`: If you're programmatically creating the grid, do not set it to [0, 0] ever, that will stop drag at all. Set it to `undefined`.
-	 *
-	 * @default undefined
-	 */
-	grid: [number, number] | undefined
-	/**
-	 * Control the position manually with your own state
-	 *
-	 * By default, the element will be draggable by mouse/finger, and all options will work as default while dragging.
-	 *
-	 * But changing the `position` option will also move the draggable around. These parameters are reactive,
-	 * so using Svelte's reactive variables as values for position will work like a charm.
-	 *
-	 * Note: If you set `disabled: true`, you'll still be able to move the draggable through state variables. Only the user interactions won't work
-	 *
+	 * Control the position manually with your own state. These parameters are reactive,
+	 * and will update the draggable element's position automagically upon reassignment.
+	 * @default { x: 0, y: 0 }
 	 */
 	position: { x: number; y: number }
+
 	/**
-	 * CSS Selector of an element or multiple elements inside the parent node(on which `use:draggable` is applied).
-	 *
-	 * Can be an element or elements too. If it is provided, Trying to drag inside the `cancel` element(s) will prevent dragging.
-	 *
+	 * An element or selector (or any combination of the two) for element(s) inside
+	 * the parent node upon which dragging should be disabled when clicked.
 	 * @default undefined
 	 */
 	cancel: ElementsOrSelectors
+
 	/**
-	 * CSS Selector of an element or multiple elements inside the parent node(on which `use:draggable` is applied). Can be an element or elements too.
-	 *
-	 * If it is provided, Only clicking and dragging on this element will allow the parent to drag, anywhere else on the parent won't work.
+	 * CSS Selector of an element or multiple elements inside the parent node on
+	 * which `use:draggable` is applied).  If provided, only clicking and dragging
+	 * handles will activate dragging.
 	 *
 	 * @default undefined
 	 */
 	handle: ElementsOrSelectors
+
 	/**
 	 * Element's or selectors which will act as collision obstacles for the draggable element.
 	 */
 	obstacles: ElementsOrSelectors
+
+	classes: {
+		/**
+		 * Class to apply on the element on which `use:draggable` is applied.
+		 *
+		 * __Note:__ If `handle` is provided, this class will still be applied
+		 * to the draggable element itself, __NOT__ the handle element.
+		 * @default 'fractils-draggable'
+		 */
+		default: string
+		/**
+		 * Class to apply on the element when it is dragging.
+		 * @default 'fractils-dragging'
+		 */
+		dragging: string
+		/**
+		 * Class to apply on the element if it has been dragged at least once.
+		 * @default 'fractils-dragged'
+		 */
+		dragged: string
+	}
+
 	/**
-	 * Class to apply on the element on which `use:draggable` is applied.
-	 * Note that if `handle` is provided, it will still apply class on the element to which this action is applied, **NOT** the handle
-	 *
-	 */
-	defaultClass: string
-	/**
-	 * Class to apply on the element when it is dragging
-	 *
-	 * @default 'neodrag-dragging'
-	 */
-	defaultClassDragging: string
-	/**
-	 * Class to apply on the element if it has been dragged at least once.
-	 *
-	 * @default 'neodrag-dragged'
-	 */
-	defaultClassDragged: string
-	/**
-	 * Offsets your element to the position you specify in the very beginning.
-	 * `x` and `y` should be in pixels
-	 *
+	 * Applies a base offset to the target element's default position.
+	 * @default { x: 0, y: 0 }
 	 */
 	defaultPosition: { x: number; y: number }
+
 	/**
-	 * Fires when dragging start
+	 * Fires on `pointerdown` for the element / valid handle elements.
 	 */
 	onDragStart: (data: DragEventData) => void
+
 	/**
-	 * Fires when dragging is going on
+	 * Fires on `pointermove` while dragging.
 	 */
 	onDrag: (data: DragEventData) => void
+
 	/**
-	 * Fires when dragging ends
+	 * Fires on `pointerup`.
 	 */
 	onDragEnd: (data: DragEventData) => void
+
+	/**
+	 * Fires when the element collides with an obstacle.
+	 */
+	onCollision: (data: { x: number; y: number }) => void
+
+	/**
+	 * Tween options for the drag animation.
+	 * @default { duration: 100, easing: cubicOut }
+	 * @see https://svelte.dev/docs#tweened
+	 * @remarks The animation is subtle, and most noticeable when the
+	 * draggable element is moved a long distance very suddenly.
+	 */
+	tween: {
+		/**
+		 * Duration of the tween in milliseconds - 0 to disable.
+		 * @default 100
+		 */
+		duration?: number
+		easing?: (t: number) => number
+	}
 }
 
 const DEFAULT_CLASSES = {
-	MAIN: 'fractils-draggable',
-	DRAGGING: 'fractils-dragging',
-	DRAGGED: 'fractils-dragged',
-}
+	default: 'fractils-draggable',
+	dragging: 'fractils-dragging',
+	dragged: 'fractils-dragged',
+} as const
 
 const DRAG_DEFAULTS = {
 	bounds: 'body',
@@ -203,55 +217,115 @@ const DRAG_DEFAULTS = {
 	userSelectNone: true,
 	ignoreMultitouch: false,
 	disabled: false,
-	grid: undefined,
 	position: { x: 0, y: 0 },
 	cancel: undefined,
 	handle: undefined,
 	obstacles: undefined,
-	defaultClass: DEFAULT_CLASSES.MAIN,
-	defaultClassDragging: DEFAULT_CLASSES.DRAGGING,
-	defaultClassDragged: DEFAULT_CLASSES.DRAGGED,
+	classes: DEFAULT_CLASSES,
 	defaultPosition: { x: 0, y: 0 },
 	onDragStart: () => {},
 	onDrag: () => {},
 	onDragEnd: () => {},
+	onCollision: () => {},
 	transform: undefined,
+	tween: {
+		duration: 100,
+		easing: cubicOut,
+	},
 } as const satisfies DragOptions
 
+/**
+ * Make an element draggable.  Supports touch, mouse, and pointer events,
+ * and has options for bounds / obstacle collision detection, programatic
+ * position control, custom transforms, and more.
+ *
+ * @example
+ * ```js
+ * import { Draggable } from 'fractils'
+ *
+ * const element = document.createElement('div')
+ *
+ * const draggable = new Draggable(element, {
+ * 	bounds: 'body'
+ * })
+ * ```
+ */
 export class Draggable {
 	static initialized = false
 	opts: DragOptions
 
-	active = false
-	disabled = false
-
-	clickOffsetX = 0
-	clickOffsetY = 0
-
-	clientToNodeOffsetX = 0
-	clientToNodeOffsetY = 0
+	/**
+	 * Whether the draggable element is currently being dragged.
+	 */
+	#active = false
 
 	/**
-	 * The internal
+	 * Disables user interaction with the draggable element.
 	 */
-	virtualRect = {
-		top: 0,
-		right: 0,
-		left: 0,
-		bottom: 0,
+	disabled = false
+
+	/**
+	 * Used in  {@link updatePosition} to account for the difference between
+	 * the node's position and the user's exact click position on the node.
+	 */
+	clickOffset = { x: 0, y: 0 }
+
+	/**
+	 * The distance between the pointer's position and the node's position.
+	 */
+	clientToNodeOffset = {
+		x: 0,
+		y: 0,
 	}
 
-	defaultPosition = { x: 0, y: 0 }
+	/**
+	 * An internal representation of the {@link node|node's} bounding rectangle.
+	 * Used for collision detection and animations.
+	 */
+	rect: VirtualRect = { top: 0, right: 0, bottom: 0, left: 0 }
 
-	bodyOriginalUserSelectVal = ''
+	/**
+	 * Applies a base offset to the target element's default position.
+	 * @default { x: 0, y: 0 }
+	 */
+	defaultPosition: DragOptions['defaultPosition'] = { x: 0, y: 0 }
 
-	computedBounds: DragBoundsCoords | undefined
+	/**
+	 * The original value of `user-select` on the body element
+	 * used to restore the original value after dragging when
+	 * {@link DragOptions.userSelectNone|userSelectNone} is `true`.
+	 */
+	#bodyOriginalUserSelectVal = ''
 
 	handleEls: HTMLElement[]
 	cancelEls: HTMLElement[]
 	obstacleEls: HTMLElement[]
 
-	currentlyDraggedEl!: HTMLElement
+	/**
+	 * A rectangle representing the draggable element's boundary, if any.
+	 */
+	bounds = {
+		left: -Infinity,
+		top: -Infinity,
+		right: Infinity,
+		bottom: Infinity,
+	}
+
+	/**
+	 * Updates the {@link bounds} property to account for any changes in the
+	 * DOM or this instance's {@link DragOptions.bounds|bounds} option.
+	 */
+	#recomputeBounds: () => void
+
+	/**
+	 * @todo I think we can just remove this and let the user add their
+	 * own event listeners if they want to target a specific element.
+	 */
+	eventTarget?: HTMLElement
+
+	/**
+	 * See {@link DragOptions.tween}
+	 */
 	tween = tweened(
 		{ x: 0, y: 0 },
 		{
@@ -260,10 +334,15 @@ export class Draggable {
 		},
 	)
 
-	#log: Logger
-	/** Cleanup functions (removeEventLister / unsubscribe) */
+	/**
+	 * Cleanup functions (removeEventLister / unsubscribe) to call in {@link dispose}.
+	 */
 	#listeners = new Set<() => void>()
-	debugStore = state({ x: 0, colliding: null })
+
+	/**
+	 * Internal logger for debugging. Automatically bypassed in non-dev environments.
+	 */
+	#log: Logger
 
 	constructor(
 		public node: HTMLElement,
@@ -277,14 +356,10 @@ export class Draggable {
 		})
 		this.#log.fn('constructor').info({ opts: this.opts, this: this })
 
-		this.node.classList.add(this.opts.defaultClass)
+		this.node.classList.add(this.opts.classes.default)
 
-		this.translateX = this.opts.position
-			? this.opts.position.x ?? 0
-			: this.opts.defaultPosition.x
-		this.translateY = this.opts.position
-			? this.opts.position.y ?? 0
-			: this.opts.defaultPosition.y
+		this.x = this.opts.position.x ?? this.opts.defaultPosition.x
+		this.y = this.opts.position.y ?? this.opts.defaultPosition.y
 
 		const { left, top } = this.node.getBoundingClientRect()
 		this.defaultPosition = {
@@ -292,12 +367,17 @@ export class Draggable {
 			y: top,
 		}
 
-		// On mobile, touch can become extremely janky without it
-		this.#setStyle(node, 'touch-action', 'none')
+		// Prevents mobile touch-event jank.
+		this.node.style.setProperty('touch-action', 'none')
 
 		this.handleEls = this.opts.handle ? select(this.opts.handle, this.node) : [this.node]
 		this.cancelEls = select(this.opts.cancel, this.node)
 		this.obstacleEls = select(this.opts.obstacles, document.body)
+
+		this.#recomputeBounds = this.#resolveRecomputeBounds(this.opts.bounds)
+		this.#recomputeBounds()
+
+		// Add event listeners / subscriptions / observers and save their cleanup functions.
 
 		this.node.addEventListener('pointerdown', this.dragStart, false)
 		this.#listeners.add(() => {
@@ -314,76 +394,65 @@ export class Draggable {
 			removeEventListener('pointermove', this.drag, false)
 		})
 
-		addEventListener('resize', this.onWindowResize)
+		addEventListener('resize', this.clampToBounds)
 		this.#listeners.add(() => {
-			removeEventListener('resize', this.onWindowResize)
+			removeEventListener('resize', this.clampToBounds)
 		})
 
+		// Updates the position when the tween fires.
 		this.#listeners.add(
-			this.tween.subscribe((newValue) => {
-				const { x, y } = newValue
+			this.tween.subscribe(({ x, y }) => {
 				this.node.style.setProperty('translate', `${x}px ${y}px 1px`)
 			}),
 		)
 	}
 
-	onWindowResize = () => {
-		this.computedBounds = this.#computeBoundRect(this.opts.bounds, this.node)
-
-		const bounds = this.computedBounds!
-
-		const { right, bottom } = this.node.getBoundingClientRect()
-
-		let x = this.translateX
-		let y = this.translateY
-
-		const xdiff = right - bounds.right
-		if (xdiff > 0) x -= xdiff
-
-		const ydiff = bottom - bounds.bottom
-		if (ydiff > 0) y -= ydiff
-
-		if (x !== this.translateX || y !== this.translateY) {
-			this.updatePosition(x, y)
-		}
-	}
-
-	get translateX() {
+	/**
+	 * The x position of the draggable element's transform offset.
+	 */
+	get x() {
 		return +this.node.dataset.translateX! || 0
 	}
-	set translateX(v: number) {
+	set x(v: number) {
 		this.node.dataset.translateX = String(v)
 	}
 
-	get translateY() {
+	/**
+	 * The y position of the draggable element's transform offset.
+	 */
+	get y() {
 		return +this.node.dataset.translateY! || 0
 	}
-	set translateY(v: number) {
+	set y(v: number) {
 		this.node.dataset.translateY = String(v)
 	}
 
-	get canMoveInX() {
+	/**
+	 * Whether the draggable element can move in the x direction,
+	 * based on the {@link DragOptions.axis|axis} option.
+	 */
+	get canMoveX() {
 		return /(both|x)/.test(this.opts.axis)
 	}
-	get canMoveInY() {
+	/**
+	 * Whether the draggable element can move in the x direction,
+	 * based on the {@link DragOptions.axis|axis} option.
+	 */
+	get canMoveY() {
 		return /(both|y)/.test(this.opts.axis)
 	}
 
 	get eventData(): DragEventData {
 		return {
-			offsetX: this.translateX,
-			offsetY: this.translateY,
+			x: this.x,
+			y: this.y,
 			rootNode: this.node,
-			currentNode: this.currentlyDraggedEl,
+			eventTarget: this.eventTarget!,
 		}
 	}
 
 	get isControlled() {
 		return !!this.opts.position
-	}
-
-	get bounds() {
-		return this.opts.bounds
 	}
 
 	dragStart = (e: PointerEvent) => {
@@ -394,9 +463,6 @@ export class Draggable {
 		if (this.opts.ignoreMultitouch && !e.isPrimary) return
 
 		e.stopPropagation()
-
-		// Recompute bounds
-		this.computedBounds = this.#computeBoundRect(this.opts.bounds, this.node)
 
 		// Error handling
 		if (
@@ -415,178 +481,218 @@ export class Draggable {
 
 		const eventTarget = e.composedPath()[0] as HTMLElement
 
+		// Return if the event target is not a handle element.
 		if (
 			!this.handleEls.some(
-				(el) => el.contains(eventTarget) || el.shadowRoot?.contains(eventTarget),
+				(e) => e.contains(eventTarget) || e.shadowRoot?.contains(eventTarget),
 			)
-		) {
-			this.#log.error('Not a handle element, returning')
-			this.#log.debug({ handleEls: this.handleEls, eventTarget })
+		)
 			return
-		}
 
 		// Make sure it's not a cancel element.
 		if (this.#cancelElementContains(this.cancelEls, [eventTarget])) {
 			return
 		}
 
-		this.#log.fn('dragStart').info()
-
-		this.currentlyDraggedEl =
+		// Resolve the event target.
+		this.eventTarget =
 			this.handleEls.length === 1
 				? this.node
 				: this.handleEls.find((el) => el.contains(eventTarget))!
 
-		this.active = true
+		this.#active = true
 
 		if (this.opts.userSelectNone) {
 			// Apply user-select: none on body to prevent misbehavior
-			this.bodyOriginalUserSelectVal = document.body.style.userSelect
+			this.#bodyOriginalUserSelectVal = document.body.style.userSelect
 			document.body.style.userSelect = 'none'
 		}
 
 		// Dispatch custom event
 		this.#fireSvelteDragStartEvent()
 
-		if (this.canMoveInX) this.clickOffsetX = e.clientX - this.translateX
-		if (this.canMoveInY) this.clickOffsetY = e.clientY - this.translateY
+		// Store the click offset
+		if (this.canMoveX) this.clickOffset.x = e.clientX - this.x
+		if (this.canMoveY) this.clickOffset.y = e.clientY - this.y
 
+		// Update the virtual rectangle.
 		const { top, right, bottom, left } = this.node.getBoundingClientRect()
-		this.virtualRect = {
-			top,
-			right,
-			bottom,
-			left,
-		}
+		this.rect = { top, right, bottom, left }
 
-		// Only the bounds uses these properties at the moment,
-		// may open up in the future if others need it
-		if (this.computedBounds) {
-			const { left, top } = this.node.getBoundingClientRect()
-			this.clientToNodeOffsetX = e.clientX - left
-			this.clientToNodeOffsetY = e.clientY - top
-		}
+		// Update the clientToNodeOffset.
+		if (this.bounds) this.clientToNodeOffset = { x: e.clientX - left, y: e.clientY - top }
 
-		this.tween.set(
-			{
-				x: this.translateX,
-				y: this.translateY,
-			},
-			{
-				duration: 0,
-			},
-		)
+		// Set the initial position (with a forced duration of 0).
+		this.tween.set({ x: this.x, y: this.y }, { ...this.opts.tween, duration: 0 })
 	}
 
 	drag = (e: PointerEvent) => {
-		if (!this.active) return
+		if (!this.#active) return
 
 		e.preventDefault()
 
 		this.updatePosition(e.clientX, e.clientY)
 	}
 
-	updatePosition = (finalX: number, finalY: number) => {
-		this.computedBounds = this.#computeBoundRect(this.opts.bounds, this.node)
-
-		// Apply class defaultClassDragging
-		this.node.classList.add(this.opts.defaultClassDragging)
-
-		// Get final values for clamping
-
-		if (this.computedBounds) {
-			const { width, height } = this.node.getBoundingClientRect()
-			// Client position is limited to this virtual boundary to prevent node going out of bounds
-			const virtualClientBounds: DragBoundsCoords = {
-				left: this.computedBounds.left + this.clientToNodeOffsetX,
-				top: this.computedBounds.top + this.clientToNodeOffsetY,
-				right: this.computedBounds.right + this.clientToNodeOffsetX - width,
-				bottom: this.computedBounds.bottom + this.clientToNodeOffsetY - height,
-			}
-
-			finalX = clamp(finalX, virtualClientBounds.left, virtualClientBounds.right)
-			finalY = clamp(finalY, virtualClientBounds.top, virtualClientBounds.bottom)
-		}
-
-		const newX = Math.round(finalX - this.clickOffsetX)
-		const newY = Math.round(finalY - this.clickOffsetY)
-
-		this.#fireSvelteDragEvent()
-
-		this.tryTranslate(newX, newY)
-	}
-
 	dragEnd = () => {
-		if (!this.active) return
+		if (!this.#active) return
 
-		this.computedBounds = this.#computeBoundRect(this.opts.bounds, this.node)
-
-		// Apply class defaultClassDragged
-		this.node.classList.remove(this.opts.defaultClassDragging)
-		this.node.classList.add(this.opts.defaultClassDragged)
+		// Apply dragging and dragged classes.
+		this.node.classList.remove(this.opts.classes.dragging)
+		this.node.classList.add(this.opts.classes.dragged)
 
 		if (this.opts.userSelectNone) {
-			document.body.style.userSelect = this.bodyOriginalUserSelectVal
+			document.body.style.userSelect = this.#bodyOriginalUserSelectVal
 		}
 
 		this.#fireSvelteDragEndEvent()
 
-		if (this.canMoveInX) this.clickOffsetX = this.translateX
-		if (this.canMoveInY) this.clickOffsetY = this.translateY
+		if (this.canMoveX) this.clickOffset.x = this.x
+		if (this.canMoveY) this.clickOffset.y = this.y
 
-		this.active = false
+		this.#active = false
 	}
 
-	tryTranslate(xPos: number, yPos: number) {
-		if (this.canMoveInX) {
-			const deltaX = this.collisionAdjustX(xPos)
-			// Update virtual rectangle with resulting deltaX (!! before checking collisionY !!)
-			this.virtualRect.left += deltaX
-			this.virtualRect.right += deltaX
-			this.translateX += deltaX
+	/**
+	 * Re-calculates the bounds and updates the node's position if it's out of bounds.
+	 * Called automatically when the window and/or {@link bounds} are resized.
+	 */
+	clampToBounds = () => {
+		this.#recomputeBounds()
+
+		const { right, bottom } = this.node.getBoundingClientRect()
+
+		let x = this.x
+		let y = this.y
+
+		const xdiff = right - this.bounds.right
+		if (xdiff > 0) x -= xdiff
+
+		const ydiff = bottom - this.bounds.bottom
+		if (ydiff > 0) y -= ydiff
+
+		if (x !== this.x || y !== this.y) {
+			this.updatePosition(x, y)
+		}
+	}
+
+	/**
+	 * @todo This just clamps the target position to the bounds... perhaps it should
+	 * be renamed to `clampToBounds` or something like that, and called from
+	 * {@link moveTo}, which can implicitly account for any collision / bounds?
+	 */
+	updatePosition = (targetX: number, targetY: number) => {
+		// Update the bounds rect.
+		this.#recomputeBounds()
+
+		// Apply the dragging class.
+		this.node.classList.add(this.opts.classes.dragging)
+
+		// Clamp the target position to the bounds.
+		if (this.bounds) {
+			const { width, height } = this.node.getBoundingClientRect()
+			const bounds = {
+				left: this.bounds.left + this.clientToNodeOffset.x,
+				top: this.bounds.top + this.clientToNodeOffset.y,
+				right: this.bounds.right + this.clientToNodeOffset.x - width,
+				bottom: this.bounds.bottom + this.clientToNodeOffset.y - height,
+			}
+
+			targetX = clamp(targetX, bounds.left, bounds.right)
+			targetY = clamp(targetY, bounds.top, bounds.bottom)
 		}
 
-		if (this.canMoveInY) {
-			const deltaY = this.collisionAdjustY(yPos)
-			// Update virtual rectangle with resulting deltaY
-			this.virtualRect.top += deltaY
-			this.virtualRect.bottom += deltaY
-			this.translateY += deltaY
+		const finalTargetX = Math.round(targetX - this.clickOffset.x)
+		const finalTargetY = Math.round(targetY - this.clickOffset.y)
+
+		this.#fireSvelteDragEvent()
+
+		this.moveTo(finalTargetX, finalTargetY)
+	}
+
+	/**
+	 * Moves the {@link node|draggable element} to the specified position, adjusted
+	 * for collision with {@link obstacleEls obstacles} or {@link boundsRect bounds}.
+	 */
+	moveTo(targetX: number, targetY: number) {
+		if (this.canMoveX) {
+			const x = this.#getSafeDistanceX(targetX)
+
+			// Apply delta to x / virtual rect (!! before checking collisionY !!).
+			this.rect.left += x
+			this.rect.right += x
+			this.x += x
 		}
 
-		if (typeof this.opts.transform === 'undefined') {
+		if (this.canMoveY) {
+			const y = this.#getSafeDistanceY(targetY)
+
+			// Apply delta to y / virtual rect.
+			this.rect.top += y
+			this.rect.bottom += y
+			this.y += y
+		}
+
+		// Check for a custom user transform function before applying ours.
+		if (!this.opts.transform) {
 			const { left, top } = this.node.getBoundingClientRect()
+
 			// Tween slower for longer distances.
-			const duration =
-				Math.abs(this.virtualRect.left + this.virtualRect.top - (left + top)) * 0.5
-			// const collisionOccured = this.translateX !== xPos || this.translateY !== yPos
-			// const tweenedOpts = collisionOccured
-			// 	? { duration: 200, easing: bounceOut }
-			// 	: { duration, easing: cubicOut }
-			const tweenedOpts = { duration, easing: cubicOut }
+			const duration = Math.abs(this.rect.left + this.rect.top - (left + top)) * 0.5
+
+			// Bounce if collision occured.
+			const collisionOccured = this.x !== targetX || this.y !== targetY
+			const tweenedOpts = collisionOccured
+				? {
+						duration: 1000,
+						easing: (t: number) => {
+							// A more physically accurate bounce easing
+							const p = 0.3
+							return (
+								1 -
+								Math.pow(2, -10 * t) * Math.cos(((t - p / 4) * (2 * Math.PI)) / p)
+							)
+						},
+					}
+				: { duration, easing: cubicOut }
+
 			// Set the tween and let it animate the position.
-			this.tween.set({ x: this.translateX, y: this.translateY }, tweenedOpts)
-			// this.node.style.setProperty('translate', `${targetX}px ${targetY}px 1px`)
+			this.tween.set({ x: this.x, y: this.y }, tweenedOpts)
 		} else {
-			// Call transform function if provided
-			const transformCalled = this.opts.transform?.({
-				offsetX: this.translateX, //targetX,
-				offsetY: this.translateY,
+			// Call the user's custom transform function.
+			const customTransformResult = this.opts.transform?.({
+				x: this.x,
+				y: this.y,
 				rootNode: this.node,
+				eventTarget: this.eventTarget!,
 			})
 
-			if (isString(transformCalled)) {
-				const [x, y] = transformCalled.split(' ')
-				// this.#setStyle(this.node, 'translate', transformCalled)
-				this.tween.set({ x: +x, y: +y })
+			// If the user's custom transform function returns an `{x,y}` object, use it.
+			if (
+				customTransformResult &&
+				'x' in customTransformResult &&
+				'y' in customTransformResult
+			) {
+				const { x, y } = customTransformResult
+				this.tween.set({ x, y, ...this.opts.tween })
 			}
 		}
 	}
 
-	collisionAdjustX(xPos: number) {
-		const { top, bottom, left, right } = this.virtualRect
-		let deltaX = xPos - this.translateX
+	/**
+	 * Checks for collision with {@link obstacleEls obstacles} to determine the maximum distance
+	 * the draggable can move in the x direction.
+	 *
+	 * @returns The maximum distance the draggable can move in the x direction (`deltaX`) before
+	 * colliding with an obstacle.  If no collision is detected, the full distance (`targetX`)
+	 * is returned.  If the draggable is already colliding with an obstacle, `0` is returned.
+	 */
+	#getSafeDistanceX(targetX: number) {
+		const { top, bottom, left, right } = this.rect
+		let deltaX = targetX - this.x
+
 		if (deltaX === 0) return 0
+
 		// moving right > 0
 		if (deltaX > 0) {
 			for (const obstacle of this.obstacleEls) {
@@ -605,14 +711,24 @@ export class Draggable {
 				deltaX = Math.max(deltaX, o.right - left)
 			}
 		}
+
 		return deltaX
 	}
 
-	collisionAdjustY(yPos: number) {
-		const { top, bottom, left, right } = this.virtualRect
-		let deltaY = yPos - this.translateY
-		// moving down > 0
+	/**
+	 * Checks for collision with {@link obstacleEls obstacles} to determine the maximum distance
+	 * the draggable can move in the y direction.
+	 *
+	 * @returns The maximum distance the draggable can move in the x direction (`deltaY`) before
+	 * colliding with an obstacle.  If no collision is detected, the full distance (`targetY`)
+	 * is returned.  If the draggable is already colliding with an obstacle, `0` is returned.
+	 */
+	#getSafeDistanceY(targetY: number) {
+		const { top, bottom, left, right } = this.rect
+		let deltaY = targetY - this.y
+
 		if (deltaY > 0) {
+			// Moving down.
 			for (const obstacle of this.obstacleEls) {
 				const o = obstacle.getBoundingClientRect()
 				// too far left || too far right || already passed || unreachable with delta
@@ -621,6 +737,7 @@ export class Draggable {
 				deltaY = Math.min(deltaY, o.top - bottom)
 			}
 		} else {
+			// Moving up.
 			for (const obstacle of this.obstacleEls) {
 				const o = obstacle.getBoundingClientRect()
 				// too far left || too far right || already passed || unreachable with delta
@@ -632,71 +749,53 @@ export class Draggable {
 		return deltaY
 	}
 
-	update = (options: Partial<DragOptions>) => {
-		// Update all the values that need to be changed
-		this.opts.axis = options.axis || 'both'
-		this.disabled = options.disabled ?? false
-		this.opts.ignoreMultitouch = options.ignoreMultitouch ?? false
-		this.opts.handle = options.handle
-		this.opts.bounds = options.bounds!
-		this.opts.cancel = options.cancel
-		this.opts.userSelectNone = options.userSelectNone ?? true
-		this.opts.grid = options.grid
-		this.opts.transform = options.transform!
+	/**
+	 * Resolves the {@link DragOptions.bounds|bounds} and returns a
+	 * function that updates the {@link bounds} property when called.
+	 */
+	#resolveRecomputeBounds(opts: DragOptions['bounds']): () => void {
+		if (opts === false) return () => void 0
 
-		const dragged = this.node.classList.contains(this.opts.defaultClassDragged)
-
-		this.node.classList.remove(this.opts.defaultClass, this.opts.defaultClassDragged)
-
-		this.opts.defaultClass = options.defaultClass ?? DEFAULT_CLASSES.MAIN
-		this.opts.defaultClassDragging = options.defaultClassDragging ?? DEFAULT_CLASSES.DRAGGING
-		this.opts.defaultClassDragged = options.defaultClassDragged ?? DEFAULT_CLASSES.DRAGGED
-
-		this.node.classList.add(this.opts.defaultClass)
-
-		if (dragged) this.node.classList.add(this.opts.defaultClass)
-
-		if (this.isControlled) {
-			this.translateX = options.position?.x ?? this.translateX
-			this.translateY = options.position?.y ?? this.translateY
-
-			this.tryTranslate(this.translateX, this.translateY)
-		}
-	}
-
-	#computeBoundRect = (bounds: DragOptions['bounds'], rootNode: HTMLElement) => {
-		if (bounds === undefined) return
-
-		if (isHTMLElement(bounds)) return bounds.getBoundingClientRect()
-
-		if (typeof bounds === 'object') {
-			// we have the left right etc
-
-			const { top = 0, left = 0, right = 0, bottom = 0 } = bounds
-
-			const computedRight = window.innerWidth - right
-			const computedBottom = window.innerHeight - bottom
-
-			return { top, right: computedRight, bottom: computedBottom, left }
+		// Check for a custom bounds rect.
+		if (typeof opts === 'object' && 'left' in opts) {
+			return () => {
+				this.bounds = {
+					...(this.opts.bounds as VirtualRect),
+					...opts,
+				}
+			}
 		}
 
-		// It's a string
-		if (bounds === 'parent') return (<HTMLElement>rootNode.parentNode).getBoundingClientRect()
+		// prettier-ignore
+		const node =
+			isHTMLElement(opts) ? opts
+			: opts === 'body' 	? document.body
+			: opts === 'parent' ? this.node.offsetParent
+			: isString(opts) 	? select(opts)[0]
+			: !isDefined(opts) 	? document.documentElement
+			: undefined
 
-		const node = document.querySelector<HTMLElement>(<string>bounds)
-		if (node === null)
-			throw new Error("The selector provided for bound doesn't exists in the document.")
+		// Error handling.
+		if (!node) throw new Error('Invalid bounds option provided: ' + opts)
 
-		return node.getBoundingClientRect()
+		// Add a resize observer to the bounds element to automatically update the bounds.
+		const boundsResizeObserver = new ResizeObserver(() => {
+			this.bounds = node.getBoundingClientRect()
+			this.clampToBounds()
+		})
+		boundsResizeObserver.observe(this.node)
+		this.#listeners.add(() => boundsResizeObserver.disconnect())
+
+		return () => (this.bounds = node.getBoundingClientRect())
 	}
-
-	#setStyle = (el: HTMLElement, style: string, value: string) =>
-		el.style.setProperty(style, value)
 
 	#cancelElementContains = (cancelElements: HTMLElement[], dragElements: HTMLElement[]) =>
 		cancelElements.some((cancelEl) => dragElements.some((el) => cancelEl.contains(el)))
 
-	#callEvent = (eventName: 'dragstart' | 'drag' | 'dragend', fn: typeof this.opts.onDrag) => {
+	#callEvent = (
+		eventName: 'dragstart' | 'drag' | 'dragend',
+		fn: (data: DragEventData) => void,
+	) => {
 		const data = this.eventData
 		this.node.dispatchEvent(new CustomEvent(eventName, { detail: data }))
 		fn?.(data)
@@ -715,13 +814,35 @@ export class Draggable {
 	}
 
 	dispose() {
-		this.node.removeEventListener('pointerdown', this.dragStart, false)
-		removeEventListener('pointerup', this.dragEnd, false)
-		removeEventListener('pointermove', this.drag, false)
-		removeEventListener('resize', this.onWindowResize)
+		for (const fn of this.#listeners.values()) {
+			console.log('calling', fn)
+			fn()
+		}
 	}
 }
 
+/**
+ * Events fired by the draggable svelte action.
+ */
+export interface DragEvents {
+	'on:dragStart': (e: DragEventData) => void
+	'on:drag': (e: DragEventData) => void
+	'on:dragEnd': (e: DragEventData) => void
+	'on:collision': (e: { x: number; y: number }) => void
+}
+
+/**
+ * A svelte action to make an element draggable.
+ *
+ * @example
+ * ```svelte
+ * <script>
+ * 	import { draggable } from 'fractils'
+ * </script>
+ *
+ * <div use:draggable> Drag Me </div>
+ * ```
+ */
 export const draggable: Action<HTMLElement, Partial<DragOptions> | undefined, DragEvents> = (
 	node: HTMLElement,
 	options?: Partial<DragOptions>,
@@ -732,9 +853,39 @@ export const draggable: Action<HTMLElement, Partial<DragOptions> | undefined, Dr
 		destroy: () => {
 			d.dispose()
 		},
+		// The update function of a svelte action automatically fires whenever the
+		// options object is changed externally, enabling easy reactivity.
 		update: (options: Partial<DragOptions> | undefined) => {
+			if (!options) return
+
 			// Update all the values that need to be changed
-			if (options) d.update(options)
+			d.opts.axis = options.axis || DRAG_DEFAULTS.axis
+			d.disabled = options.disabled ?? DRAG_DEFAULTS.disabled
+			d.opts.ignoreMultitouch = options.ignoreMultitouch ?? DRAG_DEFAULTS.ignoreMultitouch
+			d.opts.handle = options.handle
+			d.opts.bounds = options.bounds!
+			d.opts.cancel = options.cancel
+			d.opts.userSelectNone = options.userSelectNone ?? DRAG_DEFAULTS.userSelectNone
+			d.opts.transform = options.transform
+
+			const dragged = d.node.classList.contains(d.opts.classes.dragged)
+
+			d.node.classList.remove(d.opts.classes.default, d.opts.classes.dragged)
+
+			d.opts.classes.default = options?.classes?.default ?? DEFAULT_CLASSES.default
+			d.opts.classes.dragging = options?.classes?.dragging ?? DEFAULT_CLASSES.dragging
+			d.opts.classes.dragged = options?.classes?.dragged ?? DEFAULT_CLASSES.dragged
+
+			d.node.classList.add(d.opts.classes.default)
+
+			if (dragged) d.node.classList.add(d.opts.classes.default)
+
+			if (d.isControlled) {
+				d.x = options.position?.x ?? d.x
+				d.y = options.position?.y ?? d.y
+
+				d.moveTo(d.x, d.y)
+			}
 		},
 	}
 }

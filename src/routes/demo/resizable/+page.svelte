@@ -1,79 +1,70 @@
 <script lang="ts">
-	import Orbs, { params } from './Orbs.svelte'
+	import { draggable, Draggable } from '$lib/utils/draggable3'
 	import { resizable } from '$lib/actions/resizable'
-	import { draggable } from '$lib/utils/draggable2'
+	import Orbs, { params } from './Orbs.svelte'
+	import { onMount } from 'svelte'
 
-	let bounds: HTMLElement
+	onMount(() => {
+		const el = document.createElement('div')
+
+		const draggable = new Draggable(el, {
+			onDrag: (e) => console.log('drag', e),
+		})
+
+		draggable.clampToBounds()
+	})
 </script>
 
 <div
 	class="orbs-container"
 	use:resizable={{
 		visible: true,
-		obstacles: ['.bounds', '.obstacle1'],
+		obstacles: ['.bounds', '.obstacle'],
 	}}
 	use:draggable={{
-		// handle: '.orbs',
 		cancel: '.fractils-resize-grabber',
-		obstacles: ['.bounds', '.obstacle1'],
+		obstacles: ['.bounds', '.obstacle'],
 	}}
 >
-	<label for="">Free Orbs</label>
+	<div class="label">Free Orbs</div>
 	<Orbs />
 </div>
 
-<div
-	class="obstacle1"
-	use:resizable={{}}
-	use:draggable={{
-		cancel: '.fractils-resize-grabber',
-	}}
->
-	<label for="">Obstacle 1</label>
-</div>
-
-<div
-	class="obstacle1"
-	use:resizable={{}}
-	use:draggable={{
-		cancel: '.fractils-resize-grabber',
-	}}
->
-	<label for="">Obstacle 2</label>
-</div>
-
-<div
-	class="obstacle1"
-	use:resizable={{}}
-	use:draggable={{
-		cancel: '.fractils-resize-grabber',
-	}}
->
-	<label for="">Obstacle 3</label>
-</div>
+{#each [1, 2, 3] as i}
+	<div
+		class="obstacle"
+		use:resizable
+		use:draggable={{
+			cancel: '.fractils-resize-grabber',
+			defaultPosition: {
+				x: Math.random() * window.innerWidth,
+				y: Math.random() * window.innerHeight,
+			}
+		}}
+	>
+		<div class="label">Obstacle {i}</div>
+	</div>
+{/each}
 
 <div
 	class="bounds"
-	bind:this={bounds}
-	use:resizable={{}}
+	use:resizable
 	use:draggable={{
 		cancel: '.fractils-resize-grabber',
 	}}
 >
-	<label for="">Bounds</label>
+	<div class="label">Bounds</div>
 
-	{#if bounds}
-		<div
-			class="draggable1"
-			use:resizable={{ visible: true, bounds }}
-			use:draggable={{
-				bounds,
-				cancel: '.fractils-resize-grabber',
-			}}
-		>
-			<label for="">Draggable 1</label>
-		</div>
-	{/if}
+	<div
+		class="draggable1"
+		use:resizable={{ visible: true, bounds: '.bounds' }}
+		use:draggable={{
+			bounds: '.bounds',
+			cancel: '.fractils-resize-grabber',
+		}}
+	>
+		<div class="label">Draggable 0</div>
+	</div>
 </div>
 
 <style lang="scss">
@@ -85,12 +76,10 @@
 
 		background: var(--bg-b);
 		z-index: 1;
-
-		// transition: 0.25s;
 	}
 
 	.bounds,
-	.obstacle1 {
+	.obstacle {
 		position: absolute;
 		border: 1px solid tomato;
 		width: 200px;
@@ -107,10 +96,9 @@
 		outline: 1px solid green;
 
 		pointer-events: all;
-		// z-index: 1;
 	}
 
-	label {
+	.label {
 		overflow: hidden;
 		position: absolute;
 		max-width: 50%;
