@@ -86,7 +86,9 @@ export const GUI_DEFAULTS = {
 	children: [],
 	themer: true,
 	themerOptions: {},
-	resizable: true,
+	resizable: {
+		grabberSize: 50,
+	},
 	draggable: true,
 	storage: {
 		key: 'fractils::gui',
@@ -142,6 +144,7 @@ export class Gui extends Folder {
 		const opts = Object.assign({}, GUI_DEFAULTS, options, {
 			// Hack to force this to be the root in the super call.
 			parentFolder: null as any,
+			resizable: options?.resizable ?? GUI_DEFAULTS.resizable,
 		})
 
 		opts.container ??= document.body

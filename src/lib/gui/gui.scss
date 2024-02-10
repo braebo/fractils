@@ -20,21 +20,25 @@
 	--gui-header-border-radius: var(--radius-sm);
 	--gui-header-box-shadow: 0 0 0.1rem #000 inset;
 	--gui-header-font-size: 1rem;
+
+	--gui-input-range-background: var(--dark-d);
+	--gui-input-range-color: var(--theme-a);
 }
 
 .gui-root[data-theme='minimal'] {
-	// --gui-header-width: 100%;
 	--gui-header-width: 100%;
 	// --gui-header-padding-left: 0.25rem;
 	--gui-header-padding-left: 0.25rem;
 	--gui-header-color: var(--fg-c);
-	--gui-header-background: transparent;
+	--gui-header-background: var(--bg-b);
 	--gui-header-outline: none;
 	--gui-header-border-radius: var(--radius-sm);
 	--gui-header-box-shadow: none;
 	--gui-header-font-size: 1rem;
 
-	--gui-content-padding-left: 0.5rem;
+	--gui-content-padding-left: 0.25rem;
+
+	--gui-input-range-color: var(--theme-a);
 }
 
 //· Open / Close Animations ··················································¬
@@ -173,12 +177,17 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	border-top-left-radius: var(--radius-sm);
 	border-top-right-radius: var(--radius-sm);
 	background: rgba(var(--bg-a-rgb), 0.75);
-	backdrop-filter: blur(0.2rem);
+	backdrop-filter: blur(0.4rem);
 	outline-offset: -1px;
 
 	box-shadow: 0 0 1.5px 0.5px rgba(var(--bg-d-rgb), 0.5) inset;
 
 	overflow: hidden;
+}
+
+.gui-root > .gui-content-wrapper > .gui-folder {
+	padding-right: 0.25rem;
+	background: #15161d;
 }
 //⌟
 
@@ -190,12 +199,12 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	border-radius: var(--radius-sm);
 }
 
-// Indent subfolders, but not immediate children of root.
-.gui-folder .gui-header {
-	&:not(.gui-root > .gui-content-wrapper > .gui-content > .gui-folder > .gui-header) {
-		// padding-left: var(--gui-header-padding-left);
-	}
-}
+// // Indent subfolders, but not immediate children of root.
+// .gui-folder .gui-header {
+// 	&:not(.gui-root > .gui-content-wrapper > .gui-content > .gui-folder > .gui-header) {
+// 		padding-left: var(--gui-header-padding-left);
+// 	}
+// }
 
 .gui-folder .gui-header {
 	position: relative;
@@ -263,6 +272,103 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 }
 //⌟
 
+//· Inputs ···································································¬
+.gui-folder {
+	.gui-input-container {
+		// outline: 1px solid red;
+		// outline-offset: -1px;
+
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem;
+
+		// box-shadow: var(--shadow-inset-b);
+
+		// prettier-ignore
+		box-shadow:
+			-0.17px 0.1px 1.8px rgba(0, 0, 0, 0.17) inset,
+			-0.39px 0.2px 4.1px rgba(0, 0, 0, 0.24) inset,
+			-0.69px 0.5px 7.1px rgba(0, 0, 0, 0.03) inset,
+			-1.3px 1.0px 11.3px rgba(0, 0, 0, 0.035) inset,
+			-1.8px 1.7px 17.4px rgba(0, 0, 0, 0.04) inset,
+			-3.0px 2.9px 27.1px rgba(0, 0, 0, 0.046) inset,
+			-5.1px 5.1px 45.0px rgba(0, 0, 0, 0.053) inset,
+			-10.0px 9.1px 90.0px rgba(0, 0, 0, 0.07) inset;
+
+		border-radius: var(--radius-sm);
+		width: 100%;
+		min-height: 2rem;
+	}
+
+	.gui-input-title {
+		// outline: 1px solid green;
+		// outline-offset: -2px;
+
+		width: 5rem;
+		margin: auto;
+		padding-left: 0.5rem;
+
+		font-size: var(--font-xs);
+		font-family: var(--font-gui);
+	}
+
+	.gui-input-content {
+		// outline: 1px solid blue;
+		// outline-offset: -3px;
+
+		display: flex;
+		width: 100%;
+
+		padding-left: 0.25rem;
+		padding-right: 0.5rem;
+	}
+}
+
+.gui-folder input.gui-input-range {
+	-webkit-appearance: none;
+	appearance: none;
+
+	width: 100%;
+	height: 0.5rem;
+	margin: 0.5rem auto;
+
+	background: var(--gui-input-range-background);
+	border-radius: var(--radius-sm);
+	outline: none;
+	opacity: 0.7;
+	transition: opacity 0.15s;
+
+	overflow: visible;
+	min-width: unset;
+
+	&:hover {
+		opacity: 1;
+	}
+
+	&::-webkit-slider-thumb {
+		-webkit-appearance: none;
+		appearance: none;
+
+		width: 0.5rem;
+		height: 1rem;
+
+		background: var(--gui-input-range-color, var(--theme-a));
+		border-radius: 0.15rem;
+		box-shadow:
+			-0.17px 0.1px 1.8px rgba(0, 0, 0, 0.17) inset,
+			-0.39px 0.2px 4.1px rgba(0, 0, 0, 0.24) inset,
+			-0.69px 0.5px 7.1px rgba(0, 0, 0, 0.03) inset,
+			-1.3px 1px 11.3px rgba(0, 0, 0, 0.035) inset,
+			-1.8px 1.7px 17.4px rgba(0, 0, 0, 0.04) inset,
+			-3px 2.9px 27.1px rgba(0, 0, 0, 0.046) inset,
+			-5.1px 5.1px 45px rgba(0, 0, 0, 0.053) inset,
+			-10px 9.1px 90px rgba(0, 0, 0, 0.07) inset;
+		cursor: pointer;
+	}
+}
+//⌟
+
 .kv {
 	display: flex;
 	align-items: center;
@@ -311,7 +417,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 			padding: 0.2rem 0.5rem 0.23rem 0.5rem;
 			text-align: center;
 
-			color: var(--brand-a);
+			color: var(--theme-a);
 			background: var(--bg-b);
 			border-radius: var(--radius-sm);
 			border: 1px solid var(--bg-c);
@@ -322,7 +428,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 				font-weight 0.6s;
 
 			&:hover {
-				border-color: rgba(var(--brand-a-rgb), 0.33);
+				border-color: rgba(var(--theme-a-rgb), 0.33);
 
 				font-weight: 500;
 			}
@@ -348,7 +454,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 			border-radius: var(--radius-sm);
 			border: 1px solid var(--bg-c);
 			div {
-				color: var(--brand-a);
+				color: var(--theme-a);
 			}
 
 			font-weight: 300;
@@ -357,7 +463,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 				font-weight 0.6s;
 
 			&:hover {
-				border-color: rgba(var(--brand-a-rgb), 0.33);
+				border-color: rgba(var(--theme-a-rgb), 0.33);
 
 				font-weight: 500;
 			}
@@ -366,8 +472,8 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 				div {
 					color: var(--bg-b);
 				}
-				background: var(--brand-a);
-				// border-color: var(--brand-a);
+				background: var(--theme-a);
+				// border-color: var(--theme-a);
 			}
 
 			&:has(.delete:hover) {

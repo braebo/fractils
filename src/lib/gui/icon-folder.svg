@@ -25,12 +25,12 @@
 	stroke-linejoin="round"
 	class="icon-folder"
 >
-	<circle class="a" cx="12" cy="12" r="3" stroke="var(--brand-a)" fill="var(--brand-a)" />
-	<circle class="b" cx="12" cy="12" r="3" stroke="var(--brand-a)" fill="var(--brand-a)" />
+	<circle class="a" cx="12" cy="12" r="3" stroke="var(--theme-a)" fill="var(--theme-a)" />
+	<circle class="b" cx="12" cy="12" r="3" stroke="var(--theme-a)" fill="var(--theme-a)" />
 	<style>
 		.icon-folder {
-			stroke: var(--brand-a);
-			fill: var(--brand-a);
+			stroke: var(--theme-a);
+			fill: var(--theme-a);
 		}
 		.icon-folder circle {
 			transform: scale(1);

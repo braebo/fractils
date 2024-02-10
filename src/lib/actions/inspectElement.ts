@@ -97,7 +97,7 @@ export const inspectElement: Action = (node: HTMLElement) => {
 		}
 
 		popover.classList.add('popover')
-		popover.innerHTML = `${wrap(tagName, `hsl(${popovers.size * 30}, 100%, 50%)`)}.${wrap(className, 'var(--brand-b)')}\n · ${wrap(Math.round(e.width), 'var(--brand-c)')}${wrap('x', 'gray')}${wrap(Math.round(e.height), 'var(--brand-c)')}`
+		popover.innerHTML = `${wrap(tagName, `hsl(${popovers.size * 30}, 100%, 50%)`)}.${wrap(className, 'var(--theme-b)')}\n · ${wrap(Math.round(e.width), 'var(--theme-c)')}${wrap('x', 'gray')}${wrap(Math.round(e.height), 'var(--theme-c)')}`
 
 		// Position the popover atop the hovered node
 		popover.style.cssText = /*css*/ `

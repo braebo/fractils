@@ -1,3 +1,5 @@
+<svelte:options accessors />
+
 <!-- 
 	@component
 	A custom range input slider component.
@@ -163,6 +165,8 @@
 		if (callback) newValue = callback(newValue)
 
 		dispatch('change', { detail: { value: newValue } })
+		const ev = new CustomEvent('change', { detail: { value: newValue } })
+		el.dispatchEvent(ev)
 
 		value = newValue
 	}
@@ -247,7 +251,7 @@
 		appearance: none;
 
 		&:focus::-webkit-slider-thumb {
-			background: var(--brand-a);
+			background: var(--theme-a);
 		}
 	}
 </style>

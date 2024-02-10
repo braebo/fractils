@@ -154,10 +154,14 @@ export interface FolderInputOptions {
 	children: Folder[]
 }
 
-export interface InputOptions {
+export interface InputOptions<T extends Record<string, any> = Record<string, any>> {
 	title: string
-	value: number | string | boolean | HexColor | Function | Record<any, any> | any[]
 	view: InputView
+	value: number | string | boolean | HexColor | Function | Record<any, any> | any[]
+	binding?: {
+		target: T
+		key: keyof T
+	}
 }
 
 export interface NumberInputOptions extends InputOptions {
@@ -177,11 +181,23 @@ const NUMBER_INPUT_DEFAULTS: NumberInputOptions = {
 } as const
 
 export class Input {
-	title: string
 	view: InputView
-	container: HTMLElement
-	element!: HTMLElement
-	
+
+	elements = {} as {
+		container: HTMLElement
+		title: HTMLElement
+		content: HTMLElement
+	}
+
+	#title = ''
+	get title() {
+		return this.#title
+	}
+	set title(v: string) {
+		this.#title = v
+		this.elements.title.textContent = v
+	}
+
 	#log = new Logger('Input', { fg: 'cyan' })
 	#listeners = new Set<() => void>()
 
@@ -189,33 +205,34 @@ export class Input {
 		options: InputOptions,
 		public folder: Folder,
 	) {
-		this.title = options.title
+		this.#title = options.title
 		this.view = options.view
-		this.container = this.#createContainer()
-		this.#log.fn('constructor').info(this)
-	}
 
-	#createContainer() {
-		const element = create('div', {
-			classes: ['gui-input'],
+		this.elements.container = create('div', {
+			classes: ['gui-input-container'],
 			parent: this.folder.elements.content,
 		})
 
-		create('label', {
-			classes: ['gui-label'],
-			parent: element,
+		this.elements.title = create('div', {
+			classes: ['gui-input-title'],
+			parent: this.elements.container,
 			textContent: this.title,
 		})
 
-		return element
+		this.elements.content = create('div', {
+			classes: ['gui-input-content'],
+			parent: this.elements.container,
+		})
+
+		this.#log.fn('constructor').info(this)
 	}
 
-	listen(event: string, cb: (e: Event) => void) {
-		this.element.addEventListener(event, cb)
-		this.#listeners.add(() => {
-			this.container.removeEventListener(event, cb)
-		})
-	}
+	// listen(event: string, cb: (e: Event) => void, element: HTMLElement) {
+	// 	element.addEventListener(event, cb)
+	// 	this.#listeners.add(() => {
+	// 		element.removeEventListener(event, cb)
+	// 	})
+	// }
 
 	dispose() {
 		this.#log.fn('dispose').info(this)
@@ -227,18 +244,38 @@ export class Input {
 
 export class InputSlider extends Input {
 	state: State<number>
-	element: HTMLInputElement
+	initialValue: number
+
+	declare elements: {
+		container: HTMLElement
+		title: HTMLElement
+		content: HTMLElement
+		input: HTMLInputElement
+	}
+
 	#log = new Logger('InputSlider', { fg: 'cyan' })
+	#listeners = new Set<() => void>()
 
 	constructor(options: NumberInputOptions, folder: Folder) {
 		const opts = { ...NUMBER_INPUT_DEFAULTS, ...options }
 		super(opts, folder)
 
-		this.state = state(opts.value)
+		if (opts.binding) {
+			this.initialValue = opts.binding.target[opts.binding.key]
+			this.state = state(this.initialValue)
+			this.#listeners.add(
+				this.state.subscribe((v) => {
+					opts.binding!.target[opts.binding!.key] = v
+				}),
+			)
+		} else {
+			this.initialValue = opts.value
+			this.state = state(opts.value)
+		}
 
-		this.element = create<HTMLInputElement>('input', {
-			classes: ['gui-number-input'],
-			parent: this.container,
+		this.elements.input = create<HTMLInputElement>('input', {
+			classes: ['gui-input-range'],
+			parent: this.elements.content,
 			type: 'range',
 			min: opts.min,
 			max: opts.max,
@@ -246,20 +283,33 @@ export class InputSlider extends Input {
 			value: String(this.state.value),
 		})
 
-		this.listen('input', this.updateState)
+		this.elements.input.addEventListener('input', this.updateState)
+		this.#listeners.add(() =>
+			this.elements.input.removeEventListener('input', this.updateState),
+		)
 
-		this.state.subscribe(v => {
-			this.element.value = String(v)
+		this.state.subscribe((v) => {
+			this.elements.input.value = String(v)
 		})
 
-		this.#log.fn('number').info(this.element)
+		this.#log.fn('number').info(this.elements.input)
 	}
 
-	updateState = (e: Event) => {
-		this.state.set((e.target as HTMLInputElement).valueAsNumber)
+	updateState = (v: number | Event) => {
+		if (typeof v !== 'number') {
+			if (v?.target && 'valueAsNumber' in v.target) {
+				this.state.set(v.target.valueAsNumber as number)
+			}
+		} else {
+			this.state.set(v)
+		}
 	}
 
 	dispose() {
 		super.dispose()
+
+		for (const cb of this.#listeners) {
+			cb()
+		}
 	}
 }

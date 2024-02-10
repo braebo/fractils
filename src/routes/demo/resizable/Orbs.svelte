@@ -1,7 +1,9 @@
-<script lang="ts" context="module">
+<script lang="ts">
+	import { onMount } from 'svelte'
+
 	import { tweened } from 'svelte/motion'
 	let count = 10
-	export const params = {
+	export let params = {
 		orbs: 50,
 		size: 5,
 		a1: 0.1,
@@ -14,10 +16,6 @@
 	}
 	const a1t = tweened(params.a1, { duration: 500 })
 	const a2t = tweened(params.a2, { duration: 500 })
-</script>
-
-<script lang="ts">
-	import { onMount } from 'svelte'
 
 	$: time = 1
 	$: snake = circle()

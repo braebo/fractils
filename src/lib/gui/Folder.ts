@@ -109,7 +109,7 @@ export class Folder {
 	/**
 	 * Used to disable clicking the header to open/close the folder.
 	 */
-	#disabledTimer?: NodeJS.Timeout
+	#disabledTimer?: ReturnType<typeof setTimeout>
 	/**
 	 * The time in ms to wait after mousedown before
 	 * disabling toggle for a potential drag.
@@ -220,8 +220,8 @@ export class Folder {
 		this.#folderIcon.classList.add('icon-folder-container')
 		const css = /*css*/ `
 			.icon-folder {
-				stroke: var(--brand-a);
-				fill: var(--brand-a);
+				stroke: var(--theme-a);
+				fill: var(--theme-a);
 				overflow: visible;
 			}
 			.icon-folder circle {
@@ -260,12 +260,12 @@ export class Folder {
 				// const y = 12 + i * 3
 				const y = 12
 				const r = Math.pow(2, -i * 0.5)
-				return /*html*/ `<circle class="alt" cx="${x}" cy="${y}" r="${r}" fill="var(--brand-a)" />`
+				return /*html*/ `<circle class="alt" cx="${x}" cy="${y}" r="${r}" fill="var(--theme-a)" />`
 			})}
-			<circle class="a" cx="12" cy="12" r="3" stroke="var(--brand-a)" fill="var(--brand-a)" />
+			<circle class="a" cx="12" cy="12" r="3" stroke="var(--theme-a)" fill="var(--theme-a)" />
 			<circle class="b" cx="12" cy="12" r="3" stroke="var(--bg-a)" fill="none" />
 			<!-- Vertical line that spans downwards to fill 100% of it's flexbox parent -->
-			<line x1="12" y1="12" x2="12" y2="100%" stroke="var(--brand-a)" />
+			<line x1="12" y1="12" x2="12" y2="100%" stroke="var(--theme-a)" />
 			<style lang="css">
 				${css}
 			</style>
@@ -298,7 +298,6 @@ export class Folder {
 	add<T>(options: InputOptions) {
 		const input = this.#createInput(options)
 		this.controls.set(input.title, input)
-		this.elements.content.appendChild(input.element)
 		return input as T
 	}
 
