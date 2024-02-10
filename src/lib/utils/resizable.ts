@@ -189,14 +189,10 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 
 		this.size = state({ width, height }, { key: this.localStorageKey })
 
-		//? Figure out if the left inset is undefined.
-
 		const { left } = node.style
 		this.#useLeftInset = typeof parseFloat(left) !== 'number' && !isNaN(parseFloat(left))
-		this.#log({ left, parsedLeft: parseFloat(left), useLeftInset: this.#useLeftInset })
 
 		//? Load size from local storage.
-
 		if (this.localStorageKey) {
 			const { width, height } = this.size.get()
 			node.style.width = width + 'px'
@@ -411,16 +407,8 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 
 		const bounds = this.boundsRect
 
-		// console.log(bounds.left)
-		// console.log(bounds.top)
-		// console.log(bounds.width)
-		// console.log(bounds.height)
-
 		const x = clamp(e.clientX, bounds.left, bounds.left + bounds.width)
 		const y = clamp(e.clientY, bounds.top, bounds.top + bounds.height)
-
-		// console.log(x)
-		// console.log(y)
 
 		const { side } = this.#activeGrabber.dataset
 		this.#log(fn('onMove'), side)
