@@ -25,6 +25,6 @@
 		color: var(--fg-d);
 	}
 	.active {
-		color: var(--brand-a);
+		color: var(--theme-a);
 	}
 </style>

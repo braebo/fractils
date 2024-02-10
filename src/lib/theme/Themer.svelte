@@ -177,7 +177,7 @@
 				padding: 0.2rem 0.5rem 0.23rem 0.5rem;
 				text-align: center;
 
-				color: var(--brand-a);
+				color: var(--theme-a);
 				background: var(--bg-b);
 				border-radius: var(--radius-sm);
 				border: 1px solid var(--bg-c);
@@ -188,7 +188,7 @@
 					font-weight 0.6s;
 
 				&:hover {
-					border-color: rgba(var(--brand-a-rgb), 0.33);
+					border-color: rgba(var(--theme-a-rgb), 0.33);
 
 					font-weight: 500;
 				}
@@ -214,7 +214,7 @@
 				border-radius: var(--radius-sm);
 				border: 1px solid var(--bg-c);
 				div {
-					color: var(--brand-a);
+					color: var(--theme-a);
 				}
 
 				font-weight: 300;
@@ -223,7 +223,7 @@
 					font-weight 0.6s;
 
 				&:hover {
-					border-color: rgba(var(--brand-a-rgb), 0.33);
+					border-color: rgba(var(--theme-a-rgb), 0.33);
 
 					font-weight: 500;
 				}
@@ -232,8 +232,8 @@
 					div {
 						color: var(--bg-b);
 					}
-					background: var(--brand-a);
-					// border-color: var(--brand-a);
+					background: var(--theme-a);
+					// border-color: var(--theme-a);
 				}
 
 				&:has(.delete:hover) {

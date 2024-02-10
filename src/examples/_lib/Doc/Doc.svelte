@@ -153,8 +153,8 @@
 
 		:global(code:not(pre code)) {
 			background: var(--bg-a);
-			// color: var(--brand-b);
-			color: var(--brand-c);
+			// color: var(--theme-b);
+			color: var(--theme-c);
 			font-size: 13px !important;
 
 			padding: 0.1rem 0.4rem;
@@ -163,7 +163,7 @@
 		}
 
 		:global(a) {
-			color: var(--brand-a) !important;
+			color: var(--theme-a) !important;
 		}
 	}
 

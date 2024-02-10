@@ -57,7 +57,7 @@
 
 			border-radius: 100%;
 
-			background: var(--brand-a);
+			background: var(--theme-a);
 
 			content: '';
 			transition: 0.2s ease-out;
@@ -90,7 +90,7 @@
 		font-family: var(--font-a);
 
 		&.active:not(.sub-path) {
-			color: var(--brand-a);
+			color: var(--theme-a);
 			filter: brightness(1.25);
 		}
 
@@ -123,7 +123,7 @@
 
 		&.active,
 		&.active {
-			color: var(--brand-a);
+			color: var(--theme-a);
 			filter: brightness(1.25);
 		}
 	}

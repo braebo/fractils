@@ -1,9 +1,9 @@
 {
 	"title": "theme-a",
 	"dark": {
-		"brand-a": "#ff4221",
-		"brand-b": "#ff9215",
-		"brand-c": "#ff8bd3",
+		"theme-a": "#ff4221",
+		"theme-b": "#ff9215",
+		"theme-c": "#ff8bd3",
 		"bg-a": "#15161d",
 		"bg-b": "#282a36",
 		"bg-c": "#1d252e",
@@ -14,9 +14,9 @@
 		"fg-d": "#777d8f"
 	},
 	"light": {
-		"brand-a": "#ff4221",
-		"brand-b": "#ff9215",
-		"brand-c": "#ff8bd3",
+		"theme-a": "#ff4221",
+		"theme-b": "#ff9215",
+		"theme-c": "#ff8bd3",
 		"fg-a": "#15161d",
 		"fg-b": "#282a36",
 		"fg-c": "#1d252e",

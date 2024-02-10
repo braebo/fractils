@@ -12,14 +12,14 @@
 		font-size: 1.1rem;
 		font-weight: 300;
 
-		color: var(--brand-a);
+		color: var(--theme-a);
 
 		border-radius: var(--radius);
 		background-color: rgb(21, 22, 29);
 	}
 
 	:global(html[theme='light']) h2 {
-		color: var(--brand-a);
+		color: var(--theme-a);
 		font-weight: 500;
 		background-color: var(--fg-d);
 	}

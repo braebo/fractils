@@ -22,9 +22,9 @@ export type ThemeMode = ThemeVariant | 'system'
  */
 export interface ThemeVariantConfig {
 	// Brand colors.
-	'brand-a': string
-	'brand-b': string
-	'brand-c': string
+	'theme-a': string
+	'theme-b': string
+	'theme-c': string
 	// Foreground shades.
 	'fg-a': string
 	'fg-b': string

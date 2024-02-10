@@ -106,7 +106,7 @@
 			text-align: center;
 		}
 
-		outline: 1px solid var(--brand-a);
+		outline: 1px solid var(--theme-a);
 		transition: 0.1s;
 		&:hover,
 		&:focus {

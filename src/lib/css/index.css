@@ -407,19 +407,30 @@ div.code-window > div.codeblock > * {
 }
 
 html {
-  --black: #0b0e11;
-  --brand-a: #00bcd4;
-  --brand-a-rgb: 0, 188, 212;
-  --brand-b: #f8d2c9;
-  --brand-b-rgb: 248, 210, 201;
-  --brand-c: #ba788a;
-  --brand-c-rgb: 186, 120, 138;
-  --brand-a: #00bcd4;
-  --brand-a-rgb: 0, 188, 212;
-  --brand-b: #f8d2c9;
-  --brand-b-rgb: 248, 210, 201;
-  --brand-c: #ba788a;
-  --brand-c-rgb: 186, 120, 138;
+  --darker: #0b0e11;
+  --darker-rgb: 11, 14, 17;
+  --theme-a: #00bcd4;
+  --theme-a-rgb: 0, 188, 212;
+  --theme-b: #f8d2c9;
+  --theme-b-rgb: 248, 210, 201;
+  --theme-c: #ba788a;
+  --theme-c-rgb: 186, 120, 138;
+  --dark-a: #15161d;
+  --dark-a-rgb: 21, 22, 29;
+  --dark-b: #282a36;
+  --dark-b-rgb: 40, 42, 54;
+  --dark-c: #1d252e;
+  --dark-c-rgb: 29, 37, 46;
+  --dark-d: #3a3a44;
+  --dark-d-rgb: 58, 58, 68;
+  --light-a: #ffffff;
+  --light-a-rgb: 255, 255, 255;
+  --light-b: #dfe1e9;
+  --light-b-rgb: 223, 225, 233;
+  --light-c: #c3c4c7;
+  --light-c-rgb: 195, 196, 199;
+  --light-d: #777d8f;
+  --light-d-rgb: 119, 125, 143;
   --bg-a: #15161d;
   --bg-a-rgb: 21, 22, 29;
   --bg-b: #282a36;
@@ -438,12 +449,12 @@ html {
   --fg-d-rgb: 119, 125, 143;
 }
 html[theme=light] {
-  --brand-a: #00d2ee;
-  --brand-a-rgb: 0, 210, 238;
-  --brand-b: #c0705e;
-  --brand-b-rgb: 192, 112, 94;
-  --brand-c: #ba788a;
-  --brand-c-rgb: 186, 120, 138;
+  --theme-a: #00d2ee;
+  --theme-a-rgb: 0, 210, 238;
+  --theme-b: #c0705e;
+  --theme-b-rgb: 192, 112, 94;
+  --theme-c: #ba788a;
+  --theme-c-rgb: 186, 120, 138;
   --fg-a: #15161d;
   --fg-a-rgb: 21, 22, 29;
   --fg-b: #282a36;

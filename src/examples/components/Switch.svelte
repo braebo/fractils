@@ -121,7 +121,7 @@
 		<div class="br-sm" />
 
 		<span style:font-size="0.8rem">
-			<Switch {checked} --switch-accent="var(--brand-b)">
+			<Switch {checked} --switch-accent="var(--theme-b)">
 				<span slot="thumb-content-on">🌞</span>
 				<span slot="thumb-content-off">🌙</span>
 			</Switch>

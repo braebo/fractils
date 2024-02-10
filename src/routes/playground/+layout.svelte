@@ -44,7 +44,7 @@
 		font-family: var(--font-b);
 
 		&:focus {
-			outline: 1px solid var(--brand-a);
+			outline: 1px solid var(--theme-a);
 			outline-offset: 0.2rem;
 			border: none;
 			border-radius: var(--radius-sm);

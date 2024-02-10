@@ -161,8 +161,8 @@
 			font-variation-settings: 'wght' 600;
 			transform: translateY(-1.5px);
 
-			color: var(--brand-b);
-			// text-shadow: 0px 0px 1px var(--brand-a);
+			color: var(--theme-b);
+			// text-shadow: 0px 0px 1px var(--theme-a);
 		}
 	}
 

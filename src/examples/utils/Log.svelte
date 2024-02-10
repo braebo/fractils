@@ -101,9 +101,9 @@
 
 	pre.helloworld {
 		padding: 5px;
-		color: var(--brand-a);
+		color: var(--theme-a);
 		background: var(--bg-b);
-		border: 1px solid var(--brand-a);
+		border: 1px solid var(--theme-a);
 		font-size: 20px;
 		font-weight: bold;
 	}

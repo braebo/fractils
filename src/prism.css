@@ -85,7 +85,7 @@ pre[class*='language-'] {
 .token.builtin,
 .token.inserted {
 	/* color: #4fd8b1; */
-	color: var(--brand-b);
+	color: var(--theme-b);
 }
 
 .token.operator,
@@ -102,7 +102,7 @@ pre[class*='language-'] {
 .token.function,
 .token.class-name {
 	color: #f1fa8c;
-	color: var(--brand-a);
+	color: var(--theme-a);
 	color: #9f9fec;
 }
 

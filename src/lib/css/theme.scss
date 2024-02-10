@@ -1,36 +1,51 @@
+$theme-a: #00bcd4;
+$theme-b: #f8d2c9;
+$theme-c: #ba788a;
+
+$dark-a: #15161d;
+$dark-b: #282a36;
+$dark-c: #1d252e;
+$dark-d: #3a3a44;
+$light-a: #ffffff;
+$light-b: #dfe1e9;
+$light-c: #c3c4c7;
+$light-d: #777d8f;
+
+// Enables alpha manipulation, ie: rgba(var(--fg-a-rgb), 0.5)
 @mixin variables($map) {
 	@each $variable, $colour in $map {
 		--#{$variable}: #{$colour};
-		// Enables alpha manipulation, ie: rgba(var(--fg-a-rgb), 0.5)
 		--#{$variable}-rgb: #{red($colour) + ', ' + green($colour) + ', ' + blue($colour)};
 	}
 }
 
 html {
-	--black: #0b0e11;
-	@include variables(
-		(
-			brand-a: #00bcd4,
-			brand-b: #f8d2c9,
-			// brand-c: #ff8ba9,
-			brand-c: #ba788a,
-		)
-	);
-
 	// &[theme='dark'] {
 	@include variables(
 		(
-			brand-a: #00bcd4,
-			brand-b: #f8d2c9,
-			brand-c: #ba788a,
-			bg-a: #15161d,
-			bg-b: #282a36,
-			bg-c: #1d252e,
-			bg-d: #3a3a44,
-			fg-a: #ffffff,
-			fg-b: #dfe1e9,
-			fg-c: #c3c4c7,
-			fg-d: #777d8f,
+			darker: #0b0e11,
+
+			theme-a: $theme-a,
+			theme-b: $theme-b,
+			theme-c: $theme-c,
+
+			dark-a: $dark-a,
+			dark-b: $dark-b,
+			dark-c: $dark-c,
+			dark-d: $dark-d,
+			light-a: $light-a,
+			light-b: $light-b,
+			light-c: $light-c,
+			light-d: $light-d,
+
+			bg-a: $dark-a,
+			bg-b: $dark-b,
+			bg-c: $dark-c,
+			bg-d: $dark-d,
+			fg-a: $light-a,
+			fg-b: $light-b,
+			fg-c: $light-c,
+			fg-d: $light-d,
 		)
 	);
 	// }
@@ -38,17 +53,18 @@ html {
 	&[theme='light'] {
 		@include variables(
 			(
-				brand-a: #00d2ee,
-				brand-b: #c0705e,
-				brand-c: #ba788a,
-				fg-a: #15161d,
-				fg-b: #282a36,
-				fg-c: #1d252e,
-				fg-d: #3a3a44,
-				bg-a: #ffffff,
-				bg-b: #dfe1e9,
-				bg-c: #c3c4c7,
-				bg-d: #777d8f,
+				theme-a: #00d2ee,
+				theme-b: #c0705e,
+				theme-c: #ba788a,
+
+				fg-a: $dark-a,
+				fg-b: $dark-b,
+				fg-c: $dark-c,
+				fg-d: $dark-d,
+				bg-a: $light-a,
+				bg-b: $light-b,
+				bg-c: $light-c,
+				bg-d: $light-d,
 			)
 		);
 	}

@@ -45,17 +45,17 @@ html[theme=light] {
 }
 
 ::selection {
-	background: var(--brand-b);
+	background: var(--theme-b);
 	color: var(--bg-a);
 }
 
 ::-moz-selection {
-	background: var(--brand-b);
+	background: var(--theme-b);
 	color: var(--bg-a);
 }
 
 *:focus {
-	outline-color: var(--brand-a);
+	outline-color: var(--theme-a);
 }
 
 #svelte {
@@ -113,7 +113,7 @@ html[theme='light'] button {
 	font-size: 0.8rem;
 	font-family: var(--font-mono);
 
-	color: var(--brand-a);
+	color: var(--theme-a);
 	border-radius: var(--radius);
 
 	background: var(--bg-a);
