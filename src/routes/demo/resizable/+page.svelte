@@ -11,7 +11,7 @@
 			onDrag: (e) => console.log('drag', e),
 		})
 
-		draggable.clampToBounds()
+		draggable.resize()
 	})
 </script>
 
@@ -99,10 +99,9 @@
 	}
 
 	.label {
+		max-width: 100%;
 		overflow: hidden;
 		position: absolute;
-		max-width: 50%;
-		top: 0.4rem;
-		left: 0.7rem;
+		padding: 0.4rem;
 	}
 </style>

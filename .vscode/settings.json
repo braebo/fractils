@@ -159,7 +159,7 @@
 
 	//- Formatting
 
-	"editor.formatOnSave": false,
+	// "editor.formatOnSave": false,
 	"prettier.semi": false,
 	"prettier.singleQuote": true,
 	"prettier.trailingComma": "none",

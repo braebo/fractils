@@ -232,10 +232,8 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			grabber.addEventListener('pointerdown', this.onGrab)
 			this.#listeners.push(() => grabber.removeEventListener('pointerdown', this.onGrab))
 
-			grabber.addEventListener('pointerover', this.onPointerOver)
-			this.#listeners.push(() =>
-				grabber.removeEventListener('pointerover', this.onPointerOver),
-			)
+			
+	
 		}
 
 		for (const corner of this.corners) {
@@ -248,20 +246,10 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			grabber.addEventListener('pointerdown', this.onGrab)
 			this.#listeners.push(() => grabber.removeEventListener('pointerdown', this.onGrab))
 
-			grabber.addEventListener('pointerover', this.onPointerOver)
-			this.#listeners.push(() =>
-				grabber.removeEventListener('pointerover', this.onPointerOver),
-			)
 		}
 	}
 
-	onPointerOver = (e: PointerEvent) => {
-		if (this.#grabbing) return
-		const grabber = e.currentTarget as HTMLElement
-		const { side } = grabber.dataset
 
-		this.node.style.setProperty('border-' + side + '-color', this.color)
-	}
 
 	onGrab = (e: PointerEvent) => {
 		this.#grabbing = true

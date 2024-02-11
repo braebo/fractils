@@ -7,6 +7,8 @@ import { tweened } from 'svelte/motion'
 import { select } from './select'
 import { Logger } from './logger'
 import { clamp } from './clamp'
+import { debounce } from './debounce'
+import { wait } from './wait'
 
 /**
  * Represents a dom element's bounding rectangle.
@@ -394,9 +396,9 @@ export class Draggable {
 			removeEventListener('pointermove', this.drag, false)
 		})
 
-		addEventListener('resize', this.clampToBounds)
+		addEventListener('resize', this.resize)
 		this.#listeners.add(() => {
-			removeEventListener('resize', this.clampToBounds)
+			removeEventListener('resize', this.resize)
 		})
 
 		// Updates the position when the tween fires.
@@ -456,6 +458,7 @@ export class Draggable {
 	}
 
 	dragStart = (e: PointerEvent) => {
+		this.#log.fn('dragStart').debug()
 		if (this.disabled) return
 
 		if (e.button === 2) return
@@ -508,9 +511,6 @@ export class Draggable {
 			document.body.style.userSelect = 'none'
 		}
 
-		// Dispatch custom event
-		this.#fireSvelteDragStartEvent()
-
 		// Store the click offset
 		if (this.canMoveX) this.clickOffset.x = e.clientX - this.x
 		if (this.canMoveY) this.clickOffset.y = e.clientY - this.y
@@ -524,14 +524,25 @@ export class Draggable {
 
 		// Set the initial position (with a forced duration of 0).
 		this.tween.set({ x: this.x, y: this.y }, { ...this.opts.tween, duration: 0 })
+		// Update the bounds rect.
+		this.#recomputeBounds()
+
+		// Dispatch custom event
+		this.#fireSvelteDragStartEvent()
 	}
 
 	drag = (e: PointerEvent) => {
 		if (!this.#active) return
 
 		e.preventDefault()
+		e.stopPropagation()
+
+		// Apply the dragging class.
+		this.node.classList.add(this.opts.classes.dragging)
 
 		this.updatePosition(e.clientX, e.clientY)
+
+		this.#fireSvelteDragEvent()
 	}
 
 	dragEnd = () => {
@@ -545,78 +556,78 @@ export class Draggable {
 			document.body.style.userSelect = this.#bodyOriginalUserSelectVal
 		}
 
-		this.#fireSvelteDragEndEvent()
-
-		if (this.canMoveX) this.clickOffset.x = this.x
-		if (this.canMoveY) this.clickOffset.y = this.y
+		this.clickOffset = { x: 0, y: 0 }
 
 		this.#active = false
+
+		this.#fireSvelteDragEndEvent()
 	}
 
 	/**
 	 * Re-calculates the bounds and updates the node's position if it's out of bounds.
 	 * Called automatically when the window and/or {@link bounds} are resized.
 	 */
-	clampToBounds = () => {
-		this.#recomputeBounds()
 
-		const { right, bottom } = this.node.getBoundingClientRect()
-
-		let x = this.x
-		let y = this.y
-
-		const xdiff = right - this.bounds.right
-		if (xdiff > 0) x -= xdiff
-
-		const ydiff = bottom - this.bounds.bottom
-		if (ydiff > 0) y -= ydiff
-
-		if (x !== this.x || y !== this.y) {
-			this.updatePosition(x, y)
-		}
+	resize = () => {
+		// if (this.busy) return
+		// clearTimeout(this.busy)
+		// this.busy = setTimeout(() => {
+		// 	this.#recomputeBounds()
+		// 	console.log('bounds', this.bounds)
+		// 	console.log(this.x, this.y)
+		// 	this.busy = null
+		// }, 500)
+		// this.recompute()
+		// this.updatePosition(10, 20)
+		// const { top, left } = this.node.getBoundingClientRect()
+		// console.log('node top:', top, ' left:', left)
+		// this.updatePosition(50, 80)
+		// // Update the clientToNodeOffset.
+		// if (this.bounds)
+		// this.clientToNodeOffset = { x: this.bounds.left - left, y: this.bounds.top - top }
+		// console.log('clientToNodeOffset', this.clientToNodeOffset)
+		// // const { right, bottom } = this.node.getBoundingClientRect()
+		// // let x = this.x
+		// // let y = this.y
+		// // const xdiff = right - this.bounds.right
+		// // if (xdiff > 0) x -= xdiff
+		// // const ydiff = bottom - this.bounds.bottom
+		// // if (ydiff > 0) y -= ydiff
+		// // if (x !== this.x || y !== this.y) this.updatePosition(x, y)
 	}
 
-	/**
-	 * @todo This just clamps the target position to the bounds... perhaps it should
-	 * be renamed to `clampToBounds` or something like that, and called from
-	 * {@link moveTo}, which can implicitly account for any collision / bounds?
-	 */
 	updatePosition = (targetX: number, targetY: number) => {
-		// Update the bounds rect.
-		this.#recomputeBounds()
+		const target = { x: targetX, y: targetY }
 
-		// Apply the dragging class.
-		this.node.classList.add(this.opts.classes.dragging)
+		if (this.bounds) this.#clampToBounds(target)
 
+		target.x = Math.round(target.x - this.clickOffset.x)
+		target.y = Math.round(target.y - this.clickOffset.y)
+
+		this.moveTo(target)
+	}
+
+	#clampToBounds = (target: { x: number; y: number }) => {
 		// Clamp the target position to the bounds.
-		if (this.bounds) {
-			const { width, height } = this.node.getBoundingClientRect()
-			const bounds = {
-				left: this.bounds.left + this.clientToNodeOffset.x,
-				top: this.bounds.top + this.clientToNodeOffset.y,
-				right: this.bounds.right + this.clientToNodeOffset.x - width,
-				bottom: this.bounds.bottom + this.clientToNodeOffset.y - height,
-			}
-
-			targetX = clamp(targetX, bounds.left, bounds.right)
-			targetY = clamp(targetY, bounds.top, bounds.bottom)
+		const { width, height } = this.node.getBoundingClientRect()
+		const bounds = {
+			left: this.bounds.left + this.clientToNodeOffset.x,
+			top: this.bounds.top + this.clientToNodeOffset.y,
+			right: this.bounds.right + this.clientToNodeOffset.x - width,
+			bottom: this.bounds.bottom + this.clientToNodeOffset.y - height,
 		}
-
-		const finalTargetX = Math.round(targetX - this.clickOffset.x)
-		const finalTargetY = Math.round(targetY - this.clickOffset.y)
-
-		this.#fireSvelteDragEvent()
-
-		this.moveTo(finalTargetX, finalTargetY)
+		target.x = clamp(target.x, bounds.left, bounds.right)
+		target.y = clamp(target.y, bounds.top, bounds.bottom)
 	}
 
 	/**
 	 * Moves the {@link node|draggable element} to the specified position, adjusted
-	 * for collision with {@link obstacleEls obstacles} or {@link boundsRect bounds}.
+	 * for collisions with {@link obstacleEls obstacles} or {@link boundsRect bounds}.
 	 */
-	moveTo(targetX: number, targetY: number) {
+	moveTo(target: { x: number; y: number }) {
 		if (this.canMoveX) {
-			const x = this.#getSafeDistanceX(targetX)
+			const deltaX = target.x - this.x
+			const x = this.#collisionClampX(deltaX)
 
 			// Apply delta to x / virtual rect (!! before checking collisionY !!).
 			this.rect.left += x
@@ -625,7 +636,8 @@ export class Draggable {
 		}
 
 		if (this.canMoveY) {
-			const y = this.#getSafeDistanceY(targetY)
+			const deltaY = target.y - this.y
+			const y = this.#collisionClampY(deltaY)
 
 			// Apply delta to y / virtual rect.
 			this.rect.top += y
@@ -641,23 +653,10 @@ export class Draggable {
 			const duration = Math.abs(this.rect.left + this.rect.top - (left + top)) * 0.5
 
 			// Bounce if collision occured.
-			const collisionOccured = this.x !== targetX || this.y !== targetY
-			const tweenedOpts = collisionOccured
-				? {
-						duration: 1000,
-						easing: (t: number) => {
-							// A more physically accurate bounce easing
-							const p = 0.3
-							return (
-								1 -
-								Math.pow(2, -10 * t) * Math.cos(((t - p / 4) * (2 * Math.PI)) / p)
-							)
-						},
-					}
-				: { duration, easing: cubicOut }
+			// const collisionOccured = this.x !== target.x || this.y !== target.y
 
 			// Set the tween and let it animate the position.
-			this.tween.set({ x: this.x, y: this.y }, tweenedOpts)
+			this.tween.set({ x: this.x, y: this.y }, { duration, easing: cubicOut })
 		} else {
 			// Call the user's custom transform function.
 			const customTransformResult = this.opts.transform?.({
@@ -687,9 +686,8 @@ export class Draggable {
 	 * colliding with an obstacle.  If no collision is detected, the full distance (`targetX`)
 	 * is returned.  If the draggable is already colliding with an obstacle, `0` is returned.
 	 */
-	#getSafeDistanceX(targetX: number) {
+	#collisionClampX(deltaX: number) {
 		const { top, bottom, left, right } = this.rect
-		let deltaX = targetX - this.x
 
 		if (deltaX === 0) return 0
 
@@ -711,7 +709,6 @@ export class Draggable {
 				deltaX = Math.max(deltaX, o.right - left)
 			}
 		}
-
 		return deltaX
 	}
 
@@ -723,9 +720,8 @@ export class Draggable {
 	 * colliding with an obstacle.  If no collision is detected, the full distance (`targetY`)
 	 * is returned.  If the draggable is already colliding with an obstacle, `0` is returned.
 	 */
-	#getSafeDistanceY(targetY: number) {
+	#collisionClampY(deltaY: number) {
 		const { top, bottom, left, right } = this.rect
-		let deltaY = targetY - this.y
 
 		if (deltaY > 0) {
 			// Moving down.
@@ -757,11 +753,17 @@ export class Draggable {
 		if (opts === false) return () => void 0
 
 		// Check for a custom bounds rect.
-		if (typeof opts === 'object' && 'left' in opts) {
+		if (
+			typeof opts === 'object' &&
+			('left' in opts || 'right' in opts || 'top' in opts || 'bottom' in opts)
+		) {
 			return () => {
 				this.bounds = {
-					...(this.opts.bounds as VirtualRect),
-					...opts,
+					left: 0,
+					right: 0,
+					top: 0,
+					bottom: 0,
+					...(this.opts.bounds as Partial<VirtualRect>),
 				}
 			}
 		}
@@ -780,10 +782,10 @@ export class Draggable {
 
 		// Add a resize observer to the bounds element to automatically update the bounds.
 		const boundsResizeObserver = new ResizeObserver(() => {
-			this.bounds = node.getBoundingClientRect()
-			this.clampToBounds()
+			// this.bounds = node.getBoundingClientRect()
+			this.resize()
 		})
-		boundsResizeObserver.observe(this.node)
+		boundsResizeObserver.observe(node)
 		this.#listeners.add(() => boundsResizeObserver.disconnect())
 
 		return () => (this.bounds = node.getBoundingClientRect())
@@ -884,7 +886,9 @@ export const draggable: Action<HTMLElement, Partial<DragOptions> | undefined, Dr
 				d.x = options.position?.x ?? d.x
 				d.y = options.position?.y ?? d.y
 
-				d.moveTo(d.x, d.y)
+				const target = { x: d.x, y: d.y }
+
+				d.moveTo(target)
 			}
 		},
 	}
