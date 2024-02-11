@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { draggable, Draggable } from '$lib/utils/draggable3'
 	import { resizable } from '$lib/actions/resizable'
-	import Orbs, { params } from './Orbs.svelte'
+	import Orbs from './Orbs.svelte'
 	import { onMount } from 'svelte'
 
 	onMount(() => {
@@ -39,7 +39,7 @@
 			defaultPosition: {
 				x: Math.random() * window.innerWidth,
 				y: Math.random() * window.innerHeight,
-			}
+			},
 		}}
 	>
 		<div class="label">Obstacle {i}</div>
