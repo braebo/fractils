@@ -14,6 +14,11 @@ export function debounce(func: Function, wait: number) {
 	}
 }
 
+interface PendingPromise<T> {
+    resolve: (value: T | PromiseLike<T>) => void;
+    reject: (reason?: any) => void;
+}
+
 /**
  * Creates a debounced version of a function.  Unlike {@link debounce},
  * `debounceAsync` accepts a sync _or_ async callback, and returns a
@@ -47,39 +52,29 @@ export function debounce(func: Function, wait: number) {
  * ```
  */
 export function debounceAsync<T extends (...args: any[]) => any>(func: T, wait: number) {
-	let timeout: ReturnType<typeof setTimeout>
-	// We use a mutable object here to overwrite previous calls without
-	// needing to manually reject or resolve interrupted promises.
-	let pendingPromise = {} as {
-		resolve: (value: ReturnType<T> | PromiseLike<ReturnType<T>>) => void
-		reject: (reason?: any) => void
-	}
+    let timeout: ReturnType<typeof setTimeout>;
+    // Initialize with no-op functions to avoid checking for undefined later.
+    let pendingPromise: PendingPromise<ReturnType<T>> = {
+        resolve: () => {},
+        reject: () => {}
+    };
 
-	return function (...args: Parameters<T>): Promise<ReturnType<T>> {
-		clearTimeout(timeout)
+    return function (...args: Parameters<T>): Promise<ReturnType<T>> {
+        clearTimeout(timeout);
 
-		timeout = setTimeout(() => {
-			const result = func(...args)
-			Promise.resolve(result).then(pendingPromise.resolve, pendingPromise.reject)
-			pendingPromise = { resolve: () => {}, reject: () => {} }
-		}, wait)
+        timeout = setTimeout(() => {
+            const result = func(...args);
+            Promise.resolve(result).then(pendingPromise.resolve, pendingPromise.reject);
+            // Reset pendingPromise with no-op functions after resolving or rejecting.
+            pendingPromise = { resolve: () => {}, reject: () => {} };
+        }, wait);
 
-		if (!pendingPromise) {
-			pendingPromise = { resolve: () => {}, reject: () => {} }
-			return new Promise<ReturnType<T>>((resolve, reject) => {
-				pendingPromise = { resolve, reject }
-			})
-		} else {
-			// This path is hit if a new call comes in before the timeout from a
-			// previous call completes. No new promise is created; the last promise
-			// remains pending and will resolve or reject with the result of `func`.
-			return new Promise<ReturnType<T>>((resolve, reject) => {
-				// Overwrite the resolve and reject functions to
-				// ensure the last call controls the promise.
-				pendingPromise = { resolve, reject }
-			})
-		}
-	}
+        // Return a new promise that assigns its resolve and reject to pendingPromise.
+        // This ensures the promise returned by the most recent call controls the outcome.
+        return new Promise<ReturnType<T>>((resolve, reject) => {
+            pendingPromise = { resolve, reject };
+        });
+    };
 }
 
 async function log() {
