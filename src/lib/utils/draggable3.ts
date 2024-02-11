@@ -299,6 +299,7 @@ export class Draggable {
 	 */
 	#bodyOriginalUserSelectVal = ''
 
+	boundsEl?: HTMLElement
 	handleEls: HTMLElement[]
 	cancelEls: HTMLElement[]
 	obstacleEls: HTMLElement[]
@@ -529,6 +530,8 @@ export class Draggable {
 
 		// Dispatch custom event
 		this.#fireSvelteDragStartEvent()
+
+		this.#fireUpdateEvent()
 	}
 
 	drag = (e: PointerEvent) => {
@@ -557,6 +560,7 @@ export class Draggable {
 		}
 
 		this.clickOffset = { x: 0, y: 0 }
+		this.clientToNodeOffset = { x: 0, y: 0 }
 
 		this.#active = false
 
@@ -569,31 +573,21 @@ export class Draggable {
 	 */
 
 	resize = () => {
-		// if (this.busy) return
-		// clearTimeout(this.busy)
-		// this.busy = setTimeout(() => {
-		// 	this.#recomputeBounds()
-		// 	console.log('bounds', this.bounds)
-		// 	console.log(this.x, this.y)
-		// 	this.busy = null
-		// }, 500)
-		// this.recompute()
-		// this.updatePosition(10, 20)
-		// const { top, left } = this.node.getBoundingClientRect()
-		// console.log('node top:', top, ' left:', left)
-		// this.updatePosition(50, 80)
-		// // Update the clientToNodeOffset.
-		// if (this.bounds)
-		// this.clientToNodeOffset = { x: this.bounds.left - left, y: this.bounds.top - top }
-		// console.log('clientToNodeOffset', this.clientToNodeOffset)
-		// // const { right, bottom } = this.node.getBoundingClientRect()
-		// // let x = this.x
-		// // let y = this.y
-		// // const xdiff = right - this.bounds.right
-		// // if (xdiff > 0) x -= xdiff
-		// // const ydiff = bottom - this.bounds.bottom
-		// // if (ydiff > 0) y -= ydiff
-		// // if (x !== this.x || y !== this.y) this.updatePosition(x, y)
+		this.#recomputeBounds()
+		// get this rect and bound's rect
+		const { left, top, right, bottom } = this.node.getBoundingClientRect()
+		const b = this.bounds
+		// check overflow right or bottom
+		const overflowR = b.right - right
+		const overflowB = b.bottom - bottom
+		// console.log('overflow Bottom = ', overflowB, '| overflow Right = ', overflowR)
+
+		const shiftX = overflowR < 0 ? overflowR : 0
+		const shiftY = overflowB < 0 ? overflowB : 0
+
+		// move if overflown
+		if (shiftX < 0 || shiftY < 0)
+			this.moveTo({ x: left - b.left + shiftX, y: top - b.top + shiftY })
 	}
 
 	updatePosition = (targetX: number, targetY: number) => {
@@ -618,6 +612,8 @@ export class Draggable {
 		}
 		target.x = clamp(target.x, bounds.left, bounds.right)
 		target.y = clamp(target.y, bounds.top, bounds.bottom)
+
+		this.#fireUpdateEvent()
 	}
 
 	/**
@@ -676,6 +672,8 @@ export class Draggable {
 				this.tween.set({ x, y, ...this.opts.tween })
 			}
 		}
+
+		this.#fireUpdateEvent()
 	}
 
 	/**
@@ -780,13 +778,18 @@ export class Draggable {
 		// Error handling.
 		if (!node) throw new Error('Invalid bounds option provided: ' + opts)
 
+		this.boundsEl = node as HTMLElement
+
 		// Add a resize observer to the bounds element to automatically update the bounds.
 		const boundsResizeObserver = new ResizeObserver(() => {
-			// this.bounds = node.getBoundingClientRect()
+			// this.clickOffset = { x: this.rect.left, y: this.rect.top }
 			this.resize()
+			this.#fireUpdateEvent()
 		})
 		boundsResizeObserver.observe(node)
 		this.#listeners.add(() => boundsResizeObserver.disconnect())
+
+		this.#fireUpdateEvent()
 
 		return () => (this.bounds = node.getBoundingClientRect())
 	}
@@ -815,6 +818,10 @@ export class Draggable {
 		this.#callEvent('drag', this.opts.onDrag)
 	}
 
+	#fireUpdateEvent = () => {
+		this.node.dispatchEvent(new CustomEvent('update', { detail: this }))
+	}
+
 	dispose() {
 		for (const fn of this.#listeners.values()) {
 			console.log('calling', fn)
@@ -831,6 +838,7 @@ export interface DragEvents {
 	'on:drag': (e: DragEventData) => void
 	'on:dragEnd': (e: DragEventData) => void
 	'on:collision': (e: { x: number; y: number }) => void
+	'on:update': (e: CustomEvent<Draggable>) => void
 }
 
 /**
