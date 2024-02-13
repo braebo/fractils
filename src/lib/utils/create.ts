@@ -6,6 +6,7 @@ export function create<T extends HTMLElement = HTMLElement>(
 		id?: string
 		dataset?: Record<string, string>
 		textContent?: string
+		cssText?: string
 		[key: string]: any
 	},
 	...children: HTMLElement[]
@@ -15,13 +16,14 @@ export function create<T extends HTMLElement = HTMLElement>(
 			? document.createElement(tagnameOrElement)
 			: tagnameOrElement
 
-	const { parent, classes, id, dataset, textContent, ...rest } = options
+	const { parent, classes, id, dataset, textContent, cssText, ...rest } = options
 
 	if (classes) el.classList.add(...classes)
 	if (id) el.id = id
 	if (dataset) Object.assign(el.dataset, dataset)
 	if (textContent) el.textContent = textContent
 	if (parent) parent.appendChild(el)
+	if (cssText) el.style.cssText = cssText
 
 	if (rest) {
 		for (const [key, value] of Object.entries(rest)) {
