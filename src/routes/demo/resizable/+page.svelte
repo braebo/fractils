@@ -1,18 +1,7 @@
 <script lang="ts">
-	import { draggable, Draggable } from '$lib/utils/draggable3'
+	import { draggable } from '$lib/utils/draggable3'
 	import { resizable } from '$lib/actions/resizable'
 	import Orbs from './Orbs.svelte'
-	import { onMount } from 'svelte'
-
-	onMount(() => {
-		const el = document.createElement('div')
-
-		const draggable = new Draggable(el, {
-			onDrag: (e) => console.log('drag', e),
-		})
-
-		draggable.resize()
-	})
 </script>
 
 <div
@@ -93,7 +82,7 @@
 		height: 100px;
 
 		background: var(--bg-b);
-		outline: 1px solid green;
+		border: 1px solid green;
 
 		pointer-events: all;
 	}

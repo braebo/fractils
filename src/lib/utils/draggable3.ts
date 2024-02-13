@@ -7,8 +7,6 @@ import { tweened } from 'svelte/motion'
 import { select } from './select'
 import { Logger } from './logger'
 import { clamp } from './clamp'
-import { debounce } from './debounce'
-import { wait } from './wait'
 
 /**
  * Represents a dom element's bounding rectangle.
@@ -287,12 +285,6 @@ export class Draggable {
 	rect: VirtualRect = { top: 0, right: 0, bottom: 0, left: 0 }
 
 	/**
-	 * Applies a base offset to the target element's default position.
-	 * @default { x: 0, y: 0 }
-	 */
-	defaultPosition: DragOptions['defaultPosition'] = { x: 0, y: 0 }
-
-	/**
 	 * The original value of `user-select` on the body element
 	 * used to restore the original value after dragging when
 	 * {@link DragOptions.userSelectNone|userSelectNone} is `true`.
@@ -351,7 +343,14 @@ export class Draggable {
 		public node: HTMLElement,
 		options?: Partial<DragOptions>,
 	) {
-		this.opts = { ...DRAG_DEFAULTS, ...options }
+		this.opts = {
+			...DRAG_DEFAULTS,
+			...options,
+			defaultPosition: {
+				...DRAG_DEFAULTS.defaultPosition,
+				...options?.defaultPosition,
+			},
+		}
 
 		this.#log = new Logger('draggable:' + this.node.classList[0], {
 			fg: 'SkyBlue',
@@ -361,14 +360,8 @@ export class Draggable {
 
 		this.node.classList.add(this.opts.classes.default)
 
-		this.x = this.opts.position.x ?? this.opts.defaultPosition.x
-		this.y = this.opts.position.y ?? this.opts.defaultPosition.y
-
-		const { left, top } = this.node.getBoundingClientRect()
-		this.defaultPosition = {
-			x: left,
-			y: top,
-		}
+		this.x = options?.position?.x ?? this.opts.defaultPosition.x
+		this.y = options?.position?.y ?? this.opts.defaultPosition.y
 
 		// Prevents mobile touch-event jank.
 		this.node.style.setProperty('touch-action', 'none')
@@ -408,6 +401,10 @@ export class Draggable {
 				this.node.style.setProperty('translate', `${x}px ${y}px 1px`)
 			}),
 		)
+
+		if (this.opts.defaultPosition !== DRAG_DEFAULTS.defaultPosition) {
+			this.moveTo(this.opts.defaultPosition)
+		}
 	}
 
 	/**
@@ -571,23 +568,22 @@ export class Draggable {
 	 * Re-calculates the bounds and updates the node's position if it's out of bounds.
 	 * Called automatically when the window and/or {@link bounds} are resized.
 	 */
-
 	resize = () => {
 		this.#recomputeBounds()
-		// get this rect and bound's rect
+		// Get this rect and bound's rect.
 		const { left, top, right, bottom } = this.node.getBoundingClientRect()
 		const b = this.bounds
-		// check overflow right or bottom
+		// Check overflow right or bottom.
 		const overflowR = b.right - right
 		const overflowB = b.bottom - bottom
-		// console.log('overflow Bottom = ', overflowB, '| overflow Right = ', overflowR)
 
-		const shiftX = overflowR < 0 ? overflowR : 0
-		const shiftY = overflowB < 0 ? overflowB : 0
+		const shiftX = Math.min(0, Math.floor(overflowR))
+		const shiftY = Math.min(0, Math.floor(overflowB))
 
-		// move if overflown
-		if (shiftX < 0 || shiftY < 0)
+		// Move if overflown.
+		if (shiftX < 0 || shiftY < 0) {
 			this.moveTo({ x: left - b.left + shiftX, y: top - b.top + shiftY })
+		}
 	}
 
 	updatePosition = (targetX: number, targetY: number) => {
