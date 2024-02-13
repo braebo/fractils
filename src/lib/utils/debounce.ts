@@ -1,4 +1,4 @@
-import { wait } from './wait'
+// import { wait } from './wait'
 
 export function debounce(func: Function, wait: number) {
 	let timeout: ReturnType<typeof setTimeout> | null
@@ -75,17 +75,17 @@ export function debounceAsync<T extends (...args: any[]) => any>(func: T, wait: 
 	}
 }
 
-async function log() {
-	console.log('FIRST')
-	await wait(1000)
-	console.log('LAST')
-}
+// async function log() {
+// 	console.log('FIRST')
+// 	await wait(1000)
+// 	console.log('LAST')
+// }
 
-const logDebounce = debounceAsync(log, 500)
+// const logDebounce = debounceAsync(log, 500)
 
-for (let i = 0; i < 3; i++) {
-	console.log(i)
-	logDebounce().then(() => {
-		console.log('DONE')
-	})
-}
+// for (let i = 0; i < 3; i++) {
+// 	console.log(i)
+// 	logDebounce().then(() => {
+// 		console.log('DONE')
+// 	})
+// }
