@@ -151,11 +151,9 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 	size: State<{ width: number; height: number }>
 	localStorageKey?: string
 
-	#grabbing = false
 	#activeGrabber: HTMLElement | null = null
 	#listeners: (() => void)[] = []
 	#cleanupGrabListener: (() => void) | null = null
-	#useLeftInset = false
 	#cornerGrabberSize: number
 
 	#log: ReturnType<typeof logger>
@@ -190,9 +188,6 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 		const { offsetWidth: width, offsetHeight: height } = node
 
 		this.size = state({ width, height }, { key: this.localStorageKey })
-
-		const { left } = node.style
-		this.#useLeftInset = typeof parseFloat(left) !== 'number' && !isNaN(parseFloat(left))
 
 		//? Load size from local storage.
 		if (this.localStorageKey) {
@@ -239,7 +234,6 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 	}
 
 	onGrab = (e: PointerEvent) => {
-		this.#grabbing = true
 		this.#activeGrabber = e.currentTarget as HTMLElement
 
 		this.#activeGrabber.classList.add('grabbing')
@@ -282,15 +276,18 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 
 		for (const obstacle of this.obstacleEls) {
 			const o = obstacle.getBoundingClientRect()
-			// too high || too low || on the other side || unreachable with delta
+			// too high || too low || opposite side || opposite direction
 			if (top > o.bottom || bottom < o.top || left < o.right || left + deltaX >= o.right)
 				continue
 			deltaX = Math.max(deltaX, o.right - left)
 		}
-		const min = +minWidth || 25
+
+		const min = parseFloat(minWidth) || 25
 		const max = Math.min(this.boundsRect.width, +maxWidth || Infinity)
 		const newWidth = clamp(width - deltaX, min, max)
+
 		if (newWidth === min) deltaX = width - newWidth
+
 		this.translateX += deltaX
 
 		this.node.style.setProperty('translate', `${this.translateX}px ${this.translateY}px`)
@@ -313,7 +310,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 				continue
 			deltaX = Math.min(deltaX, o.left - right)
 		}
-		const min = +minWidth || 25
+		const min = parseFloat(minWidth) || 25
 		const max = Math.min(this.boundsRect.width, +maxWidth || Infinity)
 		const newWidth = clamp(width + deltaX, min, max)
 
@@ -331,15 +328,18 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 
 		for (const obstacle of this.obstacleEls) {
 			const o = obstacle.getBoundingClientRect()
-			// too high || too low || on the other side || unreachable with delta
+			// too high || too low || opposite side || opposite direction
 			if (left > o.right || right < o.left || top < o.bottom || top + deltaY >= o.bottom)
 				continue
 			deltaY = Math.max(deltaY, o.bottom - top)
 		}
-		const min = +minHeight || 25
+
+		const min = parseFloat(minHeight) || 25
 		const max = Math.min(this.boundsRect.height, +maxHeight || Infinity)
 		const newHeight = clamp(height - deltaY, min, max)
+
 		if (newHeight === min) deltaY = height - newHeight
+
 		this.translateY += deltaY
 
 		this.node.style.setProperty('translate', `${this.translateX}px ${this.translateY}px`)
@@ -362,7 +362,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 				continue
 			deltaY = Math.min(deltaY, o.top - bottom)
 		}
-		const min = +minHeight || 25
+		const min = parseFloat(minHeight) || 25
 		const max = Math.min(this.boundsRect.height, +maxHeight || Infinity)
 		const newHeight = clamp(height + deltaY, min, max)
 		this.node.style.height = `${newHeight}px`
@@ -436,7 +436,6 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 	}
 
 	onUp = () => {
-		this.#grabbing = false
 		this.#cleanupGrabListener?.()
 		document.body.classList.remove('grabbing')
 		this.#activeGrabber?.classList.remove('grabbing')
