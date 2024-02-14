@@ -589,7 +589,6 @@ export class Draggable {
 		const overflowX = b.right - right
 		/** Distance between the node bottom and bounds bottom. */
 		const overflowY = b.bottom - bottom
-		console.log(overflowY)
 
 		let targetX = left - b.left
 		let targetY = top - b.top
@@ -848,7 +847,6 @@ export class Draggable {
 
 	dispose() {
 		for (const fn of this.#listeners.values()) {
-			console.log('calling', fn)
 			fn()
 		}
 	}
