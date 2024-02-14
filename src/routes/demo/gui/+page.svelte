@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { InputSlider } from '$lib/gui/Input'
 
-	import { resizable } from '$lib/actions/resizable'
 	import Code from '$lib/components/Code.svelte'
 	import Orbs from '../resizable/Orbs.svelte'
 	import { state } from '$lib/utils/state'
@@ -46,13 +45,13 @@
 			},
 			resizable: {
 				// todo - `visible` is broken
-				// visible: true,
+				// visible: false,
 				sides: ['right'],
 				corners: [],
 			},
 			themer: false,
 			draggable: {
-				position: {
+				defaultPosition: {
 					x: 16,
 					y: 0,
 				},
@@ -141,7 +140,7 @@
 	{#if ok}
 		<button on:click={() => console.log(gui)}>Log Gui</button>
 
-		<div class="orbs" use:resizable={{ visible: true }}>
+		<div class="orbs">
 			<Orbs bind:params />
 		</div>
 

@@ -42,6 +42,6 @@ export const resizable: Action<HTMLElement, ResizableOptions | undefined, Resiza
 	const resizeable = new Resizable(node, options)
 
 	return {
-		destroy: () => resizeable.destroy(),
+		destroy: () => resizeable.dispose(),
 	}
 }

@@ -224,27 +224,17 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 	//? Create resize grabbers.
 
 	createGrabbers() {
-		for (const side of this.sides) {
+		for (const side of [...this.sides, ...this.corners]) {
 			const grabber = document.createElement('div')
 			grabber.classList.add('fractils-resize-grabber')
 			grabber.classList.add('grabber-' + side)
 			grabber.dataset.side = side
 			grabber.style.setProperty('opacity', this.opts.visible ? '1' : '0')
-			this.node.appendChild(grabber)
 
 			grabber.addEventListener('pointerdown', this.onGrab)
 			this.#listeners.push(() => grabber.removeEventListener('pointerdown', this.onGrab))
-		}
 
-		for (const corner of this.corners) {
-			const grabber = document.createElement('div')
-			grabber.classList.add('fractils-resize-grabber')
-			grabber.classList.add('grabber-' + corner)
-			grabber.dataset.side = corner
 			this.node.appendChild(grabber)
-
-			grabber.addEventListener('pointerdown', this.onGrab)
-			this.#listeners.push(() => grabber.removeEventListener('pointerdown', this.onGrab))
 		}
 	}
 
@@ -262,7 +252,6 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 		document.addEventListener('pointermove', this.onMove)
 		this.#cleanupGrabListener = () => document.removeEventListener('pointermove', this.onMove)
 
-		// This doesn't need to be cleaned up because it's a `once` listener.
 		document.addEventListener('pointerup', this.onUp, { once: true })
 	}
 
@@ -478,7 +467,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			}
 
 			.grabbing.fractils-resize-grabber {
-				opacity: 0.66;
+				opacity: 0.66 !important;
 			}
 		`
 
