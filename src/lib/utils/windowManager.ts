@@ -4,7 +4,6 @@ export const WINDOWMANAGER_DEFAULTS = {}
 
 export class WindowManager {
 	nodes: HTMLElement[] = []
-	nodeMap = new Map<string, HTMLElement>()
 
 	constructor(options: Partial<WindowManagerOptions>) {
 		const opts = { ...WINDOWMANAGER_DEFAULTS, ...options }
