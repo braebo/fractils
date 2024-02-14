@@ -4,9 +4,9 @@ import type { State } from '../utils/state'
 import { debounce } from '../utils/debounce'
 import { logger } from '../utils/logger'
 import { state } from '../utils/state'
-import { clamp } from './clamp'
-import { c, fn, gr } from './l'
 import { select } from './select'
+import { clamp } from './clamp'
+import { fn, gr } from './l'
 
 type ElementsOrSelectors = string | HTMLElement | (string | HTMLElement)[] | undefined
 
@@ -136,6 +136,7 @@ const px = (size: number | string) => {
  */
 export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 	static initialized = false
+	opts: ResizableOptions
 
 	sides!: Side[]
 	corners!: Corner[]
@@ -165,6 +166,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 	) {
 		const opts = Object.assign({}, RESIZABLE_DEFAULTS, options)
 		Object.assign(this, opts)
+		this.opts = opts
 
 		const label = this.localStorageKey ? gr(':' + this.localStorageKey) : ''
 		this.#log = logger('resizable' + label, {
@@ -227,13 +229,11 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			grabber.classList.add('fractils-resize-grabber')
 			grabber.classList.add('grabber-' + side)
 			grabber.dataset.side = side
+			grabber.style.setProperty('opacity', this.opts.visible ? '1' : '0')
 			this.node.appendChild(grabber)
 
 			grabber.addEventListener('pointerdown', this.onGrab)
 			this.#listeners.push(() => grabber.removeEventListener('pointerdown', this.onGrab))
-
-			
-	
 		}
 
 		for (const corner of this.corners) {
@@ -245,11 +245,8 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 
 			grabber.addEventListener('pointerdown', this.onGrab)
 			this.#listeners.push(() => grabber.removeEventListener('pointerdown', this.onGrab))
-
 		}
 	}
-
-
 
 	onGrab = (e: PointerEvent) => {
 		this.#grabbing = true
@@ -468,18 +465,16 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			.fractils-resize-grabber {
 				position: absolute;
 				display: flex;
-				/* flex-grow: 1; */
 
 				padding: ${px(this.grabberSize)};
 				
-				opacity: ${this.visible ? 1 : 0};
 				border-radius: ${this.borderRadius} !important;
 
 				transition: opacity 0.15s;
 			}
 			
 			.fractils-resize-grabber:hover {
-				opacity: 0.33;
+				opacity: 0.33 !important;
 			}
 
 			.grabbing.fractils-resize-grabber {
@@ -607,7 +602,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 		this.#log('Initialized global styles.')
 	}
 
-	destroy() {
+	dispose() {
 		for (const cleanup of this.#listeners) {
 			cleanup()
 		}
