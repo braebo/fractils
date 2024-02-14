@@ -306,6 +306,15 @@ export class Draggable {
 		bottom: Infinity,
 	}
 
+	_position = { x: 0, y: 0 }
+	get position() {
+		return this._position
+	}
+	set position(v) {
+		this._position = v
+		this.moveTo(v)
+	}
+
 	/**
 	 * Updates the {@link bounds} property to account for any changes in the
 	 * DOM or this instance's {@link DragOptions.bounds|bounds} option.
@@ -404,6 +413,7 @@ export class Draggable {
 
 		if (this.opts.defaultPosition !== DRAG_DEFAULTS.defaultPosition) {
 			this.moveTo(this.opts.defaultPosition)
+			this._position = { x: this.x, y: this.y }
 		}
 	}
 
@@ -558,6 +568,7 @@ export class Draggable {
 
 		this.clickOffset = { x: 0, y: 0 }
 		this.clientToNodeOffset = { x: 0, y: 0 }
+		this._position = { x: this.x, y: this.y }
 
 		this.#active = false
 
@@ -573,16 +584,33 @@ export class Draggable {
 		// Get this rect and bound's rect.
 		const { left, top, right, bottom } = this.node.getBoundingClientRect()
 		const b = this.bounds
-		// Check overflow right or bottom.
-		const overflowR = b.right - right
-		const overflowB = b.bottom - bottom
 
-		const shiftX = Math.min(0, Math.floor(overflowR))
-		const shiftY = Math.min(0, Math.floor(overflowB))
+		/** Distance between the node right and bounds right. */
+		const overflowX = b.right - right
+		/** Distance between the node bottom and bounds bottom. */
+		const overflowY = b.bottom - bottom
+		console.log(overflowY)
+
+		let targetX = left - b.left
+		let targetY = top - b.top
+
+		let change = false
 
 		// Move if overflown.
-		if (shiftX < 0 || shiftY < 0) {
-			this.moveTo({ x: left - b.left + shiftX, y: top - b.top + shiftY })
+		if (overflowX !== 0) {
+			targetX = Math.min(targetX + overflowX, this.position.x)
+			// Only move if we're not already there.
+			change = targetX !== this.x
+		}
+
+		if (overflowY !== 0) {
+			targetY = Math.min(targetY + overflowY, this.position.y)
+			// Only move if we're not already there.
+			change = change || targetY !== this.y
+		}
+
+		if (change) {
+			this.moveTo({ x: Math.round(targetX), y: Math.round(targetY) })
 		}
 	}
 
