@@ -67,17 +67,17 @@
 				}
 			},
 			//? More subtle Template Tags
-			{
-				"scope": [
-					"punctuation.definition.tag",
-					"entity.name.tag.svelte",
-					"punctuation.separator.key-value.svelte",
-					"constant.name.attribute.tag.pug"
-				],
-				"settings": {
-					"foreground": "#5a86ff36"
-				}
-			},
+			// {
+			// 	"scope": [
+			// 		"punctuation.definition.tag",
+			// 		"entity.name.tag.svelte",
+			// 		"punctuation.separator.key-value.svelte",
+			// 		"constant.name.attribute.tag.pug"
+			// 	],
+			// 	"settings": {
+			// 		"foreground": "#5a86ff36"
+			// 	}
+			// },
 			//? Boilerplate supressor.
 			{
 				"scope": ["punctuation.terminator"],
