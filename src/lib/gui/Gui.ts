@@ -1,4 +1,4 @@
-import type { Draggable, DragOptions } from '../utils/draggable'
+import type { Draggable, DragOptions } from '../utils/draggable3'
 import type { ThemerOptions } from '../theme/Themer'
 import type { FolderOptions } from './Folder'
 
@@ -9,7 +9,6 @@ import { Logger } from '../utils/logger'
 import { Themer } from '../theme/Themer'
 import { Folder } from './Folder'
 
-import { BROWSER } from 'esm-env'
 import './gui.scss'
 
 type GuiTheme = 'default' | 'minimal' | (string & {})
@@ -72,7 +71,7 @@ export interface GuiOptions extends FolderOptions {
 	 * your own {@link DragOptions}.  If `false` or `undefined`,
 	 * the gui will not be resizable.
 	 */
-	draggable: boolean | DragOptions
+	draggable: boolean | Partial<DragOptions>
 
 	position: { x: number; y: number }
 	size: { width: number; height: number }
@@ -88,6 +87,8 @@ export const GUI_DEFAULTS = {
 	themerOptions: {},
 	resizable: {
 		grabberSize: 50,
+		sides: ['right'],
+		corners: [],
 	},
 	draggable: true,
 	storage: {
@@ -96,8 +97,6 @@ export const GUI_DEFAULTS = {
 		position: true,
 		closed: true,
 		debounce: 50,
-		// todo - [{ key: 'Foo Folder', open: true }, ... }] ?
-		// children: 'fractils::gui::children',
 	},
 	closed: false,
 	size: { width: 0, height: 0 },
@@ -241,84 +240,26 @@ export class Gui extends Folder {
 		//· Draggable ·······························································¬
 
 		if (opts.draggable) {
-			const dragOptions: DragOptions =
+			const dragOptions: Partial<DragOptions> =
 				typeof opts.draggable === 'object' ? opts.draggable : {}
 			dragOptions.handle = this.elements.header
 			dragOptions.bounds = this.container
-			dragOptions.recomputeBounds = {
-				dragStart: true,
-				dragEnd: true,
-				drag: true,
-			}
 
-			// todo - move this into the draggable class
-			// This makes sure the gui is in the viewport.
-			const offscreenCheck = () => {
-				const position = this.position.get()
-				const size = this.size.get()
-
-				this.log.fn('offscreenCheck').info({ position, size })
-
-				let x = position.x
-				let y = position.y
-
-				const w = this.element.offsetWidth || size.width
-				const h = this.element.offsetHeight || size.height
-
-				const diff = x + w - this.container.offsetWidth
-
-				if (diff > 0) {
-					x -= diff
-				}
-
-				if (x < 0) {
-					x = 0
-				}
-
-				if (y + h > this.container.offsetHeight) {
-					const diff = y + h - this.container.offsetHeight
-
-					if (diff > 0) {
-						y -= diff
-					}
-				}
-
-				if (y < 0) {
-					y = 0
-				}
-
-				return { x, y }
-			}
-
-			if (BROWSER) {
-				window.addEventListener(
-					'resize',
-					() => {
-						if (opts.storage.position) {
-							this.draggable?.updateOptions({ position: offscreenCheck() })
-						}
-					},
-					{ passive: true },
-				)
-			}
-
-			dragOptions.position = offscreenCheck()
-
-			dragOptions.position = this.position.get()
+			dragOptions.defaultPosition = this.position.get()
 
 			this.log.fn('constructor').info(dragOptions)
 
-			import('../utils/draggable').then(({ Draggable }) => {
+			import('../utils/draggable3').then(({ Draggable }) => {
 				this.draggable = new Draggable(this.element, {
 					...dragOptions,
 					onDragEnd: this.storage.position
 						? (data) => {
-								const { offsetX: x, offsetY: y } = data
-								if (x === 0 && y === 0) return
+								// const { x, y } = data
+								// if (x === 0 && y === 0) return
 
-								this.position.set({ x, y })
+								// this.position.set({ x, y })
 
-								this.log.fn('onDragEnd').info('Position updated:', { x, y })
+								// this.log.fn('onDragEnd').info('Position updated:', { x, y })
 							}
 						: undefined,
 				})
@@ -350,7 +291,7 @@ export class Gui extends Folder {
 
 		window.addEventListener
 		this.themer?.dispose()
-		this.resizable?.destroy?.()
-		this.draggable?.destroy?.()
+		this.resizable?.dispose?.()
+		this.draggable?.dispose?.()
 	}
 }
