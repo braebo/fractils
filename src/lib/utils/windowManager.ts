@@ -1,5 +1,8 @@
-import { Draggable, type DragOptions } from './draggable3'
+import type { ElementsOrSelectors } from './select'
+
 import { Resizable, type ResizableOptions } from './resizable'
+import { Draggable, type DragOptions } from './draggable3'
+import { isObject } from './is'
 
 export interface WindowManagerOptions {
 	/**
@@ -31,6 +34,12 @@ export interface WindowManagerOptions {
 	 * @default { scale: 1.025, duration: 75 }
 	 */
 	animation: false | Partial<AnimationOptions>
+
+	/**
+	 * Element's or selectors which will act as collision obstacles for the draggable element.
+	 * @default ''
+	 */
+	obstacles: ElementsOrSelectors
 }
 
 interface AnimationOptions {
@@ -47,6 +56,7 @@ export const WINDOWMANAGER_DEFAULTS: WindowManagerOptions = {
 		duration: 75,
 		scale: 1.025,
 	} as const,
+	obstacles: '',
 } as const
 
 /**
@@ -75,6 +85,12 @@ export class WindowManager {
 
 		this.draggableOptions = this.#resolve(this.opts.draggable)
 		this.resizableOptions = this.#resolve(this.opts.resizable)
+
+		// Add any obstacles to both the draggable and resizable options.
+		if (this.opts.obstacles) {
+			if (this.draggableOptions) this.draggableOptions.obstacles = this.opts.obstacles
+			if (this.resizableOptions) this.resizableOptions.obstacles = this.opts.obstacles
+		}
 	}
 
 	add = (node: HTMLElement, options?: Partial<WindowManagerOptions>) => {
@@ -83,10 +99,17 @@ export class WindowManager {
 		this.nodes.push(node)
 
 		if (this.draggableOptions) {
-			new Draggable(node, Object.assign(this.draggableOptions, options?.draggable))
+			const obstacles = options?.obstacles ?? this.opts.obstacles
+			// Order of precedence: options.draggable.obstacles > options.obstacles > this.opts.obstacles
+			const opts = Object.assign(this.draggableOptions, { obstacles }, options?.draggable)
+			new Draggable(node, opts)
 		}
+
 		if (this.resizableOptions) {
-			new Resizable(node, Object.assign(this.resizableOptions, options?.resizable))
+			const obstacles = options?.obstacles ?? this.opts.obstacles
+			// Order of precedence: options.resizable.obstacles > options.obstacles > this.opts.obstacles
+			const opts = Object.assign(this.resizableOptions, { obstacles }, options?.resizable)
+			new Resizable(node, opts)
 		}
 
 		node.addEventListener('pointerdown', this.select, { capture: false })

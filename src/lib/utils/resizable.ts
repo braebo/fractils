@@ -233,11 +233,19 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 		}
 	}
 
+	clickOffset = { x: 0, y: 0 }
+
 	onGrab = (e: PointerEvent) => {
 		this.#activeGrabber = e.currentTarget as HTMLElement
 
 		this.#activeGrabber.classList.add('grabbing')
 		document.body.classList.add('grabbing')
+
+		const side = this.#activeGrabber.dataset.side
+		if (side!.match(/top/)) this.clickOffset.y = e.clientY - this.rect.top
+		if (side!.match(/bottom/)) this.clickOffset.y = e.clientY - this.rect.bottom
+		if (side!.match(/left/)) this.clickOffset.x = e.clientX - this.rect.left
+		if (side!.match(/right/)) this.clickOffset.x = e.clientX - this.rect.right
 
 		e.preventDefault()
 		e.stopPropagation()
@@ -269,7 +277,8 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 
 	resizeLeft = (x: number) => {
 		const { width, top, bottom, left } = this.node.getBoundingClientRect()
-		const { minWidth, maxWidth } = window.getComputedStyle(this.node)
+		const { minWidth, maxWidth, paddingLeft, paddingRight, borderLeftWidth, borderRightWidth } =
+			window.getComputedStyle(this.node)
 
 		let deltaX = x - left
 		if (deltaX === 0) return this
@@ -282,12 +291,17 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			deltaX = Math.max(deltaX, o.right - left)
 		}
 
-		const min = parseFloat(minWidth) || 25
+		const borderBox =
+			parseFloat(paddingLeft) +
+			parseFloat(paddingRight) +
+			parseFloat(borderLeftWidth) +
+			parseFloat(borderRightWidth)
+
+		const min = parseFloat(minWidth) + borderBox || 25
 		const max = Math.min(this.boundsRect.width, +maxWidth || Infinity)
 		const newWidth = clamp(width - deltaX, min, max)
 
 		if (newWidth === min) deltaX = width - newWidth
-
 		this.translateX += deltaX
 
 		this.node.style.setProperty('translate', `${this.translateX}px ${this.translateY}px`)
@@ -299,13 +313,6 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 	resizeRight = (x: number) => {
 		const { width, top, right, bottom } = this.node.getBoundingClientRect()
 		const { minWidth, maxWidth } = window.getComputedStyle(this.node)
-
-		const scale = +this.node.style.scale || 1
-		const oscale = 0.5 + scale * 0.5
-		const unscl_width = width / scale
-		// const top = bcr.top / oscale
-		// const right = bcr.right / scale
-		// const bottom = bcr.bottom / scale
 
 		let deltaX = x - right
 		if (deltaX === 0) return this
@@ -319,13 +326,8 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 		}
 		const min = parseFloat(minWidth) || 25
 		const max = Math.min(this.boundsRect.width, +maxWidth || Infinity)
+		const newWidth = clamp(width + deltaX, min, max)
 
-		const newWidth = clamp(unscl_width + deltaX, min, max)
-
-		const scaledXshift = deltaX * (1 - scale) * 0.5
-
-		this.translateX -= scaledXshift
-		this.node.style.setProperty('translate', `${this.translateX}px ${this.translateY}px`)
 		this.node.style.width = `${newWidth}px`
 
 		return this
@@ -333,7 +335,14 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 
 	resizeTop = (y: number) => {
 		const { height, top, right, left } = this.node.getBoundingClientRect()
-		const { minHeight, maxHeight } = window.getComputedStyle(this.node)
+		const {
+			minHeight,
+			maxHeight,
+			paddingTop,
+			paddingBottom,
+			borderTopWidth,
+			borderBottomWidth,
+		} = window.getComputedStyle(this.node)
 
 		let deltaY = y - top
 		if (deltaY === 0) return this
@@ -346,7 +355,13 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			deltaY = Math.max(deltaY, o.bottom - top)
 		}
 
-		const min = parseFloat(minHeight) || 25
+		const borderBox =
+			parseFloat(paddingTop) +
+			parseFloat(paddingBottom) +
+			parseFloat(borderTopWidth) +
+			parseFloat(borderBottomWidth)
+
+		const min = parseFloat(minHeight) + borderBox || 25
 		const max = Math.min(this.boundsRect.height, +maxHeight || Infinity)
 		const newHeight = clamp(height - deltaY, min, max)
 
@@ -377,6 +392,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 		const min = parseFloat(minHeight) || 25
 		const max = Math.min(this.boundsRect.height, +maxHeight || Infinity)
 		const newHeight = clamp(height + deltaY, min, max)
+
 		this.node.style.height = `${newHeight}px`
 
 		return this
@@ -393,45 +409,34 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 
 		const bounds = this.boundsRect
 
-		const x = clamp(e.clientX, bounds.left, bounds.left + bounds.width)
-		const y = clamp(e.clientY, bounds.top, bounds.top + bounds.height)
+		const x = clamp(e.clientX, bounds.left, bounds.left + bounds.width) - this.clickOffset.x
+		const y = clamp(e.clientY, bounds.top, bounds.top + bounds.height) - this.clickOffset.y
 
 		const { side } = this.#activeGrabber.dataset
 		this.#log(fn('onMove'), side)
 
 		switch (side) {
 			case 'top-left':
-				this.resizeTop(y)
-				this.resizeLeft(x)
+				this.resizeTop(y).resizeLeft(x)
 				break
-
 			case 'top-right':
-				this.resizeTop(y)
-				this.resizeRight(x)
+				this.resizeTop(y).resizeRight(x)
 				break
-
 			case 'bottom-right':
-				this.resizeBottom(y)
-				this.resizeRight(x)
+				this.resizeBottom(y).resizeRight(x)
 				break
-
 			case 'bottom-left':
-				this.resizeBottom(y)
-				this.resizeLeft(x)
+				this.resizeBottom(y).resizeLeft(x)
 				break
-
 			case 'top':
 				this.resizeTop(y)
 				break
-
 			case 'right':
 				this.resizeRight(x)
 				break
-
 			case 'bottom':
 				this.resizeBottom(y)
 				break
-
 			case 'left':
 				this.resizeLeft(x)
 				break
@@ -466,77 +471,85 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 				position: absolute;
 				display: flex;
 
+				/* outline: 1px solid rgba(205, 181, 43, 0.5); */
+
 				padding: ${px(this.grabberSize)};
-				
+
 				border-radius: ${this.borderRadius} !important;
+				border-radius: inherit;
 
 				transition: opacity 0.15s;
 			}
 			
 			.fractils-resize-grabber:hover {
-				opacity: 0.33 !important;
+				opacity: 0.5 !important;
 			}
 
 			.grabbing.fractils-resize-grabber {
-				opacity: 0.66 !important;
+				opacity: 0.75 !important;
 			}
 		`
+
+		const offset = -6
+		const gradient = `transparent 35%, ${this.color} 40%, ${this.color} 50%, transparent 60%, transparent 100%`
 
 		if (this.sides.includes('top'))
 			css += /*css*/ `
 			.grabber-top {
 				cursor: ns-resize;
-				top: 0;
+				top: ${offset}px;
 				left: 0;
 
 				width: 100%;
 				height: ${this.grabberSize}px;
 
-				background: linear-gradient(to bottom, ${this.color} 0%, ${this.color} 10%, transparent 33%, transparent 100%);
+				background: linear-gradient(to bottom, ${gradient});
 			}
 		`
 		if (this.sides.includes('right'))
 			css += /*css*/ `
 			.grabber-right {
 				cursor: ew-resize;
-				right: 0;
+				right: ${offset}px;
 				top: 0;
 
 				width: ${this.grabberSize}px;
 				height: 100%;
 
-				background: linear-gradient(to left, ${this.color} 0%, ${this.color} 10%, transparent 33%, transparent 100%);
+				background: linear-gradient(to left, ${gradient});
 			}
 		`
 		if (this.sides.includes('bottom'))
 			css += /*css*/ `
 			.grabber-bottom {
 				cursor: ns-resize;
-				bottom: 0;
+				bottom: ${offset}px;
 				left: 0;
 
 				width: 100%;
 				height: ${this.grabberSize}px;
 
-				background: linear-gradient(to top, ${this.color} 0%, ${this.color} 10%, transparent 33%, transparent 100%);
+				background: linear-gradient(to top, ${gradient});
 			}
 		`
 		if (this.sides.includes('left'))
 			css += /*css*/ `
 				.grabber-left {
 					cursor: ew-resize;
-					left: 0;
+					left: ${offset}px;
 					top: 0;
 
 					width: ${this.grabberSize}px;
 					height: 100%;
 
-					background: linear-gradient(to right, ${this.color} 0%, ${this.color} 10%, transparent 33%, transparent 100%);
+					background: linear-gradient(to right, ${gradient});
 				}
 			`
 
-		const cSize = this.#cornerGrabberSize * 2
-		const cOffset = -2
+		const cSize = this.#cornerGrabberSize
+		const cOffset = -6
+		const cornerGradient = `${this.color} 30%, transparent 60%`
+		// const cornerGradient = `red 30%, transparent 60%, transparent 100%`
 
 		if (this.corners.includes('top-left')) {
 			css += /*css*/ `
@@ -547,8 +560,18 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 
 					width: ${cSize}px;
 					height: ${cSize}px;
-
-					background: linear-gradient(to bottom right, ${this.color} 0%, ${this.color} 10%, transparent 33%, transparent 100%);
+				}
+				.grabber-top-left::after {
+					content: '';
+					/* position: absolute; */
+					right: -50%;
+					bottom: -50%;
+					scale: 1.5;
+					translate: 50% 50%;
+					width: 100%;
+					height: 100%;
+					background: linear-gradient(to bottom right, ${cornerGradient});
+					/* border-radius: 15%; */
 				}
 			`
 		}
@@ -561,8 +584,15 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 
 					width: ${cSize}px;
 					height: ${cSize}px;
-
-					background: linear-gradient(to bottom left, ${this.color} 0%, ${this.color} 10%, transparent 33%, transparent 100%);
+				}
+				.grabber-top-right::after {
+					content: '';
+					/* position: absolute; */
+					left: 0;
+					bottom: 0;
+					width: 75%;
+					height: 75%;
+					background: linear-gradient(to bottom left, ${cornerGradient});
 				}
 			`
 		}
@@ -576,7 +606,16 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 					width: ${cSize}px;
 					height: ${cSize}px;
 
-					background: linear-gradient(to top right, ${this.color} 0%, ${this.color} 10%, transparent 33%, transparent 100%);
+					/* background: linear-gradient(to top right, ${cornerGradient}); */
+				}
+				.grabber-bottom-left::after {
+					content: '';
+					/* position: absolute; */
+					right: 0;
+					top: 0;
+					width: 75%;
+					height: 75%;
+					background: linear-gradient(to top right, ${cornerGradient});
 				}
 			`
 		}
@@ -590,7 +629,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 					width: ${cSize}px;
 					height: ${cSize}px;
 
-					background: linear-gradient(to top left, ${this.color} 0%, ${this.color} 10%, transparent 33%, transparent 100%);
+					background: linear-gradient(to top left, ${cornerGradient});
 				}
 			`
 		}

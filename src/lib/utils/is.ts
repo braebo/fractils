@@ -17,3 +17,7 @@ export function isString(value: unknown): value is string {
 export function isHTMLElement(value: unknown): value is HTMLElement {
 	return value instanceof HTMLElement
 }
+
+export function isObject(value: unknown): value is Record<string, unknown> {
+	return value !== null && typeof value === 'object'
+}
