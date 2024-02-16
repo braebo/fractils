@@ -1,7 +1,7 @@
 import { Logger } from './logger'
 import { c, r } from './l'
 
-const log = new Logger('select', { fg: 'AliceBlue' })
+let log: Logger
 
 export type ElementsOrSelectors = string | HTMLElement | (string | HTMLElement)[] | undefined
 
@@ -10,6 +10,8 @@ export type ElementsOrSelectors = string | HTMLElement | (string | HTMLElement)[
  * resolves them all into an array of HTMLElements.
  */
 export function select(input: ElementsOrSelectors, node?: HTMLElement): HTMLElement[] {
+	log ??= new Logger('select', { fg: 'AliceBlue' })
+
 	if (typeof window === 'undefined') return []
 
 	if (input === undefined) return []
@@ -24,9 +26,10 @@ export function select(input: ElementsOrSelectors, node?: HTMLElement): HTMLElem
 		const foundEls = node!.querySelectorAll<HTMLElement>(el)
 		if (foundEls.length === 0) {
 			log.error(r(`No elements found for selector`) + ': ' + c(el))
-			throw new Error(
-				`No elements found for selector "${el}". Make sure the selector is a child of the target node.`,
-			)
+			log.error(r(`Make sure the selector is a child of the target node.`))
+			log.debug({ input, node, elements })
+
+			return []
 		}
 		return Array.from(foundEls)
 	})
