@@ -10,10 +10,10 @@
 	let gui: Gui
 	let slider: InputSlider['state']
 
-	let ok = state({} as Gui)
+	const church = state({} as Gui)
 	let key = false
 
-	$: if ($ok.size || $ok.position || $ok.closed) {
+	$: if ($church) {
 		key = !key
 	}
 
@@ -46,8 +46,8 @@
 			resizable: {
 				// todo - `visible` is broken
 				// visible: false,
-				sides: ['right'],
-				corners: [],
+				// sides: ['right', 'left'],
+				// corners: [],
 			},
 			themer: false,
 			draggable: {
@@ -61,7 +61,7 @@
 
 		// gui.add(params) // todo
 
-		ok.set(gui)
+		church.set(gui)
 
 		size = gui.size
 		position = gui.position
@@ -137,7 +137,7 @@
 {/if}
 
 <div class="page">
-	{#if ok}
+	{#if church}
 		<button on:click={() => console.log(gui)}>Log Gui</button>
 
 		<div class="orbs">

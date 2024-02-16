@@ -9,10 +9,10 @@ export interface WindowManagerOptions {
 	zFloor: number
 
 	/**
-	 * Return to current z-index on release.
+	 * Restores a selected window's z-index immediately upon release.
 	 * @default false
 	 */
-	keepZ: boolean
+	preserveZ: boolean
 
 	/**
 	 * Whether to make windows draggable.
@@ -25,14 +25,29 @@ export interface WindowManagerOptions {
 	 * @default true
 	 */
 	resizable: boolean | Partial<ResizableOptions>
+
+	/**
+	 * Animation options for window selection.
+	 * @default { scale: 1.025, duration: 75 }
+	 */
+	animation: false | Partial<AnimationOptions>
+}
+
+interface AnimationOptions {
+	scale: number
+	duration: number
 }
 
 export const WINDOWMANAGER_DEFAULTS: WindowManagerOptions = {
 	zFloor: 0,
-	keepZ: false,
+	preserveZ: false,
 	resizable: true,
 	draggable: true,
-}
+	animation: {
+		duration: 75,
+		scale: 1.025,
+	} as const,
+} as const
 
 /**
  * Manages the z-index of multiple elements to ensure
@@ -44,27 +59,27 @@ export class WindowManager {
 
 	draggableOptions: Partial<DragOptions> | null
 	resizableOptions: Partial<ResizableOptions> | null
+	animationOptions: AnimationOptions | null
 
 	constructor(options?: Partial<WindowManagerOptions>) {
 		this.opts = { ...WINDOWMANAGER_DEFAULTS, ...options }
 
-		console.log(this.opts.zFloor)
+		if (options?.animation === false) {
+			this.animationOptions = null
+		} else {
+			this.animationOptions = {
+				...WINDOWMANAGER_DEFAULTS.animation,
+				...(options?.animation as AnimationOptions),
+			}
+		}
 
-		this.draggableOptions =
-			typeof this.opts.draggable === 'object'
-				? this.opts.draggable
-				: this.opts.draggable === true
-					? {}
-					: null
-		this.resizableOptions =
-			typeof this.opts.resizable === 'object'
-				? this.opts.resizable
-				: this.opts.resizable === true
-					? {}
-					: null
+		this.draggableOptions = this.#resolve(this.opts.draggable)
+		this.resizableOptions = this.#resolve(this.opts.resizable)
 	}
 
 	add = (node: HTMLElement, options?: Partial<WindowManagerOptions>) => {
+		if (options?.preserveZ) node.dataset.keepZ = 'true'
+
 		this.nodes.push(node)
 
 		if (this.draggableOptions) {
@@ -93,37 +108,50 @@ export class WindowManager {
 
 	select = (e: PointerEvent) => {
 		const node = e.currentTarget as HTMLElement
-		const z = node.style.getPropertyValue('z-index')
+
+		this.#animate(node)
+
+		const initialZ = node.style.getPropertyValue('z-index')
 		node.style.setProperty('z-index', String(this.opts.zFloor + this.nodes.length))
 
-		// const scale = window.getComputedStyle(node).getPropertyValue('scale')
-		const scale = parseFloat(node.style.getPropertyValue('scale')) || 1
-
-		// node.style.setProperty('scale', String(scale + 0.1))
-		node.animate([{ scale }, { scale: scale + 0.025 }], {
-			duration: 75,
-			easing: 'ease-out',
-			fill: 'forwards',
-		})
-
-		const animateBack = () =>
-			node.animate({ scale: scale }, { duration: 75, easing: 'ease-in', fill: 'forwards' })
-
-		if (this.opts.keepZ) {
-			// prettier-ignore
-			addEventListener('pointerup', () => {
-				animateBack()
-				node.style.setProperty('z-index', z)
-			}, { once: true })
+		if (node.dataset.keepZ === 'true' || this.opts.preserveZ) {
+			addEventListener('pointerup', () => node.style.setProperty('z-index', initialZ), {
+				once: true,
+			})
 		} else {
 			this.nodes = this.nodes.filter((n) => n !== node)
 			this.nodes.push(node)
 			this.applyZ()
-			// prettier-ignore
-			addEventListener('pointerup', () => {
-				animateBack()
-			}, { once: true })
 		}
+	}
+
+	#animate = (node: HTMLElement) => {
+		if (!this.animationOptions) return
+
+		const scale = parseFloat(node.style.getPropertyValue('scale')) || 1
+
+		const animOpts = {
+			duration: this.animationOptions.duration,
+			easing: 'ease-out',
+			fill: 'forwards',
+		} as const
+
+		node.animate([{ scale }, { scale: scale - 1 + this.animationOptions.scale }], animOpts)
+
+		node.addEventListener('pointerup', () => node.animate([{ scale }], animOpts), {
+			once: true,
+		})
+	}
+
+	/**
+	 * Resolves a `boolean` or `object` option into the desired object.
+	 */
+	#resolve<T>(option: T) {
+		return typeof option === 'object'
+			? option
+			: option === true
+				? ({} as Omit<T, 'boolean'>)
+				: null
 	}
 
 	dispose() {
