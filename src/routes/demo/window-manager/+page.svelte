@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { WindowManager } from '$lib/utils/windowManager'
+	import { quintIn } from 'svelte/easing'
+	import { scale } from 'svelte/transition'
 
 	const windowManager = new WindowManager({
 		draggable: {
@@ -15,56 +17,86 @@
 		},
 		// keepZ: true
 	})
+
+	const windows = [1, 2, 3, 4, 5]
+	let deleted = windows.map(() => false)
 </script>
 
-<!-- <div class="page"> -->
-{#each [1, 2, 3, 4, 5] as i}
-	{@const scale = i === 1 ? 1.5 : i === 4 ? 0.6 : 1}
-	<div
-		class="window window-{i}"
-		style="
-			top:{100 + (i - 1) * 124}px;
-			left: {i * 75}px;
-		"
-		use:windowManager.add={{
-			preserveZ: i === 2,
-			obstacles: '.window',
-		}}
-	>
-		<h1>Window {i}</h1>
-		<pre>scale: {scale}</pre>
-	</div>
+{#each windows as i}
+	{#if !deleted[i - 1]}
+		<div
+			class="window window-{i}"
+			out:scale={{ duration: 150, easing: quintIn }}
+			style="top:{100 + (i - 1) * 124}px; left: {i * 75}px;"
+			use:windowManager.add={{
+				preserveZ: i === 2,
+				obstacles: '.window',
+			}}
+		>
+			<div class="content">
+				<button on:click={() => (deleted[i - 1] = true)}></button>
+				<h2>Window {i}</h2>
+			</div>
+		</div>
+	{/if}
 {/each}
-
-<!-- </div> -->
 
 <style lang="scss">
 	.page {
-		// scale: 0.5;
 		min-height: 100vh;
 		min-width: 100vw;
 	}
-	h1 {
-		font-size: var(--font-lg);
+	h2 {
+		font-size: var(--font-md);
+		font-family: var(--font-b);
 	}
 	.window {
 		position: absolute;
 
 		width: 240px;
 		height: 120px;
-		padding: 1rem;
 
 		background-color: rgba(var(--bg-a-rgb), 0.5);
 		backdrop-filter: blur(0.25rem);
 		border: 1px solid var(--bg-b);
-
-		// transform-origin: top left;
-
-		// overflow: hidden;
+		border-radius: var(--radius);
+		box-shadow: var(--shadow-lg);
 	}
 
 	.window-4 {
 		color: black;
 		background-color: lightslategrey;
+	}
+
+	.content {
+		display: flex;
+		overflow: hidden;
+		flex-direction: column;
+		height: 100%;
+		width: 100%;
+
+		h2 {
+			padding: 1rem;
+		}
+	}
+
+	button {
+		all: unset;
+		position: absolute;
+		top: 0.5rem;
+		right: 0.5rem;
+		// padding: 0.5rem !important;
+		cursor: pointer;
+		width: 10px;
+		height: 10px;
+		border-radius: 50%;
+		background: tomato;
+		filter: brightness(0.25) saturate(0.25);
+		transition: 0.25s ease-in;
+		&:hover {
+			filter: brightness(0.5);
+			// opacity: 0.5;
+		}
+		z-index: 999;
 	}
 </style>

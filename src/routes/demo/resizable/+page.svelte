@@ -36,9 +36,11 @@
 	<div
 		{style}
 		class="obstacle"
-		use:resizable
+		use:resizable={{
+			obstacles: ['.orbs-container'],
+		}}
 		use:draggable={{
-			cancel: '.fractils-resize-grabber',
+			cancel: '.resize-grabber',
 			obstacles: ['.orbs-container'],
 			defaultPosition,
 		}}
@@ -55,7 +57,7 @@
 		obstacles: ['.bounds', '.obstacle'],
 	}}
 	use:draggable={{
-		cancel: '.fractils-resize-grabber',
+		cancel: '.resize-grabber',
 		obstacles: ['.bounds', '.obstacle'],
 		defaultPosition: { x: W / 2 - 100, y: H / 2 - 100 },
 	}}
@@ -69,7 +71,7 @@
 	style="min-width: 75px; min-height: 75px;"
 	use:resizable
 	use:draggable={{
-		cancel: '.fractils-resize-grabber',
+		cancel: '.resize-grabber',
 		defaultPosition: { x: 50, y: H - 250 },
 	}}
 >
@@ -86,7 +88,7 @@
 		use:draggable={{
 			axis: 'x',
 			bounds: '.bounds',
-			cancel: '.fractils-resize-grabber',
+			cancel: '.resize-grabber',
 			defaultPosition: { x: 25, y: 25 },
 		}}
 	>
