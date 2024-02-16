@@ -300,6 +300,13 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 		const { width, top, right, bottom } = this.node.getBoundingClientRect()
 		const { minWidth, maxWidth } = window.getComputedStyle(this.node)
 
+		const scale = +this.node.style.scale || 1
+		const oscale = 0.5 + scale * 0.5
+		const unscl_width = width / scale
+		// const top = bcr.top / oscale
+		// const right = bcr.right / scale
+		// const bottom = bcr.bottom / scale
+
 		let deltaX = x - right
 		if (deltaX === 0) return this
 
@@ -312,8 +319,13 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 		}
 		const min = parseFloat(minWidth) || 25
 		const max = Math.min(this.boundsRect.width, +maxWidth || Infinity)
-		const newWidth = clamp(width + deltaX, min, max)
 
+		const newWidth = clamp(unscl_width + deltaX, min, max)
+
+		const scaledXshift = deltaX * (1 - scale) * 0.5
+
+		this.translateX -= scaledXshift
+		this.node.style.setProperty('translate', `${this.translateX}px ${this.translateY}px`)
 		this.node.style.width = `${newWidth}px`
 
 		return this

@@ -12,7 +12,7 @@
 {#each [1, 2, 3, 4, 5] as i}
 	<div
 		class="window-{i}"
-		style="top:{(i - 1) * 124}px"
+		style="top:{(i - 1) * 124}px; scale:.6"
 		use:windowManager.add={{ keepZ: i === 2 }}
 	>
 		<h1>Window {i}</h1>
