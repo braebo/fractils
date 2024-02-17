@@ -282,6 +282,8 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 		document.addEventListener('pointermove', this.onMove)
 		this.#cleanupGrabListener = () => document.removeEventListener('pointermove', this.onMove)
 
+		this.node.dispatchEvent(new CustomEvent('grab', { detail: { side } }))
+
 		document.addEventListener('pointerup', this.onUp, { once: true })
 	}
 
@@ -484,6 +486,8 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 		this.#cleanupGrabListener?.()
 		document.body.classList.remove(this.classes.active)
 		this.#activeGrabber?.classList.remove(this.classes.active)
+
+		this.node.dispatchEvent(new CustomEvent('release'))
 	}
 
 	/**
@@ -505,7 +509,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 				transition: opacity 0.1s;
 			}
 			
-			.resize-grabber:hover {
+			.fractils-resizable:not(.fractils-resizable-grabbing) .resize-grabber:hover {
 				opacity: 0.5;
 			}
 
@@ -530,15 +534,16 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 
 		const offset = -6
 		const gradient = `transparent 35%, ${this.color} 40%, ${this.color} 50%, transparent 60%, transparent 100%`
+		const lengthPrcnt = 96
 
 		if (this.sides.includes('top'))
 			css += /*css*/ `
 			.${this.classes.default}-top {
 				${cursor('ns-resize')}
 				top: ${offset}px;
-				left: 0;
+				left: ${50 - lengthPrcnt * 0.5}%;
 
-				width: 100%;
+				width: ${lengthPrcnt}%;
 				height: ${this.grabberSize}px;
 
 				background: linear-gradient(to bottom, ${gradient});
@@ -549,10 +554,10 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			.${this.classes.default}-right {
 				${cursor('ew-resize')}
 				right: ${offset}px;
-				top: 0;
+				top: ${50 - lengthPrcnt * 0.5}%;
 
 				width: ${this.grabberSize}px;
-				height: 100%;
+				height: ${lengthPrcnt}%;
 
 				background: linear-gradient(to left, ${gradient});
 			}
@@ -562,9 +567,9 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			.${this.classes.default}-bottom {
 				${cursor('ns-resize')}
 				bottom: ${offset}px;
-				left: 0;
+				left: ${50 - lengthPrcnt * 0.5}%;
 
-				width: 100%;
+				width: ${lengthPrcnt}%;
 				height: ${this.grabberSize}px;
 
 				background: linear-gradient(to top, ${gradient});
@@ -575,10 +580,10 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 				.${this.classes.default}-left {
 					${cursor('ew-resize')}
 					left: ${offset}px;
-					top: 0;
+					top: ${50 - lengthPrcnt * 0.5}%;
 
 					width: ${this.grabberSize}px;
-					height: 100%;
+					height: ${lengthPrcnt}%;
 
 					background: linear-gradient(to right, ${gradient});
 				}

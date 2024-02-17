@@ -9,7 +9,7 @@
 		},
 		resizable: {
 			// visible: true,
-			sides: [],
+			sides: ['top', 'right', 'bottom', 'left'],
 		},
 		animation: {
 			scale: 1.025,

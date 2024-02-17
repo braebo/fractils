@@ -110,13 +110,34 @@ export class WindowManager {
 			// Order of precedence: options.resizable.obstacles > options.obstacles > this.opts.obstacles
 			const opts = Object.assign(this.resizableOptions, { obstacles }, options?.resizable)
 			new Resizable(node, opts)
+
+			const addClasses = () => {
+				const nodes = this.nodes.filter((n) => n !== node)
+				for (const n of nodes) {
+					n.classList.add('fractils-resizable-grabbing')
+				}
+			}
+			node.addEventListener('grab', addClasses)
+			this.#listeners.add(() => node.removeEventListener('grab', addClasses))
+
+			const removeClasses = () => {
+				const nodes = this.nodes.filter((n) => n !== node)
+				for (const n of nodes) {
+					n.classList.remove('fractils-resizable-grabbing')
+				}
+			}
+			node.addEventListener('release', removeClasses)
+			this.#listeners.add(() => node.removeEventListener('release', removeClasses))
 		}
 
 		node.addEventListener('pointerdown', this.select, { capture: false })
+		this.#listeners.add(() => node.removeEventListener('pointerdown', this.select))
 
 		return {
 			destroy: () => {
-				node.removeEventListener('pointerdown', this.select)
+				for (const cb of this.#listeners) {
+					cb()
+				}
 			},
 		}
 	}
@@ -166,6 +187,8 @@ export class WindowManager {
 		})
 	}
 
+	#listeners = new Set<() => void>()
+
 	/**
 	 * Resolves a `boolean` or `object` option into the desired object.
 	 */
@@ -178,8 +201,8 @@ export class WindowManager {
 	}
 
 	dispose() {
-		for (const node of this.nodes) {
-			node.removeEventListener('pointerdown', this.select)
+		for (const cb of this.#listeners) {
+			cb()
 		}
 	}
 }
