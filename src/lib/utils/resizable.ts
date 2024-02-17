@@ -327,9 +327,15 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			parseFloat(borderLeftWidth) +
 			parseFloat(borderRightWidth)
 
-		const min = parseFloat(minWidth) + borderBox || 25
+		const min = Math.max(parseFloat(minWidth) + borderBox, 25)
 		const max = Math.min(this.boundsRect.width, +maxWidth || Infinity)
 		const newWidth = clamp(width - deltaX, min, max)
+
+		console.log('borderBox', borderBox)
+		console.log('minWidth', minWidth)
+		console.log('min', min)
+		console.log('max', max)
+		console.log('newWidth', newWidth)
 
 		if (newWidth === min) deltaX = width - newWidth
 		this.translateX += deltaX
@@ -391,7 +397,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			parseFloat(borderTopWidth) +
 			parseFloat(borderBottomWidth)
 
-		const min = parseFloat(minHeight) + borderBox || 25
+		const min = Math.max(parseFloat(minHeight) + borderBox, 25)
 		const max = Math.min(this.boundsRect.height, +maxHeight || Infinity)
 		const newHeight = clamp(height - deltaY, min, max)
 

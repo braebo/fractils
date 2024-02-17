@@ -18,9 +18,12 @@
 		// keepZ: true
 	})
 
-	const windows = [1, 2, 3, 4, 5]
+	// const windows = [1, 2, 3, 4, 5]
+	const windows = [1]
 	let deleted = windows.map(() => false)
 </script>
+
+<button on:click={() => console.log(windowManager)}>console.log(windowManager)</button>
 
 {#each windows as i}
 	{#if !deleted[i - 1]}
@@ -34,7 +37,7 @@
 			}}
 		>
 			<div class="content">
-				<button on:click={() => (deleted[i - 1] = true)}></button>
+				<button class="delete" on:click={() => (deleted[i - 1] = true)}></button>
 				<h2>Window {i}</h2>
 			</div>
 		</div>
@@ -80,7 +83,7 @@
 		}
 	}
 
-	button {
+	.delete {
 		all: unset;
 		position: absolute;
 		top: 0.5rem;

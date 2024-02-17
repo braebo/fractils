@@ -60,11 +60,20 @@ export const WINDOWMANAGER_DEFAULTS: WindowManagerOptions = {
 } as const
 
 /**
+ * A single window in a window manager.
+ */
+interface WindowInstance {
+	element: HTMLElement
+	draggableInstance?: Draggable
+	resizableInstance?: Resizable
+}
+
+/**
  * Manages the z-index of multiple elements to ensure
  * the most recently selected element is on top.
  */
 export class WindowManager {
-	nodes: HTMLElement[] = []
+	windows: WindowInstance[] = []
 	opts: WindowManagerOptions
 
 	draggableOptions: Partial<DragOptions> | null
@@ -96,39 +105,45 @@ export class WindowManager {
 	add = (node: HTMLElement, options?: Partial<WindowManagerOptions>) => {
 		if (options?.preserveZ) node.dataset.keepZ = 'true'
 
-		this.nodes.push(node)
+		const instance: WindowInstance = {
+			element: node,
+			resizableInstance: undefined,
+			draggableInstance: undefined,
+		}
 
 		if (this.draggableOptions) {
 			const obstacles = options?.obstacles ?? this.opts.obstacles
 			// Order of precedence: options.draggable.obstacles > options.obstacles > this.opts.obstacles
 			const opts = Object.assign(this.draggableOptions, { obstacles }, options?.draggable)
-			new Draggable(node, opts)
+			instance.draggableInstance = new Draggable(node, opts)
 		}
 
 		if (this.resizableOptions) {
 			const obstacles = options?.obstacles ?? this.opts.obstacles
 			// Order of precedence: options.resizable.obstacles > options.obstacles > this.opts.obstacles
 			const opts = Object.assign(this.resizableOptions, { obstacles }, options?.resizable)
-			new Resizable(node, opts)
+			instance.resizableInstance = new Resizable(node, opts)
 
 			const addClasses = () => {
-				const nodes = this.nodes.filter((n) => n !== node)
-				for (const n of nodes) {
-					n.classList.add('fractils-resizable-grabbing')
+				const nodes = this.windows.filter(({ element }) => element !== node)
+				for (const { element } of nodes) {
+					element.classList.add('fractils-resizable-grabbing')
 				}
 			}
 			node.addEventListener('grab', addClasses)
 			this.#listeners.add(() => node.removeEventListener('grab', addClasses))
 
 			const removeClasses = () => {
-				const nodes = this.nodes.filter((n) => n !== node)
-				for (const n of nodes) {
-					n.classList.remove('fractils-resizable-grabbing')
+				const nodes = this.windows.filter(({ element }) => element !== node)
+				for (const { element } of nodes) {
+					element.classList.remove('fractils-resizable-grabbing')
 				}
 			}
 			node.addEventListener('release', removeClasses)
 			this.#listeners.add(() => node.removeEventListener('release', removeClasses))
 		}
+
+		this.windows.push(instance)
 
 		node.addEventListener('pointerdown', this.select, { capture: false })
 		this.#listeners.add(() => node.removeEventListener('pointerdown', this.select))
@@ -143,8 +158,8 @@ export class WindowManager {
 	}
 
 	applyZ() {
-		for (let i = 1; i < this.nodes.length; i++) {
-			this.nodes[i].style.setProperty('z-index', String(this.opts.zFloor + i))
+		for (let i = 1; i < this.windows.length; i++) {
+			this.windows[i].element.style.setProperty('z-index', String(this.opts.zFloor + i))
 		}
 
 		return this
@@ -153,18 +168,24 @@ export class WindowManager {
 	select = (e: PointerEvent) => {
 		const node = e.currentTarget as HTMLElement
 
+		const instance = this.windows.find(({ element }) => element === node)
+
+		if (!instance) {
+			throw new Error('Unable to resolve instance from selected node: ' + node)
+		}
+
 		this.#animate(node)
 
 		const initialZ = node.style.getPropertyValue('z-index')
-		node.style.setProperty('z-index', String(this.opts.zFloor + this.nodes.length))
+		node.style.setProperty('z-index', String(this.opts.zFloor + this.windows.length))
 
 		if (node.dataset.keepZ === 'true' || this.opts.preserveZ) {
 			addEventListener('pointerup', () => node.style.setProperty('z-index', initialZ), {
 				once: true,
 			})
 		} else {
-			this.nodes = this.nodes.filter((n) => n !== node)
-			this.nodes.push(node)
+			this.windows = this.windows.filter((i) => i !== instance)
+			this.windows.push(instance)
 			this.applyZ()
 		}
 	}

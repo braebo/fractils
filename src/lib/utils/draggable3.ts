@@ -590,26 +590,51 @@ export class Draggable {
 		/** Distance between the node bottom and bounds bottom. */
 		const overflowY = b.bottom - bottom
 
-		let targetX = left - b.left
-		let targetY = top - b.top
+		const styleLeft = parseFloat(this.node.style.left) || 0
+		const styleTop = parseFloat(this.node.style.top) || 0
+
+		const transformOffset = left - this.position.x
+
+		let targetX = left - b.left - styleLeft
+		let targetY = top - b.top - styleTop
 
 		let change = false
 
+		console.log()
+
+		console.log('targetX', targetX)
 		// Move if overflown.
 		if (overflowX !== 0) {
 			targetX = Math.min(targetX + overflowX, this.position.x)
 			// Only move if we're not already there.
 			change = targetX !== this.x
+
+			console.log('NEW targetX', targetX)
 		}
+
+		console.log('this.position.x', this.position.x)
+		console.log('overflowX', overflowX)
+		console.log('targetX', targetX)
+		console.log('change', change)
 
 		if (overflowY !== 0) {
 			targetY = Math.min(targetY + overflowY, this.position.y)
 			// Only move if we're not already there.
 			change = change || targetY !== this.y
+
+			// console.log('HIT Y')
 		}
 
+		// console.log('this.position.y', this.position.y)
+		// console.log('overflowY', overflowY)
+		// console.log('targetY', targetY)
+		// console.log('change', change)
+
 		if (change) {
-			this.moveTo({ x: Math.round(targetX), y: Math.round(targetY) })
+			this.moveTo({
+				x: Math.round(targetX),
+				y: Math.round(targetY),
+			})
 		}
 	}
 
