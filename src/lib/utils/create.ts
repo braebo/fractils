@@ -27,11 +27,12 @@ export function create<T extends HTMLElement = HTMLElement>(
 
 	if (rest) {
 		for (const [key, value] of Object.entries(rest)) {
+			if (key === 'children') continue
 			el[key] = value
 		}
 	}
 
-	el.append(...children)
+	for (const child of children) el.appendChild(child)
 
 	return el as unknown as T
 }
