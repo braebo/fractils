@@ -31,18 +31,49 @@ export class Logger {
 
 	debug(...args: any[]) {
 		if (DEV) this.l('🐞', ...args)
+		return this
 	}
 
 	info(...args: any[]) {
 		if (DEV) this.l(b('ⓘ'), ...args)
+		return this
 	}
 
 	warn(...args: any[]) {
 		this.l(y('⚠'), ...args)
+		return this
 	}
 
 	error(...args: any[]) {
 		this.log(r('⛔'), ...args)
+		return this
+	}
+
+	group() {
+		if (this.options?.deferred) {
+			defer(() => console.group(this.title))
+		} else {
+			console.group(this.title)
+		}
+		return this
+	}
+
+	groupCollapsed() {
+		if (this.options?.deferred) {
+			defer(() => console.groupCollapsed(this.title))
+		} else {
+			console.groupCollapsed(this.title)
+		}
+		return this
+	}
+
+	groupEnd() {
+		if (this.options?.deferred) {
+			defer(() => console.groupEnd())
+		} else {
+			console.groupEnd()
+		}
+		return this
 	}
 
 	buffer = [] as any[]
