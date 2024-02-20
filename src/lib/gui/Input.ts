@@ -224,7 +224,7 @@ export class Input {
 			parent: this.elements.container,
 		})
 
-		this.#log.fn('constructor').info(this)
+		this.#log.groupCollapsed().fn('constructor').info({ opts: options, this: this })
 	}
 
 	// listen(event: string, cb: (e: Event) => void, element: HTMLElement) {
@@ -250,7 +250,16 @@ export class InputSlider extends Input {
 		container: HTMLElement
 		title: HTMLElement
 		content: HTMLElement
-		input: HTMLInputElement
+		range: HTMLInputElement
+		number: {
+			container: HTMLInputElement
+			input: HTMLInputElement
+			buttons: {
+				container: HTMLDivElement
+				increment: HTMLDivElement
+				decrement: HTMLDivElement
+			}
+		}
 	}
 
 	#log = new Logger('InputSlider', { fg: 'cyan' })
@@ -259,6 +268,8 @@ export class InputSlider extends Input {
 	constructor(options: NumberInputOptions, folder: Folder) {
 		const opts = { ...NUMBER_INPUT_DEFAULTS, ...options }
 		super(opts, folder)
+
+		this.#log.fn('constructor').info({ opts, this: this }).groupEnd()
 
 		if (opts.binding) {
 			this.initialValue = opts.binding.target[opts.binding.key]
@@ -273,26 +284,96 @@ export class InputSlider extends Input {
 			this.state = state(opts.value)
 		}
 
-		this.elements.input = create<HTMLInputElement>('input', {
+		this.elements.number = {
+			container: create('div', {
+				classes: ['gui-input-number-container'],
+				parent: this.elements.content,
+			}),
+			// @ts-expect-error
+			buttons: {},
+		}
+
+		//· Number Input ·······························································¬
+
+		this.elements.number.input = create('input', {
+			type: 'number',
+			classes: ['gui-input-number-input'],
+			parent: this.elements.number.container,
+			value: String(this.state.value),
+			step: opts.step,
+		})
+		this.elements.number.input.addEventListener('input', this.updateState)
+		this.#listeners.add(() =>
+			this.elements.number.input.removeEventListener('input', this.updateState),
+		)
+		//⌟
+
+		//· Number Buttons ·····························································¬
+
+		this.elements.number.buttons.container = create('div', {
+			classes: ['gui-input-number-buttons-container'],
+			parent: this.elements.number.container,
+		})
+
+		//· Increment ··································································¬
+
+		this.elements.number.buttons.increment = create('div', {
+			classes: ['gui-input-number-button', 'gui-input-number-buttons-increment'],
+			parent: this.elements.number.buttons.container,
+		})
+		this.elements.number.buttons.increment.appendChild(InputSlider.svgChevron())
+		const increment = () => {
+			this.state.set(this.state.value + (opts?.step ?? 1))
+		}
+		this.elements.number.buttons.increment.addEventListener('click', increment)
+		this.#listeners.add(() =>
+			this.elements.number.buttons.increment.removeEventListener('click', increment),
+		)
+		//⌟
+
+		//· Decrement ··································································¬
+
+		this.elements.number.buttons.decrement = create('div', {
+			classes: ['gui-input-number-button', 'gui-input-number-buttons-decrement'],
+			parent: this.elements.number.buttons.container,
+		})
+
+		const decrement = () => {
+			this.state.set(this.state.value - (opts?.step ?? 1))
+		}
+		this.elements.number.buttons.decrement.addEventListener('click', decrement)
+		this.#listeners.add(() =>
+			this.elements.number.buttons.decrement.removeEventListener('click', decrement),
+		)
+
+		const upsideDownChevron = InputSlider.svgChevron()
+		upsideDownChevron.setAttribute('style', 'transform: rotate(180deg)')
+		this.elements.number.buttons.decrement.appendChild(upsideDownChevron)
+		//⌟
+		//⌟
+
+		//· Range Input ································································¬
+
+		this.elements.range = create<HTMLInputElement>('input', {
+			type: 'range',
 			classes: ['gui-input-range'],
 			parent: this.elements.content,
-			type: 'range',
 			min: opts.min,
 			max: opts.max,
 			step: opts.step,
 			value: String(this.state.value),
 		})
 
-		this.elements.input.addEventListener('input', this.updateState)
+		this.elements.range.addEventListener('input', this.updateState)
 		this.#listeners.add(() =>
-			this.elements.input.removeEventListener('input', this.updateState),
+			this.elements.range.removeEventListener('input', this.updateState),
 		)
+		//⌟
 
 		this.state.subscribe((v) => {
-			this.elements.input.value = String(v)
+			this.elements.range.value = String(v)
+			this.elements.number.input.value = String(v)
 		})
-
-		this.#log.fn('number').info(this.elements.input)
 	}
 
 	updateState = (v: number | Event) => {
@@ -303,6 +384,24 @@ export class InputSlider extends Input {
 		} else {
 			this.state.set(v)
 		}
+	}
+
+	static svgChevron() {
+		const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+		svg.setAttribute('width', '24')
+		svg.setAttribute('height', '24')
+		svg.setAttribute('viewBox', '0 0 24 24')
+		svg.setAttribute('stroke', 'currentColor')
+		svg.setAttribute('fill', 'none')
+		svg.setAttribute('stroke-width', '2')
+		svg.setAttribute('stroke-linecap', 'round')
+		svg.setAttribute('stroke-linejoin', 'round')
+
+		const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+		path.setAttribute('d', 'm18 15-6-6-6 6')
+		svg.appendChild(path)
+
+		return svg
 	}
 
 	dispose() {
