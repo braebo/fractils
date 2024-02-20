@@ -214,7 +214,7 @@ export class WindowManager {
 
 		node.animate([{ scale }, { scale: scale - 1 + this.animationOptions.scale }], animOpts)
 
-		node.addEventListener('pointerup', () => node.animate([{ scale }], animOpts), {
+		window.addEventListener('pointerup', () => node.animate([{ scale }], animOpts), {
 			once: true,
 		})
 	}
