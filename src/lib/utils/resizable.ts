@@ -515,7 +515,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 				transition: opacity 0.1s;
 			}
 			
-			.fractils-resizable:not(.fractils-resizable-grabbing) .resize-grabber:hover {
+			.fractils-resizable:not(.fractils-grabbing) .resize-grabber:hover {
 				opacity: 0.5;
 			}
 
@@ -594,6 +594,8 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 					background: linear-gradient(to right, ${gradient});
 				}
 			`
+
+		css += `.fractils-grabbing .resize-grabber {cursor: default}`
 
 		const cSize = this.#cornerGrabberSize
 		const cScale = 3

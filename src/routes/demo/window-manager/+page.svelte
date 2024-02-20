@@ -18,8 +18,8 @@
 		// keepZ: true
 	})
 
-	// const windows = [1, 2, 3, 4, 5]
-	const windows = [1]
+	const windows = [1, 2, 3, 4, 5]
+
 	let deleted = windows.map(() => false)
 </script>
 

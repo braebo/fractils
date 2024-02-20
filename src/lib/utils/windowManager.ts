@@ -95,6 +95,9 @@ export class WindowManager {
 		this.draggableOptions = this.#resolve(this.opts.draggable)
 		this.resizableOptions = this.#resolve(this.opts.resizable)
 
+		for (const w of this.windows) {
+		}
+
 		// Add any obstacles to both the draggable and resizable options.
 		if (this.opts.obstacles) {
 			if (this.draggableOptions) this.draggableOptions.obstacles = this.opts.obstacles
@@ -111,11 +114,31 @@ export class WindowManager {
 			draggableInstance: undefined,
 		}
 
+		const addClasses = () => {
+			const nodes = this.windows.filter(({ element }) => element !== node)
+			for (const { element } of nodes) {
+				element.classList.add('fractils-grabbing')
+			}
+		}
+
+		const removeClasses = () => {
+			const nodes = this.windows.filter(({ element }) => element !== node)
+			for (const { element } of nodes) {
+				element.classList.remove('fractils-grabbing')
+			}
+		}
+
 		if (this.draggableOptions) {
 			const obstacles = options?.obstacles ?? this.opts.obstacles
 			// Order of precedence: options.draggable.obstacles > options.obstacles > this.opts.obstacles
 			const opts = Object.assign(this.draggableOptions, { obstacles }, options?.draggable)
 			instance.draggableInstance = new Draggable(node, opts)
+
+			node.addEventListener('grab', addClasses)
+			this.#listeners.add(() => node.removeEventListener('grab', addClasses))
+
+			node.addEventListener('release', removeClasses)
+			this.#listeners.add(() => node.removeEventListener('release', removeClasses))
 		}
 
 		if (this.resizableOptions) {
@@ -124,21 +147,9 @@ export class WindowManager {
 			const opts = Object.assign(this.resizableOptions, { obstacles }, options?.resizable)
 			instance.resizableInstance = new Resizable(node, opts)
 
-			const addClasses = () => {
-				const nodes = this.windows.filter(({ element }) => element !== node)
-				for (const { element } of nodes) {
-					element.classList.add('fractils-resizable-grabbing')
-				}
-			}
 			node.addEventListener('grab', addClasses)
 			this.#listeners.add(() => node.removeEventListener('grab', addClasses))
 
-			const removeClasses = () => {
-				const nodes = this.windows.filter(({ element }) => element !== node)
-				for (const { element } of nodes) {
-					element.classList.remove('fractils-resizable-grabbing')
-				}
-			}
 			node.addEventListener('release', removeClasses)
 			this.#listeners.add(() => node.removeEventListener('release', removeClasses))
 		}
