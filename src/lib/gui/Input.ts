@@ -5,6 +5,8 @@ import { create } from '../utils/create'
 import { Logger } from '../utils/logger'
 import { state } from '../utils/state'
 
+//· Types ··············································································¬
+
 // prettier-ignore
 export type InputValueType =
 	| 'number'
@@ -166,10 +168,11 @@ export interface InputOptions<T extends Record<string, any> = Record<string, any
 
 export interface NumberInputOptions extends InputOptions {
 	value: number
-	min?: number
-	max?: number
-	step?: number
+	min: number
+	max: number
+	step: number
 }
+//⌟
 
 const NUMBER_INPUT_DEFAULTS: NumberInputOptions = {
 	view: 'Slider',
@@ -245,6 +248,7 @@ export class Input {
 export class InputSlider extends Input {
 	state: State<number>
 	initialValue: number
+	opts: NumberInputOptions
 
 	declare elements: {
 		container: HTMLElement
@@ -265,10 +269,11 @@ export class InputSlider extends Input {
 	#log = new Logger('InputSlider', { fg: 'cyan' })
 	#listeners = new Set<() => void>()
 
-	constructor(options: NumberInputOptions, folder: Folder) {
+	constructor(options: Partial<NumberInputOptions>, folder: Folder) {
 		const opts = { ...NUMBER_INPUT_DEFAULTS, ...options }
 		super(opts, folder)
 
+		this.opts = opts
 		this.#log.fn('constructor').info({ opts, this: this }).groupEnd()
 
 		if (opts.binding) {
@@ -302,10 +307,7 @@ export class InputSlider extends Input {
 			value: String(this.state.value),
 			step: opts.step,
 		})
-		this.elements.number.input.addEventListener('input', this.updateState)
-		this.#listeners.add(() =>
-			this.elements.number.input.removeEventListener('input', this.updateState),
-		)
+		this.#listen(this.elements.number.input, 'input', this.updateState)
 		//⌟
 
 		//· Number Buttons ·····························································¬
@@ -322,13 +324,7 @@ export class InputSlider extends Input {
 			parent: this.elements.number.buttons.container,
 		})
 		this.elements.number.buttons.increment.appendChild(InputSlider.svgChevron())
-		const increment = () => {
-			this.state.set(this.state.value + (opts?.step ?? 1))
-		}
-		this.elements.number.buttons.increment.addEventListener('click', increment)
-		this.#listeners.add(() =>
-			this.elements.number.buttons.increment.removeEventListener('click', increment),
-		)
+		this.#listen(this.elements.number.buttons.increment, 'pointerdown', this.#rampChangeUp)
 		//⌟
 
 		//· Decrement ··································································¬
@@ -337,18 +333,11 @@ export class InputSlider extends Input {
 			classes: ['gui-input-number-button', 'gui-input-number-buttons-decrement'],
 			parent: this.elements.number.buttons.container,
 		})
-
-		const decrement = () => {
-			this.state.set(this.state.value - (opts?.step ?? 1))
-		}
-		this.elements.number.buttons.decrement.addEventListener('click', decrement)
-		this.#listeners.add(() =>
-			this.elements.number.buttons.decrement.removeEventListener('click', decrement),
-		)
-
 		const upsideDownChevron = InputSlider.svgChevron()
 		upsideDownChevron.setAttribute('style', 'transform: rotate(180deg)')
 		this.elements.number.buttons.decrement.appendChild(upsideDownChevron)
+
+		this.#listen(this.elements.number.buttons.decrement, 'pointerdown', this.#rampChangeDown)
 		//⌟
 		//⌟
 
@@ -364,15 +353,19 @@ export class InputSlider extends Input {
 			value: String(this.state.value),
 		})
 
-		this.elements.range.addEventListener('input', this.updateState)
-		this.#listeners.add(() =>
-			this.elements.range.removeEventListener('input', this.updateState),
-		)
+		this.#listen(this.elements.range, 'input', this.updateState)
 		//⌟
 
 		this.state.subscribe((v) => {
 			this.elements.range.value = String(v)
 			this.elements.number.input.value = String(v)
+		})
+	}
+
+	#listen = (element: HTMLElement, event: string, cb: (e: Event) => void) => {
+		element.addEventListener(event, cb)
+		this.#listeners.add(() => {
+			element.removeEventListener(event, cb)
 		})
 	}
 
@@ -384,6 +377,45 @@ export class InputSlider extends Input {
 		} else {
 			this.state.set(v)
 		}
+	}
+
+	#rampChangeUp = () => {
+		this.#rampChange(1)
+	}
+
+	#rampChangeDown = () => {
+		this.#rampChange(-1)
+	}
+
+	#rampChange = (direction = 1) => {
+		let delay = 300
+		let stop = false
+		let step = this.opts.step ?? 1
+		let delta = 0
+		let timeout: ReturnType<typeof setTimeout>
+
+		const change = () => {
+			clearTimeout(timeout)
+			if (stop) return
+
+			delta += delay
+			if (delta > 1000) {
+				delay /= 2
+				delta = 0
+			}
+			this.state.set(this.state.value + step * direction)
+			timeout = setTimeout(change, delay)
+		}
+		const stopChanging = () => {
+			stop = true
+			window.removeEventListener('pointerup', stopChanging)
+			window.removeEventListener('pointercancel', stopChanging)
+		}
+
+		window.addEventListener('pointercancel', stopChanging, { once: true })
+		window.addEventListener('pointerup', stopChanging, { once: true })
+
+		change()
 	}
 
 	static svgChevron() {

@@ -330,7 +330,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 .gui-folder {
 	.gui-input-content {
-		outline: 1px solid #ffa50011;
+		// outline: 1px solid #ffa50011;
 
 		display: flex;
 		align-items: center;
@@ -339,7 +339,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		gap: 0.75rem;
 
 		.gui-input-number-container {
-			outline: 1px solid #ffff0011;
+			// outline: 1px solid #ffff0011;
 
 			position: relative;
 			display: flex;
@@ -354,7 +354,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 			border-radius: var(--radius-sm);
 
 			.gui-input-number-input {
-				outline: 1px solid #ff000011 !important;
+				// outline: 1px solid #ff000011 !important;
 
 				-webkit-appearance: textfield;
 				appearance: textfield;
@@ -391,7 +391,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 			}
 
 			.gui-input-number-buttons-container {
-				outline: 1px solid #00800011;
+				// outline: 1px solid #00800011;
 				outline-offset: -1px;
 
 				display: flex;
@@ -408,7 +408,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 				padding: 0;
 
 				.gui-input-number-button {
-					outline: 1px solid #0000ff11;
+					// outline: 1px solid #0000ff11;
 
 					cursor: pointer;
 
@@ -432,9 +432,9 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 						height: 1rem;
 
 						opacity: 0.25;
-						
+
 						transition: 0.15s;
-						
+
 						pointer-events: none;
 					}
 
@@ -457,10 +457,8 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 					}
 				}
 
-				.gui-input-buttons-increment {
-				}
-				.gui-input-buttons-decrement {
-				}
+				// .gui-input-buttons-increment {}
+				// .gui-input-buttons-decrement {}
 			}
 		}
 
