@@ -624,7 +624,7 @@ export class Draggable {
 		if (overflowY !== 0) {
 			targetY = Math.min(targetY + overflowY, this.position.y)
 			// Only move if we're not already there.
-			change || targetY !== this.y
+			change = change || targetY !== this.y
 		}
 
 		if (change) {
