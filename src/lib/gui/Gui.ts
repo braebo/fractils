@@ -65,7 +65,7 @@ export interface GuiOptions extends FolderOptions {
 	 * your own {@link ResizableOptions}.  If `false` or `undefined`,
 	 * the gui will not be resizable.
 	 */
-	resizable: boolean | ResizableOptions
+	resizable: boolean | Partial<ResizableOptions>
 	/**
 	 * Whether the gui should be draggable.  Can be a boolean, or
 	 * your own {@link DragOptions}.  If `false` or `undefined`,
@@ -202,7 +202,7 @@ export class Gui extends Folder {
 		//· Resizable ·······························································¬
 
 		if (opts.resizable) {
-			const resizeOpts: ResizableOptions =
+			const resizeOpts: Partial<ResizableOptions> =
 				typeof opts.resizable === 'object' ? opts.resizable : {}
 
 			import('../utils/resizable').then(({ Resizable }) => {

@@ -46,8 +46,8 @@
 			resizable: {
 				// todo - `visible` is broken
 				// visible: false,
-				// sides: ['right', 'left'],
-				// corners: [],
+				sides: ['right', 'left'],
+				corners: [],
 			},
 			themer: false,
 			draggable: {
@@ -133,7 +133,7 @@
 
 {#if slider}
 	{$slider}
-	<input bind:value={$slider} type="range" min="0" max="1" step="0.01" />
+	<input bind:value={$slider} type="range" min="0" max="500" step="0.01" />
 {/if}
 
 <div class="page">
