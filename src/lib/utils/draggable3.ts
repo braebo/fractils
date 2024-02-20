@@ -535,6 +535,8 @@ export class Draggable {
 		// Update the bounds rect.
 		this.#recomputeBounds()
 
+		this.node.dispatchEvent(new CustomEvent('grab'))
+
 		// Dispatch custom event
 		this.#fireSvelteDragStartEvent()
 
@@ -571,6 +573,8 @@ export class Draggable {
 		this._position = { x: this.x, y: this.y }
 
 		this.#active = false
+
+		this.node.dispatchEvent(new CustomEvent('release'))
 
 		this.#fireSvelteDragEndEvent()
 	}
@@ -621,14 +625,7 @@ export class Draggable {
 			targetY = Math.min(targetY + overflowY, this.position.y)
 			// Only move if we're not already there.
 			change = change || targetY !== this.y
-
-			// console.log('HIT Y')
 		}
-
-		// console.log('this.position.y', this.position.y)
-		// console.log('overflowY', overflowY)
-		// console.log('targetY', targetY)
-		// console.log('change', change)
 
 		if (change) {
 			this.moveTo({
