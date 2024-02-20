@@ -143,25 +143,6 @@
 		<div class="orbs">
 			<Orbs bind:params />
 		</div>
-
-		{#if size && position && closed}
-			{#key $size || $position || $closed}
-				<div class="code-fade">
-					<Code
-						--max-height="100%"
-						text={JSON.stringify(
-							{
-								size: $size,
-								position: $position,
-								closed: $closed,
-							},
-							null,
-							2,
-						)}
-					/>
-				</div>
-			{/key}
-		{/if}
 	{/if}
 </div>
 
@@ -185,9 +166,5 @@
 		width: 20rem;
 		height: 20rem;
 		margin: auto;
-	}
-
-	.code-fade {
-		width: 15rem;
 	}
 </style>
