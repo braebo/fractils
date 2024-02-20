@@ -327,7 +327,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			parseFloat(borderLeftWidth) +
 			parseFloat(borderRightWidth)
 
-		const min = Math.max(parseFloat(minWidth) + borderBox, 25)
+		const min = Math.max((parseFloat(minWidth) || 0) + borderBox, 25)
 		const max = Math.min(this.boundsRect.width, +maxWidth || Infinity)
 		const newWidth = clamp(width - deltaX, min, max)
 
@@ -348,7 +348,8 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 
 	resizeRight = (x: number) => {
 		const { width, top, right, bottom } = this.node.getBoundingClientRect()
-		const { minWidth, maxWidth } = window.getComputedStyle(this.node)
+		const { minWidth, maxWidth, paddingLeft, paddingRight, borderLeftWidth, borderRightWidth } =
+			window.getComputedStyle(this.node)
 
 		let deltaX = x - right
 		if (deltaX === 0) return this
@@ -360,7 +361,14 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 				continue
 			deltaX = Math.min(deltaX, o.left - right)
 		}
-		const min = parseFloat(minWidth) || 25
+
+		const borderBox =
+			parseFloat(paddingLeft) +
+			parseFloat(paddingRight) +
+			parseFloat(borderLeftWidth) +
+			parseFloat(borderRightWidth)
+
+		const min = Math.max((parseFloat(minWidth) || 0) + borderBox, 25)
 		const max = Math.min(this.boundsRect.width, +maxWidth || Infinity)
 		const newWidth = clamp(width + deltaX, min, max)
 
@@ -396,8 +404,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			parseFloat(paddingBottom) +
 			parseFloat(borderTopWidth) +
 			parseFloat(borderBottomWidth)
-
-		const min = Math.max(parseFloat(minHeight) + borderBox, 25)
+		const min = Math.max((parseFloat(minHeight) || 0) + borderBox, 25)
 		const max = Math.min(this.boundsRect.height, +maxHeight || Infinity)
 		const newHeight = clamp(height - deltaY, min, max)
 
@@ -413,7 +420,14 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 
 	resizeBottom = (y: number) => {
 		const { height, right, left, bottom } = this.node.getBoundingClientRect()
-		const { minHeight, maxHeight } = window.getComputedStyle(this.node)
+		const {
+			minHeight,
+			maxHeight,
+			paddingTop,
+			paddingBottom,
+			borderTopWidth,
+			borderBottomWidth,
+		} = window.getComputedStyle(this.node)
 
 		let deltaY = y - bottom
 		if (deltaY === 0) return this
@@ -425,7 +439,13 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 				continue
 			deltaY = Math.min(deltaY, o.top - bottom)
 		}
-		const min = parseFloat(minHeight) || 25
+
+		const borderBox =
+			parseFloat(paddingTop) +
+			parseFloat(paddingBottom) +
+			parseFloat(borderTopWidth) +
+			parseFloat(borderBottomWidth)
+		const min = Math.max((parseFloat(minHeight) || 0) + borderBox, 25)
 		const max = Math.min(this.boundsRect.height, +maxHeight || Infinity)
 		const newHeight = clamp(height + deltaY, min, max)
 
