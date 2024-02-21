@@ -146,7 +146,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	border-radius: var(--radius-md);
 	border-bottom-left-radius: var(--radius-xs);
 	border-bottom-right-radius: var(--radius-xs);
-	// outline: 1px solid rgba(var(--bg-d-rgb), 0.5);
+	// outline: 1px solid rgba(var(--bg-d-rgb), 0.5); // debug-outline
 	// outline-offset: -1px;
 	box-shadow: 0 0 1.5px 0.5px rgba(var(--bg-d-rgb), 0.5) inset;
 
@@ -278,7 +278,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 //· Inputs ···································································¬
 .gui-folder {
 	.gui-input-container {
-		// outline: 1px solid red;
+		// outline: 1px solid hsla(0, 100%, 50%, 0.2); // debug-outline
 		// outline-offset: -1px;
 
 		display: flex;
@@ -305,7 +305,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	}
 
 	.gui-input-title {
-		// outline: 1px solid green;
+		// outline: 1px solid hsla(120, 100%, 25%, 0.2); // debug-outline
 		// outline-offset: -2px;
 
 		width: 5rem;
@@ -317,7 +317,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	}
 
 	.gui-input-content {
-		// outline: 1px solid blue;
+		// outline: 1px solid hsla(240, 100%, 50%, 0.2); // debug-outline
 		// outline-offset: -3px;
 
 		display: flex;
@@ -330,7 +330,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 .gui-folder {
 	.gui-input-content {
-		// outline: 1px solid #ffa50011;
+		// outline: 1px solid hsla(39, 100%, 50%, 0.2); // debug-outline
 
 		display: flex;
 		align-items: center;
@@ -339,7 +339,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		gap: 0.75rem;
 
 		.gui-input-number-container {
-			// outline: 1px solid #ffff0011;
+			// outline: 1px solid hsla(60, 100%, 50%, 0.2); // debug-outline
 
 			position: relative;
 			display: flex;
@@ -353,7 +353,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 			border-radius: var(--radius-sm);
 
 			.gui-input-number-input {
-				// outline: 1px solid #ff000011 !important;
+				// outline: 1px solid hsla(0, 100%, 50%, 0.2) !important; // debug-outline
 
 				-webkit-appearance: textfield;
 				-moz-appearance: textfield;
@@ -361,7 +361,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 				width: 4rem;
 				height: 95%;
-				
+
 				font-family: var(--font-mono);
 
 				color: var(--gui-input-number-color);
@@ -371,7 +371,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 				outline: none;
 				opacity: 0.7;
 				transition: opacity 0.15s;
-				
+
 				// padding-left: 0.33rem;
 				text-align: center;
 
@@ -392,28 +392,28 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 			}
 
 			.gui-input-number-buttons-container {
-				// outline: 1px solid #00800011;
+				// outline: 1px solid #00800011; // debug-outline
 				outline-offset: -1px;
-				
+
 				display: flex;
 				flex-direction: column;
 				justify-content: space-between;
 				align-items: center;
-				
+
 				width: 2rem;
 				height: 1.5rem;
 				margin: 0;
 				padding: 0;
-				
+
 				.gui-input-number-button {
-					// outline: 1px solid #0000ff11;
-					
+					// outline: 1px solid #0000ff11; // debug-outline
+
 					cursor: pointer;
 
 					display: flex;
 					align-items: center;
 					justify-content: center;
-					
+
 					width: 90%;
 					height: 45%;
 
@@ -430,7 +430,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 						height: 1rem;
 
 						opacity: 0.1;
-						
+
 						scale: 1;
 						transition: 0.15s;
 
@@ -640,7 +640,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 				// padding-top: 0;
 
 				color: var(--bg-a);
-				// outline: 1px solid rgba(255, 99, 71, 0.45);
+				// outline: 1px solid rgba(255, 99, 71, 0.45); // debug-outline
 				border-radius: 0.2rem;
 
 				opacity: 0;

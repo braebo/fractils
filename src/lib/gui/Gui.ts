@@ -254,12 +254,12 @@ export class Gui extends Folder {
 					...dragOptions,
 					onDragEnd: this.storage.position
 						? (data) => {
-								// const { x, y } = data
-								// if (x === 0 && y === 0) return
+								const { x, y } = data
+								if (x === 0 && y === 0) return
 
-								// this.position.set({ x, y })
+								this.position.set({ x, y })
 
-								// this.log.fn('onDragEnd').info('Position updated:', { x, y })
+								this.log.fn('onDragEnd').info('Position updated:', { x, y })
 							}
 						: undefined,
 				})
