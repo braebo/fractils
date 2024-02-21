@@ -415,6 +415,9 @@ export class Draggable {
 		if (this.opts.defaultPosition !== DRAG_DEFAULTS.defaultPosition) {
 			this.moveTo(this.opts.defaultPosition)
 			this._position = { x: this.x, y: this.y }
+			// Update the virtual rect.
+			const { top, right, bottom, left } = this.node.getBoundingClientRect()
+			this.rect = { top, right, bottom, left }
 		}
 	}
 
@@ -597,26 +600,128 @@ export class Draggable {
 		this.#fireSvelteDragEndEvent()
 	}
 
+	// resize = () => {
+	// 	this.#recomputeBounds()
+	// 	// Get this rect and bound's rect.
+	// 	const { left, top, right, bottom } = this.node.getBoundingClientRect()
+	// 	const b = this.bounds
+
+	// 	/** Distance between the node right and bounds right. */
+	// 	const overflowX = b.right - right
+	// 	/** Distance between the node bottom and bounds bottom. */
+	// 	const overflowY = b.bottom - bottom
+
+	// 	const styleLeft = parseFloat(this.node.style.left) || 0
+	// 	const styleTop = parseFloat(this.node.style.top) || 0
+
+	// 	let targetX = left - b.left - styleLeft
+	// 	let targetY = top - b.top - styleTop
+
+	// 	let change = false
+
+	// 	// Move if overflown.
+	// 	if (overflowX !== 0) {
+	// 		targetX = Math.min(targetX + overflowX, this.position.x)
+	// 		// Only move if we're not already there.
+	// 		change = targetX !== this.x
+	// 	}
+
+	// 	if (overflowY !== 0) {
+	// 		targetY = Math.min(targetY + overflowY, this.position.y)
+	// 		// Only move if we're not already there.
+	// 		change = change || targetY !== this.y
+	// 	}
+
+	// 	if (change) {
+	// 		this.moveTo({
+	// 			x: Math.round(targetX),
+	// 			y: Math.round(targetY),
+	// 		})
+	// 	}
+	// }
+
 	/**
 	 * Re-calculates the bounds and updates the node's position if it's out of bounds.
 	 * Called automatically when the window and/or {@link bounds} are resized.
 	 */
 	resize = () => {
 		this.#recomputeBounds()
+		this.obstacleEls = select(this.opts.obstacles)
+
 		// Get this rect and bound's rect.
-		const { left, top, right, bottom } = this.node.getBoundingClientRect()
+		// const { top, right, bottom, left } = this.node.getBoundingClientRect()
+		const { top, right, bottom, left } = this.rect
+
 		const b = this.bounds
 
+		let bTop = b.top
+		let bRight = b.right
+		let bBottom = b.bottom
+		let bLeft = b.left
+
+		for (const obstacle of this.obstacleEls) {
+			const o = obstacle.getBoundingClientRect()
+
+			// Use the obstacle position if it's a tweened draggable.
+			let oLeft = +obstacle.dataset.x!
+			let oTop = +obstacle.dataset.y!
+
+			if (isNaN(oLeft)) oLeft = o.left
+			if (isNaN(oTop)) oTop = o.top
+
+			let oRight = oLeft + o.width
+			let oBottom = oTop + o.height
+
+			// we can't occlude ourself
+			if (this.node === obstacle) continue
+
+			//· Check X ··································¬
+			// too high || too low
+			if (top > oBottom || bottom < oTop) {
+				continue
+			}
+
+			// Is obstacle on the right or left?
+			const overRight = right > oLeft
+
+			if (overRight) {
+				bRight = Math.min(bRight, oLeft)
+			}
+			//⌟
+
+			//· Check Y ··································¬
+
+			// too far left || too far right
+			// if (left >= oRight || right <= oLeft) {
+			// 	continue
+			// }
+
+			// // Is obstacle on top or bottom?
+			// const overBottom = bottom > oTop
+
+			// if (overBottom) {
+			// 	bBottom = Math.max(bBottom, oTop)
+
+			// 	console.log(bBottom)
+			// 	console.log(oTop)
+			// 	console.log(bBottom - oTop)
+			// }
+			//⌟
+		}
+
 		/** Distance between the node right and bounds right. */
-		const overflowX = b.right - right
+		const overflowX = bRight - right
+
 		/** Distance between the node bottom and bounds bottom. */
-		const overflowY = b.bottom - bottom
+		const overflowY = bBottom - bottom
+		console.log(overflowY)
 
 		const styleLeft = parseFloat(this.node.style.left) || 0
 		const styleTop = parseFloat(this.node.style.top) || 0
 
-		let targetX = left - b.left - styleLeft
-		let targetY = top - b.top - styleTop
+		let targetX = left - bLeft - styleLeft
+		let targetY = top - bTop - styleTop
+		console.log(targetY)
 
 		let change = false
 
@@ -631,6 +736,7 @@ export class Draggable {
 			targetY = Math.min(targetY + overflowY, this.position.y)
 			// Only move if we're not already there.
 			change = change || targetY !== this.y
+			console.log(targetY)
 		}
 
 		if (change) {
