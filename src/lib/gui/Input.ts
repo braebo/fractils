@@ -267,7 +267,15 @@ export class InputSlider extends Input {
 	}
 
 	#log = new Logger('InputSlider', { fg: 'cyan' })
-	#listeners = new Set<() => void>()
+	#disposeCallbacks = new Set<() => void>()
+
+	#onChangeListeners = new Set<(v: number) => void>()
+	onChange(cb: (v: number) => void) {
+		this.#onChangeListeners.add(cb)
+		return () => {
+			this.#onChangeListeners.delete(cb)
+		}
+	}
 
 	constructor(options: Partial<NumberInputOptions>, folder: Folder) {
 		const opts = { ...NUMBER_INPUT_DEFAULTS, ...options }
@@ -279,7 +287,7 @@ export class InputSlider extends Input {
 		if (opts.binding) {
 			this.initialValue = opts.binding.target[opts.binding.key]
 			this.state = state(this.initialValue)
-			this.#listeners.add(
+			this.#disposeCallbacks.add(
 				this.state.subscribe((v) => {
 					opts.binding!.target[opts.binding!.key] = v
 				}),
@@ -345,7 +353,7 @@ export class InputSlider extends Input {
 
 		this.elements.range = create<HTMLInputElement>('input', {
 			type: 'range',
-			classes: ['gui-input-range'],
+			classes: ['gui-input-number-range'],
 			parent: this.elements.content,
 			min: opts.min,
 			max: opts.max,
@@ -359,12 +367,16 @@ export class InputSlider extends Input {
 		this.state.subscribe((v) => {
 			this.elements.range.value = String(v)
 			this.elements.number.input.value = String(v)
+
+			for (const cb of this.#onChangeListeners) {
+				cb(v)
+			}
 		})
 	}
 
 	#listen = (element: HTMLElement, event: string, cb: (e: Event) => void) => {
 		element.addEventListener(event, cb)
-		this.#listeners.add(() => {
+		this.#disposeCallbacks.add(() => {
 			element.removeEventListener(event, cb)
 		})
 	}
@@ -439,7 +451,7 @@ export class InputSlider extends Input {
 	dispose() {
 		super.dispose()
 
-		for (const cb of this.#listeners) {
+		for (const cb of this.#disposeCallbacks) {
 			cb()
 		}
 	}
