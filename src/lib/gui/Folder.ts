@@ -216,31 +216,139 @@ export class Folder {
 	}
 
 	#createIcon() {
+		const strokeWidth = 1
+		const x = 12
+		const y = 12
+		const r = 4
+		const fill = 'var(--bg-a)'
+		const theme = 'var(--theme-a)'
+		const altStroke = 'var(--fg-d)'
+
 		this.#folderIcon ??= document.createElement('div')
 		this.#folderIcon.classList.add('icon-folder-container')
+
+		const orbCount = [...this.allChildren, ...this.controls.values()].length
+
+		const circs = [
+			{ id: 1, cx: 16.43, cy: 11.93, r: 1.1103 },
+			{ id: 2, cx: 15.13, cy: 15.44, r: 0.8081 },
+			{ id: 3, cx: 15.13, cy: 8.423, r: 0.8081 },
+			{ id: 4, cx: 12.49, cy: 16.05, r: 0.4788 },
+			{ id: 5, cx: 12.42, cy: 7.876, r: 0.545 },
+			{ id: 6, cx: 10.43, cy: 15.43, r: 0.2577 },
+			{ id: 7, cx: 10.43, cy: 8.506, r: 0.2769 },
+			{ id: 8, cx: 17.85, cy: 14.59, r: 0.5635 },
+			{ id: 9, cx: 17.85, cy: 9.295, r: 0.5635 },
+			{ id: 10, cx: 19.19, cy: 12.95, r: 0.5635 },
+			{ id: 11, cx: 19.19, cy: 10.9, r: 0.5635 },
+			{ id: 12, cx: 20.38, cy: 11.96, r: 0.2661 },
+			{ id: 13, cx: 19.74, cy: 14.07, r: 0.2661 },
+			{ id: 14, cx: 19.74, cy: 9.78, r: 0.2661 },
+			{ id: 15, cx: 20.7, cy: 12.96, r: 0.2661 },
+			{ id: 16, cx: 20.7, cy: 10.9, r: 0.2661 },
+			{ id: 17, cx: 21.38, cy: 11.96, r: 0.2661 },
+		] as const
+
+		function circ(c: { id: number; cx: number; cy: number; r: number }) {
+			return /*html*/ `<circle
+				class="alt c${c.id}"
+				cx="${c.cx * 1.1}"
+				cy="${c.cy}"
+				r="${c.r}"
+				style="transition-delay: ${c.id * 0.05}s;"
+			/>`
+		}
+
+		function toCircs(ids: number[]) {
+			return ids.map((id) => circ(circs[id - 1])).join('\n')
+		}
+
+		const circMap = {
+			0: [],
+			1: [1],
+			2: [2, 3],
+			3: [1, 2, 3],
+			4: [2, 3, 4, 5],
+			5: [1, 2, 3, 4, 5],
+			6: [2, 3, 4, 5, 6, 7],
+			7: [1, 2, 3, 4, 5, 6, 7],
+			8: [1, 2, 3, 4, 5, 6, 7, 8],
+			9: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+			10: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+			11: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+			12: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+			13: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+			14: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+			15: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+			16: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+			17: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
+		}
+
+		const circles = toCircs(circMap[Math.min(orbCount, circs.length)])
+		const bounce = 'cubic-bezier(0.36, 0, 0.66, -0.56)'
+		const ease = 'cubic-bezier(0.23, 1, 0.320, 1)'
+
 		const css = /*css*/ `
 			.icon-folder {
-				stroke: var(--theme-a);
-				fill: var(--theme-a);
 				overflow: visible;
 			}
-			.icon-folder circle {
-				transition: 0.25s;
+
+			.icon-folder circle, .icon-folder line {
 				transform-origin: center;
+
+				transition-duration: 0.33s;
+				transition-timing-function: ${ease};
 			}
-			.icon-folder circle.b {
+
+			/*//?	Circle A	*/
+			.icon-folder circle.a {
+				transform: scale(0.5);
+
+				stroke: ${fill};
+				fill: ${theme};
+
+				transition: all .2s ${bounce}, stroke 2s ${bounce};
+			}
+			.closed .icon-folder circle.a {
 				transform: scale(1);
+
+				stroke: ${theme};
+				fill: ${fill};
+			}
+
+			/*//?	Circle B	*/
+			.icon-folder circle.b {
+				transform: scale(1.75);
+
+				stroke: none;
+				fill: ${fill};
+
+				transition-duration: 0.5s;
+				transition-timing-function: cubic-bezier(0.83, 1, 0.820, 1);
 			}
 			.closed .icon-folder circle.b {
-				transform: scale(2);
+				transform: scale(1);
+
+				fill: ${fill};
 			}
-			
+
+			/*//?	Circle Alt	*/
 			.icon-folder circle.alt {
-				transform: scale(0);
+				transform: translate(0, 0) scale(0);
+
+				stroke: none;
+				fill: ${theme};
+
+				transition-duration: 1.5s;
+				transition-timing-function: ${ease};
 			}
 			.closed .icon-folder circle.alt {
-				transform: scale(1);
-			}`
+				transform: translate(-3px, 0) scale(1.8);
+
+				transition-duration: 0.5s;
+				transition-timing-function: ${ease};
+			}
+		`.trim()
 
 		this.#folderIcon.innerHTML = /*html*/ `
 		<svg
@@ -249,23 +357,19 @@ export class Folder {
 			height="100%"
 			viewBox="0 0 24 24"
 			fill="none"
-			stroke-width="1"
+			stroke-width="${strokeWidth}"
 			stroke-linecap="round"
 			stroke-linejoin="round"
 			class="icon-folder"
+			overflow="visible"
 		>
-			${this.allChildren.map((_: Folder, ii: number) => {
-				const i = ii + 1
-				const x = 14 + i * 6
-				// const y = 12 + i * 3
-				const y = 12
-				const r = Math.pow(2, -i * 0.5)
-				return /*html*/ `<circle class="alt" cx="${x}" cy="${y}" r="${r}" fill="var(--theme-a)" />`
-			})}
-			<circle class="a" cx="12" cy="12" r="3" stroke="var(--theme-a)" fill="var(--theme-a)" />
-			<circle class="b" cx="12" cy="12" r="3" stroke="var(--bg-a)" fill="none" />
-			<!-- Vertical line that spans downwards to fill 100% of it's flexbox parent -->
-			<line x1="12" y1="12" x2="12" y2="100%" stroke="var(--theme-a)" />
+			<circle class="b" cx="${x}" cy="${y}" r="${r}" stroke="${altStroke}" stroke-width="0.1" fill="none" />
+
+			
+			<circle class="a" cx="${x}" cy="${y}" r="${r}" stroke="${theme}" fill="${fill}" />
+			
+			${circles}
+			
 			<style lang="css">
 				${css}
 			</style>
