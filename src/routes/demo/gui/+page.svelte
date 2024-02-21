@@ -1,10 +1,12 @@
 <script lang="ts">
 	import type { InputSlider } from '$lib/gui/Input'
 
+	import { inspectElement } from '$lib/actions/inspectElement'
 	import Orbs from '../resizable/Orbs.svelte'
 	import { state } from '$lib/utils/state'
 	import { Gui } from '$lib/gui/Gui'
 	import { onMount } from 'svelte'
+	import { DEV } from 'esm-env'
 
 	let gui: Gui
 	let slider: InputSlider['state']
@@ -120,6 +122,8 @@
 
 		gui.addFolder({ title: 'sibling' })
 
+		if (DEV) inspectElement(gui.element)
+
 		return gui.dispose
 	})
 </script>
@@ -127,8 +131,10 @@
 <!-- <Gui /> -->
 
 {#if slider}
-	{$slider}
-	<input bind:value={$slider} type="range" min="0" max="500" step="0.01" />
+	<label>
+		{$slider}
+		<input bind:value={$slider} type="range" min="0" max="500" step="0.01" />
+	</label>
 {/if}
 
 <div class="page">
@@ -159,5 +165,22 @@
 		width: 20rem;
 		height: 20rem;
 		margin: auto;
+	}
+
+	label {
+		display: flex;
+		gap: 0.5rem;
+
+		width: 13rem;
+		padding: 0.5rem;
+
+		background: rgba(var(--bg-b-rgb), 0.5);
+		border-radius: var(--radius);
+		box-shadow: var(--shadow), var(--shadow-inset);
+	}
+	input {
+		// width: 10rem;
+		min-width: 0;
+		max-width: unset;
 	}
 </style>
