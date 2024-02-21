@@ -597,29 +597,17 @@ export class Draggable {
 		const styleLeft = parseFloat(this.node.style.left) || 0
 		const styleTop = parseFloat(this.node.style.top) || 0
 
-		const transformOffset = left - this.position.x
-
 		let targetX = left - b.left - styleLeft
 		let targetY = top - b.top - styleTop
 
 		let change = false
 
-		console.log()
-
-		console.log('targetX', targetX)
 		// Move if overflown.
 		if (overflowX !== 0) {
 			targetX = Math.min(targetX + overflowX, this.position.x)
 			// Only move if we're not already there.
 			change = targetX !== this.x
-
-			console.log('NEW targetX', targetX)
 		}
-
-		console.log('this.position.x', this.position.x)
-		console.log('overflowX', overflowX)
-		console.log('targetX', targetX)
-		console.log('change', change)
 
 		if (overflowY !== 0) {
 			targetY = Math.min(targetY + overflowY, this.position.y)
@@ -938,9 +926,7 @@ export const draggable: Action<HTMLElement, Partial<DragOptions> | undefined, Dr
 				d.x = options.position?.x ?? d.x
 				d.y = options.position?.y ?? d.y
 
-				const target = { x: d.x, y: d.y }
-
-				d.moveTo(target)
+				d.moveTo({ x: d.x, y: d.y })
 			}
 		},
 	}
