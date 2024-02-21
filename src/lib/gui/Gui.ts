@@ -1,4 +1,4 @@
-import type { Draggable, DragOptions } from '../utils/draggable3'
+import type { Draggable, DragOptions } from '../utils/draggable'
 import type { ThemerOptions } from '../theme/Themer'
 import type { FolderOptions } from './Folder'
 
@@ -249,7 +249,7 @@ export class Gui extends Folder {
 
 			this.log.fn('constructor').info(dragOptions)
 
-			import('../utils/draggable3').then(({ Draggable }) => {
+			import('../utils/draggable').then(({ Draggable }) => {
 				this.draggable = new Draggable(this.element, {
 					...dragOptions,
 					onDragEnd: this.storage.position

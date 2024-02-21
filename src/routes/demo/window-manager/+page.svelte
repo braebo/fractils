@@ -33,7 +33,7 @@
 			style="top:{100 + (i - 1) * 124}px; left: {i * 75}px;"
 			use:windowManager.add={{
 				preserveZ: i === 2,
-				obstacles: '.window',
+				obstacles: '.window-2',
 			}}
 		>
 			<div class="content">

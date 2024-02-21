@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resizable } from '$lib/actions/resizable'
-	import { draggable } from '$lib/utils/draggable3'
+	import { draggable } from '$lib/utils/draggable'
 	import Orbs from './Orbs.svelte'
 
 	const W = globalThis.window?.innerWidth ?? 100

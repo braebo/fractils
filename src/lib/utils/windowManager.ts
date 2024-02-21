@@ -1,7 +1,7 @@
 import type { ElementsOrSelectors } from './select'
 
 import { Resizable, type ResizableOptions } from './resizable'
-import { Draggable, type DragOptions } from './draggable3'
+import { Draggable, type DragOptions } from './draggable'
 import { isObject } from './is'
 
 export interface WindowManagerOptions {
