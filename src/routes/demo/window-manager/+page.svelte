@@ -5,7 +5,7 @@
 
 	const windowManager = new WindowManager({
 		draggable: {
-			obstacles: '.window-even',
+			obstacles: ['.window-4', '.sidebar'],
 		},
 		resizable: {
 			// visible: true,
@@ -23,34 +23,48 @@
 	let deleted = windows.map(() => false)
 </script>
 
-<button on:click={() => (windows = [...windows, windows.length + 1])}>Add Window</button>
-<button on:click={() => console.log(windowManager)}>console.log(windowManager)</button>
+<div class="page">
+	<div class="main">
+		<button on:click={() => (windows = [...windows, windows.length + 1])}>Add Window</button>
+		<button on:click={() => console.log(windowManager)}>console.log(windowManager)</button>
 
-{#each windows as i}
-	{@const evenOddClass = i % 2 === 0 ? 'even' : 'odd'}
-	{#if !deleted[i - 1]}
-		<div
-			class="window window-{i} window-{evenOddClass}"
-			out:scale={{ duration: 150, easing: quintIn }}
-			style="top:{100 + (i - 1) * 124}px; left: {i * 75}px;"
-			use:windowManager.add={{
-				preserveZ: i === 2,
-				obstacles: i === 3 ? '.window-1' : undefined,
-			}}
-		>
-			<div class="content">
-				<button class="delete" on:click={() => (deleted[i - 1] = true)}></button>
-				<h2>Window {i} {evenOddClass}</h2>
-			</div>
-		</div>
-	{/if}
-{/each}
+		{#each windows as i}
+			{@const evenOddClass = i % 2 === 0 ? 'even' : 'odd'}
+			{#if !deleted[i - 1]}
+				<div
+					class="window window-{i} window-{evenOddClass}"
+					out:scale={{ duration: 150, easing: quintIn }}
+					style="top:{100 + (i - 1) * 124}px; left: {i * 75}px;"
+					use:windowManager.add={{
+						preserveZ: i === 2,
+						obstacles: i === 3 ? '.window-1' : undefined,
+					}}
+				>
+					<div class="content">
+						<button class="delete" on:click={() => (deleted[i - 1] = true)}></button>
+						<h2>Window {i} {evenOddClass}</h2>
+					</div>
+				</div>
+			{/if}
+		{/each}
+	</div>
+	<div class="sidebar" />
+</div>
 
 <style lang="scss">
 	.page {
+		display: grid;
+		grid-template-columns: 1fr 10rem;
 		min-height: 100vh;
 		min-width: 100vw;
 	}
+
+	.sidebar {
+		background: var(--bg-b);
+		height: 80%;
+		margin: auto 0;
+	}
+
 	h2 {
 		font-size: var(--font-md);
 		font-family: var(--font-b);

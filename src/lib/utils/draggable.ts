@@ -7,6 +7,7 @@ import { tweened } from 'svelte/motion'
 import { select } from './select'
 import { Logger } from './logger'
 import { clamp } from './clamp'
+import { DEV } from 'esm-env'
 
 /**
  * Represents a dom element's bounding rectangle.
@@ -377,7 +378,7 @@ export class Draggable {
 
 		this.handleEls = this.opts.handle ? select(this.opts.handle, this.node) : [this.node]
 		this.cancelEls = select(this.opts.cancel, this.node)
-		this.obstacleEls = select(this.opts.obstacles, document.body)
+		this.obstacleEls = select(this.opts.obstacles)
 
 		this.#recomputeBounds = this.#resolveRecomputeBounds(this.opts.bounds)
 		this.#recomputeBounds()
@@ -467,6 +468,7 @@ export class Draggable {
 
 	dragStart = (e: PointerEvent) => {
 		this.#log.fn('dragStart').debug()
+
 		if (this.disabled) return
 
 		if (e.button === 2) return
@@ -474,6 +476,15 @@ export class Draggable {
 		if (this.opts.ignoreMultitouch && !e.isPrimary) return
 
 		e.stopPropagation()
+
+		//? Refresh the obstacles.
+		this.obstacleEls = select(this.opts.obstacles)
+
+		if (DEV) {
+			for (const el of this.obstacleEls) {
+				el.style.outline = '2px dotted #F00'
+			}
+		}
 
 		// Error handling
 		if (
@@ -559,6 +570,13 @@ export class Draggable {
 
 	dragEnd = () => {
 		if (!this.#active) return
+
+		//! delete
+		if (DEV) {
+			for (const el of this.obstacleEls) {
+				el.style.outline = 'none'
+			}
+		}
 
 		// Apply dragging and dragged classes.
 		this.node.classList.remove(this.opts.classes.dragging)
