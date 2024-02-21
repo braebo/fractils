@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { InputSlider } from '$lib/gui/Input'
 
-	import Code from '$lib/components/Code.svelte'
 	import Orbs from '../resizable/Orbs.svelte'
 	import { state } from '$lib/utils/state'
 	import { Gui } from '$lib/gui/Gui'
@@ -44,8 +43,6 @@
 				position: true,
 			},
 			resizable: {
-				// todo - `visible` is broken
-				// visible: false,
 				sides: ['right', 'left'],
 				corners: [],
 			},
@@ -58,8 +55,6 @@
 			},
 			closed: false,
 		})
-
-		// gui.add(params) // todo
 
 		church.set(gui)
 
@@ -137,13 +132,11 @@
 {/if}
 
 <div class="page">
-	{#if church}
-		<button on:click={() => console.log(gui)}>Log Gui</button>
+	<button on:click={() => console.log(gui)}>Log Gui</button>
 
-		<div class="orbs">
-			<Orbs bind:params />
-		</div>
-	{/if}
+	<div class="orbs">
+		<Orbs bind:params />
+	</div>
 </div>
 
 <style lang="scss">
