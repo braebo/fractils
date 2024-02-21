@@ -5,7 +5,7 @@
 
 	const windowManager = new WindowManager({
 		draggable: {
-			obstacles: '.window-4',
+			obstacles: '.window-even',
 		},
 		resizable: {
 			// visible: true,
@@ -18,27 +18,29 @@
 		// keepZ: true
 	})
 
-	const windows = [1, 2, 3, 4, 5]
+	let windows = [1, 2, 3, 4, 5]
 
 	let deleted = windows.map(() => false)
 </script>
 
+<button on:click={() => (windows = [...windows, windows.length + 1])}>Add Window</button>
 <button on:click={() => console.log(windowManager)}>console.log(windowManager)</button>
 
 {#each windows as i}
+	{@const evenOddClass = i % 2 === 0 ? 'even' : 'odd'}
 	{#if !deleted[i - 1]}
 		<div
-			class="window window-{i}"
+			class="window window-{i} window-{evenOddClass}"
 			out:scale={{ duration: 150, easing: quintIn }}
 			style="top:{100 + (i - 1) * 124}px; left: {i * 75}px;"
 			use:windowManager.add={{
 				preserveZ: i === 2,
-				obstacles: '.window-2',
+				obstacles: i === 3 ? '.window-1' : undefined,
 			}}
 		>
 			<div class="content">
 				<button class="delete" on:click={() => (deleted[i - 1] = true)}></button>
-				<h2>Window {i}</h2>
+				<h2>Window {i} {evenOddClass}</h2>
 			</div>
 		</div>
 	{/if}
@@ -101,5 +103,9 @@
 			// opacity: 0.5;
 		}
 		z-index: 999;
+	}
+
+	button {
+		margin: 1rem auto;
 	}
 </style>

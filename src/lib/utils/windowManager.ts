@@ -2,7 +2,6 @@ import type { ElementsOrSelectors } from './select'
 
 import { Resizable, type ResizableOptions } from './resizable'
 import { Draggable, type DragOptions } from './draggable'
-import { isObject } from './is'
 
 export interface WindowManagerOptions {
 	/**
@@ -56,7 +55,7 @@ export const WINDOWMANAGER_DEFAULTS: WindowManagerOptions = {
 		duration: 75,
 		scale: 1.025,
 	} as const,
-	obstacles: '',
+	obstacles: undefined,
 } as const
 
 /**
@@ -129,9 +128,10 @@ export class WindowManager {
 		}
 
 		if (this.draggableOptions) {
-			const obstacles = options?.obstacles ?? this.opts.obstacles
+			const obstacles = options?.obstacles ?? this.draggableOptions.obstacles
 			// Order of precedence: options.draggable.obstacles > options.obstacles > this.opts.obstacles
-			const opts = Object.assign(this.draggableOptions, { obstacles }, options?.draggable)
+			const opts = Object.assign({}, this.draggableOptions, { obstacles }, options?.draggable)
+
 			instance.draggableInstance = new Draggable(node, opts)
 
 			node.addEventListener('grab', addClasses)
@@ -144,7 +144,7 @@ export class WindowManager {
 		if (this.resizableOptions) {
 			const obstacles = options?.obstacles ?? this.opts.obstacles
 			// Order of precedence: options.resizable.obstacles > options.obstacles > this.opts.obstacles
-			const opts = Object.assign(this.resizableOptions, { obstacles }, options?.resizable)
+			const opts = Object.assign({}, this.resizableOptions, { obstacles }, options?.resizable)
 			instance.resizableInstance = new Resizable(node, opts)
 
 			node.addEventListener('grab', addClasses)
