@@ -131,24 +131,26 @@ export class Gui extends Folder {
 	storage: StorageOptions | Record<string, any>
 	private _theme: GuiOptions['theme']
 
-	log = new Logger('Gui', {
-		fg: 'PaleVioletRed',
-		deferred: true,
-		server: false,
-	})
-
+	log: Logger
+	
 	constructor(options?: Partial<GuiOptions>) {
 		//· Setup ···································································¬
-
+		
 		const opts = Object.assign({}, GUI_DEFAULTS, options, {
 			// Hack to force this to be the root in the super call.
 			parentFolder: null as any,
 			resizable: options?.resizable ?? GUI_DEFAULTS.resizable,
 		})
-
+		
 		opts.container ??= document.body
-
+		
 		super(opts, opts.container)
+		
+		this.log = new Logger('Gui:' + opts.title, {
+			fg: 'PaleVioletRed',
+			deferred: true,
+			server: false,
+		})
 		this.log.fn('constructor').info({ opts, this: this })
 
 		this.root = this
@@ -158,13 +160,15 @@ export class Gui extends Folder {
 			: opts.storage === true
 				? GUI_DEFAULTS.storage
 				: Object.assign({}, opts.storage, GUI_DEFAULTS.storage)
+
+		this.log.info('Storage:', this.storage)
 		//⌟
 
 		//· State ···································································¬
 
 		const getState = <T>(value: T, key: 'size' | 'position' | 'closed') => {
 			if (opts.storage === true)
-				return state<T>(value, { key: 'fractils::gui::' + key, debounce: 50 })
+				return state<T>(value, { key: this.storage.key + '::' + key, debounce: 50 })
 
 			if (typeof opts.storage === 'object') {
 				const { storage } = this

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { InputSlider } from '$lib/gui/Input'
+	import type { Folder } from '$lib/gui/Folder'
 
 	import { inspectElement } from '$lib/actions/inspectElement'
 	import Orbs from '../resizable/Orbs.svelte'
@@ -122,9 +123,74 @@
 
 		gui.addFolder({ title: 'sibling' })
 
-		if (DEV) inspectElement(gui.element)
+		// let interval: any
+		// if (DEV) {
+		// 	inspectElement(gui.element)
+		// 	interval = setInterval(() => {
+		// 		f1.toggle()
+		// 	}, 1250)
+		// }
 
-		return gui.dispose
+		//? Cool self themer majig 🌈
+		import('$lib/gui/gui.scss?raw').then((x) => {
+			setTimeout(() => {
+				const root = document.querySelector('.gui-root') as HTMLDivElement
+				if (!root) {
+					console.error('no root')
+					return
+				}
+
+				const matches = x.default.match(/--gui-[\w-]+(?=\s*:)/g)?.map((x) => x.trim())
+				if (!matches) return
+
+				const theme = matches.reduce(
+					(acc, key) => {
+						acc[key] = getComputedStyle(root).getPropertyValue(key).trim()
+						return acc
+					},
+					{} as Record<string, string>,
+				)
+
+				const themerGui = new Gui({
+					container: document.getElementById('svelte')!,
+					title: 'themer',
+					storage: {
+						key: 'fractils::gui-themer',
+					},
+					resizable: {
+						sides: ['right', 'left'],
+						corners: [],
+					},
+					themer: false,
+					draggable: {
+						defaultPosition: {
+							x: window.innerWidth - 250,
+							y: 0,
+						},
+					},
+					closed: false,
+				})
+
+				const f = themerGui.addFolder({ title: 'theme' })
+
+				for (const [k, v] of Object.entries(theme)) {
+					if (v.endsWith('rem')) {
+						f.add<InputSlider>({
+							title: k.replace('--gui-', '').replace(/-/g, ' '),
+							value: parseFloat(v),
+							view: 'Slider',
+						}).onChange((v) => {
+							root.style.setProperty(k, v + 'rem')
+						})
+					}
+				}
+			}, 1000)
+		})
+
+		return () => {
+			gui.dispose()
+			// clearInterval(interval)
+		}
 	})
 </script>
 

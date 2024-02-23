@@ -2,14 +2,25 @@ $theme-a: #00bcd4;
 $theme-b: #f8d2c9;
 $theme-c: #ba788a;
 
-$dark-a: #15161d;
-$dark-b: #282a36;
-$dark-c: #1d252e;
-$dark-d: #3a3a44;
+// $dark-a: #15161d;
+// $dark-b: #21232d;
+// $dark-c: #181f27;
+// $dark-d: #3a3a44;
+// $light-a: #ffffff;
+// $light-b: #dfe1e9;
+// $light-c: #c3c4c7;
+// $light-d: #777d8f;
+
+$dark-a: #0B0B11;
+$dark-b: #15161D;
+$dark-c: #1F202D;
+$dark-d: #353746;
+$dark-e: #474A5B;
 $light-a: #ffffff;
 $light-b: #dfe1e9;
-$light-c: #c3c4c7;
-$light-d: #777d8f;
+$light-c: #BABECA;
+$light-d: #777D8F;
+$light-e: #5F6377;
 
 // Enables alpha manipulation, ie: rgba(var(--fg-a-rgb), 0.5)
 @mixin variables($map) {
@@ -23,7 +34,7 @@ html {
 	// &[theme='dark'] {
 	@include variables(
 		(
-			darker: #0b0e11,
+			always-dark: $dark-a,
 
 			theme-a: $theme-a,
 			theme-b: $theme-b,
@@ -33,19 +44,23 @@ html {
 			dark-b: $dark-b,
 			dark-c: $dark-c,
 			dark-d: $dark-d,
+			dark-e: $dark-e,
 			light-a: $light-a,
 			light-b: $light-b,
 			light-c: $light-c,
 			light-d: $light-d,
+			light-e: $light-e,
 
 			bg-a: $dark-a,
 			bg-b: $dark-b,
 			bg-c: $dark-c,
 			bg-d: $dark-d,
+			bg-e: $dark-e,
 			fg-a: $light-a,
 			fg-b: $light-b,
 			fg-c: $light-c,
 			fg-d: $light-d,
+			fg-e: $light-e,
 		)
 	);
 	// }
@@ -61,10 +76,12 @@ html {
 				fg-b: $dark-b,
 				fg-c: $dark-c,
 				fg-d: $dark-d,
+				fg-e: $dark-e,
 				bg-a: $light-a,
 				bg-b: $light-b,
 				bg-c: $light-c,
 				bg-d: $light-d,
+				bg-e: $light-e,
 			)
 		);
 	}
