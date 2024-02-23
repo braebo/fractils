@@ -842,6 +842,9 @@ export class Draggable {
 		let bBottom = b.bottom
 		let bLeft = b.left
 
+		let hitX = false
+		let hitY = false
+
 		for (const obstacle of this.obstacleEls) {
 			const o = obstacle.getBoundingClientRect()
 
@@ -859,13 +862,15 @@ export class Draggable {
 			if (this.node === obstacle) continue
 
 			//· Check X ··································¬
+
 			// too high || too low
 			if (!(top > oBottom || bottom < oTop)) {
 				// Is obstacle on the right or left?
-				const overRight = right > oLeft && left <= oRight
+				const overRight = right >= oLeft && left <= oRight
 
 				if (overRight) {
 					bRight = Math.min(bRight, oLeft)
+					break
 				}
 			}
 			//⌟
@@ -874,11 +879,16 @@ export class Draggable {
 
 			// too far left || too far right
 			if (!(left >= oRight || right <= oLeft)) {
+				//! This fixes the ice-block bug, but only for x-resizing.
+				// if (!(left >= oRight || right <= oLeft)) {
 				// Is obstacle on top or bottom?
 				const overBottom = bottom > oTop && top <= oBottom
 
 				if (overBottom) {
-					bBottom = Math.min(bBottom, oTop)
+					 bBottom = Math.min(bBottom, oTop)
+					break
+
+					// bRight = b.right
 				}
 			}
 			//⌟
@@ -898,13 +908,15 @@ export class Draggable {
 		let change = false
 
 		// Move if overflown.
-		if (overflowX !== 0 && Math.abs(overflowX) <= Math.abs(overflowY)) {
+		// if (overflowX > 0 || (overflowX < 0 && Math.abs(overflowX) <= Math.abs(overflowY))) {
+		if (overflowX !== 0) {
 			targetX = Math.min(targetX + overflowX, this.position.x)
 			// Only move if we're not already there.
-			change = targetX !== this.x
+			change = targetX !== this.x || targetX !== this.position.x
 		}
 
-		if (overflowY !== 0 && Math.abs(overflowY) <= Math.abs(overflowX)) {
+		// if (overflowY > 0 || (overflowY > 0  && Math.abs(overflowY) <= Math.abs(overflowX))) {
+		if (overflowY !== 0) {
 			targetY = Math.min(targetY + overflowY, this.position.y)
 			// Only move if we're not already there.
 			change = change || targetY !== this.y
@@ -915,6 +927,15 @@ export class Draggable {
 				x: Math.round(targetX),
 				y: Math.round(targetY),
 			})
+		}
+
+		if (DEV) {
+			const xdev = this.node.querySelector('.content') as HTMLElement
+			if (xdev) {
+				xdev.innerText = `x: ${this.position.x}, y: ${this.position.y}\n
+			overflowX: ${overflowX}, overflowY: ${overflowY}\n
+			targetX: ${targetX}, targetY: ${targetY}\n`
+			}
 		}
 	}
 
@@ -1000,6 +1021,19 @@ export class Draggable {
 				this.tween.set({ x, y, ...this.opts.tween })
 			}
 		}
+
+		// if (DEV) {
+		// const s = (n = 1) => '&nbsp;'.repeat(n)
+		// this.node.innerHTML = `
+		// 	x: ${this.x}, y: ${this.y}
+		// 	<br> rect: {
+		// 	<br> ${s(4)}top: ${this.rect.top},
+		// 	<br> ${s(4)}right: ${this.rect.right},
+		// 	<br> ${s(4)}bottom: ${this.rect.bottom},
+		// 	<br> ${s(4)}left: ${this.rect.left},
+		// 	<br> }
+		// `
+		// }
 
 		this.#fireUpdateEvent()
 	}

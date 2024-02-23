@@ -5,23 +5,22 @@
 
 	const windowManager = new WindowManager({
 		draggable: {
-			obstacles: ['.window-4', '.sidebar'],
+			obstacles: ['.window','.sidebar'],
 		},
 		resizable: {
-			// visible: true,
 			sides: ['top', 'right', 'bottom', 'left'],
 		},
 		animation: {
 			scale: 1.025,
 			duration: 75,
 		},
-		// keepZ: true
 	})
 
 	// let windows = [1, 2, 3, 4, 5]
-	let windows = [4, 5]
+	// let windows = [4, 5]
+	let windows = [] as number[]
 
-	let deleted = windows.map(() => false)
+	// let deleted = windows.map(() => false)
 </script>
 
 <div class="page">
@@ -29,7 +28,26 @@
 		<button on:click={() => (windows = [...windows, windows.length + 1])}>Add Window</button>
 		<button on:click={() => console.log(windowManager)}>console.log(windowManager)</button>
 
-		{#each windows as i}
+		<div
+			class="window window-1"
+			style="top:500px;left:250px"
+			out:scale={{ duration: 150, easing: quintIn }}
+			use:windowManager.add
+
+		>
+			<div class="content"><h2>Window 1</h2></div>
+		</div>
+		
+		<div
+			class="window window-2"
+			style="top:500px;left:550px"
+			out:scale={{ duration: 150, easing: quintIn }}
+			use:windowManager.add
+		>
+			<div class="content"><h2>Window 2</h2></div>
+		</div>
+
+		<!-- {#each windows as i}
 			{@const evenOddClass = i % 2 === 0 ? 'even' : 'odd'}
 			{#if !deleted[i - 1]}
 				<div
@@ -47,7 +65,7 @@
 					</div>
 				</div>
 			{/if}
-		{/each}
+		{/each} -->
 	</div>
 	<div class="sidebar" />
 </div>
@@ -61,7 +79,7 @@
 	}
 
 	.sidebar {
-		background: var(--bg-b);
+		background: var(--bg-a);
 		height: 20rem;
 		margin: auto 0;
 	}
@@ -75,15 +93,21 @@
 
 		width: 240px;
 		height: 120px;
+		padding: 0.5rem;
 
 		background-color: rgba(var(--bg-a-rgb), 0.5);
 		backdrop-filter: blur(0.25rem);
 		border: 1px solid var(--bg-b);
 		border-radius: var(--radius);
 		box-shadow: var(--shadow-lg);
+
+		font-size: var(--font-xs);
+		font-family: var(--font-b);
+
+		overflow: hidden;
 	}
 
-	.window-4 {
+	.window-2 {
 		color: black;
 		background-color: lightslategrey;
 	}
@@ -100,25 +124,25 @@
 		}
 	}
 
-	.delete {
-		all: unset;
-		position: absolute;
-		top: 0.5rem;
-		right: 0.5rem;
-		// padding: 0.5rem !important;
-		cursor: pointer;
-		width: 10px;
-		height: 10px;
-		border-radius: 50%;
-		background: tomato;
-		filter: brightness(0.25) saturate(0.25);
-		transition: 0.25s ease-in;
-		&:hover {
-			filter: brightness(0.5);
-			// opacity: 0.5;
-		}
-		z-index: 999;
-	}
+	// .delete {
+	// 	all: unset;
+	// 	position: absolute;
+	// 	top: 0.5rem;
+	// 	right: 0.5rem;
+	// 	// padding: 0.5rem !important;
+	// 	cursor: pointer;
+	// 	width: 10px;
+	// 	height: 10px;
+	// 	border-radius: 50%;
+	// 	background: tomato;
+	// 	filter: brightness(0.25) saturate(0.25);
+	// 	transition: 0.25s ease-in;
+	// 	&:hover {
+	// 		filter: brightness(0.5);
+	// 		// opacity: 0.5;
+	// 	}
+	// 	z-index: 999;
+	// }
 
 	button {
 		margin: 1rem auto;
