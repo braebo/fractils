@@ -62,7 +62,7 @@
 
 	.sidebar {
 		background: var(--bg-b);
-		height: 80%;
+		height: 20rem;
 		margin: auto 0;
 	}
 
