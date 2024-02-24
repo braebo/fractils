@@ -1,7 +1,7 @@
-import type { InputOptions, InputView, NumberInputOptions } from './Input'
+import type { InputOptions, InputView, NumberInputOptions } from './inputs/Input'
 import type { Gui } from './Gui'
 
-import { Input, InputSlider } from './Input'
+import { Input, InputSlider } from './inputs/Input'
 import { create } from '../utils/create'
 import { nanoid } from '../utils/nanoid'
 import { Logger } from '../utils/logger'
@@ -302,22 +302,28 @@ export class Folder {
 
 			/*//?	Circle A	*/
 			.icon-folder circle.a {
+				transform: scale(1);
+				
+				stroke: ${theme};
+				fill: ${fill};
+				
+				transition: all .2s ${bounce}, stroke 2s ${bounce};
+			}
+			.closed .icon-folder circle.a {
 				transform: scale(0.5);
 
 				stroke: ${fill};
 				fill: ${theme};
 
-				transition: all .2s ${bounce}, stroke 2s ${bounce};
-			}
-			.closed .icon-folder circle.a {
-				transform: scale(1);
-
-				stroke: ${theme};
-				fill: ${fill};
 			}
 
 			/*//?	Circle B	*/
 			.icon-folder circle.b {
+				transform: scale(1);
+				
+				fill: ${fill};
+			}
+			.closed .icon-folder circle.b {
 				transform: scale(1.75);
 
 				stroke: none;
@@ -326,26 +332,22 @@ export class Folder {
 				transition-duration: 0.5s;
 				transition-timing-function: cubic-bezier(0.83, 1, 0.820, 1);
 			}
-			.closed .icon-folder circle.b {
-				transform: scale(1);
-
-				fill: ${fill};
-			}
 
 			/*//?	Circle Alt	*/
 			.icon-folder circle.alt {
-				transform: translate(0, 0) scale(0);
-
+				transform: translate(-3px, 0) scale(1.8);
+				
 				stroke: none;
 				fill: ${theme};
-
-				transition-duration: 1.5s;
+				
+				transition-duration: 0.5s;
 				transition-timing-function: ${ease};
 			}
 			.closed .icon-folder circle.alt {
-				transform: translate(-3px, 0) scale(1.8);
+				transform: translate(0, 0) scale(0);
 
-				transition-duration: 0.5s;
+
+				transition-duration: 1.5s;
 				transition-timing-function: ${ease};
 			}
 		`.trim()
@@ -365,11 +367,10 @@ export class Folder {
 		>
 			<circle class="b" cx="${x}" cy="${y}" r="${r}" stroke="${altStroke}" stroke-width="0.1" fill="none" />
 
-			
 			<circle class="a" cx="${x}" cy="${y}" r="${r}" stroke="${theme}" fill="${fill}" />
-			
+
 			${circles}
-			
+
 			<style lang="css">
 				${css}
 			</style>
