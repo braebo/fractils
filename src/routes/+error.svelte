@@ -29,7 +29,7 @@
 		font-size: 1.5rem;
 		text-align: center;
 
-		color: var(--dark-a, slategray);
+		color: var(--fg-a, pink);
 		text-decoration-skip-ink: auto;
 		text-decoration-color: #ffffff50;
 	}
@@ -44,19 +44,19 @@
 	}
 
 	.error::-webkit-scrollbar {
-		background-color: var(--light-a);
+		background-color: var(--fg-a);
 		width: 10px;
 		height: 10px;
 	}
 	.error::-webkit-scrollbar-thumb {
-		background-color: rgba(var(--light-d-rgb), 0.5);
+		background-color: rgba(var(--fg-d-rgb), 0.5);
 		border-radius: 5px;
 	}
 	.error::-webkit-scrollbar-track {
-		background-color: rgba(var(--light-d-rgb), 0.1);
+		background-color: rgba(var(--fg-d-rgb), 0.1);
 	}
 	.error::-webkit-scrollbar-corner {
-		background-color: rgba(var(--light-d-rgb), 0.1);
+		background-color: rgba(var(--fg-d-rgb), 0.1);
 	}
 
 	pre {
@@ -72,9 +72,9 @@
 		margin: 1rem auto;
 		padding: 1rem;
 
-		color: var(--dark-d);
+		color: var(--fg-d);
 		background: transparent;
-		border: 1px solid var(--light-d);
+		border: 1px solid var(--fg-d);
 		border-radius: var(--radius-lg);
 	}
 </style>
