@@ -60,7 +60,7 @@ export { ArgMap, mapArgs, resolveArg } from './utils/args' // todo
 export { stringify, serialize } from './utils/stringify' // todo
 export { entries, keys, values } from './utils/object' // todo
 export { decimalToPow } from './utils/decimalToPow' // todo
-export { colors, randomColor } from './utils/color' // todo
+export { colors, randomColor } from './color/cssColors' // todo
 export { cliHyperlink } from './utils/cliHyperlink' // todo
 export { partition } from './utils/partition' // todo
 export { timestamp } from './utils/timestamp' // todo

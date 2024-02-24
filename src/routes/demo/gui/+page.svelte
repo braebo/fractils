@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { InputSlider } from '$lib/gui/Input'
+	import type { InputSlider } from '$lib/gui/inputs/Input'
 	import type { Folder } from '$lib/gui/Folder'
 
 	import { inspectElement } from '$lib/actions/inspectElement'
@@ -8,6 +8,7 @@
 	import { Gui } from '$lib/gui/Gui'
 	import { onMount } from 'svelte'
 	import { DEV } from 'esm-env'
+	import { InputColor } from '$lib/gui/inputs/Color'
 
 	let gui: Gui
 	let slider: InputSlider['state']
@@ -34,6 +35,7 @@
 		speed: 0.02,
 		mid: count * 5,
 		brightness: 0.4,
+		color: '#7777FF',
 	}
 
 	onMount(() => {
@@ -115,10 +117,81 @@
 			step: 0.001,
 		})
 
-		f1.addFolder({ title: '2b' }).add({
-			title: '2b',
-			value: 0,
+		f1.add<InputSlider>({
+			title: 'width',
 			view: 'Slider',
+			binding: {
+				target: params,
+				key: 'width',
+			},
+			min: 10,
+			max: window.innerWidth,
+			step: 1,
+		})
+
+		f1.add<InputSlider>({
+			title: 'height',
+			view: 'Slider',
+			binding: {
+				target: params,
+				key: 'height',
+			},
+			min: 10,
+			max: window.innerHeight,
+			step: 1,
+		})
+
+		f1.add<InputSlider>({
+			title: 'speed',
+			view: 'Slider',
+			binding: {
+				target: params,
+				key: 'speed',
+			},
+			min: 0.0001,
+			max: 2,
+			step: 0.0001,
+		})
+
+		f1.add<InputSlider>({
+			title: 'mid',
+			view: 'Slider',
+			binding: {
+				target: params,
+				key: 'mid',
+			},
+			min: 1,
+			max: 100,
+			step: 1,
+		})
+
+		f1.add<InputSlider>({
+			title: 'brightness',
+			view: 'Slider',
+			binding: {
+				target: params,
+				key: 'brightness',
+			},
+			min: 0,
+			max: 1,
+			step: 0.01,
+		})
+
+		const f2 = f1.addFolder({ title: '2b' })
+
+		f2.add({
+			title: 'width',
+			view: 'Color',
+			binding: {
+				target: params,
+				key: 'color',
+			},
+		})
+
+		f2.add<InputColor>({
+			title: 'color',
+			value: '#ff0000',
+			view: 'Color',
 		})
 
 		gui.addFolder({ title: 'sibling' })
@@ -131,61 +204,61 @@
 		// 	}, 1250)
 		// }
 
-		//? Cool self themer majig 🌈
-		import('$lib/gui/gui.scss?raw').then((x) => {
-			setTimeout(() => {
-				const root = document.querySelector('.gui-root') as HTMLDivElement
-				if (!root) {
-					console.error('no root')
-					return
-				}
+		// //? Cool self themer majig 🌈
+		// import('$lib/gui/gui.scss?raw').then((x) => {
+		// 	setTimeout(() => {
+		// 		const root = document.querySelector('.gui-root') as HTMLDivElement
+		// 		if (!root) {
+		// 			console.error('no root')
+		// 			return
+		// 		}
 
-				const matches = x.default.match(/--gui-[\w-]+(?=\s*:)/g)?.map((x) => x.trim())
-				if (!matches) return
+		// 		const matches = x.default.match(/--gui-[\w-]+(?=\s*:)/g)?.map((x) => x.trim())
+		// 		if (!matches) return
 
-				const theme = matches.reduce(
-					(acc, key) => {
-						acc[key] = getComputedStyle(root).getPropertyValue(key).trim()
-						return acc
-					},
-					{} as Record<string, string>,
-				)
+		// 		const theme = matches.reduce(
+		// 			(acc, key) => {
+		// 				acc[key] = getComputedStyle(root).getPropertyValue(key).trim()
+		// 				return acc
+		// 			},
+		// 			{} as Record<string, string>,
+		// 		)
 
-				const themerGui = new Gui({
-					container: document.getElementById('svelte')!,
-					title: 'themer',
-					storage: {
-						key: 'fractils::gui-themer',
-					},
-					resizable: {
-						sides: ['right', 'left'],
-						corners: [],
-					},
-					themer: false,
-					draggable: {
-						defaultPosition: {
-							x: window.innerWidth - 250,
-							y: 0,
-						},
-					},
-					closed: false,
-				})
+		// 		const themerGui = new Gui({
+		// 			container: document.getElementById('svelte')!,
+		// 			title: 'themer',
+		// 			storage: {
+		// 				key: 'fractils::gui-themer',
+		// 			},
+		// 			resizable: {
+		// 				sides: ['right', 'left'],
+		// 				corners: [],
+		// 			},
+		// 			themer: false,
+		// 			draggable: {
+		// 				defaultPosition: {
+		// 					x: window.innerWidth - 250,
+		// 					y: 0,
+		// 				},
+		// 			},
+		// 			closed: false,
+		// 		})
 
-				const f = themerGui.addFolder({ title: 'theme' })
+		// 		const f = themerGui.addFolder({ title: 'theme' })
 
-				for (const [k, v] of Object.entries(theme)) {
-					if (v.endsWith('rem')) {
-						f.add<InputSlider>({
-							title: k.replace('--gui-', '').replace(/-/g, ' '),
-							value: parseFloat(v),
-							view: 'Slider',
-						}).onChange((v) => {
-							root.style.setProperty(k, v + 'rem')
-						})
-					}
-				}
-			}, 1000)
-		})
+		// 		for (const [k, v] of Object.entries(theme)) {
+		// 			if (v.endsWith('rem')) {
+		// 				f.add<InputSlider>({
+		// 					title: k.replace('--gui-', '').replace(/-/g, ' '),
+		// 					value: parseFloat(v),
+		// 					view: 'Slider',
+		// 				}).onChange((v) => {
+		// 					root.style.setProperty(k, v + 'rem')
+		// 				})
+		// 			}
+		// 		}
+		// 	}, 1000)
+		// })
 
 		return () => {
 			gui.dispose()
@@ -212,19 +285,22 @@
 </div>
 
 <style lang="scss">
+	:global(html) {
+		background: var(--bg-c) !important;
+	}
+
 	.page {
 		display: flex;
 		flex-direction: column;
 		justify-content: flex-start;
 		align-items: flex-start;
 		gap: 1rem;
+		flex-grow: 1;
 
 		max-width: 400px;
 		height: 100%;
-		flex-grow: 1;
-		margin: auto;
-
 		padding: 1rem;
+		margin: auto;
 	}
 
 	.orbs {

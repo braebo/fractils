@@ -1,4 +1,4 @@
-import { randomColor, type CSSColor } from './color'
+import { randomColor, type CSSColor } from '../color/cssColors'
 
 import { BROWSER, DEV } from 'esm-env'
 import { isSafari } from './safari'

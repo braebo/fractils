@@ -135,7 +135,7 @@ export class Gui extends Folder {
 	
 	constructor(options?: Partial<GuiOptions>) {
 		//· Setup ···································································¬
-		
+
 		const opts = Object.assign({}, GUI_DEFAULTS, options, {
 			// Hack to force this to be the root in the super call.
 			parentFolder: null as any,
