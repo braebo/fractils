@@ -167,7 +167,15 @@ export interface InputOptions<T extends Record<string, any> = Record<string, any
 }
 //⌟
 
-export class Input<T, O extends InputOptions> {
+interface ElementMap {
+	[key: string]: HTMLElement | HTMLInputElement | ElementMap
+}
+
+export abstract class Input<
+	T = unknown,
+	O extends InputOptions = InputOptions,
+	C extends ElementMap = ElementMap,
+> {
 	declare state: State<T>
 	declare initialValue: T
 	declare opts: O
@@ -178,6 +186,9 @@ export class Input<T, O extends InputOptions> {
 		container: HTMLElement
 		title: HTMLElement
 		content: HTMLElement
+		drawer: HTMLElement
+		drawerToggle: HTMLElement
+		controller: C
 	}
 
 	#title = ''
@@ -189,8 +200,13 @@ export class Input<T, O extends InputOptions> {
 		this.elements.title.textContent = v
 	}
 
+	/**
+	 * A set of callbacks to be called when {@link Input.dispose} is called.
+	 * @internal
+	 */
+	disposeCallbacks = new Set<() => void>()
+
 	#log = new Logger('Input', { fg: 'cyan' })
-	#listeners = new Set<() => void>()
 
 	constructor(
 		options: O,
@@ -204,6 +220,11 @@ export class Input<T, O extends InputOptions> {
 			parent: this.folder.elements.content,
 		})
 
+		this.elements.drawerToggle = create('div', {
+			classes: ['gui-input-drawer-toggle'],
+			parent: this.elements.container,
+		})
+
 		this.elements.title = create('div', {
 			classes: ['gui-input-title'],
 			parent: this.elements.container,
@@ -214,6 +235,13 @@ export class Input<T, O extends InputOptions> {
 			classes: ['gui-input-content'],
 			parent: this.elements.container,
 		})
+
+		this.elements.drawer = create('div', {
+			classes: ['gui-input-drawer'],
+			parent: this.elements.content,
+		})
+
+		this.listen(this.elements.drawerToggle, 'click', () => {})
 
 		this.#log.groupCollapsed().fn('constructor').info({ opts: options, this: this })
 	}
@@ -231,16 +259,16 @@ export class Input<T, O extends InputOptions> {
 		}
 	}
 
-	// listen(event: string, cb: (e: Event) => void, element: HTMLElement) {
-	// 	element.addEventListener(event, cb)
-	// 	this.#listeners.add(() => {
-	// 		element.removeEventListener(event, cb)
-	// 	})
-	// }
+	listen = (element: HTMLElement, event: string, cb: (e: Event) => void) => {
+		element.addEventListener(event, cb)
+		this.disposeCallbacks.add(() => {
+			element.removeEventListener(event, cb)
+		})
+	}
 
 	dispose() {
 		this.#log.fn('dispose').info(this)
-		for (const listener of this.#listeners) {
+		for (const listener of this.disposeCallbacks) {
 			listener()
 		}
 	}
@@ -262,29 +290,12 @@ const NUMBER_INPUT_DEFAULTS: NumberInputOptions = {
 	step: 0.01,
 } as const
 
-export class InputSlider extends Input<number, NumberInputOptions> {
+export class InputSlider extends Input<number, NumberInputOptions, NumberControllerElements> {
 	state: State<number>
 	initialValue: number
 	opts: NumberInputOptions
 
-	declare elements: {
-		container: HTMLElement
-		title: HTMLElement
-		content: HTMLElement
-		range: HTMLInputElement
-		number: {
-			container: HTMLInputElement
-			input: HTMLInputElement
-			buttons: {
-				container: HTMLDivElement
-				increment: HTMLDivElement
-				decrement: HTMLDivElement
-			}
-		}
-	}
-
 	#log = new Logger('InputSlider', { fg: 'cyan' })
-	#disposeCallbacks = new Set<() => void>()
 
 	#onChangeListeners = new Set<(v: number) => void>()
 	onChange(cb: (v: number) => void) {
@@ -299,103 +310,43 @@ export class InputSlider extends Input<number, NumberInputOptions> {
 		super(opts, folder)
 
 		this.opts = opts
+		//* this is bop it type beat but is cool - brb fire alarm
 		this.#log.fn('constructor').info({ opts, this: this }).groupEnd()
 
 		if (opts.binding) {
 			this.initialValue = opts.binding.target[opts.binding.key]
 			this.state = state(this.initialValue)
-			this.#disposeCallbacks.add(
+			this.disposeCallbacks.add(
 				this.state.subscribe((v) => {
 					opts.binding!.target[opts.binding!.key] = v
-				}),
+				})
 			)
 		} else {
 			this.initialValue = opts.value
 			this.state = state(opts.value)
 		}
 
-		this.elements.number = {
-			container: create('div', {
-				classes: ['gui-input-number-container'],
-				parent: this.elements.content,
-			}),
-			// @ts-expect-error
-			buttons: {},
-		}
+		this.elements.controller ||= {} as unknown as number as unknown as string as any
 
-		//· Number Input ·······························································¬
+		// todo I wonder how I wonder why I wonder if this works lol
+		//* it doesnee
+		//* fixed it
+		this.elements.controller = numberController(this, opts)
 
-		this.elements.number.input = create('input', {
-			type: 'number',
-			classes: ['gui-input-number-input'],
-			parent: this.elements.number.container,
-			value: String(this.state.value),
-			step: opts.step,
-		})
-		this.#listen(this.elements.number.input, 'input', this.updateState)
-		//⌟
+		// todo this isn't being set because of a reason I can't work out, using declare is church bcuz ts has no red squiggles but there are runtime errors so rekt I guess idk lol
+		// this.listen(this.elements.controller.range, 'input', this.updateState)
+		this.listen(this.elements.controller.range, 'input', this.updateState)
 
-		//· Number Buttons ·····························································¬
+		this.disposeCallbacks.add(
+			this.state.subscribe((v) => {
+				this.elements.controller.range.value = String(v)
+				this.elements.controller.input.value = String(v)
 
-		this.elements.number.buttons.container = create('div', {
-			classes: ['gui-input-number-buttons-container'],
-			parent: this.elements.number.container,
-		})
-
-		//· Increment ··································································¬
-
-		this.elements.number.buttons.increment = create('div', {
-			classes: ['gui-input-number-button', 'gui-input-number-buttons-increment'],
-			parent: this.elements.number.buttons.container,
-		})
-		this.elements.number.buttons.increment.appendChild(InputSlider.svgChevron())
-		this.#listen(this.elements.number.buttons.increment, 'pointerdown', this.#rampChangeUp)
-		//⌟
-
-		//· Decrement ··································································¬
-
-		this.elements.number.buttons.decrement = create('div', {
-			classes: ['gui-input-number-button', 'gui-input-number-buttons-decrement'],
-			parent: this.elements.number.buttons.container,
-		})
-		const upsideDownChevron = InputSlider.svgChevron()
-		upsideDownChevron.setAttribute('style', 'transform: rotate(180deg)')
-		this.elements.number.buttons.decrement.appendChild(upsideDownChevron)
-
-		this.#listen(this.elements.number.buttons.decrement, 'pointerdown', this.#rampChangeDown)
-		//⌟
-		//⌟
-
-		//· Range Input ································································¬
-
-		this.elements.range = create<HTMLInputElement>('input', {
-			type: 'range',
-			classes: ['gui-input-number-range'],
-			parent: this.elements.content,
-			min: opts.min,
-			max: opts.max,
-			step: opts.step,
-			value: String(this.state.value),
-		})
-
-		this.#listen(this.elements.range, 'input', this.updateState)
-		//⌟
-
-		this.state.subscribe((v) => {
-			this.elements.range.value = String(v)
-			this.elements.number.input.value = String(v)
-
-			for (const cb of this.#onChangeListeners) {
-				cb(v)
-			}
-		})
-	}
-
-	#listen = (element: HTMLElement, event: string, cb: (e: Event) => void) => {
-		element.addEventListener(event, cb)
-		this.#disposeCallbacks.add(() => {
-			element.removeEventListener(event, cb)
-		})
+				for (const cb of this.#onChangeListeners) {
+					cb(v)
+				}
+			})
+		)
 	}
 
 	updateState = (v: number | Event) => {
@@ -406,45 +357,6 @@ export class InputSlider extends Input<number, NumberInputOptions> {
 		} else {
 			this.state.set(v)
 		}
-	}
-
-	#rampChangeUp = () => {
-		this.#rampChange(1)
-	}
-
-	#rampChangeDown = () => {
-		this.#rampChange(-1)
-	}
-
-	#rampChange = (direction = 1) => {
-		let delay = 300
-		let stop = false
-		let step = this.opts.step ?? 1
-		let delta = 0
-		let timeout: ReturnType<typeof setTimeout>
-
-		const change = () => {
-			clearTimeout(timeout)
-			if (stop) return
-
-			delta += delay
-			if (delta > 1000) {
-				delay /= 2
-				delta = 0
-			}
-			this.state.set(this.state.value + step * direction)
-			timeout = setTimeout(change, delay)
-		}
-		const stopChanging = () => {
-			stop = true
-			window.removeEventListener('pointerup', stopChanging)
-			window.removeEventListener('pointercancel', stopChanging)
-		}
-
-		window.addEventListener('pointercancel', stopChanging, { once: true })
-		window.addEventListener('pointerup', stopChanging, { once: true })
-
-		change()
 	}
 
 	static svgChevron() {
@@ -467,9 +379,125 @@ export class InputSlider extends Input<number, NumberInputOptions> {
 
 	dispose() {
 		super.dispose()
-
-		for (const cb of this.#disposeCallbacks) {
-			cb()
-		}
 	}
+}
+
+export interface NumberControllerElements extends ElementMap {
+	container: HTMLElement
+	buttons: {
+		container: HTMLDivElement
+		increment: HTMLDivElement
+		decrement: HTMLDivElement
+	}
+	input: HTMLInputElement
+	range: HTMLInputElement
+}
+
+export function numberController(input: InputSlider, opts: NumberInputOptions) {
+	const elements: NumberControllerElements = {
+		container: create('div', {
+			classes: ['gui-input-number-container'],
+			parent: input.elements.content,
+		}),
+		// @ts-expect-error
+		buttons: {},
+	}
+
+	//· Number Input ·······························································¬
+	elements.input = create('input', {
+		type: 'number',
+		classes: ['gui-input-number-input'],
+		parent: elements.container,
+		value: String(input.state.value),
+		step: opts.step,
+	})
+	input.listen(elements.input, 'input', input.updateState)
+	//⌟
+
+	//· Number Buttons ·····························································¬
+
+	elements.buttons.container = create('div', {
+		classes: ['gui-input-number-buttons-container'],
+		parent: elements.container,
+	})
+
+	//· Increment ··································································¬
+
+	elements.buttons.increment = create('div', {
+		classes: ['gui-input-number-button', 'gui-input-number-buttons-increment'],
+		parent: elements.buttons.container,
+	})
+	elements.buttons.increment.appendChild(InputSlider.svgChevron())
+	input.listen(elements.buttons.increment, 'pointerdown', rampChangeUp)
+	//⌟
+
+	//· Decrement ··································································¬
+
+	elements.buttons.decrement = create('div', {
+		classes: ['gui-input-number-button', 'gui-input-number-buttons-decrement'],
+		parent: elements.buttons.container,
+	})
+	const upsideDownChevron = InputSlider.svgChevron()
+	upsideDownChevron.setAttribute('style', 'transform: rotate(180deg)')
+	elements.buttons.decrement.appendChild(upsideDownChevron)
+
+	input.listen(elements.buttons.decrement, 'pointerdown', rampChangeDown)
+	//⌟
+	//⌟
+
+	//· Range Input ································································¬
+
+	elements.range = create<HTMLInputElement>('input', {
+		type: 'range',
+		classes: ['gui-input-number-range'],
+		parent: elements.container,
+		min: opts.min,
+		max: opts.max,
+		step: opts.step,
+		value: String(input.state.value),
+	})
+	//⌟
+
+	function rampChange(direction = 1) {
+		let delay = 300
+		let stop = false
+		let step = opts.step ?? 1
+		let delta = 0
+		let timeout: ReturnType<typeof setTimeout>
+
+		const change = () => {
+			clearTimeout(timeout)
+			if (stop) return
+
+			delta += delay
+			if (delta > 1000) {
+				delay /= 2
+				delta = 0
+			}
+
+			input.state.set(input.state.value + step * direction)
+			timeout = setTimeout(change, delay)
+		}
+
+		const stopChanging = () => {
+			stop = true
+			window.removeEventListener('pointerup', stopChanging)
+			window.removeEventListener('pointercancel', stopChanging)
+		}
+
+		window.addEventListener('pointercancel', stopChanging, { once: true })
+		window.addEventListener('pointerup', stopChanging, { once: true })
+
+		change()
+	}
+
+	function rampChangeUp() {
+		rampChange(1)
+	}
+
+	function rampChangeDown() {
+		rampChange(-1)
+	}
+
+	return elements
 }

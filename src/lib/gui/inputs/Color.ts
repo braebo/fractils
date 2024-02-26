@@ -11,6 +11,17 @@ import { Input } from './Input'
 
 export type ColorMode = 'hex' | 'rgb' | 'hsl' | 'rgbString' | 'hslString' | 'array'
 
+export interface ColorControllerElements {
+	container: HTMLInputElement
+	input: HTMLInputElement
+	sliders: {
+		container: HTMLDivElement
+		a: HTMLInputElement
+		b: HTMLInputElement
+		c: HTMLInputElement
+	}
+}
+
 export interface ColorInputOptions extends InputOptions {
 	value: ColorRepresentation | Color
 	mode: ColorMode
@@ -24,26 +35,19 @@ export const COLOR_INPUT_DEFAULTS: ColorInputOptions = {
 	mode: 'hex',
 } as const
 
-export class InputColor extends Input<Color, ColorInputOptions> {
+export class InputColor extends Input<Color, ColorInputOptions, ColorControllerElements> {
 	state: State<Color>
 	initialValue: Color
 	opts: ColorInputOptions
 
-	declare elements: {
-		container: HTMLElement
-		title: HTMLElement
-		content: HTMLElement
-		color: {
-			container: HTMLInputElement
-			input: HTMLInputElement
-		}
-		sliders: {
-			container: HTMLDivElement
-			a: HTMLInputElement
-			b: HTMLInputElement
-			c: HTMLInputElement
-		}
-	}
+	// declare elements: {
+	// 	container: HTMLElement
+	// 	title: HTMLElement
+	// 	content: HTMLElement
+	// 	drawer: HTMLElement
+	// 	drawerToggle: HTMLElement
+	// 	color: ColorControllerElements
+	// }
 
 	#log = new Logger('InputColor', { fg: 'cyan' })
 	#disposeCallbacks = new Set<() => void>()
@@ -64,7 +68,7 @@ export class InputColor extends Input<Color, ColorInputOptions> {
 
 			this.state = state(this.initialValue)
 
-			this.#disposeCallbacks.add(
+			this.disposeCallbacks.add(
 				this.state.subscribe((v) => {
 					opts.binding!.target[opts.binding!.key] = v
 				}),
@@ -74,43 +78,7 @@ export class InputColor extends Input<Color, ColorInputOptions> {
 			this.state = state(this.initialValue)
 		}
 
-		//· Color Input ·······························································¬
-
-		this.elements.color = {} as any
-
-		this.elements.color.container = create('div', {
-			classes: ['gui-input-color-container'],
-			parent: this.elements.content,
-		})
-
-		this.elements.color.input = create('input', {
-			type: 'color',
-			classes: ['gui-input-color-input'],
-			parent: this.elements.color.container,
-			value: String(this.state.value),
-		})
-		this.#listen(this.elements.color.input, 'input', this.updateState)
-		//⌟
-
-		//· Sliders ····································································¬
-
-		this.elements.sliders = {} as any
-
-		this.elements.sliders.container = create('div', {
-			classes: ['gui-input-color-range-container'],
-			parent: this.elements.content,
-		})
-
-		for (const key of ['a', 'b', 'c'] as const) {
-			this.elements.sliders[key] = create('input', {
-				type: 'range',
-				classes: ['gui-input-color-range', `gui-input-color-range-${key}`],
-				parent: this.elements.sliders.container,
-				value: String(this.state.value.hex),
-			})
-			this.#listen(this.elements.sliders[key], 'input', this.updateState)
-		}
-		//⌟
+		this.elements.controller = colorController(this, opts)
 
 		this.state.subscribe((v) => {
 			this.elements.color.input.value = String(v)
@@ -121,7 +89,7 @@ export class InputColor extends Input<Color, ColorInputOptions> {
 
 	refreshSliders(mode = this.opts.mode) {
 		if (mode === 'rgb') {
-			for (const [k, v] of Object.entries(this.elements.sliders)) {
+			for (const [k, v] of Object.entries(this.elements.color.sliders)) {
 				if (k === 'container') continue
 				;(v as HTMLInputElement).disabled = false
 				;(v as HTMLInputElement).min = '0'
@@ -131,7 +99,7 @@ export class InputColor extends Input<Color, ColorInputOptions> {
 		}
 
 		if (mode === 'hsl') {
-			for (const [k, v] of Object.entries(this.elements.sliders)) {
+			for (const [k, v] of Object.entries(this.elements.color.sliders)) {
 				if (k === 'container') continue
 				;(v as HTMLInputElement).disabled = false
 				;(v as HTMLInputElement).min = '0'
@@ -141,7 +109,7 @@ export class InputColor extends Input<Color, ColorInputOptions> {
 		}
 
 		// Disable the sliders.
-		for (const [k, v] of Object.entries(this.elements.sliders)) {
+		for (const [k, v] of Object.entries(this.elements.color.sliders)) {
 			if (k === 'container') continue
 			;(v as HTMLInputElement).disabled = true
 		}
@@ -168,24 +136,6 @@ export class InputColor extends Input<Color, ColorInputOptions> {
 		}
 	}
 
-	static svgChevron() {
-		const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-		svg.setAttribute('width', '24')
-		svg.setAttribute('height', '24')
-		svg.setAttribute('viewBox', '-2 -2 28 28')
-		svg.setAttribute('stroke', 'currentColor')
-		svg.setAttribute('fill', 'none')
-		svg.setAttribute('stroke-width', '2')
-		svg.setAttribute('stroke-linecap', 'round')
-		svg.setAttribute('stroke-linejoin', 'round')
-
-		const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-		path.setAttribute('d', 'm18 15-6-6-6 6')
-		svg.appendChild(path)
-
-		return svg
-	}
-
 	dispose() {
 		super.dispose()
 
@@ -193,4 +143,45 @@ export class InputColor extends Input<Color, ColorInputOptions> {
 			cb()
 		}
 	}
+}
+
+export function colorController(input: Input, options: ColorInputOptions) {
+
+	const elements = {
+		container: create('div', {
+			classes: ['gui-input-color-container'],
+			parent: input.elements.content,
+		}),
+		sliders: {},
+	} as any as ColorControllerElements
+	//· Color Input ·······························································¬
+
+	elements.input = create('input', {
+		type: 'color',
+		classes: ['gui-input-color-input'],
+		parent: elements.container,
+		value: String(input.state.value),
+	})
+	input.listen(elements.input, 'input', input.updateState)
+	//⌟
+
+	//· Sliders ····································································¬
+
+	elements.sliders = {} as any
+
+	elements.sliders.container = create('div', {
+		classes: ['gui-input-color-range-container'],
+		parent: elements.content,
+	})
+
+	for (const key of ['a', 'b', 'c'] as const) {
+		elements.sliders[key] = create('input', {
+			type: 'range',
+			classes: ['gui-input-color-range', `gui-input-color-range-${key}`],
+			parent: elements.sliders.container,
+			value: String(input.state.value.hex),
+		})
+		input.listen(elements.sliders[key], 'input', input.updateState)
+	}
+	//⌟
 }
