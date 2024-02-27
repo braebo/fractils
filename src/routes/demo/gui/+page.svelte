@@ -40,24 +40,26 @@
 
 	onMount(() => {
 		gui = new Gui({
-			container: document.getElementById('svelte')!,
+			// container: document.getElementById('svelte')!,
 			storage: {
 				key: 'fractils::gui',
 				closed: true,
 				size: true,
 				position: true,
 			},
-			resizable: {
-				sides: ['right', 'left'],
-				corners: [],
-			},
-			themer: false,
-			draggable: {
-				defaultPosition: {
-					x: 16,
-					y: 0,
+			windowManager: {
+				draggable: {
+					defaultPosition: {
+						x: 16,
+						y: 0,
+					},
+				},
+				resizable: {
+					sides: ['right', 'left'],
+					corners: [],
 				},
 			},
+			themer: false,
 			closed: false,
 		})
 
@@ -177,22 +179,22 @@
 			step: 0.01,
 		})
 
-		const f2 = f1.addFolder({ title: '2b' })
+		// const f2 = f1.addFolder({ title: '2b' })
 
-		f2.add({
-			title: 'width',
-			view: 'Color',
-			binding: {
-				target: params,
-				key: 'color',
-			},
-		})
+		// f2.add({
+		// 	title: 'width',
+		// 	view: 'Color',
+		// 	binding: {
+		// 		target: params,
+		// 		key: 'color',
+		// 	},
+		// })
 
-		f2.add<InputColor>({
-			title: 'color',
-			value: '#ff0000',
-			view: 'Color',
-		})
+		// f2.add<InputColor>({
+		// 	title: 'color',
+		// 	value: '#ff0000',
+		// 	view: 'Color',
+		// })
 
 		gui.addFolder({ title: 'sibling' })
 
@@ -269,12 +271,12 @@
 
 <!-- <Gui /> -->
 
-{#if slider}
+<!-- {#if slider}
 	<label>
 		{$slider}
 		<input bind:value={$slider} type="range" min="0" max="500" step="0.01" />
 	</label>
-{/if}
+{/if} -->
 
 <div class="page">
 	<button on:click={() => console.log(gui)}>Log Gui</button>

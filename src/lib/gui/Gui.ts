@@ -10,6 +10,7 @@ import { Themer } from '../theme/Themer'
 import { Folder } from './Folder'
 
 import './gui.scss'
+import { WindowManager, type WindowManagerOptions } from '$lib/utils/windowManager'
 
 type GuiTheme = 'default' | 'minimal' | (string & {})
 
@@ -60,18 +61,25 @@ export interface GuiOptions extends FolderOptions {
 	 * Options for the {@link Themer} instance when `themer` is `true`.
 	 */
 	themerOptions: Partial<ThemerOptions>
+
 	/**
-	 * Whether the gui should be resizable.  Can be a boolean, or
-	 * your own {@link ResizableOptions}.  If `false` or `undefined`,
-	 * the gui will not be resizable.
+	 * {@link WindowManager} options.  Controls behaviors like dragging,
+	 * resizing, and z-index management.
 	 */
-	resizable: boolean | Partial<ResizableOptions>
-	/**
-	 * Whether the gui should be draggable.  Can be a boolean, or
-	 * your own {@link DragOptions}.  If `false` or `undefined`,
-	 * the gui will not be resizable.
-	 */
-	draggable: boolean | Partial<DragOptions>
+	windowManager: Partial<WindowManagerOptions>
+
+	// /**
+	//  * Whether the gui should be resizable.  Can be a boolean, or
+	//  * your own {@link ResizableOptions}.  If `false` or `undefined`,
+	//  * the gui will not be resizable.
+	//  */
+	// resizable: boolean | Partial<ResizableOptions>
+	// /**
+	//  * Whether the gui should be draggable.  Can be a boolean, or
+	//  * your own {@link DragOptions}.  If `false` or `undefined`,
+	//  * the gui will not be resizable.
+	//  */
+	// draggable: boolean | Partial<DragOptions>
 
 	position: { x: number; y: number }
 	size: { width: number; height: number }
@@ -85,12 +93,14 @@ export const GUI_DEFAULTS = {
 	children: [],
 	themer: true,
 	themerOptions: {},
-	resizable: {
-		grabberSize: 50,
-		sides: ['right'],
-		corners: [],
+	windowManager: {
+		resizable: {
+			grabberSize: 50,
+			sides: ['right'],
+			corners: [],
+		},
+		draggable: true,
 	},
-	draggable: true,
 	storage: {
 		key: 'fractils::gui',
 		size: true,
@@ -118,8 +128,9 @@ export class Gui extends Folder {
 	container!: HTMLElement
 
 	themer?: Themer
-	resizable?: Resizable
-	draggable?: Draggable
+	// resizable?: Resizable
+	// draggable?: Draggable
+	windowManager: WindowManager
 
 	closed: PrimitiveState<boolean>
 	size: PrimitiveState<{ width: number; height: number }>
@@ -132,20 +143,20 @@ export class Gui extends Folder {
 	private _theme: GuiOptions['theme']
 
 	log: Logger
-	
+
 	constructor(options?: Partial<GuiOptions>) {
 		//· Setup ···································································¬
 
 		const opts = Object.assign({}, GUI_DEFAULTS, options, {
 			// Hack to force this to be the root in the super call.
 			parentFolder: null as any,
-			resizable: options?.resizable ?? GUI_DEFAULTS.resizable,
+			resizable: options?.windowManager?.resizable ?? GUI_DEFAULTS.windowManager?.resizable,
 		})
-		
+
 		opts.container ??= document.body
-		
+
 		super(opts, opts.container)
-		
+
 		this.log = new Logger('Gui:' + opts.title, {
 			fg: 'PaleVioletRed',
 			deferred: true,
@@ -203,72 +214,99 @@ export class Gui extends Folder {
 		}
 		//⌟
 
-		//· Resizable ·······························································¬
+		// //· Draggable ·······························································¬
 
-		if (opts.resizable) {
-			const resizeOpts: Partial<ResizableOptions> =
-				typeof opts.resizable === 'object' ? opts.resizable : {}
+		// if (opts.draggable) {
+		// 	const dragOptions: Partial<DragOptions> =
+		// 		typeof opts.draggable === 'object' ? opts.draggable : {}
+		// 	dragOptions.handle = this.elements.header
+		// 	dragOptions.bounds = this.container
 
-			import('../utils/resizable').then(({ Resizable }) => {
-				if (opts.storage === true || this.storage?.size) {
-					resizeOpts.onResize = (size) => {
-						this.size.set(size)
-					}
-				}
+		// 	dragOptions.defaultPosition = this.position.get()
 
-				this.resizable = new Resizable(this.element, {
-					...resizeOpts,
-				})
+		// 	this.log.fn('constructor').info(dragOptions)
 
-				// Load size from state.
-				if (opts.storage === true || opts.storage?.size) {
-					const size = this.size.get()
-					this.log.fn('constructor').info('Loading size from state:', size)
-					if (
-						resizeOpts?.sides?.includes('left') ||
-						resizeOpts?.sides?.includes('right')
-					) {
-						this.element.style.width = `${size.width}px`
-					}
-					if (
-						resizeOpts?.sides?.includes('top') ||
-						resizeOpts?.sides?.includes('bottom')
-					) {
-						this.element.style.height = `${size.height}px`
-					}
-				}
-			})
+		// 	import('../utils/draggable').then(({ Draggable }) => {
+		// 		this.draggable = new Draggable(this.element, {
+		// 			...dragOptions,
+		// 			onDragEnd: this.storage.position
+		// 				? (data) => {
+		// 						const { x, y } = data
+		// 						if (x === 0 && y === 0) return
+
+		// 						this.position.set({ x, y })
+
+		// 						this.log.fn('onDragEnd').info('Position updated:', { x, y })
+		// 					}
+		// 				: undefined,
+		// 		})
+		// 	})
+		// }
+		// //⌟
+
+		//· Window Manager ·····························································¬
+
+		//··  Draggable ································································¬
+
+		const dragOptions: Partial<DragOptions> =
+			typeof opts.windowManager?.draggable === 'object' ? opts.windowManager?.draggable : {}
+		dragOptions.handle = this.elements.header
+		dragOptions.bounds = this.container
+
+		dragOptions.defaultPosition = this.position.get()
+
+		//? Persist position to state if storage is enabled.
+		if (this.storage.position) {
+			dragOptions.onDragEnd = (data) => {
+				const { x, y } = data
+				if (x === 0 && y === 0) return
+
+				this.position.set({ x, y })
+
+				this.log.fn('onDragEnd').info('Position updated:', { x, y })
+			}
 		}
 		//⌟
 
-		//· Draggable ·······························································¬
+		//·· Resizable ·······························································¬
 
-		if (opts.draggable) {
-			const dragOptions: Partial<DragOptions> =
-				typeof opts.draggable === 'object' ? opts.draggable : {}
-			dragOptions.handle = this.elements.header
-			dragOptions.bounds = this.container
+		//? If `false`, disable resizing
+		// todo - Resizable needs a proper `disabled` option/toggle.
+		//? If `true`, an empty object will result in default options.
+		const resizeOpts: Partial<ResizableOptions> =
+			typeof opts.resizable === 'object'
+				? opts.resizable
+				: opts.resizable === false
+					? {
+							sides: [],
+							corners: [],
+						}
+					: {} // Results in defaults in Resizable.
 
-			dragOptions.defaultPosition = this.position.get()
+		if (opts.storage === true || this.storage?.size) {
+			resizeOpts.onResize = (size) => {
+				this.size.set(size)
+			}
 
-			this.log.fn('constructor').info(dragOptions)
-
-			import('../utils/draggable').then(({ Draggable }) => {
-				this.draggable = new Draggable(this.element, {
-					...dragOptions,
-					onDragEnd: this.storage.position
-						? (data) => {
-								const { x, y } = data
-								if (x === 0 && y === 0) return
-
-								this.position.set({ x, y })
-
-								this.log.fn('onDragEnd').info('Position updated:', { x, y })
-							}
-						: undefined,
-				})
-			})
+			//? Load size from state if storage is enabled.
+			if (opts.storage === true || opts.storage?.size) {
+				const size = this.size.get()
+				this.log.fn('constructor').info('Loading size from state:', size)
+				if (resizeOpts?.sides?.includes('left') || resizeOpts?.sides?.includes('right')) {
+					this.element.style.width = `${size.width}px`
+				}
+				if (resizeOpts?.sides?.includes('top') || resizeOpts?.sides?.includes('bottom')) {
+					this.element.style.height = `${size.height}px`
+				}
+			}
 		}
+		//⌟
+		//⌟
+
+		this.windowManager = new WindowManager({
+			draggable: dragOptions,
+			resizable: resizeOpts,
+		})
 		//⌟
 
 		setTimeout(() => {
@@ -295,7 +333,6 @@ export class Gui extends Folder {
 
 		window.addEventListener
 		this.themer?.dispose()
-		this.resizable?.dispose?.()
-		this.draggable?.dispose?.()
+		this.windowManager?.dispose?.()
 	}
 }

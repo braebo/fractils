@@ -6,6 +6,7 @@ import { create } from '../utils/create'
 import { nanoid } from '../utils/nanoid'
 import { Logger } from '../utils/logger'
 import { state } from '../utils/state'
+import { InputColor, type ColorInputOptions } from './inputs/Color'
 
 /**
  * @internal
@@ -401,7 +402,7 @@ export class Folder {
 	}
 
 	add<T>(options: InputOptions) {
-		const input = this.#createInput(options)
+		const input = this.#createInput(options) as Input
 		this.controls.set(input.title, input)
 		return input as T
 	}
@@ -412,25 +413,8 @@ export class Folder {
 		switch (options.view) {
 			case 'Slider':
 				return new InputSlider(options as NumberInputOptions, this)
-			// case 'Checkbox':
-			// 	this.boolean()
-			// 	break
-			// case 'Text':
-			// case 'TextArea':
-			// 	this.string()
-			// 	break
-			// case 'Color':
-			// 	this.color()
-			// 	break
-			// case 'Range':
-			// 	this.range()
-			// 	break
-			// case 'Select':
-			// 	this.select()
-			// 	break
-			// case 'Button':
-			// 	this.button()
-			// 	break
+			case 'Color':
+				return new InputColor(options as ColorInputOptions, this)
 		}
 
 		throw new Error('Invalid input view: ' + options.view)
