@@ -246,6 +246,8 @@ export abstract class Input<
 		this.#log.groupCollapsed().fn('constructor').info({ opts: options, this: this })
 	}
 
+	abstract updateState: (v: T | Event) => void
+
 	#onChangeListeners = new Set<(v: T) => void>()
 	onChange(cb: (v: T) => void) {
 		this.#onChangeListeners.add(cb)
@@ -319,7 +321,7 @@ export class InputSlider extends Input<number, NumberInputOptions, NumberControl
 			this.disposeCallbacks.add(
 				this.state.subscribe((v) => {
 					opts.binding!.target[opts.binding!.key] = v
-				})
+				}),
 			)
 		} else {
 			this.initialValue = opts.value
@@ -345,7 +347,7 @@ export class InputSlider extends Input<number, NumberInputOptions, NumberControl
 				for (const cb of this.#onChangeListeners) {
 					cb(v)
 				}
-			})
+			}),
 		)
 	}
 
