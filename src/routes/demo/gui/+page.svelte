@@ -3,12 +3,12 @@
 	import type { Folder } from '$lib/gui/Folder'
 
 	import { inspectElement } from '$lib/actions/inspectElement'
+	import { InputColor } from '$lib/gui/inputs/Color'
 	import Orbs from '../resizable/Orbs.svelte'
 	import { state } from '$lib/utils/state'
 	import { Gui } from '$lib/gui/Gui'
 	import { onMount } from 'svelte'
 	import { DEV } from 'esm-env'
-	import { InputColor } from '$lib/gui/inputs/Color'
 
 	let gui: Gui
 	let slider: InputSlider['state']
@@ -179,6 +179,15 @@
 			step: 0.01,
 		})
 
+		f1.add<InputColor>({
+			title: 'color',
+			view: 'Color',
+			binding: {
+				target: params,
+				key: 'color',
+			},
+		})
+
 		// const f2 = f1.addFolder({ title: '2b' })
 
 		// f2.add({
@@ -264,19 +273,9 @@
 
 		return () => {
 			gui.dispose()
-			// clearInterval(interval)
 		}
 	})
 </script>
-
-<!-- <Gui /> -->
-
-<!-- {#if slider}
-	<label>
-		{$slider}
-		<input bind:value={$slider} type="range" min="0" max="500" step="0.01" />
-	</label>
-{/if} -->
 
 <div class="page">
 	<button on:click={() => console.log(gui)}>Log Gui</button>

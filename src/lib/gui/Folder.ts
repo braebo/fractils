@@ -1,12 +1,12 @@
 import type { InputOptions, InputView, NumberInputOptions } from './inputs/Input'
 import type { Gui } from './Gui'
 
+import { InputColor, type ColorInputOptions } from './inputs/Color'
 import { Input, InputSlider } from './inputs/Input'
 import { create } from '../utils/create'
 import { nanoid } from '../utils/nanoid'
 import { Logger } from '../utils/logger'
 import { state } from '../utils/state'
-import { InputColor, type ColorInputOptions } from './inputs/Color'
 
 /**
  * @internal
