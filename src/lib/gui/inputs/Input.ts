@@ -1,6 +1,7 @@
 import type { State } from '../../utils/state'
 import type { Folder } from '../Folder'
 
+import { numberController, numberControllerButtons, rangeController } from '../controllers/number'
 import { create } from '../../utils/create'
 import { Logger } from '../../utils/logger'
 import { state } from '../../utils/state'
@@ -167,7 +168,7 @@ export interface InputOptions<T extends Record<string, any> = Record<string, any
 }
 //⌟
 
-interface ElementMap {
+export interface ElementMap {
 	[key: string]: HTMLElement | HTMLInputElement | ElementMap
 }
 
@@ -276,6 +277,8 @@ export abstract class Input<
 	}
 }
 
+//· InputSlider ···································································¬
+
 export interface NumberInputOptions extends InputOptions {
 	value: number
 	min: number
@@ -328,12 +331,7 @@ export class InputSlider extends Input<number, NumberInputOptions, NumberControl
 			this.state = state(opts.value)
 		}
 
-		this.elements.controller ||= {} as unknown as number as unknown as string as any
-
-		// todo I wonder how I wonder why I wonder if this works lol
-		//* it doesnee
-		//* fixed it
-		this.elements.controller = numberController(this, opts)
+		this.elements.controller = numberControllers(this, opts)
 
 		// todo this isn't being set because of a reason I can't work out, using declare is church bcuz ts has no red squiggles but there are runtime errors so rekt I guess idk lol
 		// this.listen(this.elements.controller.range, 'input', this.updateState)
@@ -361,24 +359,6 @@ export class InputSlider extends Input<number, NumberInputOptions, NumberControl
 		}
 	}
 
-	static svgChevron() {
-		const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-		svg.setAttribute('width', '24')
-		svg.setAttribute('height', '24')
-		svg.setAttribute('viewBox', '-2 -2 28 28')
-		svg.setAttribute('stroke', 'currentColor')
-		svg.setAttribute('fill', 'none')
-		svg.setAttribute('stroke-width', '2')
-		svg.setAttribute('stroke-linecap', 'round')
-		svg.setAttribute('stroke-linejoin', 'round')
-
-		const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-		path.setAttribute('d', 'm18 15-6-6-6 6')
-		svg.appendChild(path)
-
-		return svg
-	}
-
 	dispose() {
 		super.dispose()
 	}
@@ -395,111 +375,32 @@ export interface NumberControllerElements extends ElementMap {
 	range: HTMLInputElement
 }
 
-export function numberController(input: InputSlider, opts: NumberInputOptions) {
-	const elements: NumberControllerElements = {
-		container: create('div', {
-			classes: ['gui-input-number-container'],
-			parent: input.elements.content,
-		}),
-		// @ts-expect-error
-		buttons: {},
-	}
+export function numberControllers(input: InputSlider, opts: NumberInputOptions) {
+	const container = create('div', {
+		classes: ['gui-input-number-container'],
+		parent: input.elements.content,
+	})
 
 	//· Number Input ·······························································¬
-	elements.input = create('input', {
-		type: 'number',
-		classes: ['gui-input-number-input'],
-		parent: elements.container,
-		value: String(input.state.value),
-		step: opts.step,
-	})
-	input.listen(elements.input, 'input', input.updateState)
+
+	const numberInputController = numberController(input, opts, container)
 	//⌟
 
 	//· Number Buttons ·····························································¬
-
-	elements.buttons.container = create('div', {
-		classes: ['gui-input-number-buttons-container'],
-		parent: elements.container,
-	})
-
-	//· Increment ··································································¬
-
-	elements.buttons.increment = create('div', {
-		classes: ['gui-input-number-button', 'gui-input-number-buttons-increment'],
-		parent: elements.buttons.container,
-	})
-	elements.buttons.increment.appendChild(InputSlider.svgChevron())
-	input.listen(elements.buttons.increment, 'pointerdown', rampChangeUp)
-	//⌟
-
-	//· Decrement ··································································¬
-
-	elements.buttons.decrement = create('div', {
-		classes: ['gui-input-number-button', 'gui-input-number-buttons-decrement'],
-		parent: elements.buttons.container,
-	})
-	const upsideDownChevron = InputSlider.svgChevron()
-	upsideDownChevron.setAttribute('style', 'transform: rotate(180deg)')
-	elements.buttons.decrement.appendChild(upsideDownChevron)
-
-	input.listen(elements.buttons.decrement, 'pointerdown', rampChangeDown)
-	//⌟
+	const numberButtonsController = numberControllerButtons(input, opts, container)
 	//⌟
 
 	//· Range Input ································································¬
 
-	elements.range = create<HTMLInputElement>('input', {
-		type: 'range',
-		classes: ['gui-input-number-range'],
-		parent: elements.container,
-		min: opts.min,
-		max: opts.max,
-		step: opts.step,
-		value: String(input.state.value),
-	})
+	const numberRangeController = rangeController(input, opts, container)
 	//⌟
 
-	function rampChange(direction = 1) {
-		let delay = 300
-		let stop = false
-		let step = opts.step ?? 1
-		let delta = 0
-		let timeout: ReturnType<typeof setTimeout>
-
-		const change = () => {
-			clearTimeout(timeout)
-			if (stop) return
-
-			delta += delay
-			if (delta > 1000) {
-				delay /= 2
-				delta = 0
-			}
-
-			input.state.set(input.state.value + step * direction)
-			timeout = setTimeout(change, delay)
-		}
-
-		const stopChanging = () => {
-			stop = true
-			window.removeEventListener('pointerup', stopChanging)
-			window.removeEventListener('pointercancel', stopChanging)
-		}
-
-		window.addEventListener('pointercancel', stopChanging, { once: true })
-		window.addEventListener('pointerup', stopChanging, { once: true })
-
-		change()
-	}
-
-	function rampChangeUp() {
-		rampChange(1)
-	}
-
-	function rampChangeDown() {
-		rampChange(-1)
-	}
-
-	return elements
+	return {
+		container,
+		buttons: numberButtonsController,
+		input: numberInputController,
+		range: numberRangeController,
+	} as const satisfies NumberControllerElements
 }
+
+//⌟
