@@ -6,20 +6,20 @@ import { colors } from './cssColors'
  * A hex color string.
  */
 export type HexColor = `#${string}`
-export type RGB = { r: number; g: number; b: number }
-export type HSL = { h: number; s: number; l: number }
+export type RGBA = { r: number; g: number; b: number; a: number }
+export type HSLA = { h: number; s: number; l: number; a: number }
 export type ColorRepresentation =
 	| HexColor
-	| { r: number; g: number; b: number }
-	| { h: number; s: number; l: number }
+	| { r: number; g: number; b: number; a: number }
+	| { h: number; s: number; l: number; a: number }
 	| CSSColor
 
 export class Color {
 	readonly isColor = true as const
 
-	#hex: HexColor = '#ffffff'
-	#rgb: RGB = { r: 255, g: 255, b: 255 }
-	#hsl: HSL = { h: 0, s: 0, l: 1 }
+	#hex: HexColor = '#ffffffff'
+	#rgba: RGBA = { r: 255, g: 255, b: 255, a: 1 }
+	#hsla: HSLA = { h: 0, s: 0, l: 1, a: 1 }
 
 	constructor(color?: ColorRepresentation | Color) {
 		if (color instanceof Color) {
@@ -28,7 +28,7 @@ export class Color {
 
 		if (Color.isHex(color)) {
 			this.hex = color
-			this.rgb = Color.hexToRGB(color)
+			this.rgba = Color.hexToRGBA(color)
 		}
 	}
 
@@ -37,40 +37,40 @@ export class Color {
 	}
 	set hex(v: HexColor) {
 		this.#hex = v
-		this.rgb = Color.hexToRGB(v)
+		this.#rgba = Color.hexToRGBA(v)
 	}
 	get hexString() {
 		return this.hex
 	}
 
-	get rgb() {
-		return this.#rgb
+	get rgba() {
+		return this.#rgba
 	}
-	set rgb(v: RGB) {
-		this.#rgb = v
-		this.hex = Color.rgbToHex(v)
+	set rgba(v: RGBA) {
+		this.#rgba = v
+		this.#hex = Color.rgbaToHex(v)
 	}
-	get rgbString() {
-		return `rgb(${this.rgb.r}, ${this.rgb.g}, ${this.rgb.b})`
+	get rgbaString() {
+		return `rgb(${this.rgba.r}, ${this.rgba.g}, ${this.rgba.b})`
 	}
 
-	get hsl() {
-		return this.#hsl
+	get hsla() {
+		return this.#hsla
 	}
-	set hsl(v: HSL) {
-		this.#hsl = v
-		this.rgb = Color.hslToRGB(v)
+	set hsla(v: HSLA) {
+		this.#hsla = v
+		this.#rgba = Color.hslaToRGBA(v)
 	}
 	get hslString() {
-		return `hsl(${this.hsl.h}, ${this.hsl.s}%, ${this.hsl.l}%)`
+		return `hsl(${this.hsla.h}, ${this.hsla.s}%, ${this.hsla.l}%)`
 	}
 
 	get array() {
-		return [this.rgb.r, this.rgb.g, this.rgb.b]
+		return [this.rgba.r, this.rgba.g, this.rgba.b, this.rgba.a]
 	}
-	set array([r, g, b]: [number, number, number]) {
-		this.rgb = { r, g, b }
-		this.hex = Color.rgbToHex({ r, g, b })
+	set array([r, g, b, a]: [number, number, number, number]) {
+		this.rgba = { r, g, b, a }
+		this.hex = Color.rgbaToHex({ r, g, b, a })
 	}
 
 	static isHex = (color: unknown): color is HexColor => {
@@ -81,23 +81,24 @@ export class Color {
 		return typeof color === 'string' && (colors as any as string[]).includes(color)
 	}
 
-	static hexToRGB = (hex: HexColor): { r: number; g: number; b: number } => {
-		const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+	static hexToRGBA = (hex: HexColor): { r: number; g: number; b: number; a: number } => {
+		const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
 		return result
 			? {
 					r: parseInt(result[1], 16),
 					g: parseInt(result[2], 16),
 					b: parseInt(result[3], 16),
+					a: parseInt(result[4], 16) / 255,
 				}
-			: { r: 0, g: 0, b: 0 }
+			: { r: 0, g: 0, b: 0, a: 1 }
 	}
 
-	static rgbToHex = (rgb: RGB): HexColor => {
-		return `#${((1 << 24) + (rgb.r << 16) + (rgb.g << 8) + rgb.b).toString(16).slice(1)}`
+	static rgbaToHex = (rgba: RGBA): HexColor => {
+		return `#${((1 << 24) + (rgba.r << 16) + (rgba.g << 8) + rgba.b).toString(16).slice(1)}`
 	}
 
-	static hslToRGB(hsl: HSL): RGB {
-		const { h, s, l } = hsl
+	static hslaToRGBA(hsl: HSLA): RGBA {
+		const { h, s, l, a } = hsl
 
 		let c = (1 - Math.abs(2 * l - 1)) * s
 		let x = c * (1 - Math.abs(((h / 60) % 2) - 1))
@@ -109,27 +110,30 @@ export class Color {
 
 		// prettier-ignore
 		if (h >= 0 && h < 60) {
-            r = c; g = x; b = 0;
-        } else if (h >= 60 && h < 120) {
-            r = x; g = c; b = 0;
-        } else if (h >= 120 && h < 180) {
-            r = 0; g = c; b = x;
-        } else if (h >= 180 && h < 240) {
-            r = 0; g = x; b = c;
-        } else if (h >= 240 && h < 300) {
-            r = x; g = 0; b = c;
-        } else if (h >= 300 && h < 360) {
-            r = c; g = 0; b = x;
-        }
+			r = c; g = x; b = 0;
+		} else if (h >= 60 && h < 120) {
+			r = x; g = c; b = 0;
+		} else if (h >= 120 && h < 180) {
+			r = 0; g = c; b = x;
+		} else if (h >= 180 && h < 240) {
+			r = 0; g = x; b = c;
+		} else if (h >= 240 && h < 300) {
+			r = x; g = 0; b = c;
+		} else if (h >= 300 && h < 360) {
+			r = c; g = 0; b = x;
+		}
 
 		return {
 			r: Math.round((r + m) * 255),
 			g: Math.round((g + m) * 255),
 			b: Math.round((b + m) * 255),
+			a,
 		}
 	}
 
-	static rgbToHSL(r: number, g: number, b: number): HSL {
+	static rgbToHSL(rgba: RGBA): HSLA {
+		let { r, g, b, a } = rgba
+
 		;(r /= 255), (g /= 255), (b /= 255)
 		let max = Math.max(r, g, b)
 		let min = Math.min(r, g, b)
@@ -152,6 +156,6 @@ export class Color {
 			h *= 60
 		}
 
-		return { h, s, l }
+		return { h, s, l, a }
 	}
 }
