@@ -35,10 +35,6 @@ export interface NumberControllerElements extends ElementMap {
 }
 
 export class InputSlider extends Input<number, NumberInputOptions, NumberControllerElements> {
-	state: State<number>
-	initialValue: number
-	opts: NumberInputOptions
-
 	#log = new Logger('InputSlider', { fg: 'cyan' })
 
 	#onChangeListeners = new Set<(v: number) => void>()

@@ -171,7 +171,7 @@ export interface ElementMap {
 }
 
 export abstract class Input<
-	TValueType = unknown,
+	TValueType extends unknown = any,
 	TOptions extends InputOptions = InputOptions,
 	TControllers extends ElementMap = ElementMap,
 > {
