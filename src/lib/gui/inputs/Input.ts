@@ -166,8 +166,8 @@ export interface InputOptions<T extends Record<string, any> = Record<string, any
 }
 //⌟
 
-export interface ElementMap {
-	[key: string]: HTMLElement | HTMLInputElement | ElementMap
+export interface ElementMap<T = unknown> {
+	[key: string]: HTMLElement | HTMLInputElement | ElementMap | T
 }
 
 export abstract class Input<
@@ -181,7 +181,9 @@ export abstract class Input<
 
 	view: InputView
 
-	elements = {} as {
+	elements = {
+		controllers: {},
+	} as {
 		container: HTMLElement
 		title: HTMLElement
 		content: HTMLElement
@@ -260,10 +262,15 @@ export abstract class Input<
 		}
 	}
 
-	listen = (element: HTMLElement, event: string, cb: (e: Event) => void) => {
-		element.addEventListener(event, cb)
+	listen = (
+		element: HTMLElement | Window,
+		event: string,
+		cb: (e: any) => void,
+		options?: AddEventListenerOptions,
+	) => {
+		element.addEventListener(event, cb, options)
 		this.disposeCallbacks.add(() => {
-			element.removeEventListener(event, cb)
+			element.removeEventListener(event, cb, options)
 		})
 	}
 

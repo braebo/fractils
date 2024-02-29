@@ -1,7 +1,7 @@
 import type { InputOptions, InputView } from './inputs/Input'
 import type { Gui } from './Gui'
 
-import { InputSlider, type NumberInputOptions } from './inputs/Number'
+import { InputNumber, type NumberInputOptions } from './inputs/Number'
 import { InputColor, type ColorInputOptions } from './inputs/Color'
 
 import { create } from '../utils/create'
@@ -414,7 +414,7 @@ export class Folder {
 
 		switch (options.view) {
 			case 'Slider':
-				return new InputSlider(options as NumberInputOptions, this)
+				return new InputNumber(options as NumberInputOptions, this)
 			case 'Color':
 				return new InputColor(options as ColorInputOptions, this)
 		}

@@ -34,7 +34,7 @@ export interface NumberControllerElements extends ElementMap {
 	range: HTMLInputElement
 }
 
-export class InputSlider extends Input<number, NumberInputOptions, NumberControllerElements> {
+export class InputNumber extends Input<number, NumberInputOptions, NumberControllerElements> {
 	#log = new Logger('InputSlider', { fg: 'cyan' })
 
 	#onChangeListeners = new Set<(v: number) => void>()
