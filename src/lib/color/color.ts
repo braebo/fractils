@@ -1,5 +1,6 @@
-import type { CSSColor } from '$lib/color/cssColors'
+import type { CSSColor } from '../color/cssColors'
 
+import { Logger } from '../utils/logger'
 import { colors } from './cssColors'
 
 /**
@@ -21,14 +22,14 @@ export class Color {
 	#rgba: RGBA = { r: 255, g: 255, b: 255, a: 1 }
 	#hsla: HSLA = { h: 0, s: 0, l: 1, a: 1 }
 
+	#log = new Logger('Color', { fg: 'green' })
+
 	constructor(color?: ColorRepresentation | Color) {
 		if (color instanceof Color) {
-			Object.assign(this, color)
-		}
-
-		if (Color.isHex(color)) {
+			this.hex = color.hex
+		} else if (this.isHex(color)) {
 			this.hex = color
-			this.rgba = Color.hexToRGBA(color)
+			this.rgba = this.hexToRGBA(color)
 		}
 	}
 
@@ -37,7 +38,8 @@ export class Color {
 	}
 	set hex(v: HexColor) {
 		this.#hex = v
-		this.#rgba = Color.hexToRGBA(v)
+		this.#rgba = this.hexToRGBA(v)
+		this.#hsla = this.rgbaToHSLA(this.#rgba)
 	}
 	get hexString() {
 		return this.hex
@@ -48,10 +50,12 @@ export class Color {
 	}
 	set rgba(v: RGBA) {
 		this.#rgba = v
-		this.#hex = Color.rgbaToHex(v)
+		this.#hex = this.rgbaToHex(v)
+		this.#hsla = this.rgbaToHSLA(v)
 	}
 	get rgbaString() {
-		return `rgb(${this.rgba.r}, ${this.rgba.g}, ${this.rgba.b})`
+		const { r, g, b, a } = this.rgba
+		return `rgba(${r}, ${g}, ${b}, ${a})`
 	}
 
 	get hsla() {
@@ -59,10 +63,11 @@ export class Color {
 	}
 	set hsla(v: HSLA) {
 		this.#hsla = v
-		this.#rgba = Color.hslaToRGBA(v)
+		this.#rgba = this.hslaToRGBA(v)
+		this.#hex = this.rgbaToHex(this.#rgba)
 	}
-	get hslString() {
-		return `hsl(${this.hsla.h}, ${this.hsla.s}%, ${this.hsla.l}%)`
+	get hslaString() {
+		return `hsla(${this.hsla.h}, ${this.hsla.s}%, ${this.hsla.l}% ${this.hsla.a})`
 	}
 
 	get array() {
@@ -70,34 +75,41 @@ export class Color {
 	}
 	set array([r, g, b, a]: [number, number, number, number]) {
 		this.rgba = { r, g, b, a }
-		this.hex = Color.rgbaToHex({ r, g, b, a })
+		this.hex = this.rgbaToHex({ r, g, b, a })
 	}
 
-	static isHex = (color: unknown): color is HexColor => {
+	isHex = (color: unknown): color is HexColor => {
 		return typeof color === 'string' && color.startsWith('#')
 	}
 
-	static isCSS = (color: unknown): color is CSSColor => {
+	isCSS = (color: unknown): color is CSSColor => {
 		return typeof color === 'string' && (colors as any as string[]).includes(color)
 	}
 
-	static hexToRGBA = (hex: HexColor): { r: number; g: number; b: number; a: number } => {
-		const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-		return result
+	hexToRGBA = (hex: HexColor): { r: number; g: number; b: number; a: number } => {
+		const rgba = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+		this.#log.fn('hexToRGBA').info({ hex, rgba })
+
+		return rgba
 			? {
-					r: parseInt(result[1], 16),
-					g: parseInt(result[2], 16),
-					b: parseInt(result[3], 16),
-					a: parseInt(result[4], 16) / 255,
+					r: parseInt(rgba[1], 16),
+					g: parseInt(rgba[2], 16),
+					b: parseInt(rgba[3], 16),
+					a: rgba[4] ? parseInt(rgba[4], 16) / 255 : 1,
 				}
 			: { r: 0, g: 0, b: 0, a: 1 }
 	}
 
-	static rgbaToHex = (rgba: RGBA): HexColor => {
-		return `#${((1 << 24) + (rgba.r << 16) + (rgba.g << 8) + rgba.b).toString(16).slice(1)}`
+	rgbaToHex = (rgba: RGBA): HexColor => {
+		const hex =
+			`#${((1 << 24) + (rgba.r << 16) + (rgba.g << 8) + rgba.b).toString(16).slice(1)}` as const
+
+		this.#log.fn('rgbaToHex').info({ rgba, hex })
+
+		return hex
 	}
 
-	static hslaToRGBA(hsl: HSLA): RGBA {
+	hslaToRGBA(hsl: HSLA): RGBA {
 		const { h, s, l, a } = hsl
 
 		let c = (1 - Math.abs(2 * l - 1)) * s
@@ -123,17 +135,22 @@ export class Color {
 			r = c; g = 0; b = x;
 		}
 
-		return {
+		const rgba = {
 			r: Math.round((r + m) * 255),
 			g: Math.round((g + m) * 255),
 			b: Math.round((b + m) * 255),
 			a,
 		}
+
+		this.#log.fn('hslaToRGBA').info({ hsl, rgba })
+
+		return rgba
 	}
 
-	static rgbToHSL(rgba: RGBA): HSLA {
+	rgbaToHSLA(rgba: RGBA): HSLA {
+		this.#log.fn('rgbqToHSLA')
 		let { r, g, b, a } = rgba
-
+		console.log(rgba)
 		;(r /= 255), (g /= 255), (b /= 255)
 		let max = Math.max(r, g, b)
 		let min = Math.min(r, g, b)
@@ -157,5 +174,28 @@ export class Color {
 		}
 
 		return { h, s, l, a }
+	}
+
+	hueToRGBA(hue: number): RGBA {
+		const h = hue / 60
+		const c = 255
+		const x = (1 - Math.abs((h % 2) - 1)) * c
+		const i = Math.floor(h)
+		switch (i) {
+			case 0:
+				return { r: c, g: x, b: 0, a: this.rgba.a }
+			case 1:
+				return { r: x, g: c, b: 0, a: this.rgba.a }
+			case 2:
+				return { r: 0, g: c, b: x, a: this.rgba.a }
+			case 3:
+				return { r: 0, g: x, b: c, a: this.rgba.a }
+			case 4:
+				return { r: x, g: 0, b: c, a: this.rgba.a }
+			case 5:
+				return { r: c, g: 0, b: x, a: this.rgba.a }
+			default:
+				return { r: 0, g: 0, b: 0, a: this.rgba.a }
+		}
 	}
 }
