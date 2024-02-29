@@ -74,10 +74,10 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 			this.state = state(this.initialValue)
 		}
 
-		this.elements.controller = colorController(this, opts)
+		this.elements.controllers = colorController(this, opts)
 
 		this.state.subscribe((v) => {
-			this.elements.controller.input.value = String(v)
+			this.elements.controllers.input.value = String(v)
 
 			this.callOnChange()
 		})
@@ -85,7 +85,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 	refreshSliders(mode = this.opts.mode) {
 		if (mode === 'rgb') {
-			for (const [k, v] of Object.entries(this.elements.controller.sliders)) {
+			for (const [k, v] of Object.entries(this.elements.controllers.sliders)) {
 				if (k === 'container') continue
 				;(v as HTMLInputElement).disabled = false
 				;(v as HTMLInputElement).min = '0'
@@ -95,7 +95,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		}
 
 		if (mode === 'hsl') {
-			for (const [k, v] of Object.entries(this.elements.controller.sliders)) {
+			for (const [k, v] of Object.entries(this.elements.controllers.sliders)) {
 				if (k === 'container') continue
 				;(v as HTMLInputElement).disabled = false
 				;(v as HTMLInputElement).min = '0'
@@ -105,7 +105,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		}
 
 		// Disable the sliders.
-		for (const [k, v] of Object.entries(this.elements.controller.sliders)) {
+		for (const [k, v] of Object.entries(this.elements.controllers.sliders)) {
 			if (k === 'container') continue
 			;(v as HTMLInputElement).disabled = true
 		}

@@ -1,10 +1,9 @@
+import type { NumberInputOptions } from './Number'
 import type { State } from '../../utils/state'
 import type { Folder } from '../Folder'
 
-import { numberController, numberControllerButtons, rangeController } from '../controllers/number'
 import { create } from '../../utils/create'
 import { Logger } from '../../utils/logger'
-import { state } from '../../utils/state'
 
 //· Types ··············································································¬
 
@@ -134,7 +133,6 @@ export interface StringInputOptions {
 	view?: 'text' | 'textarea'
 }
 
-// todo ({ r: number, g: number, b: number }) / three.js color / etc
 export type HexColor = `#${string}`
 
 export interface ColorInputOptions {}
@@ -173,13 +171,13 @@ export interface ElementMap {
 }
 
 export abstract class Input<
-	T = unknown,
-	O extends InputOptions = InputOptions,
-	C extends ElementMap = ElementMap,
+	TValueType = unknown,
+	TOptions extends InputOptions = InputOptions,
+	TControllers extends ElementMap = ElementMap,
 > {
-	declare state: State<T>
-	declare initialValue: T
-	declare opts: O
+	declare state: State<TValueType>
+	declare initialValue: TValueType
+	declare opts: TOptions
 
 	view: InputView
 
@@ -189,7 +187,7 @@ export abstract class Input<
 		content: HTMLElement
 		drawer: HTMLElement
 		drawerToggle: HTMLElement
-		controller: C
+		controllers: TControllers
 	}
 
 	#title = ''
@@ -210,7 +208,7 @@ export abstract class Input<
 	#log = new Logger('Input', { fg: 'cyan' })
 
 	constructor(
-		options: O,
+		options: TOptions,
 		public folder: Folder,
 	) {
 		this.#title = options.title
@@ -247,10 +245,10 @@ export abstract class Input<
 		this.#log.groupCollapsed().fn('constructor').info({ opts: options, this: this })
 	}
 
-	abstract updateState: (v: T | Event) => void
+	abstract updateState: (v: TValueType | Event) => void
 
-	#onChangeListeners = new Set<(v: T) => void>()
-	onChange(cb: (v: T) => void) {
+	#onChangeListeners = new Set<(v: TValueType) => void>()
+	onChange(cb: (v: TValueType) => void) {
 		this.#onChangeListeners.add(cb)
 		return () => {
 			this.#onChangeListeners.delete(cb)
@@ -258,7 +256,7 @@ export abstract class Input<
 	}
 	callOnChange() {
 		for (const cb of this.#onChangeListeners) {
-			cb(this.state.value as T)
+			cb(this.state.value as TValueType)
 		}
 	}
 
@@ -276,131 +274,3 @@ export abstract class Input<
 		}
 	}
 }
-
-//· InputSlider ···································································¬
-
-export interface NumberInputOptions extends InputOptions {
-	value: number
-	min: number
-	max: number
-	step: number
-}
-
-const NUMBER_INPUT_DEFAULTS: NumberInputOptions = {
-	view: 'Slider',
-	title: 'Number',
-	value: 0.5,
-	min: 0,
-	max: 1,
-	step: 0.01,
-} as const
-
-export class InputSlider extends Input<number, NumberInputOptions, NumberControllerElements> {
-	state: State<number>
-	initialValue: number
-	opts: NumberInputOptions
-
-	#log = new Logger('InputSlider', { fg: 'cyan' })
-
-	#onChangeListeners = new Set<(v: number) => void>()
-	onChange(cb: (v: number) => void) {
-		this.#onChangeListeners.add(cb)
-		return () => {
-			this.#onChangeListeners.delete(cb)
-		}
-	}
-
-	constructor(options: Partial<NumberInputOptions>, folder: Folder) {
-		const opts = { ...NUMBER_INPUT_DEFAULTS, ...options }
-		super(opts, folder)
-
-		this.opts = opts
-		//* this is bop it type beat but is cool - brb fire alarm
-		this.#log.fn('constructor').info({ opts, this: this }).groupEnd()
-
-		if (opts.binding) {
-			this.initialValue = opts.binding.target[opts.binding.key]
-			this.state = state(this.initialValue)
-			this.disposeCallbacks.add(
-				this.state.subscribe((v) => {
-					opts.binding!.target[opts.binding!.key] = v
-				}),
-			)
-		} else {
-			this.initialValue = opts.value
-			this.state = state(opts.value)
-		}
-
-		this.elements.controller = numberControllers(this, opts)
-
-		// todo this isn't being set because of a reason I can't work out, using declare is church bcuz ts has no red squiggles but there are runtime errors so rekt I guess idk lol
-		// this.listen(this.elements.controller.range, 'input', this.updateState)
-		this.listen(this.elements.controller.range, 'input', this.updateState)
-
-		this.disposeCallbacks.add(
-			this.state.subscribe((v) => {
-				this.elements.controller.range.value = String(v)
-				this.elements.controller.input.value = String(v)
-
-				for (const cb of this.#onChangeListeners) {
-					cb(v)
-				}
-			}),
-		)
-	}
-
-	updateState = (v: number | Event) => {
-		if (typeof v !== 'number') {
-			if (v?.target && 'valueAsNumber' in v.target) {
-				this.state.set(v.target.valueAsNumber as number)
-			}
-		} else {
-			this.state.set(v)
-		}
-	}
-
-	dispose() {
-		super.dispose()
-	}
-}
-
-export interface NumberControllerElements extends ElementMap {
-	container: HTMLElement
-	buttons: {
-		container: HTMLDivElement
-		increment: HTMLDivElement
-		decrement: HTMLDivElement
-	}
-	input: HTMLInputElement
-	range: HTMLInputElement
-}
-
-export function numberControllers(input: InputSlider, opts: NumberInputOptions) {
-	const container = create('div', {
-		classes: ['gui-input-number-container'],
-		parent: input.elements.content,
-	})
-
-	//· Number Input ·······························································¬
-
-	const numberInputController = numberController(input, opts, container)
-	//⌟
-
-	//· Number Buttons ·····························································¬
-	const numberButtonsController = numberControllerButtons(input, opts, container)
-	//⌟
-
-	//· Range Input ································································¬
-
-	const numberRangeController = rangeController(input, opts, container)
-	//⌟
-
-	return {
-		container,
-		buttons: numberButtonsController,
-		input: numberInputController,
-		range: numberRangeController,
-	} as const satisfies NumberControllerElements
-}
-
-//⌟

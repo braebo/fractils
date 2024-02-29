@@ -1,4 +1,5 @@
-import type { Input, ElementMap, InputOptions, NumberInputOptions } from '../inputs/Input'
+import type { Input, ElementMap, InputOptions } from '../inputs/Input'
+import type { NumberInputOptions } from '../inputs/Number'
 
 import { create } from '../../utils/create'
 import { svgChevron } from '../svg/chevron'
@@ -8,7 +9,7 @@ import { svgChevron } from '../svg/chevron'
  * used to control the input, and bind their change events to
  * the input's {@link Input.updateState | updateState} method.
  */
-type ControllerFactory<
+export type ControllerFactory<
 	TElement extends Element | ElementMap,
 	TInput extends Input = Input<any>,
 	TOptions extends InputOptions<any> = InputOptions,
@@ -23,7 +24,7 @@ export const numberController: ControllerFactory<HTMLInputElement> = (input, opt
 	})
 
 	if ('step' in opts) {
-		controller.step = String(opts.step as NumberInputOptions['step'])
+		controller.step = String(opts.step)
 	}
 
 	input.listen(controller, 'input', input.updateState)
@@ -48,7 +49,7 @@ export const rangeController: ControllerFactory<HTMLInputElement> = (input, opts
 	return range
 }
 
-export const numberControllerButtons: ControllerFactory<{
+export const numberButtonsController: ControllerFactory<{
 	container: HTMLDivElement
 	increment: HTMLDivElement
 	decrement: HTMLDivElement
