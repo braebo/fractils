@@ -1,29 +1,27 @@
 import type { ColorRepresentation, HexColor } from '../../color/color'
+import type { ElementMap, InputOptions } from './Input'
 import type { State } from '../../utils/state'
-import type { InputOptions } from './Input'
 import type { Folder } from '../Folder'
 
+import { colorSlidersController } from '../controllers/color'
+import { entries } from '../../utils/object'
 import { create } from '../../utils/create'
 import { Logger } from '../../utils/logger'
 import { Color } from '../../color/color'
 import { state } from '../../utils/state'
 import { Input } from './Input'
 
-export type ColorMode = 'hex' | 'rgb' | 'hsl' | 'rgbString' | 'hslString' | 'array'
+export type ColorMode = 'hex' | 'rgba' | 'hsla' | 'rgbaString' | 'hslaString' | 'array'
 
-type ElementMap = {
-	[key: string]: HTMLInputElement | HTMLDivElement | ElementMap
-}
-
-export interface ColorControllerElements {
-	[key: string]: HTMLInputElement | HTMLDivElement | ElementMap
-	container: HTMLInputElement
+export interface ColorControllerElements extends ElementMap {
+	container: HTMLDivElement
 	input: HTMLInputElement
 	sliders: {
 		container: HTMLDivElement
 		a: HTMLInputElement
 		b: HTMLInputElement
 		c: HTMLInputElement
+		d: HTMLInputElement
 	}
 }
 
@@ -36,17 +34,23 @@ export interface ColorInputOptions extends InputOptions {
 export const COLOR_INPUT_DEFAULTS: ColorInputOptions = {
 	view: 'Color',
 	title: 'Color',
-	value: '#FF0000',
+	value: '#FF0000FF',
 	mode: 'hex',
 } as const
 
 export class InputColor extends Input<Color, ColorInputOptions, ColorControllerElements> {
-	state: State<Color>
-	initialValue: Color
-	opts: ColorInputOptions
+	readonly isColor = true as const
+
+	#mode: ColorMode
+	get mode() {
+		return this.#mode
+	}
+	set mode(v: ColorMode) {
+		this.#mode = v
+		this.refreshSliders(v)
+	}
 
 	#log = new Logger('InputColor', { fg: 'cyan' })
-	#disposeCallbacks = new Set<() => void>()
 
 	constructor(options: Partial<ColorInputOptions>, folder: Folder) {
 		const opts = { ...COLOR_INPUT_DEFAULTS, ...options }
@@ -55,12 +59,19 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		this.opts = opts
 		this.#log.fn('constructor').info({ opts, this: this }).groupEnd()
 
+		this.#mode = opts.mode
+
 		if (opts.binding) {
 			this.initialValue = opts.binding.target[opts.binding.key]
 
-			if (typeof this.initialValue !== 'object' || this.initialValue.isColor) {
+			if (typeof this.initialValue !== 'object' || !this.initialValue.isColor) {
 				this.initialValue = this.initialValue
+			} else {
 			}
+
+			this.initialValue = new Color(this.initialValue)
+
+			console.log(this.initialValue)
 
 			this.state = state(this.initialValue)
 
@@ -74,44 +85,59 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 			this.state = state(this.initialValue)
 		}
 
-		this.elements.controllers = colorController(this, opts)
+		const container = create<HTMLDivElement>('div', {
+			classes: ['gui-input-color-container'],
+			parent: this.elements.content,
+		})
+
+		this.elements.controllers = {
+			container,
+			input: create<HTMLInputElement>('input', {
+				type: 'color',
+				classes: ['gui-input-color-input'],
+				parent: container,
+				value: String(this.state.value.hex),
+			}),
+			sliders: colorSlidersController(this, opts, container),
+		}
 
 		this.state.subscribe((v) => {
-			this.elements.controllers.input.value = String(v)
-
+			this.elements.controllers.input.value = String(v.hex)
+			this.refreshSliders()
 			this.callOnChange()
 		})
 	}
 
 	refreshSliders(mode = this.opts.mode) {
-		if (mode === 'rgb') {
-			for (const [k, v] of Object.entries(this.elements.controllers.sliders)) {
+		if (mode === 'rgba') {
+			for (const [k, v] of entries(this.elements.controllers.sliders)) {
 				if (k === 'container') continue
 				;(v as HTMLInputElement).disabled = false
 				;(v as HTMLInputElement).min = '0'
-				;(v as HTMLInputElement).max = '255'
-				;(v as HTMLInputElement).step = '1'
+				;(v as HTMLInputElement).max = k === 'd' ? '255' : '1'
+				;(v as HTMLInputElement).step = k === 'd' ? '0.01' : '1'
 			}
 		}
 
-		if (mode === 'hsl') {
-			for (const [k, v] of Object.entries(this.elements.controllers.sliders)) {
+		if (mode === 'hsla') {
+			for (const [k, v] of entries(this.elements.controllers.sliders)) {
 				if (k === 'container') continue
 				;(v as HTMLInputElement).disabled = false
 				;(v as HTMLInputElement).min = '0'
-				;(v as HTMLInputElement).max = k === 'a' ? '360' : '100'
-				;(v as HTMLInputElement).step = '1'
+				;(v as HTMLInputElement).max = k === 'a' ? '100' : k === 'd' ? '360' : '1'
+				;(v as HTMLInputElement).step = k === 'd' ? '0.01' : '1'
 			}
 		}
 
 		// Disable the sliders.
-		for (const [k, v] of Object.entries(this.elements.controllers.sliders)) {
+		for (const [k, v] of entries(this.elements.controllers.sliders)) {
 			if (k === 'container') continue
 			;(v as HTMLInputElement).disabled = true
 		}
 	}
 
 	updateState = (v: Color | Event) => {
+		console.log('updateState', v)
 		if (v instanceof Event) {
 			if (v?.target && 'valueAsColor' in v.target) {
 				this.state.value.hex = v.target.valueAsColor as HexColor
@@ -121,57 +147,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		}
 	}
 
-	isColor = (v: any): v is Color => {
-		return v?.isColor
-	}
-
 	dispose() {
 		super.dispose()
-
-		for (const cb of this.#disposeCallbacks) {
-			cb()
-		}
 	}
-}
-
-export function colorController(input: Input<Color>, options: ColorInputOptions) {
-	const elements = {
-		container: create('div', {
-			classes: ['gui-input-color-container'],
-			parent: input.elements.content,
-		}),
-		sliders: {},
-	} as any as ColorControllerElements
-	//· Color Input ·······························································¬
-
-	elements.input = create('input', {
-		type: 'color',
-		classes: ['gui-input-color-input'],
-		parent: elements.container,
-		value: String(input.state.value),
-	})
-	input.listen(elements.input, 'input', input.updateState)
-	//⌟
-
-	//· Sliders ····································································¬
-
-	elements.sliders = {} as any
-
-	elements.sliders.container = create('div', {
-		classes: ['gui-input-color-range-container'],
-		parent: input.elements.content,
-	})
-
-	for (const key of ['a', 'b', 'c'] as const) {
-		elements.sliders[key] = create('input', {
-			type: 'range',
-			classes: ['gui-input-color-range', `gui-input-color-range-${key}`],
-			parent: elements.sliders.container,
-			value: String(input.state.value.hex),
-		})
-		input.listen(elements.sliders[key], 'input', input.updateState)
-	}
-	//⌟
-
-	return elements
 }
