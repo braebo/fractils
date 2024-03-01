@@ -1,24 +1,15 @@
 <script lang="ts">
-	import type { InputSlider } from '$lib/gui/inputs/Input'
-	import type { Folder } from '$lib/gui/Folder'
+	import type { InputNumber } from '$lib/gui/inputs/Number'
 
 	import { inspectElement } from '$lib/actions/inspectElement'
 	import { InputColor } from '$lib/gui/inputs/Color'
 	import Orbs from '../resizable/Orbs.svelte'
-	import { state } from '$lib/utils/state'
+	import { Color } from '$lib/color/color'
 	import { Gui } from '$lib/gui/Gui'
 	import { onMount } from 'svelte'
-	import { DEV } from 'esm-env'
 
 	let gui: Gui
-	let slider: InputSlider['state']
-
-	const church = state({} as Gui)
-	let key = false
-
-	$: if ($church) {
-		key = !key
-	}
+	let slider: InputNumber['state']
 
 	let size: Gui['size']
 	let position: Gui['position']
@@ -35,23 +26,21 @@
 		speed: 0.02,
 		mid: count * 5,
 		brightness: 0.4,
-		color: '#7777FF',
+		color: new Color('#7777FF'),
 	}
+	console.log(params.color.hex)
 
 	onMount(() => {
 		gui = new Gui({
 			// container: document.getElementById('svelte')!,
 			storage: {
 				key: 'fractils::gui',
-				closed: true,
-				size: true,
-				position: true,
 			},
 			windowManager: {
 				draggable: {
 					defaultPosition: {
 						x: 16,
-						y: 0,
+						y: 16,
 					},
 				},
 				resizable: {
@@ -63,15 +52,13 @@
 			closed: false,
 		})
 
-		church.set(gui)
-
 		size = gui.size
 		position = gui.position
 		closed = gui.closed
 
 		const f1 = gui.addFolder({ title: 'Orbs' })
 
-		slider = f1.add<InputSlider>({
+		slider = f1.add<InputNumber>({
 			title: 'count',
 			view: 'Slider',
 			binding: {
@@ -83,7 +70,7 @@
 			step: 1,
 		}).state
 
-		f1.add<InputSlider>({
+		f1.add<InputNumber>({
 			title: 'size',
 			view: 'Slider',
 			binding: {
@@ -95,7 +82,7 @@
 			step: 1,
 		})
 
-		f1.add<InputSlider>({
+		f1.add<InputNumber>({
 			title: 'a1',
 			view: 'Slider',
 			binding: {
@@ -107,7 +94,7 @@
 			step: 0.001,
 		})
 
-		f1.add<InputSlider>({
+		f1.add<InputNumber>({
 			title: 'a2',
 			view: 'Slider',
 			binding: {
@@ -119,7 +106,7 @@
 			step: 0.001,
 		})
 
-		f1.add<InputSlider>({
+		f1.add<InputNumber>({
 			title: 'width',
 			view: 'Slider',
 			binding: {
@@ -131,7 +118,7 @@
 			step: 1,
 		})
 
-		f1.add<InputSlider>({
+		f1.add<InputNumber>({
 			title: 'height',
 			view: 'Slider',
 			binding: {
@@ -143,7 +130,7 @@
 			step: 1,
 		})
 
-		f1.add<InputSlider>({
+		f1.add<InputNumber>({
 			title: 'speed',
 			view: 'Slider',
 			binding: {
@@ -155,7 +142,7 @@
 			step: 0.0001,
 		})
 
-		f1.add<InputSlider>({
+		f1.add<InputNumber>({
 			title: 'mid',
 			view: 'Slider',
 			binding: {
@@ -167,7 +154,7 @@
 			step: 1,
 		})
 
-		f1.add<InputSlider>({
+		f1.add<InputNumber>({
 			title: 'brightness',
 			view: 'Slider',
 			binding: {
@@ -182,6 +169,7 @@
 		f1.add<InputColor>({
 			title: 'color',
 			view: 'Color',
+			// value: params.color,
 			binding: {
 				target: params,
 				key: 'color',
@@ -204,16 +192,6 @@
 		// 	value: '#ff0000',
 		// 	view: 'Color',
 		// })
-
-		gui.addFolder({ title: 'sibling' })
-
-		// let interval: any
-		// if (DEV) {
-		// 	inspectElement(gui.element)
-		// 	interval = setInterval(() => {
-		// 		f1.toggle()
-		// 	}, 1250)
-		// }
 
 		// //? Cool self themer majig 🌈
 		// import('$lib/gui/gui.scss?raw').then((x) => {
@@ -270,6 +248,8 @@
 		// 		}
 		// 	}, 1000)
 		// })
+
+		inspectElement(gui.element)
 
 		return () => {
 			gui.dispose()

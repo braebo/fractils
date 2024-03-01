@@ -1,8 +1,7 @@
-import type { ElementMap } from '../inputs/Input'
+import type { ColorSliderElements, InputColor } from '../inputs/Color'
 import type { ControllerFactory } from './types'
 
 import { create } from '../../utils/create'
-import type { InputColor } from '../inputs/Color'
 
 export const colorController: ControllerFactory<HTMLInputElement> = (input, opts, parent) => {
 	const controller = create<HTMLInputElement>('input', {
@@ -17,85 +16,57 @@ export const colorController: ControllerFactory<HTMLInputElement> = (input, opts
 	return controller
 }
 
-interface ColorSliderElements extends ElementMap {
-	container: HTMLDivElement
-	a: HTMLInputElement
-	b: HTMLInputElement
-	c: HTMLInputElement
-	d: HTMLInputElement
-}
-
 export const colorSlidersController: ControllerFactory<ColorSliderElements, InputColor> = (
 	input,
 	opts,
 	parent,
 ) => {
 	const container = create('div', {
-		classes: ['gui-input-color-range-container'],
+		classes: ['gui-input-color-sliders-container'],
 		parent,
 	})
 
 	const sliders = {} as ColorSliderElements
 
-	// for (const key of ['a', 'b', 'c', 'd'] as const) {
-	// 	sliders[key] = create<HTMLInputElement>('input', {
-	// 		type: 'range',
-	// 		classes: [
-	// 			'gui-input-number-range',
-	// 			'gui-input-color-range',
-	// 			`gui-input-color-range-${key}`,
-	// 		],
-	// 		parent: container,
-	// 		value: String(input.state.value[key]),
-	// 	})
-	// 	input.listen(sliders[key], 'input', input.updateState)
-	// }
+	console.log(input.state.value)
 
-    console.log(input.state.value)
+	for (const [key, title] of [
+		['a', input.aTitle],
+		['b', input.bTitle],
+		['c', input.cTitle],
+		['d', input.dTitle],
+	] as const) {
+		const c = create<HTMLDivElement>('div', {
+			type: 'range',
+			classes: [
+				'gui-input-color-sliders-input-container',
+				`gui-input-color-sliders-input-container-${key}`,
+			],
+			parent: container,
+			value: input[key],
+		})
 
-    sliders.a = create<HTMLInputElement>('input', {
-        type: 'range',
-        classes: [
-            'gui-input-number-range',
-            'gui-input-color-range',
-            `gui-input-color-range-a`,
-        ],
-        parent: container,
-        value: String(input.state.value.rgba.r),
-    })
+		sliders[key] = {
+			container: c,
+			title: create('div', {
+				classes: ['gui-input-color-slider-title', `gui-input-color-slider-title-${key}`],
+				parent: container,
+				innerText: title,
+			}),
+			input: create<HTMLInputElement>('input', {
+				type: 'range',
+				classes: [
+					'gui-input-number-range',
+					'gui-input-color-range',
+					`gui-input-color-range-${key}`,
+				],
+				parent: container,
+				value: String(input.state.value.rgba.r),
+			}),
+		}
 
-    sliders.b = create<HTMLInputElement>('input', {
-        type: 'range',
-        classes: [
-            'gui-input-number-range',
-            'gui-input-color-range',
-            `gui-input-color-range-b`,
-        ],
-        parent: container,
-        value: String(input.state.value.rgba.g),
-    })
-
-    sliders.c = create<HTMLInputElement>('input', {
-        type: 'range',
-        classes: [
-            'gui-input-number-range',
-            'gui-input-color-range',
-            `gui-input-color-range-c`,
-        ],
-        parent: container,
-        value: String(input.state.value.rgba.b),
-    })
-
-    sliders.d = create<HTMLInputElement>('input', {
-        type: 'range',
-        classes: [
-            'gui-input-number-range',
-            'gui-input-color-range',
-            `gui-input-color-range-d`,
-        ],
-        parent: container,
-        value: String(input.state.value.rgba.a),
-    })
+		input.listen(sliders[key].input, 'input', input.updateState)
+	}
 
 	return sliders
 }

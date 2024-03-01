@@ -453,11 +453,13 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 		display: flex;
 		align-items: center;
-		gap: 0.75rem;
+		// gap: 0.75rem;
 
 		width: 100%;
 		margin: 0;
 		padding: 0rem 0.75rem 0rem 0rem;
+
+		//? Number Input
 
 		.gui-input-number-container {
 			// outline: 1px solid hsla(60, 100%, 50%, 0.2); // debug-outline
@@ -470,52 +472,8 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 			width: 100%;
 			height: 90%;
-			padding: 0.1rem 0rem 0.1rem 0.25rem;
 
-			// background: var(--gui-input-number-input-background);
 			border-radius: var(--radius-sm);
-
-			.gui-input-number-input {
-				// outline: 1px solid hsla(0, 100%, 50%, 0.2) !important; // debug-outline
-
-				-webkit-appearance: textfield;
-				-moz-appearance: textfield;
-				appearance: textfield;
-
-				width: 4rem;
-				height: 1.25rem;
-				// padding-left: 0.33rem;
-
-				color: var(--gui-input-number-input-color);
-				background: var(--gui-input-number-input-background);
-				background-image: var(--gui-input-number-input-background-image);
-				box-shadow: var(--gui-input-number-input-shadow);
-				border-radius: var(--radius-sm);
-
-				opacity: 0.7;
-				border: none;
-				outline: var(--gui-input-number-input-outline);
-
-				font-family: var(--font-mono);
-				font-size: var(--gui-input-font-size);
-				text-align: center;
-
-				transition: 0.15s;
-				overflow: visible;
-				min-width: unset;
-
-				&:hover {
-					opacity: 1;
-				}
-
-				&::-webkit-inner-spin-button,
-				&::-webkit-outer-spin-button {
-					-webkit-appearance: none;
-					-moz-appearance: none;
-					appearance: none;
-					display: none;
-				}
-			}
 
 			.gui-input-number-buttons-container {
 				// outline: 1px solid #00800011; // debug-outline
@@ -556,7 +514,6 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 						height: 1rem;
 
 						color: var(--gui-input-number-input-buttons-icon-color);
-						// opacity: 0.1;
 						opacity: 0.1;
 
 						scale: 1;
@@ -574,7 +531,6 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 						svg {
 							opacity: 1 !important;
-							// scale: 1.025;
 						}
 					}
 
@@ -585,7 +541,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 						svg {
 							opacity: 1 !important;
 							color: var(--gui-input-number-input-buttons-icon-color-active);
-							// Svg shadow glow
+							// svg shadow glow.
 							filter: drop-shadow(0 0 3px var(--theme-a));
 						}
 					}
@@ -600,20 +556,6 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 					border-bottom-right-radius: var(--radius);
 				}
 			}
-
-			// &:hover {
-			// 	background: var(--gui-input-number-input-buttons-background);
-			// 	border-radius: var(--radius-sm);
-
-			// 	.gui-input-number-button {
-			// 		opacity: 1 !important;
-			// 		box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.5);
-
-			// 		svg {
-			// 			opacity: 0.5;
-			// 		}
-			// 	}
-			// 	}
 		}
 
 		&:hover {
@@ -635,6 +577,8 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 				color: var(--fg-b);
 			}
 		}
+
+		//? Range <input>
 
 		input.gui-input-number-range {
 			-webkit-appearance: none;
@@ -702,6 +646,202 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 				border: none;
 				cursor: pointer;
 				z-index: 1;
+			}
+		}
+
+		//? Number <input>
+
+		.gui-input-number-input {
+			// outline: 1px solid hsla(0, 100%, 50%, 0.2) !important; // debug-outline
+
+			-webkit-appearance: textfield;
+			-moz-appearance: textfield;
+			appearance: textfield;
+
+			width: 4rem;
+			height: 1.25rem;
+			// padding-left: 0.33rem;
+
+			color: var(--gui-input-number-input-color);
+			background: var(--gui-input-number-input-background);
+			background-image: var(--gui-input-number-input-background-image);
+			box-shadow: var(--gui-input-number-input-shadow);
+			border-radius: var(--radius-sm);
+
+			opacity: 0.7;
+			border: none;
+			outline: var(--gui-input-number-input-outline);
+
+			font-family: var(--font-mono);
+			font-size: var(--gui-input-font-size);
+			text-align: center;
+
+			transition: 0.15s;
+			overflow: visible;
+			min-width: unset;
+
+			&:hover {
+				opacity: 1;
+			}
+
+			&::-webkit-inner-spin-button,
+			&::-webkit-outer-spin-button {
+				-webkit-appearance: none;
+				-moz-appearance: none;
+				appearance: none;
+				display: none;
+			}
+		}
+
+		//? Color Input
+
+		.gui-input-color-container {
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			// align-items: center;
+
+			// gap: 1rem;
+
+			width: 100%;
+			padding: 0.5rem 0;
+
+			//- Current Color
+			.gui-input-color-current-color {
+				display: flex;
+
+				width: 4rem;
+				height: 1.5rem;
+
+				border-radius: var(--radius-sm);
+				overflow: hidden;
+			}
+
+			//- Canvas
+
+			.gui-input-color-picker-container {
+				position: relative;
+				display: flex;
+				flex-direction: column;
+
+				align-items: flex-end;
+				justify-content: center;
+				// position: absolute;
+				// right: 0.75rem;
+
+				width: 75%;
+
+				.gui-input-color-picker-canvas {
+					display: flex;
+
+					width: 100%;
+					// height: 3rem;
+
+					border-radius: var(--radius);
+					overflow: hidden;
+				}
+
+				.gui-input-color-picker-cursor {
+					position: absolute;
+					top: 0;
+					left: 0;
+
+					width: 0.5rem;
+					height: 0.5rem;
+					translate: -50% -50%;
+
+					border-radius: 50%;
+					border: 1px solid var(--fg-a);
+					box-shadow: 0 0 0.25rem 0rem var(--bg-d);
+
+					transition: 0.1s cubic-bezier(0.215, 0.610, 0.355, 1);
+				}
+
+				//- Hue Slider
+
+				.gui-input-color-picker-hue {
+					appearance: none;
+
+					width: 99%;
+					border-radius: var(--radius-sm);
+
+					&::-webkit-slider-thumb {
+						-webkit-appearance: none;
+						-moz-appearance: none;
+						appearance: none;
+
+						width: 0.5rem;
+						height: 0.5rem;
+
+						background-color: var(--bg-b);
+						border: none;
+
+						transition: 0.15s;
+
+						cursor: pointer;
+						z-index: 10;
+					}
+
+					&::-webkit-slider-runnable-track {
+						-webkit-appearance: none;
+						-moz-appearance: none;
+						appearance: none;
+
+						background: linear-gradient(
+							to right,
+							hsl(0, 100%, 50%),
+							hsl(60, 100%, 50%),
+							hsl(120, 100%, 50%),
+							hsl(180, 100%, 50%),
+							hsl(240, 100%, 50%),
+							hsl(300, 100%, 50%),
+							hsl(360, 100%, 50%)
+						);
+
+						border-radius: var(--radius-sm);
+						border: none;
+						cursor: pointer;
+						z-index: 1;
+					}
+				}
+			}
+		}
+
+		//? RGB Components
+
+		.gui-input-color-components-container {
+			display: flex;
+			align-items: center;
+
+			.gui-input-color-components-numbers-container {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 0.5rem;
+
+				width: 100%;
+				padding: 0.25rem 0.5rem;
+
+				.gui-input-color-component-number {
+					width: 2rem;
+					height: 1.25rem;
+
+					color: var(--gui-input-number-input-color);
+					background: var(--gui-input-number-input-background);
+					border-radius: var(--radius-sm);
+					box-shadow: var(--gui-input-number-input-shadow);
+					outline: var(--gui-input-number-input-outline);
+
+					opacity: 0.7;
+					transition: 0.15s;
+
+					overflow: visible;
+					min-width: unset;
+
+					&:hover {
+						opacity: 1;
+					}
+				}
 			}
 		}
 	}
