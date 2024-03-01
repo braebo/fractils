@@ -146,6 +146,11 @@
 		},
 		//? Custom region folding tag.
 		{
+			"tag": "··",
+			"color": "#34306e",
+			"bold": true
+		},
+		{
 			"tag": "·",
 			"color": "#374fa6",
 			"bold": true
@@ -210,5 +215,5 @@
 	"workbench.panel.defaultLocation": "left",
 	"window.zoomLevel": 0,
 	"focus.highlightRange": "block",
-	"workbench.colorTheme": "Mo Darker"
+	"workbench.colorTheme": "Moxer Light"
 }
