@@ -63,7 +63,7 @@ export const inspectElement: Action = (node: HTMLElement) => {
 		const elRect = element.getBoundingClientRect()
 
 		label.classList.add('inspect-element-label')
-		label.innerHTML = `${wrap(tagName, `hsl(${(labels.size * hue_offset) % 360}, 100%, 50%)`)}.${wrap(classes, 'var(--theme-b)')} · ${wrap(Math.round(elRect.width), 'var(--theme-c)')}${wrap('x', 'gray')}${wrap(Math.round(elRect.height), 'var(--theme-c)')}`
+		label.innerHTML = `${wrap(tagName, `hsl(${(labels.size * hue_offset) % 360}, 100%, 50%)`)}.${wrap(classes, 'var(--fg-a)')} · ${wrap(Math.round(elRect.width), 'var(--theme-c)')}${wrap('x', 'gray')}${wrap(Math.round(elRect.height), 'var(--theme-c)')}`
 
 		// Position the popover atop the hovered node
 		label.style.cssText = /*css*/ `
@@ -73,8 +73,8 @@ export const inspectElement: Action = (node: HTMLElement) => {
             height: ${labelHeight}px;
             white-space: nowrap;
             padding: 3px;
-            
-            background: rgba(0, 0, 0, 0.5);
+
+            background: var(--bg-a);
             backdrop-filter: blur(5px);
             border-radius: 5px;
             
@@ -109,7 +109,7 @@ export const inspectElement: Action = (node: HTMLElement) => {
 		for (const label of labels) {
 			i++
 			if (i === labels.size) continue
-			label.style.opacity = String((1 / labels.size) * i)
+			label.style.opacity = String(((1 / labels.size) * i) * 1.5)
 		}
 
 		// Remove the outline when the popover is removed
