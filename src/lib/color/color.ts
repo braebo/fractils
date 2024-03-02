@@ -150,7 +150,7 @@ export class Color {
 	rgbaToHSLA(rgba: RGBA): HSLA {
 		this.#log.fn('rgbqToHSLA')
 		let { r, g, b, a } = rgba
-		console.log(rgba)
+
 		;(r /= 255), (g /= 255), (b /= 255)
 		let max = Math.max(r, g, b)
 		let min = Math.min(r, g, b)
