@@ -136,7 +136,6 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 				v.hex
 			this.refreshSliders()
 			this.callOnChange()
-			console.log('state.subscribe', v)
 		})
 	}
 

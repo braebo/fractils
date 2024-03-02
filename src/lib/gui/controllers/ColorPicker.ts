@@ -16,10 +16,10 @@ export class ColorPicker extends Controller<InputColor> {
 	#ctx: CanvasRenderingContext2D
 	#height = 16 * 3
 
-	#h: string
-	#s: number
-	#l: number
-	#a: number
+	#h!: number
+	#s!: number
+	#l!: number
+	#a!: number
 
 	#gradientWhite!: CanvasGradient
 	#gradientBlack!: CanvasGradient
@@ -50,9 +50,9 @@ export class ColorPicker extends Controller<InputColor> {
 			classes: ['gui-input-range', 'gui-input-color-picker-hue'],
 			parent: container,
 			min: '0',
-			max: '360',
+			max: '359',
 		})
-		this.input.listen(hueSlider, 'input', this.#updateHue)
+		this.input.listen(hueSlider, 'input', this.#updateStateFromHue)
 
 		this.elements = {
 			container,
@@ -63,14 +63,7 @@ export class ColorPicker extends Controller<InputColor> {
 
 		this.#ctx = canvas.getContext('2d')!
 
-		console.log(this.input.state.value.hex)
-		console.log(this.input.state.value.hsla)
-
-		const { h, s, l, a } = this.input.state.value.hsla
-		this.#h = `hsl(${h}, 100%, 50%)`
-		this.#s = s
-		this.#l = l
-		this.#a = a
+		this.#updateHSLA()
 
 		this.#updateGradients()
 
@@ -79,12 +72,42 @@ export class ColorPicker extends Controller<InputColor> {
 		this.input.listen(window, 'pointermove', this.#onPointerMove, { passive: true })
 
 		setTimeout(this.draw, 10)
+		setTimeout(this.setCursorFromColor, 20)
+	}
+
+	setCursorFromColor = () => {
+		const rect = this.canvas.getBoundingClientRect()
+		const width = rect.width
+		const height = rect.height
+
+		// Normalize HSL values between 0 and 1
+		const h = this.#h / 360
+		const s = this.#s
+		const l = this.#l
+
+		// Calculate x position (saturation)
+		const x = s * width
+
+		// Calculate y position (lightness)
+		// Y is at the bottom if lightness is 0, at the top if lightness is 1, and in the middle if saturation is 0
+		let y = height * (1 - l)
+		if (s === 0) {
+			y = height / 2
+		} else if (l === 1) {
+			y = 0
+		}
+
+		this.drawCursor(x, y)
+	}
+
+	get canvas() {
+		return this.elements.canvas
 	}
 
 	get hue() {
 		return this.#h
 	}
-	set hue(v: string) {
+	set hue(v: number) {
 		this.#h = v
 		this.draw()
 	}
@@ -118,6 +141,21 @@ export class ColorPicker extends Controller<InputColor> {
 		this.#ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
 	}
 
+	draw = () => {
+		this.fill(`hsl(${this.#h}, 100%, 50%)`)
+		this.fill(this.#gradientWhite)
+		this.fill(this.#gradientBlack)
+	}
+
+	#updateHSLA() {
+		const { h, s, l, a } = this.input.state.value.hsla
+
+		this.#h = h
+		this.#s = s
+		this.#l = l
+		this.#a = a
+	}
+
 	#updateGradients() {
 		this.#gradientWhite = this.#ctx.createLinearGradient(1, 0, this.canvas.width - 1, 0)
 		this.#gradientWhite.addColorStop(0, 'rgba(255,255,255,1)')
@@ -126,12 +164,6 @@ export class ColorPicker extends Controller<InputColor> {
 		this.#gradientBlack = this.#ctx.createLinearGradient(0, 1, 0, this.canvas.height - 2)
 		this.#gradientBlack.addColorStop(0, 'rgba(0,0,0,0)')
 		this.#gradientBlack.addColorStop(1, 'rgba(0,0,0,1)')
-	}
-
-	draw = () => {
-		this.fill(this.#h)
-		this.fill(this.#gradientWhite)
-		this.fill(this.#gradientBlack)
 	}
 
 	#onPointerDown = (e: PointerEvent) => {
@@ -176,28 +208,20 @@ export class ColorPicker extends Controller<InputColor> {
 		this.input.state.value.rgba = selection
 		this.input.state.set(this.input.state.value)
 
+		this.#updateHSLA()
+
 		this.drawCursor(x, y)
 	}
 
-	#updateHue = (e: InputEvent) => {
+	#updateStateFromHue = (e: InputEvent) => {
 		const hue = Number((e.target as HTMLInputElement).value)
-		this.hue = `hsl(${hue}, 100%, 50%)`
-		const rgba = this.input.state.value.hueToRGBA(hue)
-		this.input.state.value.rgba = rgba
+		this.#h = hue
+
+		const { s, l, a } = this.input.state.value.hsla
+		this.input.state.value.hsla = { h: hue, s, l, a }
 		this.input.state.set(this.input.state.value)
+
 		this.draw()
-	}
-
-	get canvas() {
-		return this.elements.canvas
-	}
-
-	get hex() {
-		return this.input.state.value.hex
-	}
-
-	update() {
-		// TODO
 	}
 
 	drawCursor = (x: number, y: number) => {
