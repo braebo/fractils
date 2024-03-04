@@ -699,22 +699,40 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 			display: flex;
 			flex-direction: row;
 			justify-content: space-between;
-			// align-items: center;
-
-			// gap: 1rem;
 
 			width: 100%;
 			padding: 0.5rem 0;
 
 			//- Current Color
-			.gui-input-color-current-color {
-				display: flex;
+
+			.gui-input-color-current-color-container {
+				$size: 8px;
+				$size2: $size * 2;
+				$color: var(--bg-a);
 
 				width: 4rem;
 				height: 1.5rem;
 
+				background-image: linear-gradient(45deg, $color 25%, transparent 25%),
+					linear-gradient(-45deg, $color 25%, transparent 25%),
+					linear-gradient(45deg, transparent 75%, $color 75%),
+					linear-gradient(-45deg, transparent 75%, $color 75%);
+				background-size: $size2 $size2;
+				background-position:
+					0 0,
+					0 $size,
+					$size (-$size),
+					(-$size) 0px;
 				border-radius: var(--radius-sm);
 				overflow: hidden;
+			}
+
+			.gui-input-color-current-color-display {
+				position: relative;
+				display: flex;
+
+				width: 100%;
+				height: 100%;
 			}
 
 			//- Canvas
@@ -729,13 +747,16 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 				// position: absolute;
 				// right: 0.75rem;
 
-				width: 75%;
+				width: 77%;
 
 				.gui-input-color-picker-canvas {
 					display: flex;
 
 					width: 100%;
 					// height: 3rem;
+
+					// width: 256px;
+					// height: 256px;
 
 					border-radius: var(--radius);
 					overflow: hidden;
@@ -754,7 +775,9 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 					border: 1px solid var(--fg-a);
 					box-shadow: 0 0 0.25rem 0rem var(--bg-d);
 
-					transition: 0.1s cubic-bezier(0.215, 0.610, 0.355, 1);
+					transition: 0.1s cubic-bezier(0.215, 0.61, 0.355, 1);
+
+					pointer-events: none;
 				}
 
 				//- Hue Slider
@@ -797,6 +820,46 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 							hsl(300, 100%, 50%),
 							hsl(360, 100%, 50%)
 						);
+
+						border-radius: var(--radius-sm);
+						border: none;
+						cursor: pointer;
+						z-index: 1;
+					}
+				}
+
+				//- Alpha Slider
+
+				.gui-input-color-picker-alpha {
+					appearance: none;
+
+					width: 99%;
+					border-radius: var(--radius-sm);
+					background-color: transparent;
+
+					&::-webkit-slider-thumb {
+						-webkit-appearance: none;
+						-moz-appearance: none;
+						appearance: none;
+
+						width: 0.5rem;
+						height: 0.5rem;
+
+						background-color: var(--bg-b);
+						border: none;
+
+						transition: 0.15s;
+
+						cursor: pointer;
+						z-index: 10;
+					}
+
+					&::-webkit-slider-runnable-track {
+						-webkit-appearance: none;
+						-moz-appearance: none;
+						appearance: none;
+
+						background: linear-gradient(to right, transparent, currentColor);
 
 						border-radius: var(--radius-sm);
 						border: none;

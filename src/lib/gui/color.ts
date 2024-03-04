@@ -1,6 +1,6 @@
-import type { CSSColor, HexColor } from '$lib/color/cssColors'
+import type { CSSColor, HexColor } from '$lib/color/css'
 
-import { colors } from './cssColors'
+import { colors } from '../color/css'
 
 type ColorRepresentation =
 	| HexColor
