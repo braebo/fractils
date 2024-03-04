@@ -1,10 +1,9 @@
-import type { ColorRepresentation, HexColor } from '../../color/color'
+import type { ColorFormat } from '$lib/color/types/colorFormat'
 import type { ElementMap, InputOptions } from './Input'
 import type { Folder } from '../Folder'
 
 import { numberController } from '../controllers/number'
-import { ColorPicker } from '../controllers/ColorPicker'
-import { entries } from '../../utils/object'
+import { ColorPicker } from '../controllers/color/ColorPicker'
 import { create } from '../../utils/create'
 import { Logger } from '../../utils/logger'
 import { Color } from '../../color/color'
@@ -33,7 +32,11 @@ export interface ColorSliderElements extends ElementMap {
 
 export interface ColorControllerElements extends ElementMap<ColorPicker> {
 	container: HTMLDivElement
-	picker: ColorPicker
+	picker: ColorPicker['elements']
+	currentColor: {
+		container: HTMLDivElement
+		display: HTMLDivElement
+	}
 	components: {
 		container: HTMLDivElement
 		title: HTMLDivElement
@@ -42,7 +45,7 @@ export interface ColorControllerElements extends ElementMap<ColorPicker> {
 }
 
 export interface ColorInputOptions extends InputOptions {
-	value: ColorRepresentation | Color
+	value: ColorFormat | Color
 	mode: ColorMode
 }
 //⌟
@@ -56,7 +59,13 @@ export const COLOR_INPUT_DEFAULTS: ColorInputOptions = {
 
 export class InputColor extends Input<Color, ColorInputOptions, ColorControllerElements> {
 	#mode: ColorMode
+
+	/**
+	 * When true, the color picker is visible.
+	 */
 	expanded = false
+
+	picker: ColorPicker
 
 	#log = new Logger('InputColor', { fg: 'cyan' })
 
@@ -68,6 +77,8 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		this.#log.fn('constructor').info({ opts, this: this }).groupEnd()
 
 		this.#mode = opts.mode
+
+		//? Init State
 
 		if (opts.binding) {
 			this.initialValue = new Color(opts.binding.target[opts.binding.key])
@@ -88,19 +99,31 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 			parent: this.elements.content,
 		})
 
-		this.elements.controllers.currentColor = create<HTMLDivElement>('div', {
-			classes: ['gui-input-color-current-color'],
-			parent: container,
+		//? CurrentColor els
+		// @ts-ignore
+		this.elements.controllers.currentColor = this.#createCurrentColor(container)
+
+		this.picker = new ColorPicker(this)
+		this.elements.controllers.picker = this.picker.elements
+		container.appendChild(this.picker.elements.container)
+
+		this.elements.controllers.components = this.#createComponents(
+			this.elements.controllers.picker.container,
+		)
+
+		this.state.subscribe((v) => {
+			this.elements.controllers.currentColor.display.style.backgroundColor = v.hex8String
+			// console.log(v.hex8String)
+			// this.#refreshSliders()
+			this.picker.refresh()
+			this.callOnChange()
 		})
-		this.listen(this.elements.controllers.currentColor, 'click', this.togglePicker)
+	}
 
-		const picker = new ColorPicker(this)
-		this.elements.controllers.picker = picker
-		container.appendChild(picker.elements.container)
-
+	#createComponents = (parent: HTMLDivElement) => {
 		const componentsContainer = create<HTMLDivElement>('div', {
 			classes: ['gui-input-color-components-container'],
-			parent: picker.elements.container,
+			parent: parent,
 		})
 
 		const componentsTitle = create<HTMLDivElement>('div', {
@@ -122,21 +145,11 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 			b: numberController(this, this.opts, numbersContainer),
 		}
 
-		this.elements.controllers.components = {
+		return {
 			container: componentsContainer,
 			title: componentsTitle,
 			numbers,
 		}
-
-		// this.listen(this.elements.controllers.input, 'input', this.updateState)
-
-		this.state.subscribe((v) => {
-			// this.elements.controllers.input.value = String(v.hex)
-			;(this.elements.controllers.currentColor as HTMLDivElement).style.backgroundColor =
-				v.hex
-			this.refreshSliders()
-			this.callOnChange()
-		})
 	}
 
 	get mode() {
@@ -144,7 +157,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 	}
 	set mode(v: ColorMode) {
 		this.#mode = v
-		this.refreshSliders(v)
+		// this.#refreshSliders(v)
 	}
 
 	get a() {
@@ -204,60 +217,82 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		return 'a'
 	}
 
-	togglePicker = () => {
-		this.expanded = !this.expanded
-		if (this.expanded) {
-			this.elements.controllers.picker.elements.container.classList.add('expanded')
-		} else {
-			this.elements.controllers.picker.elements.container.classList.remove('expanded')
+	// updateState = (v: Color | Event) => {
+	// 	this.#log.fn('updateState').info({ v: 'value' in v ? v.value : v })
+	// 	console.log('updateState', v)
+	// 	if (v instanceof Event) {
+	// 		if ('value' in v?.target!) {
+	// 			console.log('value', v.target.value)
+	// 		}
+	// 		if (v?.target && 'value' in v.target) {
+	// 			this.state.value.hex = v.target.value as HexColor
+	// 		}
+	// 	} else {
+	// 		this.state.set(v)
+	// 	}
+
+	// 	this.#refreshSliders()
+	// }
+
+	// #refreshSliders(mode = this.opts.mode) {
+	// 	this.#log.fn('refreshSliders').info({ mode })
+
+	// 	if (mode === 'rgba') {
+	// 		for (const [k, v] of entries(this.elements.controllers.components.numbers)) {
+	// 			if (k === 'container') continue
+	// 			;(v as HTMLInputElement).disabled = false
+	// 			;(v as HTMLInputElement).min = '0'
+	// 			;(v as HTMLInputElement).max = k === 'd' ? '255' : '1'
+	// 			;(v as HTMLInputElement).step = k === 'd' ? '0.01' : '1'
+	// 		}
+	// 	}
+
+	// 	if (mode === 'hsla') {
+	// 		for (const [k, v] of entries(this.elements.controllers.components.numbers)) {
+	// 			if (k === 'container') continue
+	// 			;(v as HTMLInputElement).disabled = false
+	// 			;(v as HTMLInputElement).min = '0'
+	// 			;(v as HTMLInputElement).max = k === 'a' ? '100' : k === 'd' ? '360' : '1'
+	// 			;(v as HTMLInputElement).step = k === 'd' ? '0.01' : '1'
+	// 		}
+	// 	}
+
+	// 	// Disable the sliders.
+	// 	for (const [k, v] of entries(this.elements.controllers.components.numbers)) {
+	// 		if (k === 'container') continue
+	// 		;(v as HTMLInputElement).disabled = true
+	// 	}
+
+	// 	this.elements.controllers.picker.refresh()
+	// }
+
+	#createCurrentColor(parent: HTMLDivElement) {
+		const container = create<HTMLDivElement>('div', {
+			classes: ['gui-input-color-current-color-container'],
+			parent,
+		})
+
+		const display = create<HTMLDivElement>('div', {
+			classes: ['gui-input-color-current-color-display'],
+			parent: container,
+		})
+
+		this.listen(display, 'click', this.togglePicker)
+
+		return {
+			container,
+			display,
 		}
 	}
 
-	refreshSliders(mode = this.opts.mode) {
-		this.#log.fn('refreshSliders').info({ mode })
-
-		if (mode === 'rgba') {
-			for (const [k, v] of entries(this.elements.controllers.components.numbers)) {
-				if (k === 'container') continue
-				;(v as HTMLInputElement).disabled = false
-				;(v as HTMLInputElement).min = '0'
-				;(v as HTMLInputElement).max = k === 'd' ? '255' : '1'
-				;(v as HTMLInputElement).step = k === 'd' ? '0.01' : '1'
-			}
-		}
-
-		if (mode === 'hsla') {
-			for (const [k, v] of entries(this.elements.controllers.components.numbers)) {
-				if (k === 'container') continue
-				;(v as HTMLInputElement).disabled = false
-				;(v as HTMLInputElement).min = '0'
-				;(v as HTMLInputElement).max = k === 'a' ? '100' : k === 'd' ? '360' : '1'
-				;(v as HTMLInputElement).step = k === 'd' ? '0.01' : '1'
-			}
-		}
-
-		// Disable the sliders.
-		for (const [k, v] of entries(this.elements.controllers.components.numbers)) {
-			if (k === 'container') continue
-			;(v as HTMLInputElement).disabled = true
-		}
-	}
-
-	updateState = (v: Color | Event) => {
-		this.#log.fn('updateState').info({ v: 'value' in v ? v.value : v })
-		console.log('updateState', v)
-		if (v instanceof Event) {
-			if ('value' in v?.target!) {
-				console.log('value', v.target.value)
-			}
-			if (v?.target && 'value' in v.target) {
-				this.state.value.hex = v.target.value as HexColor
-			}
+	togglePicker = (state = !this.expanded) => {
+		let keyframes: KeyframeAnimationOptions[] = []
+		this.expanded = state
+		if (state) {
+			this.elements.controllers.picker.container.classList.add('expanded')
 		} else {
-			this.state.set(v)
+			this.elements.controllers.picker.container.classList.remove('expanded')
 		}
-
-		this.refreshSliders()
 	}
 
 	dispose() {

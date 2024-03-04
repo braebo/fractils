@@ -1,7 +1,7 @@
-import type { ColorSliderElements, InputColor } from '../inputs/Color'
-import type { ControllerFactory } from './types'
+import type { ColorSliderElements, InputColor } from '../../inputs/InputColor'
+import type { ControllerFactory } from '../types'
 
-import { create } from '../../utils/create'
+import { create } from '../../../utils/create'
 
 export const colorController: ControllerFactory<HTMLInputElement> = (input, opts, parent) => {
 	const controller = create<HTMLInputElement>('input', {
