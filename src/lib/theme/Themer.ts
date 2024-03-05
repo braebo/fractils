@@ -166,8 +166,8 @@ export class Themer {
 	}
 
 	init() {
-		const themes = this.themes.get()
-		const theme = this.theme.get()
+		const themes = this.themes.value
+		const theme = this.theme.value
 
 		this.log(c('init') + '()', { theme: this.theme, this: this })
 		if (typeof document === 'undefined') return
@@ -196,7 +196,7 @@ export class Themer {
 	 * The current mode, taking into account the system preferences.
 	 */
 	get activeMode(): 'light' | 'dark' {
-		const mode = this.mode.get()
+		const mode = this.mode.value
 
 		if (mode === 'system') {
 			if (window.matchMedia('(prefers-color-scheme: light)').matches) {
@@ -287,7 +287,7 @@ export class Themer {
 
 		const themeTitle = typeof themeOrTitle === 'string' ? themeOrTitle : themeOrTitle.title
 
-		const themes = this.themes.get()
+		const themes = this.themes.value
 
 		const theme = themes.find((t) => t.title === themeTitle)
 
@@ -301,9 +301,9 @@ export class Themer {
 
 		const nextIndex = themes.indexOf(theme) - 1
 
-		const isActive = this.theme.get().title === themeTitle
+		const isActive = this.theme.value.title === themeTitle
 
-		this.themes.set(this.themes.get().filter((t) => t.title !== themeTitle))
+		this.themes.set(this.themes.value.filter((t) => t.title !== themeTitle))
 
 		if (isActive) {
 			this.theme.set(themes[nextIndex] ?? themes.at(-1))
@@ -318,7 +318,7 @@ export class Themer {
 	 * Resolves a {@link ThemeConfig} by title.
 	 */
 	getThemeConfig(themeTitle: ThemeTitle) {
-		return this.themes.get().find((t) => t.title === themeTitle)
+		return this.themes.value.find((t) => t.title === themeTitle)
 	}
 
 	/**
@@ -327,7 +327,7 @@ export class Themer {
 	applyTheme = () => {
 		if (!('document' in globalThis)) return
 
-		const theme = this.theme.get()
+		const theme = this.theme.value
 
 		if (!theme) {
 			this.log('themeConfig not found', { theme, this: this })
@@ -352,10 +352,10 @@ export class Themer {
 	 * Updates Themer state from JSON.
 	 */
 	fromJSON(json: ThemerJSON) {
-		const isNewTheme = this.theme.get().title !== json.activeTheme
+		const isNewTheme = this.theme.value.title !== json.activeTheme
 
 		let theme = json.themes.find((t) => t.title === json.activeTheme)
-		theme ??= this.themes.get().find((t) => t.title === json.activeTheme)
+		theme ??= this.themes.value.find((t) => t.title === json.activeTheme)
 
 		if (!theme) {
 			this.log(r('Error') + ': `activeTheme` not found in `themes` array.', {
@@ -379,9 +379,9 @@ export class Themer {
 	 */
 	toJSON() {
 		return {
-			themes: this.themes.get(),
-			activeTheme: this.theme.get().title,
-			mode: this.mode.get(),
+			themes: this.themes.value,
+			activeTheme: this.theme.value.title,
+			mode: this.mode.value,
 		} satisfies ThemerJSON
 	}
 

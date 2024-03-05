@@ -11,7 +11,7 @@
 
 	const { theme, mode, themes } = themer
 
-	let showDeleteText = Array.from({ length: themes.get().length }, () => false)
+	let showDeleteText = Array.from({ length: themes.value.length }, () => false)
 </script>
 
 {#if themer}

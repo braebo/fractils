@@ -222,7 +222,7 @@ export class Gui extends Folder {
 		// 	dragOptions.handle = this.elements.header
 		// 	dragOptions.bounds = this.container
 
-		// 	dragOptions.defaultPosition = this.position.get()
+		// 	dragOptions.defaultPosition = this.position.value
 
 		// 	this.log.fn('constructor').info(dragOptions)
 
@@ -253,7 +253,7 @@ export class Gui extends Folder {
 		dragOptions.handle = this.elements.header
 		dragOptions.bounds = this.container
 
-		dragOptions.defaultPosition = this.position.get()
+		dragOptions.defaultPosition = this.position.value
 
 		//? Persist position to state if storage is enabled.
 		if (this.storage.position) {
@@ -290,7 +290,7 @@ export class Gui extends Folder {
 
 			//? Load size from state if storage is enabled.
 			if (opts.storage === true || opts.storage?.size) {
-				const size = this.size.get()
+				const size = this.size.value
 				this.log.fn('constructor').info('Loading size from state:', size)
 				if (resizeOpts?.sides?.includes('left') || resizeOpts?.sides?.includes('right')) {
 					this.element.style.width = `${size.width}px`

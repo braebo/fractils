@@ -1,4 +1,4 @@
-import type { NumberInputOptions } from './Number'
+import type { NumberInputOptions } from './InputNumber'
 import type { State } from '../../utils/state'
 import type { Folder } from '../Folder'
 
@@ -193,17 +193,11 @@ export abstract class Input<
 	}
 
 	#title = ''
-	get title() {
-		return this.#title
-	}
-	set title(v: string) {
-		this.#title = v
-		this.elements.title.textContent = v
-	}
 
 	/**
 	 * A set of callbacks to be called when {@link Input.dispose} is called.
 	 * @internal
+	 * @private
 	 */
 	disposeCallbacks = new Set<() => void>()
 
@@ -247,7 +241,17 @@ export abstract class Input<
 		this.#log.groupCollapsed().fn('constructor').info({ opts: options, this: this })
 	}
 
-	abstract updateState: (v: TValueType | Event) => void
+	updateState = (v: TValueType | Event) => {
+		this.callOnChange()
+	}
+
+	get title() {
+		return this.#title
+	}
+	set title(v: string) {
+		this.#title = v
+		this.elements.title.textContent = v
+	}
 
 	#onChangeListeners = new Set<(v: TValueType) => void>()
 	onChange(cb: (v: TValueType) => void) {

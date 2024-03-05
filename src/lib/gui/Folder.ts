@@ -1,8 +1,8 @@
 import type { InputOptions, InputView } from './inputs/Input'
 import type { Gui } from './Gui'
 
-import { InputNumber, type NumberInputOptions } from './inputs/Number'
-import { InputColor, type ColorInputOptions } from './inputs/Color'
+import { InputNumber, type NumberInputOptions } from './inputs/InputNumber'
+import { InputColor, type ColorInputOptions } from './inputs/InputColor'
 
 import { create } from '../utils/create'
 import { nanoid } from '../utils/nanoid'
@@ -339,10 +339,10 @@ export class Folder {
 			/*//?	Circle Alt	*/
 			.icon-folder circle.alt {
 				transform: translate(-3px, 0) scale(1.8);
-				
+
 				stroke: none;
 				fill: ${theme};
-				
+
 				transition-duration: 0.5s;
 				transition-timing-function: ${ease};
 			}
@@ -379,7 +379,7 @@ export class Folder {
 			</style>
 		</svg>`.trim()
 
-		if (this.closed.get()) this.#folderIcon.classList.add('closed')
+		if (this.closed.value) this.#folderIcon.classList.add('closed')
 
 		return this.#folderIcon
 	}
@@ -455,7 +455,7 @@ export class Folder {
 			}
 		}
 
-		this.closed.get() ? this.open() : this.close()
+		this.closed.value ? this.open() : this.close()
 	}
 
 	#updateDisplay = () => {

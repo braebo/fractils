@@ -38,7 +38,7 @@ export async function initTheme() {
 		?.matchMedia('(prefers-color-scheme: dark)')
 		.addEventListener('change', detectSystemPreference)
 
-	const pref = theme.get()
+	const pref = theme.value
 
 	if (!pref) {
 		log.fn('initTheme').info('No theme found - applying system theme.')

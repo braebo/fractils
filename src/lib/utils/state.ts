@@ -4,8 +4,9 @@ import { localStorageStore } from './localStorageStore'
 import { get, writable } from 'svelte/store'
 
 export interface PrimitiveState<T> extends Writable<T> {
-	get(): T
+	// get(): T
 	readonly value: T
+	refresh(): void
 	onChange: (cb: (v: T) => void) => void
 }
 
@@ -152,11 +153,14 @@ export function state<T>(defaultValue: T, options?: StateOptions<T>): State<T> {
 
 	return {
 		...store,
-		get() {
-			return get(store)
-		},
+		// get() {
+		// 	return get(store)
+		// },
 		get value() {
 			return get(store)
+		},
+		refresh() {
+			store.set(get(store))
 		},
 	} as State<T>
 }
