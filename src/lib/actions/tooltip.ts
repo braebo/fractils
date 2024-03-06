@@ -113,23 +113,6 @@ export class Tooltip {
 	listeners = new Set<() => void>()
 
 	constructor(node: HTMLElement, options?: TooltipOptions) {
-		// const opts = Object.assign(this.opts, TOOLTIP_DEFAULTS, options)
-		// const styles = Object.assign({}, TOOLTIP_DEFAULTS.styles, options?.styles)
-		// opts.styles = styles
-		// const anim = Object.assign({}, TOOLTIP_DEFAULTS.animation, options?.animation)
-		// opts.animation = anim
-
-		// // or
-
-		// const opts = {
-		// 	...TOOLTIP_DEFAULTS,
-		// 	...options,
-		// 	...{
-		// 		styles: { ...TOOLTIP_DEFAULTS.styles, ...options?.styles },
-		// 		animation: { ...TOOLTIP_DEFAULTS.animation, ...options?.animation },
-		// 	},
-		// }
-
 		const opts = deepMerge(TOOLTIP_DEFAULTS, options)
 		this.opts = opts
 
@@ -273,7 +256,7 @@ export class Tooltip {
 
 			this.element.innerText = String(this.text())
 
-			const { x, y } = getAnchorRects(e)
+			const anchor = getAnchorRects(e)
 
 			let left = 0
 			let top = 0
@@ -284,20 +267,24 @@ export class Tooltip {
 
 			switch (opts.placement) {
 				case 'top':
-					left = x.left + window.scrollX + x.width / 2 - tooltipRect.width / 2
-					top = y.top + window.scrollY - tooltipRect.height - baseOffset
+					left =
+						anchor.x.left + window.scrollX + anchor.x.width / 2 - tooltipRect.width / 2
+					top = anchor.y.top + window.scrollY - tooltipRect.height - baseOffset
 					break
 				case 'bottom':
-					left = x.left + window.scrollX + x.width / 2 - tooltipRect.width / 2
-					top = y.top + window.scrollY + y.height + baseOffset
+					left =
+						anchor.x.left + window.scrollX + anchor.x.width / 2 - tooltipRect.width / 2
+					top = anchor.y.top + window.scrollY + anchor.y.height + baseOffset
 					break
 				case 'left':
-					left = x.left + window.scrollX - tooltipRect.width - baseOffset
-					top = y.top + window.scrollY + y.height / 2 - tooltipRect.height / 2
+					left = anchor.x.left + window.scrollX - tooltipRect.width - baseOffset
+					top =
+						anchor.y.top + window.scrollY + anchor.y.height / 2 - tooltipRect.height / 2
 					break
 				case 'right':
-					left = x.left + window.scrollX + x.width + baseOffset
-					top = y.top + window.scrollY + y.height / 2 - tooltipRect.height / 2
+					left = anchor.x.left + window.scrollX + anchor.x.width + baseOffset
+					top =
+						anchor.y.top + window.scrollY + anchor.y.height / 2 - tooltipRect.height / 2
 					break
 			}
 
