@@ -215,7 +215,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 
 		//? Load size from local storage.
 		if (this.localStorageKey) {
-			const { width, height } = this.size.get()
+			const { width, height } = this.size.value
 			node.style.width = width + 'px'
 			node.style.height = height + 'px'
 			node.dispatchEvent(new CustomEvent('resize'))
