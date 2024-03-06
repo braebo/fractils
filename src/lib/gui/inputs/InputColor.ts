@@ -63,10 +63,11 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 	/**
 	 * When true, the color picker is visible.
 	 */
-	expanded = false
+	expanded = true
 
 	picker: ColorPicker
 
+	#pickerHeight: number
 	#log = new Logger('InputColor', { fg: 'cyan' })
 
 	constructor(options: Partial<ColorInputOptions>, folder: Folder) {
@@ -74,12 +75,11 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		super(opts, folder)
 
 		this.opts = opts
-		this.#log.fn('constructor').info({ opts, this: this }).groupEnd()
-
 		this.#mode = opts.mode
 
-		//? Init State
+		this.#log.fn('constructor').info({ opts, this: this }).groupEnd()
 
+		// Initialize state.
 		if (opts.binding) {
 			this.initialValue = new Color(opts.binding.target[opts.binding.key])
 			this.state = state(this.initialValue)
@@ -98,18 +98,22 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 			classes: ['gui-input-color-container'],
 			parent: this.elements.content,
 		})
+		this.elements.controllers.container = container
 
-		//? CurrentColor els
-		// @ts-ignore
+		//- Current color display.
 		this.elements.controllers.currentColor = this.#createCurrentColor(container)
 
+		//- Color picker.
 		this.picker = new ColorPicker(this)
 		this.elements.controllers.picker = this.picker.elements
-		container.appendChild(this.picker.elements.container)
 
-		this.elements.controllers.components = this.#createComponents(
-			this.elements.controllers.picker.container,
-		)
+		// I'm current handling the toggling of the picker here... but perhaps it should live in the picker itself.
+		const pickerContainer = this.picker.elements.container
+
+		this.#pickerHeight ||= pickerContainer.clientHeight
+		container.appendChild(pickerContainer)
+
+		this.elements.controllers.components = this.#createComponents(pickerContainer)
 
 		this.state.subscribe((v) => {
 			this.elements.controllers.currentColor.display.style.backgroundColor = v.hex8String
@@ -118,6 +122,9 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 			this.picker.refresh()
 			this.callOnChange()
 		})
+
+		// //! TEST
+		// setInterval(this.togglePicker, 3000 * Math.random() + 1000)
 	}
 
 	#createComponents = (parent: HTMLDivElement) => {
@@ -151,6 +158,8 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 			numbers,
 		}
 	}
+
+	//· Getters & Setters ····················································¬
 
 	get mode() {
 		return this.#mode
@@ -216,6 +225,8 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 	get dTitle() {
 		return 'a'
 	}
+
+	//⌟
 
 	// updateState = (v: Color | Event) => {
 	// 	this.#log.fn('updateState').info({ v: 'value' in v ? v.value : v })
@@ -285,13 +296,45 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		}
 	}
 
-	togglePicker = (state = !this.expanded) => {
-		let keyframes: KeyframeAnimationOptions[] = []
-		this.expanded = state
-		if (state) {
-			this.elements.controllers.picker.container.classList.add('expanded')
+	#animOpts: KeyframeAnimationOptions = {
+		duration: 500,
+		easing: 'cubic-bezier(0.23, 1, 0.32, 1)',
+		fill: 'forwards',
+	}
+
+	get #pickerContainer() {
+		return this.picker.elements.container
+	}
+
+	openPicker = (height = this.#pickerHeight + 'px') => {
+		this.#pickerContainer.animate({ height }, this.#animOpts).onfinish = () => {
+			this.#pickerContainer.style.overflow = 'visible'
+		}
+
+		this.expanded = true
+		this.#pickerContainer.classList.add('expanded')
+	}
+
+	closePicker = () => {
+		this.#pickerContainer.animate(
+			[{ height: this.#pickerHeight + 'px' }, { height: 0 }],
+			this.#animOpts,
+		)
+		this.#pickerContainer.style.overflow = 'hidden'
+
+		this.expanded = false
+		this.#pickerContainer.classList.remove('expanded')
+	}
+
+	togglePicker = () => {
+		this.#pickerHeight ||= this.picker.elements.container.clientHeight
+		this.#log
+			.fn('togglePicker')
+			.info({ expanded: this.expanded, pickerHeight: this.#pickerHeight })
+		if (this.expanded) {
+			this.closePicker()
 		} else {
-			this.elements.controllers.picker.container.classList.remove('expanded')
+			this.openPicker()
 		}
 	}
 
