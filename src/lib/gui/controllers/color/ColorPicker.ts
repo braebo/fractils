@@ -27,22 +27,6 @@ export interface ColorPickerOptions {
 	 * @default 10
 	 */
 	handleSize: number
-	// width: number
-	// height: number
-	// padding: number
-	// layoutDirection: LayoutDirection
-	// borderColor: string
-	// borderWidth: number
-	// handleRadius: number
-	// handleProps: any
-	// wheelLightness: boolean
-	// wheelAngle: number
-	// wheelDirection: WheelDirection
-	// sliderMargin: number
-	// activeHandleRadius?: number
-	// handleSvg?: string
-	// sliderSize?: number
-	// boxHeight?: number
 }
 
 export const COLOR_PICKER_DEFAULTS: ColorPickerOptions = {
@@ -50,34 +34,12 @@ export const COLOR_PICKER_DEFAULTS: ColorPickerOptions = {
 	swatches: [],
 	handleSize: 10,
 	container: undefined,
-	// width: 300,
-	// height: 300,
-	// padding: 6,
-	// layoutDirection: 'vertical',
-	// borderColor: '#fff',
-	// borderWidth: 0,
-	// handleRadius: 8,
-	// handleProps: { x: 0, y: 0 },
-	// wheelLightness: true,
-	// wheelAngle: 0,
-	// wheelDirection: 'anticlockwise',
-	// sliderMargin: 12,
-	// activeHandleRadius: null,
-	// handleSvg: null,
-	// sliderSize: null,
-	// boxHeight: null,
 }
-
-// export function cssBorderStyles(props: ColorPickerOptions) {
-// 	return {
-// 		boxSizing: 'border-box',
-// 		border: `${props.borderWidth}px solid ${props.borderColor}`,
-// 	}
-// }
 
 import type { InputColor } from '../../inputs/InputColor'
 
 import { create } from '../../../utils/create'
+import { mapRange } from '$lib/utils/mapRange'
 import { clamp } from '../../../utils/clamp'
 import { Controller } from '../Controller'
 
@@ -102,6 +64,8 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 
 	#dragging = false
 	// #log = new Logger('ColorPicker', { fg: 'yellow' })
+
+	#lockCursorPosition = false
 
 	constructor(input: InputColor, options?: Partial<ColorPickerOptions>) {
 		const opts = { ...COLOR_PICKER_DEFAULTS, ...options }
@@ -142,7 +106,7 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 			max: '1',
 			step: '0.01',
 		})
-		this.input.listen(alphaSlider, 'input', this.#updateAlpha)
+		this.input.listen(alphaSlider, 'input', this.setAlpha)
 
 		tooltip(alphaSlider, {
 			text: () => this.input.state.value.alpha,
@@ -176,97 +140,6 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 		setTimeout(this.#updateHandlePosition, 20)
 	}
 
-	#lockCursorPosition = false
-
-	refresh = () => {
-		this.elements.hueSlider.value = String(this.hue)
-		this.elements.alphaSlider.value = String(this.alpha)
-		this.elements.alphaSlider.style.color = this.input.state.value.hexString
-
-		// this.#updateGradients()
-		this.draw()
-
-		if (this.#lockCursorPosition) {
-			// Update the color only.
-			this.elements.cursor.style.background = this.input.state.value.hexString
-			this.#lockCursorPosition = false
-		} else {
-			// this.#setCursorFromColor(this.input.state.value.hsv.s, this.input.state.value.hsv.v)
-			this.#updateHandlePosition()
-		}
-	}
-
-	#updateAlpha = (e: InputEvent) => {
-		const alpha = Number((e.target as HTMLInputElement).value)
-
-		this.input.state.value.alpha = alpha
-		this.input.state.refresh()
-	}
-
-	// /**
-	//  * A crude hack to set the cursor position from the color by looping
-	//  * through the canvas pixel by pixel and finding the closest match.
-	//  *
-	//  * @remarks Average run time is 2ms, which is longer than I'd like,
-	//  * but ok for now...
-	//  */
-	// #setCursorFromColor = () => {
-	// 	const { r, g, b } = this.input.state.value.rgba
-
-	// 	const { width, height } = this.canvas
-
-	// 	const imageData = this.#ctx.getImageData(0, 0, width, height)
-
-	// 	let closest = { x: 0, y: 0, diff: Number.MAX_VALUE }
-
-	// 	for (let x = 0; x < width; x++) {
-	// 		for (let y = 0; y < height; y++) {
-	// 			const i = (x + y * width) * 4
-
-	// 			const _r = imageData.data[i]
-	// 			const _g = imageData.data[i + 1]
-	// 			const _b = imageData.data[i + 2]
-
-	// 			const diff = Math.sqrt((r - _r) ** 2 + (g - _g) ** 2 + (b - _b) ** 2)
-
-	// 			if (diff < closest.diff) {
-	// 				closest = { x, y, diff }
-	// 			}
-	// 		}
-	// 	}
-
-	// 	// this.#drawCursor(closest.x, closest.y)
-
-	// 	const rect = this.canvas.getBoundingClientRect()
-	// 	const relativeX = mapRange(closest.x, 0, width, 0, rect.width)
-	// 	const relativeY = mapRange(closest.y, 0, height, 0, rect.height)
-
-	// 	this.#drawCursor(relativeX, relativeY)
-	// }
-
-	/**
-	 * @desc Get the current box value from user input
-	 * @param props - box props
-	 * @param x - global input x position
-	 * @param y - global input y position
-	 */
-	#getColorAtCoords = (x: number, y: number) => {
-		const { width, height } = this.canvas.getBoundingClientRect()
-
-		const radius = this.opts.handleSize / 2 - 0.5
-
-		const handleStart = radius
-		const handleRangeX = width - radius * 2
-		const handleRangeY = height - radius * 2
-		const percentX = ((x - handleStart) / handleRangeX) * 100
-		const percentY = ((y - handleStart) / handleRangeY) * 100
-
-		return {
-			s: Math.max(0, Math.min(percentX, 100)),
-			v: Math.max(0, Math.min(100 - percentY, 100)),
-		}
-	}
-
 	get canvas() {
 		return this.elements.canvas
 	}
@@ -287,15 +160,51 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 		return this.input.state.value.hsla.a
 	}
 
-	fill(style: string | CanvasGradient) {
-		this.#ctx.fillStyle = style
-		this.#ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+	set(v: ColorValue) {
+		this.input.state.value.set(v)
+		this.input.state.refresh()
+		this.refresh()
+	}
+
+	setAlpha = (e: InputEvent) => {
+		this.input.state.value.alpha = Number((e.target as HTMLInputElement).value)
+		this.input.state.refresh()
+	}
+
+	#lastColor: Color | undefined
+
+	/**
+	 * Updates the UI to reflect the current state of the color picker.
+	 */
+	refresh = () => {
+		if (this.#lastColor?.hexString === this.input.state.value.hexString) return
+		this.#lastColor = this.input.state.value
+
+		this.elements.hueSlider.value = String(this.hue)
+		this.elements.alphaSlider.value = String(this.alpha)
+		this.elements.alphaSlider.style.color = this.input.state.value.hexString
+
+		// this.#updateGradients()
+		this.draw()
+
+		if (this.#lockCursorPosition) {
+			// Update the color only.
+			this.elements.cursor.style.background = this.input.state.value.hexString
+			this.#lockCursorPosition = false
+		} else {
+			this.#updateHandlePosition()
+		}
 	}
 
 	draw = () => {
-		this.fill(`hsl(${this.hue}, 100%, 50%)`)
-		this.fill(this.#gradientWhite)
-		this.fill(this.#gradientBlack)
+		this.#fill(`hsl(${this.hue}, 100%, 50%)`)
+		this.#fill(this.#gradientWhite)
+		this.#fill(this.#gradientBlack)
+	}
+
+	#fill(style: string | CanvasGradient) {
+		this.#ctx.fillStyle = style
+		this.#ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
 	}
 
 	#updateGradients() {
@@ -332,18 +241,53 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 		this.#dragging = false
 	}
 
+	/**
+	 * Updates the color picker's state based on the current mouse position.
+	 */
 	#updateFromMousePosition(e: PointerEvent) {
 		const { left, top, width, height } = this.canvas.getBoundingClientRect()
 		const x = clamp(e.clientX - left, 0, width)
 		const y = clamp(e.clientY - top, 0, height)
 
-		const { s, v } = this.#getColorAtCoords(x, y)
+		const { s, v } = this.#getColorAtPosition(x, y)
 		this.input.state.value.hsv = { h: this.hue, s, v }
 		this.input.state.set(this.input.state.value)
 
 		this.#drawCursor(this.#getHandlePosition(this.input.state.value))
 	}
 	//⌟
+
+	// /**
+	//  * Maps canvas `x` and `y` coordinates to their respective `s` and `v` color values.
+	//  */
+	// #getColorAtPosition = (x: number, y: number) => {
+	// 	const { width, height } = this.canvas.getBoundingClientRect()
+
+	// 	const radius = this.opts.handleSize / 2 - 0.5
+
+	// 	const handleRangeX = width - radius * 2
+	// 	const handleRangeY = height - radius * 2
+	// 	const percentX = ((x - radius) / handleRangeX) * 100
+	// 	const percentY = ((y - radius) / handleRangeY) * 100
+
+	// 	return {
+	// 		s: Math.max(0, Math.min(percentX, 100)),
+	// 		v: Math.max(0, Math.min(100 - percentY, 100)),
+	// 	}
+	// }
+
+	/**
+	 * Maps canvas `x` and `y` coordinates to their respective `s` and `v` color values.
+	 */
+	#getColorAtPosition = (x: number, y: number) => {
+		const { width, height } = this.canvas.getBoundingClientRect()
+		const r = this.opts.handleSize / 3
+
+		return {
+			s: mapRange(x, r, width - r, 0, 100),
+			v: mapRange(y, r, height - r, 100, 0),
+		}
+	}
 
 	#updateHandlePosition = (color = this.input.state.value) => {
 		this.#drawCursor(this.#getHandlePosition(color))
@@ -354,15 +298,11 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 	 */
 	#getHandlePosition = (color: Color) => {
 		const { width, height } = this.canvas.getBoundingClientRect()
-
-		const hsv = color.hsv
-		const radius = this.opts.handleSize / 2 - 0.5
-		const handleRangeX = width - radius * 2
-		const handleRangeY = height - radius * 2
+		const r = this.opts.handleSize / 2
 
 		return {
-			x: radius + (hsv.s / 100) * handleRangeX,
-			y: radius + (handleRangeY - (hsv.v / 100) * handleRangeY),
+			x: mapRange(color.hsv.s, 0, 100, r, width - r),
+			y: mapRange(color.hsv.v, 0, 100, height - r, r),
 		}
 	}
 
