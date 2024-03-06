@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Color } from '$lib/color/color'
 	import { onMount } from 'svelte'
 
 	import { tweened } from 'svelte/motion'
@@ -13,6 +14,11 @@
 		speed: 0.02,
 		mid: count * 5,
 		brightness: 0.4,
+		color: new Color({ r: 10, g: 200, b: 250, a: 1 }),
+		accent: new Color({ r: 0, g: 50, b: 100, a: 1 }),
+		glowR: 10,
+		glowG: 10,
+		glowB: 50,
 	}
 	const a1t = tweened(params.a1, { duration: 500 })
 	const a2t = tweened(params.a2, { duration: 500 })
@@ -75,21 +81,24 @@
 									<stop
 										offset="0%"
 										style="stop-color:rgb({[
-											10 *
+											params.color.rgba.r *
 												(((i + 1) * params.brightness) / params.orbs + 0.5),
-											200 *
+											params.color.rgba.g *
 												(((i + 1) * params.brightness) / params.orbs + 0.5),
-											250 *
+											params.color.rgba.b *
 												(((i + 1) * params.brightness) / params.orbs + 0.5),
-										]});stop-opacity:1"
+										]});stop-opacity:{params.color.rgba.a}"
 									/>
 									<stop
 										offset="100%"
 										style="stop-color:rgb({[
-											(i + 1) * params.brightness * 10,
-											50 + (i + 1) * params.brightness * 10,
-											100 + (i + 1) * params.brightness * 50,
-										]});stop-opacity:1"
+											params.accent.rgba.r +
+												(i + 1) * params.brightness * params.glowR,
+											params.accent.rgba.g +
+												(i + 1) * params.brightness * params.glowG,
+											params.accent.rgba.b +
+												(i + 1) * params.brightness * params.glowB,
+										]});stop-opacity:{params.accent.rgba.a}"
 									/>
 								</radialGradient>
 							</defs>

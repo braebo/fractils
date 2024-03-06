@@ -1,8 +1,8 @@
 <script lang="ts">
-	import type { InputNumber } from '$lib/gui/inputs/Number'
+	import type { InputNumber } from '$lib/gui/inputs/InputNumber'
 
 	import { inspectElement } from '$lib/actions/inspectElement'
-	import { InputColor } from '$lib/gui/inputs/Color'
+	import { InputColor } from '$lib/gui/inputs/InputColor'
 	import Orbs from '../resizable/Orbs.svelte'
 	import { Color } from '$lib/color/color'
 	import { Gui } from '$lib/gui/Gui'
@@ -26,9 +26,12 @@
 		speed: 0.02,
 		mid: count * 5,
 		brightness: 0.4,
-		color: new Color('#7777FF'),
+		color: new Color({ r: 10, g: 200, b: 250, a: 1 }),
+		accent: new Color({ r: 0, g: 50, b: 100, a: 1 }),
+		glowR: 10,
+		glowG: 10,
+		glowB: 50,
 	}
-	console.log(params.color.hex)
 
 	onMount(() => {
 		gui = new Gui({
@@ -176,6 +179,52 @@
 			},
 		})
 
+		f1.add<InputColor>({
+			title: 'accent',
+			view: 'Color',
+			// value: params.accent,
+			binding: {
+				target: params,
+				key: 'accent',
+			},
+		})
+
+		f1.add<InputNumber>({
+			title: 'glowR',
+			view: 'Slider',
+			binding: {
+				target: params,
+				key: 'glowR',
+			},
+			min: 0,
+			max: 20,
+			step: 0.01,
+		})
+
+		f1.add<InputNumber>({
+			title: 'glowG',
+			view: 'Slider',
+			binding: {
+				target: params,
+				key: 'glowG',
+			},
+			min: 0,
+			max: 20,
+			step: 0.01,
+		})
+
+		f1.add<InputNumber>({
+			title: 'glowB',
+			view: 'Slider',
+			binding: {
+				target: params,
+				key: 'glowB',
+			},
+			min: 0,
+			max: 20,
+			step: 0.01,
+		})
+
 		// const f2 = f1.addFolder({ title: '2b' })
 
 		// f2.add({
@@ -290,20 +339,21 @@
 		margin: auto;
 	}
 
-	label {
-		display: flex;
-		gap: 0.5rem;
+	// label {
+	// 	display: flex;
+	// 	gap: 0.5rem;
 
-		width: 13rem;
-		padding: 0.5rem;
+	// 	width: 13rem;
+	// 	padding: 0.5rem;
 
-		background: rgba(var(--bg-b-rgb), 0.5);
-		border-radius: var(--radius);
-		box-shadow: var(--shadow), var(--shadow-inset);
-	}
-	input {
-		// width: 10rem;
-		min-width: 0;
-		max-width: unset;
-	}
+	// 	background: rgba(var(--bg-b-rgb), 0.5);
+	// 	border-radius: var(--radius);
+	// 	box-shadow: var(--shadow), var(--shadow-inset);
+	// }
+
+	// input {
+	// 	// width: 10rem;
+	// 	min-width: 0;
+	// 	max-width: unset;
+	// }
 </style>
