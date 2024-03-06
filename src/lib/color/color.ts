@@ -188,11 +188,11 @@ export class Color {
 	}
 
 	/** i.e. `{ h: 261, s: 100, v: 47, a: 1 }` */
-	get hsva(): HsvColor {
+	get hsva(): HsvaColor {
 		return structuredClone(this.#hsva)
 	}
 
-	set hsva(value: HsvColor) {
+	set hsva(value: HsvaColor) {
 		this.hsv = value
 	}
 
