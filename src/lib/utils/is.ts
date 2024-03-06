@@ -19,5 +19,5 @@ export function isHTMLElement(value: unknown): value is HTMLElement {
 }
 
 export function isObject(value: unknown): value is Record<string, unknown> {
-	return value !== null && typeof value === 'object'
+	return !!value && typeof value === 'object'
 }
