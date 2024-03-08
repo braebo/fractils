@@ -1,11 +1,16 @@
-import type { NumberInputOptions } from './InputNumber'
-import type { State } from '../../utils/state'
+import type { InputNumber, NumberInputOptions } from './InputNumber'
+import type { ColorInputOptions, InputColor } from './InputColor'
+import type { ColorFormat } from '../../color/types/colorFormat'
+import type { PrimitiveState, State } from '../../utils/state'
+import type { Color } from '../../color/color'
 import type { Folder } from '../Folder'
 
 import { create } from '../../utils/create'
 import { Logger } from '../../utils/logger'
 
 //· Types ··············································································¬
+
+// Only Number and Color are implemented, but the rest are here for future reference.
 
 // prettier-ignore
 export type InputValueType =
@@ -135,8 +140,6 @@ export interface StringInputOptions {
 
 export type HexColor = `#${string}`
 
-export interface ColorInputOptions {}
-
 export interface RangeInputOptions {
 	min?: number
 	max?: number
@@ -158,7 +161,8 @@ export interface FolderInputOptions {
 export interface InputOptions<T extends Record<string, any> = Record<string, any>> {
 	title: string
 	view: InputView
-	value: number | string | boolean | HexColor | Function | Record<any, any> | any[]
+	value: number | Color | ColorFormat
+	// value: InputState
 	binding?: {
 		target: T
 		key: keyof T
@@ -170,8 +174,14 @@ export interface ElementMap<T = unknown> {
 	[key: string]: HTMLElement | HTMLInputElement | ElementMap | T
 }
 
+//- WIP
+type InputStatePrimitive = InputNumber['state'] | InputColor['state']
+type ExtractPrimitive<T> = T extends PrimitiveState<infer U> ? U : never
+export type InputState = ExtractPrimitive<InputStatePrimitive>
+export type ValidInputs = InputNumber | InputColor
+
 export abstract class Input<
-	TValueType extends unknown = any,
+	TValueType extends InputState = InputState,
 	TOptions extends InputOptions = InputOptions,
 	TControllers extends ElementMap = ElementMap,
 > {
@@ -211,28 +221,28 @@ export abstract class Input<
 		this.view = options.view
 
 		this.elements.container = create('div', {
-			classes: ['gui-input-container'],
+			classes: ['fracgui-input-container'],
 			parent: this.folder.elements.content,
 		})
 
 		this.elements.drawerToggle = create('div', {
-			classes: ['gui-input-drawer-toggle'],
+			classes: ['fracgui-input-drawer-toggle'],
 			parent: this.elements.container,
 		})
 
 		this.elements.title = create('div', {
-			classes: ['gui-input-title'],
+			classes: ['fracgui-input-title'],
 			parent: this.elements.container,
 			textContent: this.title,
 		})
 
 		this.elements.content = create('div', {
-			classes: ['gui-input-content'],
+			classes: ['fracgui-input-content'],
 			parent: this.elements.container,
 		})
 
 		this.elements.drawer = create('div', {
-			classes: ['gui-input-drawer'],
+			classes: ['fracgui-input-drawer'],
 			parent: this.elements.content,
 		})
 
@@ -241,8 +251,26 @@ export abstract class Input<
 		this.#log.groupCollapsed().fn('constructor').info({ opts: options, this: this })
 	}
 
-	updateState = (v: TValueType | Event) => {
+	get value() {
+		return this.state.value
+	}
+
+	/**
+	 * Refreshes the value of any controllers to match the current input state.
+	 */
+	refresh = (..._args: any[]) => {
 		this.callOnChange()
+	}
+
+	/**
+	 * Updates the input state and calls the `refresh` method.
+	 */
+	update = (v: (currentValue: TValueType) => TValueType) => {
+		const newValue = v(this.state.value as TValueType)
+		// @ts-expect-error //! Lord help me.
+		this.state.set(newValue)
+		this.state.refresh()
+		this.callOnChange(newValue)
 	}
 
 	get title() {
@@ -260,14 +288,15 @@ export abstract class Input<
 			this.#onChangeListeners.delete(cb)
 		}
 	}
-	callOnChange() {
+	callOnChange(v = this.state.value) {
 		for (const cb of this.#onChangeListeners) {
-			cb(this.state.value as TValueType)
+			// todo - Shouldn't need to assert here.
+			cb(v as TValueType)
 		}
 	}
 
 	listen = (
-		element: HTMLElement | Window,
+		element: HTMLElement | Window | Document,
 		event: string,
 		cb: (e: any) => void,
 		options?: AddEventListenerOptions,
