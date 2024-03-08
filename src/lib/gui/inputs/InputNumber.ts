@@ -2,9 +2,9 @@ import type { InputOptions, ElementMap } from './Input'
 import type { Folder } from '../Folder'
 
 import { numberController, numberButtonsController, rangeController } from '../controllers/number'
-import { state, type State } from '../../utils/state'
 import { Logger } from '../../utils/logger'
 import { create } from '../../utils/create'
+import { state } from '../../utils/state'
 import { Input } from './Input'
 
 export interface NumberInputOptions extends InputOptions {
@@ -37,13 +37,13 @@ export interface NumberControllerElements extends ElementMap {
 export class InputNumber extends Input<number, NumberInputOptions, NumberControllerElements> {
 	#log = new Logger('InputSlider', { fg: 'cyan' })
 
-	#onChangeListeners = new Set<(v: number) => void>()
-	onChange(cb: (v: number) => void) {
-		this.#onChangeListeners.add(cb)
-		return () => {
-			this.#onChangeListeners.delete(cb)
-		}
-	}
+	// #onChangeListeners = new Set<(v: number) => void>()
+	// onChange(cb: (v: number) => void) {
+	// 	this.#onChangeListeners.add(cb)
+	// 	return () => {
+	// 		this.#onChangeListeners.delete(cb)
+	// 	}
+	// }
 
 	constructor(options: Partial<NumberInputOptions>, folder: Folder) {
 		const opts = { ...NUMBER_INPUT_DEFAULTS, ...options }
@@ -56,6 +56,7 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 		if (opts.binding) {
 			this.initialValue = opts.binding.target[opts.binding.key]
 			this.state = state(this.initialValue)
+
 			this.disposeCallbacks.add(
 				this.state.subscribe((v) => {
 					opts.binding!.target[opts.binding!.key] = v
@@ -67,7 +68,7 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 		}
 
 		const container = create('div', {
-			classes: ['gui-input-number-container'],
+			classes: ['fracgui-input-number-container'],
 			parent: this.elements.content,
 		})
 
@@ -78,26 +79,42 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 			range: rangeController(this, opts, container),
 		} as const satisfies NumberControllerElements
 
-		this.disposeCallbacks.add(
-			this.state.subscribe((v) => {
-				this.elements.controllers.range.value = String(v)
-				this.elements.controllers.input.value = String(v)
+		this.listen(this.elements.controllers.input, 'input', this.setState)
 
-				for (const cb of this.#onChangeListeners) {
-					cb(v)
-				}
-			}),
-		)
+		this.listen(globalThis.document, 'keydown', this.toggleDrag)
+
+		this.disposeCallbacks.add(this.state.subscribe(this.refresh))
 	}
 
-	updateState = (v: number | Event) => {
+	dragEnabled = false
+
+	toggleDrag(e: KeyboardEvent) {
+		if (e.metaKey || e.ctrlKey) {
+			this.dragEnabled = true
+		}
+	}
+
+	setState = (v?: number | Event) => {
+		if (typeof v === 'undefined') {
+			return
+		}
+
 		if (typeof v !== 'number') {
 			if (v?.target && 'valueAsNumber' in v.target) {
 				this.state.set(v.target.valueAsNumber as number)
 			}
 		} else {
+			console.log('v', v)
 			this.state.set(v)
 		}
+	}
+
+	refresh = () => {
+		const v = this.state.value
+		this.elements.controllers.range.value = String(v)
+		this.elements.controllers.input.value = String(v)
+
+		this.callOnChange(v) // todo - should this go in the state subscription?
 	}
 
 	dispose() {
