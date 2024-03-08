@@ -6,8 +6,9 @@ import { get, writable } from 'svelte/store'
 export interface PrimitiveState<T> extends Writable<T> {
 	// get(): T
 	readonly value: T
-	refresh(): void
 	onChange: (cb: (v: T) => void) => void
+	set(this: void, value: T): void
+	refresh(): void
 }
 
 interface ArrayState<T> extends PrimitiveState<T[]> {
@@ -113,16 +114,14 @@ export function state<T>(defaultValue: T, options?: StateOptions<T>): State<T> {
 		if (enhancer) enhancer(store as unknown as State<S>)
 	}
 
-	enhanceStore<T[]>((store) => {
-		if (Array.isArray(defaultValue)) {
+	if (Array.isArray(defaultValue)) {
+		enhanceStore<T[]>((store) => {
 			store.push = (item: any) => {
 				store.update((arr) => [...arr, item])
 			}
-		}
-	})
-
-	enhanceStore<Map<any, any>>((store) => {
-		if (defaultValue instanceof Map) {
+		})
+	} else if (defaultValue instanceof Map) {
+		enhanceStore<Map<any, any>>((store) => {
 			store.setKey = (key, value) => {
 				store.update((map) => new Map(map).set(key, value))
 			}
@@ -133,8 +132,8 @@ export function state<T>(defaultValue: T, options?: StateOptions<T>): State<T> {
 					return newMap
 				})
 			}
-		}
-	})
+		})
+	}
 
 	enhanceStore<Set<any>>((store) => {
 		if (defaultValue instanceof Set) {
@@ -153,9 +152,6 @@ export function state<T>(defaultValue: T, options?: StateOptions<T>): State<T> {
 
 	return {
 		...store,
-		// get() {
-		// 	return get(store)
-		// },
 		get value() {
 			return get(store)
 		},
@@ -184,4 +180,8 @@ export function state<T>(defaultValue: T, options?: StateOptions<T>): State<T> {
 // 	type MyType = 'foo' | 'bar'
 // 	const myType = state<MyType>('foo')
 // 	myType.set('bar')
+
+// 	type Foo = { foo: string }
+// 	const myObject = state<Foo>({ foo: 'bar' })
+// 	myObject.set({ foo: 'baz' })
 // }
