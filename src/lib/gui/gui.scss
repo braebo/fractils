@@ -881,6 +881,23 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 					display: flex;
 					align-items: center;
 
+					.fracgui-input-color-components-title {
+						width: 2rem;
+
+						color: var(--fg-d);
+						@at-root :root[theme='light'] & {
+							color: var(--bg-e);
+						}
+
+						font-size: var(--font-xs);
+						font-family: var(--font-mono);
+
+						span {
+							transition: 0.4s;
+							text-shadow: 0 0 0 transparent;
+						}
+					}
+
 					&:has(input.a.hovering) {
 						.fracgui-input-color-components-title span.a {
 							color: var(--fg-a);
