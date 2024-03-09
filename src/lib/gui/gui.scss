@@ -11,8 +11,9 @@
 	--fracgui-root-header-height: 1.75rem;
 	--header-height: 1.5rem;
 
+	--fracgui-width: 30rem;
 	--fracgui-min-width: 25rem;
-	--fracgui-max-width: 45rem;
+	--fracgui-max-width: 35rem;
 
 	--fracgui-input-section-1-width: 6rem;
 	--fracgui-input-section-2-width: 4rem;
@@ -25,12 +26,12 @@
 .fracgui-root,
 .fracgui-root[data-theme='default'],
 .fracgui-root[data-theme='minimal'] {
-	// Root Folder
+	//* Root Folder
 
 	--fracgui-root-content-background: rgba(var(--bg-b-rgb), 0.2);
 	--fracgui-root-shadow: 0 0 1.5px 0.5px rgba(var(--bg-d-rgb), 0.5) inset;
 
-	// Folders
+	//* Folders
 	--fracgui-folder-background: rgba(var(--bg-b-rgb), 0.2);
 	//? Folder Header
 	--fracgui-folder-header-width: 100%;
@@ -41,7 +42,7 @@
 	--fracgui-folder-header-outline: none;
 	--fracgui-folder-header-border-radius: var(--radius-sm);
 	--fracgui-folder-header-box-shadow: none;
-	--fracgui-folder-header-font-size: 0.9rem;
+	--fracgui-folder-header-font-size: var(--font-xxs);
 	--fracgui-folder-header-font-weight: 500;
 	//? Folder Content
 	// --fracgui-folder-background: var(--bg-b);
@@ -50,7 +51,7 @@
 	--fracgui-folder-content-font-size: 0.7rem;
 	--fracgui-folder-content-font-weight: 300;
 
-	// Input Containers
+	//* Input Containers
 
 	--fracgui-input-container-color: var(--fg-c);
 	--fracgui-input-container-background: rgba(var(--bg-a-rgb), 0.5);
@@ -63,13 +64,13 @@
 		-10.0px 10px 50px hsla(220, 10%, 2%, calc(0.025 * var(--shadow-lightness))) inset
 	;
 
-	// Number Input
+	//* Number Input
 
 	--fracgui-input-number-input-color: var(--fg-d);
 	--fracgui-input-number-input-background: rgba(var(--bg-c-rgb), 0.8);
 	--fracgui-input-number-input-outline: 1px solid #0015;
 	--fracgui-input-number-input-background-image: none;
-	// Number Input Buttons
+	//? Number Input Buttons
 	--fracgui-input-number-input-buttons-background: rgba(var(--bg-b-rgb), var(--fracgui-alpha));
 	--fracgui-input-number-input-buttons-color: var(--fg-b);
 	--fracgui-input-number-input-buttons-icon-color: var(--fg-d);
@@ -77,8 +78,9 @@
 	// --fracgui-input-number-buttons-shadow-inset: 0px 0px 1px 0.25px hsl(0, 0%, 3%) inset;
 	--fracgui-input-number-buttons-shadow-inset-hover: 0px 0px 1px 0px hsl(0, 0%, 0%) inset;
 	--fracgui-input-number-buttons-shadow-inset-active: 0px 0px 1px 1px hsl(0, 0%, 5%) inset;
+	--fracgui-input-number-font-size: var(--font-xs);
 
-	// Range Input
+	//* Range Input
 
 	--fracgui-input-number-range-color: var(--bg-c);
 	--fracgui-input-number-range-color-active: var(--theme-a);
@@ -216,16 +218,19 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 //· Gui Root ·································································¬
 
 .fracgui-root {
-	// display: flex;
 	position: absolute;
+	display: flex;
+	flex-direction: column;
 	inset: 0;
 
+	width: var(--fracgui-width);
 	min-width: var(--fracgui-min-width, 20rem);
 	max-width: var(--fracgui-max-width);
 
 	height: fit-content; //- important
+	max-height: 100%;
 
-	contain: paint;
+	// contain: paint;
 	user-select: none;
 	z-index: 99;
 }
@@ -283,7 +288,8 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 	box-shadow: 0 0 1.5px 0.5px rgba(var(--bg-d-rgb), 0.5) inset;
 
-	overflow: hidden;
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 
 .fracgui-root > .fracgui-content-wrapper > .fracgui-folder {
@@ -416,6 +422,8 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		font-size: var(--fracgui-folder-content-font-size);
 		font-weight: var(--fracgui-folder-content-font-weight);
 		font-family: var(--fracgui-font);
+
+		transition: 0.33s;
 	}
 
 	.fracgui-input-container {
@@ -447,6 +455,19 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 		&:hover {
 			color: var(--fg-b);
+		}
+
+		// todo - Add the `fracgui-controller` and `active` classes to any non-native input controllers.
+		&:has(input:active),
+		&:has(.fracgui-controller:active),
+		&:has(.fracgui-controller.active) {
+			.fracgui-input-number-input {
+				opacity: 1;
+			}
+
+			.fracgui-input-title {
+				color: var(--theme-a);
+			}
 		}
 	}
 
@@ -565,6 +586,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 			input.fracgui-input-number-range::-webkit-slider-thumb {
 				background-color: var(--bg-d);
+				transition: 0.15s;
 
 				&:active {
 					background-color: var(--theme-a);
@@ -651,7 +673,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 		//? Number <input>
 
-		input.fracgui-input-number-input {
+		.fracgui-input-number-input {
 			// outline: 1px solid hsla(0, 100%, 50%, 0.2) !important; // debug-outline
 
 			-webkit-appearance: textfield;
@@ -670,12 +692,13 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 			box-shadow: var(--fracgui-input-number-input-shadow);
 			border-radius: var(--radius-sm);
 
-			opacity: 0.7;
+			opacity: 0.5;
+			color: var(--fg-d);
 			border: none;
 			outline: var(--fracgui-input-number-input-outline);
 
 			font-family: var(--font-mono);
-			font-size: var(--fracgui-input-font-size);
+			font-size: var(--fracgui-input-number-font-size);
 			text-align: center;
 			font-variation-settings: 'wght' 500;
 
@@ -946,23 +969,6 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 						}
 					}
 
-					.fracgui-input-color-components-title {
-						width: 2rem;
-
-						color: var(--fg-d);
-						@at-root :root[theme='light'] & {
-							color: var(--bg-e);
-						}
-
-						font-size: var(--font-xs);
-						font-family: var(--font-mono);
-
-						span {
-							transition: 0.4s;
-							text-shadow: 0 0 0 transparent;
-						}
-					}
-
 					.fracgui-input-color-components-numbers-container {
 						display: flex;
 						align-items: center;
@@ -972,8 +978,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 						width: 100%;
 						padding: 0.25rem 0.5rem;
 
-						.fracgui-input-color-component-number {
-							width: 2rem;
+						.fracgui-input-number-input {
 							height: 1.25rem;
 
 							color: var(--fracgui-input-number-input-color);
@@ -988,6 +993,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 							overflow: visible;
 
 							&:hover {
+								color: var(--fg-b);
 								opacity: 1;
 							}
 						}

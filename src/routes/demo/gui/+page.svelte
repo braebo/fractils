@@ -1,6 +1,4 @@
 <script lang="ts">
-	import type { InputNumber } from '$lib/gui/inputs/InputNumber'
-
 	import { inspectElement } from '$lib/actions/inspectElement'
 	import Orbs from '../resizable/Orbs.svelte'
 	import { Color } from '$lib/color/color'
@@ -8,7 +6,6 @@
 	import { onMount } from 'svelte'
 
 	let gui: Gui
-	let slider: InputNumber['state']
 
 	let size: Gui['size']
 	let position: Gui['position']
@@ -60,7 +57,7 @@
 
 		const f1 = gui.addFolder({ title: 'Orbs' })
 
-		slider = f1.addNumber({
+		f1.addNumber({
 			title: 'count',
 			binding: {
 				target: params,
@@ -69,39 +66,6 @@
 			min: 1,
 			max: 500,
 			step: 1,
-		}).state
-
-		f1.addNumber({
-			title: 'size',
-			binding: {
-				target: params,
-				key: 'size',
-			},
-			min: 1,
-			max: 30,
-			step: 1,
-		})
-
-		f1.addNumber({
-			title: 'a1',
-			binding: {
-				target: params,
-				key: 'a1',
-			},
-			min: 0,
-			max: 3,
-			step: 0.001,
-		})
-
-		f1.addNumber({
-			title: 'a2',
-			binding: {
-				target: params,
-				key: 'a2',
-			},
-			min: 1,
-			max: 3,
-			step: 0.001,
 		})
 
 		f1.addNumber({
@@ -126,7 +90,9 @@
 			step: 1,
 		})
 
-		f1.addNumber({
+		const motionFolder = f1.addFolder({ title: 'motion' })
+
+		motionFolder.addNumber({
 			title: 'speed',
 			binding: {
 				target: params,
@@ -137,18 +103,42 @@
 			step: 0.0001,
 		})
 
-		f1.addNumber({
-			title: 'mid',
+		motionFolder.addNumber({
+			title: 'a1',
 			binding: {
 				target: params,
-				key: 'mid',
+				key: 'a1',
+			},
+			min: 0,
+			max: 3,
+			step: 0.001,
+		})
+
+		motionFolder.addNumber({
+			title: 'a2',
+			binding: {
+				target: params,
+				key: 'a2',
 			},
 			min: 1,
-			max: 100,
+			max: 3,
+			step: 0.001,
+		})
+
+		const appearanceFolder = f1.addFolder({ title: 'appearance' })
+
+		appearanceFolder.addNumber({
+			title: 'size',
+			binding: {
+				target: params,
+				key: 'size',
+			},
+			min: 1,
+			max: 30,
 			step: 1,
 		})
 
-		f1.addNumber({
+		appearanceFolder.addNumber({
 			title: 'brightness',
 			binding: {
 				target: params,
@@ -159,18 +149,16 @@
 			step: 0.01,
 		})
 
-		f1.addColor({
+		appearanceFolder.addColor({
 			title: 'color',
 			mode: 'hsva',
-			// value: params.color,
-			// value: params.color,
 			binding: {
 				target: params,
 				key: 'color',
 			},
 		})
 
-		f1.addColor({
+		appearanceFolder.addColor({
 			title: 'accent',
 			mode: 'hsla',
 			binding: {
@@ -179,7 +167,9 @@
 			},
 		})
 
-		f1.addNumber({
+		const glowFolder = appearanceFolder.addFolder({ title: 'glow' })
+
+		glowFolder.addNumber({
 			title: 'glowR',
 			binding: {
 				target: params,
@@ -190,7 +180,7 @@
 			step: 0.01,
 		})
 
-		f1.addNumber({
+		glowFolder.addNumber({
 			title: 'glowG',
 			binding: {
 				target: params,
@@ -201,7 +191,7 @@
 			step: 0.01,
 		})
 
-		f1.addNumber({
+		glowFolder.addNumber({
 			title: 'glowB',
 			binding: {
 				target: params,
