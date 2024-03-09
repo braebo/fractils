@@ -15,7 +15,7 @@
 				element: options.container || containerEl,
 				// localStorageKeys: options.localStorageKeys ?? true,
 				storage: options.storage ?? {
-					key: 'fractils::gui-svelte',
+					key: 'fractils::fracgui-svelte',
 				},
 			})
 		}

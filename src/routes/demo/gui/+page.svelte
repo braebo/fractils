@@ -2,7 +2,6 @@
 	import type { InputNumber } from '$lib/gui/inputs/InputNumber'
 
 	import { inspectElement } from '$lib/actions/inspectElement'
-	import { InputColor } from '$lib/gui/inputs/InputColor'
 	import Orbs from '../resizable/Orbs.svelte'
 	import { Color } from '$lib/color/color'
 	import { Gui } from '$lib/gui/Gui'
@@ -37,7 +36,7 @@
 		gui = new Gui({
 			// container: document.getElementById('svelte')!,
 			storage: {
-				key: 'fractils::gui',
+				key: 'fractils::fracgui',
 			},
 			windowManager: {
 				draggable: {
@@ -61,7 +60,7 @@
 
 		const f1 = gui.addFolder({ title: 'Orbs' })
 
-		slider = f1.add<InputNumber>({
+		slider = f1.addNumber({
 			title: 'count',
 			view: 'Slider',
 			binding: {
@@ -73,7 +72,7 @@
 			step: 1,
 		}).state
 
-		f1.add<InputNumber>({
+		f1.addNumber({
 			title: 'size',
 			view: 'Slider',
 			binding: {
@@ -85,7 +84,7 @@
 			step: 1,
 		})
 
-		f1.add<InputNumber>({
+		f1.addNumber({
 			title: 'a1',
 			view: 'Slider',
 			binding: {
@@ -97,7 +96,7 @@
 			step: 0.001,
 		})
 
-		f1.add<InputNumber>({
+		f1.addNumber({
 			title: 'a2',
 			view: 'Slider',
 			binding: {
@@ -109,7 +108,7 @@
 			step: 0.001,
 		})
 
-		f1.add<InputNumber>({
+		f1.addNumber({
 			title: 'width',
 			view: 'Slider',
 			binding: {
@@ -121,7 +120,7 @@
 			step: 1,
 		})
 
-		f1.add<InputNumber>({
+		f1.addNumber({
 			title: 'height',
 			view: 'Slider',
 			binding: {
@@ -133,7 +132,7 @@
 			step: 1,
 		})
 
-		f1.add<InputNumber>({
+		f1.addNumber({
 			title: 'speed',
 			view: 'Slider',
 			binding: {
@@ -145,7 +144,7 @@
 			step: 0.0001,
 		})
 
-		f1.add<InputNumber>({
+		f1.addNumber({
 			title: 'mid',
 			view: 'Slider',
 			binding: {
@@ -157,7 +156,7 @@
 			step: 1,
 		})
 
-		f1.add<InputNumber>({
+		f1.addNumber({
 			title: 'brightness',
 			view: 'Slider',
 			binding: {
@@ -169,9 +168,10 @@
 			step: 0.01,
 		})
 
-		f1.add<InputColor>({
+		f1.addColor({
 			title: 'color',
-			view: 'Color',
+			mode: 'hsva',
+			// value: params.color,
 			// value: params.color,
 			binding: {
 				target: params,
@@ -179,9 +179,11 @@
 			},
 		})
 
-		f1.add<InputColor>({
+		f1.addColor({
 			title: 'accent',
 			view: 'Color',
+			mode: 'hsla',
+			// mode: 'rgba',
 			// value: params.accent,
 			binding: {
 				target: params,
@@ -189,7 +191,7 @@
 			},
 		})
 
-		f1.add<InputNumber>({
+		f1.addNumber({
 			title: 'glowR',
 			view: 'Slider',
 			binding: {
@@ -201,7 +203,7 @@
 			step: 0.01,
 		})
 
-		f1.add<InputNumber>({
+		f1.addNumber({
 			title: 'glowG',
 			view: 'Slider',
 			binding: {
@@ -213,7 +215,7 @@
 			step: 0.01,
 		})
 
-		f1.add<InputNumber>({
+		f1.addNumber({
 			title: 'glowB',
 			view: 'Slider',
 			binding: {
@@ -245,7 +247,7 @@
 		// //? Cool self themer majig 🌈
 		// import('$lib/gui/gui.scss?raw').then((x) => {
 		// 	setTimeout(() => {
-		// 		const root = document.querySelector('.gui-root') as HTMLDivElement
+		// 		const root = document.querySelector('.fracgui-root') as HTMLDivElement
 		// 		if (!root) {
 		// 			console.error('no root')
 		// 			return
@@ -338,22 +340,4 @@
 		height: 20rem;
 		margin: auto;
 	}
-
-	// label {
-	// 	display: flex;
-	// 	gap: 0.5rem;
-
-	// 	width: 13rem;
-	// 	padding: 0.5rem;
-
-	// 	background: rgba(var(--bg-b-rgb), 0.5);
-	// 	border-radius: var(--radius);
-	// 	box-shadow: var(--shadow), var(--shadow-inset);
-	// }
-
-	// input {
-	// 	// width: 10rem;
-	// 	min-width: 0;
-	// 	max-width: unset;
-	// }
 </style>

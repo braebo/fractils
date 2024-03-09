@@ -1,4 +1,4 @@
-import type { Draggable, DragOptions } from '../utils/draggable'
+import type { DragOptions } from '../utils/draggable'
 import type { ThemerOptions } from '../theme/Themer'
 import type { FolderOptions } from './Folder'
 
@@ -102,7 +102,7 @@ export const GUI_DEFAULTS = {
 		draggable: true,
 	},
 	storage: {
-		key: 'fractils::gui',
+		key: 'fracgui',
 		size: true,
 		position: true,
 		closed: true,

@@ -4,58 +4,59 @@
 // @import url('https://fonts.googleapis.com/css2?family=Kodchasan:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
 
 // Generic Globals
-.gui-root {
-	--gui-font: 'Kodchasan', sans-serif;
+.fracgui-root {
+	--fracgui-font: 'Kodchasan', sans-serif;
 
-	--gui-root-header-font-size: 0.75rem;
-	--gui-root-header-height: 1.75rem;
+	--fracgui-root-header-font-size: 0.75rem;
+	--fracgui-root-header-height: 1.75rem;
 	--header-height: 1.5rem;
 
-	--gui-min-width: 20rem;
-	--gui-max-width: 1rem;
+	--fracgui-min-width: 20rem;
+	--fracgui-max-width: 30rem;
 
-	--min-width: 20rem;
-	--max-width: 30rem;
+	--fracgui-input-section-1-width: 8rem;
+	--fracgui-input-section-2-width: 4rem;
+	--fracgui-input-section-3-width: 100%;
 
-	--gui-alpha: 0.5;
-	--gui-blur: 0.5rem;
+	--fracgui-alpha: 0.5;
+	--fracgui-blur: 0.5rem;
 }
 
-.gui-root,
-.gui-root[data-theme='default'],
-.gui-root[data-theme='minimal'] {
+.fracgui-root,
+.fracgui-root[data-theme='default'],
+.fracgui-root[data-theme='minimal'] {
 	// Root Folder
 
-	--gui-root-content-background: rgba(var(--bg-b-rgb), 0.2);
-	--gui-root-shadow: 0 0 1.5px 0.5px rgba(var(--bg-d-rgb), 0.5) inset;
+	--fracgui-root-content-background: rgba(var(--bg-b-rgb), 0.2);
+	--fracgui-root-shadow: 0 0 1.5px 0.5px rgba(var(--bg-d-rgb), 0.5) inset;
 
 	// Folders
-	--gui-folder-background: rgba(var(--bg-b-rgb), 0.2);
+	--fracgui-folder-background: rgba(var(--bg-b-rgb), 0.2);
 	//? Folder Header
-	--gui-folder-header-width: 100%;
-	// --gui-folder-header-padding-left: 0.25rem;
-	--gui-folder-header-padding-left: 0.25rem;
-	--gui-folder-header-color: var(--fg-c);
-	--gui-folder-header-background: var(--bg-a);
-	--gui-folder-header-outline: none;
-	--gui-folder-header-border-radius: var(--radius-sm);
-	--gui-folder-header-box-shadow: none;
-	--gui-folder-header-font-size: 0.9rem;
-	--gui-folder-header-font-weight: 500;
+	--fracgui-folder-header-width: 100%;
+	// --fracgui-folder-header-padding-left: 0.25rem;
+	--fracgui-folder-header-padding-left: 0.25rem;
+	--fracgui-folder-header-color: var(--fg-c);
+	--fracgui-folder-header-background: var(--bg-a);
+	--fracgui-folder-header-outline: none;
+	--fracgui-folder-header-border-radius: var(--radius-sm);
+	--fracgui-folder-header-box-shadow: none;
+	--fracgui-folder-header-font-size: 0.9rem;
+	--fracgui-folder-header-font-weight: 500;
 	//? Folder Content
-	// --gui-folder-background: var(--bg-b);
-	--gui-folder-content-background: rgba(var(--bg-b-rgb), 0.2);
-	--gui-folder-content-padding-left: 0.25rem;
-	--gui-folder-content-font-size: 0.7rem;
-	--gui-folder-content-font-weight: 300;
+	// --fracgui-folder-background: var(--bg-b);
+	--fracgui-folder-content-background: rgba(var(--bg-b-rgb), 0.2);
+	--fracgui-folder-content-padding-left: 0.25rem;
+	--fracgui-folder-content-font-size: 0.7rem;
+	--fracgui-folder-content-font-weight: 300;
 
 	// Input Containers
 
-	--gui-input-container-color: var(--fg-c);
-	--gui-input-container-background: rgba(var(--bg-a-rgb), 0.5);
-	--gui-input-container-outline: 1px solid rgba(var(--bg-a-rgb), 0.2);
+	--fracgui-input-container-color: var(--fg-c);
+	--fracgui-input-container-background: rgba(var(--bg-a-rgb), 0.5);
+	--fracgui-input-container-outline: 1px solid rgba(var(--bg-a-rgb), 0.2);
 	// prettier-ignore
-	--gui-input-container-shadow:
+	--fracgui-input-container-shadow:
 		-0.15px 0.1px 1px hsla(220, 10%, 2%, calc(0.2 * var(--shadow-lightness))) inset,
 		-2px 2px 15px hsla(220, 10%, 2%, calc(0.075 * var(--shadow-lightness))) inset,
 		-3.0px 3px 25px hsla(220, 10%, 2%, calc(0.05 * var(--shadow-lightness))) inset,
@@ -64,27 +65,27 @@
 
 	// Number Input
 
-	--gui-input-number-input-color: var(--fg-d);
-	--gui-input-number-input-background: rgba(var(--bg-c-rgb), 0.8);
-	--gui-input-number-input-outline: 1px solid #0015;
-	--gui-input-number-input-background-image: none;
+	--fracgui-input-number-input-color: var(--fg-d);
+	--fracgui-input-number-input-background: rgba(var(--bg-c-rgb), 0.8);
+	--fracgui-input-number-input-outline: 1px solid #0015;
+	--fracgui-input-number-input-background-image: none;
 	// Number Input Buttons
-	--gui-input-number-input-buttons-background: rgba(var(--bg-b-rgb), var(--gui-alpha));
-	--gui-input-number-input-buttons-color: var(--fg-b);
-	--gui-input-number-input-buttons-icon-color: var(--fg-d);
-	--gui-input-number-input-buttons-icon-color-active: var(--theme-a);
-	// --gui-input-number-buttons-shadow-inset: 0px 0px 1px 0.25px hsl(0, 0%, 3%) inset;
-	--gui-input-number-buttons-shadow-inset-hover: 0px 0px 1px 0px hsl(0, 0%, 0%) inset;
-	--gui-input-number-buttons-shadow-inset-active: 0px 0px 1px 1px hsl(0, 0%, 5%) inset;
+	--fracgui-input-number-input-buttons-background: rgba(var(--bg-b-rgb), var(--fracgui-alpha));
+	--fracgui-input-number-input-buttons-color: var(--fg-b);
+	--fracgui-input-number-input-buttons-icon-color: var(--fg-d);
+	--fracgui-input-number-input-buttons-icon-color-active: var(--theme-a);
+	// --fracgui-input-number-buttons-shadow-inset: 0px 0px 1px 0.25px hsl(0, 0%, 3%) inset;
+	--fracgui-input-number-buttons-shadow-inset-hover: 0px 0px 1px 0px hsl(0, 0%, 0%) inset;
+	--fracgui-input-number-buttons-shadow-inset-active: 0px 0px 1px 1px hsl(0, 0%, 5%) inset;
 
 	// Range Input
 
-	--gui-input-number-range-color: var(--bg-c);
-	--gui-input-number-range-color-active: var(--theme-a);
-	--gui-input-number-range-background: var(--bg-a);
-	--gui-input-number-range-outline: 1px solid rgba(var(--bg-c-rgb), 0.25);
+	--fracgui-input-number-range-color: var(--bg-c);
+	--fracgui-input-number-range-color-active: var(--theme-a);
+	--fracgui-input-number-range-background: var(--bg-a);
+	--fracgui-input-number-range-outline: 1px solid rgba(var(--bg-c-rgb), 0.25);
 	// prettier-ignore
-	--gui-input-number-range-shadow: 
+	--fracgui-input-number-range-shadow: 
 		-4px -2px 2.5px hsla(230, 20%, 10%, 0.5),
 		2px 2px 5px hsla(230, 20%, 20%, 0.5),
 		2px 2px 10px hsla(230, 20%, 0%, 0.5),
@@ -92,23 +93,23 @@
 	;
 }
 
-html[theme='light'] .gui-folder {
+html[theme='light'] .fracgui-folder {
 	--shadow-lightness: 0.2;
 
-	// --gui-input-number-buttons-shadow-inset: 0px 0px 1.5px 0px hsl(0, 0%, 75%) inset;
-	--gui-input-number-buttons-shadow-inset-hover: 0px 0px 1px 0px hsl(0, 0%, 80%) inset;
-	--gui-input-number-buttons-shadow-inset-active: 0px 0px 2px 1px hsl(0, 0%, 90%) inset;
+	// --fracgui-input-number-buttons-shadow-inset: 0px 0px 1.5px 0px hsl(0, 0%, 75%) inset;
+	--fracgui-input-number-buttons-shadow-inset-hover: 0px 0px 1px 0px hsl(0, 0%, 80%) inset;
+	--fracgui-input-number-buttons-shadow-inset-active: 0px 0px 2px 1px hsl(0, 0%, 90%) inset;
 
-	--gui-input-number-input-background: var(--bg-a);
-	--gui-input-number-input-color: var(--fg-c);
-	--gui-input-number-input-outline: 1px solid rgba(var(--bg-d-rgb), 0.1);
-	--gui-input-number-input-shadow: var(--shadow-xs);
+	--fracgui-input-number-input-background: var(--bg-a);
+	--fracgui-input-number-input-color: var(--fg-c);
+	--fracgui-input-number-input-outline: 1px solid rgba(var(--bg-d-rgb), 0.1);
+	--fracgui-input-number-input-shadow: var(--shadow-xs);
 
-	--gui-input-number-range-background: var(--bg-b);
-	--gui-input-number-range-color: var(--bg-d);
+	--fracgui-input-number-range-background: var(--bg-b);
+	--fracgui-input-number-range-color: var(--bg-d);
 
 	// prettier-ignore
-	--gui-input-number-range-shadow: 
+	--fracgui-input-number-range-shadow: 
 	-4px -2px 2px hsla(230, 20%, 95%, 0.3),
 	2px 2px 3px hsla(230, 20%, 90%, 0.33),
 	2px 2px 7px hsla(230, 20%, 95%, 0.3),
@@ -117,8 +118,8 @@ html[theme='light'] .gui-folder {
 }
 
 // todo/wip - neumorphic stuff is unused
-.gui-root,
-.gui-root[data-theme='soft'] {
+.fracgui-root,
+.fracgui-root[data-theme='soft'] {
 	--gradient-neumorphic-a: linear-gradient(
 		145deg,
 		hsla(230, 20%, 12.5%, 0.5),
@@ -145,9 +146,9 @@ html[theme='light'] .gui-folder {
 
 //· Open / Close Animations ··················································¬
 
-.gui-root,
-.gui-folder {
-	.gui-content-wrapper {
+.fracgui-root,
+.fracgui-folder {
+	.fracgui-content-wrapper {
 		display: grid;
 		grid-template-rows: 1fr;
 
@@ -158,7 +159,7 @@ html[theme='light'] .gui-folder {
 
 		overflow: hidden;
 	}
-	.gui-header {
+	.fracgui-header {
 		height: var(--header-height);
 		max-height: var(--header-height);
 
@@ -166,19 +167,19 @@ html[theme='light'] .gui-folder {
 	}
 
 	&.closed {
-		.gui-content-wrapper {
+		.fracgui-content-wrapper {
 			animation-name: close;
 			animation-duration: 0.5s;
 			animation-fill-mode: forwards;
 			animation-timing-function: cubic-bezier(0.05, 1, 0.2, 1);
 		}
-		.gui-folder .gui-header {
+		.fracgui-folder .fracgui-header {
 			max-height: 0;
 		}
 	}
 }
 
-.gui-root.closed .gui-folder .gui-header {
+.fracgui-root.closed .fracgui-folder .fracgui-header {
 	max-height: 0;
 }
 
@@ -215,12 +216,12 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 //· Gui Root ·································································¬
 
-.gui-root {
+.fracgui-root {
 	// display: flex;
 	position: absolute;
 	inset: 0;
 
-	min-width: var(--min-width, 20rem);
+	min-width: var(--fracgui-min-width, 20rem);
 	max-width: var(--max-width);
 
 	height: fit-content; //- important
@@ -230,7 +231,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	z-index: 99;
 }
 
-.gui-root > .gui-header {
+.fracgui-root > .fracgui-header {
 	position: relative;
 
 	display: flex;
@@ -239,26 +240,26 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	gap: 0.5rem;
 
 	width: 100%;
-	min-height: var(--gui-root-header-height);
+	min-height: var(--fracgui-root-header-height);
 
 	color: var(--fg-c);
 	background: var(--bg-a);
 	border-radius: var(--radius-md);
 	border-bottom-left-radius: var(--radius-xs);
 	border-bottom-right-radius: var(--radius-xs);
-	box-shadow: var(--gui-root-shadow);
+	box-shadow: var(--fracgui-root-shadow);
 
 	cursor: pointer;
 	cursor: grab;
 
-	.gui-title {
+	.fracgui-title {
 		width: fit-content;
 		height: var(--header-height);
 
-		font-size: var(--gui-root-header-font-size);
+		font-size: var(--fracgui-root-header-font-size);
 		letter-spacing: 2px;
 		line-height: var(--header-height);
-		font-family: var(--gui-font);
+		font-family: var(--fracgui-font);
 		font-weight: 400;
 		font-variation-settings: 'wght' 300;
 
@@ -266,7 +267,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	}
 }
 
-.gui-root > .gui-content-wrapper > .gui-content {
+.fracgui-root > .fracgui-content-wrapper > .fracgui-content {
 	display: flex;
 	flex-direction: column;
 
@@ -277,8 +278,8 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	border-radius: var(--radius-md);
 	border-top-left-radius: var(--radius-sm);
 	border-top-right-radius: var(--radius-sm);
-	background: var(--gui-root-content-background);
-	backdrop-filter: blur(var(--gui-blur));
+	background: var(--fracgui-root-content-background);
+	backdrop-filter: blur(var(--fracgui-blur));
 	outline-offset: -1px;
 
 	box-shadow: 0 0 1.5px 0.5px rgba(var(--bg-d-rgb), 0.5) inset;
@@ -286,7 +287,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	overflow: hidden;
 }
 
-.gui-root > .gui-content-wrapper > .gui-folder {
+.fracgui-root > .fracgui-content-wrapper > .fracgui-folder {
 	// display: flex;
 	padding-right: 0.25rem;
 	background: #15161d;
@@ -295,45 +296,45 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 //· Gui Folders ······························································¬
 
-.gui-folder {
+.fracgui-folder {
 	height: fit-content;
 
 	border-radius: var(--radius-sm);
 
-	background: var(--gui-folder-background);
+	background: var(--fracgui-folder-background);
 }
 
 // // Indent subfolders, but not immediate children of root.
-// .gui-folder .gui-header {
-// 	&:not(.gui-root > .gui-content-wrapper > .gui-content > .gui-folder > .gui-header) {
-// 		padding-left: var(--gui-folder-header-padding-left);
+// .fracgui-folder .fracgui-header {
+// 	&:not(.fracgui-root > .fracgui-content-wrapper > .fracgui-content > .fracgui-folder > .fracgui-header) {
+// 		padding-left: var(--fracgui-folder-header-padding-left);
 // 	}
 // }
 
-.gui-folder .gui-header {
+.fracgui-folder .fracgui-header {
 	position: relative;
 
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
 
-	width: var(--gui-folder-header-width, 100%);
-	padding-left: var(--gui-folder-header-padding-left);
+	width: var(--fracgui-folder-header-width, 100%);
+	padding-left: var(--fracgui-folder-header-padding-left);
 
-	color: var(--gui-folder-header-color, var(--fg-c));
-	background: var(--gui-folder-header-background, var(--bg-b));
-	outline: var(--gui-folder-header-outline, 1px solid rgba(var(--bg-b-rgb), 0.5));
-	border-radius: var(--gui-folder-header-border-radius, var(--radius-sm));
+	color: var(--fracgui-folder-header-color, var(--fg-c));
+	background: var(--fracgui-folder-header-background, var(--bg-b));
+	outline: var(--fracgui-folder-header-outline, 1px solid rgba(var(--bg-b-rgb), 0.5));
+	border-radius: var(--fracgui-folder-header-border-radius, var(--radius-sm));
 	outline-offset: -1px;
 
-	box-shadow: var(--gui-folder-header-box-shadow, 0 0 0.1rem #000 inset);
+	box-shadow: var(--fracgui-folder-header-box-shadow, 0 0 0.1rem #000 inset);
 
 	cursor: pointer;
 
-	.gui-title {
-		font-weight: var(--gui-folder-header-font-weight);
-		font-size: var(--gui-folder-header-font-size);
-		font-family: var(--gui-font);
+	.fracgui-title {
+		font-weight: var(--fracgui-folder-header-font-weight);
+		font-size: var(--fracgui-folder-header-font-size);
+		font-family: var(--fracgui-font);
 		width: fit-content;
 	}
 
@@ -355,21 +356,21 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	}
 }
 
-.gui-folder .gui-content {
+.fracgui-folder .fracgui-content {
 	display: flex;
 	flex-direction: column;
 
 	width: 100%;
-	padding-left: var(--gui-folder-content-padding-left);
+	padding-left: var(--fracgui-folder-content-padding-left);
 	padding-top: 0.25rem;
 
-	background: var(--gui-folder-content-background, var(--gui-folder-background));
+	background: var(--fracgui-folder-content-background, var(--fracgui-folder-background));
 
 	overflow: hidden;
 	// overflow-y: auto;
 	contain: paint;
 
-	.gui-header {
+	.fracgui-header {
 		filter: contrast(1.075);
 	}
 }
@@ -377,10 +378,10 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 //· Inputs ···································································¬
 
-.gui-folder {
+.fracgui-folder {
 	--shadow-lightness: 1;
 
-	.gui-input-drawer-toggle {
+	.fracgui-input-drawer-toggle {
 		// position: absolute;
 		right: 0.5rem;
 		top: 0.5rem;
@@ -403,33 +404,35 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		}
 	}
 
-	.gui-input-title {
+	.fracgui-input-title {
 		// outline: 1px solid hsla(120, 100%, 25%, 0.2); // debug-outline
 
-		width: clamp(5rem, 100%, 10rem);
+		// width: clamp(5rem, 9rem, 100%);
+		max-width: var(--fracgui-input-section-1-width);
+		min-width: var(--fracgui-input-section-1-width);
 		text-wrap: balance;
-		margin: auto;
+		// margin: auto;
 		padding-left: 0.5rem;
 
-		font-size: var(--gui-folder-content-font-size);
-		font-weight: var(--gui-folder-content-font-weight);
-		font-family: var(--gui-font);
+		font-size: var(--fracgui-folder-content-font-size);
+		font-weight: var(--fracgui-folder-content-font-weight);
+		font-family: var(--fracgui-font);
 	}
 
-	.gui-input-container {
+	.fracgui-input-container {
 		position: relative;
 		display: flex;
 		align-items: center;
-		justify-content: center;
-		gap: 0.5rem;
+		// justify-content: center;
+		// gap: 0.5rem;
 
 		width: 100%;
 		min-height: 2rem;
 
-		color: var(--gui-input-container-color);
-		background: var(--gui-input-container-background);
-		outline: var(--gui-input-container-outline);
-		box-shadow: var(--gui-input-container-shadow);
+		color: var(--fracgui-input-container-color);
+		background: var(--fracgui-input-container-background);
+		outline: var(--fracgui-input-container-outline);
+		box-shadow: var(--fracgui-input-container-shadow);
 
 		transition: 0.15s;
 
@@ -448,20 +451,21 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		}
 	}
 
-	.gui-input-container .gui-input-content {
+	.fracgui-input-container .fracgui-input-content {
 		// outline: 1px solid hsla(39, 100%, 50%, 0.2); // debug-outline
 
 		display: flex;
 		align-items: center;
+		justify-content: space-evenly;
 		// gap: 0.75rem;
 
 		width: 100%;
 		margin: 0;
-		padding: 0rem 0.75rem 0rem 0rem;
+		padding-right: 0.75rem;
 
 		//? Number Input
 
-		.gui-input-number-container {
+		.fracgui-input-number-container {
 			// outline: 1px solid hsla(60, 100%, 50%, 0.2); // debug-outline
 			position: relative;
 
@@ -475,7 +479,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 			border-radius: var(--radius-sm);
 
-			.gui-input-number-buttons-container {
+			.fracgui-input-number-buttons-container {
 				// outline: 1px solid #00800011; // debug-outline
 
 				display: flex;
@@ -488,7 +492,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 				margin: 0;
 				padding: 0;
 
-				.gui-input-number-button {
+				.fracgui-input-number-button {
 					// outline: 1px solid #0000ff11; // debug-outline
 
 					cursor: pointer;
@@ -500,12 +504,12 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 					width: 90%;
 					height: 45%;
 
-					color: var(--gui-input-number-input-buttons-color);
-					background: var(--gui-input-number-input-buttons-background);
+					color: var(--fracgui-input-number-input-buttons-color);
+					background: var(--fracgui-input-number-input-buttons-background);
 
 					border: none;
 					border-radius: var(--radius-xs);
-					box-shadow: var(--gui-input-number-buttons-shadow-inset);
+					box-shadow: var(--fracgui-input-number-buttons-shadow-inset);
 
 					transition: 0.15s;
 
@@ -513,7 +517,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 						width: 1rem;
 						height: 1rem;
 
-						color: var(--gui-input-number-input-buttons-icon-color);
+						color: var(--fracgui-input-number-input-buttons-icon-color);
 						opacity: 0.1;
 
 						scale: 1;
@@ -524,9 +528,9 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 					}
 
 					&:hover {
-						// background: var(--gui-input-number-input-buttons-background);
+						// background: var(--fracgui-input-number-input-buttons-background);
 
-						box-shadow: var(--gui-input-number-buttons-shadow-inset-hover);
+						box-shadow: var(--fracgui-input-number-buttons-shadow-inset-hover);
 						opacity: 1;
 
 						svg {
@@ -536,22 +540,22 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 					&:active {
 						background: unset;
-						box-shadow: var(--gui-input-number-buttons-shadow-inset-active);
+						box-shadow: var(--fracgui-input-number-buttons-shadow-inset-active);
 
 						svg {
 							opacity: 1 !important;
-							color: var(--gui-input-number-input-buttons-icon-color-active);
+							color: var(--fracgui-input-number-input-buttons-icon-color-active);
 							// svg shadow glow.
 							filter: drop-shadow(0 0 3px var(--theme-a));
 						}
 					}
 				}
 
-				.gui-input-number-buttons-increment {
+				.fracgui-input-number-buttons-increment {
 					border-top-left-radius: var(--radius);
 					border-top-right-radius: var(--radius);
 				}
-				.gui-input-number-buttons-decrement {
+				.fracgui-input-number-buttons-decrement {
 					border-bottom-left-radius: var(--radius);
 					border-bottom-right-radius: var(--radius);
 				}
@@ -559,11 +563,11 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		}
 
 		&:hover {
-			.gui-input-number-input {
+			.fracgui-input-number-input {
 				color: var(--fg-b);
 			}
 
-			input.gui-input-number-range::-webkit-slider-thumb {
+			input.fracgui-input-number-range::-webkit-slider-thumb {
 				background-color: var(--bg-d);
 
 				&:active {
@@ -572,15 +576,15 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 			}
 		}
 
-		&:has(.gui-input-number-input:active, .gui-input-number-range) {
-			.gui-input-number-input {
+		&:has(.fracgui-input-number-input:active, .fracgui-input-number-range) {
+			.fracgui-input-number-input {
 				color: var(--fg-b);
 			}
 		}
 
 		//? Range <input>
 
-		input.gui-input-number-range {
+		input.fracgui-input-number-range {
 			-webkit-appearance: none;
 			-moz-appearance: none;
 			appearance: none;
@@ -588,11 +592,11 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 			width: 100%;
 			height: 0.5rem;
 
-			accent-color: var(--gui-input-number-range-color);
-			background: var(--gui-input-number-range-background);
+			accent-color: var(--fracgui-input-number-range-color);
+			background: var(--fracgui-input-number-range-background);
 			border-radius: var(--radius-xs);
-			box-shadow: var(--gui-input-number-range-shadow);
-			outline: var(--gui-input-number-range-outline);
+			box-shadow: var(--fracgui-input-number-range-shadow);
+			outline: var(--fracgui-input-number-range-outline);
 
 			opacity: 0.7;
 			transition: 0.15s;
@@ -615,7 +619,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 				width: 0.5rem;
 				height: 1rem;
 
-				background-color: var(--gui-input-number-range-color);
+				background-color: var(--fracgui-input-number-range-color);
 				border-radius: var(--radius-xs);
 				border: none;
 
@@ -632,10 +636,10 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 			}
 
 			&::-moz-range-progress {
-				background: var(--gui-input-number-range-color-active, var(--theme-a));
+				background: var(--fracgui-input-number-range-color-active, var(--theme-a));
 			}
 			&::-webkit-progress-value {
-				background: var(--gui-input-number-range-color-active, var(--theme-a));
+				background: var(--fracgui-input-number-range-color-active, var(--theme-a));
 			}
 			&::-webkit-slider-runnable-track {
 				-webkit-appearance: none;
@@ -651,30 +655,33 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 		//? Number <input>
 
-		.gui-input-number-input {
+		input.fracgui-input-number-input {
 			// outline: 1px solid hsla(0, 100%, 50%, 0.2) !important; // debug-outline
 
 			-webkit-appearance: textfield;
 			-moz-appearance: textfield;
 			appearance: textfield;
 
-			width: 4rem;
-			height: 1.25rem;
-			// padding-left: 0.33rem;
+			width: 100%;
+			min-width: 0;
+			max-width: var(--fracgui-input-section-2-width);
 
-			color: var(--gui-input-number-input-color);
-			background: var(--gui-input-number-input-background);
-			background-image: var(--gui-input-number-input-background-image);
-			box-shadow: var(--gui-input-number-input-shadow);
+			height: 1.25rem;
+
+			color: var(--fracgui-input-number-input-color);
+			background: var(--fracgui-input-number-input-background);
+			background-image: var(--fracgui-input-number-input-background-image);
+			box-shadow: var(--fracgui-input-number-input-shadow);
 			border-radius: var(--radius-sm);
 
 			opacity: 0.7;
 			border: none;
-			outline: var(--gui-input-number-input-outline);
+			outline: var(--fracgui-input-number-input-outline);
 
 			font-family: var(--font-mono);
-			font-size: var(--gui-input-font-size);
+			font-size: var(--fracgui-input-font-size);
 			text-align: center;
+			font-variation-settings: 'wght' 500;
 
 			transition: 0.15s;
 			overflow: visible;
@@ -691,27 +698,34 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 				appearance: none;
 				display: none;
 			}
+
+			&.dragging {
+				outline: 1px solid var(--theme-a);
+				box-shadow: 0 0 0.75rem color-mix(in lch, var(--theme-a), #fff0 33%);
+			}
 		}
 
 		//? Color Input
 
-		.gui-input-color-container {
+		.fracgui-input-color-container {
 			display: flex;
 			flex-direction: row;
 			justify-content: space-between;
+			gap: 0.75rem;
 
 			width: 100%;
 			padding: 0.5rem 0;
 
 			//- Current Color
 
-			.gui-input-color-current-color-container {
+			.fracgui-input-color-current-color-container {
 				$size: 8px;
 				$size2: $size * 2;
 				$color: var(--bg-a);
 
-				width: 4rem;
-				height: 1.5rem;
+				width: var(--fracgui-input-section-2-width);
+				min-width: var(--fracgui-input-section-2-width);
+				height: 1.25rem;
 
 				background-image: linear-gradient(45deg, $color 25%, transparent 25%),
 					linear-gradient(-45deg, $color 25%, transparent 25%),
@@ -727,182 +741,223 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 				overflow: hidden;
 			}
 
-			.gui-input-color-current-color-display {
-				position: relative;
-				display: flex;
-
-				width: 100%;
+			.fracgui-input-color-current-color-display {
 				height: 100%;
 			}
 
-			//- Canvas
+			//? Body
 
-			.gui-input-color-picker-container {
+			.fracgui-input-color-body {
 				position: relative;
 				display: flex;
 				flex-direction: column;
 
-				align-items: flex-end;
-				justify-content: center;
-				// position: absolute;
-				// right: 0.75rem;
+				min-width: 0;
+				width: var(--fracgui-input-section-3-width);
 
-				width: 77%;
+				//- Canvas
 
-				.gui-input-color-picker-canvas {
+				.fracgui-input-color-picker-container {
+					position: relative;
 					display: flex;
+					flex-direction: column;
+					gap: 0.25rem;
 
-					width: 100%;
-					// height: 3rem;
+					// align-items: flex-end;
+					// width: 100%;
+					// width: 90%;
 
-					// width: 256px;
-					// height: 256px;
+					// width: 77%;
 
-					border-radius: var(--radius);
-					overflow: hidden;
-				}
+					.fracgui-input-color-picker-canvas {
+						display: flex;
 
-				.gui-input-color-picker-cursor {
-					position: absolute;
-					top: 0;
-					left: 0;
+						width: 100%;
+						// height: 3rem;
 
-					width: 0.5rem;
-					height: 0.5rem;
-					translate: -50% -50%;
+						// width: 256px;
+						// height: 256px;
 
-					border-radius: 50%;
-					border: 1px solid var(--fg-a);
-					box-shadow: 0 0 0.25rem 0rem var(--bg-d);
+						border-radius: var(--radius);
+						overflow: hidden;
+					}
 
-					transition: 0.1s cubic-bezier(0.215, 0.61, 0.355, 1);
-
-					pointer-events: none;
-				}
-
-				//- Hue Slider
-
-				.gui-input-color-picker-hue {
-					appearance: none;
-
-					width: 99%;
-					border-radius: var(--radius-sm);
-
-					&::-webkit-slider-thumb {
-						-webkit-appearance: none;
-						-moz-appearance: none;
-						appearance: none;
+					.fracgui-input-color-picker-handle {
+						position: absolute;
+						top: 0;
+						left: 0;
 
 						width: 0.5rem;
 						height: 0.5rem;
+						translate: -50% -50%;
 
-						background-color: var(--bg-b);
-						border: none;
+						border-radius: 50%;
+						border: 1px solid var(--fg-a);
+						box-shadow: 0 0 0.25rem 0rem var(--bg-d);
 
-						transition: 0.15s;
+						transition: 0.1s cubic-bezier(0.215, 0.61, 0.355, 1);
 
-						cursor: pointer;
-						z-index: 10;
+						pointer-events: none;
 					}
 
-					&::-webkit-slider-runnable-track {
-						-webkit-appearance: none;
-						-moz-appearance: none;
+					//- Hue Slider
+
+					.fracgui-input-color-picker-hue {
 						appearance: none;
 
-						background: linear-gradient(
-							to right,
-							hsl(0, 100%, 50%),
-							hsl(60, 100%, 50%),
-							hsl(120, 100%, 50%),
-							hsl(180, 100%, 50%),
-							hsl(240, 100%, 50%),
-							hsl(300, 100%, 50%),
-							hsl(360, 100%, 50%)
-						);
-
+						width: 99%;
 						border-radius: var(--radius-sm);
-						border: none;
-						cursor: pointer;
-						z-index: 1;
+
+						&::-webkit-slider-thumb {
+							-webkit-appearance: none;
+							-moz-appearance: none;
+							appearance: none;
+
+							width: 0.5rem;
+							height: 0.5rem;
+
+							background-color: var(--bg-b);
+							border: none;
+
+							transition: 0.15s;
+
+							cursor: pointer;
+							z-index: 10;
+						}
+
+						&::-webkit-slider-runnable-track {
+							-webkit-appearance: none;
+							-moz-appearance: none;
+							appearance: none;
+
+							background: linear-gradient(
+								to right,
+								hsl(0, 100%, 50%),
+								hsl(60, 100%, 50%),
+								hsl(120, 100%, 50%),
+								hsl(180, 100%, 50%),
+								hsl(240, 100%, 50%),
+								hsl(300, 100%, 50%),
+								hsl(360, 100%, 50%)
+							);
+
+							border-radius: var(--radius-sm);
+							border: none;
+							cursor: pointer;
+							z-index: 1;
+						}
+					}
+
+					//- Alpha Slider
+
+					.fracgui-input-color-picker-alpha {
+						appearance: none;
+
+						width: 99%;
+						border-radius: var(--radius-sm);
+						background-color: transparent;
+
+						&::-webkit-slider-thumb {
+							-webkit-appearance: none;
+							-moz-appearance: none;
+							appearance: none;
+
+							width: 0.5rem;
+							height: 0.5rem;
+
+							background-color: var(--bg-b);
+							border: none;
+
+							transition: 0.15s;
+
+							cursor: pointer;
+							z-index: 10;
+						}
+
+						&::-webkit-slider-runnable-track {
+							-webkit-appearance: none;
+							-moz-appearance: none;
+							appearance: none;
+
+							background: linear-gradient(to right, transparent, currentColor);
+
+							border-radius: var(--radius-sm);
+							border: none;
+							cursor: pointer;
+							z-index: 1;
+						}
 					}
 				}
 
-				//- Alpha Slider
+				//- RGB Components
 
-				.gui-input-color-picker-alpha {
-					appearance: none;
+				.fracgui-input-color-components-container {
+					display: flex;
+					align-items: center;
 
-					width: 99%;
-					border-radius: var(--radius-sm);
-					background-color: transparent;
-
-					&::-webkit-slider-thumb {
-						-webkit-appearance: none;
-						-moz-appearance: none;
-						appearance: none;
-
-						width: 0.5rem;
-						height: 0.5rem;
-
-						background-color: var(--bg-b);
-						border: none;
-
-						transition: 0.15s;
-
-						cursor: pointer;
-						z-index: 10;
+					&:has(input.a.hovering) {
+						.fracgui-input-color-components-title span.a {
+							color: var(--fg-a);
+						}
+					}
+					&:has(input.b.hovering) {
+						.fracgui-input-color-components-title span.b {
+							color: var(--fg-a);
+						}
+					}
+					&:has(input.c.hovering) {
+						.fracgui-input-color-components-title span.c {
+							color: var(--fg-a);
+						}
+					}
+					&:has(input.d.hovering) {
+						.fracgui-input-color-components-title span.d {
+							color: var(--fg-a);
+						}
 					}
 
-					&::-webkit-slider-runnable-track {
-						-webkit-appearance: none;
-						-moz-appearance: none;
-						appearance: none;
+					.fracgui-input-color-components-title {
+						width: 3rem;
 
-						background: linear-gradient(to right, transparent, currentColor);
+						color: var(--fg-d);
 
-						border-radius: var(--radius-sm);
-						border: none;
-						cursor: pointer;
-						z-index: 1;
+						font-size: var(--font-xs);
+						font-family: var(--font-mono);
+
+						span {
+							transition: color 0.15s;
+						}
 					}
-				}
-			}
-		}
 
-		//? RGB Components
+					.fracgui-input-color-components-numbers-container {
+						display: flex;
+						align-items: center;
+						justify-content: space-between;
+						gap: 0.5rem;
 
-		.gui-input-color-components-container {
-			display: flex;
-			align-items: center;
+						width: 100%;
+						padding: 0.25rem 0.5rem;
 
-			.gui-input-color-components-numbers-container {
-				display: flex;
-				align-items: center;
-				justify-content: space-between;
-				gap: 0.5rem;
+						.fracgui-input-color-component-number {
+							width: 2rem;
+							height: 1.25rem;
 
-				width: 100%;
-				padding: 0.25rem 0.5rem;
+							color: var(--fracgui-input-number-input-color);
+							background: var(--fracgui-input-number-input-background);
+							border-radius: var(--radius-sm);
+							box-shadow: var(--fracgui-input-number-input-shadow);
+							outline: var(--fracgui-input-number-input-outline);
 
-				.gui-input-color-component-number {
-					width: 2rem;
-					height: 1.25rem;
+							opacity: 0.7;
+							transition: 0.15s;
 
-					color: var(--gui-input-number-input-color);
-					background: var(--gui-input-number-input-background);
-					border-radius: var(--radius-sm);
-					box-shadow: var(--gui-input-number-input-shadow);
-					outline: var(--gui-input-number-input-outline);
+							overflow: visible;
+							min-width: unset;
 
-					opacity: 0.7;
-					transition: 0.15s;
-
-					overflow: visible;
-					min-width: unset;
-
-					&:hover {
-						opacity: 1;
+							&:hover {
+								opacity: 1;
+							}
+						}
 					}
 				}
 			}
@@ -934,7 +989,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		max-width: 50%;
 
 		font-weight: 600;
-		font-size: var(--gui-input-font-size);
+		font-size: var(--fracgui-input-font-size);
 		font-family: var(--font-b);
 	}
 

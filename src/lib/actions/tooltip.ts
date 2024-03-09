@@ -122,7 +122,7 @@ export class Tooltip {
 				: ((() => opts.text) as () => string | number)
 
 		this.element = create('div', {
-			classes: ['gui-tooltip'],
+			classes: ['fractils-tooltip'],
 			parent: document.body,
 			innerText: this.text(),
 			cssText: trimCss(/*css*/ `{
@@ -263,7 +263,7 @@ export class Tooltip {
 
 			const baseOffset = 4
 
-			this.element.classList.add('gui-tooltip-' + opts.placement)
+			this.element.classList.add('fractils-tooltip-' + opts.placement)
 
 			switch (opts.placement) {
 				case 'top':

@@ -66,7 +66,8 @@
 		display: flex;
 		justify-content: center;
 		gap: 1rem;
-
+		
+		margin-top: auto;
 		padding: 1rem 0;
 	}
 

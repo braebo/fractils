@@ -1,4 +1,4 @@
-import type { InputOptions, InputView } from './inputs/Input'
+import type { InputOptions, InputView, ValidInputs as ValidInput } from './inputs/Input'
 import type { Gui } from './Gui'
 
 import { InputNumber, type NumberInputOptions } from './inputs/InputNumber'
@@ -7,8 +7,8 @@ import { InputColor, type ColorInputOptions } from './inputs/InputColor'
 import { create } from '../utils/create'
 import { nanoid } from '../utils/nanoid'
 import { Logger } from '../utils/logger'
-import { Input } from './inputs/Input'
 import { state } from '../utils/state'
+import { isColor } from './typeGuards'
 
 /**
  * @internal
@@ -26,7 +26,7 @@ export interface FolderOptions {
 	/**
 	 * Any controls this folder should contain.
 	 */
-	controls: Map<string, Input>
+	controls: Map<string, ValidInput>
 	parentFolder: Folder
 	/**
 	 * Whether the folder should be collapsed by default.
@@ -52,7 +52,7 @@ export class Folder {
 
 	title: string
 	children: Folder[]
-	controls: Map<string, Input>
+	controls: Map<string, ValidInput>
 	parentFolder: Folder
 
 	element: HTMLElement
@@ -80,7 +80,7 @@ export class Folder {
 
 		this.title = opts.title ?? ''
 		this.children = opts.children ?? []
-		this.controls = opts.controls ?? new Map<string, Input>()
+		this.controls = opts.controls ?? new Map<string, ValidInput>()
 
 		if (rootContainer) {
 			this.root = this as any as Gui
@@ -165,14 +165,14 @@ export class Folder {
 			el ??
 			create('div', {
 				parent: this.parentFolder.elements.content,
-				classes: ['gui-folder'],
+				classes: ['fracgui-folder'],
 				// dataset: { id: this.id },
 			})
-		if (el) el.classList.add('gui-root')
+		if (el) el.classList.add('fracgui-root')
 
 		const header = create('div', {
 			parent: element,
-			classes: ['gui-header'],
+			classes: ['fracgui-header'],
 		})
 		header.addEventListener('pointerdown', this.#skip_header_click_if_drag)
 		if (!this.isRoot) {
@@ -181,16 +181,16 @@ export class Folder {
 
 		const title = create('h2', {
 			parent: header,
-			classes: ['gui-title'],
+			classes: ['fracgui-title'],
 			textContent: this.title,
 		})
 
 		const contentWrapper = create('div', {
-			classes: ['gui-content-wrapper'],
+			classes: ['fracgui-content-wrapper'],
 			parent: element,
 		})
 		const content = create('div', {
-			classes: ['gui-content'],
+			classes: ['fracgui-content'],
 			parent: contentWrapper,
 		})
 
@@ -209,8 +209,8 @@ export class Folder {
 		container ??= document.body
 
 		const rootEl = create('div', {
-			classes: ['gui-root'],
-			id: 'gui-root',
+			classes: ['fracgui-root'],
+			id: 'fracgui-root',
 			// dataset: { id: this.id, title: this.title },
 			dataset: { theme: this.root.theme },
 		})
@@ -404,9 +404,21 @@ export class Folder {
 	}
 
 	add<T>(options: InputOptions) {
-		const input = this.#createInput(options) as Input
+		const input = this.#createInput(options)
 		this.controls.set(input.title, input)
 		return input as T
+	}
+
+	addNumber(options: Partial<NumberInputOptions>) {
+		const input = new InputNumber(options, this)
+		this.controls.set(input.title, input)
+		return input
+	}
+
+	addColor(options: Partial<ColorInputOptions>) {
+		const input = new InputColor(options, this)
+		this.controls.set(input.title, input)
+		return input
 	}
 
 	#createInput(options: InputOptions) {
@@ -437,6 +449,9 @@ export class Folder {
 				if (Array.isArray(value)) {
 					return 'Select'
 				}
+				if (isColor(value)) {
+					return 'Color'
+				}
 			default:
 				throw new Error('Invalid input view: ' + view)
 		}
@@ -456,10 +471,6 @@ export class Folder {
 		}
 
 		this.closed.value ? this.open() : this.close()
-	}
-
-	#updateDisplay = () => {
-		this.#createIcon()
 	}
 
 	open() {
