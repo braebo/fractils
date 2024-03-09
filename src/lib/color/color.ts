@@ -220,6 +220,13 @@ export class Color {
 		this.hsv = { v: value }
 	}
 
+	get lightness(): number {
+		return this.hsl.l
+	}
+	set lightness(value: number) {
+		this.hsl = { ...this.hsl, l: value }
+	}
+
 	get alpha(): number {
 		return this.#hsva.a ?? 1
 	}
