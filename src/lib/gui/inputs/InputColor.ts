@@ -179,16 +179,16 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		this.components.mode = v
 	}
 
-	get #aTitle() {
+	get aTitle() {
 		return this.mode === 'rgba' ? 'r' : 'h'
 	}
-	get #bTitle() {
+	get bTitle() {
 		return this.mode === 'rgba' ? 'g' : 's'
 	}
-	get #cTitle() {
+	get cTitle() {
 		return this.mode === 'rgba' ? 'b' : this.mode === 'hsla' ? 'l' : 'v'
 	}
-	get #dTitle() {
+	get dTitle() {
 		return 'a'
 	}
 	//⌟
@@ -222,6 +222,20 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		return this.picker.elements.container
 	}
 
+	togglePicker = () => {
+		this.#pickerHeight ||= this.picker.elements.container.clientHeight
+
+		this.#log
+			.fn('togglePicker')
+			.info({ expanded: this.expanded, pickerHeight: this.#pickerHeight })
+
+		if (!this.expanded) {
+			this.openPicker()
+		} else {
+			this.closePicker()
+		}
+	}
+
 	openPicker = (height = this.#pickerHeight + 'px') => {
 		this.#pickerContainer.animate({ height }, this.#animOpts).onfinish = () => {
 			this.#pickerContainer.style.overflow = 'visible'
@@ -240,18 +254,6 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 		this.expanded = false
 		this.#pickerContainer.classList.remove('expanded')
-	}
-
-	togglePicker = () => {
-		this.#pickerHeight ||= this.picker.elements.container.clientHeight
-		this.#log
-			.fn('togglePicker')
-			.info({ expanded: this.expanded, pickerHeight: this.#pickerHeight })
-		if (this.expanded) {
-			this.closePicker()
-		} else {
-			this.openPicker()
-		}
 	}
 
 	dispose() {
