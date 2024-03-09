@@ -1,3 +1,5 @@
+import type { ColorFormat } from './types/colorFormat'
+
 import type {
 	ColorObject,
 	HslColor,
@@ -182,7 +184,14 @@ export class Color {
 			return
 		}
 
-		this.#hsva = mergedValue
+		this.#hsva = {
+			h: Math.round(mergedValue.h),
+			s: Math.round(mergedValue.s),
+			v: Math.round(mergedValue.v),
+			a: mergedValue.a,
+		}
+
+		// this.#hsva = mergedValue
 
 		this.#callOnChange()
 	}
@@ -191,7 +200,6 @@ export class Color {
 	get hsva(): HsvaColor {
 		return structuredClone(this.#hsva)
 	}
-
 	set hsva(value: HsvaColor) {
 		this.hsv = value
 	}
@@ -199,7 +207,6 @@ export class Color {
 	get hue(): number {
 		return this.#hsva.h
 	}
-
 	set hue(value: number) {
 		this.hsv = { h: value }
 	}
@@ -207,7 +214,6 @@ export class Color {
 	get saturation(): number {
 		return this.#hsva.s
 	}
-
 	set saturation(value: number) {
 		this.hsv = { s: value }
 	}
@@ -215,7 +221,6 @@ export class Color {
 	get value(): number {
 		return this.#hsva.v
 	}
-
 	set value(value: number) {
 		this.hsv = { v: value }
 	}
@@ -230,7 +235,6 @@ export class Color {
 	get alpha(): number {
 		return this.#hsva.a ?? 1
 	}
-
 	set alpha(value: number) {
 		this.hsv = { ...this.hsv, a: value }
 	}
@@ -238,34 +242,27 @@ export class Color {
 	get kelvin(): number {
 		return rgbToKelvin(this.rgb)
 	}
-
 	set kelvin(value: number) {
 		this.rgb = kelvinToRgb(value)
 	}
 
 	get red(): number {
-		const rgb = this.rgb
-		return rgb.r
+		return this.rgb.r
 	}
-
 	set red(value: number) {
 		this.rgb = { ...this.rgb, r: value }
 	}
 
 	get green(): number {
-		const rgb = this.rgb
-		return rgb.g
+		return this.rgb.g
 	}
-
 	set green(value: number) {
 		this.rgb = { ...this.rgb, g: value }
 	}
 
 	get blue(): number {
-		const rgb = this.rgb
-		return rgb.b
+		return this.rgb.b
 	}
-
 	set blue(value: number) {
 		this.rgb = { ...this.rgb, b: value }
 	}
@@ -305,7 +302,6 @@ export class Color {
 			l: Math.round(l),
 		}
 	}
-
 	set hsl(value: HslColor | HslaColor) {
 		this.hsv = {
 			...hslToHsv(value),
@@ -317,15 +313,13 @@ export class Color {
 	get hsla(): HslaColor {
 		return { ...this.hsl, a: this.alpha }
 	}
-
 	set hsla(value: HslColor | HslaColor) {
 		this.hsl = value
 	}
 
 	/** i.e. `'rgb(85, 0, 238)'` */
 	get rgbString(): RgbString {
-		const rgb = this.rgb
-		return `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`
+		return `rgb(${this.rgb.r}, ${this.rgb.g}, ${this.rgb.b})`
 	}
 
 	set rgbString(value: RgbString | RgbaString) {
