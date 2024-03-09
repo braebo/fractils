@@ -11,10 +11,10 @@
 	--fracgui-root-header-height: 1.75rem;
 	--header-height: 1.5rem;
 
-	--fracgui-min-width: 20rem;
-	--fracgui-max-width: 30rem;
+	--fracgui-min-width: 25rem;
+	--fracgui-max-width: 45rem;
 
-	--fracgui-input-section-1-width: 8rem;
+	--fracgui-input-section-1-width: 6rem;
 	--fracgui-input-section-2-width: 4rem;
 	--fracgui-input-section-3-width: 100%;
 
@@ -141,7 +141,6 @@ html[theme='light'] .fracgui-folder {
 	2px 2px 3px 0px hsla(231, 17%, 23%, 0.5) inset
 	;
 }
-
 //⌟
 
 //· Open / Close Animations ··················································¬
@@ -222,7 +221,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	inset: 0;
 
 	min-width: var(--fracgui-min-width, 20rem);
-	max-width: var(--max-width);
+	max-width: var(--fracgui-max-width);
 
 	height: fit-content; //- important
 
@@ -452,12 +451,9 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	}
 
 	.fracgui-input-container .fracgui-input-content {
-		// outline: 1px solid hsla(39, 100%, 50%, 0.2); // debug-outline
-
 		display: flex;
 		align-items: center;
 		justify-content: space-evenly;
-		// gap: 0.75rem;
 
 		width: 100%;
 		margin: 0;
@@ -602,7 +598,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 			transition: 0.15s;
 
 			overflow: visible;
-			min-width: unset;
+			min-width: 1rem;
 
 			&:hover {
 				opacity: 1;
@@ -663,7 +659,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 			appearance: textfield;
 
 			width: 100%;
-			min-width: 0;
+			min-width: 2rem;
 			max-width: var(--fracgui-input-section-2-width);
 
 			height: 1.25rem;
@@ -685,7 +681,6 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 			transition: 0.15s;
 			overflow: visible;
-			min-width: unset;
 
 			&:hover {
 				opacity: 1;
@@ -763,20 +758,11 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 					flex-direction: column;
 					gap: 0.25rem;
 
-					// align-items: flex-end;
-					// width: 100%;
-					// width: 90%;
-
-					// width: 77%;
-
 					.fracgui-input-color-picker-canvas {
 						display: flex;
 
 						width: 100%;
-						// height: 3rem;
-
-						// width: 256px;
-						// height: 256px;
+						height: 3rem;
 
 						border-radius: var(--radius);
 						overflow: hidden;
@@ -944,7 +930,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 					}
 
 					.fracgui-input-color-components-title {
-						width: 3rem;
+						width: 2rem;
 
 						color: var(--fg-d);
 						@at-root :root[theme='light'] & {
@@ -964,7 +950,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 						display: flex;
 						align-items: center;
 						justify-content: space-between;
-						gap: 0.5rem;
+						gap: 0.25rem;
 
 						width: 100%;
 						padding: 0.25rem 0.5rem;
@@ -983,7 +969,6 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 							transition: 0.15s;
 
 							overflow: visible;
-							min-width: unset;
 
 							&:hover {
 								opacity: 1;
