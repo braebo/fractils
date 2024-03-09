@@ -62,7 +62,6 @@
 
 		slider = f1.addNumber({
 			title: 'count',
-			view: 'Slider',
 			binding: {
 				target: params,
 				key: 'orbs',
@@ -74,7 +73,6 @@
 
 		f1.addNumber({
 			title: 'size',
-			view: 'Slider',
 			binding: {
 				target: params,
 				key: 'size',
@@ -86,7 +84,6 @@
 
 		f1.addNumber({
 			title: 'a1',
-			view: 'Slider',
 			binding: {
 				target: params,
 				key: 'a1',
@@ -98,7 +95,6 @@
 
 		f1.addNumber({
 			title: 'a2',
-			view: 'Slider',
 			binding: {
 				target: params,
 				key: 'a2',
@@ -110,7 +106,6 @@
 
 		f1.addNumber({
 			title: 'width',
-			view: 'Slider',
 			binding: {
 				target: params,
 				key: 'width',
@@ -122,7 +117,6 @@
 
 		f1.addNumber({
 			title: 'height',
-			view: 'Slider',
 			binding: {
 				target: params,
 				key: 'height',
@@ -134,7 +128,6 @@
 
 		f1.addNumber({
 			title: 'speed',
-			view: 'Slider',
 			binding: {
 				target: params,
 				key: 'speed',
@@ -146,7 +139,6 @@
 
 		f1.addNumber({
 			title: 'mid',
-			view: 'Slider',
 			binding: {
 				target: params,
 				key: 'mid',
@@ -158,7 +150,6 @@
 
 		f1.addNumber({
 			title: 'brightness',
-			view: 'Slider',
 			binding: {
 				target: params,
 				key: 'brightness',
@@ -181,10 +172,7 @@
 
 		f1.addColor({
 			title: 'accent',
-			view: 'Color',
 			mode: 'hsla',
-			// mode: 'rgba',
-			// value: params.accent,
 			binding: {
 				target: params,
 				key: 'accent',
@@ -193,7 +181,6 @@
 
 		f1.addNumber({
 			title: 'glowR',
-			view: 'Slider',
 			binding: {
 				target: params,
 				key: 'glowR',
@@ -205,7 +192,6 @@
 
 		f1.addNumber({
 			title: 'glowG',
-			view: 'Slider',
 			binding: {
 				target: params,
 				key: 'glowG',
@@ -217,7 +203,6 @@
 
 		f1.addNumber({
 			title: 'glowB',
-			view: 'Slider',
 			binding: {
 				target: params,
 				key: 'glowB',
@@ -226,23 +211,6 @@
 			max: 20,
 			step: 0.01,
 		})
-
-		// const f2 = f1.addFolder({ title: '2b' })
-
-		// f2.add({
-		// 	title: 'width',
-		// 	view: 'Color',
-		// 	binding: {
-		// 		target: params,
-		// 		key: 'color',
-		// 	},
-		// })
-
-		// f2.add<InputColor>({
-		// 	title: 'color',
-		// 	value: '#ff0000',
-		// 	view: 'Color',
-		// })
 
 		// //? Cool self themer majig 🌈
 		// import('$lib/gui/gui.scss?raw').then((x) => {
@@ -291,7 +259,6 @@
 		// 				f.add<InputSlider>({
 		// 					title: k.replace('--gui-', '').replace(/-/g, ' '),
 		// 					value: parseFloat(v),
-		// 					view: 'Slider',
 		// 				}).onChange((v) => {
 		// 					root.style.setProperty(k, v + 'rem')
 		// 				})

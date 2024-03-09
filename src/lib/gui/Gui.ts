@@ -150,7 +150,7 @@ export class Gui extends Folder {
 		const opts = Object.assign({}, GUI_DEFAULTS, options, {
 			// Hack to force this to be the root in the super call.
 			parentFolder: null as any,
-			resizable: options?.windowManager?.resizable ?? GUI_DEFAULTS.windowManager?.resizable,
+			// resizable: options?.windowManager?.resizable ?? GUI_DEFAULTS.windowManager?.resizable,
 		})
 
 		opts.container ??= document.body
@@ -274,9 +274,9 @@ export class Gui extends Folder {
 		// todo - Resizable needs a proper `disabled` option/toggle.
 		//? If `true`, an empty object will result in default options.
 		const resizeOpts: Partial<ResizableOptions> =
-			typeof opts.resizable === 'object'
-				? opts.resizable
-				: opts.resizable === false
+			typeof opts.windowManager?.resizable === 'object'
+				? opts.windowManager?.resizable
+				: opts.windowManager?.resizable === false
 					? {
 							sides: [],
 							corners: [],
@@ -306,6 +306,15 @@ export class Gui extends Folder {
 		this.windowManager = new WindowManager({
 			draggable: dragOptions,
 			resizable: resizeOpts,
+		})
+
+		this.windowManager.add(this.element, {
+			draggable: {
+				bounds: document.documentElement,
+			},
+			resizable: {
+				bounds: document.documentElement,
+			},
 		})
 		//⌟
 
