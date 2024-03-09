@@ -900,19 +900,46 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 							color: var(--fg-a);
 						}
 					}
+					&:has(input.a.dragging) {
+						.fracgui-input-color-components-title span.a {
+							color: var(--theme-a);
+							text-shadow: 0 0 0.5rem var(--theme-a);
+						}
+					}
+
 					&:has(input.b.hovering) {
 						.fracgui-input-color-components-title span.b {
 							color: var(--fg-a);
 						}
 					}
+					&:has(input.b.dragging) {
+						.fracgui-input-color-components-title span.b {
+							color: var(--theme-a);
+							text-shadow: 0 0 0.5rem var(--theme-a);
+						}
+					}
+
 					&:has(input.c.hovering) {
 						.fracgui-input-color-components-title span.c {
 							color: var(--fg-a);
 						}
 					}
+					&:has(input.c.dragging) {
+						.fracgui-input-color-components-title span.c {
+							color: var(--theme-a);
+							text-shadow: 0 0 0.5rem var(--theme-a);
+						}
+					}
+
 					&:has(input.d.hovering) {
 						.fracgui-input-color-components-title span.d {
 							color: var(--fg-a);
+						}
+					}
+					&:has(input.d.dragging) {
+						.fracgui-input-color-components-title span.d {
+							color: var(--theme-a);
+							text-shadow: 0 0 0.5rem var(--theme-a);
 						}
 					}
 
@@ -920,12 +947,16 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 						width: 3rem;
 
 						color: var(--fg-d);
+						@at-root :root[theme='light'] & {
+							color: var(--bg-e);
+						}
 
 						font-size: var(--font-xs);
 						font-family: var(--font-mono);
 
 						span {
-							transition: color 0.15s;
+							transition: 0.4s;
+							text-shadow: 0 0 0 transparent;
 						}
 					}
 
@@ -967,152 +998,152 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 //⌟
 
-.kv {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
+// .kv {
+// 	display: flex;
+// 	align-items: center;
+// 	gap: 0.5rem;
 
-	width: 100%;
-	padding: 0.5rem;
+// 	width: 100%;
+// 	padding: 0.5rem;
 
-	color: var(--fg-c);
-	outline: 1px solid rgba(var(--bg-b-rgb), 0.5);
-	border-radius: var(--radius);
+// 	color: var(--fg-c);
+// 	outline: 1px solid rgba(var(--bg-b-rgb), 0.5);
+// 	border-radius: var(--radius);
 
-	font-size: 1rem;
+// 	font-size: 1rem;
 
-	.k {
-		display: flex;
+// 	.k {
+// 		display: flex;
 
-		width: fit-content;
-		min-width: 5rem;
-		max-width: 50%;
+// 		width: fit-content;
+// 		min-width: 5rem;
+// 		max-width: 50%;
 
-		font-weight: 600;
-		font-size: var(--fracgui-input-font-size);
-		font-family: var(--font-b);
-	}
+// 		font-weight: 600;
+// 		font-size: var(--fracgui-input-font-size);
+// 		font-family: var(--font-b);
+// 	}
 
-	.v {
-		all: unset;
-		box-sizing: border-box;
+// 	.v {
+// 		all: unset;
+// 		box-sizing: border-box;
 
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		gap: 0.25rem;
+// 		display: flex;
+// 		flex-direction: column;
+// 		justify-content: center;
+// 		align-items: center;
+// 		gap: 0.25rem;
 
-		width: 100%;
+// 		width: 100%;
 
-		font-family: var(--font-mono);
+// 		font-family: var(--font-mono);
 
-		select {
-			// all: unset;
-			cursor: pointer;
+// 		select {
+// 			// all: unset;
+// 			cursor: pointer;
 
-			width: 100%;
-			padding: 0.2rem 0.5rem 0.23rem 0.5rem;
-			text-align: center;
+// 			width: 100%;
+// 			padding: 0.2rem 0.5rem 0.23rem 0.5rem;
+// 			text-align: center;
 
-			color: var(--theme-a);
-			background: var(--bg-b);
-			border-radius: var(--radius-sm);
-			border: 1px solid var(--bg-c);
+// 			color: var(--theme-a);
+// 			background: var(--bg-b);
+// 			border-radius: var(--radius-sm);
+// 			border: 1px solid var(--bg-c);
 
-			font-weight: 300;
-			transition:
-				border-color 0.15s,
-				font-weight 0.6s;
+// 			font-weight: 300;
+// 			transition:
+// 				border-color 0.15s,
+// 				font-weight 0.6s;
 
-			&:hover {
-				border-color: rgba(var(--theme-a-rgb), 0.33);
+// 			&:hover {
+// 				border-color: rgba(var(--theme-a-rgb), 0.33);
 
-				font-weight: 500;
-			}
-		}
+// 				font-weight: 500;
+// 			}
+// 		}
 
-		button {
-			all: unset;
-			position: relative;
-			box-sizing: border-box;
-			cursor: pointer;
+// 		button {
+// 			all: unset;
+// 			position: relative;
+// 			box-sizing: border-box;
+// 			cursor: pointer;
 
-			width: 100%;
-			margin: auto;
-			padding: 0.2rem 0.5rem 0.23rem 0.5rem;
-			text-align: center;
+// 			width: 100%;
+// 			margin: auto;
+// 			padding: 0.2rem 0.5rem 0.23rem 0.5rem;
+// 			text-align: center;
 
-			display: grid;
-			div {
-				grid-area: 1 / 1;
-			}
+// 			display: grid;
+// 			div {
+// 				grid-area: 1 / 1;
+// 			}
 
-			background: var(--bg-b);
-			border-radius: var(--radius-sm);
-			border: 1px solid var(--bg-c);
-			div {
-				color: var(--theme-a);
-			}
+// 			background: var(--bg-b);
+// 			border-radius: var(--radius-sm);
+// 			border: 1px solid var(--bg-c);
+// 			div {
+// 				color: var(--theme-a);
+// 			}
 
-			font-weight: 300;
-			transition:
-				border-color 0.15s,
-				font-weight 0.6s;
+// 			font-weight: 300;
+// 			transition:
+// 				border-color 0.15s,
+// 				font-weight 0.6s;
 
-			&:hover {
-				border-color: rgba(var(--theme-a-rgb), 0.33);
+// 			&:hover {
+// 				border-color: rgba(var(--theme-a-rgb), 0.33);
 
-				font-weight: 500;
-			}
+// 				font-weight: 500;
+// 			}
 
-			&.active:not(:has(.delete:hover)) {
-				div {
-					color: var(--bg-b);
-				}
-				background: var(--theme-a);
-				// border-color: var(--theme-a);
-			}
+// 			&.active:not(:has(.delete:hover)) {
+// 				div {
+// 					color: var(--bg-b);
+// 				}
+// 				background: var(--theme-a);
+// 				// border-color: var(--theme-a);
+// 			}
 
-			&:has(.delete:hover) {
-				div {
-					color: tomato;
-				}
-			}
+// 			&:has(.delete:hover) {
+// 				div {
+// 					color: tomato;
+// 				}
+// 			}
 
-			.delete {
-				// outline: 1px solid rgba(255, 99, 71, 0.45); // debug-outline
-				all: unset;
-				position: absolute;
-				right: 0.25rem;
-				top: 0;
-				bottom: 0;
+// 			.delete {
+// 				// outline: 1px solid rgba(255, 99, 71, 0.45); // debug-outline
+// 				all: unset;
+// 				position: absolute;
+// 				right: 0.25rem;
+// 				top: 0;
+// 				bottom: 0;
 
-				width: 1rem;
-				height: 1rem;
-				margin: auto;
-				padding: 0.05rem;
-				// padding-top: 0;
+// 				width: 1rem;
+// 				height: 1rem;
+// 				margin: auto;
+// 				padding: 0.05rem;
+// 				// padding-top: 0;
 
-				color: var(--bg-a);
-				border-radius: 0.2rem;
+// 				color: var(--bg-a);
+// 				border-radius: 0.2rem;
 
-				opacity: 0;
-				transition-property: opacity, color, background;
-				transition-duration: 0.15s;
-				z-index: 1;
+// 				opacity: 0;
+// 				transition-property: opacity, color, background;
+// 				transition-duration: 0.15s;
+// 				z-index: 1;
 
-				&:hover {
-					background: var(--fg-a);
-					// background: tomato;
-					// color: var(--bg-a);
-					color: tomato !important;
-				}
-			}
+// 				&:hover {
+// 					background: var(--fg-a);
+// 					// background: tomato;
+// 					// color: var(--bg-a);
+// 					color: tomato !important;
+// 				}
+// 			}
 
-			&:hover .delete {
-				opacity: 1;
-			}
-		}
-	}
-}
+// 			&:hover .delete {
+// 				opacity: 1;
+// 			}
+// 		}
+// 	}
+// }

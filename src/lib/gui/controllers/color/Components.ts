@@ -97,24 +97,6 @@ export class ColorComponents extends Controller<InputColor, ColorComponentsEleme
 	set mode(v: ColorMode) {
 		this.#mode = v
 
-		// if (this.mode === 'rgba') {
-		// 	for (const [k, v] of entries(this.elements.numbers)) {
-		// 		;(v as HTMLInputElement).disabled = false
-		// 		;(v as HTMLInputElement).min = '0'
-		// 		;(v as HTMLInputElement).max = k === 'd' ? '1' : '255'
-		// 		;(v as HTMLInputElement).step = k === 'd' ? '0.01' : '1'
-		// 	}
-		// }
-
-		// if (['hsla', 'hsva'].includes(this.mode)) {
-		// 	for (const [k, v] of entries(this.elements.numbers)) {
-		// 		;(v as HTMLInputElement).disabled = false
-		// 		;(v as HTMLInputElement).min = '0'
-		// 		;(v as HTMLInputElement).max = k === 'd' ? '1' : k === 'b' ? '360' : '255'
-		// 		;(v as HTMLInputElement).step = k === 'd' ? '0.01' : '1'
-		// 	}
-		// }
-
 		if (this.mode === 'rgba') {
 			this.#setProps(this.elements.numbers.a, { min: 0, max: 255, step: 1 })
 			this.#setProps(this.elements.numbers.b, { min: 0, max: 255, step: 1 })
@@ -129,10 +111,8 @@ export class ColorComponents extends Controller<InputColor, ColorComponentsEleme
 			this.#setProps(this.elements.numbers.d, { min: 0, max: 1, step: 0.01 })
 		}
 
-		const str = ['a', 'b', 'c', 'd']
-
-		this.elements.title.innerHTML = [...(this.mode as string)]
-			.map((c, i) => `<span class="${str[i]}">${c}</span>`)
+		this.elements.title.innerHTML = [...this.mode]
+			.map((c, i) => `<span class="${['a', 'b', 'c', 'd'][i]}">${c}</span>`)
 			.join('')
 
 		this.refresh()
