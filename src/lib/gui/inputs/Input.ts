@@ -162,7 +162,6 @@ export interface InputOptions<T extends Record<string, any> = Record<string, any
 	title: string
 	view: InputView
 	value: number | Color | ColorFormat
-	// value: InputState
 	binding?: {
 		target: T
 		key: keyof T

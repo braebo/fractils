@@ -1,7 +1,13 @@
-// Box methods from irojs: https://github.com/jaames/iro.js
+// Box methods adapted from irojs: https://github.com/jaames/iro.js
+
+import type { InputColor } from '../../inputs/InputColor'
 
 import { Color, type ColorValue } from '../../../color/color'
 import { tooltip } from '../../../actions/tooltip'
+import { create } from '../../../utils/create'
+import { mapRange } from '$lib/utils/mapRange'
+import { clamp } from '../../../utils/clamp'
+import { Controller } from '../Controller'
 
 export type LayoutDirection = 'vertical' | 'horizontal' | ''
 
@@ -35,13 +41,6 @@ export const COLOR_PICKER_DEFAULTS: ColorPickerOptions = {
 	handleSize: 10,
 	container: undefined,
 }
-
-import type { InputColor } from '../../inputs/InputColor'
-
-import { create } from '../../../utils/create'
-import { mapRange } from '$lib/utils/mapRange'
-import { clamp } from '../../../utils/clamp'
-import { Controller } from '../Controller'
 
 export type ColorPickerElements = {
 	container: HTMLDivElement
