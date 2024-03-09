@@ -1,8 +1,10 @@
+import type { ColorComponentsElements } from '../controllers/color/Components'
+import type { ColorPickerElements } from '../controllers/color/ColorPicker'
 import type { ColorFormat } from '$lib/color/types/colorFormat'
 import type { ElementMap, InputOptions } from './Input'
 import type { Folder } from '../Folder'
 
-import { numberController } from '../controllers/number'
+import { ColorComponents } from '../controllers/color/Components'
 import { ColorPicker } from '../controllers/color/ColorPicker'
 import { create } from '../../utils/create'
 import { Logger } from '../../utils/logger'
@@ -10,7 +12,15 @@ import { Color } from '../../color/color'
 import { state } from '../../utils/state'
 import { Input } from './Input'
 
-export type ColorMode = 'hex' | 'rgba' | 'hsla' | 'rgbaString' | 'hslaString' | 'array'
+export type ColorMode =
+	| 'rgba'
+	| 'rgbaString'
+	| 'hsla'
+	| 'hslaString'
+	| 'hsva'
+	| 'hsvaString'
+	| 'hex'
+	| 'array'
 
 export interface LabeledRangeElements extends ElementMap {
 	container: HTMLDivElement
@@ -32,15 +42,22 @@ export interface ColorSliderElements extends ElementMap {
 
 export interface ColorControllerElements extends ElementMap<ColorPicker> {
 	container: HTMLDivElement
-	picker: ColorPicker['elements']
+	/**
+	 * A clickable swatch that displays the current color and toggles the color picker.
+	 */
 	currentColor: {
 		container: HTMLDivElement
 		display: HTMLDivElement
 	}
-	components: {
+	/**
+	 * The main input content body.
+	 */
+	body: {
 		container: HTMLDivElement
-		title: HTMLDivElement
-		numbers: ElementMap
+		/** All elements related to the color picker. */
+		picker: ColorPickerElements
+		/** Number controllers for rgb/hsl/hsv components. */
+		components: ColorComponentsElements
 	}
 }
 
@@ -66,6 +83,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 	expanded = true
 
 	picker: ColorPicker
+	components: ColorComponents
 
 	#pickerHeight: number
 	#log = new Logger('InputColor', { fg: 'cyan' })
@@ -95,68 +113,60 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		}
 
 		const container = create<HTMLDivElement>('div', {
-			classes: ['gui-input-color-container'],
+			classes: ['fracgui-input-color-container'],
 			parent: this.elements.content,
 		})
 		this.elements.controllers.container = container
 
-		//- Current color display.
+		//- Current Color
 		this.elements.controllers.currentColor = this.#createCurrentColor(container)
 
-		//- Color picker.
-		this.picker = new ColorPicker(this)
-		this.elements.controllers.picker = this.picker.elements
+		//- Body
+		const body = create<HTMLDivElement>('div', {
+			classes: ['fracgui-input-color-body'],
+			parent: container,
+		})
 
-		// I'm current handling the toggling of the picker here... but perhaps it should live in the picker itself.
-		const pickerContainer = this.picker.elements.container
+		//- Color Picker
+		this.picker = new ColorPicker(this, { container: body })
+		// Should picker toggling be moved to the picker itself?
+		this.#pickerHeight ||= this.picker.elements.container.clientHeight
 
-		this.#pickerHeight ||= pickerContainer.clientHeight
-		container.appendChild(pickerContainer)
+		//- Components
+		this.components = new ColorComponents(this, { container: body })
 
-		this.elements.controllers.components = this.#createComponents(pickerContainer)
+		this.elements.controllers.body = {
+			container: body,
+			picker: this.picker.elements,
+			components: this.components.elements,
+		}
 
 		this.state.subscribe((v) => {
-			this.elements.controllers.currentColor.display.style.backgroundColor = v.hex8String
-			// console.log(v.hex8String)
-			// this.#refreshSliders()
-			this.picker.refresh()
+			this.refresh()
 			this.callOnChange()
 		})
 
+		this.components.refresh()
+
 		// //! TEST
-		// setInterval(this.togglePicker, 3000 * Math.random() + 1000)
+		// setInterval(this.togglePicker, 1500)
 	}
 
-	#createComponents = (parent: HTMLDivElement) => {
-		const componentsContainer = create<HTMLDivElement>('div', {
-			classes: ['gui-input-color-components-container'],
-			parent: parent,
-		})
-
-		const componentsTitle = create<HTMLDivElement>('div', {
-			classes: ['gui-input-color-components-title'],
-			parent: componentsContainer,
-			innerText: this.mode,
-		})
-		componentsContainer.appendChild(componentsTitle)
-
-		const numbersContainer = create<HTMLDivElement>('div', {
-			classes: ['gui-input-color-components-numbers-container'],
-			parent: componentsContainer,
-		})
-		componentsContainer.appendChild(numbersContainer)
-
-		const numbers = {
-			r: numberController(this, this.opts, numbersContainer),
-			g: numberController(this, this.opts, numbersContainer),
-			b: numberController(this, this.opts, numbersContainer),
+	setState(v: ColorFormat | Color) {
+		// console.log(Color.isColor(v) ? v.hsva.s : v)
+		if (Color.isColor(v)) {
+			this.state.set(new Color(v.hsva))
+		} else {
+			this.state.set(new Color(v))
 		}
+	}
 
-		return {
-			container: componentsContainer,
-			title: componentsTitle,
-			numbers,
-		}
+	refresh = () => {
+		// console.log('refresh', this.state.value.hex8String)
+		this.elements.controllers.currentColor.display.style.backgroundColor =
+			this.state.value.hex8String
+		this.picker.refresh()
+		this.components.refresh()
 	}
 
 	//· Getters & Setters ····················································¬
@@ -166,125 +176,31 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 	}
 	set mode(v: ColorMode) {
 		this.#mode = v
-		// this.#refreshSliders(v)
+		this.components.mode = v
 	}
 
-	get a() {
-		return this.mode === 'rgba' ? this.state.value.rgba.r : this.state.value.hsla.h
-	}
-	set a(v: number) {
-		if (this.mode === 'rgba') {
-			this.state.value.rgba.r = v
-		} else {
-			this.state.value.hsla.h = v
-		}
-	}
-
-	get b() {
-		return this.mode === 'rgba' ? this.state.value.rgba.g : this.state.value.hsla.s
-	}
-	set b(v: number) {
-		if (this.mode === 'rgba') {
-			this.state.value.rgba.g = v
-		} else {
-			this.state.value.hsla.s = v
-		}
-	}
-
-	get c() {
-		return this.mode === 'rgba' ? this.state.value.rgba.b : this.state.value.hsla.l
-	}
-	set c(v: number) {
-		if (this.mode === 'rgba') {
-			this.state.value.rgba.b = v
-		} else {
-			this.state.value.hsla.l = v
-		}
-	}
-
-	get d() {
-		return this.mode === 'rgba' ? this.state.value.rgba.a : this.state.value.hsla.a
-	}
-	set d(v: number) {
-		if (this.mode === 'rgba') {
-			this.state.value.rgba.a = v
-		} else {
-			this.state.value.hsla.a = v
-		}
-	}
-
-	get aTitle() {
+	get #aTitle() {
 		return this.mode === 'rgba' ? 'r' : 'h'
 	}
-	get bTitle() {
+	get #bTitle() {
 		return this.mode === 'rgba' ? 'g' : 's'
 	}
-	get cTitle() {
-		return this.mode === 'rgba' ? 'b' : 'l'
+	get #cTitle() {
+		return this.mode === 'rgba' ? 'b' : this.mode === 'hsla' ? 'l' : 'v'
 	}
-	get dTitle() {
+	get #dTitle() {
 		return 'a'
 	}
-
 	//⌟
-
-	// updateState = (v: Color | Event) => {
-	// 	this.#log.fn('updateState').info({ v: 'value' in v ? v.value : v })
-	// 	console.log('updateState', v)
-	// 	if (v instanceof Event) {
-	// 		if ('value' in v?.target!) {
-	// 			console.log('value', v.target.value)
-	// 		}
-	// 		if (v?.target && 'value' in v.target) {
-	// 			this.state.value.hex = v.target.value as HexColor
-	// 		}
-	// 	} else {
-	// 		this.state.set(v)
-	// 	}
-
-	// 	this.#refreshSliders()
-	// }
-
-	// #refreshSliders(mode = this.opts.mode) {
-	// 	this.#log.fn('refreshSliders').info({ mode })
-
-	// 	if (mode === 'rgba') {
-	// 		for (const [k, v] of entries(this.elements.controllers.components.numbers)) {
-	// 			if (k === 'container') continue
-	// 			;(v as HTMLInputElement).disabled = false
-	// 			;(v as HTMLInputElement).min = '0'
-	// 			;(v as HTMLInputElement).max = k === 'd' ? '255' : '1'
-	// 			;(v as HTMLInputElement).step = k === 'd' ? '0.01' : '1'
-	// 		}
-	// 	}
-
-	// 	if (mode === 'hsla') {
-	// 		for (const [k, v] of entries(this.elements.controllers.components.numbers)) {
-	// 			if (k === 'container') continue
-	// 			;(v as HTMLInputElement).disabled = false
-	// 			;(v as HTMLInputElement).min = '0'
-	// 			;(v as HTMLInputElement).max = k === 'a' ? '100' : k === 'd' ? '360' : '1'
-	// 			;(v as HTMLInputElement).step = k === 'd' ? '0.01' : '1'
-	// 		}
-	// 	}
-
-	// 	// Disable the sliders.
-	// 	for (const [k, v] of entries(this.elements.controllers.components.numbers)) {
-	// 		if (k === 'container') continue
-	// 		;(v as HTMLInputElement).disabled = true
-	// 	}
-
-	// 	this.elements.controllers.picker.refresh()
-	// }
 
 	#createCurrentColor(parent: HTMLDivElement) {
 		const container = create<HTMLDivElement>('div', {
-			classes: ['gui-input-color-current-color-container'],
+			classes: ['fracgui-input-color-current-color-container'],
 			parent,
 		})
 
 		const display = create<HTMLDivElement>('div', {
-			classes: ['gui-input-color-current-color-display'],
+			classes: ['fracgui-input-color-current-color-display'],
 			parent: container,
 		})
 
@@ -339,6 +255,8 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 	}
 
 	dispose() {
+		this.#log.fn('dispose').info({ this: this })
+		this.picker.dispose()
 		super.dispose()
 	}
 }

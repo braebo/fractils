@@ -43,10 +43,10 @@ import { mapRange } from '$lib/utils/mapRange'
 import { clamp } from '../../../utils/clamp'
 import { Controller } from '../Controller'
 
-type ColorPickerElements = {
+export type ColorPickerElements = {
 	container: HTMLDivElement
 	canvas: HTMLCanvasElement
-	cursor: HTMLDivElement
+	handle: HTMLDivElement
 	hueSlider: HTMLInputElement
 	alphaSlider: HTMLInputElement
 }
@@ -63,7 +63,6 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 	#gradientBlack!: CanvasGradient
 
 	#dragging = false
-	// #log = new Logger('ColorPicker', { fg: 'yellow' })
 
 	#lockCursorPosition = false
 
@@ -74,33 +73,44 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 		this.opts = opts
 
 		const container = create<HTMLDivElement>('div', {
-			classes: ['gui-input-color-picker-container'],
-			parent: input.elements.controllers.container,
+			classes: ['fracgui-input-color-picker-container'],
+			parent: options?.container ?? input.elements.controllers.container,
 		})
 
 		const canvas = create<HTMLCanvasElement>('canvas', {
-			classes: ['gui-input-color-picker-canvas'],
+			classes: ['fracgui-input-color-picker-canvas'],
 			parent: container,
 			height: this.#height,
 		})
 
-		const cursor = create<HTMLDivElement>('div', {
-			classes: ['gui-input-color-picker-cursor'],
+		const handle = create<HTMLDivElement>('div', {
+			classes: ['fracgui-input-color-picker-handle'],
 			parent: container,
+			background: input.state.value.hexString,
 		})
 
 		const hueSlider = create<HTMLInputElement>('input', {
 			type: 'range',
-			classes: ['gui-input-range', 'gui-input-color-picker-hue'],
+			classes: ['fracgui-input-range', 'fracgui-input-color-picker-hue'],
 			parent: container,
 			min: '0',
 			max: '359',
 		})
 		this.input.listen(hueSlider, 'input', this.#updateStateFromHue)
 
+		tooltip(hueSlider, {
+			text: () => this.input.state.value.hsla.h,
+			placement: 'top',
+			offsetX: 0,
+			anchor: {
+				x: 'mouse',
+				y: hueSlider.querySelector('#thumb'),
+			},
+		})
+
 		const alphaSlider = create<HTMLInputElement>('input', {
 			type: 'range',
-			classes: ['gui-input-range', 'gui-input-color-picker-alpha'],
+			classes: ['fracgui-input-range', 'fracgui-input-color-picker-alpha'],
 			parent: container,
 			min: '0',
 			max: '1',
@@ -121,7 +131,7 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 		this.elements = {
 			container,
 			canvas,
-			cursor,
+			handle,
 			hueSlider,
 			alphaSlider,
 		}
@@ -137,7 +147,7 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 
 		this.#updateGradients()
 		setTimeout(this.draw, 10)
-		setTimeout(this.#updateHandlePosition, 20)
+		setTimeout(this.#updateHandle, 20)
 	}
 
 	get canvas() {
@@ -145,19 +155,19 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 	}
 
 	get hue() {
-		return this.input.state.value.hsla.h
+		return this.input.state.value.hue
 	}
 
 	get saturation() {
-		return this.input.state.value.hsla.s
+		return this.input.state.value.saturation
 	}
 
 	get lightness() {
-		return this.input.state.value.hsla.l
+		return this.input.state.value.lightness
 	}
 
 	get alpha() {
-		return this.input.state.value.hsla.a
+		return this.input.state.value.alpha
 	}
 
 	set(v: ColorValue) {
@@ -177,22 +187,21 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 	 * Updates the UI to reflect the current state of the color picker.
 	 */
 	refresh = () => {
-		if (this.#lastColor?.hexString === this.input.state.value.hexString) return
+		if (this.#lastColor?.hex8String === this.input.state.value.hex8String) return
 		this.#lastColor = this.input.state.value
 
 		this.elements.hueSlider.value = String(this.hue)
 		this.elements.alphaSlider.value = String(this.alpha)
 		this.elements.alphaSlider.style.color = this.input.state.value.hexString
 
-		// this.#updateGradients()
 		this.draw()
 
 		if (this.#lockCursorPosition) {
 			// Update the color only.
-			this.elements.cursor.style.background = this.input.state.value.hexString
+			this.elements.handle.style.background = this.input.state.value.hexString
 			this.#lockCursorPosition = false
 		} else {
-			this.#updateHandlePosition()
+			this.#updateHandle()
 		}
 	}
 
@@ -253,28 +262,9 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 		this.input.state.value.hsv = { h: this.hue, s, v }
 		this.input.state.set(this.input.state.value)
 
-		this.#drawCursor(this.#getHandlePosition(this.input.state.value))
+		this.#drawHandle(this.#getHandlePosition(this.input.state.value))
 	}
 	//⌟
-
-	// /**
-	//  * Maps canvas `x` and `y` coordinates to their respective `s` and `v` color values.
-	//  */
-	// #getColorAtPosition = (x: number, y: number) => {
-	// 	const { width, height } = this.canvas.getBoundingClientRect()
-
-	// 	const radius = this.opts.handleSize / 2 - 0.5
-
-	// 	const handleRangeX = width - radius * 2
-	// 	const handleRangeY = height - radius * 2
-	// 	const percentX = ((x - radius) / handleRangeX) * 100
-	// 	const percentY = ((y - radius) / handleRangeY) * 100
-
-	// 	return {
-	// 		s: Math.max(0, Math.min(percentX, 100)),
-	// 		v: Math.max(0, Math.min(100 - percentY, 100)),
-	// 	}
-	// }
 
 	/**
 	 * Maps canvas `x` and `y` coordinates to their respective `s` and `v` color values.
@@ -289,8 +279,22 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 		}
 	}
 
-	#updateHandlePosition = (color = this.input.state.value) => {
-		this.#drawCursor(this.#getHandlePosition(color))
+	#updateStateFromHue = (e: InputEvent) => {
+		this.#lockCursorPosition = true
+
+		const hue = Number((e.target as HTMLInputElement).value)
+
+		const { s, v, a } = this.input.state.value.hsva
+		this.input.state.value.hsva = { h: hue, s, v, a }
+		this.input.state.set(this.input.state.value)
+
+		this.elements.handle.style.background = this.input.state.value.hexString
+
+		this.draw()
+	}
+
+	#updateHandle = (color = this.input.state.value) => {
+		this.#drawHandle(this.#getHandlePosition(color))
 	}
 
 	/**
@@ -306,20 +310,18 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 		}
 	}
 
-	#updateStateFromHue = (e: InputEvent) => {
-		this.#lockCursorPosition = true
-
-		const hue = Number((e.target as HTMLInputElement).value)
-
-		const { s, l, a } = this.input.state.value.hsla
-		this.input.state.value.hsla = { h: hue, s, l, a }
-		this.input.state.set(this.input.state.value)
-
-		this.draw()
+	#drawHandle = (coords: { x: number; y: number }) => {
+		this.elements.handle.style.transform = `translate(${coords.x}px, ${coords.y}px)`
+		this.elements.handle.style.background = this.input.state.value.hexString
 	}
 
-	#drawCursor = (coords: { x: number; y: number }) => {
-		this.elements.cursor.style.transform = `translate(${coords.x}px, ${coords.y}px)`
-		this.elements.cursor.style.background = this.input.state.value.hexString
+	dispose() {
+		this.#ctx = null!
+
+		this.elements.alphaSlider.remove()
+		this.elements.hueSlider.remove()
+		this.elements.handle.remove()
+		this.elements.canvas.remove()
+		this.elements.container.remove()
 	}
 }
