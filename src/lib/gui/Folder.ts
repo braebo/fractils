@@ -470,6 +470,12 @@ export class Folder {
 			}
 		}
 
+		// If the folder is being dragged, don't toggle.
+		if (this.element.classList.contains('fractils-dragged')) {
+			this.element.classList.remove('fractils-dragged')
+			return
+		}
+
 		this.closed.value ? this.open() : this.close()
 	}
 
