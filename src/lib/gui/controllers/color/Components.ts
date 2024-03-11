@@ -1,10 +1,11 @@
 import type { ColorMode, InputColor } from '../../inputs/InputColor'
 
-import { numberController } from '../number'
-import { Controller } from '../Controller'
-
 import { entries } from '../../..//utils/object'
 import { create } from '../../../utils/create'
+
+import { numberController } from '../number'
+import { Controller } from '../Controller'
+import { Select } from '../Select'
 
 export interface ColorComponentsOptions {
 	container?: HTMLDivElement
@@ -15,6 +16,7 @@ export const COLOR_PICKER_DEFAULTS: ColorComponentsOptions = {}
 export type ColorComponentsElements = {
 	container: HTMLDivElement
 	title: HTMLDivElement
+	select: Select<ColorMode>['elements']
 	numbers: {
 		a: HTMLInputElement
 		b: HTMLInputElement
@@ -26,6 +28,7 @@ export type ColorComponentsElements = {
 export class ColorComponents extends Controller<InputColor, ColorComponentsElements> {
 	opts: ColorComponentsOptions
 	elements: ColorComponentsElements
+	select: Select<ColorMode>
 
 	#mode: ColorMode
 	/**
@@ -47,10 +50,14 @@ export class ColorComponents extends Controller<InputColor, ColorComponentsEleme
 			parent: parent,
 		})
 
-		const componentsTitle = create<HTMLDivElement>('div', {
-			classes: ['fracgui-input-color-components-title'],
+		const selectContainer = create<HTMLDivElement>('div', {
+			classes: ['fracgui-input-color-components-select-container'],
 			parent: componentsContainer,
-			innerText: this.#mode,
+		})
+
+		this.select = new Select<ColorMode>({
+			container: selectContainer,
+			options: ['hex', 'rgba', 'hsla', 'hsva'],
 		})
 
 		const numbersContainer = create<HTMLDivElement>('div', {
@@ -80,7 +87,8 @@ export class ColorComponents extends Controller<InputColor, ColorComponentsEleme
 
 		this.elements = {
 			container: componentsContainer,
-			title: componentsTitle,
+			title: selectContainer,
+			select: this.select.elements,
 			numbers,
 		}
 
@@ -111,7 +119,9 @@ export class ColorComponents extends Controller<InputColor, ColorComponentsEleme
 			this.#setProps(this.elements.numbers.d, { min: 0, max: 1, step: 0.01 })
 		}
 
-		this.elements.title.innerHTML = [...this.mode]
+		this.select.selected = v
+
+		this.elements.select.selected.innerHTML = [...v]
 			.map((c, i) => `<span class="${['a', 'b', 'c', 'd'][i]}">${c}</span>`)
 			.join('')
 
