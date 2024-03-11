@@ -22,8 +22,6 @@ export const numberController: ControllerFactory<HTMLInputElement> = (input, opt
 	let hovering = false
 
 	const hoverStart = (e: PointerEvent) => {
-		console.log('hoverStart', e.type)
-
 		hovering = true
 		controller.classList.add('hovering')
 
@@ -34,8 +32,6 @@ export const numberController: ControllerFactory<HTMLInputElement> = (input, opt
 	}
 
 	const hoverEnd = (e: PointerEvent) => {
-		console.log('hoverEnd', e.type)
-
 		hovering = false
 		controller.classList.remove('hovering')
 
@@ -46,13 +42,10 @@ export const numberController: ControllerFactory<HTMLInputElement> = (input, opt
 	}
 
 	const dragKeyHeld = (e: KeyboardEvent | PointerEvent) => {
-		console.log('dragKeyHeld', e.type)
 		return navigator.platform.toUpperCase().includes('MAC') ? e.metaKey : e.ctrlKey
 	}
 
 	const cancelDrag = (e: KeyboardEvent | PointerEvent) => {
-		console.log('cancelDrag', e.type)
-
 		dragEnabled = e.type === 'keyup' ? dragKeyHeld(e) : false
 
 		if (!dragEnabled) {
@@ -60,7 +53,7 @@ export const numberController: ControllerFactory<HTMLInputElement> = (input, opt
 			controller.removeEventListener('pointerleave', cancelDrag)
 			controller.removeEventListener('pointerdown', maybeDragStart)
 
-			controller.style.cursor = 'default'
+			controller.style.cursor = controller.dataset.cursor ?? 'text'
 
 			if (dragging) {
 				dragEnd()
@@ -69,7 +62,6 @@ export const numberController: ControllerFactory<HTMLInputElement> = (input, opt
 	}
 
 	const maybeEnableDrag = (e: KeyboardEvent | PointerEvent) => {
-		console.log('maybeDrag', e.type)
 		if (dragKeyHeld(e)) {
 			dragEnabled = true
 
@@ -77,16 +69,13 @@ export const numberController: ControllerFactory<HTMLInputElement> = (input, opt
 			controller.addEventListener('pointerleave', cancelDrag)
 			controller.addEventListener('pointerdown', maybeDragStart)
 
+			controller.dataset.cursor = getComputedStyle(controller).cursor
 			controller.style.cursor = 'ns-resize'
-
-			console.log('drag enabled')
 		}
 	}
 
 	const maybeDragStart = (e: PointerEvent) => {
-		console.log('maybeDragStart', e.type)
 		if (hovering && dragEnabled) {
-			console.log('dragStart')
 			dragStart(e)
 		}
 	}
@@ -121,16 +110,11 @@ export const numberController: ControllerFactory<HTMLInputElement> = (input, opt
 		const direction = Math.sign(e.movementY)
 		delta += Math.abs(e.movementY) * multiplier
 
-		// console.log(delta)
-		// console.log(direction)
-		// console.log(+controller.step)
-
 		if (delta > +controller.step) {
 			direction === -1 ? controller.stepUp() : controller.stepDown()
 			delta = 0
 			controller.dispatchEvent(new Event('input'))
 		}
-		// controller.value = String(controller.valueAsNumber + e.movementY * (+controller.step || 1))
 	}
 
 	input.listen(controller, 'pointerenter', hoverStart)
@@ -169,14 +153,14 @@ export const numberButtonsController: ControllerFactory<
 	})
 
 	const increment = create<HTMLDivElement>('div', {
-		classes: ['fracgui-input-number-button', 'fracgui-input-number-buttons-increment'],
+		classes: ['fracgui-controller', 'fracgui-input-number-button', 'fracgui-input-number-buttons-increment'],
 		parent: container,
 	})
 	increment.appendChild(svgChevron())
 	input.listen(increment, 'pointerdown', rampChangeUp)
 
 	const decrement = create<HTMLDivElement>('div', {
-		classes: ['fracgui-input-number-button', 'fracgui-input-number-buttons-decrement'],
+		classes: ['fracgui-controller', 'fracgui-input-number-button', 'fracgui-input-number-buttons-decrement'],
 		parent: container,
 	})
 	const upsideDownChevron = svgChevron()
