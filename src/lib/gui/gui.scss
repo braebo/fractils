@@ -457,10 +457,8 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 			color: var(--fg-b);
 		}
 
-		// todo - Add the `fracgui-controller` and `active` classes to any non-native input controllers.
 		&:has(input:active),
-		&:has(.fracgui-controller:active),
-		&:has(.fracgui-controller.active) {
+		&:has(.fracgui-controller:active) {
 			.fracgui-input-number-input {
 				opacity: 1;
 			}
@@ -718,8 +716,8 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 			}
 
 			&.dragging {
-				outline: 1px solid var(--theme-a);
-				box-shadow: 0 0 0.75rem color-mix(in lch, var(--theme-a), #fff0 33%);
+				outline: 1px solid color-mix(in lch, var(--theme-a), #fff0 50%);
+				box-shadow: 0 0 0.75rem color-mix(in lch, var(--theme-a), #fff0 66%);
 			}
 		}
 
@@ -743,7 +741,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 				width: var(--fracgui-input-section-2-width);
 				min-width: var(--fracgui-input-section-2-width);
-				height: 1.25rem;
+				height: 1.75rem;
 
 				background-image: linear-gradient(45deg, $color 25%, transparent 25%),
 					linear-gradient(-45deg, $color 25%, transparent 25%),
@@ -757,6 +755,11 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 					(-$size) 0px;
 				border-radius: var(--radius-sm);
 				overflow: hidden;
+
+				cursor: pointer;
+
+				// clip-path: inset(.25rem 0 .25rem 0);
+				clip-path: xywh(0 12% 100% 72% round var(--radius-sm));
 			}
 
 			.fracgui-input-color-current-color-display {
@@ -788,6 +791,8 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 						height: 3rem;
 
 						border-radius: var(--radius);
+
+						cursor: pointer;
 						overflow: hidden;
 					}
 
@@ -904,7 +909,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 					display: flex;
 					align-items: center;
 
-					.fracgui-input-color-components-title {
+					.fracgui-input-color-components-select-container {
 						width: 2rem;
 
 						color: var(--fg-d);
@@ -922,48 +927,48 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 					}
 
 					&:has(input.a.hovering) {
-						.fracgui-input-color-components-title span.a {
+						.fracgui-input-color-components-select-container span.a {
 							color: var(--fg-a);
 						}
 					}
 					&:has(input.a.dragging) {
-						.fracgui-input-color-components-title span.a {
+						.fracgui-input-color-components-select-container span.a {
 							color: var(--theme-a);
 							text-shadow: 0 0 0.5rem var(--theme-a);
 						}
 					}
 
 					&:has(input.b.hovering) {
-						.fracgui-input-color-components-title span.b {
+						.fracgui-input-color-components-select-container span.b {
 							color: var(--fg-a);
 						}
 					}
 					&:has(input.b.dragging) {
-						.fracgui-input-color-components-title span.b {
+						.fracgui-input-color-components-select-container span.b {
 							color: var(--theme-a);
 							text-shadow: 0 0 0.5rem var(--theme-a);
 						}
 					}
 
 					&:has(input.c.hovering) {
-						.fracgui-input-color-components-title span.c {
+						.fracgui-input-color-components-select-container span.c {
 							color: var(--fg-a);
 						}
 					}
 					&:has(input.c.dragging) {
-						.fracgui-input-color-components-title span.c {
+						.fracgui-input-color-components-select-container span.c {
 							color: var(--theme-a);
 							text-shadow: 0 0 0.5rem var(--theme-a);
 						}
 					}
 
 					&:has(input.d.hovering) {
-						.fracgui-input-color-components-title span.d {
+						.fracgui-input-color-components-select-container span.d {
 							color: var(--fg-a);
 						}
 					}
 					&:has(input.d.dragging) {
-						.fracgui-input-color-components-title span.d {
+						.fracgui-input-color-components-select-container span.d {
 							color: var(--theme-a);
 							text-shadow: 0 0 0.5rem var(--theme-a);
 						}
@@ -1003,7 +1008,97 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		}
 	}
 }
+//⌟
 
+//· Controllers ···································································¬
+
+.fracgui-folder {
+	$option-height: 1.5rem;
+	$option-padding: 0.1rem 0.75rem;
+
+	.fracgui-controller-select-container {
+		position: relative;
+	}
+
+	.fracgui-controller-select-selected {
+		border-radius: var(--radius-xs);
+		outline: 1px solid rgba(var(--bg-d-rgb), 0);
+
+		transition: 0.15s;
+		cursor: pointer;
+
+		&.active,
+		&:hover,
+		&:focus-visible,
+		&:active {
+			filter: contrast(1.1) brightness(1.25);
+			outline-offset: 0.25rem;
+			outline: 1px solid rgba(var(--bg-d-rgb), 0.5);
+		}
+		
+		&.active {
+			outline: 1px solid rgba(var(--bg-d-rgb), 0.75);
+		}
+	}
+
+	.fracgui-controller-select-dropdown {
+		position: absolute;
+		// top: calc($option-height + $option-padding);
+		left: 0;
+		right: 0;
+
+		display: flex;
+		flex-direction: column;
+		// gap: 0.25rem;
+
+		width: fit-content;
+		margin: auto;
+		padding: 0.1rem;
+
+		background: var(--bg-b);
+		border-radius: var(--radius);
+		box-shadow: var(--shadow-xl);
+
+		z-index: 10;
+
+		transition: 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+
+		opacity: 0;
+		pointer-events: none;
+		transform: translate(-25%, 0rem);
+		&.expanded {
+			opacity: 1;
+			transform: translate(-25%, 0.5rem);
+		}
+	}
+
+	.fracgui-controller-select-option {
+		line-height: $option-height;
+		padding: $option-padding;
+
+		transition: 0.15s;
+		outline: 1px solid rgba(var(--bg-d-rgb), 0);
+
+		&:hover, &:focus-visible {
+			background: var(--bg-c);
+			filter: contrast(1.1) brightness(1.25);
+			outline: 1px solid rgba(var(--bg-d-rgb), 1);
+			color: var(--fg-a);
+		}
+
+		cursor: pointer;
+
+		&:first-of-type {
+			border-top-left-radius: var(--radius-sm);
+			border-top-right-radius: var(--radius-sm);
+		}
+
+		&:last-of-type {
+			border-bottom-left-radius: var(--radius-sm);
+			border-bottom-right-radius: var(--radius-sm);
+		}
+	}
+}
 //⌟
 
 // .kv {
