@@ -57,7 +57,7 @@
 
 		const f1 = gui.addFolder({ title: 'Orbs' })
 
-		f1.addNumber({
+		f1.add({
 			title: 'count',
 			binding: {
 				target: params,

@@ -52,6 +52,8 @@ const DEFAULT_COLOR = { h: 0, s: 0, v: 0, a: 1 }
  * A color class with rgb, hsl, hsv, and kelvin color objects, strings, and conversion methods.
  */
 export class Color {
+	readonly isColor = true as const
+
 	#hsva: HsvaColor // The primary internal color value (source of truth).
 	#initialValue: HsvaColor
 	#onChangeListeners: Set<(newColor: Color) => void> = new Set()
@@ -414,40 +416,40 @@ export class Color {
 	set hslaString(value: string) {
 		this.hslString = value
 	}
-
-	static isColorFormat(color: any): color is ColorFormat {
-		return typeof Color.parseColorFormat(color) !== 'undefined'
-	}
-
-	static isColor(color: any): color is Color {
-		return color instanceof Color
-	}
-
-	static parseColorFormat(color: ColorFormat): string | undefined {
-		if (typeof color === 'string') {
-			if (/^(?:#?|0x?)[0-9a-fA-F]{3,8}$/.test(color)) {
-				return 'HexString'
-			} else if (/^rgba?/.test(color)) {
-				return 'RgbaString'
-			} else if (/^hsla?/.test(color)) {
-				return 'HslaString'
-			}
-		} else if (typeof color === 'object') {
-			if (color instanceof Color) {
-				return 'Color'
-			} else if ('r' in color && 'g' in color && 'b' in color) {
-				return 'RgbColor'
-			} else if ('h' in color && 's' in color && 'v' in color) {
-				return 'HsvColor'
-			} else if ('h' in color && 's' in color && 'l' in color) {
-				return 'HslColor'
-			} else if ('kelvin' in color) {
-				return 'number'
-			}
-		}
-
-		return undefined
-	}
 }
 
 // const test = new Color().setChannel('hsv', 'h', 100)
+
+export function isColor(color: any): color is Color {
+	return !!color.isColor
+}
+
+export function isColorFormat(color: any): color is ColorFormat {
+	return typeof parseColorFormat(color) !== 'undefined'
+}
+
+export function parseColorFormat(color: ColorFormat): string | undefined {
+	if (typeof color === 'string') {
+		if (/^(?:#?|0x?)[0-9a-fA-F]{3,8}$/.test(color)) {
+			return 'HexString'
+		} else if (/^rgba?/.test(color)) {
+			return 'RgbaString'
+		} else if (/^hsla?/.test(color)) {
+			return 'HslaString'
+		}
+	} else if (typeof color === 'object') {
+		if (color instanceof Color) {
+			return 'Color'
+		} else if ('r' in color && 'g' in color && 'b' in color) {
+			return 'RgbColor'
+		} else if ('h' in color && 's' in color && 'v' in color) {
+			return 'HsvColor'
+		} else if ('h' in color && 's' in color && 'l' in color) {
+			return 'HslColor'
+		} else if ('kelvin' in color) {
+			return 'number'
+		}
+	}
+
+	return undefined
+}
