@@ -10,185 +10,38 @@ import { Logger } from '../../utils/logger'
 
 //· Types ··············································································¬
 
-// Only Number and Color are implemented, but the rest are here for future reference.
+export type ValidInputValue = number | Color | ColorFormat
+export type ValidInputOptions = NumberInputOptions | ColorInputOptions
+export type BindTargetObject = Record<string, any>
 
-// prettier-ignore
-export type InputValueType =
-	| 'number'
-	| 'boolean'
-	| 'color'
-	| 'string'
-	| 'object'
-	| 'array'
-	| 'function'
+/** This is currently just used as a sort of "type tag" now that inference is working. */
 
-// prettier-ignore
-export type InputView =
-	| 'Slider'
-	| 'Checkbox'
-	| 'Color'
-	| 'Text'
-	| 'TextArea'
-	| 'Range'
-	| 'Select'
-	| 'Button'
+export type InputType = 'Number' | 'Color' | 'Select'
 
-// prettier-ignore
-export type InferInputOptions<IT extends InputView, VT> = 
-    IT extends 'Slider' ? VT extends number ? NumberInputOptions : 'Value must be a number for Number inputs.' :
-    IT extends 'Checkbox' ? VT extends boolean ? BooleanInputOptions : 'Value must be a boolean for Boolean inputs.' :
-    IT extends 'Text' ? VT extends string ? StringInputOptions : 'Value must be a string for String inputs.' :
-    IT extends 'TextArea' ? VT extends string ? StringInputOptions : 'Value must be a string for String inputs.' :
-	IT extends 'Color' ? VT extends string ? ColorInputOptions : 'Value must be a string for Color inputs.' :
-	IT extends 'Range' ? VT extends number ? RangeInputOptions : 'Value must be a number for Range inputs.' :
-	IT extends 'Select' ? VT extends string ? SelectInputOptions<string> : 'Value must be a string for Select inputs.' :
-	IT extends 'Button' ? VT extends Function ? ButtonInputOptions : 'Value must be a function for Button inputs.' :
-    never;
+export type ValueOrBinding<TValue = ValidInputValue, TBindTarget = BindTargetObject> =
+	| { value: TValue; binding?: { target: TBindTarget; key: keyof TBindTarget } | undefined }
+	| { value?: TValue | undefined; binding: { target: TBindTarget; key: keyof TBindTarget } }
 
-// prettier-ignore
-export type InferInputView<VT, U = unknown> =
-    VT extends number ? 'Slider' :
-    VT extends boolean ? 'Checkbox' :
-	VT extends HexColor ? 'Color' :
-    VT extends string ? 'Text' :
-    VT extends string ? 'TextArea' :
-	VT extends {min: number, max: number} ? 'Range' :
-	VT extends U[] ? 'Select' :
-	VT extends Function ? 'Button' :
-    never;
-
-// prettier-ignore
-export type InferElementType<IT extends InputView> =
-	IT extends 'Slider' ? HTMLInputElement :
-	IT extends 'Checkbox' ? HTMLInputElement :
-	IT extends 'Text' ? HTMLInputElement :
-	IT extends 'TextArea' ? HTMLInputElement :
-	IT extends 'Color' ? HTMLInputElement :
-	IT extends 'Range' ? HTMLInputElement :
-	IT extends 'Select' ? HTMLSelectElement :
-	IT extends 'Button' ? HTMLButtonElement :
-	never
-
-// prettier-ignore
-export type InputMap<T extends InputView> =
-	T extends 'Slider' ?
-	{
-		view: T,
-		element: HTMLInputElement,
-		type: 'number',
-		min?: number,
-		max?: number,
-		step?: number,
-	} :
-	T extends 'Checkbox' ?
-	{
-		view: T,
-		element: HTMLInputElement,
-		type: 'boolean',
-	} :
-	T extends 'Text' ?
-	{
-		view: T,
-		element: HTMLInputElement,
-		type: 'string',
-		maxLength?: number,
-	} :
-	T extends 'TextArea' ?
-	{
-		view: T,
-		element: HTMLInputElement,
-		type: 'string',
-		maxLength?: number,
-	} :
-	T extends 'Color' ?
-	{
-		view: T,
-		element: HTMLInputElement,
-		type: 'string',
-	} :
-	T extends 'Range' ?
-	{
-		view: T,
-		element: HTMLInputElement,
-		type: 'number',
-		min?: number,
-		max?: number,
-		step?: number,
-	} :
-	T extends 'Select' ?
-	{
-		view: T,
-		element: HTMLSelectElement,
-		type: 'string',
-		options: string[],
-	} :
-	T extends 'Button' ?
-	{
-		view: T,
-		element: HTMLButtonElement,
-		type: 'function',
-		onClick: (value: boolean) => void,
-	} :
-	never
-
-export interface BooleanInputOptions {}
-
-export interface StringInputOptions {
-	maxLength?: number
-	view?: 'text' | 'textarea'
-}
-
-export type HexColor = `#${string}`
-
-export interface RangeInputOptions {
-	min?: number
-	max?: number
-	step?: number
-}
-
-export interface SelectInputOptions<T> {
-	options: T[]
-}
-
-export interface ButtonInputOptions {
-	onClick: (value: boolean) => void
-}
-
-export interface FolderInputOptions {
-	children: Folder[]
-}
-
-export interface InputOptions<T extends Record<string, any> = Record<string, any>> {
+export type InputOptions<TValue = ValidInputValue, TBindTarget = Record<string, any & TValue>> = {
 	title: string
-	view: InputView
-	value: number | Color | ColorFormat
-	binding?: {
-		target: T
-		key: keyof T
-	}
-}
+} & ValueOrBinding<TValue, TBindTarget>
 //⌟
 
 export interface ElementMap<T = unknown> {
 	[key: string]: HTMLElement | HTMLInputElement | ElementMap | T
 }
 
-//- WIP
-type InputStatePrimitive = InputNumber['state'] | InputColor['state']
-type ExtractPrimitive<T> = T extends PrimitiveState<infer U> ? U : never
-export type InputState = ExtractPrimitive<InputStatePrimitive>
 export type ValidInputs = InputNumber | InputColor
 
 export abstract class Input<
-	TValueType extends InputState = InputState,
+	TValueType extends ValidInputValue = ValidInputValue,
 	TOptions extends InputOptions = InputOptions,
-	TControllers extends ElementMap = ElementMap,
+	TElements extends ElementMap = ElementMap,
 > {
+	declare type: Readonly<string>
 	declare state: State<TValueType>
-	declare initialValue: TValueType
-	declare opts: TOptions
-
-	view: InputView
+	declare initialValue: ValidInputValue
+	declare opts: ValidInputOptions
 
 	elements = {
 		controllers: {},
@@ -198,7 +51,7 @@ export abstract class Input<
 		content: HTMLElement
 		drawer: HTMLElement
 		drawerToggle: HTMLElement
-		controllers: TControllers
+		controllers: TElements
 	}
 
 	#title = ''
@@ -217,7 +70,6 @@ export abstract class Input<
 		public folder: Folder,
 	) {
 		this.#title = options.title
-		this.view = options.view
 
 		this.elements.container = create('div', {
 			classes: ['fracgui-input-container'],
@@ -247,7 +99,7 @@ export abstract class Input<
 
 		this.listen(this.elements.drawerToggle, 'click', () => {})
 
-		this.#log.groupCollapsed().fn('constructor').info({ opts: options, this: this })
+		// this.#log.groupCollapsed().fn('constructor').info({ opts: options, this: this })
 	}
 
 	get value() {

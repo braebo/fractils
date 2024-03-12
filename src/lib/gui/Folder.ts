@@ -1,14 +1,14 @@
-import type { InputOptions, InputView, ValidInputs as ValidInput } from './inputs/Input'
-import type { Gui } from './Gui'
+import type { InputOptions, InputType, ValidInputs as ValidInput } from './inputs/Input'
 
 import { InputNumber, type NumberInputOptions } from './inputs/InputNumber'
 import { InputColor, type ColorInputOptions } from './inputs/InputColor'
 
+import { isColor, isColorFormat } from '../color/color'
 import { create } from '../utils/create'
 import { nanoid } from '../utils/nanoid'
 import { Logger } from '../utils/logger'
 import { state } from '../utils/state'
-import { isColor } from './typeGuards'
+import { Gui } from './Gui'
 
 /**
  * @internal
@@ -56,7 +56,6 @@ export class Folder {
 	parentFolder: Folder
 
 	element: HTMLElement
-
 	elements = {} as {
 		header: HTMLElement
 		title: HTMLElement
@@ -66,17 +65,31 @@ export class Folder {
 
 	closed = state(false)
 
-	log = new Logger('Folder', {
+	#log = new Logger('Folder', {
 		fg: 'DarkSalmon',
 		deferred: false,
 		server: false,
 	})
 
 	#folderIcon?: HTMLElement
+	#subs: Array<() => void> = []
+	/**
+	 * Used to disable clicking the header to open/close the folder.
+	 */
+	#disabledTimer?: ReturnType<typeof setTimeout>
+	/**
+	 * The time in ms to wait after mousedown before
+	 * disabling toggle for a potential drag.
+	 */
+	#clickTime = 200
+	/**
+	 * Whether clicking the header to open/close the folder is disabled.
+	 */
+	#disabled = false
 
 	constructor(options: FolderOptions, rootContainer: HTMLElement | null = null) {
 		const opts = Object.assign({}, options)
-		this.log.fn('constructor').info({ opts, this: this })
+		this.#log.fn('constructor').info({ opts, this: this })
 
 		this.title = opts.title ?? ''
 		this.children = opts.children ?? []
@@ -107,22 +120,7 @@ export class Folder {
 		this.#subs.push(this.closed.subscribe((v) => (v ? this.close() : this.open())))
 	}
 
-	#subs: Array<() => void> = []
-
-	/**
-	 * Used to disable clicking the header to open/close the folder.
-	 */
-	#disabledTimer?: ReturnType<typeof setTimeout>
-	/**
-	 * The time in ms to wait after mousedown before
-	 * disabling toggle for a potential drag.
-	 */
-	#clickTime = 200
-	/**
-	 * Whether clicking the header to open/close the folder is disabled.
-	 */
-	#disabled = false
-
+	// todo - with the addition of the dataset `dragged` attribute from draggable, this might not be necessary.
 	#skip_header_click_if_drag = (event: PointerEvent) => {
 		if (event.button !== 0) return
 
@@ -148,14 +146,14 @@ export class Folder {
 	disable = () => {
 		if (!this.#disabled) {
 			this.#disabled = true
-			this.log.fn('disable').debug('Clicks DISABLED')
+			this.#log.fn('disable').debug('Clicks DISABLED')
 		}
 		this.#disabled = true
 		clearTimeout(this.#disabledTimer)
 	}
 
 	reset() {
-		this.log.fn('cancel').debug('Clicks ENABLED')
+		this.#log.fn('cancel').debug('Clicks ENABLED')
 		removeEventListener('pointerup', this.toggle)
 		this.#disabled = false
 	}
@@ -403,10 +401,17 @@ export class Folder {
 		return folder
 	}
 
-	add<T>(options: InputOptions) {
+
+	add(options: NumberInputOptions): InputNumber
+	add(options: ColorInputOptions): InputColor
+	add(options: InputOptions): ValidInput {
 		const input = this.#createInput(options)
 		this.controls.set(input.title, input)
-		return input as T
+		return input
+	}
+
+	addMany(obj: Record<string, any>) {
+		// todo
 	}
 
 	addNumber(options: Partial<NumberInputOptions>) {
@@ -422,29 +427,26 @@ export class Folder {
 	}
 
 	#createInput(options: InputOptions) {
-		options.view ??= this.resolveView(options.value, options.view)
+		const type = this.resolveType(
+			options.value ?? options.binding!.target[options.binding!.key],
+		)
 
-		switch (options.view) {
-			case 'Slider':
+		switch (type) {
+			case 'Number':
 				return new InputNumber(options as NumberInputOptions, this)
 			case 'Color':
 				return new InputColor(options as ColorInputOptions, this)
 		}
 
-		throw new Error('Invalid input view: ' + options.view)
+		throw new Error('Invalid input view: ' + options)
 	}
 
-	resolveView(value: any, view: InputView | undefined): InputView {
+	resolveType(value: any): InputType {
 		switch (typeof value) {
 			case 'number':
-				return 'Slider'
-			case 'boolean':
-				return 'Checkbox'
+				return 'Number'
 			case 'string':
-				if (view?.startsWith('#')) return 'Color'
-				return 'Text'
-			case 'function':
-				return 'Button'
+				if (isColorFormat(value)) return 'Color'
 			case 'object':
 				if (Array.isArray(value)) {
 					return 'Select'
@@ -453,7 +455,7 @@ export class Folder {
 					return 'Color'
 				}
 			default:
-				throw new Error('Invalid input view: ' + view)
+				throw new Error('Invalid input view: ' + value)
 		}
 	}
 
@@ -480,7 +482,7 @@ export class Folder {
 	}
 
 	open() {
-		this.log.fn('open').info()
+		this.#log.fn('open').info()
 
 		this.element.classList.remove('closed')
 		this.closed.set(false)
@@ -488,7 +490,7 @@ export class Folder {
 	}
 
 	close() {
-		this.log.fn('close').info()
+		this.#log.fn('close').info()
 
 		this.element.classList.add('closed')
 		this.closed.set(true)
@@ -513,7 +515,37 @@ export class Folder {
 		try {
 			this.parentFolder.children.splice(this.parentFolder.children.indexOf(this), 1)
 		} catch (err) {
-			this.log.fn('dispose').error('Error removing folder from parent', { err })
+			this.#log.fn('dispose').error('Error removing folder from parent', { err })
 		}
 	}
 }
+
+// Test
+
+// const gui = new Gui()
+// const folder = gui.addFolder({ title: 'wow' })
+
+// //? Values
+
+// const a = folder.addNumber({ title: 'size', value: 0 })
+// const b = folder.addColor({ title: 'background', value: '#ff0000' })
+// const c = folder.add({ title: 'count', value: 0, min: 0, max: 100, step: 1 })
+
+// //? Bindings
+
+// const params = {
+// 	background: '#ff0000',
+// 	dimensions: {
+// 		width: 100,
+// 		height: 100,
+// 	},
+// }
+
+// const wow = folder.add({
+// 	title: 'width',
+// 	// value: 10,
+// 	binding: { target: params.dimensions, key: 'width' },
+// 	min: 0,
+// 	max: 1000,
+// 	step: 1,
+// })
