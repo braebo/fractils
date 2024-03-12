@@ -1,4 +1,4 @@
-import type { InputOptions, ElementMap } from './Input'
+import type { InputOptions, ElementMap, ValueOrBinding } from './Input'
 import type { Folder } from '../Folder'
 
 import { numberController, numberButtonsController, rangeController } from '../controllers/number'
@@ -7,15 +7,14 @@ import { create } from '../../utils/create'
 import { state } from '../../utils/state'
 import { Input } from './Input'
 
-export interface NumberInputOptions extends InputOptions {
-	value: number
+export type NumberInputOptions = {
+	title: string
 	min: number
 	max: number
 	step: number
-}
+} & ValueOrBinding<number>
 
 export const NUMBER_INPUT_DEFAULTS: NumberInputOptions = {
-	view: 'Slider',
 	title: 'Number',
 	value: 0.5,
 	min: 0,
@@ -35,23 +34,20 @@ export interface NumberControllerElements extends ElementMap {
 }
 
 export class InputNumber extends Input<number, NumberInputOptions, NumberControllerElements> {
-	#log = new Logger('InputSlider', { fg: 'cyan' })
+	type = 'Number' as const
+	initialValue: number
+	#log = new Logger('InputNumber', { fg: 'cyan' })
 
-	// #onChangeListeners = new Set<(v: number) => void>()
-	// onChange(cb: (v: number) => void) {
-	// 	this.#onChangeListeners.add(cb)
-	// 	return () => {
-	// 		this.#onChangeListeners.delete(cb)
-	// 	}
-	// }
+	// todo - Move this into the number controller.
+	dragEnabled = false
 
 	constructor(options: Partial<NumberInputOptions>, folder: Folder) {
 		const opts = { ...NUMBER_INPUT_DEFAULTS, ...options }
 		super(opts, folder)
 
 		this.opts = opts
-		//* this is bop it type beat but is cool - brb fire alarm
-		this.#log.fn('constructor').info({ opts, this: this }).groupEnd()
+		// //* this is bop it type beat but is cool - brb fire alarm
+		// this.#log.fn('constructor').info({ opts, this: this }).groupEnd()
 
 		if (opts.binding) {
 			this.initialValue = opts.binding.target[opts.binding.key]
@@ -63,8 +59,8 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 				}),
 			)
 		} else {
-			this.initialValue = opts.value
-			this.state = state(opts.value)
+			this.initialValue = opts.value!
+			this.state = state(opts.value!)
 		}
 
 		const container = create('div', {
@@ -86,8 +82,7 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 		this.disposeCallbacks.add(this.state.subscribe(this.refresh))
 	}
 
-	dragEnabled = false
-
+	// todo - Move this into the number controller.
 	toggleDrag(e: KeyboardEvent) {
 		if (e.metaKey || e.ctrlKey) {
 			this.dragEnabled = true

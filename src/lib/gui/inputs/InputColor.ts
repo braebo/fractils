@@ -1,26 +1,29 @@
 import type { ColorComponentsElements } from '../controllers/color/Components'
 import type { ColorPickerElements } from '../controllers/color/ColorPicker'
 import type { ColorFormat } from '$lib/color/types/colorFormat'
-import type { ElementMap, InputOptions } from './Input'
+import type { ElementMap,  ValueOrBinding } from './Input'
 import type { Folder } from '../Folder'
 
 import { ColorComponents } from '../controllers/color/Components'
 import { ColorPicker } from '../controllers/color/ColorPicker'
+import { Color, isColor } from '../../color/color'
 import { create } from '../../utils/create'
 import { Logger } from '../../utils/logger'
-import { Color } from '../../color/color'
 import { state } from '../../utils/state'
 import { Input } from './Input'
 
-export type ColorMode =
-	| 'rgba'
-	| 'rgbaString'
-	| 'hsla'
-	| 'hslaString'
-	| 'hsva'
-	| 'hsvaString'
-	| 'hex'
-	| 'array'
+export type ColorMode = (typeof COLOR_MODES)[number]
+
+export const COLOR_MODES = [
+	'rgba',
+	'rgbaString',
+	'hsla',
+	'hslaString',
+	'hsva',
+	'hsvaString',
+	'hex',
+	'array',
+] as const
 
 export interface LabeledRangeElements extends ElementMap {
 	container: HTMLDivElement
@@ -43,15 +46,14 @@ export interface ColorSliderElements extends ElementMap {
 export interface ColorControllerElements extends ElementMap<ColorPicker> {
 	container: HTMLDivElement
 	/**
-	 * A clickable swatch that displays the current color and toggles the color picker.
+	 * A color swatch that displays the current
+	 * color and toggles the color-picker when clicked.
 	 */
 	currentColor: {
 		container: HTMLDivElement
 		display: HTMLDivElement
 	}
-	/**
-	 * The main input content body.
-	 */
+	/** The main input content body. */
 	body: {
 		container: HTMLDivElement
 		/** All elements related to the color picker. */
@@ -61,43 +63,56 @@ export interface ColorControllerElements extends ElementMap<ColorPicker> {
 	}
 }
 
-export interface ColorInputOptions extends InputOptions {
-	value: ColorFormat | Color
+// export interface ColorInputOptions extends InputOptions {
+// 	/** The initial color value. */
+// 	value: ColorFormat | Color
+// 	mode: ColorMode
+// 	/**  Whether the inline color-picker is shown by default. */
+// 	expanded: boolean
+// }
+
+export type ColorInputOptions = {
+	title: string
 	mode: ColorMode
-}
+	expanded: boolean
+} & ValueOrBinding<ColorFormat | Color>
 //⌟
 
 export const COLOR_INPUT_DEFAULTS: ColorInputOptions = {
-	view: 'Color',
 	title: 'Color',
 	value: '#FF0000FF',
 	mode: 'hex',
+	expanded: false,
 } as const
 
 export class InputColor extends Input<Color, ColorInputOptions, ColorControllerElements> {
-	#mode: ColorMode
-
-	/**
-	 * When true, the color picker is visible.
-	 */
-	expanded = true
-
+	initialValue: Color
+	/** The color picker controller. */
 	picker: ColorPicker
+	/** RGBA/HSLA/HSVA number component inputs */
 	components: ColorComponents
+	/** When true, the color picker is visible. */
+	expanded: boolean
 
-	#pickerHeight: number
+	#mode: ColorMode
+	// #pickerHeight: number
+	#pickerHeight = '120px'
+
+	type = 'Color' as const
+
 	#log = new Logger('InputColor', { fg: 'cyan' })
 
 	constructor(options: Partial<ColorInputOptions>, folder: Folder) {
-		const opts = { ...COLOR_INPUT_DEFAULTS, ...options }
+		const opts = { ...COLOR_INPUT_DEFAULTS, ...options } as ColorInputOptions
 		super(opts, folder)
 
 		this.opts = opts
+		this.expanded = opts.expanded
 		this.#mode = opts.mode
 
 		this.#log.fn('constructor').info({ opts, this: this }).groupEnd()
 
-		// Initialize state.
+		//? Initialize state.
 		if (opts.binding) {
 			this.initialValue = new Color(opts.binding.target[opts.binding.key])
 			this.state = state(this.initialValue)
@@ -112,6 +127,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 			this.state = state(this.initialValue)
 		}
 
+		//? Elements.
 		const container = create<HTMLDivElement>('div', {
 			classes: ['fracgui-input-color-container'],
 			parent: this.elements.content,
@@ -129,8 +145,6 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 		//- Color Picker
 		this.picker = new ColorPicker(this, { container: body })
-		// Should picker toggling be moved to the picker itself?
-		this.#pickerHeight ||= this.picker.elements.container.clientHeight
 
 		//- Components
 		this.components = new ColorComponents(this, { container: body })
@@ -142,11 +156,13 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		}
 
 		this.state.subscribe((v) => {
-			this.refresh()
-			this.callOnChange()
+			this.refresh(v)
+			this.callOnChange(v)
 		})
 
 		this.components.refresh()
+
+		this.expanded ? this.openPicker() : this.closePicker(0)
 
 		// //! TEST
 		// setInterval(this.togglePicker, 1500)
@@ -154,17 +170,16 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 	setState(v: ColorFormat | Color) {
 		// console.log(Color.isColor(v) ? v.hsva.s : v)
-		if (Color.isColor(v)) {
+		if (isColor(v)) {
 			this.state.set(new Color(v.hsva))
 		} else {
 			this.state.set(new Color(v))
 		}
 	}
 
-	refresh = () => {
+	refresh = (v = this.state.value) => {
 		// console.log('refresh', this.state.value.hex8String)
-		this.elements.controllers.currentColor.display.style.backgroundColor =
-			this.state.value.hex8String
+		this.elements.controllers.currentColor.display.style.backgroundColor = v.hex8String
 		this.picker.refresh()
 		this.components.refresh()
 	}
@@ -212,23 +227,17 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		}
 	}
 
-	#animOpts: KeyframeAnimationOptions = {
+	#animOpts = {
 		duration: 500,
 		easing: 'cubic-bezier(0.23, 1, 0.32, 1)',
 		fill: 'forwards',
-	}
+	} satisfies KeyframeAnimationOptions
 
 	get #pickerContainer() {
 		return this.picker.elements.container
 	}
 
 	togglePicker = () => {
-		this.#pickerHeight ||= this.picker.elements.container.clientHeight
-
-		this.#log
-			.fn('togglePicker')
-			.info({ expanded: this.expanded, pickerHeight: this.#pickerHeight })
-
 		if (!this.expanded) {
 			this.openPicker()
 		} else {
@@ -236,8 +245,24 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		}
 	}
 
-	openPicker = (height = this.#pickerHeight + 'px') => {
-		this.#pickerContainer.animate({ height }, this.#animOpts).onfinish = () => {
+	openPicker = (height = this.#pickerHeight) => {
+		this.#pickerContainer.animate(
+			[
+				{
+					maxHeight: '0px',
+					clipPath: 'inset(0 0 100% 0)',
+				},
+				{
+					maxHeight: height,
+					clipPath: 'inset(0 0 -50% 0)',
+				},
+			],
+			{
+				...this.#animOpts,
+				easing: 'cubic-bezier(.08,.38,0,0.92)',
+				duration: this.#animOpts.duration,
+			},
+		).onfinish = () => {
 			this.#pickerContainer.style.overflow = 'visible'
 		}
 
@@ -245,10 +270,22 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		this.#pickerContainer.classList.add('expanded')
 	}
 
-	closePicker = () => {
+	closePicker = (duration = this.#animOpts.duration) => {
 		this.#pickerContainer.animate(
-			[{ height: this.#pickerHeight + 'px' }, { height: 0 }],
-			this.#animOpts,
+			[
+				{
+					maxHeight: this.#pickerHeight,
+					clipPath: 'inset(0 0 -100% 0)',
+				},
+				{
+					maxHeight: '0px',
+					clipPath: 'inset(0 0 100% 0)',
+				},
+			],
+			{
+				...this.#animOpts,
+				duration,
+			},
 		)
 		this.#pickerContainer.style.overflow = 'hidden'
 
