@@ -2,7 +2,7 @@ import type { DragOptions } from '../utils/draggable'
 import type { ThemerOptions } from '../theme/Themer'
 import type { FolderOptions } from './Folder'
 
-import { Resizable, type ResizableOptions } from '../utils/resizable'
+import type { ResizableOptions } from '../utils/resizable'
 import { state, type PrimitiveState } from '../utils/state'
 import { Logger } from '../utils/logger'
 
@@ -142,7 +142,7 @@ export class Gui extends Folder {
 	storage: StorageOptions | Record<string, any>
 	private _theme: GuiOptions['theme']
 
-	log: Logger
+	#log: Logger
 
 	constructor(options?: Partial<GuiOptions>) {
 		//· Setup ···································································¬
@@ -157,12 +157,12 @@ export class Gui extends Folder {
 
 		super(opts, opts.container)
 
-		this.log = new Logger('Gui:' + opts.title, {
+		this.#log = new Logger('Gui:' + opts.title, {
 			fg: 'PaleVioletRed',
 			deferred: true,
 			server: false,
 		})
-		this.log.fn('constructor').info({ opts, this: this })
+		this.#log.fn('constructor').info({ opts, this: this })
 
 		this.root = this
 		this.container = opts.container
@@ -172,7 +172,7 @@ export class Gui extends Folder {
 				? GUI_DEFAULTS.storage
 				: Object.assign({}, opts.storage, GUI_DEFAULTS.storage)
 
-		this.log.info('Storage:', this.storage)
+		this.#log.info('Storage:', this.storage)
 		//⌟
 
 		//· State ···································································¬
@@ -192,7 +192,7 @@ export class Gui extends Folder {
 				})
 			}
 
-			this.log.error('Error initializing state:', { key, value, opts, this: this })
+			this.#log.error('Error initializing state:', { key, value, opts, this: this })
 			return state<T>(value)
 		}
 
@@ -263,7 +263,7 @@ export class Gui extends Folder {
 
 				this.position.set({ x, y })
 
-				this.log.fn('onDragEnd').info('Position updated:', { x, y })
+				this.#log.fn('onDragEnd').info('Position updated:', { x, y })
 			}
 		}
 		//⌟
@@ -291,7 +291,7 @@ export class Gui extends Folder {
 			//? Load size from state if storage is enabled.
 			if (opts.storage === true || opts.storage?.size) {
 				const size = this.size.value
-				this.log.fn('constructor').info('Loading size from state:', size)
+				this.#log.fn('constructor').info('Loading size from state:', size)
 				if (resizeOpts?.sides?.includes('left') || resizeOpts?.sides?.includes('right')) {
 					this.element.style.width = `${size.width}px`
 				}
@@ -343,5 +343,8 @@ export class Gui extends Folder {
 		window.addEventListener
 		this.themer?.dispose()
 		this.windowManager?.dispose?.()
+		for (const window of this.windowManager.windows) {
+			window
+		}
 	}
 }
