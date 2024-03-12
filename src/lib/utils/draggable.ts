@@ -345,6 +345,12 @@ export class Draggable {
 	#listeners = new Set<() => void>()
 
 	/**
+	 * A callback to release the pointer capture using the
+	 * {@link PointerEvent.pointerId | pointerId} and reset the cursor.
+	 */
+	#releaseCapture = () => {}
+
+	/**
 	 * Internal logger for debugging. Automatically bypassed in non-dev environments.
 	 */
 	#log: Logger
@@ -551,9 +557,17 @@ export class Draggable {
 
 		this.node.dispatchEvent(new CustomEvent('grab'))
 
-		// Dispatch custom event
-		this.#fireSvelteDragStartEvent()
+		// Capture the pointer and store the release callback.
+		const { cursor } = getComputedStyle(this.node)
+		this.node.setPointerCapture(e.pointerId)
+		this.node.style.cursor = 'grabbing'
+		this.#releaseCapture = () => {
+			this.node.releasePointerCapture(e.pointerId)
+			this.node.style.cursor = cursor
+		}
 
+		// Dispatch custom events
+		this.#fireSvelteDragStartEvent()
 		this.#fireUpdateEvent()
 	}
 
@@ -565,6 +579,7 @@ export class Draggable {
 
 		// Apply the dragging class.
 		this.node.classList.add(this.opts.classes.dragging)
+		this.node.classList.add(this.opts.classes.dragged)
 
 		this.updatePosition(e.clientX, e.clientY)
 
@@ -583,7 +598,6 @@ export class Draggable {
 
 		// Apply dragging and dragged classes.
 		this.node.classList.remove(this.opts.classes.dragging)
-		this.node.classList.add(this.opts.classes.dragged)
 
 		if (this.opts.userSelectNone) {
 			document.body.style.userSelect = this.#bodyOriginalUserSelectVal
@@ -594,6 +608,8 @@ export class Draggable {
 		this._position = { x: this.x, y: this.y }
 
 		this.#active = false
+
+		this.#releaseCapture()
 
 		this.node.dispatchEvent(new CustomEvent('release'))
 
@@ -842,9 +858,6 @@ export class Draggable {
 		let bBottom = b.bottom
 		let bLeft = b.left
 
-		let hitX = false
-		let hitY = false
-
 		for (const obstacle of this.obstacleEls) {
 			const o = obstacle.getBoundingClientRect()
 
@@ -885,7 +898,7 @@ export class Draggable {
 				const overBottom = bottom > oTop && top <= oBottom
 
 				if (overBottom) {
-					 bBottom = Math.min(bBottom, oTop)
+					bBottom = Math.min(bBottom, oTop)
 					break
 
 					// bRight = b.right

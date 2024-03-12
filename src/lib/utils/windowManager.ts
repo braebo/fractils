@@ -53,7 +53,7 @@ export const WINDOWMANAGER_DEFAULTS: WindowManagerOptions = {
 	draggable: true,
 	animation: {
 		duration: 75,
-		scale: 1.025,
+		scale: 1.015,
 	} as const,
 	obstacles: undefined,
 } as const
@@ -113,32 +113,11 @@ export class WindowManager {
 			draggableInstance: undefined,
 		}
 
-		const addClasses = () => {
-			const nodes = this.windows.filter(({ element }) => element !== node)
-			for (const { element } of nodes) {
-				element.classList.add('fractils-grabbing')
-			}
-		}
-
-		const removeClasses = () => {
-			const nodes = this.windows.filter(({ element }) => element !== node)
-			for (const { element } of nodes) {
-				element.classList.remove('fractils-grabbing')
-			}
-		}
-
 		if (this.draggableOptions) {
 			const obstacles = options?.obstacles ?? this.draggableOptions.obstacles
 			// Order of precedence: options.draggable.obstacles > options.obstacles > this.opts.obstacles
 			const opts = Object.assign({}, this.draggableOptions, { obstacles }, options?.draggable)
-
 			instance.draggableInstance = new Draggable(node, opts)
-
-			node.addEventListener('grab', addClasses)
-			this.#listeners.add(() => node.removeEventListener('grab', addClasses))
-
-			node.addEventListener('release', removeClasses)
-			this.#listeners.add(() => node.removeEventListener('release', removeClasses))
 		}
 
 		if (this.resizableOptions) {
@@ -146,24 +125,15 @@ export class WindowManager {
 			// Order of precedence: options.resizable.obstacles > options.obstacles > this.opts.obstacles
 			const opts = Object.assign({}, this.resizableOptions, { obstacles }, options?.resizable)
 			instance.resizableInstance = new Resizable(node, opts)
-
-			node.addEventListener('grab', addClasses)
-			this.#listeners.add(() => node.removeEventListener('grab', addClasses))
-
-			node.addEventListener('release', removeClasses)
-			this.#listeners.add(() => node.removeEventListener('release', removeClasses))
 		}
 
 		this.windows.push(instance)
 
-		node.addEventListener('pointerdown', this.select, { capture: false })
-		this.#listeners.add(() => node.removeEventListener('pointerdown', this.select))
+		this.listen(node, 'grab', this.select, { capture: false })
 
 		return {
 			destroy: () => {
-				for (const cb of this.#listeners) {
-					cb()
-				}
+				this.dispose()
 			},
 		}
 	}
@@ -219,7 +189,18 @@ export class WindowManager {
 		})
 	}
 
-	#listeners = new Set<() => void>()
+	disposeCallbacks = new Set<() => void>()
+	listen = (
+		element: HTMLElement | Window | Document,
+		event: string,
+		cb: (e: any) => void,
+		options?: AddEventListenerOptions,
+	) => {
+		element.addEventListener(event, cb, options)
+		this.disposeCallbacks.add(() => {
+			element.removeEventListener(event, cb, options)
+		})
+	}
 
 	/**
 	 * Resolves a `boolean` or `object` option into the desired object.
@@ -233,7 +214,7 @@ export class WindowManager {
 	}
 
 	dispose() {
-		for (const cb of this.#listeners) {
+		for (const cb of this.disposeCallbacks) {
 			cb()
 		}
 	}
