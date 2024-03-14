@@ -6,9 +6,9 @@ import { Color, type ColorValue } from '../../../color/color'
 import { tooltip } from '../../../actions/tooltip'
 import { create } from '../../../utils/create'
 import { mapRange } from '$lib/utils/mapRange'
+import { debounce } from '$lib/utils/debounce'
 import { clamp } from '../../../utils/clamp'
 import { Controller } from '../Controller'
-import { debounce } from '$lib/utils/debounce'
 
 export type LayoutDirection = 'vertical' | 'horizontal' | ''
 
@@ -82,6 +82,11 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 			parent: container,
 			height: this.#height,
 		})
+		// Reposition the handle when the canvas is resized.
+		const debouncedUpdateHandle = debounce(this.#updateHandle, 100)
+		const resizeObserver = new ResizeObserver(() => debouncedUpdateHandle())
+		resizeObserver.observe(canvas)
+		this.input.disposeCallbacks.add(resizeObserver.disconnect)
 
 		const handle = create<HTMLDivElement>('div', {
 			classes: ['fracgui-input-color-picker-handle'],
@@ -137,7 +142,6 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 		}
 
 		this.#ctx = canvas.getContext('2d')!
-
 		this.canvas.width = this.#width
 		this.refresh()
 
@@ -147,14 +151,7 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 
 		this.#updateGradients()
 		setTimeout(this.draw, 10)
-		setTimeout(() => {
-			this.#updateHandle()
-
-			// Reposition the handle when the canvas is resized.
-			const resizeObserver = new ResizeObserver(() => debounce(this.#updateHandle, 50))
-			resizeObserver.observe(canvas)
-			this.input.disposeCallbacks.add(resizeObserver.disconnect)
-		}, 20)
+		setTimeout(this.#updateHandle, 20)
 	}
 
 	get canvas() {
@@ -163,14 +160,6 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 
 	get hue() {
 		return this.input.state.value.hue
-	}
-
-	get saturation() {
-		return this.input.state.value.saturation
-	}
-
-	get lightness() {
-		return this.input.state.value.lightness
 	}
 
 	get alpha() {
@@ -194,18 +183,20 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 	 * Updates the UI to reflect the current state of the color picker.
 	 */
 	refresh = () => {
-		if (this.#lastColor?.hex8String === this.input.state.value.hex8String) return
-		this.#lastColor = this.input.state.value
+		const color = this.input.state.value
+
+		if (this.#lastColor?.hex8String === color.hex8String) return
+		this.#lastColor = color.clone()
 
 		this.elements.hueSlider.value = String(this.hue)
 		this.elements.alphaSlider.value = String(this.alpha)
-		this.elements.alphaSlider.style.color = this.input.state.value.hexString
+		this.elements.alphaSlider.style.color = color.hexString
 
 		this.draw()
 
 		if (this.#lockCursorPosition) {
 			// Update the color only.
-			this.elements.handle.style.background = this.input.state.value.hexString
+			this.elements.handle.style.background = color.hexString
 			this.#lockCursorPosition = false
 		} else {
 			this.#updateHandle()
@@ -301,7 +292,6 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 	}
 
 	#updateHandle = (color = this.input.state.value) => {
-		console.log(color.hsv)
 		this.#drawHandle(this.#getHandlePosition(color))
 	}
 
