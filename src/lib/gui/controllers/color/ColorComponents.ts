@@ -2,11 +2,11 @@ import type { ColorMode, InputColor } from '../../inputs/InputColor'
 
 import { entries } from '../../../utils/object'
 import { create } from '../../../utils/create'
+import { Logger } from '../../../utils/logger'
 
 import { numberController } from '../number'
 import { Controller } from '../Controller'
 import { Select } from '../Select'
-import { Logger } from '$lib/utils/logger'
 
 export interface ColorComponentsOptions {
 	container?: HTMLDivElement
@@ -173,6 +173,7 @@ export class ColorComponents extends Controller<InputColor, ColorComponentsEleme
 	}
 
 	#setProps = (el: HTMLInputElement, props: { min: number; max: number; step: number }) => {
+		this.#log.fn(`#setProps`, el, props).info()
 		for (const [k, v] of entries(props)) {
 			el[k] = String(v)
 		}
@@ -236,7 +237,7 @@ export class ColorComponents extends Controller<InputColor, ColorComponentsEleme
 		this.input.state.refresh()
 	}
 
-	#modeType = (): 'text' | 'numbers' => {
+	#modeType(): 'text' | 'numbers' {
 		if (['rgba', 'hsla', 'hsva'].includes(this.mode)) {
 			return 'numbers'
 		}
