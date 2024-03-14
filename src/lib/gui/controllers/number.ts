@@ -2,8 +2,8 @@ import type { InputNumber } from '../inputs/InputNumber'
 import type { ElementMap } from '../inputs/Input'
 import type { ControllerFactory } from './types'
 
+import { svgChevron } from '../svg/svgChevron'
 import { create } from '../../utils/create'
-import { svgChevron } from '../svg/chevron'
 
 export const numberController: ControllerFactory<HTMLInputElement> = (input, opts, parent) => {
 	const controller = create<HTMLInputElement>('input', {
@@ -153,14 +153,22 @@ export const numberButtonsController: ControllerFactory<
 	})
 
 	const increment = create<HTMLDivElement>('div', {
-		classes: ['fracgui-controller', 'fracgui-input-number-button', 'fracgui-input-number-buttons-increment'],
+		classes: [
+			'fracgui-controller',
+			'fracgui-input-number-button',
+			'fracgui-input-number-buttons-increment',
+		],
 		parent: container,
 	})
 	increment.appendChild(svgChevron())
 	input.listen(increment, 'pointerdown', rampChangeUp)
 
 	const decrement = create<HTMLDivElement>('div', {
-		classes: ['fracgui-controller', 'fracgui-input-number-button', 'fracgui-input-number-buttons-decrement'],
+		classes: [
+			'fracgui-controller',
+			'fracgui-input-number-button',
+			'fracgui-input-number-buttons-decrement',
+		],
 		parent: container,
 	})
 	const upsideDownChevron = svgChevron()
