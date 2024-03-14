@@ -1,6 +1,11 @@
 // import { wait } from './wait'
 
-export function debounce(func: Function, wait: number) {
+/**
+ * Creates a debounced version of a function.  The debounced function delays
+ * invoking `func` until after `duration` milliseconds have elapsed since the
+ * last time the debounced function was invoked.
+ */
+export function debounce(func: Function, duration = 50) {
 	let timeout: ReturnType<typeof setTimeout> | null
 
 	return function (...args: any[]) {
@@ -8,7 +13,7 @@ export function debounce(func: Function, wait: number) {
 		timeout = setTimeout(() => {
 			timeout = null
 			func(...args)
-		})
+		}, duration)
 	}
 }
 
