@@ -14,8 +14,8 @@
 	 */
 	let outro = false
 
-	let cooldown: NodeJS.Timeout
-	let outroCooldown: NodeJS.Timeout
+	let cooldown: ReturnType<typeof setTimeout>
+	let outroCooldown: ReturnType<typeof setTimeout>
 	let btn: HTMLButtonElement
 
 	function copy() {
@@ -192,7 +192,6 @@
 	}
 
 	.check {
-		// stroke: var(--color, var(--bg-a));
 		stroke: var(--color, var(--fg-a));
 
 		opacity: 0;
