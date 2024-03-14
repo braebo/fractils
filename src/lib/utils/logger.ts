@@ -1,8 +1,8 @@
 import { randomColor, type CSSColor } from '../color/css'
 
 import { BROWSER, DEV } from 'esm-env'
+import { b, fn, r, y, gr, dim } from './l'
 import { isSafari } from './safari'
-import { b, fn, r, y } from './l'
 import { defer } from './defer'
 
 // todo - Is there a reliable way to type an ImportMetaEnv entry globally for consumers?
@@ -29,21 +29,34 @@ export class Logger {
 		}
 	}
 
+	/**
+	 * {@link DEV} only.  Logs any args as well as any logs in the current buffer.
+	 * @todo - Update the condition once loglevel is implemented.
+	 */
 	debug(...args: any[]) {
 		if (DEV) this.l('🐞', ...args)
 		return this
 	}
 
+	/**
+	 * {@link DEV} only.  Logs any args as well as any logs in the current buffer.
+	 */
 	info(...args: any[]) {
 		if (DEV) this.l(b('ⓘ'), ...args)
 		return this
 	}
 
+	/**
+	 * DEV and PROD.  Logs any args as well as any logs in the current buffer.
+	 */
 	warn(...args: any[]) {
 		this.l(y('⚠'), ...args)
 		return this
 	}
 
+	/**
+	 * DEV and PROD.  Logs any args as well as any logs in the current buffer.
+	 */
 	error(...args: any[]) {
 		this.log(r('⛔'), ...args)
 		return this
@@ -78,8 +91,27 @@ export class Logger {
 
 	buffer = [] as any[]
 
-	fn(str: string) {
-		this.buffer.push(fn(str))
+	/**
+	 * Used to display the name of a method being called and the arguments it's being called with.
+	 * @param str The name of the method being called.
+	 * @param args The arguments being passed to the method.
+	 * @returns The logger instance.
+	 *
+	 * @example
+	 * ```typescript
+	 * class MyClass {
+	 * 	#log = new Logger('MyClass', { fg: 'cyan' })
+	 *
+	 * 	foo(a: number) {
+	 * 		this.#log.fn('foo', a).info()
+	 * 	}
+	 * }
+	 *
+	 * new MyClass().foo(1) // MyClass ⓘ   foo(1)
+	 * ```
+	 */
+	fn(str: string, ...args: any[]) {
+		this.buffer.push(gr(str) + dim('(') + args.map((a) => gr(a)).join(', ') + dim(')'))
 		return this
 	}
 }
