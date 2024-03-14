@@ -323,7 +323,6 @@ export class Color {
 	get rgbString(): RgbString {
 		return `rgb(${this.rgb.r}, ${this.rgb.g}, ${this.rgb.b})`
 	}
-
 	set rgbString(value: RgbString | RgbaString | (string & {})) {
 		let match: RegExpExecArray | null
 
@@ -353,7 +352,6 @@ export class Color {
 		const rgba = this.rgba
 		return `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})`
 	}
-
 	set rgbaString(value: RgbaString | (string & {})) {
 		this.rgbString = value
 	}
@@ -363,7 +361,6 @@ export class Color {
 		const rgb = this.rgb
 		return `#${intToHex(rgb.r)}${intToHex(rgb.g)}${intToHex(rgb.b)}` as HexString
 	}
-
 	set hexString(value: HexString | HexAlphaString | (string & {})) {
 		const match =
 			value.match(REGEX_HEX_3) ||
@@ -385,7 +382,6 @@ export class Color {
 		const rgba = this.rgba
 		return `#${intToHex(rgba.r)}${intToHex(rgba.g)}${intToHex(rgba.b)}${intToHex(Math.floor((rgba.a ?? 1) * 255))}` as HexAlphaString
 	}
-
 	set hex8String(value: HexAlphaString | (string & {})) {
 		this.hexString = value
 	}
@@ -395,7 +391,6 @@ export class Color {
 		const hsl = this.hsl
 		return `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`
 	}
-
 	set hslString(value: HslString | (string & {})) {
 		const match = REGEX_FUNCTIONAL_HSL.exec(value) || REGEX_FUNCTIONAL_HSLA.exec(value)
 		if (!match) throw new Error('Invalid rgb string')
@@ -412,7 +407,6 @@ export class Color {
 		const hsla = this.hsla
 		return `hsla(${hsla.h}, ${hsla.s}%, ${hsla.l}%, ${hsla.a})`
 	}
-
 	set hslaString(value: HslaString | (string & {})) {
 		this.hslString = value
 	}
