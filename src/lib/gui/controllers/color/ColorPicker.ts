@@ -8,6 +8,7 @@ import { create } from '../../../utils/create'
 import { mapRange } from '$lib/utils/mapRange'
 import { clamp } from '../../../utils/clamp'
 import { Controller } from '../Controller'
+import { debounce } from '$lib/utils/debounce'
 
 export type LayoutDirection = 'vertical' | 'horizontal' | ''
 
@@ -146,7 +147,14 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 
 		this.#updateGradients()
 		setTimeout(this.draw, 10)
-		setTimeout(this.#updateHandle, 20)
+		setTimeout(() => {
+			this.#updateHandle()
+
+			// Reposition the handle when the canvas is resized.
+			const resizeObserver = new ResizeObserver(() => debounce(this.#updateHandle, 50))
+			resizeObserver.observe(canvas)
+			this.input.disposeCallbacks.add(resizeObserver.disconnect)
+		}, 20)
 	}
 
 	get canvas() {
@@ -293,6 +301,7 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 	}
 
 	#updateHandle = (color = this.input.state.value) => {
+		console.log(color.hsv)
 		this.#drawHandle(this.#getHandlePosition(color))
 	}
 
