@@ -324,7 +324,7 @@ export class Color {
 		return `rgb(${this.rgb.r}, ${this.rgb.g}, ${this.rgb.b})`
 	}
 
-	set rgbString(value: RgbString | RgbaString) {
+	set rgbString(value: RgbString | RgbaString | (string & {})) {
 		let match: RegExpExecArray | null
 
 		let r: number
@@ -354,7 +354,7 @@ export class Color {
 		return `rgba(${rgba.r}, ${rgba.g}, ${rgba.b}, ${rgba.a})`
 	}
 
-	set rgbaString(value: RgbaString) {
+	set rgbaString(value: RgbaString | (string & {})) {
 		this.rgbString = value
 	}
 
@@ -364,7 +364,7 @@ export class Color {
 		return `#${intToHex(rgb.r)}${intToHex(rgb.g)}${intToHex(rgb.b)}` as HexString
 	}
 
-	set hexString(value: HexString | HexAlphaString) {
+	set hexString(value: HexString | HexAlphaString | (string & {})) {
 		const match =
 			value.match(REGEX_HEX_3) ||
 			value.match(REGEX_HEX_4) ||
@@ -386,7 +386,7 @@ export class Color {
 		return `#${intToHex(rgba.r)}${intToHex(rgba.g)}${intToHex(rgba.b)}${intToHex(Math.floor((rgba.a ?? 1) * 255))}` as HexAlphaString
 	}
 
-	set hex8String(value: HexAlphaString) {
+	set hex8String(value: HexAlphaString | (string & {})) {
 		this.hexString = value
 	}
 
@@ -396,7 +396,7 @@ export class Color {
 		return `hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)`
 	}
 
-	set hslString(value: string) {
+	set hslString(value: HslString | (string & {})) {
 		const match = REGEX_FUNCTIONAL_HSL.exec(value) || REGEX_FUNCTIONAL_HSLA.exec(value)
 		if (!match) throw new Error('Invalid rgb string')
 
@@ -413,7 +413,7 @@ export class Color {
 		return `hsla(${hsla.h}, ${hsla.s}%, ${hsla.l}%, ${hsla.a})`
 	}
 
-	set hslaString(value: string) {
+	set hslaString(value: HslaString | (string & {})) {
 		this.hslString = value
 	}
 }
@@ -428,7 +428,7 @@ export function isColorFormat(color: any): color is ColorFormat {
 	return typeof parseColorFormat(color) !== 'undefined'
 }
 
-export function parseColorFormat(color: ColorFormat): string | undefined {
+export function parseColorFormat(color: ColorFormat | (string & {})): string | undefined {
 	if (typeof color === 'string') {
 		if (/^(?:#?|0x?)[0-9a-fA-F]{3,8}$/.test(color)) {
 			return 'HexString'
