@@ -22,6 +22,7 @@ export const COLOR_MODES = [
 	'hsva',
 	'hsvaString',
 	'hex',
+	'hex8',
 	'array',
 ] as const
 

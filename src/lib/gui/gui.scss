@@ -671,9 +671,9 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 		//? Number <input>
 
-		.fracgui-input-number-input {
+		.fracgui-input-number-input,
+		.fracgui-input-text-input {
 			// outline: 1px solid hsla(0, 100%, 50%, 0.2) !important; // debug-outline
-
 			-webkit-appearance: textfield;
 			-moz-appearance: textfield;
 			appearance: textfield;
@@ -730,7 +730,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 			gap: 0.75rem;
 
 			width: 100%;
-			padding: 0.5rem 0;
+			padding: 0.15rem 0;
 
 			//- Current Color
 
@@ -909,6 +909,21 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 					display: flex;
 					align-items: center;
 
+					.fracgui-input-color-components-text {
+						position: absolute;
+						left: 2.25rem;
+						max-width: 5rem;
+
+						opacity: 0;
+						transform: translateX(-0.5rem);
+						pointer-events: none;
+						&.visible {
+							opacity: 1;
+							transform: translateX(0);
+							pointer-events: all;
+						}
+					}
+
 					.fracgui-input-color-components-select-container {
 						width: 2rem;
 
@@ -997,6 +1012,14 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 							overflow: visible;
 
+							opacity: 0;
+							transform: translateX(-0.5rem);
+							pointer-events: none;
+							&.visible {
+								opacity: 1;
+								transform: translateX(0);
+								pointer-events: all;
+							}
 							&:hover {
 								color: var(--fg-b);
 								opacity: 1;
@@ -1035,7 +1058,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 			outline-offset: 0.25rem;
 			outline: 1px solid rgba(var(--bg-d-rgb), 0.5);
 		}
-		
+
 		&.active {
 			outline: 1px solid rgba(var(--bg-d-rgb), 0.75);
 		}
@@ -1079,7 +1102,8 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		transition: 0.15s;
 		outline: 1px solid rgba(var(--bg-d-rgb), 0);
 
-		&:hover, &:focus-visible {
+		&:hover,
+		&:focus-visible {
 			background: var(--bg-c);
 			filter: contrast(1.1) brightness(1.25);
 			outline: 1px solid rgba(var(--bg-d-rgb), 1);
