@@ -430,11 +430,13 @@ export function isColorFormat(color: any): color is ColorFormat {
 
 export function parseColorFormat(color: ColorFormat | (string & {})): string | undefined {
 	if (typeof color === 'string') {
-		if (/^(?:#?|0x?)[0-9a-fA-F]{3,8}$/.test(color)) {
+		if (color.match(/^#?[0-9a-fA-F]{6}$/)) {
 			return 'HexString'
-		} else if (/^rgba?/.test(color)) {
+		} else if (color.match(/^#?[0-9a-fA-F]{8}$/)) {
+			return 'Hex8String'
+		} else if (color.match(/^rgba?/)) {
 			return 'RgbaString'
-		} else if (/^hsla?/.test(color)) {
+		} else if (color.match(/^hsla?/)) {
 			return 'HslaString'
 		}
 	} else if (typeof color === 'object') {
