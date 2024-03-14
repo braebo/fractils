@@ -1,12 +1,13 @@
 import type { ColorMode, InputColor } from '../../inputs/InputColor'
 
-import { entries } from '../../../utils/object'
-import { create } from '../../../utils/create'
-import { Logger } from '../../../utils/logger'
-
+import { parseColorFormat } from '../../../color/color'
 import { numberController } from '../number'
 import { Controller } from '../Controller'
 import { Select } from '../Select'
+
+import { entries } from '../../../utils/object'
+import { create } from '../../../utils/create'
+import { Logger } from '../../../utils/logger'
 
 export interface ColorComponentsOptions {
 	container?: HTMLDivElement
@@ -101,6 +102,17 @@ export class ColorComponents extends Controller<InputColor, ColorComponentsEleme
 			classes: ['fracgui-input-text-input', 'fracgui-input-color-components-text'],
 			parent: componentsContainer,
 		})
+		input.listen(text, 'change', (e: Event) => {
+			let format = parseColorFormat((e.target as HTMLInputElement).value)
+			if (!format) return
+
+			// We need to make the first character lowercase to match the format names.
+			format = format[0].toLowerCase() + format.slice(1)
+
+			this.input.state.value[format] = (e.target as HTMLInputElement).value
+			this.input.state.refresh()
+			this.input.refresh()
+		})
 
 		if (this.#modeType() === 'text') {
 			text.classList.add('visible')
@@ -128,11 +140,7 @@ export class ColorComponents extends Controller<InputColor, ColorComponentsEleme
 		this.#log.fn(`set mode`, v).info()
 		this.#mode = v
 
-		// this.updateMode()
-
 		this.select.selected = v
-
-		// this.refresh()
 	}
 
 	updateMode = (v = this.mode) => {
@@ -286,5 +294,7 @@ export class ColorComponents extends Controller<InputColor, ColorComponentsEleme
 		this.elements.numbers.b.remove()
 		this.elements.numbers.c.remove()
 		this.elements.container.remove()
+		this.elements.text.remove()
+		this.select.dispose()
 	}
 }
