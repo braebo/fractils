@@ -1,6 +1,6 @@
 import type { ColorMode, InputColor } from '../../inputs/InputColor'
 
-import { entries } from '../../..//utils/object'
+import { entries } from '../../../utils/object'
 import { create } from '../../../utils/create'
 
 import { numberController } from '../number'

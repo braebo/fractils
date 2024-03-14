@@ -1,10 +1,10 @@
-import type { ColorComponentsElements } from '../controllers/color/Components'
+import type { ColorComponentsElements } from '../controllers/color/ColorComponents'
 import type { ColorPickerElements } from '../controllers/color/ColorPicker'
 import type { ColorFormat } from '$lib/color/types/colorFormat'
 import type { ElementMap, ValueOrBinding } from './Input'
 import type { Folder } from '../Folder'
 
-import { ColorComponents } from '../controllers/color/Components'
+import { ColorComponents } from '../controllers/color/ColorComponents'
 import { ColorPicker } from '../controllers/color/ColorPicker'
 import { Color, isColor } from '../../color/color'
 import { create } from '../../utils/create'
