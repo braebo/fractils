@@ -1,7 +1,7 @@
 import type { ColorComponentsElements } from '../controllers/color/Components'
 import type { ColorPickerElements } from '../controllers/color/ColorPicker'
 import type { ColorFormat } from '$lib/color/types/colorFormat'
-import type { ElementMap,  ValueOrBinding } from './Input'
+import type { ElementMap, ValueOrBinding } from './Input'
 import type { Folder } from '../Folder'
 
 import { ColorComponents } from '../controllers/color/Components'
@@ -45,10 +45,7 @@ export interface ColorSliderElements extends ElementMap {
 
 export interface ColorControllerElements extends ElementMap<ColorPicker> {
 	container: HTMLDivElement
-	/**
-	 * A color swatch that displays the current
-	 * color and toggles the color-picker when clicked.
-	 */
+	/** A color swatch that displays the current color and toggles the color-picker when clicked. */
 	currentColor: {
 		container: HTMLDivElement
 		display: HTMLDivElement
@@ -62,14 +59,6 @@ export interface ColorControllerElements extends ElementMap<ColorPicker> {
 		components: ColorComponentsElements
 	}
 }
-
-// export interface ColorInputOptions extends InputOptions {
-// 	/** The initial color value. */
-// 	value: ColorFormat | Color
-// 	mode: ColorMode
-// 	/**  Whether the inline color-picker is shown by default. */
-// 	expanded: boolean
-// }
 
 export type ColorInputOptions = {
 	title: string
