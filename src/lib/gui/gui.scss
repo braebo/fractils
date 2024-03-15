@@ -290,6 +290,59 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 	overflow-x: hidden;
 	overflow-y: auto;
+
+	scrollbar-gutter: stable;
+	@-moz-document url-prefix() {
+		& {
+			scrollbar-color: var(--bg-b) var(--bg-a);
+			scrollbar-width: thin;
+			scrollbar-gutter: auto;
+		}
+	}
+
+	@mixin scrollbar {
+		width: 5px;
+		height: 7px;
+		border-radius: 0.25rem;
+	}
+	&::-webkit-scrollbar {
+		@include scrollbar;
+	}
+	&::-moz-scrollbar {
+		@include scrollbar;
+	}
+
+	@mixin scrollbarThumb {
+		background: var(--bg-b);
+		border: none;
+		border-radius: var(--radius-xs);
+		box-shadow: 0 0 5px var(--fg-d);
+	}
+	&::-webkit-scrollbar-thumb {
+		@include scrollbarThumb;
+	}
+	&::-moz-scrollbar-thumb {
+		@include scrollbarThumb;
+	}
+
+	@mixin scrollbarTrack {
+		background: rgba(var(--bg-a-rgb), 0.75);
+		border-radius: var(--radius-xs);
+	}
+	&::-webkit-scrollbar-track {
+		@include scrollbarTrack;
+	}
+	&::-moz-scrollbar-track {
+		@include scrollbarTrack;
+	}
+}
+
+.fracgui-root.animating > .fracgui-content-wrapper > .fracgui-content {
+	@-moz-document url-prefix() {
+		& {
+			overflow: hidden;
+		}
+	}
 }
 
 .fracgui-root > .fracgui-content-wrapper > .fracgui-folder {
