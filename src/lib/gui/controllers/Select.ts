@@ -72,7 +72,7 @@ export class Select<T> {
 		const selected = create<HTMLDivElement>('div', {
 			classes: ['fracgui-controller-select-selected'],
 			parent: container,
-			text: this.selected,
+			textContent: String(this.selected),
 		})
 
 		selected.addEventListener('click', this.toggle)

@@ -1,4 +1,4 @@
-import type { InputOptions, ElementMap, ValueOrBinding } from './Input'
+import type { ElementMap, ValueOrBinding } from './Input'
 import type { Folder } from '../Folder'
 
 import { numberController, numberButtonsController, rangeController } from '../controllers/number'

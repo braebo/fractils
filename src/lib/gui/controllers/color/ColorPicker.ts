@@ -91,7 +91,9 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 		const handle = create<HTMLDivElement>('div', {
 			classes: ['fracgui-input-color-picker-handle'],
 			parent: container,
-			background: input.state.value.hexString,
+			style: {
+				background: input.state.value.hexString,
+			},
 		})
 
 		const hueSlider = create<HTMLInputElement>('input', {

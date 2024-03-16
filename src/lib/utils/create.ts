@@ -1,38 +1,64 @@
+import type { ElementStyle } from '$lib/color/css'
+
+import { entries } from './object'
+
+export type CreateOptions = {
+	parent?: Element | Document
+	classes?: string[]
+	id?: string
+	dataset?: Record<string, string>
+	textContent?: string
+	innerText?: string
+	cssText?: string
+	style?: Partial<Record<ElementStyle, string | number>>
+	variables?: Record<`--${string}`, string | number>
+	type?: string
+	attributes?: Record<string, string>
+	value?: string
+} & Partial<Record<keyof HTMLElement | keyof HTMLInputElement, any>>
+
 export function create<T extends HTMLElement = HTMLElement>(
-	tagnameOrElement: string | HTMLElement,
-	options: {
-		parent?: HTMLElement
-		classes?: string[]
-		id?: string
-		dataset?: Record<string, string>
-		textContent?: string
-		cssText?: string
-		[key: string]: any
-	},
+	tagnameOrElement: string,
+	options: CreateOptions,
 	...children: HTMLElement[]
 ) {
 	const el =
 		typeof tagnameOrElement === 'string'
-			? document.createElement(tagnameOrElement)
+			? globalThis?.document?.createElement(tagnameOrElement)
 			: tagnameOrElement
 
-	const { parent, classes, id, dataset, textContent, cssText, ...rest } = options
+	if (options.classes) el.classList.add(...options.classes)
+	if (options.id) el.id = options.id
+	if (options.dataset) Object.assign(el.dataset, options.dataset)
+	if (options.textContent) el.textContent = options.textContent
+	if (options.innerText) el.innerText = options.innerText
+	if (options.cssText) el.style.cssText = options.cssText
+	if (options.value && el instanceof HTMLInputElement) el.value = options.value
+	if (options.type) el.setAttribute('type', options.type)
 
-	if (classes) el.classList.add(...classes)
-	if (id) el.id = id
-	if (dataset) Object.assign(el.dataset, dataset)
-	if (textContent) el.textContent = textContent
-	if (parent) parent.appendChild(el)
-	if (cssText) el.style.cssText = cssText
+	if (options.attributes) {
+		for (const [key, value] of entries(options.attributes)) {
+			el.setAttribute(key, value)
+		}
+	}
 
-	if (rest) {
-		for (const [key, value] of Object.entries(rest)) {
-			if (key === 'children') continue
-			el[key] = value
+	if (options.style) {
+		for (const [key, value] of entries(options.style)) {
+			el.style[key] = String(value)
+		}
+	}
+
+	if (options.variables) {
+		for (const [key, value] of entries(options.variables)) {
+			el.style.setProperty(key, String(value))
 		}
 	}
 
 	for (const child of children) el.appendChild(child)
 
+	if (options.parent) options.parent.appendChild(el)
+
 	return el as unknown as T
 }
+
+// const input = document.createElement('input')
