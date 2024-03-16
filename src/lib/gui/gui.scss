@@ -45,7 +45,7 @@
 	--fracgui-folder-header-font-weight: 500;
 	//? Folder Content
 	--fracgui-folder-content-background: rgba(var(--bg-b-rgb), 0.2);
-	--fracgui-folder-content-padding-left: 0.25rem;
+	--fracgui-folder-content-padding-left: 0.33rem;
 	--fracgui-folder-content-font-size: 0.8rem;
 	--fracgui-folder-content-font-weight: 300;
 
@@ -267,7 +267,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 		font-size: var(--fracgui-root-header-font-size);
 		letter-spacing: 2px;
-		line-height: var(--header-height);
+		// line-height: var(--header-height);
 		font-family: var(--fracgui-font);
 		font-weight: 400;
 		font-variation-settings: 'wght' 300;
@@ -282,7 +282,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 	width: 100%;
 	margin: 0;
-	padding: 0.15rem;
+	// padding: 0 0.15rem;
 
 	border-radius: var(--radius-md);
 	border-top-left-radius: var(--radius-sm);
@@ -361,9 +361,8 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 .fracgui-folder {
 	height: fit-content;
 
-	border-radius: var(--radius-sm);
-
 	background: var(--fracgui-folder-background);
+	border-radius: var(--radius-sm);
 }
 
 // // Indent subfolders, but not immediate children of root.
@@ -386,7 +385,9 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	color: var(--fracgui-folder-header-color, var(--fg-c));
 	background: var(--fracgui-folder-header-background, var(--bg-b));
 	outline: var(--fracgui-folder-header-outline, 1px solid rgba(var(--bg-b-rgb), 0.5));
+
 	border-radius: var(--fracgui-folder-header-border-radius, var(--radius-sm));
+	border-bottom-left-radius: 0;
 	outline-offset: -1px;
 
 	box-shadow: var(--fracgui-folder-header-box-shadow, 0 0 0.1rem #000 inset);
@@ -415,13 +416,22 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	}
 }
 
+.fracgui-folder .fracgui-header {
+	border-top-left-radius: 0;
+}
+.fracgui-root > div.fracgui-content-wrapper > div > div > div.fracgui-header {
+	border-top-left-radius: var(--fracgui-folder-header-border-radius, var(--radius-sm));
+}
+
 .fracgui-folder {
 	.fracgui-content {
 		display: flex;
 		flex-direction: column;
 
 		width: 100%;
-		padding-left: var(--fracgui-folder-content-padding-left);
+		// padding-left: var(--fracgui-folder-content-padding-left);
+		border-left: var(--fracgui-folder-content-padding-left) solid
+			var(--fracgui-folder-header-background);
 		padding-top: 0.25rem;
 
 		background: var(--fracgui-folder-content-background, var(--fracgui-folder-background));
@@ -430,6 +440,10 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 			filter: contrast(1.075);
 		}
 	}
+}
+
+.fracgui-root > .fracgui-content-wrapper > .fracgui-content > .fracgui-folder {
+	contain: content;
 }
 //⌟
 
