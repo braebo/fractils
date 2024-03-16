@@ -76,6 +76,12 @@ export interface TooltipOptions {
 		 */
 		easing?: KeyframeAnimationOptions['easing']
 	}
+
+	/**
+	 * If specified, the container element for the tooltip.
+	 * @default document.body
+	 */
+	container?: Element | Document
 }
 
 const TOOLTIP_DEFAULTS: TooltipOptions = {
@@ -107,24 +113,32 @@ const TOOLTIP_DEFAULTS: TooltipOptions = {
 
 export class Tooltip {
 	opts: TooltipOptions
-	text: () => string | number
 
+	/** The node that the tooltip is attached to. */
+	node: HTMLElement
+	/** The tooltip element itself. */
 	element: HTMLDivElement
-	listeners = new Set<() => void>()
+	/** Whether the tooltip is currently showing. */
+	showing = false
+
+	#delayInTimer!: ReturnType<typeof setTimeout>
+	#delayOutTimer!: ReturnType<typeof setTimeout>
 
 	constructor(node: HTMLElement, options?: TooltipOptions) {
+		this.node = node
+
 		const opts = deepMerge(TOOLTIP_DEFAULTS, options)
 		this.opts = opts
 
-		this.text =
-			typeof opts.text === 'function'
-				? (opts.text as () => string | number)
-				: ((() => opts.text) as () => string | number)
+		this.getText =
+			typeof this.opts.text === 'function'
+				? (this.opts.text as () => string | number)
+				: ((() => this.opts.text) as () => string | number)
 
 		this.element = create('div', {
 			classes: ['fractils-tooltip'],
-			parent: document.body,
-			innerText: this.text(),
+			parent: options?.container ?? document.getElementById('svelte') ?? document.body,
+			innerText: String(this.getText()),
 			cssText: trimCss(/*css*/ `{
 				position: absolute;
 				opacity: 0;
@@ -134,176 +148,178 @@ export class Tooltip {
 			}`),
 		})
 
-		for (const [key, value] of entries(opts.styles!)) {
+		for (const [key, value] of entries(this.opts.styles!)) {
 			if (key && value) {
 				this.element.style[key] = value
 			}
 		}
 
-		let showing = false
+		this.listen(node, 'pointerenter', this.show)
+		this.listen(node, 'pointerleave', this.hide)
+		this.listen(node, 'pointermove', this.updatePosition)
+	}
 
-		let delayInTimer: ReturnType<typeof setTimeout>
-		let delayOutTimer: ReturnType<typeof setTimeout>
+	getText: () => string | number
+	get text() {
+		return this.getText()
+	}
+	set text(text: string | number) {
+		this.getText = () => text
+		this.element.innerText = String(text)
+	}
 
-		const show = () => {
-			clearTimeout(delayInTimer)
-			clearTimeout(delayOutTimer)
+	#listeners = new Set<() => void>()
+	listen = (node: HTMLElement, event: string, cb: (...args: any[]) => void) => {
+		node.addEventListener(event, cb)
+		this.#listeners.add(() => this.node.removeEventListener(event, cb))
+	}
 
-			delayInTimer = setTimeout(() => {
-				showing = true
+	show = (delay = this.opts.delay) => {
+		if (this.showing) return
+		clearTimeout(this.#delayInTimer)
+		clearTimeout(this.#delayOutTimer)
+
+		this.#delayInTimer = setTimeout(() => {
+			this.showing = true
+			this.element.animate(
+				[
+					{ opacity: '0', transform: 'translateY(4px)' },
+					{ opacity: '1', transform: 'translateY(0)' },
+				],
+				{
+					duration: this.opts.animation!.duration,
+					easing: this.opts.animation!.easing,
+					fill: 'forwards',
+				},
+			)
+		}, delay)
+	}
+
+	hide = () => {
+		clearTimeout(this.#delayInTimer)
+		clearTimeout(this.#delayOutTimer)
+
+		this.#delayOutTimer = setTimeout(() => {
+			if (this.showing) {
+				this.showing = false
 				this.element.animate(
 					[
-						{ opacity: '0', transform: 'translateY(4px)' },
 						{ opacity: '1', transform: 'translateY(0)' },
+						{ opacity: '0', transform: 'translateY(4px)' },
 					],
 					{
-						duration: this.opts.animation!.duration,
+						duration: this.opts.animation!.durationOut,
 						easing: this.opts.animation!.easing,
 						fill: 'forwards',
 					},
 				)
-			}, opts.delay)
+			}
+		}, this.opts.delayOut)
+	}
+
+	updatePosition = (e: PointerEvent) => {
+		const tooltipRect = this.element.getBoundingClientRect()
+
+		this.element.innerText = String(this.getText())
+
+		const anchor = this.getAnchorRects(e)
+
+		let left = 0
+		let top = 0
+
+		const baseOffset = 4
+
+		this.element.classList.add('fractils-tooltip-' + this.opts.placement)
+
+		switch (this.opts.placement) {
+			case 'top':
+				left = anchor.x.left + window.scrollX + anchor.x.width / 2 - tooltipRect.width / 2
+				top = anchor.y.top + window.scrollY - tooltipRect.height - baseOffset
+				break
+			case 'bottom':
+				left = anchor.x.left + window.scrollX + anchor.x.width / 2 - tooltipRect.width / 2
+				top = anchor.y.top + window.scrollY + anchor.y.height + baseOffset
+				break
+			case 'left':
+				left = anchor.x.left + window.scrollX - tooltipRect.width - baseOffset
+				top = anchor.y.top + window.scrollY + anchor.y.height / 2 - tooltipRect.height / 2
+				break
+			case 'right':
+				left = anchor.x.left + window.scrollX + anchor.x.width + baseOffset
+				top = anchor.y.top + window.scrollY + anchor.y.height / 2 - tooltipRect.height / 2
+				break
 		}
 
-		const hide = () => {
-			clearTimeout(delayInTimer)
-			clearTimeout(delayOutTimer)
+		this.element.style.left = `${left + this.opts.offsetX!}px`
+		this.element.style.top = `${top + this.opts.offsetY!}px`
+	}
 
-			delayOutTimer = setTimeout(() => {
-				if (showing) {
-					showing = false
-					this.element.animate(
-						[
-							{ opacity: '1', transform: 'translateY(0)' },
-							{ opacity: '0', transform: 'translateY(4px)' },
-						],
-						{
-							duration: this.opts.animation!.durationOut,
-							easing: this.opts.animation!.easing,
-							fill: 'forwards',
-						},
-					)
-				}
-			}, opts.delayOut)
-		}
+	getAnchorRects = (
+		e: PointerEvent,
+	): {
+		x: AnchorRect
+		y: AnchorRect
+	} => {
+		const getRect = <Alt extends string = never>(
+			anchor: TooltipOptions['anchor'],
+		): AnchorRect | Alt => {
+			if (!anchor) return this.node.getBoundingClientRect()
 
-		const getAnchorRects = (
-			e: PointerEvent,
-		): {
-			x: AnchorRect
-			y: AnchorRect
-		} => {
-			function getRect<Alt extends string = never>(
-				anchor: TooltipOptions['anchor'],
-			): AnchorRect | Alt {
-				if (!anchor) return node.getBoundingClientRect()
-
-				switch (typeof anchor) {
-					case 'string': {
-						switch (anchor) {
-							case 'node': {
-								return node.getBoundingClientRect()
+			switch (typeof anchor) {
+				case 'string': {
+					switch (anchor) {
+						case 'node': {
+							return this.node.getBoundingClientRect()
+						}
+						case 'mouse': {
+							return {
+								left: e.clientX + window.scrollX,
+								top: e.clientY + window.scrollY,
+								width: 0,
+								height: 0,
 							}
-							case 'mouse': {
-								return {
-									left: e.clientX + window.scrollX,
-									top: e.clientY + window.scrollY,
-									width: 0,
-									height: 0,
-								}
-							}
-							default: {
-								const el = document.querySelector(anchor)
+						}
+						default: {
+							const el = document.querySelector(anchor)
 
-								if (el) {
-									return el.getBoundingClientRect()
-								} else {
-									console.error('Tooltip anchor not found:', anchor)
-									return node.getBoundingClientRect()
-								}
+							if (el) {
+								return el.getBoundingClientRect()
+							} else {
+								console.error('Tooltip anchor not found:', anchor)
+								return this.node.getBoundingClientRect()
 							}
 						}
 					}
-					case 'object': {
-						// Unique x and y anchors.
-						if (anchor && 'x' in anchor && 'y' in anchor) {
-							return 'separate' as Alt
-						} else if (anchor instanceof HTMLElement) {
-							return anchor.getBoundingClientRect()
-						}
-					}
-					default: {
-						if (DEV) console.warn('Invalid tooltip anchor:', anchor)
-						return node.getBoundingClientRect()
+				}
+				case 'object': {
+					// Unique x and y anchors.
+					if (anchor && 'x' in anchor && 'y' in anchor) {
+						return 'separate' as Alt
+					} else if (anchor instanceof HTMLElement) {
+						return anchor.getBoundingClientRect()
 					}
 				}
+				default: {
+					if (DEV) console.warn('Invalid tooltip anchor:', anchor)
+					return this.node.getBoundingClientRect()
+				}
 			}
-
-			const rect = getRect<'separate'>(opts.anchor)
-
-			if (rect === 'separate') {
-				const x = getRect((opts.anchor as Anchors).x)
-				const y = getRect((opts.anchor as Anchors).y)
-
-				return { x, y }
-			}
-
-			return { x: rect, y: rect }
 		}
 
-		const update = (e: PointerEvent) => {
-			const tooltipRect = this.element.getBoundingClientRect()
+		const rect = getRect<'separate'>(this.opts.anchor)
 
-			this.element.innerText = String(this.text())
+		if (rect === 'separate') {
+			const x = getRect((this.opts.anchor as Anchors).x)
+			const y = getRect((this.opts.anchor as Anchors).y)
 
-			const anchor = getAnchorRects(e)
-
-			let left = 0
-			let top = 0
-
-			const baseOffset = 4
-
-			this.element.classList.add('fractils-tooltip-' + opts.placement)
-
-			switch (opts.placement) {
-				case 'top':
-					left =
-						anchor.x.left + window.scrollX + anchor.x.width / 2 - tooltipRect.width / 2
-					top = anchor.y.top + window.scrollY - tooltipRect.height - baseOffset
-					break
-				case 'bottom':
-					left =
-						anchor.x.left + window.scrollX + anchor.x.width / 2 - tooltipRect.width / 2
-					top = anchor.y.top + window.scrollY + anchor.y.height + baseOffset
-					break
-				case 'left':
-					left = anchor.x.left + window.scrollX - tooltipRect.width - baseOffset
-					top =
-						anchor.y.top + window.scrollY + anchor.y.height / 2 - tooltipRect.height / 2
-					break
-				case 'right':
-					left = anchor.x.left + window.scrollX + anchor.x.width + baseOffset
-					top =
-						anchor.y.top + window.scrollY + anchor.y.height / 2 - tooltipRect.height / 2
-					break
-			}
-
-			this.element.style.left = `${left + opts.offsetX!}px`
-			this.element.style.top = `${top + opts.offsetY!}px`
+			return { x, y }
 		}
 
-		node.addEventListener('pointerenter', show)
-		this.listeners.add(() => node.removeEventListener('pointerenter', show))
-
-		node.addEventListener('pointerleave', hide)
-		this.listeners.add(() => node.removeEventListener('pointerleave', hide))
-
-		node.addEventListener('pointermove', update)
-		this.listeners.add(() => node.removeEventListener('pointermove', update))
+		return { x: rect, y: rect }
 	}
 
 	dispose() {
-		for (const removeCb of this.listeners) {
+		for (const removeCb of this.#listeners) {
 			removeCb()
 		}
 		this.element.remove()
