@@ -42,13 +42,7 @@
 		</div>
 	</a>
 
-	<Switch
-		on="🌞"
-		off="🌙"
-		bind:checked
-		on:change={toggleTheme}
-		--switch-accent="var(--bg-c)"
-	/>
+	<Switch on="🌞" off="🌙" bind:checked on:change={toggleTheme} --switch-accent="var(--bg-c)" />
 </div>
 
 <slot />
@@ -65,10 +59,9 @@
 	footer {
 		display: flex;
 		justify-content: center;
-		gap: 1rem;
-		
-		margin-top: auto;
-		padding: 1rem 0;
+		align-items: center;
+
+		height: 4rem;
 	}
 
 	.gh {

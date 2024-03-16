@@ -279,15 +279,10 @@
 	}
 
 	.page {
-		display: flex;
-		flex-direction: column;
-		justify-content: flex-start;
-		align-items: flex-start;
-		gap: 1rem;
 		flex-grow: 1;
 
 		max-width: 400px;
-		height: 100%;
+		height: 75%;
 		padding: 1rem;
 		margin: auto;
 	}
