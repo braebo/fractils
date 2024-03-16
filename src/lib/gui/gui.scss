@@ -180,8 +180,10 @@ html[theme='light'] .fracgui-folder {
 	}
 }
 
-.fracgui-root.closed .fracgui-folder .fracgui-header {
-	max-height: 0;
+.fracgui-root.closed .fracgui-content {
+	transition: opacity 0.1s;
+	transition-delay: 0.1s;
+	opacity: 0 !important;
 }
 
 $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
