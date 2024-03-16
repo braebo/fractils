@@ -117,7 +117,16 @@ export class Folder {
 		if (opts.closed) this.closed.set(opts.closed)
 
 		// Open/close the folder when the closed state changes.
-		this.#subs.push(this.closed.subscribe((v) => (v ? this.close() : this.open())))
+		this.#subs.push(
+			this.closed.subscribe((v) => {
+				this.#log
+					.fn('subscribe')
+					.info(
+						`closed changed to ${v}. ${v ? 'closing' : 'opening'} ${this.isGui() ? 'root' : ''} folder.`,
+					)
+				v ? this.close() : this.open()
+			}),
+		)
 	}
 
 	// todo - with the addition of the dataset `dragged` attribute from draggable, this might not be necessary.
@@ -401,7 +410,6 @@ export class Folder {
 		return folder
 	}
 
-
 	add(options: NumberInputOptions): InputNumber
 	add(options: ColorInputOptions): InputColor
 	add(options: InputOptions): ValidInput {
@@ -464,6 +472,10 @@ export class Folder {
 	}
 
 	toggle = () => {
+		this.#log.fn('toggle').info()
+		// e.preventDefault()
+		// e.stopPropagation()
+
 		if (this.isGui()) {
 			clearTimeout(this.#disabledTimer)
 			if (this.#disabled) {
@@ -474,27 +486,49 @@ export class Folder {
 
 		// If the folder is being dragged, don't toggle.
 		if (this.element.classList.contains('fractils-dragged')) {
+			this.#log.fn('toggle').info('dragging detected, skipping toggle')
 			this.element.classList.remove('fractils-dragged')
 			return
 		}
 
-		this.closed.value ? this.open() : this.close()
+		// this.closed.value ? this.open() : this.close()
+		const state = !this.closed.value
+		console.log('toggle', state)
+		if (this.isGui()) {
+			console.log(this.element)
+			console.log(this.element.classList)
+			state ? this.close(true) : this.open(true)
+			console.log(this.element.classList)
+		} else {
+			this.closed.set(state)
+		}
 	}
 
-	open() {
+	open(updateState = false) {
 		this.#log.fn('open').info()
 
 		this.element.classList.remove('closed')
-		this.closed.set(false)
+		if (updateState) this.closed.set(false)
 		this.#disabled = false
+
+		this.#toggleAnimClass()
 	}
 
-	close() {
+	close(updateState = false) {
 		this.#log.fn('close').info()
 
 		this.element.classList.add('closed')
-		this.closed.set(true)
+		if (updateState) this.closed.set(true)
 		this.#disabled = false
+
+		this.#toggleAnimClass()
+	}
+
+	#toggleAnimClass = () => {
+		this.element.classList.add('animating')
+		setTimeout(() => {
+			this.element.classList.remove('animating')
+		}, 500) // todo - this needs to sync with the animation duration in the css... smelly.
 	}
 
 	/**
