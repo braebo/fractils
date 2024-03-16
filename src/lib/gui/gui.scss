@@ -180,8 +180,10 @@ html[theme='light'] .fracgui-folder {
 	opacity: 0 !important;
 }
 
-.fracgui-root, .fracgui-folder {
-	&.animating, &.closed {
+.fracgui-root,
+.fracgui-folder {
+	&.animating,
+	&.closed {
 		.fracgui-content {
 			overflow: hidden;
 		}
@@ -664,15 +666,14 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 				background: rgba(var(--theme-a-rgb), 0.1);
 			}
 
-			&::-webkit-slider-thumb {
+			@mixin rangeThumb {
 				-webkit-appearance: none;
-				-moz-appearance: none;
 				appearance: none;
 
 				width: 0.5rem;
 				height: 1rem;
 
-				background-color: var(--fracgui-input-number-range-color);
+				background: var(--fracgui-input-number-range-color);
 				border-radius: var(--radius-xs);
 				border: none;
 
@@ -681,20 +682,28 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 				cursor: pointer;
 				z-index: 10;
 			}
+			&::-webkit-slider-thumb {
+				@include rangeThumb;
+			}
+			&::-moz-range-thumb {
+				@include rangeThumb;
+			}
+
+			@mixin rangeThumbActive {
+				background: var(--theme-a);
+				box-shadow: 0 0 20px var(--theme-a);
+				opacity: 1;
+			}
 			&:active {
 				&::-webkit-slider-thumb {
-					background-color: var(--theme-a);
-					box-shadow: 0 0 20px var(--theme-a);
+					@include rangeThumbActive;
+				}
+				&::-moz-range-thumb {
+					@include rangeThumbActive;
 				}
 			}
 
-			&::-moz-range-progress {
-				background: var(--fracgui-input-number-range-color-active, var(--theme-a));
-			}
-			&::-webkit-progress-value {
-				background: var(--fracgui-input-number-range-color-active, var(--theme-a));
-			}
-			&::-webkit-slider-runnable-track {
+			@mixin rangeTrack {
 				-webkit-appearance: none;
 				-moz-appearance: none;
 				appearance: none;
@@ -702,7 +711,13 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 				border-radius: var(--radius-sm);
 				border: none;
 				cursor: pointer;
-				z-index: 1;
+				z-index: 9;
+			}
+			&::-moz-range-track {
+				@include rangeTrack;
+			}
+			&::-webkit-slider-runnable-track {
+				@include rangeTrack;
 			}
 		}
 
@@ -710,7 +725,6 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 		.fracgui-input-number-input,
 		.fracgui-input-text-input {
-			// outline: 1px solid hsla(0, 100%, 50%, 0.2) !important; // debug-outline
 			-webkit-appearance: textfield;
 			-moz-appearance: textfield;
 			appearance: textfield;
@@ -870,15 +884,13 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 						width: 99%;
 						border-radius: var(--radius-sm);
 
-						&::-webkit-slider-thumb {
-							-webkit-appearance: none;
-							-moz-appearance: none;
+						@mixin rangeThumb {
 							appearance: none;
 
 							width: 0.5rem;
 							height: 0.5rem;
 
-							background-color: var(--bg-b);
+							// background-color: var(--bg-b);
 							border: none;
 
 							transition: 0.15s;
@@ -886,10 +898,19 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 							cursor: pointer;
 							z-index: 10;
 						}
+						&::-webkit-slider-thumb {
+							@include rangeThumb;
+						}
+						&::-moz-range-thumb {
+							@include rangeThumb;
+						}
+						@-moz-document url-prefix() {
+							& {
+								scrollbar-height: 0.5rem; // todo - Y U NO WORK
+							}
+						}
 
-						&::-webkit-slider-runnable-track {
-							-webkit-appearance: none;
-							-moz-appearance: none;
+						@mixin rangeTrack {
 							appearance: none;
 
 							background: linear-gradient(
@@ -907,6 +928,13 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 							border: none;
 							cursor: pointer;
 							z-index: 1;
+							background-color: none;
+						}
+						&::-webkit-slider-runnable-track {
+							@include rangeTrack;
+						}
+						&::-moz-range-track {
+							@include rangeTrack;
 						}
 					}
 
