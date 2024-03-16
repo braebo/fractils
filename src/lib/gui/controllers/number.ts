@@ -2,7 +2,7 @@ import type { InputNumber } from '../inputs/InputNumber'
 import type { ElementMap } from '../inputs/Input'
 import type { ControllerFactory } from './types'
 
-import { svgChevron } from '../svg/svgChevron'
+import { svgChevron } from '../svg/chevronSvg'
 import { create } from '../../utils/create'
 
 export const numberController: ControllerFactory<HTMLInputElement> = (input, opts, parent) => {
