@@ -13,12 +13,12 @@ export class EventManager {
 	 * @param callback - The callback function to execute when the event is fired.
 	 * @param options - Optional event listener options.
 	 */
-	listen(
+	listen = (
 		element: HTMLElement | Window | Document,
-		event: GlobalEventHandlersEventMap,
-		callback: (event: Event) => void,
+		event: GlobalEventHandlersEventMap | (string & {}),
+		callback: (...args: any[]) => void,
 		options?: AddEventListenerOptions,
-	): void {
+	): void => {
 		const id = nanoid()
 		element.addEventListener(event as unknown as string, callback, options)
 		this.listeners.set(id, () => {
