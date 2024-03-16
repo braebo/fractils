@@ -356,6 +356,9 @@ export class Color {
 		this.rgbString = value
 	}
 
+	get hex(): HexString {
+		return this.hexString
+	}
 	/** i.e. `'#5500ee'` */
 	get hexString(): HexString {
 		const rgb = this.rgb
@@ -377,6 +380,9 @@ export class Color {
 		this.rgb = { r, g, b, a: +a / 255 }
 	}
 
+	get hex8(): HexAlphaString {
+		return this.hex8String
+	}
 	/** i.e. `'#5500eeff'` */
 	get hex8String(): HexAlphaString {
 		const rgba = this.rgba
@@ -411,8 +417,6 @@ export class Color {
 		this.hslString = value
 	}
 }
-
-// const test = new Color().setChannel('hsv', 'h', 100)
 
 export function isColor(color: any): color is Color {
 	return !!color.isColor
