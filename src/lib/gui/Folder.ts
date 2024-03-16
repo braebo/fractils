@@ -218,7 +218,6 @@ export class Folder {
 		const rootEl = create('div', {
 			classes: ['fracgui-root'],
 			id: 'fracgui-root',
-			// dataset: { id: this.id, title: this.title },
 			dataset: { theme: this.root.theme },
 		})
 
@@ -237,7 +236,11 @@ export class Folder {
 		this.#folderIcon ??= document.createElement('div')
 		this.#folderIcon.classList.add('icon-folder-container')
 
-		const orbCount = [...this.allChildren, ...this.controls.values()].length
+		const orbCount = this.allChildren.length + this.controls.size
+		this.#folderIcon.style.setProperty(
+			'filter',
+			`hue-rotate(${-60 + (orbCount % 360) * 20}deg)`,
+		)
 
 		const circs = [
 			{ id: 1, cx: 16.43, cy: 11.93, r: 1.1103 },
@@ -356,7 +359,6 @@ export class Folder {
 			.closed .icon-folder circle.alt {
 				transform: translate(0, 0) scale(0);
 
-
 				transition-duration: 1.5s;
 				transition-timing-function: ${ease};
 			}
@@ -415,6 +417,7 @@ export class Folder {
 	add(options: InputOptions): ValidInput {
 		const input = this.#createInput(options)
 		this.controls.set(input.title, input)
+		this.#createIcon()
 		return input
 	}
 
@@ -425,12 +428,14 @@ export class Folder {
 	addNumber(options: Partial<NumberInputOptions>) {
 		const input = new InputNumber(options, this)
 		this.controls.set(input.title, input)
+		this.#createIcon()
 		return input
 	}
 
 	addColor(options: Partial<ColorInputOptions>) {
 		const input = new InputColor(options, this)
 		this.controls.set(input.title, input)
+		this.#createIcon()
 		return input
 	}
 
@@ -472,9 +477,7 @@ export class Folder {
 	}
 
 	toggle = () => {
-		this.#log.fn('toggle').info()
-		// e.preventDefault()
-		// e.stopPropagation()
+		// this.#log.fn('toggle').info()
 
 		if (this.isGui()) {
 			clearTimeout(this.#disabledTimer)
@@ -484,28 +487,22 @@ export class Folder {
 			}
 		}
 
-		// If the folder is being dragged, don't toggle.
+		//? If the folder is being dragged, don't toggle.
 		if (this.element.classList.contains('fractils-dragged')) {
-			this.#log.fn('toggle').info('dragging detected, skipping toggle')
 			this.element.classList.remove('fractils-dragged')
 			return
 		}
 
-		// this.closed.value ? this.open() : this.close()
 		const state = !this.closed.value
-		console.log('toggle', state)
 		if (this.isGui()) {
-			console.log(this.element)
-			console.log(this.element.classList)
 			state ? this.close(true) : this.open(true)
-			console.log(this.element.classList)
 		} else {
 			this.closed.set(state)
 		}
 	}
 
 	open(updateState = false) {
-		this.#log.fn('open').info()
+		// this.#log.fn('open').info()
 
 		this.element.classList.remove('closed')
 		if (updateState) this.closed.set(false)
