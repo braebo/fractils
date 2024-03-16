@@ -786,6 +786,33 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 			//- Current Color
 
 			.fracgui-input-color-current-color-container {
+				position: relative;
+
+				.copy-button {
+					position: absolute;
+					top: -2px;
+					right: -4px;
+
+					height: 1.5rem;
+					padding: 2px;
+
+					color: var(--fg-c) !important;
+					&:hover {
+						color: var(--fg-a) !important;
+					}
+
+					opacity: 0;
+					z-index: 10;
+				}
+
+				&:hover {
+					.copy-button {
+						opacity: 1;
+					}
+				}
+			}
+
+			.fracgui-input-color-current-color-background {
 				$size: 8px;
 				$size2: $size * 2;
 				$color: var(--bg-a);
