@@ -35,7 +35,6 @@
 	--fracgui-folder-background: rgba(var(--bg-b-rgb), 0.2);
 	//? Folder Header
 	--fracgui-folder-header-width: 100%;
-	// --fracgui-folder-header-padding-left: 0.25rem;
 	--fracgui-folder-header-padding-left: 0.25rem;
 	--fracgui-folder-header-color: var(--fg-c);
 	--fracgui-folder-header-background: var(--bg-a);
@@ -45,7 +44,6 @@
 	--fracgui-folder-header-font-size: var(--font-xxs);
 	--fracgui-folder-header-font-weight: 500;
 	//? Folder Content
-	// --fracgui-folder-background: var(--bg-b);
 	--fracgui-folder-content-background: rgba(var(--bg-b-rgb), 0.2);
 	--fracgui-folder-content-padding-left: 0.25rem;
 	--fracgui-folder-content-font-size: 0.8rem;
@@ -75,7 +73,6 @@
 	--fracgui-input-number-input-buttons-color: var(--fg-b);
 	--fracgui-input-number-input-buttons-icon-color: var(--fg-d);
 	--fracgui-input-number-input-buttons-icon-color-active: var(--theme-a);
-	// --fracgui-input-number-buttons-shadow-inset: 0px 0px 1px 0.25px hsl(0, 0%, 3%) inset;
 	--fracgui-input-number-buttons-shadow-inset-hover: 0px 0px 1px 0px hsl(0, 0%, 0%) inset;
 	--fracgui-input-number-buttons-shadow-inset-active: 0px 0px 1px 1px hsl(0, 0%, 5%) inset;
 	--fracgui-input-number-font-size: var(--font-xs);
@@ -157,14 +154,10 @@ html[theme='light'] .fracgui-folder {
 		animation-duration: 0.5s;
 		animation-direction: forwards;
 		animation-timing-function: cubic-bezier(0.1, 1, 0.1, 1);
-
-		overflow: hidden;
 	}
 	.fracgui-header {
 		height: var(--header-height);
 		max-height: var(--header-height);
-
-		overflow: hidden;
 	}
 
 	&.closed {
@@ -239,10 +232,8 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	max-width: var(--fracgui-max-width);
 
 	height: fit-content; //- important
-	// max-height: 100%;
 	max-height: var(--max-height, 90dvh);
 
-	// contain: paint;
 	user-select: none;
 	z-index: 99;
 }
@@ -300,8 +291,6 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 	box-shadow: 0 0 1.5px 0.5px rgba(var(--bg-d-rgb), 0.5) inset;
 
-	// overflow-x: hidden;
-	// overflow: auto;
 	overflow-y: scroll;
 
 	scrollbar-gutter: stable;
@@ -410,9 +399,6 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	}
 
 	.icon-folder-container {
-		// position: absolute;
-		// left: 0.5rem;
-
 		width: 1.1rem !important;
 		height: 1.1rem !important;
 
@@ -443,13 +429,6 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		}
 	}
 }
-
-.fracgui-folder.animating .fracgui-content,
-.fracgui-folder.closed .fracgui-content,
-.fracgui-root.animating .fracgui-content,
-.fracgui-root.closed .fracgui-content {
-	overflow: hidden;
-}
 //⌟
 
 //· Inputs ···································································¬
@@ -458,7 +437,6 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	--shadow-lightness: 1;
 
 	.fracgui-input-drawer-toggle {
-		// position: absolute;
 		right: 0.5rem;
 		top: 0.5rem;
 
@@ -483,11 +461,9 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	.fracgui-input-title {
 		// outline: 1px solid hsla(120, 100%, 25%, 0.2); // debug-outline
 
-		// width: clamp(5rem, 9rem, 100%);
 		max-width: var(--fracgui-input-section-1-width);
 		min-width: var(--fracgui-input-section-1-width);
 		text-wrap: balance;
-		// margin: auto;
 		padding-left: 0.5rem;
 
 		font-size: var(--fracgui-folder-content-font-size);
@@ -501,8 +477,6 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		position: relative;
 		display: flex;
 		align-items: center;
-		// justify-content: center;
-		// gap: 0.5rem;
 
 		width: 100%;
 		min-height: 2rem;
@@ -552,7 +526,6 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		//? Number Input
 
 		.fracgui-input-number-container {
-			// outline: 1px solid hsla(60, 100%, 50%, 0.2); // debug-outline
 			position: relative;
 
 			display: flex;
@@ -566,8 +539,6 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 			border-radius: var(--radius-sm);
 
 			.fracgui-input-number-buttons-container {
-				// outline: 1px solid #00800011; // debug-outline
-
 				display: flex;
 				flex-direction: column;
 				justify-content: space-between;
@@ -579,8 +550,6 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 				padding: 0;
 
 				.fracgui-input-number-button {
-					// outline: 1px solid #0000ff11; // debug-outline
-
 					cursor: pointer;
 
 					display: flex;
@@ -614,8 +583,6 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 					}
 
 					&:hover {
-						// background: var(--fracgui-input-number-input-buttons-background);
-
 						box-shadow: var(--fracgui-input-number-buttons-shadow-inset-hover);
 						opacity: 1;
 
@@ -631,7 +598,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 						svg {
 							opacity: 1 !important;
 							color: var(--fracgui-input-number-input-buttons-icon-color-active);
-							// svg shadow glow.
+							//? svg shadow glow.
 							filter: drop-shadow(0 0 3px var(--theme-a));
 						}
 					}
@@ -673,7 +640,6 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 		input.fracgui-input-number-range {
 			-webkit-appearance: none;
-			-moz-appearance: none;
 			appearance: none;
 
 			width: 100%;
