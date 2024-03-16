@@ -7,6 +7,7 @@ import type { Folder } from '../Folder'
 import { ColorComponents } from '../controllers/color/ColorComponents'
 import { ColorPicker } from '../controllers/color/ColorPicker'
 import { Color, isColor } from '../../color/color'
+import { CopyButton } from '../shared/CopyButton'
 import { create } from '../../utils/create'
 import { Logger } from '../../utils/logger'
 import { state } from '../../utils/state'
@@ -49,6 +50,7 @@ export interface ColorControllerElements extends ElementMap<ColorPicker> {
 	/** A color swatch that displays the current color and toggles the color-picker when clicked. */
 	currentColor: {
 		container: HTMLDivElement
+		displayBackground: HTMLDivElement
 		display: HTMLDivElement
 	}
 	/** The main input content body. */
@@ -126,6 +128,9 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 		//- Current Color
 		this.elements.controllers.currentColor = this.#createCurrentColor(container)
+		new CopyButton(this.elements.controllers.currentColor.container, () => {
+			return this.state.value[this.mode]
+		})
 
 		//- Body
 		const body = create<HTMLDivElement>('div', {
@@ -204,15 +209,21 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 			parent,
 		})
 
+		const displayBackground = create<HTMLDivElement>('div', {
+			classes: ['fracgui-input-color-current-color-background'],
+			parent: container,
+		})
+
 		const display = create<HTMLDivElement>('div', {
 			classes: ['fracgui-input-color-current-color-display'],
-			parent: container,
+			parent: displayBackground,
 		})
 
 		this.listen(display, 'click', this.togglePicker)
 
 		return {
 			container,
+			displayBackground,
 			display,
 		}
 	}
