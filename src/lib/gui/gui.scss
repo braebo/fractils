@@ -378,11 +378,9 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	color: var(--fracgui-folder-header-color, var(--fg-c));
 	background: var(--fracgui-folder-header-background, var(--bg-b));
 	outline: var(--fracgui-folder-header-outline, 1px solid rgba(var(--bg-b-rgb), 0.5));
-
+	outline-offset: -1px;
 	border-radius: var(--fracgui-folder-header-border-radius, var(--radius-sm));
 	border-bottom-left-radius: 0;
-	outline-offset: -1px;
-
 	box-shadow: var(--fracgui-folder-header-box-shadow, 0 0 0.1rem #000 inset);
 
 	cursor: pointer;
@@ -1140,102 +1138,235 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 }
 //⌟
 
-//· Controllers ···································································¬
+//· Controllers ······························································¬
 
-.fracgui-folder {
-	$option-height: 1.5rem;
-	$option-padding: 0.1rem 0.75rem;
+//·· Select ························································¬
 
-	.fracgui-controller-select-container {
-		position: relative;
+$option-height: 1.5rem;
+$option-padding: 0.1rem 0.75rem;
+
+.fracgui-controller-select-container {
+	position: relative;
+}
+
+.fracgui-controller-select-selected {
+	border-radius: var(--radius-xs);
+	outline: 1px solid rgba(var(--bg-d-rgb), 0);
+
+	transition: 0.15s;
+	cursor: pointer;
+
+	&.active,
+	&:hover,
+	&:focus-visible,
+	&:active {
+		filter: contrast(1.1) brightness(1.25);
+		outline-offset: 0.25rem;
+		outline: 1px solid rgba(var(--bg-d-rgb), 0.5);
 	}
 
-	.fracgui-controller-select-selected {
-		border-radius: var(--radius-xs);
-		outline: 1px solid rgba(var(--bg-d-rgb), 0);
-
-		transition: 0.15s;
-		cursor: pointer;
-
-		&.active,
-		&:hover,
-		&:focus-visible,
-		&:active {
-			filter: contrast(1.1) brightness(1.25);
-			outline-offset: 0.25rem;
-			outline: 1px solid rgba(var(--bg-d-rgb), 0.5);
-		}
-
-		&.active {
-			outline: 1px solid rgba(var(--bg-d-rgb), 0.75);
-		}
-	}
-
-	.fracgui-controller-select-dropdown {
-		position: absolute;
-		// top: calc($option-height + $option-padding);
-		left: 0;
-		right: 0;
-
-		display: flex;
-		flex-direction: column;
-		// gap: 0.25rem;
-
-		width: fit-content;
-		margin: auto;
-		padding: 0.1rem;
-
-		background: var(--bg-b);
-		border-radius: var(--radius);
-		box-shadow: var(--shadow-xl);
-
-		z-index: 10;
-
-		transition: 0.2s cubic-bezier(0.23, 1, 0.32, 1);
-
-		opacity: 0;
-		pointer-events: none;
-		transform: translate(-25%, 0rem);
-		&.expanded {
-			opacity: 1;
-			transform: translate(-25%, 0.5rem);
-		}
-	}
-
-	.fracgui-controller-select-option {
-		// height: $option-height;
-		padding: $option-padding;
-		line-height: $option-height;
-
-		transition: 0.15s;
-		outline: 1px solid rgba(var(--bg-d-rgb), 0);
-
-		&:hover,
-		&:focus-visible {
-			background: var(--bg-c);
-			filter: contrast(1.1) brightness(1.25);
-			outline: 1px solid rgba(var(--bg-d-rgb), 1);
-			color: var(--fg-a);
-		}
-
-		cursor: pointer;
-
-		&:first-of-type {
-			border-top-left-radius: var(--radius-sm);
-			border-top-right-radius: var(--radius-sm);
-		}
-
-		&:last-of-type {
-			border-bottom-left-radius: var(--radius-sm);
-			border-bottom-right-radius: var(--radius-sm);
-		}
+	&.active {
+		outline: 1px solid rgba(var(--bg-d-rgb), 0.75);
 	}
 }
+
+.fracgui-controller-select-dropdown {
+	position: absolute;
+	// top: calc($option-height + $option-padding);
+	left: 0;
+	right: 0;
+
+	display: flex;
+	flex-direction: column;
+	// gap: 0.25rem;
+
+	width: fit-content;
+	margin: auto;
+	padding: 0.1rem;
+
+	background: var(--bg-b);
+	border-radius: var(--radius);
+	box-shadow: var(--shadow-xl);
+
+	z-index: 10;
+
+	transition: 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+
+	opacity: 0;
+	pointer-events: none;
+	transform: translate(-25%, 0rem);
+	&.expanded {
+		opacity: 1;
+		transform: translate(-25%, 0.5rem);
+	}
+}
+
+.fracgui-controller-select-option {
+	// height: $option-height;
+	padding: $option-padding;
+	line-height: $option-height;
+
+	transition: 0.15s;
+	outline: 1px solid rgba(var(--bg-d-rgb), 0);
+
+	&:hover,
+	&:focus-visible {
+		background: var(--bg-c);
+		filter: contrast(1.1) brightness(1.25);
+		outline: 1px solid rgba(var(--bg-d-rgb), 1);
+		color: var(--fg-a);
+	}
+
+	cursor: pointer;
+
+	&:first-of-type {
+		border-top-left-radius: var(--radius-sm);
+		border-top-right-radius: var(--radius-sm);
+	}
+
+	&:last-of-type {
+		border-bottom-left-radius: var(--radius-sm);
+		border-bottom-right-radius: var(--radius-sm);
+	}
+}
+//⌟
+//⌟
+
+//· Toolbar ···································································¬
+
+.fracgui-toolbar {
+	contain: paint;
+
+	position: absolute;
+	right: 0;
+	top: 0;
+	bottom: 0;
+
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 0.5rem;
+
+	width: 75%;
+}
+
+//·· Search ························································¬
+
+//? Container
+
+.fracgui-search-container {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 0.25rem;
+
+	justify-self: flex-end;
+	align-self: flex-end;
+
+	padding: 0.25rem 0.1rem 0.25rem 0;
+
+	cursor: pointer;
+	transition: 0.15s;
+	backface-visibility: hidden;
+}
+
+// //- Active
+
+// .fracgui-search-container {
+// 	transform: translate3d(0, 0, 0);
+// }
+// .fracgui-search-container.active {
+// 	transform: translate3d(-0.5rem, 0, 0);
+// }
+
+//? Button
+
+.fracgui-search-button {
+	all: unset;
+
+	width: 1.5rem;
+	height: 1rem;
+
+	transition: 0.15s;
+}
+
+//- Hover
+
+.fracgui-search-button {
+	color: var(--bg-d);
+	opacity: 0;
+}
+.fracgui-header:hover .fracgui-search-button {
+	transition-duration: 0.5s;
+	opacity: 0.5;
+}
+.fracgui-search-button:hover {
+	transition-duration: 0.25s;
+	color: var(--fg-e);
+	opacity: 1;
+}
+.fracgui-search-button:active {
+	transition-duration: 0.05s;
+
+	background: transparent;
+	color: var(--fg-d);
+	opacity: 1;
+
+	scale: 0.9;
+}
+
+//- Active
+
+.fracgui-search-container.active .fracgui-search-button {
+	color: var(--bg-e);
+	opacity: 1;
+}
+
+//? Input
+
+input.fracgui-search-input {
+	width: 6rem;
+	height: 1rem;
+	padding: 0 0.25rem;
+
+	color: var(--fg-c);
+	background: var(--bg-b);
+	border-radius: var(--radius-sm);
+	box-shadow: 0 0 11px #0004 inset;
+	outline: none;
+	border: none;
+
+	font-size: var(--font-xxs);
+	font-family: var(--font-b);
+	caret-color: var(--bg-e);
+	caret-shape: block;
+	line-height: 4px !important;
+	text-emphasis-color: red;
+
+	transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+//- Active
+
+.fracgui-search-input {
+	max-width: 0rem;
+	opacity: 0;
+	pointer-events: none;
+	transition-duration: 1s;
+}
+.fracgui-search-container.active .fracgui-search-input {
+	max-width: 6rem;
+	opacity: 1;
+	pointer-events: all;
+	transition-duration: .33s;
+}
+//⌟
 //⌟
 
 //· Shared ···································································¬
 
-//? Copy Button
+//·· Copy ··························································¬
+
 .fracgui-folder {
 	.copy-button {
 		cursor: pointer;
@@ -1364,7 +1495,9 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	}
 }
 //⌟
+//⌟
 
+//·- wip ···································································¬
 // .kv {
 // 	display: flex;
 // 	align-items: center;
@@ -1514,3 +1647,4 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 // 		}
 // 	}
 // }
+//⌟
