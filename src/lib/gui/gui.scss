@@ -410,6 +410,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 .fracgui-folder .fracgui-header {
 	border-top-left-radius: 0;
 }
+// Only the root header.
 .fracgui-root > div.fracgui-content-wrapper > div > div > div.fracgui-header {
 	border-top-left-radius: var(--fracgui-folder-header-border-radius, var(--radius-sm));
 	border-top-right-radius: 0px;
@@ -424,7 +425,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		// padding-left: var(--fracgui-folder-content-padding-left);
 		border-left: var(--fracgui-folder-content-padding-left) solid
 			var(--fracgui-folder-header-background);
-		padding-top: 0.25rem;
+		// padding-top: 0.25rem;
 
 		background: var(--fracgui-folder-content-background, var(--fracgui-folder-background));
 
@@ -1358,7 +1359,7 @@ input.fracgui-search-input {
 	max-width: 6rem;
 	opacity: 1;
 	pointer-events: all;
-	transition-duration: .33s;
+	transition-duration: 0.33s;
 }
 //⌟
 //⌟
