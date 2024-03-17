@@ -163,6 +163,11 @@ export type DragOptions = {
 		 * @default 'fractils-dragged'
 		 */
 		dragged: string
+		/**
+		 * Elements with this class will disable dragging when clicked.
+		 * @default 'fractils-cancel'
+		 */
+		cancel: string
 	}
 
 	/**
@@ -212,6 +217,7 @@ const DEFAULT_CLASSES = {
 	default: 'fractils-draggable',
 	dragging: 'fractils-dragging',
 	dragged: 'fractils-dragged',
+	cancel: 'fractils-cancel',
 } as const
 
 const DRAG_DEFAULTS = {
@@ -465,10 +471,7 @@ export class Draggable {
 		if (e.button === 2) return
 		if (this.opts.ignoreMultitouch && !e.isPrimary) return
 		// Abort if a cancel element was clicked.
-		if (cancelClassFound(e)) return
-
-		this.#log.fn('dragStart').debug()
-		e.stopPropagation()
+		if (cancelClassFound(e, this.opts.classes.cancel)) return
 
 		// Refresh the obstacles.
 		this.obstacleEls = select(this.opts.obstacles)
@@ -479,7 +482,7 @@ export class Draggable {
 			}
 		}
 
-		// Error handling
+		// Error handling.
 		if (
 			isString(this.opts.handle) &&
 			isString(this.opts.cancel) &&
@@ -509,6 +512,9 @@ export class Draggable {
 			return
 		}
 
+		this.#log.fn('dragStart').debug('Dragging initiated.')
+		e.stopPropagation()
+
 		// Resolve the event target.
 		this.eventTarget =
 			this.handleEls.length === 1
@@ -516,12 +522,6 @@ export class Draggable {
 				: this.handleEls.find((el) => el.contains(eventTarget))!
 
 		this.#active = true
-
-		if (this.opts.userSelectNone) {
-			// Apply user-select: none on body to prevent misbehavior
-			this.#bodyOriginalUserSelectVal = document.body.style.userSelect
-			document.body.style.userSelect = 'none'
-		}
 
 		// Store the click offset
 		if (this.canMoveX) this.clickOffset.x = e.clientX - this.x
