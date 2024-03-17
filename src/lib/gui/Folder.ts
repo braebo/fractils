@@ -8,6 +8,7 @@ import { create } from '../utils/create'
 import { nanoid } from '../utils/nanoid'
 import { Logger } from '../utils/logger'
 import { state } from '../utils/state'
+import { Search } from './Search'
 import { Gui } from './Gui'
 
 /**
@@ -49,6 +50,7 @@ export class Folder {
 
 	isRoot = false
 	root: Gui
+	search: Search
 
 	title: string
 	children: Folder[]
@@ -114,6 +116,8 @@ export class Folder {
 			this.elements = elements
 		}
 
+		this.search = new Search(this.elements.header)
+
 		if (opts.closed) this.closed.set(opts.closed)
 
 		// Open/close the folder when the closed state changes.
@@ -133,7 +137,12 @@ export class Folder {
 	#skip_header_click_if_drag = (event: PointerEvent) => {
 		if (event.button !== 0) return
 
-		addEventListener('pointerup', this.toggle, { once: true })
+		this.element.addEventListener('pointerup', this.toggle, { once: true })
+
+		// todo - Figure out why `stopPropagation` doesn't work so we don't need this.
+		if (event.composedPath().includes(this.search.elements.button)) {
+			return this.disable()
+		}
 
 		// We need to watch for the mouseup event within a certain timeframe
 		// to make sure we don't accidentally trigger a click after dragging.
@@ -145,6 +154,7 @@ export class Folder {
 			// Then we set a timer to disable the drag check.
 			this.#disabledTimer = setTimeout(() => {
 				this.elements.header.removeEventListener('pointermove', this.disable)
+				this.element.removeEventListener('pointerup', this.toggle)
 				this.#disabled = false
 			}, this.#clickTime)
 		}, 150)
@@ -478,13 +488,10 @@ export class Folder {
 
 	toggle = () => {
 		// this.#log.fn('toggle').info()
-
-		if (this.isGui()) {
-			clearTimeout(this.#disabledTimer)
-			if (this.#disabled) {
-				this.reset()
-				return
-			}
+		clearTimeout(this.#disabledTimer)
+		if (this.#disabled) {
+			this.reset()
+			return
 		}
 
 		//? If the folder is being dragged, don't toggle.
@@ -503,7 +510,6 @@ export class Folder {
 
 	open(updateState = false) {
 		// this.#log.fn('open').info()
-
 		this.element.classList.remove('closed')
 		if (updateState) this.closed.set(false)
 		this.#disabled = false
