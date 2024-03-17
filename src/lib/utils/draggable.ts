@@ -3,6 +3,7 @@ import type { Action } from 'svelte/action'
 
 import { cancelClassFound } from '../internal/cancelClassFound'
 import { isDefined, isHTMLElement, isString } from './is'
+import { EventManager } from './EventManager'
 import { cubicOut } from 'svelte/easing'
 import { tweened } from 'svelte/motion'
 import { select } from './select'
@@ -344,6 +345,7 @@ export class Draggable {
 	 * Cleanup functions (removeEventLister / unsubscribe) to call in {@link dispose}.
 	 */
 	#listeners = new Set<() => void>()
+	#evm = new EventManager()
 
 	/**
 	 * A callback to release the pointer capture using the
@@ -390,30 +392,11 @@ export class Draggable {
 		this.#recomputeBounds = this.#resolveRecomputeBounds(this.opts.bounds)
 		this.#recomputeBounds()
 
-		// Add event listeners / subscriptions / observers and save their cleanup functions.
-
-		this.node.addEventListener('pointerdown', this.dragStart)
-		this.#listeners.add(() => {
-			this.node.removeEventListener('pointerdown', this.dragStart)
-		})
-
-		addEventListener('pointerup', this.dragEnd)
-		this.#listeners.add(() => {
-			removeEventListener('pointerup', this.dragEnd)
-		})
-
-		addEventListener('pointermove', this.drag)
-		this.#listeners.add(() => {
-			removeEventListener('pointermove', this.drag)
-		})
-
-		addEventListener('resize', this.resize)
-		this.#listeners.add(() => {
-			removeEventListener('resize', this.resize)
-		})
-
-		// Updates the position when the tween fires.
-		this.#listeners.add(
+		this.#evm.listen(this.node, 'pointerdown', this.dragStart)
+		this.#evm.listen(window, 'pointerup', this.dragEnd)
+		this.#evm.listen(window, 'pointermove', this.drag)
+		this.#evm.listen(window, 'resize', this.resize)
+		this.#evm.add(
 			this.tween.subscribe(({ x, y }) => {
 				this.node.style.setProperty('translate', `${x}px ${y}px 1px`)
 			}),
@@ -493,7 +476,7 @@ export class Draggable {
 
 		if (DEV) {
 			for (const el of this.obstacleEls) {
-				el.style.outline = '2px dotted #F00'
+				el.style.outline = '2px dotted red'
 			}
 		}
 
@@ -977,9 +960,7 @@ export class Draggable {
 	}
 
 	dispose() {
-		for (const fn of this.#listeners.values()) {
-			fn()
-		}
+		this.#evm.dispose()
 	}
 }
 
