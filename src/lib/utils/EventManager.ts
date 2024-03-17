@@ -26,6 +26,12 @@ export class EventManager {
 		})
 	}
 
+	add = (cb: () => void) => {
+		const id = nanoid()
+		this.listeners.set(id, cb)
+		return id
+	}
+
 	/**
 	 * Removes a specific listener from the event manager
 	 * without removing the listener from the element.
