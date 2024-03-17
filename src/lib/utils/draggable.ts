@@ -460,8 +460,6 @@ export class Draggable {
 	}
 
 	dragStart = (e: PointerEvent) => {
-		this.#log.fn('dragStart').debug()
-
 		if (this.disabled) return
 		// Ignore right-clicks.
 		if (e.button === 2) return
@@ -469,6 +467,7 @@ export class Draggable {
 		// Abort if a cancel element was clicked.
 		if (cancelClassFound(e)) return
 
+		this.#log.fn('dragStart').debug()
 		e.stopPropagation()
 
 		// Refresh the obstacles.
@@ -489,7 +488,7 @@ export class Draggable {
 			throw new Error("`handle` selector can't be same as `cancel` selector")
 		}
 
-		if (this.#cancelElementContains(this.cancelEls, this.handleEls)) {
+		if (this.#cancelElementContains(this.handleEls)) {
 			throw new Error(
 				"Element being dragged can't be a child of the element on which `cancel` is applied",
 			)
@@ -506,7 +505,7 @@ export class Draggable {
 			return
 
 		// Make sure it's not a cancel element.
-		if (this.#cancelElementContains(this.cancelEls, [eventTarget])) {
+		if (this.#cancelElementContains([eventTarget])) {
 			return
 		}
 
@@ -931,8 +930,9 @@ export class Draggable {
 		return () => (this.bounds = node.getBoundingClientRect())
 	}
 
-	#cancelElementContains = (cancelElements: HTMLElement[], dragElements: HTMLElement[]) =>
-		cancelElements.some((cancelEl) => dragElements.some((el) => cancelEl.contains(el)))
+	#cancelElementContains = (dragElements: HTMLElement[]) => {
+		return this.cancelEls.some((cancelEl) => dragElements.some((el) => cancelEl.contains(el)))
+	}
 
 	#callEvent = (
 		eventName: 'dragstart' | 'drag' | 'dragend',
