@@ -3,6 +3,7 @@ import type { InputOptions, InputType, ValidInputs as ValidInput } from './input
 import { InputNumber, type NumberInputOptions } from './inputs/InputNumber'
 import { InputColor, type ColorInputOptions } from './inputs/InputColor'
 
+import { cancelClassFound } from '../internal/cancelClassFound'
 import { isColor, isColorFormat } from '../color/color'
 import { create } from '../utils/create'
 import { nanoid } from '../utils/nanoid'
@@ -60,6 +61,7 @@ export class Folder {
 	element: HTMLElement
 	elements = {} as {
 		header: HTMLElement
+		toolbar: HTMLElement
 		title: HTMLElement
 		contentWrapper: HTMLElement
 		content: HTMLElement
@@ -116,18 +118,13 @@ export class Folder {
 			this.elements = elements
 		}
 
-		this.search = new Search(this.elements.header)
+		this.search = new Search(this.elements.toolbar)
 
 		if (opts.closed) this.closed.set(opts.closed)
 
 		// Open/close the folder when the closed state changes.
 		this.#subs.push(
 			this.closed.subscribe((v) => {
-				this.#log
-					.fn('subscribe')
-					.info(
-						`closed changed to ${v}. ${v ? 'closing' : 'opening'} ${this.isGui() ? 'root' : ''} folder.`,
-					)
 				v ? this.close() : this.open()
 			}),
 		)
@@ -140,9 +137,7 @@ export class Folder {
 		this.element.addEventListener('pointerup', this.toggle, { once: true })
 
 		// todo - Figure out why `stopPropagation` doesn't work so we don't need this.
-		if (event.composedPath().includes(this.search.elements.button)) {
-			return this.disable()
-		}
+		if (cancelClassFound(event)) return this.disable()
 
 		// We need to watch for the mouseup event within a certain timeframe
 		// to make sure we don't accidentally trigger a click after dragging.
@@ -202,6 +197,11 @@ export class Folder {
 			textContent: this.title,
 		})
 
+		const toolbar = create('div', {
+			parent: header,
+			classes: ['fracgui-toolbar'],
+		})
+
 		const contentWrapper = create('div', {
 			classes: ['fracgui-content-wrapper'],
 			parent: element,
@@ -215,6 +215,7 @@ export class Folder {
 			element,
 			elements: {
 				header,
+				toolbar,
 				title,
 				contentWrapper,
 				content,
