@@ -39,7 +39,7 @@ export interface ResizableOptions {
 
 	/**
 	 * The size of the resize handle in pixels.
-	 * @default 3
+	 * @default 6
 	 */
 	grabberSize: number | string
 
@@ -110,7 +110,7 @@ const RESIZABLE_DEFAULTS = {
 	localStorageKey: undefined,
 	visible: false,
 	color: 'var(--fg-d, #1d1d1d)',
-	borderRadius: '0.25rem',
+	borderRadius: '50%',
 	obstacles: undefined,
 	cursors: true,
 	classes: {
@@ -556,9 +556,9 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 				: `
 				cursor: ${v};`
 
-		const offset = -6
+		const offset = -this.grabberSize
 		const gradient = `transparent 35%, ${this.color} 40%, ${this.color} 50%, transparent 60%, transparent 100%`
-		const lengthPrcnt = 96
+		const lengthPrcnt = 98
 
 		if (this.sides.includes('top'))
 			css += /*css*/ `
