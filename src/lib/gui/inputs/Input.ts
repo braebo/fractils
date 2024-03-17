@@ -1,7 +1,7 @@
 import type { InputNumber, NumberInputOptions } from './InputNumber'
 import type { ColorInputOptions, InputColor } from './InputColor'
 import type { ColorFormat } from '../../color/types/colorFormat'
-import type { PrimitiveState, State } from '../../utils/state'
+import type { State } from '../../utils/state'
 import type { Color } from '../../color/color'
 import type { Folder } from '../Folder'
 

@@ -267,7 +267,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 		font-size: var(--fracgui-root-header-font-size);
 		letter-spacing: 2px;
-		// line-height: var(--header-height);
+		line-height: calc(var(--header-height) - 4px);
 		font-family: var(--fracgui-font);
 		font-weight: 400;
 		font-variation-settings: 'wght' 300;
@@ -307,7 +307,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	@mixin scrollbar {
 		width: 5px;
 		height: 7px;
-		border-radius: 0.25rem;
+		// border-radius: 0.25rem;
 	}
 	&::-webkit-scrollbar {
 		@include scrollbar;
@@ -319,7 +319,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	@mixin scrollbarThumb {
 		background: var(--bg-b);
 		border: none;
-		border-radius: var(--radius-xs);
+		// border-radius: var(--radius-xs);
 		box-shadow: 0 0 5px var(--fg-d);
 	}
 	&::-webkit-scrollbar-thumb {
@@ -331,7 +331,8 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 	@mixin scrollbarTrack {
 		background: rgba(var(--bg-a-rgb), 0.75);
-		border-radius: var(--radius-xs);
+		// border-radius: var(--radius-xs);
+		border-bottom-right-radius: var(--radius-sm);
 	}
 	&::-webkit-scrollbar-track {
 		@include scrollbarTrack;
@@ -362,15 +363,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	height: fit-content;
 
 	background: var(--fracgui-folder-background);
-	border-radius: var(--radius-sm);
 }
-
-// // Indent subfolders, but not immediate children of root.
-// .fracgui-folder .fracgui-header {
-// 	&:not(.fracgui-root > .fracgui-content-wrapper > .fracgui-content > .fracgui-folder > .fracgui-header) {
-// 		padding-left: var(--fracgui-folder-header-padding-left);
-// 	}
-// }
 
 .fracgui-folder .fracgui-header {
 	position: relative;
@@ -421,6 +414,7 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 }
 .fracgui-root > div.fracgui-content-wrapper > div > div > div.fracgui-header {
 	border-top-left-radius: var(--fracgui-folder-header-border-radius, var(--radius-sm));
+	border-top-right-radius: 0px;
 }
 
 .fracgui-folder {
