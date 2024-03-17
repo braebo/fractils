@@ -1,16 +1,17 @@
+import './gui.scss'
+
+import type { WindowManagerOptions } from '../utils/windowManager'
+import type { ResizableOptions } from '../utils/resizable'
 import type { DragOptions } from '../utils/draggable'
 import type { ThemerOptions } from '../theme/Themer'
 import type { FolderOptions } from './Folder'
 
-import type { ResizableOptions } from '../utils/resizable'
 import { state, type PrimitiveState } from '../utils/state'
+import { WindowManager } from '../utils/windowManager'
+import { deepMerge } from '$lib/utils/deepMerge'
 import { Logger } from '../utils/logger'
-
 import { Themer } from '../theme/Themer'
 import { Folder } from './Folder'
-
-import './gui.scss'
-import { WindowManager, type WindowManagerOptions } from '$lib/utils/windowManager'
 
 type GuiTheme = 'default' | 'minimal' | (string & {})
 
@@ -95,7 +96,8 @@ export const GUI_DEFAULTS = {
 	themerOptions: {},
 	windowManager: {
 		resizable: {
-			grabberSize: 50,
+			grabberSize: 9,
+			color: 'var(--bg-d)',
 			sides: ['right'],
 			corners: [],
 		},
@@ -147,21 +149,11 @@ export class Gui extends Folder {
 	constructor(options?: Partial<GuiOptions>) {
 		//· Setup ···································································¬
 
-		const opts = Object.assign({}, GUI_DEFAULTS, options, {
-			// Hack to force this to be the root in the super call.
-			parentFolder: null as any,
-			// resizable: options?.windowManager?.resizable ?? GUI_DEFAULTS.windowManager?.resizable,
-		})
-
+		const opts = deepMerge(GUI_DEFAULTS, options ?? {}) as GuiOptions
 		opts.container ??= document.body
-
 		super(opts, opts.container)
 
-		this.#log = new Logger('Gui:' + opts.title, {
-			fg: 'PaleVioletRed',
-			deferred: true,
-			server: false,
-		})
+		this.#log = new Logger('Gui:' + opts.title, { fg: 'palevioletred' })
 		this.#log.fn('constructor').info({ opts, this: this })
 
 		this.root = this
@@ -213,36 +205,6 @@ export class Gui extends Folder {
 			}
 		}
 		//⌟
-
-		// //· Draggable ·······························································¬
-
-		// if (opts.draggable) {
-		// 	const dragOptions: Partial<DragOptions> =
-		// 		typeof opts.draggable === 'object' ? opts.draggable : {}
-		// 	dragOptions.handle = this.elements.header
-		// 	dragOptions.bounds = this.container
-
-		// 	dragOptions.defaultPosition = this.position.value
-
-		// 	this.log.fn('constructor').info(dragOptions)
-
-		// 	import('../utils/draggable').then(({ Draggable }) => {
-		// 		this.draggable = new Draggable(this.element, {
-		// 			...dragOptions,
-		// 			onDragEnd: this.storage.position
-		// 				? (data) => {
-		// 						const { x, y } = data
-		// 						if (x === 0 && y === 0) return
-
-		// 						this.position.set({ x, y })
-
-		// 						this.log.fn('onDragEnd').info('Position updated:', { x, y })
-		// 					}
-		// 				: undefined,
-		// 		})
-		// 	})
-		// }
-		// //⌟
 
 		//· Window Manager ·····························································¬
 
@@ -304,6 +266,7 @@ export class Gui extends Folder {
 		//⌟
 
 		this.windowManager = new WindowManager({
+			...opts.windowManager,
 			draggable: dragOptions,
 			resizable: resizeOpts,
 		})
