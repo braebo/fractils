@@ -5,7 +5,7 @@
 
 	const windowManager = new WindowManager({
 		draggable: {
-			obstacles: ['.window','.sidebar'],
+			obstacles: ['.window', '.sidebar'],
 		},
 		resizable: {
 			sides: ['top', 'right', 'bottom', 'left'],
@@ -33,11 +33,10 @@
 			style="top:500px;left:250px"
 			out:scale={{ duration: 150, easing: quintIn }}
 			use:windowManager.add
-
 		>
 			<div class="content"><h2>Window 1</h2></div>
 		</div>
-		
+
 		<div
 			class="window window-2"
 			style="top:500px;left:550px"
@@ -123,26 +122,6 @@
 			padding: 1rem;
 		}
 	}
-
-	// .delete {
-	// 	all: unset;
-	// 	position: absolute;
-	// 	top: 0.5rem;
-	// 	right: 0.5rem;
-	// 	// padding: 0.5rem !important;
-	// 	cursor: pointer;
-	// 	width: 10px;
-	// 	height: 10px;
-	// 	border-radius: 50%;
-	// 	background: tomato;
-	// 	filter: brightness(0.25) saturate(0.25);
-	// 	transition: 0.25s ease-in;
-	// 	&:hover {
-	// 		filter: brightness(0.5);
-	// 		// opacity: 0.5;
-	// 	}
-	// 	z-index: 999;
-	// }
 
 	button {
 		margin: 1rem auto;

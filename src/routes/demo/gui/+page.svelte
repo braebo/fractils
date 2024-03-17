@@ -36,6 +36,7 @@
 				key: 'fractils::fracgui',
 			},
 			windowManager: {
+				animation: false,
 				draggable: {
 					defaultPosition: {
 						x: 16,

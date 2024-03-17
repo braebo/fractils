@@ -2,6 +2,8 @@ import type { ElementsOrSelectors } from './select'
 
 import { Resizable, type ResizableOptions } from './resizable'
 import { Draggable, type DragOptions } from './draggable'
+import { EventManager } from './EventManager'
+import { Logger } from './logger'
 
 export interface WindowManagerOptions {
 	/**
@@ -53,7 +55,7 @@ export const WINDOWMANAGER_DEFAULTS: WindowManagerOptions = {
 	draggable: true,
 	animation: {
 		duration: 75,
-		scale: 1.015,
+		scale: 1.01,
 	} as const,
 	obstacles: undefined,
 } as const
@@ -75,33 +77,22 @@ export class WindowManager {
 	windows: WindowInstance[] = []
 	opts: WindowManagerOptions
 
-	draggableOptions: Partial<DragOptions> | null
-	resizableOptions: Partial<ResizableOptions> | null
-	animationOptions: AnimationOptions | null
+	#log = new Logger('WindowManager', { fg: 'lightseagreen' })
+	#evm = new EventManager()
+
+	get draggableOptions() {
+		return this.opts.draggable as DragOptions | false
+	}
+	get resizableOptions() {
+		return this.opts.resizable as ResizableOptions | false
+	}
+	get animationOptions() {
+		return this.opts.animation as AnimationOptions | false
+	}
 
 	constructor(options?: Partial<WindowManagerOptions>) {
-		this.opts = { ...WINDOWMANAGER_DEFAULTS, ...options }
-
-		if (options?.animation === false) {
-			this.animationOptions = null
-		} else {
-			this.animationOptions = {
-				...WINDOWMANAGER_DEFAULTS.animation,
-				...(options?.animation as AnimationOptions),
-			}
-		}
-
-		this.draggableOptions = this.#resolve(this.opts.draggable)
-		this.resizableOptions = this.#resolve(this.opts.resizable)
-
-		for (const w of this.windows) {
-		}
-
-		// Add any obstacles to both the draggable and resizable options.
-		if (this.opts.obstacles) {
-			if (this.draggableOptions) this.draggableOptions.obstacles = this.opts.obstacles
-			if (this.resizableOptions) this.resizableOptions.obstacles = this.opts.obstacles
-		}
+		this.opts = this.#resolveOptions(options)
+		this.#log.fn('constructor').info({ opts: this.opts, this: this })
 	}
 
 	add = (node: HTMLElement, options?: Partial<WindowManagerOptions>) => {
@@ -129,7 +120,7 @@ export class WindowManager {
 
 		this.windows.push(instance)
 
-		this.listen(node, 'grab', this.select, { capture: false })
+		this.#evm.listen(node, 'grab', this.select)
 
 		return {
 			destroy: () => {
@@ -189,33 +180,46 @@ export class WindowManager {
 		})
 	}
 
-	disposeCallbacks = new Set<() => void>()
-	listen = (
-		element: HTMLElement | Window | Document,
-		event: string,
-		cb: (e: any) => void,
-		options?: AddEventListenerOptions,
-	) => {
-		element.addEventListener(event, cb, options)
-		this.disposeCallbacks.add(() => {
-			element.removeEventListener(event, cb, options)
-		})
-	}
+	#resolveOptions(options?: Partial<WindowManagerOptions>): WindowManagerOptions {
+		const opts = { ...WINDOWMANAGER_DEFAULTS, ...options }
 
-	/**
-	 * Resolves a `boolean` or `object` option into the desired object.
-	 */
-	#resolve<T>(option: T) {
-		return typeof option === 'object'
-			? option
-			: option === true
-				? ({} as Omit<T, 'boolean'>)
-				: null
+		if (options?.animation === false) {
+			opts.animation = false
+		} else {
+			opts.animation = {
+				...WINDOWMANAGER_DEFAULTS.animation,
+				...(options?.animation as AnimationOptions),
+			}
+		}
+
+		opts.draggable =
+			typeof options?.draggable === 'object'
+				? options.draggable
+				: options?.draggable === true
+					? WINDOWMANAGER_DEFAULTS.draggable
+					: false
+
+		opts.resizable =
+			typeof options?.resizable === 'object'
+				? options.resizable
+				: options?.resizable === true
+					? WINDOWMANAGER_DEFAULTS.resizable
+					: false
+
+		// Add any obstacles to both the draggable and resizable options.
+		if (opts.obstacles) {
+			if (opts.draggable) {
+				;(opts.draggable as DragOptions).obstacles = opts.obstacles
+			}
+			if (opts.resizable) {
+				;(opts.resizable as ResizableOptions).obstacles = opts.obstacles
+			}
+		}
+
+		return opts
 	}
 
 	dispose() {
-		for (const cb of this.disposeCallbacks) {
-			cb()
-		}
+		this.#evm.dispose()
 	}
 }
