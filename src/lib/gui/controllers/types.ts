@@ -1,4 +1,4 @@
-import type { Input, ElementMap, InputOptions, ValidInputs } from '../inputs/Input'
+import type { Input, ElementMap, InputOptions, ValidInput } from '../inputs/Input'
 
 /**
  * Controller factory funtions create the DOM elements that are
@@ -7,6 +7,6 @@ import type { Input, ElementMap, InputOptions, ValidInputs } from '../inputs/Inp
  */
 export type ControllerFactory<
 	TElement extends Element | ElementMap,
-	TInput extends ValidInputs = ValidInputs,
+	TInput extends ValidInput = ValidInput,
 	TOptions extends InputOptions<any> = InputOptions,
 > = (input: TInput, opts: TOptions, parent?: HTMLElement) => TElement
