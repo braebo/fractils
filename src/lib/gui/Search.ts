@@ -45,8 +45,6 @@ export class Search {
 			icon,
 		}
 
-		// Search.style()
-
 		return this
 	}
 
@@ -79,10 +77,10 @@ export class Search {
 	toggle = (e?: MouseEvent) => {
 		e?.stopImmediatePropagation()
 
-		this.showing ? this.hide() : this.show()
+		this.showing ? this.close() : this.open()
 	}
 
-	show = () => {
+	open = () => {
 		this.showing = true
 		this.elements.container.classList.add('active')
 		this.elements.input.focus()
@@ -91,7 +89,7 @@ export class Search {
 		addEventListener('keydown', this.#escape)
 	}
 
-	hide = () => {
+	close = () => {
 		this.showing = false
 		this.elements.container.classList.remove('active')
 		if (
@@ -109,13 +107,13 @@ export class Search {
 
 	#clickOutside = (e: MouseEvent) => {
 		if (!this.needle && !e.composedPath().includes(this.elements.container)) {
-			this.hide()
+			this.close()
 		}
 	}
 
 	#escape = (e: KeyboardEvent) => {
 		if (e.key === 'Escape') {
-			this.hide()
+			this.close()
 		}
 	}
 
@@ -146,7 +144,4 @@ export class Search {
 
 		return svg
 	}
-
-	// static css = /*css*/ ``
-	// static style = stylesheet(Search.css)
 }
