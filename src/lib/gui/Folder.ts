@@ -1,4 +1,4 @@
-import type { InputOptions, InputType, ValidInputs as ValidInput } from './inputs/Input'
+import type { InputOptions, InputType, ValidInput } from './inputs/Input'
 
 import { InputNumber, type NumberInputOptions } from './inputs/InputNumber'
 import { InputColor, type ColorInputOptions } from './inputs/InputColor'
@@ -118,7 +118,7 @@ export class Folder {
 			this.elements = elements
 		}
 
-		this.search = new Search(this.elements.toolbar)
+		this.search = new Search(this)
 
 		if (opts.closed) this.closed.set(opts.closed)
 
@@ -536,10 +536,23 @@ export class Folder {
 	}
 
 	/**
-	 * A flat array of all children of this folder.
+	 * A flat array of all child folders of this folder (and their children, etc).
 	 */
-	get allChildren() {
-		return this.children.flatMap((child) => [child, ...child.allChildren]) as Folder[]
+	get allChildren(): Folder[] {
+		return this.children.flatMap<Folder>((child) => [child, ...child.allChildren])
+	}
+
+	/**
+	 * A flat array of all controls of all child folders of this folder (and their children, etc).
+	 */
+	get allControls(): Map<string, ValidInput> {
+		const allControls = new Map<string, ValidInput>()
+		for (const child of [this, ...this.allChildren]) {
+			for (const [key, value] of child.controls.entries()) {
+				allControls.set(key, value)
+			}
+		}
+		return allControls
 	}
 
 	dispose() {

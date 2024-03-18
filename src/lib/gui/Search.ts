@@ -1,4 +1,7 @@
-import { EventManager } from '$lib/utils/EventManager'
+import type { Folder } from './Folder'
+
+import { EventManager } from '../utils/EventManager'
+import { fuzzysearch } from '../utils/fuzzySearch'
 import { create } from '../utils/create'
 
 export class Search {
@@ -9,20 +12,22 @@ export class Search {
 		icon: SVGElement
 	}
 
+	needle = ''
 	showing = false
 
 	#evm = new EventManager()
 
-	constructor(public parent: HTMLElement) {
+	constructor(public folder: Folder) {
 		const container = create('div', {
 			classes: ['fracgui-search-container'],
-			parent,
+			parent: folder.elements.toolbar,
 		})
 
 		const input = create('input', {
 			classes: ['fracgui-input-text-input', 'fracgui-search-input', 'fractils-cancel'],
 			parent: container,
 		})
+		this.#evm.listen(input, 'input', (e) => this.search(e.target.value))
 
 		const button = create('button', {
 			classes: ['fracgui-search-button', 'fractils-cancel'],
@@ -43,6 +48,32 @@ export class Search {
 		// Search.style()
 
 		return this
+	}
+
+	search = (query: string) => {
+		this.needle = query
+
+		if (!this.needle) {
+			this.clear()
+			return
+		}
+
+		for (const [key, controller] of this.folder.allControls) {
+			if (fuzzysearch(this.needle, key)) {
+				controller.elements.container.classList.add('fracgui-search-hit')
+				controller.elements.container.classList.remove('fracgui-search-miss')
+			} else {
+				controller.elements.container.classList.remove('fracgui-search-hit')
+				controller.elements.container.classList.add('fracgui-search-miss')
+			}
+		}
+	}
+
+	clear = () => {
+		for (const [, controller] of this.folder.allControls) {
+			controller.elements.container.classList.remove('fracgui-search-hit')
+			controller.elements.container.classList.remove('fracgui-search-miss')
+		}
 	}
 
 	toggle = (e?: MouseEvent) => {
