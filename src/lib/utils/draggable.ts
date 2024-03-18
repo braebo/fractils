@@ -561,7 +561,7 @@ export class Draggable {
 		e.preventDefault()
 		e.stopPropagation()
 
-		// Apply the dragging class.
+		// Apply dragging and dragged classes.
 		this.node.classList.add(this.opts.classes.dragging)
 		this.node.classList.add(this.opts.classes.dragged)
 
@@ -573,14 +573,13 @@ export class Draggable {
 	dragEnd = () => {
 		if (!this.#active) return
 
-		//! delete
+		// todo - delete!
 		if (DEV) {
 			for (const el of this.obstacleEls) {
 				el.style.outline = 'none'
 			}
 		}
 
-		// Apply dragging and dragged classes.
 		this.node.classList.remove(this.opts.classes.dragging)
 
 		if (this.opts.userSelectNone) {
@@ -596,6 +595,9 @@ export class Draggable {
 		this.#releaseCapture()
 
 		this.node.dispatchEvent(new CustomEvent('release'))
+
+		// todo - this is ghetto
+		setTimeout(() => this.node.classList.remove(this.opts.classes.dragged), 0)
 
 		this.#fireSvelteDragEndEvent()
 	}
@@ -651,18 +653,13 @@ export class Draggable {
 
 			//· Check Y ··································¬
 
-			// too far left || too far right
 			if (!(left >= oRight || right <= oLeft)) {
-				//! This fixes the ice-block bug, but only for x-resizing.
-				// if (!(left >= oRight || right <= oLeft)) {
 				// Is obstacle on top or bottom?
 				const overBottom = bottom > oTop && top <= oBottom
 
 				if (overBottom) {
 					bBottom = Math.min(bBottom, oTop)
 					break
-
-					// bRight = b.right
 				}
 			}
 			//⌟
