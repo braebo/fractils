@@ -15,6 +15,7 @@
 	--fracgui-min-width: 25rem;
 	--fracgui-max-width: 35rem;
 
+	--fracgui-input-height: 2rem;
 	--fracgui-input-section-1-width: 6rem;
 	--fracgui-input-section-2-width: 4rem;
 	--fracgui-input-section-3-width: 100%;
@@ -488,7 +489,8 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		align-items: center;
 
 		width: 100%;
-		min-height: 2rem;
+		height: 0rem;
+		min-height: var(--fracgui-input-height);
 
 		color: var(--fracgui-input-container-color);
 		background: var(--fracgui-input-container-background);
@@ -520,6 +522,19 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 			.fracgui-input-title {
 				color: var(--theme-a);
 			}
+		}
+
+		&.fracgui-search-hit {
+			min-height: var(--fracgui-input-height);
+
+			.fracgui-input-title {
+				color: var(--theme-a);
+			}
+		}
+
+		&.fracgui-search-miss {
+			min-height: 0rem;
+			overflow: hidden;
 		}
 	}
 
@@ -1260,9 +1275,6 @@ $option-padding: 0.1rem 0.75rem;
 	align-items: center;
 	justify-content: flex-end;
 	gap: 0.25rem;
-
-	justify-self: flex-end;
-	align-self: flex-end;
 
 	padding: 0.25rem 0.1rem 0.25rem 0;
 
