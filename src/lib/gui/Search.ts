@@ -47,7 +47,6 @@ export class Search {
 
 	toggle = (e?: MouseEvent) => {
 		e?.stopImmediatePropagation()
-		// e?.preventDefault()
 
 		this.showing ? this.hide() : this.show()
 	}
@@ -56,6 +55,8 @@ export class Search {
 		this.showing = true
 		this.elements.container.classList.add('active')
 		this.elements.input.focus()
+
+		addEventListener('click', this.#clickOutside)
 	}
 
 	hide = () => {
@@ -66,6 +67,16 @@ export class Search {
 			document.activeElement === this.elements.button
 		) {
 			;(document.activeElement as HTMLElement)?.blur()
+		}
+
+		this.clear()
+
+		removeEventListener('click', this.#clickOutside)
+	}
+
+	#clickOutside = (e: MouseEvent) => {
+		if (!e.composedPath().includes(this.elements.container)) {
+			this.hide()
 		}
 	}
 
