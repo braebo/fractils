@@ -88,6 +88,7 @@ export class Search {
 		this.elements.input.focus()
 
 		addEventListener('click', this.#clickOutside)
+		addEventListener('keydown', this.#escape)
 	}
 
 	hide = () => {
@@ -103,10 +104,17 @@ export class Search {
 		this.clear()
 
 		removeEventListener('click', this.#clickOutside)
+		removeEventListener('keydown', this.#escape)
 	}
 
 	#clickOutside = (e: MouseEvent) => {
-		if (!e.composedPath().includes(this.elements.container)) {
+		if (!this.needle && !e.composedPath().includes(this.elements.container)) {
+			this.hide()
+		}
+	}
+
+	#escape = (e: KeyboardEvent) => {
+		if (e.key === 'Escape') {
 			this.hide()
 		}
 	}
