@@ -1289,6 +1289,23 @@ $option-padding: 0.1rem 0.75rem;
 	height: 1rem;
 
 	transition: 0.15s;
+
+	svg {
+		pointer-events: none;
+		transition-duration: 0.15s !important;
+		
+		path {
+			transform: translate(0, 0) scale(1);
+			transform-origin: 50% 50%;
+			transition-duration: 0.15s !important;
+		}
+		
+		circle {
+			fill: transparent;
+			transform: translate(0, 0) scale(1);
+			transition-duration: 0.15s !important;
+		}
+	}
 }
 
 //- Hover
@@ -1321,6 +1338,17 @@ $option-padding: 0.1rem 0.75rem;
 .fracgui-search-container.active .fracgui-search-button {
 	color: var(--bg-e);
 	opacity: 1;
+
+	path {
+		transform: translate(-10%, 10%) scale(0);
+		transform-origin: 60% 60%;
+	}
+
+	circle {
+		fill: var(--bg-e);
+		// transition-duration: 0.15s !important;
+		transform: translate(-10%, 20%) scale(0.75);
+	}
 }
 
 //? Input

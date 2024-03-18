@@ -74,7 +74,7 @@ export class Search {
 		svg.setAttribute('aria-hidden', 'true')
 		svg.setAttribute('width', '100%')
 		svg.setAttribute('height', '100%')
-		svg.setAttribute('viewBox', '0 0 24 24')
+		svg.setAttribute('viewBox', '0 0 20 20')
 		svg.setAttribute('fill', 'none')
 		svg.setAttribute('stroke', 'currentColor')
 		svg.setAttribute('stroke-width', '2')
@@ -82,8 +82,14 @@ export class Search {
 		svg.setAttribute('stroke-linejoin', 'round')
 
 		const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-		path.setAttribute('d', 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z')
+		path.setAttribute('d', 'M13.34 13.34 L19 19')
 		svg.appendChild(path)
+
+		const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+		circle.setAttribute('cx', '8')
+		circle.setAttribute('cy', '8')
+		circle.setAttribute('r', '7')
+		svg.appendChild(circle)
 
 		svg.classList.add('search-icon')
 		svg.style.pointerEvents = 'none'
