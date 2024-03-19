@@ -2,6 +2,7 @@ import type { Folder } from './Folder'
 
 import { EventManager } from '../utils/EventManager'
 import { fuzzysearch } from '../utils/fuzzySearch'
+import { TOOLTIP_DEFAULTS, Tooltip } from '../actions/tooltip'
 import { create } from '../utils/create'
 
 export class Search {
@@ -14,6 +15,7 @@ export class Search {
 
 	needle = ''
 	showing = false
+	tooltip: Tooltip
 
 	#evm = new EventManager()
 
@@ -32,6 +34,12 @@ export class Search {
 		const button = create('button', {
 			classes: ['fracgui-search-button', 'fractils-cancel'],
 			parent: container,
+		})
+
+		this.tooltip = new Tooltip(button, {
+			text: 'Search ' + (folder.isGui() ? 'All' : folder.title),
+			placement: 'left',
+			delay: 500,
 		})
 
 		const icon = this.#searchIcon()
@@ -80,6 +88,8 @@ export class Search {
 		this.showing ? this.close() : this.open()
 	}
 
+	#tooltipTimeout!: ReturnType<typeof setTimeout>
+
 	open = () => {
 		this.showing = true
 		this.elements.container.classList.add('active')
@@ -87,6 +97,15 @@ export class Search {
 
 		addEventListener('click', this.#clickOutside)
 		addEventListener('keydown', this.#escape)
+
+		this.tooltip.hide()
+		clearTimeout(this.#tooltipTimeout)
+		this.#tooltipTimeout = setTimeout(() => {
+			this.tooltip.text = 'Cancel (esc)'
+			this.tooltip.placement = 'top'
+			this.tooltip.offsetX = '-40px'
+			this.tooltip.offsetY = '-2px'
+		}, 100)
 	}
 
 	close = () => {
@@ -103,6 +122,15 @@ export class Search {
 
 		removeEventListener('click', this.#clickOutside)
 		removeEventListener('keydown', this.#escape)
+
+		this.tooltip.hide()
+		clearTimeout(this.#tooltipTimeout)
+		this.#tooltipTimeout = setTimeout(() => {
+			this.tooltip.text = `Search ${this.folder.title}`
+			this.tooltip.placement = 'left'
+			this.tooltip.offsetX = TOOLTIP_DEFAULTS.offsetX
+			this.tooltip.offsetY = TOOLTIP_DEFAULTS.offsetY
+		}, 100)
 	}
 
 	#clickOutside = (e: MouseEvent) => {
