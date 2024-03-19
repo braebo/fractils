@@ -76,7 +76,6 @@ export interface TooltipOptions {
 		 */
 		easing?: KeyframeAnimationOptions['easing']
 	}
-
 	/**
 	 * If specified, the container element for the tooltip.
 	 * @default document.body

@@ -1,4 +1,3 @@
-import { deepMerge } from './deepMerge'
 import { nanoid } from './nanoid'
 import { isObject } from './is'
 import { wait } from './wait'
@@ -7,7 +6,7 @@ function clone<T>(v: T): T {
 	return isObject(v) ? structuredClone(v) : v
 }
 
-interface UMRT<V> {
+interface Operation<V> {
 	key: string
 	initial: V
 	apply: (v: V) => void
@@ -17,7 +16,7 @@ export class UndoManager {
 	pointer = 0
 	maxHistory = 50
 	stack: { key: string; value: any }[] = []
-	umrts: Record<string, UMRT<any>> = {}
+	ops: Record<string, Operation<any>> = {}
 
 	constructor() {}
 
@@ -27,7 +26,7 @@ export class UndoManager {
 
 		// Find the key of the current item, this is what we are undoing.
 		const currentKey = this.stack[this.pointer].key
-		const umrt = this.umrts[currentKey]
+		const umrt = this.ops[currentKey]
 
 		// move the pointer back.
 		this.pointer--
@@ -48,14 +47,14 @@ export class UndoManager {
 	}
 
 	redo() {
-        // if pointer is less than stack move forward
-        // find new value and call it's umrt apply.
-    }
+		// if pointer is less than stack move forward
+		// find new value and call it's umrt apply.
+	}
 
-	register<V>(data: Omit<UMRT<V>, 'key'>) {
+	register<V>(data: Omit<Operation<V>, 'key'>) {
 		const key = nanoid()
 
-		this.umrts[key] = { key, apply: data.apply, initial: clone(data.initial) }
+		this.ops[key] = { key, apply: data.apply, initial: clone(data.initial) }
 
 		return (value: V) => {
 			if (this.stack.length > this.maxHistory) {
@@ -82,12 +81,11 @@ const pushFoo = undoManager.register({
 	initial: foo,
 	// apply: (v) => (foo = v),
 	apply: (v) => {
-        foo = v
-    },
+		foo = v
+	},
 })
 
 function doStuff() {
-	
 	pushFoo(foo)
 	console.log('\npush:', {
 		foo,
@@ -97,8 +95,8 @@ function doStuff() {
 async function main() {
 	doStuff()
 	await wait(1000)
-    undoManager.undo()
-    await wait(1000)
+	undoManager.undo()
+	await wait(1000)
 	doStuff()
 }
 
