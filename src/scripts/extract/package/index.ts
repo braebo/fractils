@@ -70,7 +70,7 @@ export async function watch(options: Options) {
 
 	const fulfillers: Array<(value?: any) => void> = []
 
-	let timeout: NodeJS.Timeout
+	let timeout: ReturnType<typeof setTimeout>
 
 	const watcher = chokidar.watch(input, { ignoreInitial: true })
 	const ready = new Promise((resolve) => watcher.on('ready', resolve))
