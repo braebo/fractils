@@ -44,6 +44,8 @@
 					},
 				},
 				resizable: {
+					color: 'var(--bg-e)',
+					grabberSize: 4,
 					sides: ['right', 'left'],
 					corners: [],
 				},
@@ -266,9 +268,9 @@
 	})
 </script>
 
-<div class="page">
-	<button on:click={() => console.log(gui)}>Log Gui</button>
+<button on:click={() => console.log(gui)}>Log Gui</button>
 
+<div class="page">
 	<div class="orbs">
 		<Orbs bind:params />
 	</div>
@@ -276,7 +278,7 @@
 
 <style lang="scss">
 	:global(html) {
-		background: var(--bg-c) !important;
+		background: color-mix(in lch, var(--bg-c), var(--bg-c)) !important;
 	}
 
 	.page {
