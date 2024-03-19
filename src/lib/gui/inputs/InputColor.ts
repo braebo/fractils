@@ -27,24 +27,6 @@ export const COLOR_MODES = [
 	'array',
 ] as const
 
-export interface LabeledRangeElements extends ElementMap {
-	container: HTMLDivElement
-	title: HTMLDivElement
-	input: HTMLInputElement
-}
-
-export interface ColorSliderElements extends ElementMap {
-	container: HTMLDivElement
-	/** `rgba.r` or `hsla.h */
-	a: LabeledRangeElements
-	/** `rgba.g` or `hsla.s */
-	b: LabeledRangeElements
-	/** `rgba.b` or `hsla.l */
-	c: LabeledRangeElements
-	/** `rgba.a` or `hsla.a */
-	d: LabeledRangeElements
-}
-
 export interface ColorControllerElements extends ElementMap<ColorPicker> {
 	container: HTMLDivElement
 	/** A color swatch that displays the current color and toggles the color-picker when clicked. */
@@ -52,6 +34,7 @@ export interface ColorControllerElements extends ElementMap<ColorPicker> {
 		container: HTMLDivElement
 		displayBackground: HTMLDivElement
 		display: HTMLDivElement
+		copyButton: CopyButton
 	}
 	/** The main input content body. */
 	body: {
@@ -120,7 +103,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		}
 
 		//? Elements.
-		const container = create<HTMLDivElement>('div', {
+		const container = create('div', {
 			classes: ['fracgui-input-color-container'],
 			parent: this.elements.content,
 		})
@@ -128,12 +111,10 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 		//- Current Color
 		this.elements.controllers.currentColor = this.#createCurrentColor(container)
-		new CopyButton(this.elements.controllers.currentColor.container, () => {
-			return this.state.value[this.mode]
-		})
+		this.#updateCurrentColorCopyButtonColor()
 
 		//- Body
-		const body = create<HTMLDivElement>('div', {
+		const body = create('div', {
 			classes: ['fracgui-input-color-body'],
 			parent: container,
 		})
@@ -204,28 +185,46 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 	//⌟
 
 	#createCurrentColor(parent: HTMLDivElement) {
-		const container = create<HTMLDivElement>('div', {
+		const container = create('div', {
 			classes: ['fracgui-input-color-current-color-container'],
 			parent,
 		})
 
-		const displayBackground = create<HTMLDivElement>('div', {
+		const displayBackground = create('div', {
 			classes: ['fracgui-input-color-current-color-background'],
 			parent: container,
 		})
 
-		const display = create<HTMLDivElement>('div', {
+		const display = create('div', {
 			classes: ['fracgui-input-color-current-color-display'],
 			parent: displayBackground,
 		})
-
 		this.listen(display, 'click', this.togglePicker)
+
+		const copyButton = new CopyButton(container, () => {
+			return this.state.value[this.mode]
+		})
+		/**
+		 * Gets the copy icon's parent background and checks the lightness.
+		 * Will be `'light'` if the background is light, `'dark'` if it's dark.
+		 */
+		this.listen(container, 'pointerover', this.#updateCurrentColorCopyButtonColor)
 
 		return {
 			container,
 			displayBackground,
 			display,
+			copyButton,
 		}
+	}
+
+	#updateCurrentColorCopyButtonColor = () => {
+		const contrastColor =
+			this.state.value.lightness / 100 > 0.5 ? 'var(--dark-a)' : 'var(--light-a)'
+		this.elements.controllers.currentColor.copyButton.button.style.setProperty(
+			'color',
+			contrastColor,
+		)
 	}
 
 	#animOpts = {
