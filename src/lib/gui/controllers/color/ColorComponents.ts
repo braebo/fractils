@@ -50,12 +50,12 @@ export class ColorComponents extends Controller<InputColor, ColorComponentsEleme
 
 		const parent = opts.container ?? input.elements.controllers.container
 
-		const componentsContainer = create<HTMLDivElement>('div', {
+		const componentsContainer = create('div', {
 			classes: ['fracgui-input-color-components-container'],
 			parent: parent,
 		})
 
-		const selectContainer = create<HTMLDivElement>('div', {
+		const selectContainer = create('div', {
 			classes: ['fracgui-input-color-components-select-container'],
 			parent: componentsContainer,
 		})
@@ -68,7 +68,7 @@ export class ColorComponents extends Controller<InputColor, ColorComponentsEleme
 			this.updateMode(value)
 		})
 
-		const numbersContainer = create<HTMLDivElement>('div', {
+		const numbersContainer = create('div', {
 			classes: ['fracgui-input-color-components-numbers-container'],
 			parent: componentsContainer,
 		})
@@ -98,7 +98,7 @@ export class ColorComponents extends Controller<InputColor, ColorComponentsEleme
 			input.listen(v, 'input', update)
 		}
 
-		const text = create<HTMLInputElement>('input', {
+		const text = create('input', {
 			classes: ['fracgui-input-text-input', 'fracgui-input-color-components-text'],
 			parent: componentsContainer,
 		})

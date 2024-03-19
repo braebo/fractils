@@ -72,12 +72,12 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 
 		this.opts = opts
 
-		const container = create<HTMLDivElement>('div', {
+		const container = create('div', {
 			classes: ['fracgui-input-color-picker-container'],
 			parent: options?.container ?? input.elements.controllers.container,
 		})
 
-		const canvas = create<HTMLCanvasElement>('canvas', {
+		const canvas = create('canvas', {
 			classes: ['fracgui-input-color-picker-canvas'],
 			parent: container,
 			height: this.#height,
@@ -88,7 +88,7 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 		resizeObserver.observe(canvas)
 		this.input.disposeCallbacks.add(resizeObserver.disconnect)
 
-		const handle = create<HTMLDivElement>('div', {
+		const handle = create('div', {
 			classes: ['fracgui-input-color-picker-handle'],
 			parent: container,
 			style: {
@@ -96,7 +96,7 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 			},
 		})
 
-		const hueSlider = create<HTMLInputElement>('input', {
+		const hueSlider = create('input', {
 			type: 'range',
 			classes: ['fracgui-input-range', 'fracgui-input-color-picker-hue'],
 			parent: container,
@@ -115,7 +115,7 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 			},
 		})
 
-		const alphaSlider = create<HTMLInputElement>('input', {
+		const alphaSlider = create('input', {
 			type: 'range',
 			classes: ['fracgui-input-range', 'fracgui-input-color-picker-alpha'],
 			parent: container,
