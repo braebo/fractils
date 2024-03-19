@@ -511,7 +511,9 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		outline: var(--fracgui-input-container-outline);
 		box-shadow: var(--fracgui-input-container-shadow);
 
-		transition: 0.15s;
+		transition:
+			all 0.15s,
+			opacity 0.15s ease-in 0.2s;
 
 		$inverted-border-size: 0.5rem;
 		$inverted-border-radius: 0.2rem;
@@ -527,10 +529,13 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 				position: absolute;
 				background-color: transparent;
 				bottom: $inverted-border-size * 2;
-				height: $inverted-border-size * 2;
 				width: $inverted-border-size;
+				height: $inverted-border-size * 2;
 				border-top-left-radius: $inverted-border-radius;
 				box-shadow: 0 -#{$inverted-border-size} 0 0 var(--bg-a);
+
+				opacity: 1;
+				transition: inherit;
 			}
 			// top right corner
 			&::after {
@@ -539,10 +544,13 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 				background-color: transparent;
 				right: 0;
 				bottom: $inverted-border-size * 2;
-				height: $inverted-border-size * 2;
 				width: $inverted-border-size;
+				min-height: $inverted-border-size * 2;
 				border-top-right-radius: $inverted-border-radius;
 				box-shadow: 0 -#{$inverted-border-size} 0 0 var(--bg-a);
+
+				opacity: 1;
+				transition: inherit;
 			}
 		}
 
@@ -601,6 +609,15 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		&.fracgui-search-miss {
 			min-height: 0rem;
 			overflow: hidden;
+
+			&::after {
+				opacity: 0;
+				transition: inherit;
+			}
+			&::before {
+				opacity: 0;
+				transition: inherit;
+			}
 		}
 
 		&.expanded {
