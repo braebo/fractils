@@ -419,12 +419,12 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 		color: var(--fg-c);
 
-		opacity: 0.5;
+		opacity: 0.75;
 		transition: opacity 0.15s;
 	}
 
 	&:hover svg.icon-folder {
-		opacity: 0.75;
+		opacity: 1;
 	}
 }
 
