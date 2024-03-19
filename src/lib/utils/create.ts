@@ -1,6 +1,9 @@
+import type { TooltipOptions, Tooltip } from '../actions/tooltip'
 import type { ElementStyle } from '$lib/color/css'
 
 import { entries } from './object'
+
+let tooltip: typeof Tooltip
 
 export type CreateOptions = {
 	parent?: Element | Document
@@ -15,6 +18,7 @@ export type CreateOptions = {
 	type?: string
 	attributes?: Record<string, string>
 	value?: string
+	tooltip?: TooltipOptions
 } & Partial<Record<keyof HTMLElement | keyof HTMLInputElement, any>>
 
 export function create<const K extends keyof HTMLElementTagNameMap>(
@@ -53,6 +57,17 @@ export function create<const K extends keyof HTMLElementTagNameMap>(
 		}
 
 		if (options.parent) options.parent.appendChild(el)
+
+		if (options.tooltip) {
+			if (!tooltip) {
+				import('../actions/tooltip').then(({ Tooltip }) => {
+					tooltip = Tooltip
+					new tooltip(el, options.tooltip)
+				})
+			} else {
+				new tooltip(el, options.tooltip)
+			}
+		}
 	}
 
 	for (const child of children) el.appendChild(child)
