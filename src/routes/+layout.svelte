@@ -47,6 +47,8 @@
 
 <slot />
 
+<div class="br-grow" />
+
 <footer>
 	<a href="https://github.com/fractalhq/fractils" rel="noopener noreferrer" target="_blank">
 		<div class="gh">
