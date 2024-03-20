@@ -64,12 +64,12 @@ export class Select<T> {
 		this.#selected = this.initialValue = this.opts.selected
 		this.options = this.initialOptions = this.opts.options
 
-		const container = create<HTMLDivElement>('div', {
+		const container = create('div', {
 			classes: ['fracgui-controller-select-container'],
 			parent: options.container,
 		})
 
-		const selected = create<HTMLDivElement>('div', {
+		const selected = create('div', {
 			classes: ['fracgui-controller-select-selected'],
 			parent: container,
 			textContent: String(this.selected),
@@ -80,7 +80,7 @@ export class Select<T> {
 			selected.removeEventListener('click', this.toggle),
 		)
 
-		const dropdown = create<HTMLDivElement>('div', {
+		const dropdown = create('div', {
 			classes: ['fracgui-controller-select-dropdown'],
 			parent: container,
 		})
@@ -119,7 +119,7 @@ export class Select<T> {
 
 		const id = nanoid()
 
-		const el = create<HTMLDivElement>('div', {
+		const el = create('div', {
 			classes: ['fracgui-controller-select-option'],
 			parent: this.elements.dropdown,
 			innerText: opt.text,

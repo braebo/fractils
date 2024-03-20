@@ -4,7 +4,7 @@
 // import { create } from '../../../utils/create'
 
 // export const colorController: ControllerFactory<HTMLInputElement> = (input, opts, parent) => {
-// 	const controller = create<HTMLInputElement>('input', {
+// 	const controller = create('input', {
 // 		type: 'color',
 // 		classes: ['fracgui-input-color-input'],
 // 		value: input.state.value.hex,
@@ -36,7 +36,7 @@
 // 		['c', input.#cTitle],
 // 		['d', input.#dTitle],
 // 	] as const) {
-// 		const c = create<HTMLDivElement>('div', {
+// 		const c = create('div', {
 // 			type: 'range',
 // 			classes: [
 // 				'fracgui-input-color-sliders-input-container',
@@ -53,7 +53,7 @@
 // 				parent: container,
 // 				innerText: title,
 // 			}),
-// 			input: create<HTMLInputElement>('input', {
+// 			input: create('input', {
 // 				type: 'range',
 // 				classes: [
 // 					'fracgui-input-number-range',

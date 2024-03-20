@@ -36,6 +36,7 @@
 				key: 'fractils::fracgui',
 			},
 			windowManager: {
+				animation: false,
 				draggable: {
 					defaultPosition: {
 						x: 16,
@@ -43,6 +44,8 @@
 					},
 				},
 				resizable: {
+					color: 'var(--bg-e)',
+					grabberSize: 4,
 					sides: ['right', 'left'],
 					corners: [],
 				},
@@ -274,17 +277,13 @@
 </div>
 
 <style lang="scss">
-	:global(html) {
-		background: var(--bg-c) !important;
-	}
-
 	.page {
-		flex-grow: 1;
-
-		max-width: 400px;
-		height: 75%;
+		width: 100vw;
+		height: 100vh;
 		padding: 1rem;
 		margin: auto;
+
+		background: var(--bg-b);
 	}
 
 	.orbs {

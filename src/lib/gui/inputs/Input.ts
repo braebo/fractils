@@ -31,7 +31,7 @@ export interface ElementMap<T = unknown> {
 	[key: string]: HTMLElement | HTMLInputElement | ElementMap | T
 }
 
-export type ValidInputs = InputNumber | InputColor
+export type ValidInput = InputNumber | InputColor
 
 export abstract class Input<
 	TValueType extends ValidInputValue = ValidInputValue,

@@ -73,7 +73,17 @@
 				class:outro
 				d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
 			/>
-			<rect class="front" class:active class:outro width="13" height="13" rx="2" ry="2" />
+			<rect
+				class="front"
+				class:active
+				class:outro
+				width="13"
+				height="13"
+				x={active ? '5.5' : '9'}
+				y={active ? '5.5' : '9'}
+				rx={active ? '10' : '2'}
+				ry={active ? '10' : '2'}
+			/>
 			<path class="check" class:active class:outro stroke-width="2" d="M17 9l-7 7-4-4" />
 		</svg>
 	</div>
@@ -153,8 +163,8 @@
 		transition-duration: 0.66s !important;
 		transition-timing-function: $bounce;
 
-		x: 9;
-		y: 9;
+		// x: 9;
+		// y: 9;
 		stroke: currentColor;
 
 		&.active {
@@ -163,10 +173,10 @@
 			transition-duration: 0.2s;
 
 			transform: scale(2);
-			x: 5.5;
-			y: 5.5;
-			rx: 10;
-			ry: 10;
+			// x: 5.5;
+			// y: 5.5;
+			// rx: 10;
+			// ry: 10;
 			fill: #12a084 !important;
 			stroke: #12a084 !important;
 		}

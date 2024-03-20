@@ -6,7 +6,7 @@ import { svgChevron } from '../svg/chevronSvg'
 import { create } from '../../utils/create'
 
 export const numberController: ControllerFactory<HTMLInputElement> = (input, opts, parent) => {
-	const controller = create<HTMLInputElement>('input', {
+	const controller = create('input', {
 		type: 'number',
 		classes: ['fracgui-input-number-input'],
 		value: String(input.state.value),
@@ -123,7 +123,7 @@ export const numberController: ControllerFactory<HTMLInputElement> = (input, opt
 }
 
 export const rangeController: ControllerFactory<HTMLInputElement> = (input, opts, parent) => {
-	const range = create<HTMLInputElement>('input', {
+	const range = create('input', {
 		type: 'range',
 		classes: ['fracgui-input-number-range'],
 		value: String(input.state.value),
@@ -147,12 +147,12 @@ export const numberButtonsController: ControllerFactory<
 	},
 	InputNumber
 > = (input, opts, parent) => {
-	const container = create<HTMLDivElement>('div', {
+	const container = create('div', {
 		classes: ['fracgui-input-number-buttons-container'],
 		parent,
 	})
 
-	const increment = create<HTMLDivElement>('div', {
+	const increment = create('div', {
 		classes: [
 			'fracgui-controller',
 			'fracgui-input-number-button',
@@ -163,7 +163,7 @@ export const numberButtonsController: ControllerFactory<
 	increment.appendChild(svgChevron())
 	input.listen(increment, 'pointerdown', rampChangeUp)
 
-	const decrement = create<HTMLDivElement>('div', {
+	const decrement = create('div', {
 		classes: [
 			'fracgui-controller',
 			'fracgui-input-number-button',

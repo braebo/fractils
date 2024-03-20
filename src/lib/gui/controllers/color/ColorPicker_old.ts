@@ -27,23 +27,23 @@
 // 	constructor(public input: InputColor) {
 // 		super(input)
 
-// 		const container = create<HTMLDivElement>('div', {
+// 		const container = create('div', {
 // 			classes: ['fracgui-input-color-picker-container'],
 // 			parent: input.elements.controllers.container,
 // 		})
 
-// 		const canvas = create<HTMLCanvasElement>('canvas', {
+// 		const canvas = create('canvas', {
 // 			classes: ['fracgui-input-color-picker-canvas'],
 // 			parent: container,
 // 			height: this.#height,
 // 		})
 
-// 		const cursor = create<HTMLDivElement>('div', {
+// 		const cursor = create('div', {
 // 			classes: ['fracgui-input-color-picker-cursor'],
 // 			parent: container,
 // 		})
 
-// 		const hueSlider = create<HTMLInputElement>('input', {
+// 		const hueSlider = create('input', {
 // 			type: 'range',
 // 			classes: ['fracgui-input-range', 'fracgui-input-color-picker-hue'],
 // 			parent: container,
@@ -52,7 +52,7 @@
 // 		})
 // 		this.input.listen(hueSlider, 'input', this.#updateStateFromHue)
 
-// 		const alphaSlider = create<HTMLInputElement>('input', {
+// 		const alphaSlider = create('input', {
 // 			type: 'range',
 // 			classes: ['fracgui-input-range', 'fracgui-input-color-picker-alpha'],
 // 			parent: container,

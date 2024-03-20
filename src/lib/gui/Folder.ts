@@ -1,4 +1,4 @@
-import type { InputOptions, InputType, ValidInputs as ValidInput } from './inputs/Input'
+import type { InputOptions, InputType, ValidInput } from './inputs/Input'
 
 import { InputNumber, type NumberInputOptions } from './inputs/InputNumber'
 import { InputColor, type ColorInputOptions } from './inputs/InputColor'
@@ -118,7 +118,7 @@ export class Folder {
 			this.elements = elements
 		}
 
-		this.search = new Search(this.elements.toolbar)
+		this.search = new Search(this)
 
 		if (opts.closed) this.closed.set(opts.closed)
 
@@ -240,7 +240,7 @@ export class Folder {
 		const x = 12
 		const y = 12
 		const r = 4
-		const fill = 'var(--bg-a)'
+		const fill = 'var(--theme-a)'
 		const theme = 'var(--theme-a)'
 		const altStroke = 'var(--fg-d)'
 
@@ -320,7 +320,7 @@ export class Folder {
 			.icon-folder circle, .icon-folder line {
 				transform-origin: center;
 
-				transition-duration: 0.33s;
+				transition-duration: 0.25s;
 				transition-timing-function: ${ease};
 			}
 
@@ -328,33 +328,18 @@ export class Folder {
 			.icon-folder circle.a {
 				transform: scale(1);
 				
-				stroke: ${theme};
+				stroke: transparent;
 				fill: ${fill};
 				
-				transition: all .2s ${bounce}, stroke 2s ${bounce};
+				transition: all .5s ${bounce}, stroke 2s ${bounce}, fill .2s ${bounce} 0s;
 			}
 			.closed .icon-folder circle.a {
-				transform: scale(0.5);
+				transform: scale(0.66);
 
 				stroke: ${fill};
 				fill: ${theme};
 
-			}
-
-			/*//?	Circle B	*/
-			.icon-folder circle.b {
-				transform: scale(1);
-				
-				fill: ${fill};
-			}
-			.closed .icon-folder circle.b {
-				transform: scale(1.75);
-
-				stroke: none;
-				fill: ${fill};
-
-				transition-duration: 0.5s;
-				transition-timing-function: cubic-bezier(0.83, 1, 0.820, 1);
+				transition: all .33s ${bounce}, stroke 2s ${bounce}, fill .2s ease-in 0.25s;
 			}
 
 			/*//?	Circle Alt	*/
@@ -388,8 +373,6 @@ export class Folder {
 			class="icon-folder"
 			overflow="visible"
 		>
-			<circle class="b" cx="${x}" cy="${y}" r="${r}" stroke="${altStroke}" stroke-width="0.1" fill="none" />
-
 			<circle class="a" cx="${x}" cy="${y}" r="${r}" stroke="${theme}" fill="${fill}" />
 
 			${circles}
@@ -536,10 +519,23 @@ export class Folder {
 	}
 
 	/**
-	 * A flat array of all children of this folder.
+	 * A flat array of all child folders of this folder (and their children, etc).
 	 */
-	get allChildren() {
-		return this.children.flatMap((child) => [child, ...child.allChildren]) as Folder[]
+	get allChildren(): Folder[] {
+		return this.children.flatMap<Folder>((child) => [child, ...child.allChildren])
+	}
+
+	/**
+	 * A flat array of all controls of all child folders of this folder (and their children, etc).
+	 */
+	get allControls(): Map<string, ValidInput> {
+		const allControls = new Map<string, ValidInput>()
+		for (const child of [this, ...this.allChildren]) {
+			for (const [key, value] of child.controls.entries()) {
+				allControls.set(key, value)
+			}
+		}
+		return allControls
 	}
 
 	dispose() {

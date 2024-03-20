@@ -42,15 +42,15 @@ export interface TooltipOptions {
 	 */
 	delayOut?: number
 	/**
-	 * An optional x-axis offset in pixels.
-	 * @default 0
+	 * An optional x-axis offset (any valid css unit).
+	 * @default '0%'
 	 */
-	offsetX?: number
+	offsetX?: string
 	/**
-	 * An optional y-axis offset in pixels.
-	 * @default 0
+	 * An optional y-axis offset (any valid css unit).
+	 * @default '0%'
 	 */
-	offsetY?: number
+	offsetY?: string
 	/**
 	 * Custom style overrides for the tooltip element (all valid CSS properties are allowed).
 	 * @default { padding: '4px 8px', color: 'var(--fg-a, #fff)', backgroundColor: 'var(--bg-a, #000)', borderRadius: 'var(--radius-sm, 4px)', fontSize: 'var(--font-size-sm, 12px)', minWidth: '3rem', maxWidth: 'auto', minHeight: 'auto', maxHeight: 'auto', textAlign: 'center' }
@@ -76,7 +76,6 @@ export interface TooltipOptions {
 		 */
 		easing?: KeyframeAnimationOptions['easing']
 	}
-
 	/**
 	 * If specified, the container element for the tooltip.
 	 * @default document.body
@@ -84,14 +83,14 @@ export interface TooltipOptions {
 	container?: Element | Document
 }
 
-const TOOLTIP_DEFAULTS: TooltipOptions = {
+export const TOOLTIP_DEFAULTS: TooltipOptions = {
 	text: '',
 	placement: 'top',
 	anchor: 'node',
 	delay: 250,
 	delayOut: 0,
-	offsetX: 0,
-	offsetY: 0,
+	offsetX: '0%',
+	offsetY: '0%',
 	styles: {
 		padding: '4px 8px',
 		color: 'var(--fg-a, #fff)',
@@ -112,7 +111,7 @@ const TOOLTIP_DEFAULTS: TooltipOptions = {
 }
 
 export class Tooltip {
-	opts: TooltipOptions
+	// opts: TooltipOptions
 
 	/** The node that the tooltip is attached to. */
 	node: HTMLElement
@@ -121,19 +120,34 @@ export class Tooltip {
 	/** Whether the tooltip is currently showing. */
 	showing = false
 
+	#placement: TooltipOptions['placement']
+	anchor: TooltipOptions['anchor']
+	delay: TooltipOptions['delay']
+	delayOut: TooltipOptions['delayOut']
+	offsetX: TooltipOptions['offsetX']
+	offsetY: TooltipOptions['offsetY']
+	animation: TooltipOptions['animation']
+
+	#animPositions!: { from: string; to: string }
 	#delayInTimer!: ReturnType<typeof setTimeout>
 	#delayOutTimer!: ReturnType<typeof setTimeout>
 
 	constructor(node: HTMLElement, options?: TooltipOptions) {
-		this.node = node
-
 		const opts = deepMerge(TOOLTIP_DEFAULTS, options)
-		this.opts = opts
+
+		this.node = node
+		this.placement = opts.placement
+		this.anchor = opts.anchor
+		this.delay = opts.delay
+		this.delayOut = opts.delayOut
+		this.offsetX = opts.offsetX
+		this.offsetY = opts.offsetY
+		this.animation = opts.animation
 
 		this.getText =
-			typeof this.opts.text === 'function'
-				? (this.opts.text as () => string | number)
-				: ((() => this.opts.text) as () => string | number)
+			typeof opts.text === 'function'
+				? (opts.text as () => string | number)
+				: ((() => opts.text) as () => string | number)
 
 		this.element = create('div', {
 			classes: ['fractils-tooltip'],
@@ -145,16 +159,18 @@ export class Tooltip {
 				pointer-events: none;
 				transition: opacity 0.1s;
 				z-index: 1000;
+				box-shadow: var(--shadow-sm);
 			}`),
 		})
 
-		for (const [key, value] of entries(this.opts.styles!)) {
+		for (const [key, value] of entries(opts.styles!)) {
 			if (key && value) {
 				this.element.style[key] = value
 			}
 		}
 
 		this.listen(node, 'pointerenter', this.show)
+
 		this.listen(node, 'pointerleave', this.hide)
 		this.listen(node, 'pointermove', this.updatePosition)
 	}
@@ -168,13 +184,33 @@ export class Tooltip {
 		this.element.innerText = String(text)
 	}
 
+	get placement() {
+		return this.#placement
+	}
+	set placement(v) {
+		this.#placement = v
+		switch (v) {
+			case 'top':
+				this.#animPositions = { from: 'translateY(4px)', to: 'translateY(0)' }
+				break
+			case 'bottom':
+				this.#animPositions = { from: 'translateY(-4px)', to: 'translateY(0)' }
+				break
+			case 'left':
+				this.#animPositions = { from: 'translateX(4px)', to: 'translateX(0)' }
+				break
+			case 'right':
+				this.#animPositions = { from: 'translateX(-4px)', to: 'translateX(0)' }
+		}
+	}
+
 	#listeners = new Set<() => void>()
 	listen = (node: HTMLElement, event: string, cb: (...args: any[]) => void) => {
 		node.addEventListener(event, cb)
 		this.#listeners.add(() => this.node.removeEventListener(event, cb))
 	}
 
-	show = (delay = this.opts.delay) => {
+	show = () => {
 		if (this.showing) return
 		clearTimeout(this.#delayInTimer)
 		clearTimeout(this.#delayOutTimer)
@@ -183,16 +219,16 @@ export class Tooltip {
 			this.showing = true
 			this.element.animate(
 				[
-					{ opacity: '0', transform: 'translateY(4px)' },
-					{ opacity: '1', transform: 'translateY(0)' },
+					{ opacity: '0', transform: this.#animPositions.from },
+					{ opacity: '1', transform: this.#animPositions.to },
 				],
 				{
-					duration: this.opts.animation!.duration,
-					easing: this.opts.animation!.easing,
+					duration: this.animation!.duration,
+					easing: this.animation!.easing,
 					fill: 'forwards',
 				},
 			)
-		}, delay)
+		}, this.delay)
 	}
 
 	hide = () => {
@@ -204,17 +240,17 @@ export class Tooltip {
 				this.showing = false
 				this.element.animate(
 					[
-						{ opacity: '1', transform: 'translateY(0)' },
-						{ opacity: '0', transform: 'translateY(4px)' },
+						{ opacity: '1', transform: this.#animPositions.to },
+						{ opacity: '0', transform: this.#animPositions.from },
 					],
 					{
-						duration: this.opts.animation!.durationOut,
-						easing: this.opts.animation!.easing,
+						duration: this.animation!.durationOut,
+						easing: this.animation!.easing,
 						fill: 'forwards',
 					},
 				)
 			}
-		}, this.opts.delayOut)
+		}, this.delayOut)
 	}
 
 	updatePosition = (e: PointerEvent) => {
@@ -229,9 +265,9 @@ export class Tooltip {
 
 		const baseOffset = 4
 
-		this.element.classList.add('fractils-tooltip-' + this.opts.placement)
+		this.element.classList.add('fractils-tooltip-' + this.placement)
 
-		switch (this.opts.placement) {
+		switch (this.placement) {
 			case 'top':
 				left = anchor.x.left + window.scrollX + anchor.x.width / 2 - tooltipRect.width / 2
 				top = anchor.y.top + window.scrollY - tooltipRect.height - baseOffset
@@ -250,8 +286,8 @@ export class Tooltip {
 				break
 		}
 
-		this.element.style.left = `${left + this.opts.offsetX!}px`
-		this.element.style.top = `${top + this.opts.offsetY!}px`
+		this.element.style.left = `calc(${left}px + ${this.offsetX!})`
+		this.element.style.top = `calc(${top}px + ${this.offsetY!})`
 	}
 
 	getAnchorRects = (
@@ -306,11 +342,11 @@ export class Tooltip {
 			}
 		}
 
-		const rect = getRect<'separate'>(this.opts.anchor)
+		const rect = getRect<'separate'>(this.anchor)
 
 		if (rect === 'separate') {
-			const x = getRect((this.opts.anchor as Anchors).x)
-			const y = getRect((this.opts.anchor as Anchors).y)
+			const x = getRect((this.anchor as Anchors).x)
+			const y = getRect((this.anchor as Anchors).y)
 
 			return { x, y }
 		}

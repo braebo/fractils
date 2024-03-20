@@ -95,14 +95,14 @@ export class FullscreenButton {
 	 * before entering it's dimmed state.
 	 */
 	dimTime = 1500
-	dimTimer?: NodeJS.Timeout
+	dimTimer?: ReturnType<typeof setTimeout>
 
 	/**
 	 * How long to wait after dimming the button
 	 * before hiding it completely.
 	 */
 	hideTime = 2000
-	hideTimer?: NodeJS.Timeout
+	hideTimer?: ReturnType<typeof setTimeout>
 
 	/**
 	 * Animation transition duration.

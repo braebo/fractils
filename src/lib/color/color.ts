@@ -69,10 +69,10 @@ export class Color {
 	 * - An {@link HslColor}: { h: 261, s: 100, l: 47, a: 1 }
 	 * - An {@link KelvinColor}: { kelvin: 6500 }
 	 */
-	constructor(color?: ColorValue) {
+	constructor(color?: ColorValue | (string & {})) {
 		this.#hsva = DEFAULT_COLOR
 
-		if (color) this.set(color)
+		if (color) this.set(color as ColorValue)
 
 		this.#initialValue = structuredClone(this.#hsva)
 

@@ -1,7 +1,16 @@
-<h1>Demos</h1>
+<script lang="ts">
+	import type { PageData } from './$types'
+	export let data: PageData
+</script>
 
-<div class="br-md" />
+<div class="br-xl" />
 
-<a href="/demo/gui">Gui</a>
-<a href="/demo/resizable">Resizable</a>
-<a href="/demo/draggable">Draggable</a>
+{#each data.routes as route}
+	<a href="/demo/{route}">{route}</a>
+{/each}
+
+<style lang="scss">
+	a {
+		margin: 1rem auto;
+	}
+</style>

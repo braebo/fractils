@@ -1,13 +1,20 @@
 import { Tooltip } from '../../actions/tooltip'
 import { create } from '../../utils/create'
 import { append } from '../../utils/mount'
+import { CopySVG } from '../svg/CopySVG'
 
 export class CopyButton {
 	button: HTMLDivElement
-	icon: ReturnType<typeof this.copySvg>
+	icon: CopySVG
 	text: () => string
 
+	/**
+	 * When the copy animation is active, this is `true` and the button has an `active` class.
+	 */
 	active = false
+	/**
+	 * When the copy animation is outroing, this is `true` and the button has an `outro` class.
+	 */
 	outro = false
 
 	cooldown!: ReturnType<typeof setTimeout>
@@ -15,8 +22,11 @@ export class CopyButton {
 
 	tooltip: Tooltip
 
-	constructor(container: HTMLElement, text: () => string) {
-		const button = create<HTMLDivElement>('div', {
+	constructor(
+		public container: HTMLElement,
+		text: () => string,
+	) {
+		const button = create('div', {
 			classes: ['copy-button'],
 			title: 'Copy',
 			attributes: {
@@ -33,7 +43,7 @@ export class CopyButton {
 		})
 
 		this.button = button
-		this.icon = this.copySvg()
+		this.icon = new CopySVG()
 		this.text = text
 
 		this.button.addEventListener('click', this.copy)
@@ -43,6 +53,8 @@ export class CopyButton {
 		this.tooltip = new Tooltip(this.button, {
 			text: 'Copy',
 			placement: 'top',
+			offsetY: '6px',
+			delay: 300,
 		})
 	}
 
@@ -100,45 +112,5 @@ export class CopyButton {
 
 		this.tooltip.text = 'Copy'
 		this.tooltip.hide()
-	}
-
-	copySvg = () => {
-		const s = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-		s.classList.add('icon', 'copy')
-		s.setAttribute('width', '100%')
-		s.setAttribute('height', '100%')
-		s.setAttribute('viewBox', '0 0 24 24')
-		s.setAttribute('fill', 'none')
-		s.setAttribute('stroke', 'currentColor')
-		s.setAttribute('stroke-width', '2')
-		s.setAttribute('stroke-linecap', 'round')
-		s.setAttribute('stroke-linejoin', 'round')
-
-		const back = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-		back.classList.add('back')
-		back.setAttribute('d', 'M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1')
-		s.appendChild(back)
-
-		const front = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
-		front.classList.add('front')
-		front.setAttribute('width', '13')
-		front.setAttribute('height', '13')
-		front.setAttribute('rx', '2')
-		front.setAttribute('ry', '2')
-		front.setAttribute('x', '9')
-		front.setAttribute('y', '9')
-		s.appendChild(front)
-
-		const check = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-		check.classList.add('check')
-		check.setAttribute('d', 'M17 9l-7 7-4-4')
-		s.appendChild(check)
-
-		return {
-			svg: s,
-			back,
-			front,
-			check,
-		}
 	}
 }

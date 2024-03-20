@@ -9,18 +9,21 @@
 
 	--fracgui-root-header-font-size: 0.75rem;
 	--fracgui-root-header-height: 1.75rem;
-	--header-height: 1.5rem;
+	--header-height: 1.75rem;
 
 	--fracgui-width: 30rem;
 	--fracgui-min-width: 25rem;
 	--fracgui-max-width: 35rem;
 
+	--fracgui-input-height: 2rem;
 	--fracgui-input-section-1-width: 6rem;
 	--fracgui-input-section-2-width: 4rem;
 	--fracgui-input-section-3-width: 100%;
 
 	--fracgui-alpha: 0.5;
 	--fracgui-blur: 0.5rem;
+
+	// scale: 1.2;
 }
 
 .fracgui-root,
@@ -61,6 +64,7 @@
 		-3.0px 3px 25px hsla(220, 10%, 2%, calc(0.05 * var(--shadow-lightness))) inset,
 		-10.0px 10px 50px hsla(220, 10%, 2%, calc(0.025 * var(--shadow-lightness))) inset
 	;
+	--fracgui-drawer-toggle-background: rgba(var(--bg-a-rgb), 0.5);
 
 	//* Number Input
 
@@ -140,6 +144,22 @@ html[theme='light'] .fracgui-folder {
 	2px 2px 3px 0px hsla(231, 17%, 23%, 0.5) inset
 	;
 }
+//⌟
+
+//· Stacking Context ···································································¬
+
+.fracgui-root {
+	z-index: 0;
+}
+
+.fracgui-header {
+	z-index: 2;
+}
+
+.fracgui-toolbar {
+	z-index: 3;
+}
+
 //⌟
 
 //· Open / Close Animations ··················································¬
@@ -330,7 +350,8 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	}
 
 	@mixin scrollbarTrack {
-		background: rgba(var(--bg-a-rgb), 0.75);
+		// background: rgba(var(--bg-a-rgb), 0.75);
+		background: var(--bg-a);
 		// border-radius: var(--radius-xs);
 		border-bottom-right-radius: var(--radius-sm);
 	}
@@ -376,11 +397,11 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 	padding-left: var(--fracgui-folder-header-padding-left);
 
 	color: var(--fracgui-folder-header-color, var(--fg-c));
-	background: var(--fracgui-folder-header-background, var(--bg-b));
+	background: var(--fracgui-folder-header-background, var(--bg-a));
 	outline: var(--fracgui-folder-header-outline, 1px solid rgba(var(--bg-b-rgb), 0.5));
 	outline-offset: -1px;
-	border-radius: var(--fracgui-folder-header-border-radius, var(--radius-sm));
-	border-bottom-left-radius: 0;
+	// border-radius: var(--fracgui-folder-header-border-radius, var(--radius-sm));
+	// border-bottom-left-radius: 0;
 	box-shadow: var(--fracgui-folder-header-box-shadow, 0 0 0.1rem #000 inset);
 
 	cursor: pointer;
@@ -398,22 +419,23 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 		color: var(--fg-c);
 
-		opacity: 0.5;
+		opacity: 0.75;
 		transition: opacity 0.15s;
 	}
 
 	&:hover svg.icon-folder {
-		opacity: 0.75;
+		opacity: 1;
 	}
 }
 
-.fracgui-folder .fracgui-header {
-	border-top-left-radius: 0;
-}
-.fracgui-root > div.fracgui-content-wrapper > div > div > div.fracgui-header {
-	border-top-left-radius: var(--fracgui-folder-header-border-radius, var(--radius-sm));
-	border-top-right-radius: 0px;
-}
+// .fracgui-folder .fracgui-header {
+// 	border-top-left-radius: 0;
+// }
+// // Only the root header.
+// .fracgui-root > div.fracgui-content-wrapper > div > div > div.fracgui-header {
+// 	border-top-left-radius: var(--fracgui-folder-header-border-radius, var(--radius-sm));
+// 	border-top-right-radius: 0px;
+// }
 
 .fracgui-folder {
 	.fracgui-content {
@@ -421,16 +443,10 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		flex-direction: column;
 
 		width: 100%;
-		// padding-left: var(--fracgui-folder-content-padding-left);
 		border-left: var(--fracgui-folder-content-padding-left) solid
 			var(--fracgui-folder-header-background);
-		padding-top: 0.25rem;
 
 		background: var(--fracgui-folder-content-background, var(--fracgui-folder-background));
-
-		.fracgui-header {
-			filter: contrast(1.075);
-		}
 	}
 }
 
@@ -448,16 +464,16 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		right: 0.5rem;
 		top: 0.5rem;
 
-		width: 0.75rem;
+		width: 0.5rem;
 		height: 75%;
 
 		color: var(--fg-c);
-		background: var(--bg-c);
+		background: var(--fracgui-drawer-toggle-background);
 		transition: opacity 0.15s;
 		box-shadow: -1px 0 1px 0.5px rgba(var(--bg-a-rgb), 0.5) inset;
 
-		border-top-right-radius: var(--radius-xs);
-		border-bottom-right-radius: var(--radius-xs);
+		border-top-right-radius: var(--radius-sm);
+		border-bottom-right-radius: var(--radius-sm);
 
 		cursor: pointer;
 
@@ -487,23 +503,84 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		align-items: center;
 
 		width: 100%;
-		min-height: 2rem;
+		height: 0;
+		min-height: var(--fracgui-input-height);
 
 		color: var(--fracgui-input-container-color);
 		background: var(--fracgui-input-container-background);
 		outline: var(--fracgui-input-container-outline);
 		box-shadow: var(--fracgui-input-container-shadow);
 
-		transition: 0.15s;
+		transition:
+			all 0.15s,
+			opacity 0.15s ease-in 0.2s;
+
+		$inverted-border-size: 0.5rem;
+		$inverted-border-radius: 0.2rem;
+		$inverted-border-radius-bottom: 0.1rem;
 
 		&:first-of-type {
 			border-top-left-radius: var(--radius-sm);
 			border-top-right-radius: var(--radius-sm);
+
+			// top left corner
+			&::before {
+				content: '';
+				position: absolute;
+				background-color: transparent;
+				bottom: $inverted-border-size * 2;
+				width: $inverted-border-size;
+				height: $inverted-border-size * 2;
+				border-top-left-radius: $inverted-border-radius;
+				box-shadow: 0 -#{$inverted-border-size} 0 0 var(--bg-a);
+
+				opacity: 1;
+				transition: inherit;
+			}
+			// top right corner
+			&::after {
+				content: '';
+				position: absolute;
+				background-color: transparent;
+				right: 0;
+				bottom: $inverted-border-size * 2;
+				width: $inverted-border-size;
+				min-height: $inverted-border-size * 2;
+				border-top-right-radius: $inverted-border-radius;
+				box-shadow: 0 -#{$inverted-border-size} 0 0 var(--bg-a);
+
+				opacity: 1;
+				transition: inherit;
+			}
 		}
 
 		&:last-of-type {
 			border-bottom-left-radius: var(--radius-sm);
 			border-bottom-right-radius: var(--radius-sm);
+
+			// bottom left corner
+			&::before {
+				content: '';
+				position: absolute;
+				background-color: transparent;
+				top: $inverted-border-size * 2;
+				height: $inverted-border-size * 2;
+				width: $inverted-border-size;
+				border-bottom-left-radius: $inverted-border-radius-bottom;
+				box-shadow: 0 $inverted-border-size 0 0 var(--bg-a);
+			}
+			// bottom right corner
+			&::after {
+				content: '';
+				position: absolute;
+				background-color: transparent;
+				right: 0;
+				top: $inverted-border-size * 2;
+				height: $inverted-border-size * 2;
+				width: $inverted-border-size;
+				border-bottom-right-radius: $inverted-border-radius-bottom;
+				box-shadow: 0 $inverted-border-size 0 0 var(--bg-a);
+			}
 		}
 
 		&:hover {
@@ -518,6 +595,34 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 			.fracgui-input-title {
 				color: var(--theme-a);
+			}
+		}
+
+		&.fracgui-search-hit {
+			min-height: var(--fracgui-input-height);
+
+			.fracgui-input-title {
+				color: var(--theme-a);
+			}
+		}
+
+		&.fracgui-search-miss {
+			min-height: 0rem;
+			overflow: hidden;
+
+			&::after {
+				opacity: 0;
+				transition: inherit;
+			}
+			&::before {
+				opacity: 0;
+				transition: inherit;
+			}
+		}
+
+		&.expanded {
+			.fracgui-input-container {
+				min-height: unset;
 			}
 		}
 	}
@@ -796,15 +901,20 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 				.copy-button {
 					position: absolute;
-					top: -2px;
+					top: -4px;
 					right: -4px;
 
 					height: 1.5rem;
 					padding: 2px;
+					background: none !important;
 
-					color: var(--fg-c) !important;
+					// color: var(--fg-c) !important;
+					filter: brightness(0.75) contrast(0.8);
+					backdrop-filter: none;
 					&:hover {
-						color: var(--fg-a) !important;
+						filter: brightness(1) contrast(1);
+						backdrop-filter: none;
+						// color: var(--fg-a) !important;
 					}
 
 					opacity: 0;
@@ -1260,9 +1370,6 @@ $option-padding: 0.1rem 0.75rem;
 	justify-content: flex-end;
 	gap: 0.25rem;
 
-	justify-self: flex-end;
-	align-self: flex-end;
-
 	padding: 0.25rem 0.1rem 0.25rem 0;
 
 	cursor: pointer;
@@ -1284,10 +1391,30 @@ $option-padding: 0.1rem 0.75rem;
 .fracgui-search-button {
 	all: unset;
 
+	display: flex;
+	align-items: center;
+
 	width: 1.5rem;
-	height: 1rem;
+	height: 0.9rem;
 
 	transition: 0.15s;
+
+	svg {
+		pointer-events: none;
+		transition-duration: 0.15s !important;
+
+		path {
+			transform: translate(0, 0) scale(1);
+			transform-origin: 50% 50%;
+			transition-duration: 0.15s !important;
+		}
+
+		circle {
+			fill: transparent;
+			transform: translate(0, 0) scale(1);
+			transition-duration: 0.15s !important;
+		}
+	}
 }
 
 //- Hover
@@ -1320,6 +1447,17 @@ $option-padding: 0.1rem 0.75rem;
 .fracgui-search-container.active .fracgui-search-button {
 	color: var(--bg-e);
 	opacity: 1;
+
+	path {
+		transform: translate(-10%, 10%) scale(0);
+		transform-origin: 60% 60%;
+	}
+
+	circle {
+		fill: var(--bg-e);
+		// transition-duration: 0.15s !important;
+		transform: translate(-10%, 20%) scale(0.75);
+	}
 }
 
 //? Input
@@ -1344,6 +1482,10 @@ input.fracgui-search-input {
 	text-emphasis-color: red;
 
 	transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+
+	@at-root :root[theme='light'] & {
+		box-shadow: 0 0 4px #0001 inset;
+	}
 }
 
 //- Active
@@ -1358,7 +1500,7 @@ input.fracgui-search-input {
 	max-width: 6rem;
 	opacity: 1;
 	pointer-events: all;
-	transition-duration: .33s;
+	transition-duration: 0.33s;
 }
 //⌟
 //⌟

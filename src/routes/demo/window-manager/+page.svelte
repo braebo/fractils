@@ -138,26 +138,6 @@
 		}
 	}
 
-	// .delete {
-	// 	all: unset;
-	// 	position: absolute;
-	// 	top: 0.5rem;
-	// 	right: 0.5rem;
-	// 	// padding: 0.5rem !important;
-	// 	cursor: pointer;
-	// 	width: 10px;
-	// 	height: 10px;
-	// 	border-radius: 50%;
-	// 	background: tomato;
-	// 	filter: brightness(0.25) saturate(0.25);
-	// 	transition: 0.25s ease-in;
-	// 	&:hover {
-	// 		filter: brightness(0.5);
-	// 		// opacity: 0.5;
-	// 	}
-	// 	z-index: 999;
-	// }
-
 	button {
 		margin: 1rem auto;
 	}
