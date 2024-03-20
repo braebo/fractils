@@ -14,12 +14,16 @@ const config = {
 		},
 		prerender: {
 			handleHttpError: ({ path }) => {
-				if (path === '/code/ssr') {
+				if (path === 'playground/code/ssr') {
 					return
 				}
 			},
 			// // todo - remove
-			// handleMissingId: 'ignore',
+			handleMissingId: ({ path }) => {
+				if (path === 'demo/docinator#ssr') {
+					return
+				}
+			},
 		},
 	},
 	vitePlugin: {
