@@ -108,7 +108,7 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 		tooltip(hueSlider, {
 			text: () => this.input.state.value.hsla.h,
 			placement: 'top',
-			offsetX: 0,
+			offsetX: '0px',
 			anchor: {
 				x: 'mouse',
 				y: hueSlider.querySelector('#thumb'),
@@ -128,7 +128,7 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 		tooltip(alphaSlider, {
 			text: () => this.input.state.value.alpha,
 			placement: 'top',
-			offsetX: 0,
+			offsetX: '0px',
 			anchor: {
 				x: 'mouse',
 				y: alphaSlider.querySelector('#thumb'),
