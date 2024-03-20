@@ -3,9 +3,7 @@
 	export let data: PageData
 </script>
 
-<h1>Demos</h1>
-
-<div class="br-md" />
+<div class="br-xl" />
 
 {#each data.routes as route}
 	<a href="/demo/{route}">{route}</a>

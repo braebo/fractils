@@ -268,26 +268,22 @@
 	})
 </script>
 
-<button on:click={() => console.log(gui)}>Log Gui</button>
-
 <div class="page">
+	<button on:click={() => console.log(gui)}>Log Gui</button>
+
 	<div class="orbs">
 		<Orbs bind:params />
 	</div>
 </div>
 
 <style lang="scss">
-	:global(html) {
-		background: color-mix(in lch, var(--bg-c), var(--bg-c)) !important;
-	}
-
 	.page {
-		flex-grow: 1;
-
-		max-width: 400px;
-		height: 75%;
+		width: 100vw;
+		height: 100vh;
 		padding: 1rem;
 		margin: auto;
+
+		background: var(--bg-b);
 	}
 
 	.orbs {
