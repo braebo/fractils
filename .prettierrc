@@ -1,15 +1,20 @@
 {
-	"svelteSortOrder": "scripts-markup-styles",
 	"htmlWhitespaceSensitivity": "strict",
-	"svelteIndentScriptAndStyle": true,
-	"svelteAllowShorthand": true,
 	"quoteProps": "as-needed",
-	"arrowParens": "always",
+	"arrowParens": "avoid",
 	"trailingComma": "all",
 	"bracketSpacing": true,
 	"singleQuote": true,
 	"printWidth": 100,
 	"useTabs": true,
 	"tabWidth": 4,
-	"semi": false
+	"semi": false,
+	"overrides": [
+		{
+			"files": ["tsconfig.json", "settings.json"],
+			"options": {
+				"parser": "jsonc"
+			}
+		}
+	]
 }
