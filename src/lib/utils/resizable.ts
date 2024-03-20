@@ -313,6 +313,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 	}
 
 	onGrab = (e: PointerEvent) => {
+		this.node.setPointerCapture(e.pointerId)
 		this.#activeGrabber = e.currentTarget as HTMLElement
 		this.#activeGrabber.classList.add(this.classes.active)
 		document.body.classList.add(this.classes.active)
@@ -332,7 +333,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 		document.addEventListener('pointermove', this.onMove)
 		this.#cleanupGrabListener = () => document.removeEventListener('pointermove', this.onMove)
 
-		this.node.dispatchEvent(new CustomEvent('grab', { detail: { side } }))
+		// this.node.dispatchEvent(new CustomEvent('grab', { detail: { side } }))
 
 		document.addEventListener('pointerup', this.onUp, { once: true })
 	}
@@ -442,6 +443,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			borderBottomWidth,
 		} = window.getComputedStyle(this.node)
 		const yClosest = this.getClosestObstBottom()
+
 		const clampedY = Math.min(y, yClosest)
 		let deltaY = clampedY - this.rect.bottom
 		if (deltaY === 0) return this

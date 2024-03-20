@@ -540,14 +540,14 @@ export class Draggable {
 		// Update the bounds rect.
 		this.#recomputeBounds()
 
-		this.node.dispatchEvent(new CustomEvent('grab'))
+		// this.node.dispatchEvent(new CustomEvent('grab'))
 
 		// Capture the pointer and store the release callback.
 		const { cursor } = getComputedStyle(this.node)
 		this.node.setPointerCapture(e.pointerId)
 		this.node.style.cursor = 'grabbing'
 		this.#releaseCapture = () => {
-			this.node.releasePointerCapture(e.pointerId)
+			//  this.node.releasePointerCapture(e.pointerId)
 			this.node.style.cursor = cursor
 		}
 
