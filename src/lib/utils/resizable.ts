@@ -7,6 +7,7 @@ import { state } from '../utils/state'
 import { select } from './select'
 import { clamp } from './clamp'
 import { fn, gr } from './l'
+import { DEV } from 'esm-env'
 
 type ElementsOrSelectors = string | HTMLElement | (string | HTMLElement)[] | undefined
 
@@ -262,19 +263,90 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 	}
 
 	clickOffset = { x: 0, y: 0 }
+	whenGrabbed = { x: 0, y: 0, width: 0, height: 0, translateX: 0, translateY: 0 }
+	deltaLimitX = 0
+	deltaLimitY = 0
+
+	getDeltaLimitLeft = () => {
+		let closestObst = -Infinity
+		for (const obstacle of this.obstacleEls) {
+			const o = obstacle.getBoundingClientRect()
+			// too high || too low || opposite side || opposite direction
+			if (this.rect.top > o.bottom || this.rect.bottom < o.top || this.rect.left < o.right)
+				continue
+			closestObst = Math.max(closestObst, o.right - this.rect.left)
+		}
+		return closestObst
+	}
+
+	getDeltaLimitRight = () => {
+		let closestObst = Infinity
+		for (const obstacle of this.obstacleEls) {
+			const o = obstacle.getBoundingClientRect()
+			// too high || too low || opposite side || opposite direction
+			if (this.rect.top > o.bottom || this.rect.bottom < o.top || this.rect.right > o.left)
+				continue
+			closestObst = Math.min(closestObst, o.left - this.rect.right)
+		}
+		return closestObst
+	}
+
+	getDeltaLimitTop = () => {
+		let closestObst = -Infinity
+		for (const obstacle of this.obstacleEls) {
+			const o = obstacle.getBoundingClientRect()
+			// too high || too low || opposite side || opposite direction
+			if (this.rect.left > o.right || this.rect.right < o.left || this.rect.top < o.bottom)
+				continue
+			closestObst = Math.max(closestObst, o.bottom - this.rect.top)
+		}
+		return closestObst
+	}
+
+	getDeltaLimitBottom = () => {
+		let closestObst = Infinity
+		for (const obstacle of this.obstacleEls) {
+			const o = obstacle.getBoundingClientRect()
+			// too high || too low || on the other side || unreachable with delta
+			if (this.rect.left > o.right || this.rect.right < o.left || this.rect.bottom > o.top)
+				continue
+			closestObst = Math.min(closestObst, o.top - this.rect.bottom)
+		}
+		return closestObst
+	}
 
 	onGrab = (e: PointerEvent) => {
 		this.#activeGrabber = e.currentTarget as HTMLElement
-
 		this.#activeGrabber.classList.add(this.classes.active)
 		document.body.classList.add(this.classes.active)
 
 		const side = this.#activeGrabber.dataset.side
-		if (side!.match(/top/)) this.clickOffset.y = e.clientY - this.rect.top
-		if (side!.match(/bottom/)) this.clickOffset.y = e.clientY - this.rect.bottom
-		if (side!.match(/left/)) this.clickOffset.x = e.clientX - this.rect.left
-		if (side!.match(/right/)) this.clickOffset.x = e.clientX - this.rect.right
+		if (side!.match(/top/)) {
+			this.clickOffset.y = e.clientY - this.rect.top
+			this.deltaLimitY = this.getDeltaLimitTop()
+		}
+		if (side!.match(/bottom/)) {
+			this.clickOffset.y = e.clientY - this.rect.bottom
+			this.deltaLimitY = this.getDeltaLimitBottom()
+		}
+		if (side!.match(/left/)) {
+			this.clickOffset.x = e.clientX - this.rect.left
+			this.deltaLimitX = this.getDeltaLimitLeft()
+		}
+		if (side!.match(/right/)) {
+			this.clickOffset.x = e.clientX - this.rect.right
+			this.deltaLimitX = this.getDeltaLimitRight()
+		}
 
+		this.whenGrabbed = {
+			x: e.clientX - this.clickOffset.x,
+			y: e.clientY - this.clickOffset.y,
+			width: this.rect.width,
+			height: this.rect.height,
+			translateX: this.translateX,
+			translateY: this.translateY,
+		}
+		this.obstacleEls = select(this.opts.obstacles)
 		e.preventDefault()
 		e.stopPropagation()
 
@@ -306,20 +378,12 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 	}
 
 	resizeLeft = (x: number) => {
-		const { width, top, bottom, left } = this.node.getBoundingClientRect()
+		const width = this.whenGrabbed.width
 		const { minWidth, maxWidth, paddingLeft, paddingRight, borderLeftWidth, borderRightWidth } =
 			window.getComputedStyle(this.node)
 
-		let deltaX = x - left
+		let deltaX = Math.max(x - this.whenGrabbed.x, this.deltaLimitX)
 		if (deltaX === 0) return this
-
-		for (const obstacle of this.obstacleEls) {
-			const o = obstacle.getBoundingClientRect()
-			// too high || too low || opposite side || opposite direction
-			if (top > o.bottom || bottom < o.top || left < o.right || left + deltaX >= o.right)
-				continue
-			deltaX = Math.max(deltaX, o.right - left)
-		}
 
 		const borderBox =
 			parseFloat(paddingLeft) +
@@ -327,39 +391,24 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			parseFloat(borderLeftWidth) +
 			parseFloat(borderRightWidth)
 		const min = Math.max((parseFloat(minWidth) || 0) + borderBox, 25)
-		const max = Math.min(this.boundsRect.width, +maxWidth || Infinity)
-		const newWidth = clamp(width - deltaX, min, max)
-
-		// console.log('borderBox', borderBox)
-		// console.log('minWidth', minWidth)
-		// console.log('min', min)
-		// console.log('max', max)
-		// console.log('newWidth', newWidth)
+		const newWidth = clamp(width - deltaX, min, +maxWidth || Infinity)
 
 		if (newWidth === min) deltaX = width - newWidth
-		this.translateX += deltaX
-
+		this.translateX = this.whenGrabbed.translateX + deltaX
 		this.node.style.setProperty('translate', `${this.translateX}px ${this.translateY}px`)
+
 		this.node.style.width = `${newWidth}px`
 
 		return this
 	}
 
 	resizeRight = (x: number) => {
-		const { width, top, right, bottom } = this.node.getBoundingClientRect()
+		const width = this.whenGrabbed.width
 		const { minWidth, maxWidth, paddingLeft, paddingRight, borderLeftWidth, borderRightWidth } =
 			window.getComputedStyle(this.node)
 
-		let deltaX = x - right
+		let deltaX = Math.min(x - this.whenGrabbed.x, this.deltaLimitX)
 		if (deltaX === 0) return this
-
-		for (const obstacle of this.obstacleEls) {
-			const o = obstacle.getBoundingClientRect()
-			// too high || too low || already passed || unreachable with delta
-			if (top > o.bottom || bottom < o.top || right > o.left || right + deltaX <= o.left)
-				continue
-			deltaX = Math.min(deltaX, o.left - right)
-		}
 
 		const borderBox =
 			parseFloat(paddingLeft) +
@@ -367,8 +416,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			parseFloat(borderLeftWidth) +
 			parseFloat(borderRightWidth)
 		const min = Math.max((parseFloat(minWidth) || 0) + borderBox, 25)
-		const max = Math.min(this.boundsRect.width, +maxWidth || Infinity)
-		const newWidth = clamp(width + deltaX, min, max)
+		const newWidth = clamp(width + deltaX, min, +maxWidth || Infinity)
 
 		this.node.style.width = `${newWidth}px`
 
@@ -376,7 +424,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 	}
 
 	resizeTop = (y: number) => {
-		const { height, top, right, left } = this.node.getBoundingClientRect()
+		const height = this.whenGrabbed.height
 		const {
 			minHeight,
 			maxHeight,
@@ -386,16 +434,8 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			borderBottomWidth,
 		} = window.getComputedStyle(this.node)
 
-		let deltaY = y - top
+		let deltaY = Math.max(y - this.whenGrabbed.y, this.deltaLimitY)
 		if (deltaY === 0) return this
-
-		for (const obstacle of this.obstacleEls) {
-			const o = obstacle.getBoundingClientRect()
-			// too high || too low || opposite side || opposite direction
-			if (left > o.right || right < o.left || top < o.bottom || top + deltaY >= o.bottom)
-				continue
-			deltaY = Math.max(deltaY, o.bottom - top)
-		}
 
 		const borderBox =
 			parseFloat(paddingTop) +
@@ -403,21 +443,20 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			parseFloat(borderTopWidth) +
 			parseFloat(borderBottomWidth)
 		const min = Math.max((parseFloat(minHeight) || 0) + borderBox, 25)
-		const max = Math.min(this.boundsRect.height, +maxHeight || Infinity)
-		const newHeight = clamp(height - deltaY, min, max)
+		const newHeight = clamp(height - deltaY, min, +maxHeight || Infinity)
 
 		if (newHeight === min) deltaY = height - newHeight
 
-		this.translateY += deltaY
-
+		this.translateY = this.whenGrabbed.translateY + deltaY
 		this.node.style.setProperty('translate', `${this.translateX}px ${this.translateY}px`)
+
 		this.node.style.height = `${newHeight}px`
 
 		return this
 	}
 
 	resizeBottom = (y: number) => {
-		const { height, right, left, bottom } = this.node.getBoundingClientRect()
+		const height = this.whenGrabbed.height
 		const {
 			minHeight,
 			maxHeight,
@@ -427,16 +466,8 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			borderBottomWidth,
 		} = window.getComputedStyle(this.node)
 
-		let deltaY = y - bottom
+		let deltaY = Math.min(y - this.whenGrabbed.y, this.deltaLimitY)
 		if (deltaY === 0) return this
-
-		for (const obstacle of this.obstacleEls) {
-			const o = obstacle.getBoundingClientRect()
-			// too high || too low || on the other side || unreachable with delta
-			if (left > o.right || right < o.left || bottom > o.top || bottom + deltaY <= o.top)
-				continue
-			deltaY = Math.min(deltaY, o.top - bottom)
-		}
 
 		const borderBox =
 			parseFloat(paddingTop) +
@@ -444,8 +475,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			parseFloat(borderTopWidth) +
 			parseFloat(borderBottomWidth)
 		const min = Math.max((parseFloat(minHeight) || 0) + borderBox, 25)
-		const max = Math.min(this.boundsRect.height, +maxHeight || Infinity)
-		const newHeight = clamp(height + deltaY, min, max)
+		const newHeight = clamp(height + deltaY, min, +maxHeight || Infinity)
 
 		this.node.style.height = `${newHeight}px`
 
@@ -504,6 +534,18 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			width: this.node.offsetWidth,
 			height: this.node.offsetHeight,
 		})
+
+		if (DEV) {
+			const { width, height } = this.node.getBoundingClientRect()
+			const xdev = this.node.querySelector('.content') as HTMLElement
+			if (xdev) {
+				xdev.innerText = `width:${width}\n
+				deltaX:${this.whenGrabbed.width - width} obstacleX:${this.deltaLimitX}\n
+				height:${width}\n
+				deltaY:${this.whenGrabbed.height - height} obstacleY:${this.deltaLimitY}`
+			}
+			// return
+		}
 	}
 
 	onUp = () => {

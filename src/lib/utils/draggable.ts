@@ -482,6 +482,7 @@ export class Draggable {
 		if (this.disabled) return
 		// Ignore right-clicks.
 		if (e.button === 2) return
+
 		if (this.opts.ignoreMultitouch && !e.isPrimary) return
 		// Abort if a cancel element was clicked.
 		if (cancelClassFound(e)) return
@@ -570,6 +571,7 @@ export class Draggable {
 
 		// Dispatch custom events
 		this.#fireSvelteDragStartEvent()
+
 		this.#fireUpdateEvent()
 	}
 
@@ -583,7 +585,11 @@ export class Draggable {
 		this.node.classList.add(this.opts.classes.dragging)
 		this.node.classList.add(this.opts.classes.dragged)
 
-		this.updatePosition(e.clientX, e.clientY)
+		const x = e.clientX - this.clickOffset.x
+		const y = e.clientY - this.clickOffset.y
+		const target = { x, y }
+		if (this.bounds) this.#clampToBounds(target)
+		this.moveTo(target)
 
 		this.#fireSvelteDragEvent()
 	}
@@ -618,150 +624,457 @@ export class Draggable {
 		this.#fireSvelteDragEndEvent()
 	}
 
+	//- Old-old resize.
+	// resize = () => {
+	// 	this.#recomputeBounds()
+	// 	// Get this rect and bound's rect.
+	// 	const { left, top, right, bottom } = this.node.getBoundingClientRect()
+	// 	const b = this.bounds
+
+	// 	/** Distance between the node right and bounds right. */
+	// 	const overflowX = b.right - right
+	// 	/** Distance between the node bottom and bounds bottom. */
+	// 	const overflowY = b.bottom - bottom
+
+	// 	const styleLeft = parseFloat(this.node.style.left) || 0
+	// 	const styleTop = parseFloat(this.node.style.top) || 0
+
+	// 	let targetX = left - b.left - styleLeft
+	// 	let targetY = top - b.top - styleTop
+
+	// 	let change = false
+
+	// 	// Move if overflown.
+	// 	if (overflowX !== 0) {
+	// 		targetX = Math.min(targetX + overflowX, this.position.x)
+	// 		// Only move if we're not already there.
+	// 		change = targetX !== this.x
+	// 	}
+
+	// 	if (overflowY !== 0) {
+	// 		targetY = Math.min(targetY + overflowY, this.position.y)
+	// 		// Only move if we're not already there.
+	// 		change = change || targetY !== this.y
+	// 	}
+
+	// 	if (change) {
+	// 		this.moveTo({
+	// 			x: Math.round(targetX),
+	// 			y: Math.round(targetY),
+	// 		})
+	// 	}
+	// }
+
+	//- Failed resize re-write.
+	// /**
+	//  * Re-calculates the bounds and updates the node's position if it's out of bounds.
+	//  * Called automatically when the window and/or {@link bounds} are resized.
+	//  */
+	// resize = () => {
+	// 	let change = false
+
+	// 	const virtualRect = this.rect
+	// 	let overflowX = 0
+
+	// 	const resizeX = () => {
+	// 		this.#recomputeBounds()
+	// 		this.obstacleEls = select(this.opts.obstacles)
+
+	// 		// Get this rect and bound's rect.
+	// 		// const { top, right, bottom, left } = this.node.getBoundingClientRect()
+	// 		const { top, right, bottom, left } = this.rect
+
+	// 		const b = this.bounds
+
+	// 		let bTop = b.top
+	// 		let bRight = b.right
+	// 		let bBottom = b.bottom
+	// 		let bLeft = b.left
+
+	// 		const newBoundsSize = {
+	// 			width: bRight - bLeft,
+	// 			height: bBottom - bTop,
+	// 		}
+
+	// 		const resizingX = this.#lastBoundsSize.width !== newBoundsSize.width
+
+	// 		const adjustX = () => {
+	// 			for (const obstacle of this.obstacleEls) {
+	// 				const o = obstacle.getBoundingClientRect()
+
+	// 				// Use the obstacle position if it's a tweened draggable.
+	// 				let oLeft = +obstacle.dataset.x!
+	// 				let oTop = +obstacle.dataset.y!
+
+	// 				if (isNaN(oLeft)) oLeft = o.left
+	// 				if (isNaN(oTop)) oTop = o.top
+
+	// 				let oBottom = oTop + o.height
+	// 				let oRight = oLeft + o.width
+
+	// 				// we can't occlude ourself
+	// 				if (this.node === obstacle) continue
+
+	// 				// too high || too low
+	// 				if (top > oBottom || bottom < oTop) {
+	// 					continue
+	// 				}
+
+	// 				// Is obstacle on the right or left?
+	// 				const overRight = right > oLeft && left <= oRight
+
+	// 				if (overRight) {
+	// 					bRight = Math.min(bRight, oLeft)
+	// 				}
+	// 			}
+	// 		}
+
+	// 		if (resizingX) {
+	// 			adjustX()
+	// 		}
+
+	// 		/** Distance between the node bottom and bounds bottom. */
+	// 		overflowX = bRight - right
+
+	// 		const styleLeft = parseFloat(this.node.style.left) || 0
+	// 		const styleTop = parseFloat(this.node.style.top) || 0
+
+	// 		let targetX = left - bLeft - styleLeft
+	// 		let targetY = top - bTop - styleTop
+
+	// 		let changeX = false
+
+	// 		// Move if overflown.
+	// 		if (overflowX !== 0) {
+	// 			targetX = Math.min(targetX + overflowX, this.position.x)
+	// 			// Only move if we're not already there.
+	// 			changeX = targetX !== this.x
+	// 		}
+
+	// 		if (changeX) {
+	// 			virtualRect.left += targetX - this.x
+	// 			virtualRect.right += targetX - this.x
+	// 			change = true
+	// 		}
+
+	// 		this.#lastBoundsSize.width = this.bounds.right - this.bounds.left
+
+	// 		return targetX
+	// 	}
+
+	// 	const resizeY = () => {
+	// 		this.#recomputeBounds()
+	// 		this.obstacleEls = select(this.opts.obstacles)
+
+	// 		// Get this rect and bound's rect.
+	// 		const { top, right, bottom, left } = virtualRect
+
+	// 		const b = this.bounds
+
+	// 		let bTop = b.top
+	// 		let bRight = b.right
+	// 		let bBottom = b.bottom
+	// 		let bLeft = b.left
+
+	// 		const newBoundsSize = {
+	// 			width: bRight - bLeft,
+	// 			height: bBottom - bTop,
+	// 		}
+
+	// 		const resizingY = this.#lastBoundsSize.height !== newBoundsSize.height
+
+	// 		const adjustY = () => {
+	// 			for (const obstacle of this.obstacleEls) {
+	// 				const o = obstacle.getBoundingClientRect()
+
+	// 				// Use the obstacle position if it's a tweened draggable.
+	// 				let oLeft = +obstacle.dataset.x!
+	// 				let oTop = +obstacle.dataset.y!
+
+	// 				if (isNaN(oLeft)) oLeft = o.left
+	// 				if (isNaN(oTop)) oTop = o.top
+
+	// 				let oBottom = oTop + o.height
+	// 				let oRight = oLeft + o.width
+
+	// 				// we can't occlude ourself
+	// 				if (this.node === obstacle) continue
+
+	// 				// too far left || too far right
+	// 				if (left - overflowX >= oRight || right - overflowX <= oLeft) {
+	// 					continue
+	// 				}
+
+	// 				// Is obstacle on top or bottom?
+	// 				const overBottom = bottom > oTop && top <= oBottom
+
+	// 				if (overBottom) {
+	// 					bBottom = Math.min(bBottom, oTop)
+	// 				}
+	// 			}
+	// 		}
+
+	// 		if (resizingY) {
+	// 			adjustY()
+	// 		}
+
+	// 		/** Distance between the node bottom and bounds bottom. */
+	// 		const overflowY = bBottom - bottom
+
+	// 		const styleTop = parseFloat(this.node.style.top) || 0
+
+	// 		let targetY = top - bTop - styleTop
+
+	// 		if (overflowY !== 0) {
+	// 			targetY = Math.min(targetY + overflowY, this.position.y)
+	// 			// Only move if we're not already there.
+	// 			change = change || targetY !== this.y
+	// 		}
+
+	// 		this.#lastBoundsSize.height = this.bounds.bottom - this.bounds.top
+
+	// 		return targetY
+	// 	}
+
+	// 	const targetX = resizeX()
+	// 	const targetY = resizeY()
+
+	// 	if (change) {
+	// 		this.moveTo({
+	// 			x: Math.round(targetX),
+	// 			y: Math.round(targetY),
+	// 		})
+	// 	}
+	// }
+
 	/**
 	 * Re-calculates the bounds and updates the node's position if it's out of bounds.
 	 * Called automatically when the window and/or {@link bounds} are resized.
 	 */
 	resize = () => {
-		this.#recomputeBounds()
-		this.obstacleEls = select(this.opts.obstacles)
+		// this.#recomputeBounds()
+		// const target = { x: this.position.x, y: this.position.y }
+		// if (this.bounds) this.#clampToObstacles(target)
+		// this.moveTo(target, 0)
+		// return
+		// this.obstacleEls = select(this.opts.obstacles)
+		// // // Get this rect and bound's rect.
+		// // // const { top, right, bottom, left } = this.node.getBoundingClientRect()
+		// const { top, right, bottom, left } = this.rect
+		// const b = this.bounds
+		// let bTop = b.top
+		// let bRight = b.right
+		// let bBottom = b.bottom
+		// let bLeft = b.left
+		// let hitX = false
+		// let hitY = false
+		// // for (const obstacle of this.obstacleEls) {
+		// // 	// we can't occlude ourself
+		// // 	if (this.node === obstacle) continue
+		// // 	const o = obstacle.getBoundingClientRect()
+		// // 	// Use the obstacle position if it's a tweened draggable.
+		// // 	let oLeft = +obstacle.dataset.x!
+		// // 	let oTop = +obstacle.dataset.y!
+		// // 	if (isNaN(oLeft)) oLeft = o.left
+		// // 	if (isNaN(oTop)) oTop = o.top
+		// // 	let oRight = oLeft + o.width
+		// // 	let oBottom = oTop + o.height
+		// // 	//· Check X ··································¬
+		// // 	// not too high || too low
+		// // 	if (!(top > oBottom || bottom < oTop)) {
+		// // 		// if (oLeft > right) {
+		// // 		// 	if (oLeft < bRight) bRight = oLeft
+		// // 		// } else {
+		// // 		// Is obstacle on the right or left?
+		// // 		const overRight = right >= oLeft && left <= oRight
+		// // 		if (overRight) {
+		// // 			bRight = Math.min(bRight, oLeft)
+		// // 			hitX = true
+		// // 		}
+		// // 		// }
+		// // 	}
+		// // 	//⌟
+		// // 	//· Check Y ··································¬
+		// // 	// // too far left || too far right
+		// // 	// if (!hitX && !(left >= oRight || right <= oLeft)) {
+		// // 	// 	//! This fixes the ice-block bug, but only for x-resizing.
+		// // 	// 	// if (!(left >= oRight || right <= oLeft)) {
+		// // 	// 	// Is obstacle on top or bottom?
+		// // 	// 	const overBottom = bottom > oTop && top <= oBottom
+		// // 	// 	if (overBottom) {
+		// // 	// 		bBottom = Math.min(bBottom, oTop)
+		// // 	// 		break
+		// // 	// 		// bRight = b.right
+		// // 	// 	}
+		// // 	// }
+		// // 	//⌟
+		// // }
+		// /** Distance between the node right and bounds right. */
+		// const overflowX = bRight - right
+		// /** Distance between the node bottom and bounds bottom. */
+		// const overflowY = bBottom - bottom
+		// const styleLeft = parseFloat(this.node.style.left) || 0
+		// const styleTop = parseFloat(this.node.style.top) || 0
+		// let targetX = left - bLeft - styleLeft
+		// let targetY = top - bTop - styleTop
+		// let change = false
+		// // Move if overflown.
+		// // if (overflowX > 0 || (overflowX < 0 && Math.abs(overflowX) <= Math.abs(overflowY))) {
+		// if (overflowX !== 0) {
+		// 	targetX = Math.min(targetX + overflowX, this.position.x)
+		// 	// Only move if we're not already there.
+		// 	change = targetX !== this.x || targetX !== this.position.x
+		// }
+		// // if (overflowY > 0 || (overflowY > 0  && Math.abs(overflowY) <= Math.abs(overflowX))) {
+		// if (overflowY !== 0) {
+		// 	targetY = Math.min(targetY + overflowY, this.position.y)
+		// 	// Only move if we're not already there.
+		// 	change = change || targetY !== this.y
+		// }
+		// if (change) {
+		// 	this.moveTo({
+		// 		x: Math.round(targetX),
+		// 		y: Math.round(targetY),
+		// 	})
+		// }
+		// if (DEV) {
+		// 	const xdev = this.node.querySelector('.content') as HTMLElement
+		// 	if (xdev) {
+		// 		xdev.innerText = `x: ${this.position.x}, y: ${this.position.y}\n
+		// 	overflowX: ${overflowX}, overflowY: ${overflowY}\n
+		// 	targetX: ${targetX}, targetY: ${targetY}\n`
+		// 	}
+		// }
+	}
 
-		// Get this rect and bound's rect.
-		// const { top, right, bottom, left } = this.node.getBoundingClientRect()
-		const { top, right, bottom, left } = this.rect
+	// updatePosition = (target: { x: number; y: number }) => {
+	// 	if (this.bounds) this.#clampToBounds(target)
+	// 	//if (this.bounds) console.log(this.bounds)
 
-		const b = this.bounds
+	// 	this.moveTo(target)
+	// }
 
-		let bTop = b.top
-		let bRight = b.right
-		let bBottom = b.bottom
-		let bLeft = b.left
-
-		for (const obstacle of this.obstacleEls) {
-			const o = obstacle.getBoundingClientRect()
-
-			// Use the obstacle position if it's a tweened draggable.
-			let oLeft = +obstacle.dataset.x!
-			let oTop = +obstacle.dataset.y!
-
-			if (isNaN(oLeft)) oLeft = o.left
-			if (isNaN(oTop)) oTop = o.top
-
-			let oRight = oLeft + o.width
-			let oBottom = oTop + o.height
-
-			// we can't occlude ourself
-			if (this.node === obstacle) continue
-
-			//· Check X ··································¬
-
-			// too high || too low
-			if (!(top > oBottom || bottom < oTop)) {
-				// Is obstacle on the right or left?
-				const overRight = right >= oLeft && left <= oRight
-
-				if (overRight) {
-					bRight = Math.min(bRight, oLeft)
-					break
-				}
-			}
-			//⌟
-
-			//· Check Y ··································¬
-
-			// too far left || too far right
-			if (!(left >= oRight || right <= oLeft)) {
-				//! This fixes the ice-block bug, but only for x-resizing.
-				// if (!(left >= oRight || right <= oLeft)) {
-				// Is obstacle on top or bottom?
-				const overBottom = bottom > oTop && top <= oBottom
-
-				if (overBottom) {
-					bBottom = Math.min(bBottom, oTop)
-					break
-
-					// bRight = b.right
-				}
-			}
-			//⌟
-		}
-
-		/** Distance between the node right and bounds right. */
-		const overflowX = bRight - right
-
-		/** Distance between the node bottom and bounds bottom. */
-		const overflowY = bBottom - bottom
+	#clampToBounds = (target: { x: number; y: number }) => {
+		// Clamp the target position to the bounds.
+		const { left, top, right, bottom } = this.rect
+		const width = right - left
+		const height = bottom - top
 
 		const styleLeft = parseFloat(this.node.style.left) || 0
 		const styleTop = parseFloat(this.node.style.top) || 0
 
-		let targetX = left - bLeft - styleLeft
-		let targetY = top - bTop - styleTop
-		let change = false
+		target.x = clamp(
+			target.x,
+			this.bounds.left - left - styleLeft,
+			this.bounds.right - width - styleLeft,
+		)
+		target.y = clamp(
+			target.y,
+			this.bounds.top - top - styleTop,
+			this.bounds.bottom - height - styleTop,
+		)
 
-		// Move if overflown.
-		// if (overflowX > 0 || (overflowX < 0 && Math.abs(overflowX) <= Math.abs(overflowY))) {
-		if (overflowX !== 0) {
-			targetX = Math.min(targetX + overflowX, this.position.x)
-			// Only move if we're not already there.
-			change = targetX !== this.x || targetX !== this.position.x
-		}
-
-		// if (overflowY > 0 || (overflowY > 0  && Math.abs(overflowY) <= Math.abs(overflowX))) {
-		if (overflowY !== 0) {
-			targetY = Math.min(targetY + overflowY, this.position.y)
-			// Only move if we're not already there.
-			change = change || targetY !== this.y
-		}
-
-		if (change) {
-			this.moveTo({
-				x: Math.round(targetX),
-				y: Math.round(targetY),
-			})
-		}
+		this.#fireUpdateEvent()
 
 		if (DEV) {
 			const xdev = this.node.querySelector('.content') as HTMLElement
 			if (xdev) {
-				xdev.innerText = `x: ${this.position.x}, y: ${this.position.y}\n
-			overflowX: ${overflowX}, overflowY: ${overflowY}\n
-			targetX: ${targetX}, targetY: ${targetY}\n`
+				xdev.innerText = `this.rect: ${left} , ${top} , ${right}, ${bottom}\n
+			targetX: ${target.x}, targetY: ${target.y}\n`
 			}
 		}
 	}
 
-	updatePosition = (targetX: number, targetY: number) => {
-		const target = { x: targetX, y: targetY }
+	#clampToObstacles = (target: { x: number; y: number }) => {
+		const { top, right, bottom, left } = this.rect
 
-		if (this.bounds) this.#clampToBounds(target)
+		const width = right - left
+		const height = bottom - top
 
-		target.x = Math.round(target.x - this.clickOffset.x)
-		target.y = Math.round(target.y - this.clickOffset.y)
+		const styleLeft = parseFloat(this.node.style.left) || 0
+		const styleTop = parseFloat(this.node.style.top) || 0
 
-		this.moveTo(target)
-	}
+		const b = this.bounds
 
-	#clampToBounds = (target: { x: number; y: number }) => {
-		// Clamp the target position to the bounds.
-		const { width, height } = this.node.getBoundingClientRect()
-		const bounds = {
-			left: this.bounds.left + this.clientToNodeOffset.x,
-			top: this.bounds.top + this.clientToNodeOffset.y,
-			right: this.bounds.right + this.clientToNodeOffset.x - width,
-			bottom: this.bounds.bottom + this.clientToNodeOffset.y - height,
+		const adjustRight = (bright: number) => {
+			let adjustedBoundX = bright
+			for (const obstacle of this.obstacleEls) {
+				const o = obstacle.getBoundingClientRect()
+
+				// Use the obstacle position if it's a tweened draggable.
+				let oLeft = +obstacle.dataset.x!
+				let oTop = +obstacle.dataset.y!
+
+				if (isNaN(oLeft)) oLeft = o.left
+				if (isNaN(oTop)) oTop = o.top
+
+				let oBottom = oTop + o.height
+				let oRight = oLeft + o.width
+
+				// we can't occlude ourself || too high || too low
+				if (this.node === obstacle || top > oBottom || bottom < oTop) continue
+
+				// Is obstacle on the right or left?
+				const overRight = right > oLeft && left < oRight
+
+				if (overRight) adjustedBoundX = Math.min(b.right, oLeft)
+			}
+			return adjustedBoundX
 		}
-		target.x = clamp(target.x, bounds.left, bounds.right)
-		target.y = clamp(target.y, bounds.top, bounds.bottom)
+
+		const adjustBottom = (bbottom: number) => {
+			let adjustedBoundY = bbottom
+			for (const obstacle of this.obstacleEls) {
+				const o = obstacle.getBoundingClientRect()
+
+				// Use the obstacle position if it's a tweened draggable.
+				let oLeft = +obstacle.dataset.x!
+				let oTop = +obstacle.dataset.y!
+
+				if (isNaN(oLeft)) oLeft = o.left
+				if (isNaN(oTop)) oTop = o.top
+
+				let oBottom = oTop + o.height
+				let oRight = oLeft + o.width
+
+				// we can't occlude ourself || too far left || too far right
+				if (this.node === obstacle || left > oRight || right < oLeft) continue
+
+				// Is obstacle on top or bottom?
+				const overBottom = bottom > oTop && top < oBottom
+
+				if (overBottom) adjustedBoundY = Math.min(b.bottom, oTop)
+			}
+			return adjustedBoundY
+		}
+
+		target.x = clamp(
+			target.x,
+			b.left - left - styleLeft,
+			adjustRight(b.right) - width - styleLeft,
+		)
+		target.y = clamp(
+			target.y,
+			b.top - top - styleTop,
+			adjustBottom(b.bottom) - height - styleTop,
+		)
 
 		this.#fireUpdateEvent()
+
+		if (DEV) {
+			const xdev = this.node.querySelector('.content') as HTMLElement
+			if (xdev) {
+				xdev.innerText = `this.rect: ${left} , ${top} , ${right}, ${bottom}\n
+				targetX: ${target.x}, targetY: ${target.y}\n`
+			}
+		}
 	}
 
 	/**
 	 * Moves the {@link node|draggable element} to the specified position, adjusted
 	 * for collisions with {@link obstacleEls obstacles} or {@link boundsRect bounds}.
 	 */
-	moveTo(target: { x: number; y: number }) {
+	moveTo(target: { x: number; y: number }, tweenTime?: number) {
 		if (this.canMoveX) {
 			const deltaX = target.x - this.x
 			const x = this.#collisionClampX(deltaX)
@@ -787,7 +1100,8 @@ export class Draggable {
 			const { left, top } = this.node.getBoundingClientRect()
 
 			// Tween slower for longer distances.
-			const duration = Math.abs(this.rect.left + this.rect.top - (left + top)) * 0.5
+			const duration =
+				tweenTime ?? Math.abs(this.rect.left + this.rect.top - (left + top)) * 2.5
 
 			// Bounce if collision occured.
 			// const collisionOccured = this.x !== target.x || this.y !== target.y
@@ -813,19 +1127,6 @@ export class Draggable {
 				this.tween.set({ x, y, ...this.opts.tween })
 			}
 		}
-
-		// if (DEV) {
-		// const s = (n = 1) => '&nbsp;'.repeat(n)
-		// this.node.innerHTML = `
-		// 	x: ${this.x}, y: ${this.y}
-		// 	<br> rect: {
-		// 	<br> ${s(4)}top: ${this.rect.top},
-		// 	<br> ${s(4)}right: ${this.rect.right},
-		// 	<br> ${s(4)}bottom: ${this.rect.bottom},
-		// 	<br> ${s(4)}left: ${this.rect.left},
-		// 	<br> }
-		// `
-		// }
 
 		this.#fireUpdateEvent()
 	}

@@ -28,7 +28,7 @@
 				inset: 0;
 			`,
 			defaultPosition: { x: 50, y: (H / 5) * 2 },
-		}
+		},
 	]
 </script>
 
@@ -83,10 +83,8 @@
 		use:resizable={{
 			visible: true,
 			bounds: '.bounds',
-
 		}}
 		use:draggable={{
-			axis: 'x',
 			bounds: '.bounds',
 			cancel: '.resize-grabber',
 			defaultPosition: { x: 25, y: 25 },
@@ -111,9 +109,9 @@
 		backdrop-filter: blur(0.25rem);
 		border: 3px solid tomato;
 		border-radius: var(--radius);
-		
+
 		overflow: hidden;
-		
+
 		.label {
 			max-width: 100%;
 			overflow: hidden;
