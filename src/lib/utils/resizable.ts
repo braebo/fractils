@@ -320,6 +320,8 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 		this.#activeGrabber.classList.add(this.classes.active)
 		document.body.classList.add(this.classes.active)
 
+		this.obstacleEls = select(this.opts.obstacles)
+
 		const side = this.#activeGrabber.dataset.side
 		if (side!.match(/top/)) {
 			this.clickOffset.y = e.clientY - this.rect.top
@@ -346,7 +348,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			translateX: this.translateX,
 			translateY: this.translateY,
 		}
-		this.obstacleEls = select(this.opts.obstacles)
+
 		e.preventDefault()
 		e.stopPropagation()
 
@@ -541,10 +543,9 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			if (xdev) {
 				xdev.innerText = `width:${width}\n
 				deltaX:${this.whenGrabbed.width - width} obstacleX:${this.deltaLimitX}\n
-				height:${width}\n
+				height:${height}\n
 				deltaY:${this.whenGrabbed.height - height} obstacleY:${this.deltaLimitY}`
 			}
-			// return
 		}
 	}
 
