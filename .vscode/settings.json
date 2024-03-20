@@ -58,6 +58,13 @@
 	"window.autoDetectColorScheme": true,
 	"editor.tokenColorCustomizations": {
 		"textMateRules": [
+			//? No italics.
+			{
+				"scope": [ "*" ],
+				"settings": {
+					"fontStyle": ""
+				}
+			},
 			//? Folded code background.
 			{
 				"scope": ["editor.foldBackground"],
