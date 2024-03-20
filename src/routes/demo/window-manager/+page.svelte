@@ -64,22 +64,6 @@
 				</div>
 			{/if}
 		{/each}
-
-		<div
-			class="window bounds"
-			style="min-width: 75px; min-height: 75px;"
-			use:windowManager.add={{}}
-		>
-			<div class="label">Bounds</div>
-
-			<div
-				class="window"
-				style="min-width: 75px; min-height: 75px;"
-				use:windowManager.add={{}}
-			>
-				<div class="label">Draggable 0</div>
-			</div>
-		</div>
 	</div>
 	<div class="sidebar" />
 </div>
