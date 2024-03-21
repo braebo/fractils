@@ -30,17 +30,23 @@ export interface WindowManagerOptions {
 	 */
 	resizable: boolean | Partial<ResizableOptions>
 
-	/**
-	 * Animation options for window selection.
-	 * @default { scale: 1.025, duration: 75 }
-	 */
-	animation: false | Partial<AnimationOptions>
+	// /**
+	//  * Animation options for window selection.
+	//  * @default { scale: 1., duration: 75 }
+	//  */
+	// animation: false | Partial<AnimationOptions>
 
 	/**
-	 * Element's or selectors which will act as collision obstacles for the draggable element.
+	 * Element's or selectors which will act as collision obstacles for the element.
 	 * @default ''
 	 */
 	obstacles: ElementsOrSelectors
+
+	/**
+	 * Element's or selectors which will act as bounds obstacles for the element.
+	 * @default 'parent'
+	 */
+	bounds: ElementsOrSelectors
 }
 
 interface AnimationOptions {
@@ -53,11 +59,12 @@ export const WINDOWMANAGER_DEFAULTS: WindowManagerOptions = {
 	preserveZ: false,
 	resizable: true,
 	draggable: true,
-	animation: {
-		duration: 75,
-		scale: 1.01,
-	} as const,
+	// animation: {
+	// 	duration: 75,
+	// 	scale: 1,
+	// } as const,
 	obstacles: undefined,
+	bounds: 'parent',
 } as const
 
 /**
@@ -86,9 +93,9 @@ export class WindowManager {
 	get resizableOptions() {
 		return this.opts.resizable as ResizableOptions | false
 	}
-	get animationOptions() {
-		return this.opts.animation as AnimationOptions | false
-	}
+	// get animationOptions() {
+	// 	return this.opts.animation as AnimationOptions | false
+	// }
 
 	constructor(options?: Partial<WindowManagerOptions>) {
 		this.opts = this.#resolveOptions(options)
@@ -146,7 +153,7 @@ export class WindowManager {
 			throw new Error('Unable to resolve instance from selected node: ' + node)
 		}
 
-		this.#animate(node)
+		// this.#animate(node)
 
 		const initialZ = node.style.getPropertyValue('z-index')
 		node.style.setProperty('z-index', String(this.opts.zFloor + this.windows.length))
@@ -162,35 +169,35 @@ export class WindowManager {
 		}
 	}
 
-	#animate = (node: HTMLElement) => {
-		if (!this.animationOptions) return
+	// #animate = (node: HTMLElement) => {
+	// 	if (!this.animationOptions) return
 
-		const scale = parseFloat(node.style.getPropertyValue('scale')) || 1
+	// 	const scale = parseFloat(node.style.getPropertyValue('scale')) || 1
 
-		const animOpts = {
-			duration: this.animationOptions.duration,
-			easing: 'ease-out',
-			fill: 'forwards',
-		} as const
+	// 	const animOpts = {
+	// 		duration: this.animationOptions.duration,
+	// 		easing: 'ease-out',
+	// 		fill: 'forwards',
+	// 	} as const
 
-		node.animate([{ scale }, { scale: scale - 1 + this.animationOptions.scale }], animOpts)
+	// 	node.animate([{ scale }, { scale: scale - 1 + this.animationOptions.scale }], animOpts)
 
-		window.addEventListener('pointerup', () => node.animate([{ scale }], animOpts), {
-			once: true,
-		})
-	}
+	// 	window.addEventListener('pointerup', () => node.animate([{ scale }], animOpts), {
+	// 		once: true,
+	// 	})
+	// }
 
 	#resolveOptions(options?: Partial<WindowManagerOptions>): WindowManagerOptions {
 		const opts = { ...WINDOWMANAGER_DEFAULTS, ...options }
 
-		if (options?.animation === false) {
-			opts.animation = false
-		} else {
-			opts.animation = {
-				...WINDOWMANAGER_DEFAULTS.animation,
-				...(options?.animation as AnimationOptions),
-			}
-		}
+		// if (options?.animation === false) {
+		// 	opts.animation = false
+		// } else {
+		// 	opts.animation = {
+		// 		...WINDOWMANAGER_DEFAULTS.animation,
+		// 		...(options?.animation as AnimationOptions),
+		// 	}
+		// }
 
 		opts.draggable =
 			typeof options?.draggable === 'object'

@@ -72,8 +72,8 @@ export type DragOptions = {
 	 * - `false` - no boundary
 	 * - `{ top: number, right: number, bottom: number, left: number }` - A custom {@link VirtualRect rect} relative to the viewport.
 	 *
-	 * **Note**: Make sure the bounds is smaller than the node's min size.
-	 * @default 'body'
+	 * **Note**: Make sure the bounds is smaller than the node's min size. [? ? ?]
+	 * @default 'parent'
 	 */
 	bounds: DragBounds
 
@@ -221,7 +221,7 @@ const DEFAULT_CLASSES = {
 } as const
 
 const DRAG_DEFAULTS = {
-	bounds: 'body',
+	bounds: 'parent',
 	axis: 'both',
 	userSelectNone: true,
 	ignoreMultitouch: false,
@@ -255,7 +255,7 @@ const DRAG_DEFAULTS = {
  * const element = document.createElement('div')
  *
  * const draggable = new Draggable(element, {
- * 	bounds: 'body'
+ * 	bounds: 'parent'
  * })
  * ```
  */
