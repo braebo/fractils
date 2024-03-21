@@ -13,13 +13,10 @@
 	```
 -->
 
-<script context="module">
-	import { customAlphabet } from 'nanoid'
-	const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 10)
-</script>
-
 <script lang="ts">
 	import type { PopperElement, Instance } from 'tippy.js'
+
+	import { nanoid } from '../utils/nanoid'
 	import tippy, { sticky } from 'tippy.js'
 	import { onMount } from 'svelte'
 
@@ -63,7 +60,7 @@
 	/**
 	 * Unique ID to avoid collisions.
 	 */
-	const id = nanoid()
+	const id = 'tt' + nanoid()
 
 	onMount(() => {
 		tippy.setDefaultProps({
