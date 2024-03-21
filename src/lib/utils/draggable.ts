@@ -72,8 +72,8 @@ export type DragOptions = {
 	 * - `false` - no boundary
 	 * - `{ top: number, right: number, bottom: number, left: number }` - A custom {@link VirtualRect rect} relative to the viewport.
 	 *
-	 * **Note**: Make sure the bounds is smaller than the node's min size. [? ? ?]
-	 * @default 'parent'
+	 * **Note**: Make sure the bounds is smaller than the node's min size.
+	 * @default undefined
 	 */
 	bounds: DragBounds
 
@@ -221,7 +221,7 @@ const DEFAULT_CLASSES = {
 } as const
 
 const DRAG_DEFAULTS = {
-	bounds: 'parent',
+	bounds: 'body',
 	axis: 'both',
 	userSelectNone: true,
 	ignoreMultitouch: false,
@@ -255,7 +255,7 @@ const DRAG_DEFAULTS = {
  * const element = document.createElement('div')
  *
  * const draggable = new Draggable(element, {
- * 	bounds: 'parent'
+ * 	bounds: 'body'
  * })
  * ```
  */
@@ -540,14 +540,14 @@ export class Draggable {
 		// Update the bounds rect.
 		this.#recomputeBounds()
 
-		// this.node.dispatchEvent(new CustomEvent('grab'))
+		this.node.dispatchEvent(new CustomEvent('grab'))
 
 		// Capture the pointer and store the release callback.
 		const { cursor } = getComputedStyle(this.node)
 		this.node.setPointerCapture(e.pointerId)
 		this.node.style.cursor = 'grabbing'
 		this.#releaseCapture = () => {
-			//  this.node.releasePointerCapture(e.pointerId)
+			// this.node.releasePointerCapture(e.pointerId)
 			this.node.style.cursor = cursor
 		}
 

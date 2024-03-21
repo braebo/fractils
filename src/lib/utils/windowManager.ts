@@ -44,7 +44,7 @@ export interface WindowManagerOptions {
 
 	/**
 	 * Element's or selectors which will act as bounds obstacles for the element.
-	 * @default 'parent'
+	 * @default ''
 	 */
 	bounds: ElementsOrSelectors
 }
@@ -64,7 +64,7 @@ export const WINDOWMANAGER_DEFAULTS: WindowManagerOptions = {
 	// 	scale: 1,
 	// } as const,
 	obstacles: undefined,
-	bounds: 'parent',
+	bounds: undefined,
 } as const
 
 /**

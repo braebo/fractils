@@ -75,14 +75,11 @@ export interface ResizableOptions {
 	 */
 	borderRadius: string
 
-	// /**
-	//  * The element to use as the bounds for resizing.
-	//  * @default window['document']['documentElement']
-	//  */
 	/**
 	 * The element to use as the bounds for resizing.
-	 * @default 'parent'
+	 * @default window['document']['documentElement']
 	 */
+
 	bounds: HTMLElement | (string & {})
 
 	/**
@@ -206,8 +203,8 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 
 		this.#cornerGrabberSize = +this.grabberSize * 3
 
-		//	this.bounds = select(opts.bounds)[0] ?? globalThis.document?.documentElement
-		this.bounds = select(opts.bounds)[0] ?? this.node.offsetParent
+		this.bounds = select(opts.bounds)[0] ?? globalThis.document?.documentElement
+
 		this.obstacleEls = select(opts.obstacles)
 
 		if (!Resizable.initialized) {
