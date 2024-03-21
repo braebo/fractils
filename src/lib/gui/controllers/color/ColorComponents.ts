@@ -39,7 +39,7 @@ export class ColorComponents extends Controller<InputColor, ColorComponentsEleme
 	 */
 	#locked = false
 
-	#log = new Logger('ColorComponents', { fg: 'maroon' })
+	#log = new Logger('ColorComponents', { fg: 'wheat' })
 
 	constructor(input: InputColor, options?: Partial<ColorComponentsOptions>) {
 		const opts = { ...COLOR_PICKER_DEFAULTS, ...options }
