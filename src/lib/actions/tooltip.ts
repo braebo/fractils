@@ -366,6 +366,9 @@ export const tooltip = (node: HTMLElement, options?: TooltipOptions) => {
 	const tt = new Tooltip(node, options)
 
 	return {
+		update(opts: TooltipOptions) {
+			Object.assign(tt, opts)
+		},
 		destroy() {
 			tt.dispose()
 		},
