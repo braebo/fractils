@@ -72,9 +72,12 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 
 		this.opts = opts
 
+		// Make sure the rect is accurate on mount.
+		const style = input.expanded ? {} : { height: '0px' }
 		const container = create('div', {
 			classes: ['fracgui-input-color-picker-container'],
 			parent: options?.container ?? input.elements.controllers.container,
+			style,
 		})
 
 		const canvas = create('canvas', {
@@ -100,8 +103,8 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 			type: 'range',
 			classes: ['fracgui-input-range', 'fracgui-input-color-picker-hue'],
 			parent: container,
-			min: '0',
-			max: '359',
+			min: 0,
+			max: 359,
 		})
 		this.input.listen(hueSlider, 'input', this.#updateStateFromHue)
 
