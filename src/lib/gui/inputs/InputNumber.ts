@@ -9,9 +9,9 @@ import { Input } from './Input'
 
 export type NumberInputOptions = {
 	title: string
-	min: number
-	max: number
-	step: number
+	min?: number
+	max?: number
+	step?: number
 } & ValueOrBinding<number>
 
 export const NUMBER_INPUT_DEFAULTS: NumberInputOptions = {
