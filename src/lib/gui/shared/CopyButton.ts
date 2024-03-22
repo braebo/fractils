@@ -6,8 +6,6 @@ import { CopySVG } from '../svg/CopySVG'
 export class CopyButton {
 	button: HTMLDivElement
 	icon: CopySVG
-	text: () => string
-
 	/**
 	 * When the copy animation is active, this is `true` and the button has an `active` class.
 	 */
@@ -17,14 +15,14 @@ export class CopyButton {
 	 */
 	outro = false
 
-	cooldown!: ReturnType<typeof setTimeout>
-	outroCooldown!: ReturnType<typeof setTimeout>
+	#completeTimeout!: ReturnType<typeof setTimeout>
 
 	tooltip: Tooltip
 
 	constructor(
 		public container: HTMLElement,
-		text: () => string,
+		public text: () => string,
+		public message = 'Copy',
 	) {
 		const button = create('div', {
 			classes: ['copy-button'],
@@ -44,17 +42,19 @@ export class CopyButton {
 
 		this.button = button
 		this.icon = new CopySVG()
-		this.text = text
 
 		this.button.addEventListener('click', this.copy)
 
 		append(container, this.button, svgContainer, this.icon.svg)
 
 		this.tooltip = new Tooltip(this.button, {
-			text: 'Copy',
+			text: message,
 			placement: 'top',
 			offsetY: '6px',
 			delay: 300,
+			styles: {
+				minWidth: '4.25rem',
+			},
 		})
 	}
 
@@ -62,10 +62,15 @@ export class CopyButton {
 		if (typeof navigator === 'undefined') return
 		if (this.active) return
 
-		const text = this.text()
+		let text = this.text()
+
 		if (!text) return
 
+		if (typeof text === 'object') text = JSON.stringify(text)
+
 		navigator.clipboard?.writeText?.(text)
+		clearTimeout(this.#completeTimeout)
+
 		this.#animateIn()
 	}
 
@@ -97,12 +102,13 @@ export class CopyButton {
 		this.icon.svg.classList.add('outro')
 		this.button.classList.add('outro')
 
-		this.icon.front.setAttribute('x', '9')
-		this.icon.front.setAttribute('y', '9')
-		this.icon.front.setAttribute('rx', '2')
-		this.icon.front.setAttribute('ry', '2')
+		this.icon.front.setAttribute('x', '8')
+		this.icon.front.setAttribute('y', '8')
+		this.icon.front.setAttribute('rx', '1')
+		this.icon.front.setAttribute('ry', '1')
 
-		setTimeout(this.#complete, 500)
+		// setTimeout(this.#complete, 500)
+		setTimeout(this.#complete, 900)
 	}
 
 	#complete = () => {
@@ -110,7 +116,10 @@ export class CopyButton {
 		this.icon.svg.classList.remove('outro')
 		this.outro = false
 
-		this.tooltip.text = 'Copy'
 		this.tooltip.hide()
+		clearTimeout(this.#completeTimeout)
+		this.#completeTimeout = setTimeout(() => {
+			this.tooltip.text = this.message
+		}, 300)
 	}
 }
