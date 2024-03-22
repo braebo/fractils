@@ -71,7 +71,8 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 	#mode: ColorMode
 	// #pickerHeight: number
-	#pickerHeight = '120px'
+	// #pickerHeight = '120px'
+	#pickerHeight = '5.3rem'
 
 	type = 'Color' as const
 
@@ -93,7 +94,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 			this.state = state(this.initialValue)
 
 			this.disposeCallbacks.add(
-				this.state.subscribe((v) => {
+				this.state.subscribe(v => {
 					opts.binding!.target[opts.binding!.key] = v
 				}),
 			)
@@ -111,7 +112,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 		//- Current Color
 		this.elements.controllers.currentColor = this.#createCurrentColor(container)
-		this.#updateCurrentColorCopyButtonColor()
+		// this.#updateCurrentColorCopyButtonColor()
 
 		//- Body
 		const body = create('div', {
@@ -131,14 +132,18 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 			components: this.components.elements,
 		}
 
-		this.state.subscribe((v) => {
+		this.state.subscribe(v => {
 			this.refresh(v)
 			this.callOnChange(v)
 		})
 
 		this.components.refresh()
 
-		this.expanded ? this.openPicker() : this.closePicker(0)
+		// Promise.resolve().then(() => {
+		setTimeout(() => {
+			this.expanded ? this.open() : this.close(0)
+		}, 10)
+		// })
 
 		// //! TEST
 		// setInterval(this.togglePicker, 1500)
@@ -201,14 +206,13 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		})
 		this.listen(display, 'click', this.togglePicker)
 
-		const copyButton = new CopyButton(container, () => {
-			return this.state.value[this.mode]
-		})
-		/**
-		 * Gets the copy icon's parent background and checks the lightness.
-		 * Will be `'light'` if the background is light, `'dark'` if it's dark.
-		 */
-		this.listen(container, 'pointerover', this.#updateCurrentColorCopyButtonColor)
+		const copyButton = new CopyButton(
+			container,
+			() => {
+				return this.state.value.hex8String
+			},
+			'Copy Hex',
+		)
 
 		return {
 			container,
@@ -218,17 +222,8 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		}
 	}
 
-	#updateCurrentColorCopyButtonColor = () => {
-		const contrastColor =
-			this.state.value.lightness / 100 > 0.5 ? 'var(--dark-a)' : 'var(--light-a)'
-		this.elements.controllers.currentColor.copyButton.button.style.setProperty(
-			'color',
-			contrastColor,
-		)
-	}
-
 	#animOpts = {
-		duration: 500,
+		duration: 250,
 		easing: 'cubic-bezier(0.23, 1, 0.32, 1)',
 		fill: 'forwards',
 	} satisfies KeyframeAnimationOptions
@@ -239,57 +234,54 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 	togglePicker = () => {
 		if (!this.expanded) {
-			this.openPicker()
+			this.open()
 		} else {
-			this.closePicker()
+			this.close()
 		}
 	}
 
-	openPicker = (height = this.#pickerHeight) => {
+	open = (height = this.#pickerHeight) => {
+		this.expanded = true
+
+		const opts = {
+			...this.#animOpts,
+			easing: 'cubic-bezier(.08,.38,0,0.92)',
+			duration: this.#animOpts.duration,
+		}
+
 		this.#pickerContainer.animate(
 			[
 				{
-					maxHeight: '0px',
+					height: '0px',
 					clipPath: 'inset(0 0 100% 0)',
 				},
 				{
-					maxHeight: height,
+					height: height,
 					clipPath: 'inset(0 0 -50% 0)',
 				},
 			],
-			{
-				...this.#animOpts,
-				easing: 'cubic-bezier(.08,.38,0,0.92)',
-				duration: this.#animOpts.duration,
-			},
+			opts,
 		).onfinish = () => {
 			this.#pickerContainer.style.overflow = 'visible'
 		}
-
-		this.expanded = true
 		this.#pickerContainer.classList.add('expanded')
+
+		this.elements.container.style.height = `unset`
 	}
 
-	closePicker = (duration = this.#animOpts.duration) => {
+	close = (duration = this.#animOpts.duration) => {
+		this.expanded = false
+
+		const opts = { ...this.#animOpts, duration }
+
 		this.#pickerContainer.animate(
 			[
-				{
-					maxHeight: this.#pickerHeight,
-					clipPath: 'inset(0 0 -100% 0)',
-				},
-				{
-					maxHeight: '0px',
-					clipPath: 'inset(0 0 100% 0)',
-				},
+				{ height: this.#pickerHeight, clipPath: 'inset(0 0 -100% 0)' },
+				{ height: '0px', clipPath: 'inset(0 0 100% 0)' },
 			],
-			{
-				...this.#animOpts,
-				duration,
-			},
+			opts,
 		)
 		this.#pickerContainer.style.overflow = 'hidden'
-
-		this.expanded = false
 		this.#pickerContainer.classList.remove('expanded')
 	}
 
