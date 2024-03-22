@@ -104,7 +104,10 @@
 		"ts-morph": "^21.0.1",
 		"tslib": "^2.6.2",
 		"tsutils": "^3.21.0",
-		"typed-scss-modules": "^8.0.0",
+		"typescript": "^5.4.2",
+		"vite": "^5.1.6",
+		"vite-node": "^1.4.0",
+		"vitest": "^1.4.0"
 	},
 	"exports": {
 		".": {
