@@ -38,7 +38,7 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 	initialValue: number
 	#log = new Logger('InputNumber', { fg: 'cyan' })
 
-	// todo - Move this into the number controller.
+	// todo - move this into the number controller?
 	dragEnabled = false
 
 	constructor(options: Partial<NumberInputOptions>, folder: Folder) {
@@ -54,7 +54,7 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 			this.state = state(this.initialValue)
 
 			this.disposeCallbacks.add(
-				this.state.subscribe((v) => {
+				this.state.subscribe(v => {
 					opts.binding!.target[opts.binding!.key] = v
 				}),
 			)
@@ -75,21 +75,21 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 			range: rangeController(this, opts, container),
 		} as const satisfies NumberControllerElements
 
-		this.listen(this.elements.controllers.input, 'input', this.setState)
+		this.listen(this.elements.controllers.input, 'input', this.set)
 
 		this.listen(globalThis.document, 'keydown', this.toggleDrag)
 
 		this.disposeCallbacks.add(this.state.subscribe(this.refresh))
 	}
 
-	// todo - Move this into the number controller.
+	// todo - move this into the number controller?
 	toggleDrag(e: KeyboardEvent) {
 		if (e.metaKey || e.ctrlKey) {
 			this.dragEnabled = true
 		}
 	}
 
-	setState = (v?: number | Event) => {
+	set = (v?: number | Event) => {
 		if (typeof v === 'undefined') {
 			return
 		}

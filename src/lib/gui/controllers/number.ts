@@ -134,7 +134,7 @@ export const rangeController: ControllerFactory<HTMLInputElement> = (input, opts
 	if ('max' in opts) range.max = String(opts.max)
 	if ('step' in opts) range.step = String(opts.step)
 
-	input.listen(range, 'input', input.setState)
+	input.listen(range, 'input', input.set)
 
 	return range
 }
@@ -194,7 +194,7 @@ export const numberButtonsController: ControllerFactory<
 				delta = 0
 			}
 
-			input.setState(input.state.value + step * direction)
+			input.set(input.state.value + step * direction)
 			timeout = setTimeout(change, delay)
 		}
 
