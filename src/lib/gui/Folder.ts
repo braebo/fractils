@@ -77,22 +77,25 @@ export class Folder {
 
 	#folderIcon?: HTMLElement
 	#subs: Array<() => void> = []
-	/**
-	 * Used to disable clicking the header to open/close the folder.
-	 */
+	#log: Logger
+	#folderIcon?: HTMLElement
+	/** Used to disable clicking the header to open/close the folder. */
 	#disabledTimer?: ReturnType<typeof setTimeout>
 	/**
 	 * The time in ms to wait after mousedown before
 	 * disabling toggle for a potential drag.
 	 */
 	#clickTime = 200
-	/**
-	 * Whether clicking the header to open/close the folder is disabled.
-	 */
+	/** Whether clicking the header to open/close the folder is disabled. */
 	#disabled = false
 
-	constructor(options: FolderOptions, rootContainer: HTMLElement | null = null) {
+	constructor(options: FolderOptions, rootContainer: HTMLElement | null = null, instant = true) {
 		const opts = Object.assign({}, options)
+		this.#log = new Logger('Folder:' + opts.title, {
+			fg: 'DarkSalmon',
+			deferred: false,
+			server: false,
+		})
 		this.#log.fn('constructor').info({ opts, this: this })
 
 		this.title = opts.title ?? ''
@@ -229,7 +232,7 @@ export class Folder {
 		const rootEl = create('div', {
 			classes: ['fracgui-root'],
 			id: 'fracgui-root',
-			dataset: { theme: this.root.theme },
+			dataset: { theme: this.root.theme ?? 'default' },
 		})
 
 		return rootEl
@@ -284,7 +287,7 @@ export class Folder {
 		}
 
 		function toCircs(ids: number[]) {
-			return ids.map((id) => circ(circs[id - 1])).join('\n')
+			return ids.map(id => circ(circs[id - 1])).join('\n')
 		}
 
 		const circMap = {
@@ -391,7 +394,7 @@ export class Folder {
 		return this.#folderIcon!.querySelector('svg.icon-folder')!
 	}
 
-	addFolder(options?: { title?: string; closed?: boolean }) {
+	addFolder(options?: { title?: string; closed?: boolean; header?: boolean }) {
 		const folder = new Folder({
 			title: options?.title ?? '',
 			controls: new Map(),
@@ -402,6 +405,10 @@ export class Folder {
 
 		this.children.push(folder)
 		this.#createIcon()
+
+		if (options?.header === false) {
+			folder.elements.header.style.display = 'none'
+		}
 
 		return folder
 	}
@@ -415,9 +422,8 @@ export class Folder {
 		return input
 	}
 
-	addMany(obj: Record<string, any>) {
-		// todo
-	}
+	/** @todo */
+	addMany(obj: Record<string, any>) {}
 
 	addNumber(options: Partial<NumberInputOptions>) {
 		const input = new InputNumber(options, this)
@@ -511,18 +517,21 @@ export class Folder {
 		this.#toggleAnimClass()
 	}
 
+	#toggleTimeout!: ReturnType<typeof setTimeout>
 	#toggleAnimClass = () => {
 		this.element.classList.add('animating')
-		setTimeout(() => {
+
+		clearTimeout(this.#toggleTimeout)
+		this.#toggleTimeout = setTimeout(() => {
 			this.element.classList.remove('animating')
-		}, 500) // todo - this needs to sync with the animation duration in the css... smelly.
+		}, 600) // todo - this needs to sync with the animation duration in the css... smelly.
 	}
 
 	/**
 	 * A flat array of all child folders of this folder (and their children, etc).
 	 */
 	get allChildren(): Folder[] {
-		return this.children.flatMap<Folder>((child) => [child, ...child.allChildren])
+		return this.children.flatMap<Folder>(child => [child, ...child.allChildren])
 	}
 
 	/**
@@ -539,7 +548,7 @@ export class Folder {
 	}
 
 	dispose() {
-		this.#subs.forEach((unsub) => unsub())
+		this.#subs.forEach(unsub => unsub())
 
 		this.elements.header.removeEventListener('click', this.toggle)
 		this.elements.header.addEventListener('pointerdown', this.#skip_header_click_if_drag)
@@ -562,13 +571,13 @@ export class Folder {
 // //? Values
 
 // const a = folder.addNumber({ title: 'size', value: 0 })
-// const b = folder.addColor({ title: 'background', value: '#ff0000' })
+// const b = folder.addColor({ title: 'background', value: '#ff000011' })
 // const c = folder.add({ title: 'count', value: 0, min: 0, max: 100, step: 1 })
 
 // //? Bindings
 
 // const params = {
-// 	background: '#ff0000',
+// 	background: '#ff000011',
 // 	dimensions: {
 // 		width: 100,
 // 		height: 100,
