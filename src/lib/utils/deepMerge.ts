@@ -8,7 +8,7 @@ export function deepMerge<T extends {} = {}, U extends {} | undefined = {}>(
 		(acc, source) => {
 			if (!source) return acc
 
-			Object.keys(source).forEach((key) => {
+			Object.keys(source).forEach(key => {
 				const accValue = acc[key]
 				const sourceValue = source[key]
 
@@ -16,7 +16,7 @@ export function deepMerge<T extends {} = {}, U extends {} | undefined = {}>(
 					acc[key] = accValue.concat(sourceValue)
 				} else if (isObject(accValue) && isObject(sourceValue)) {
 					acc[key] = deepMerge({ ...accValue }, sourceValue)
-				} else {
+				} else if (sourceValue !== true) {
 					acc[key] = sourceValue
 				}
 			})

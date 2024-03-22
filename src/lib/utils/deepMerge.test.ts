@@ -31,5 +31,18 @@ describe('deepMerge', () => {
 		expect(result).toEqual({ a: 2, b: 1 })
 	})
 
+	it('should override `true` with objects, but not `false`', () => {
+		const obj1 = { a: 'foo', b: true }
+		const obj2 = { a: 'bar', b: { x: 1 } }
+		const result = deepMerge(obj1, obj2)
+		expect(result).toEqual({ a: 'bar', b: { x: 1 } })
+	})
+
+	it('should preserve objects when encountering `true`, but replace them with `false`', () => {
+		const obj1 = { a: { x: 1 }, b: { x: 2 } }
+		const obj2 = { a: true, b: false }
+		const result = deepMerge(obj1, obj2)
+		expect(result).toEqual({ a: { x: 1 }, b: false })
+	})
 	// Add more tests as needed to cover other scenarios
 })
