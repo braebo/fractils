@@ -3,15 +3,21 @@ import type { ColorInputOptions, InputColor } from './InputColor'
 import type { ColorFormat } from '../../color/types/colorFormat'
 import type { State } from '../../utils/state'
 import type { Color } from '../../color/color'
+import type { InputSelect, SelectInputOptions } from './InputSelect'
 import type { Folder } from '../Folder'
 
 import { create } from '../../utils/create'
 import { Logger } from '../../utils/logger'
+import type { Option } from '../controllers/Select'
+import { debrief } from '$lib/utils/debrief'
 
 //· Types ··············································································¬
 
-export type ValidInputValue = number | Color | ColorFormat
-export type ValidInputOptions = NumberInputOptions | ColorInputOptions
+export type ValidInputValue = number | Color | ColorFormat | Option<any>
+export type ValidInputOptions =
+	| NumberInputOptions
+	| ColorInputOptions
+	| SelectInputOptions<Option<any>>
 export type BindTargetObject = Record<string, any>
 
 /** This is currently just used as a sort of "type tag" now that inference is working. */
@@ -31,7 +37,7 @@ export interface ElementMap<T = unknown> {
 	[key: string]: HTMLElement | HTMLInputElement | ElementMap | T
 }
 
-export type ValidInput = InputNumber | InputColor
+export type ValidInput = InputNumber | InputColor | InputSelect<Option<any>>
 
 export abstract class Input<
 	TValueType extends ValidInputValue = ValidInputValue,
@@ -63,13 +69,14 @@ export abstract class Input<
 	 */
 	disposeCallbacks = new Set<() => void>()
 
-	#log = new Logger('Input', { fg: 'cyan' })
+	#log: Logger
 
 	constructor(
 		options: TOptions,
 		public folder: Folder,
 	) {
 		this.#title = options.title
+		this.#log = new Logger('Input:' + this.#title, { fg: 'skyblue' })
 
 		this.elements.container = create('div', {
 			classes: ['fracgui-input-container'],
@@ -140,6 +147,7 @@ export abstract class Input<
 		}
 	}
 	callOnChange(v = this.state.value) {
+		this.#log.fn('callOnChange', debrief(v, { depth: 1, siblings: 3 })).debug()
 		for (const cb of this.#onChangeListeners) {
 			// todo - Shouldn't need to assert here.
 			cb(v as TValueType)
