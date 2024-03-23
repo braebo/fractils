@@ -69,11 +69,6 @@ export class Search {
 	search = (query: string) => {
 		this.needle = query
 
-		// if (!this.needle) {
-		// 	this.clear()
-		// 	return
-		// }
-
 		for (const [key, controller] of this.folder.allControls) {
 			const search_result = fuzzysearch(this.needle.toLocaleLowerCase(), key.toLowerCase())
 				? 'hit'
@@ -92,39 +87,8 @@ export class Search {
 			node.dataset.search_opacity ??= style.opacity ?? 1
 
 			if (result === 'hit') {
-				// el.classList.add('fracgui-search-hit')
-				// el.classList.remove('fracgui-search-miss')
-				// if (node.dataset.search === 'miss') {
-				// 	node.style.setProperty('overflow', node.dataset.search_overflow)
-				// 	node.style.setProperty('contain', node.dataset.search_contain)
-
-				// 	const targetHeight = node.dataset.search_height ?? '100%'
-				// 	console.log(targetHeight)
-
-				// 	node.animate(
-				// 		// [{ minHeight: node.dataset.search_height ?? '100%' }],
-				// 		[{ maxHeight: targetHeight }, { minHeight: targetHeight }],
-				// 		this.#animOpts,
-				// 	)
-				// }
 				this.#expand(node)
 			} else if (result === 'miss') {
-				// el.classList.remove('fracgui-search-hit')
-				// el.classList.add('fracgui-search-miss')
-
-				// function setProps(
-				// 	el: HTMLElement,
-				// 	props: {
-				// 		[K in keyof CSSStyleDeclaration]: CSSStyleDeclaration[K] extends string
-				// 			? string
-				// 			: never
-				// 	},
-				// ) {
-				// 	for (const [k, v] of entries(props)) {
-				// 		el.style.setProperty(k, v)
-				// 	}
-				// }
-				// node.animate([{ minHeight: '0px' }], this.#animOpts)
 				this.#collapse(node)
 			}
 
@@ -144,9 +108,6 @@ export class Search {
 			console.log(targetHeight)
 
 			node.animate(
-				// [{ minHeight: node.dataset.search_height ?? '100%' }],
-				// [{ maxHeight: targetHeight }, { minHeight: targetHeight }, { opacity: 1 }],
-				// [{ maxHeight: targetHeight }, { minHeight: targetHeight }],
 				[
 					{ opacity: 0, height: '0px', minHeight: '0px' },
 					{ opacity: 1, height: targetHeight, minHeight: targetHeight },
@@ -161,19 +122,12 @@ export class Search {
 		node.style.setProperty('overflow', 'hidden')
 		node.style.setProperty('contain', 'size')
 
-		node.animate(
-			// [{ maxHeight: '0px' }, { minHeight: '0px' }, { opacity: 1 }],
-			// [{ maxHeight: '0px' }, { minHeight: '0px' }],
-			[{ opacity: 0, height: '0px', minHeight: '0px' }],
-			this.#animOpts,
-		).onfinish = () => {}
+		node.animate([{ opacity: 0, height: '0px', minHeight: '0px' }], this.#animOpts).onfinish =
+			() => {}
 	}
 
 	clear = () => {
 		for (const [, controller] of this.folder.allControls) {
-			// controller.elements.container.classList.remove('fracgui-search-hit')
-			// controller.elements.container.classList.remove('fracgui-search-miss')
-			// controller.elements.container.dataset.search = 'hit'
 			this.#expand(controller.elements.container)
 		}
 	}
