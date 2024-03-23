@@ -161,6 +161,10 @@ export function state<T>(defaultValue: T, options?: StateOptions<T>): State<T> {
 	} as State<T>
 }
 
+export function isState<T>(v: any): v is State<T> {
+	return v.isState === true
+}
+
 // //- Test cases
 // {
 // 	const numArray = state([1, 2, 3])
