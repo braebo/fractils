@@ -1227,17 +1227,107 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 							overflow: visible;
 
-							opacity: 0;
-							transform: translateX(-0.5rem);
-							pointer-events: none;
-							&.visible {
-								opacity: 1;
-								transform: translateX(0);
-								pointer-events: all;
-							}
-							&:hover {
-								color: var(--fg-b);
-								opacity: 1;
+
+		.fracgui-input-content {
+			//
+			//? Select Input
+
+			.fracgui-input-select-container {
+				width: 100%;
+				height: 100%;
+
+				font-size: var(--font-xs);
+				font-family: var(--fracgui-font);
+
+				.fracgui-controller-select-selected {
+					line-height: 1.25rem;
+					height: 1.25rem;
+
+					background: var(--fracgui-input-background-dim);
+					border-radius: var(--radius-xs);
+					outline: var(--fracgui-input-outline);
+
+					//? chevron icon
+					&::before {
+						content: '\276F';
+						position: absolute;
+						top: 0;
+						right: 0.5rem;
+
+						margin: auto;
+
+						color: var(--bg-d);
+						transform: rotate(90deg) translateX(0);
+						transition: 0.2s;
+					}
+
+					filter: unset;
+
+					&.active,
+					&:hover,
+					&:focus-visible,
+					&:active {
+						background: var(--fracgui-input-background);
+						outline-offset: 0rem;
+						&::before {
+							color: var(--bg-e);
+						}
+					}
+					&.active {
+						outline: var(--fracgui-input-outline);
+
+						&::before {
+							color: var(--fg-d);
+							transform: rotate(90deg) translateX(2px);
+						}
+					}
+				}
+
+				// The dropdown portals to the body to escape the root's containment clipping.
+				@at-root body {
+					@keyframes dropdown {
+						from {
+							transform: translate(0, -0.25rem);
+						}
+						to {
+							transform: translate(0, 0.1rem);
+						}
+					}
+
+					.fracgui-controller-select-dropdown {
+						&.expanded {
+							animation: dropdown 0.15s forwards;
+						}
+
+						// todo - We can't use the theme vars (cus portal).  Will need to fix this.
+						// background: var(--fracgui-input-background);
+						// backdrop-filter: blur(var(--fracgui-blur));
+						// .fracgui-controller-select-option:hover {
+						// background: var(fracgui-input-background-dim);
+						// }
+
+						color: var(--light-b);
+						background: color-mix(in lch, var(--dark-a) 60%, transparent);
+						backdrop-filter: blur(5px);
+						outline: 1px solid;
+						outline-color: var(--dark-b);
+
+						.fracgui-controller-select-option:hover {
+							color: var(--light-a);
+							background: color-mix(in lch, var(--dark-c), transparent);
+							outline-color: var(--dark-b);
+						}
+					}
+					&:has(.fracgui-root[mode='light']) {
+						.fracgui-controller-select-dropdown {
+							color: var(--dark-b);
+							background: color-mix(in lch, var(--light-a) 60%, transparent);
+							outline-color: var(--light-b);
+
+							.fracgui-controller-select-option:hover {
+								color: var(--dark-a);
+								background: color-mix(in lch, var(--light-d) 60%, transparent);
+								outline-color: var(--light-d);
 							}
 						}
 					}
@@ -1246,397 +1336,6 @@ $closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 		}
 	}
 }
-//⌟
-
-//· Controllers ······························································¬
-
-//·· Select ························································¬
-
-$option-height: 1.5rem;
-$option-padding: 0.1rem 0.75rem;
-
-.fracgui-controller-select-container {
-	position: relative;
-}
-
-.fracgui-controller-select-selected {
-	border-radius: var(--radius-xs);
-	outline: 1px solid rgba(var(--bg-d-rgb), 0);
-
-	transition: 0.15s;
-	cursor: pointer;
-
-	&.active,
-	&:hover,
-	&:focus-visible,
-	&:active {
-		filter: contrast(1.1) brightness(1.25);
-		outline-offset: 0.25rem;
-		outline: 1px solid rgba(var(--bg-d-rgb), 0.5);
-	}
-
-	&.active {
-		outline: 1px solid rgba(var(--bg-d-rgb), 0.75);
-	}
-}
-
-.fracgui-controller-select-dropdown {
-	position: absolute;
-	// top: calc($option-height + $option-padding);
-	left: 0;
-	right: 0;
-
-	display: flex;
-	flex-direction: column;
-	// gap: 0.25rem;
-
-	width: fit-content;
-	margin: auto;
-	padding: 0.1rem;
-
-	background: var(--bg-b);
-	border-radius: var(--radius);
-	box-shadow: var(--shadow-xl);
-
-	z-index: 10;
-
-	transition: 0.2s cubic-bezier(0.23, 1, 0.32, 1);
-
-	opacity: 0;
-	pointer-events: none;
-	transform: translate(-25%, 0rem);
-	&.expanded {
-		opacity: 1;
-		transform: translate(-25%, 0.5rem);
-	}
-}
-
-.fracgui-controller-select-option {
-	// height: $option-height;
-	padding: $option-padding;
-	line-height: $option-height;
-
-	transition: 0.15s;
-	outline: 1px solid rgba(var(--bg-d-rgb), 0);
-
-	&:hover,
-	&:focus-visible {
-		background: var(--bg-c);
-		filter: contrast(1.1) brightness(1.25);
-		outline: 1px solid rgba(var(--bg-d-rgb), 1);
-		color: var(--fg-a);
-	}
-
-	cursor: pointer;
-
-	&:first-of-type {
-		border-top-left-radius: var(--radius-sm);
-		border-top-right-radius: var(--radius-sm);
-	}
-
-	&:last-of-type {
-		border-bottom-left-radius: var(--radius-sm);
-		border-bottom-right-radius: var(--radius-sm);
-	}
-}
-//⌟
-//⌟
-
-//· Toolbar ···································································¬
-
-.fracgui-toolbar {
-	contain: paint;
-
-	position: absolute;
-	right: 0;
-	top: 0;
-	bottom: 0;
-
-	display: flex;
-	align-items: center;
-	justify-content: flex-end;
-	gap: 0.5rem;
-
-	width: 75%;
-}
-
-//·· Search ························································¬
-
-//? Container
-
-.fracgui-search-container {
-	display: flex;
-	align-items: center;
-	justify-content: flex-end;
-	gap: 0.25rem;
-
-	padding: 0.25rem 0.1rem 0.25rem 0;
-
-	cursor: pointer;
-	transition: 0.15s;
-	backface-visibility: hidden;
-}
-
-// //- Active
-
-// .fracgui-search-container {
-// 	transform: translate3d(0, 0, 0);
-// }
-// .fracgui-search-container.active {
-// 	transform: translate3d(-0.5rem, 0, 0);
-// }
-
-//? Button
-
-.fracgui-search-button {
-	all: unset;
-
-	display: flex;
-	align-items: center;
-
-	width: 1.5rem;
-	height: 0.9rem;
-
-	transition: 0.15s;
-
-	svg {
-		pointer-events: none;
-		transition-duration: 0.15s !important;
-
-		path {
-			transform: translate(0, 0) scale(1);
-			transform-origin: 50% 50%;
-			transition-duration: 0.15s !important;
-		}
-
-		circle {
-			fill: transparent;
-			transform: translate(0, 0) scale(1);
-			transition-duration: 0.15s !important;
-		}
-	}
-}
-
-//- Hover
-
-.fracgui-search-button {
-	color: var(--bg-d);
-	opacity: 0;
-}
-.fracgui-header:hover .fracgui-search-button {
-	transition-duration: 0.5s;
-	opacity: 0.5;
-}
-.fracgui-search-button:hover {
-	transition-duration: 0.25s;
-	color: var(--fg-e);
-	opacity: 1;
-}
-.fracgui-search-button:active {
-	transition-duration: 0.05s;
-
-	background: transparent;
-	color: var(--fg-d);
-	opacity: 1;
-
-	scale: 0.9;
-}
-
-//- Active
-
-.fracgui-search-container.active .fracgui-search-button {
-	color: var(--bg-e);
-	opacity: 1;
-
-	path {
-		transform: translate(-10%, 10%) scale(0);
-		transform-origin: 60% 60%;
-	}
-
-	circle {
-		fill: var(--bg-e);
-		// transition-duration: 0.15s !important;
-		transform: translate(-10%, 20%) scale(0.75);
-	}
-}
-
-//? Input
-
-input.fracgui-search-input {
-	width: 6rem;
-	height: 1rem;
-	padding: 0 0.25rem;
-
-	color: var(--fg-c);
-	background: var(--bg-b);
-	border-radius: var(--radius-sm);
-	box-shadow: 0 0 11px #0004 inset;
-	outline: none;
-	border: none;
-
-	font-size: var(--font-xxs);
-	font-family: var(--font-b);
-	caret-color: var(--bg-e);
-	caret-shape: block;
-	line-height: 4px !important;
-	text-emphasis-color: red;
-
-	transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-
-	@at-root :root[theme='light'] & {
-		box-shadow: 0 0 4px #0001 inset;
-	}
-}
-
-//- Active
-
-.fracgui-search-input {
-	max-width: 0rem;
-	opacity: 0;
-	pointer-events: none;
-	transition-duration: 1s;
-}
-.fracgui-search-container.active .fracgui-search-input {
-	max-width: 6rem;
-	opacity: 1;
-	pointer-events: all;
-	transition-duration: 0.33s;
-}
-//⌟
-//⌟
-
-//· Shared ···································································¬
-
-//·· Copy ··························································¬
-
-.fracgui-folder {
-	.copy-button {
-		cursor: pointer;
-
-		width: var(--copy-button-width, 2rem);
-		height: var(--copy-button-height, 2rem);
-		padding: 10%;
-
-		color: var(--fg-a);
-		background: rgba(var(--bg-a-rgb), 0);
-		outline: 1px solid transparent;
-		border-radius: 0.2rem;
-		backdrop-filter: blur(0px);
-
-		transition-property: all, background, color;
-		transition-delay: 0s, 1s, 0.75s;
-		transition-duration: 0.25s, 0.5s;
-
-		&:not(.active, .outro) {
-			&:hover {
-				color: var(--fg-b);
-				backdrop-filter: blur(2px);
-				background: rgba(var(--bg-a-rgb), 0.75);
-
-				transition-duration: 0.15s, 0.25s;
-				transition-delay: 0s;
-			}
-
-			&:active,
-			&:focus {
-				color: var(--fg-c);
-				background: var(--bg-c);
-			}
-		}
-
-		&.active,
-		&.outro {
-			color: var(--fg-a);
-			outline-color: transparent !important;
-			background: rgba(var(--bg-a-rgb), 0);
-			opacity: 1 !important;
-
-			transition-delay: 0s;
-			transition-duration: 0.25s;
-		}
-
-		font-size: 0.8rem;
-		font-family: var(--font-mono);
-	}
-
-	.copy-button-svg-container {
-		align-items: center;
-		justify-content: center;
-
-		width: 100%;
-		height: 100%;
-
-		grid-area: 1/1;
-	}
-
-	$dur: 0.33s;
-	$bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-	$bounceXtreme: cubic-bezier(0.2, 2, 0.2, 0.85);
-	$quintInOut: cubic-bezier(0.86, 0, 0.07, 1);
-	$quartInOut: cubic-bezier(0.77, 0, 0.175, 1);
-	svg {
-		overflow: visible;
-
-		width: 100%;
-		height: 100%;
-
-		.front,
-		.back,
-		.check {
-			transform-origin: 50% 50%;
-		}
-
-		.front {
-			transition-duration: 0.66s !important;
-			transition-timing-function: $bounce;
-
-			stroke: currentColor;
-		}
-		&.active .front {
-			transition-timing-function: $bounceXtreme;
-			transition-duration: 0.2s;
-
-			transform: scale(2);
-			fill: #12a084 !important;
-			stroke: #12a084 !important;
-		}
-
-		&.outro .front {
-			transition-duration: 0.5s !important;
-		}
-
-		.back {
-			transform: translate(0, 0);
-			transition-duration: $dur;
-			transition-timing-function: $quartInOut;
-		}
-		&.active .back {
-			transform: translate(15%, 15%);
-		}
-
-		&.outro .back {
-			transition-delay: 0s !important;
-			transition-duration: 1s !important;
-		}
-
-		.check {
-			stroke: var(--color, var(--fg-a));
-
-			opacity: 0;
-
-			transform: scale(0);
-
-			transition: 0.2s $bounce 0s;
-		}
-		&.active .check {
-			opacity: 1;
-			transform: scale(1.25);
-
-			transition: 0.3s $bounceXtreme 0.1s;
-		}
-	}
-}
-//⌟
 //⌟
 
 //·- wip ···································································¬
