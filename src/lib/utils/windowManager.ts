@@ -4,6 +4,7 @@ import { Resizable, type ResizableOptions } from './resizable'
 import { Draggable, type DragOptions } from './draggable'
 import { EventManager } from './EventManager'
 import { Logger } from './logger'
+import { deepMerge } from './deepMerge'
 
 export interface WindowManagerOptions {
 	/**
@@ -19,13 +20,15 @@ export interface WindowManagerOptions {
 	preserveZ: boolean
 
 	/**
-	 * Whether to make windows draggable.
+	 * Whether to make windows draggable. Can be a boolean, or your own
+	 * {@link DragOptions}.  Set to `false` to disable dragging.
 	 * @default true
 	 */
 	draggable: boolean | Partial<DragOptions>
 
 	/**
-	 * Whether to make windows resizable.
+	 * Whether to make windows resizable. Can be a boolean, or your own
+	 * {@link ResizableOptions}.  Set to `false` to disable resizing.
 	 * @default true
 	 */
 	resizable: boolean | Partial<ResizableOptions>
@@ -156,7 +159,7 @@ export class WindowManager {
 				once: true,
 			})
 		} else {
-			this.windows = this.windows.filter((i) => i !== instance)
+			this.windows = this.windows.filter(i => i !== instance)
 			this.windows.push(instance)
 			this.applyZ()
 		}
@@ -181,7 +184,10 @@ export class WindowManager {
 	}
 
 	#resolveOptions(options?: Partial<WindowManagerOptions>): WindowManagerOptions {
-		const opts = { ...WINDOWMANAGER_DEFAULTS, ...options }
+		// const opts = { ...WINDOWMANAGER_DEFAULTS, ...options }
+		this.#log.fn('#resolveOptions').info(options)
+		const opts = deepMerge(WINDOWMANAGER_DEFAULTS, options)
+
 
 		if (options?.animation === false) {
 			opts.animation = false
