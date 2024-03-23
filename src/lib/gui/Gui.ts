@@ -93,7 +93,9 @@ export const GUI_DEFAULTS = {
 	controls: new Map(),
 	children: [],
 	themer: true,
-	themerOptions: {},
+	themerOptions: {
+		localStorageKey: 'fracgui::themer',
+	},
 	windowManager: {
 		resizable: {
 			grabberSize: 9,
@@ -162,7 +164,7 @@ export class Gui extends Folder {
 			? {}
 			: opts.storage === true
 				? GUI_DEFAULTS.storage
-				: Object.assign({}, opts.storage, GUI_DEFAULTS.storage)
+				: Object.assign({}, GUI_DEFAULTS.storage, opts.storage)
 
 		this.#log.info('Storage:', this.storage)
 		//⌟
@@ -273,10 +275,11 @@ export class Gui extends Folder {
 
 		this.windowManager.add(this.element, {
 			draggable: {
-				bounds: document.documentElement,
+				bounds: this.container,
+				defaultPosition: this.position.value,
 			},
 			resizable: {
-				bounds: document.documentElement,
+				bounds: this.container,
 			},
 		})
 		//⌟
