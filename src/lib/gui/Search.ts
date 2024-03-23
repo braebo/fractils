@@ -15,9 +15,13 @@ export class Search {
 
 	needle = ''
 	showing = false
-	tooltip: Tooltip
 
 	#evm = new EventManager()
+
+	tooltip: Tooltip
+	get defaultTooltipText() {
+		return 'Search ' + (this.folder.isGui() ? 'All' : this.folder.title)
+	}
 
 	constructor(public folder: Folder) {
 		const container = create('div', {
@@ -29,7 +33,7 @@ export class Search {
 			classes: ['fracgui-input-text-input', 'fracgui-search-input', 'fractils-cancel'],
 			parent: container,
 		})
-		this.#evm.listen(input, 'input', (e) => this.search(e.target.value))
+		this.#evm.listen(input, 'input', e => this.search(e.target.value))
 
 		const button = create('button', {
 			classes: ['fracgui-search-button', 'fractils-cancel'],
@@ -37,7 +41,7 @@ export class Search {
 		})
 
 		this.tooltip = new Tooltip(button, {
-			text: 'Search ' + (folder.isGui() ? 'All' : folder.title),
+			text: this.defaultTooltipText,
 			placement: 'left',
 			delay: 500,
 		})
@@ -56,29 +60,121 @@ export class Search {
 		return this
 	}
 
+	#animOpts = {
+		duration: 300,
+		easing: 'cubic-bezier(0.23, 1, 0.32, 1)',
+		fill: 'forwards',
+	} as const
+
 	search = (query: string) => {
 		this.needle = query
 
-		if (!this.needle) {
-			this.clear()
-			return
-		}
+		// if (!this.needle) {
+		// 	this.clear()
+		// 	return
+		// }
 
 		for (const [key, controller] of this.folder.allControls) {
-			if (fuzzysearch(this.needle, key)) {
-				controller.elements.container.classList.add('fracgui-search-hit')
-				controller.elements.container.classList.remove('fracgui-search-miss')
-			} else {
-				controller.elements.container.classList.remove('fracgui-search-hit')
-				controller.elements.container.classList.add('fracgui-search-miss')
+			const search_result = fuzzysearch(this.needle.toLocaleLowerCase(), key.toLowerCase())
+				? 'hit'
+				: 'miss'
+			const result = this.needle === '' ? 'hit' : search_result
+			const node = controller.elements.container
+
+			// We already have right state.
+			if (node.dataset.search === result) continue
+
+			const style = getComputedStyle(node)
+
+			node.dataset.search_height ??= style.minHeight
+			node.dataset.search_overflow ??= style.overflow ?? 'unset'
+			node.dataset.search_contain ??= style.contain ?? 'none'
+			node.dataset.search_opacity ??= style.opacity ?? 1
+
+			if (result === 'hit') {
+				// el.classList.add('fracgui-search-hit')
+				// el.classList.remove('fracgui-search-miss')
+				// if (node.dataset.search === 'miss') {
+				// 	node.style.setProperty('overflow', node.dataset.search_overflow)
+				// 	node.style.setProperty('contain', node.dataset.search_contain)
+
+				// 	const targetHeight = node.dataset.search_height ?? '100%'
+				// 	console.log(targetHeight)
+
+				// 	node.animate(
+				// 		// [{ minHeight: node.dataset.search_height ?? '100%' }],
+				// 		[{ maxHeight: targetHeight }, { minHeight: targetHeight }],
+				// 		this.#animOpts,
+				// 	)
+				// }
+				this.#expand(node)
+			} else if (result === 'miss') {
+				// el.classList.remove('fracgui-search-hit')
+				// el.classList.add('fracgui-search-miss')
+
+				// function setProps(
+				// 	el: HTMLElement,
+				// 	props: {
+				// 		[K in keyof CSSStyleDeclaration]: CSSStyleDeclaration[K] extends string
+				// 			? string
+				// 			: never
+				// 	},
+				// ) {
+				// 	for (const [k, v] of entries(props)) {
+				// 		el.style.setProperty(k, v)
+				// 	}
+				// }
+				// node.animate([{ minHeight: '0px' }], this.#animOpts)
+				this.#collapse(node)
 			}
+
+			node.dataset.search = result
 		}
+	}
+
+	#expand = (node: HTMLElement) => {
+		if (node.dataset.search === 'miss') {
+			console.log('expand', node.dataset.search)
+
+			node.style.setProperty('overflow', node.dataset.search_overflow!)
+			node.style.setProperty('contain', node.dataset.search_contain!)
+
+			const targetHeight = node.dataset.search_height ?? '100%'
+
+			console.log(targetHeight)
+
+			node.animate(
+				// [{ minHeight: node.dataset.search_height ?? '100%' }],
+				// [{ maxHeight: targetHeight }, { minHeight: targetHeight }, { opacity: 1 }],
+				// [{ maxHeight: targetHeight }, { minHeight: targetHeight }],
+				[
+					{ opacity: 0, height: '0px', minHeight: '0px' },
+					{ opacity: 1, height: targetHeight, minHeight: targetHeight },
+				],
+				this.#animOpts,
+			)
+		}
+	}
+
+	#collapse = (node: HTMLElement) => {
+		console.log('collapse', node.dataset.search)
+		node.style.setProperty('overflow', 'hidden')
+		node.style.setProperty('contain', 'size')
+
+		node.animate(
+			// [{ maxHeight: '0px' }, { minHeight: '0px' }, { opacity: 1 }],
+			// [{ maxHeight: '0px' }, { minHeight: '0px' }],
+			[{ opacity: 0, height: '0px', minHeight: '0px' }],
+			this.#animOpts,
+		).onfinish = () => {}
 	}
 
 	clear = () => {
 		for (const [, controller] of this.folder.allControls) {
-			controller.elements.container.classList.remove('fracgui-search-hit')
-			controller.elements.container.classList.remove('fracgui-search-miss')
+			// controller.elements.container.classList.remove('fracgui-search-hit')
+			// controller.elements.container.classList.remove('fracgui-search-miss')
+			// controller.elements.container.dataset.search = 'hit'
+			this.#expand(controller.elements.container)
 		}
 	}
 
@@ -126,7 +222,7 @@ export class Search {
 		this.tooltip.hide()
 		clearTimeout(this.#tooltipTimeout)
 		this.#tooltipTimeout = setTimeout(() => {
-			this.tooltip.text = `Search ${this.folder.title}`
+			this.tooltip.text = this.defaultTooltipText
 			this.tooltip.placement = 'left'
 			this.tooltip.offsetX = TOOLTIP_DEFAULTS.offsetX
 			this.tooltip.offsetY = TOOLTIP_DEFAULTS.offsetY
@@ -171,5 +267,11 @@ export class Search {
 		svg.style.pointerEvents = 'none'
 
 		return svg
+	}
+
+	dispose() {
+		this.#evm.dispose()
+		this.tooltip.dispose()
+		this.elements.container.remove()
 	}
 }
