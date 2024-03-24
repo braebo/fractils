@@ -116,18 +116,18 @@ export function state<T>(defaultValue: T, options?: StateOptions<T>): State<T> {
 	}
 
 	if (Array.isArray(defaultValue)) {
-		enhanceStore<T[]>((store) => {
+		enhanceStore<T[]>(store => {
 			store.push = (item: any) => {
-				store.update((arr) => [...arr, item])
+				store.update(arr => [...arr, item])
 			}
 		})
 	} else if (defaultValue instanceof Map) {
-		enhanceStore<Map<any, any>>((store) => {
+		enhanceStore<Map<any, any>>(store => {
 			store.setKey = (key, value) => {
-				store.update((map) => new Map(map).set(key, value))
+				store.update(map => new Map(map).set(key, value))
 			}
-			store.deleteKey = (key) => {
-				store.update((map) => {
+			store.deleteKey = key => {
+				store.update(map => {
 					const newMap = new Map(map)
 					newMap.delete(key)
 					return newMap
@@ -136,13 +136,13 @@ export function state<T>(defaultValue: T, options?: StateOptions<T>): State<T> {
 		})
 	}
 
-	enhanceStore<Set<any>>((store) => {
+	enhanceStore<Set<any>>(store => {
 		if (defaultValue instanceof Set) {
-			store.add = (item) => {
-				store.update((set) => new Set(set).add(item))
+			store.add = item => {
+				store.update(set => new Set(set).add(item))
 			}
-			store.delete = (item) => {
-				store.update((set) => {
+			store.delete = item => {
+				store.update(set => {
 					const newSet = new Set(set)
 					newSet.delete(item)
 					return newSet
@@ -156,6 +156,10 @@ export function state<T>(defaultValue: T, options?: StateOptions<T>): State<T> {
 		isState: true as const,
 		get value() {
 			return get(store)
+		},
+		set value(v) {
+			if (v === undefined) throw new Error('Cannot set state to undefined')
+			store.set(v)
 		},
 		refresh() {
 			store.set(get(store))
