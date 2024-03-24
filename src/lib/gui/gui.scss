@@ -192,12 +192,28 @@ html[theme='light'] .fracgui-folder {
 			max-height: 0;
 		}
 	}
+
+	&.instant {
+		.fracgui-content-wrapper {
+			grid-template-rows: 1fr;
+			animation: none;
+		}
+
+		.fracgui-folder .fracgui-header {
+			height: var(--header-height);
+			max-height: var(--header-height);
+		}
+	}
 }
 
 .fracgui-root.closed .fracgui-content {
 	transition: opacity 0.1s;
 	transition-delay: 0.1s;
 	opacity: 0 !important;
+
+	&.instant {
+		transition: none;
+	}
 }
 
 .fracgui-root,
@@ -206,11 +222,19 @@ html[theme='light'] .fracgui-folder {
 	&.closed {
 		.fracgui-content {
 			overflow: hidden;
+			// We need to hide the scrollbar thumb _during_
+			// the animation or the browser will jank it up.
+			&::-webkit-scrollbar-thumb {
+				background: transparent !important;
+			}
+			@-moz-document url-prefix() {
+				& {
+					scrollbar-color: transparent transparent;
+				}
+			}
 		}
 	}
 }
-
-$closed-inset: inset(0 0 calc(100% - var(--header-height)) 0);
 
 @keyframes reveal {
 	from {

@@ -1,6 +1,8 @@
 import type { InputOptions, InputType, ValidInput } from './inputs/Input'
+import type { Option } from './controllers/Select'
 
 import { InputNumber, type NumberInputOptions } from './inputs/InputNumber'
+import { InputSelect, type SelectInputOptions } from './inputs/InputSelect'
 import { InputColor, type ColorInputOptions } from './inputs/InputColor'
 
 import { cancelClassFound } from '../internal/cancelClassFound'
@@ -48,8 +50,8 @@ export interface FolderOptions {
 export class Folder {
 	id = nanoid()
 	isFolder = true as const
-
 	isRoot = false
+
 	root: Gui
 	search: Search
 
@@ -57,6 +59,8 @@ export class Folder {
 	children: Folder[]
 	controls: Map<string, ValidInput>
 	parentFolder: Folder
+
+	closed = state(false)
 
 	element: HTMLElement
 	elements = {} as {
@@ -67,15 +71,16 @@ export class Folder {
 		content: HTMLElement
 	}
 
-	closed = state(false)
+	/** global css variables */
+	vars = {
+		get: (key: string) => {
+			return getComputedStyle(this.root.element).getPropertyValue(key)
+		},
+		set: (key: string, value: string) => {
+			this.root.element.style.setProperty(key, value)
+		},
+	}
 
-	#log = new Logger('Folder', {
-		fg: 'DarkSalmon',
-		deferred: false,
-		server: false,
-	})
-
-	#folderIcon?: HTMLElement
 	#subs: Array<() => void> = []
 	#log: Logger
 	#folderIcon?: HTMLElement
@@ -123,11 +128,19 @@ export class Folder {
 
 		this.search = new Search(this)
 
-		if (opts.closed) this.closed.set(opts.closed)
+		if (opts.closed) {
+			this.closed.set(opts.closed)
+		} else if (instant) {
+			// We need to bypass animations so I can get the rect.
+			this.element.classList.add('instant')
+			setTimeout(() => {
+				this.element.classList.remove('instant')
+			}, 0)
+		}
 
 		// Open/close the folder when the closed state changes.
 		this.#subs.push(
-			this.closed.subscribe((v) => {
+			this.closed.subscribe(v => {
 				v ? this.close() : this.open()
 			}),
 		)
@@ -230,7 +243,7 @@ export class Folder {
 		container ??= document.body
 
 		const rootEl = create('div', {
-			classes: ['fracgui-root'],
+			classes: ['fracgui-root', 'fracgui-folder'],
 			id: 'fracgui-root',
 			dataset: { theme: this.root.theme ?? 'default' },
 		})
@@ -413,6 +426,7 @@ export class Folder {
 		return folder
 	}
 
+	add<T>(options: SelectInputOptions<T>): InputSelect<T>
 	add(options: NumberInputOptions): InputNumber
 	add(options: ColorInputOptions): InputColor
 	add(options: InputOptions): ValidInput {
@@ -440,21 +454,27 @@ export class Folder {
 	}
 
 	#createInput(options: InputOptions) {
-		const type = this.resolveType(
-			options.value ?? options.binding!.target[options.binding!.key],
-		)
+		const type = this.resolveType(options)
 
 		switch (type) {
 			case 'Number':
 				return new InputNumber(options as NumberInputOptions, this)
 			case 'Color':
 				return new InputColor(options as ColorInputOptions, this)
+			case 'Select':
+				return new InputSelect(options as SelectInputOptions<Option<any>>, this)
 		}
 
 		throw new Error('Invalid input view: ' + options)
 	}
 
-	resolveType(value: any): InputType {
+	resolveType(options: any): InputType {
+		const value = options.value ?? options.binding!.target[options.binding!.key]
+
+		if ('options' in options) {
+			return 'Select'
+		}
+
 		switch (typeof value) {
 			case 'number':
 				return 'Number'
