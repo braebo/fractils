@@ -37,6 +37,9 @@ export function create<const K extends keyof HTMLElementTagNameMap>(
 		if (options.cssText) el.style.cssText = options.cssText
 		if (options.value && el instanceof HTMLInputElement) el.value = options.value
 		if (options.type) el.setAttribute('type', options.type)
+		if (options.min) el.setAttribute('min', String(options.min))
+		if (options.max) el.setAttribute('max', String(options.max))
+		if (options.step) el.setAttribute('step', String(options.step))
 
 		if (options.attributes) {
 			for (const [key, value] of entries(options.attributes)) {
