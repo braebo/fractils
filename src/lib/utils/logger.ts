@@ -8,7 +8,8 @@ import { defer } from './defer'
 // todo - Is there a reliable way to type an ImportMetaEnv entry globally for consumers?
 const ENABLED = DEV && import.meta.env.LOG_LEVEL !== 'none'
 const bypassStyles = false
-const bypassDefer = false
+// const bypassDefer = false
+const bypassDefer = true
 
 export class Logger {
 	log: ReturnType<typeof logger>
@@ -111,7 +112,12 @@ export class Logger {
 	 * ```
 	 */
 	fn(str: string, ...args: any[]) {
-		this.buffer.push(gr(str) + dim('(') + args.map((a) => gr(a)).join(', ') + dim(')'))
+		this.buffer.push(
+			gr(str) +
+				dim('(') +
+				args.map(a => gr(typeof a === 'object' ? JSON.stringify(a) : a)).join(', ') +
+				dim(')'),
+		)
 		return this
 	}
 }
@@ -191,7 +197,7 @@ export const logger = (
 		: (...args: any[]) => {
 				let messageConfig = '%c%s%c '
 
-				args.forEach((argument) => {
+				args.forEach(argument => {
 					const type = typeof argument
 					switch (type) {
 						case 'bigint':
