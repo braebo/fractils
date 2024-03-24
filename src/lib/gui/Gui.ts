@@ -3,15 +3,18 @@ import './gui.scss'
 import type { WindowManagerOptions } from '../utils/windowManager'
 import type { ResizableOptions } from '../utils/resizable'
 import type { DragOptions } from '../utils/draggable'
-import type { ThemerOptions } from '../theme/Themer'
+import type { ThemerOptions } from '../themer/Themer'
 import type { FolderOptions } from './Folder'
 
 import { state, type PrimitiveState } from '../utils/state'
 import { WindowManager } from '../utils/windowManager'
 import { deepMerge } from '$lib/utils/deepMerge'
+import { Themer } from '../themer/Themer'
 import { Logger } from '../utils/logger'
-import { Themer } from '../theme/Themer'
 import { Folder } from './Folder'
+
+import defaultTheme from '../themer/themes/default'
+import theme1 from '../themer/themes/theme-1'
 
 type GuiTheme = 'default' | 'minimal' | (string & {})
 
@@ -21,31 +24,7 @@ export interface GuiOptions extends FolderOptions {
 	 * to save the state under.
 	 * @default undefined
 	 */
-	storage?:
-		| true
-		| {
-				/**
-				 * @default "fractils::gui"
-				 */
-				key: string
-				/**
-				 * @default true
-				 */
-				size?: boolean
-				/**
-				 * @default true
-				 */
-				position?: boolean
-				/**
-				 * @default true
-				 */
-				closed?: boolean
-				/**
-				 * How long to debounce writes to localStorage (0 to disable).
-				 * @default 50
-				 */
-				debounce?: number
-		  }
+	storage?: Partial<GuiStorageOptions> | true
 	/**
 	 * The container to append the gui to.
 	 * @default document.body
@@ -115,8 +94,8 @@ export const GUI_DEFAULTS = {
 	closed: false,
 	size: { width: 0, height: 0 },
 	position: { x: 16, y: 16 },
-	// theme: 'default'
-	theme: 'minimal',
+	theme: 'default',
+	// theme: 'minimal',
 } as const satisfies Omit<GuiOptions, 'parentFolder'>
 
 interface GuiStorageOptions {
@@ -174,7 +153,7 @@ export class Gui extends Folder {
 	/**
 	 * Which state properties to persist to localStorage.
 	 */
-	storage: StorageOptions | Record<string, any>
+	storage: GuiStorageOptions | Record<string, any>
 	private _theme: GuiOptions['theme']
 
 	#log: Logger
@@ -225,17 +204,67 @@ export class Gui extends Folder {
 		this.position = getState(opts.position, 'position')
 		this.closed = getState(closed, 'closed')
 
+		this.settingsFolder = this.addFolder({ title: 'Settings', closed: false, header: false })
+
 		if (this.closed.value) this.close()
 		//⌟
 
 		//· Themer ··································································¬
 
-		if (opts.themer) {
-			if (opts.themer === true) {
-				this.themer = new Themer(opts.themerOptions ?? {})
-			} else {
-				this.themer = opts.themer
+		const { themer, themerOptions } = opts
+
+		if (themer) {
+			if (themerOptions.persistent) {
+				themerOptions.persistent = (opts?.storage as GuiStorageOptions)?.theme ?? true
 			}
+
+			if (themer === true) {
+				if (!themerOptions) {
+					themerOptions
+				}
+				this.themer = new Themer(this.root.element, themerOptions)
+			} else {
+				this.themer = themer
+			}
+
+			//* Global Settings Folder
+
+			// todo - add an icon to the toolbar that toggles this folder.
+
+			const themeFolder = this.settingsFolder.addFolder({
+				title: 'theme',
+			})
+			themeFolder.element.style.setProperty('--background', 'var(--bg-b)')
+			themeFolder.element.style.setProperty('--color', 'var(--fg-c)')
+
+			themeFolder
+				.add({
+					title: 'theme',
+					options: [
+						{ label: 'default', value: defaultTheme },
+						{ label: 'theme-1', value: theme1 },
+					],
+					// todo - Use this once `state` is changed from `LabeledOption<T>` to `T`.
+					// binding: {
+					// 	target: this.themer,
+					// 	key: 'theme',
+					// },21	Q1
+					value: { label: this.themer.theme.value.title, value: this.themer.theme },
+				})
+				.onChange(e => {
+					console.error(e)
+					// alert(e.value)
+					// this.themer?.theme.set(e.value)
+				})
+
+			themeFolder.add({
+				title: 'mode',
+				options: ['light', 'dark', 'system'],
+				binding: {
+					target: this.themer,
+					key: 'mode',
+				},
+			})
 		}
 		//⌟
 
@@ -327,8 +356,10 @@ export class Gui extends Folder {
 	}
 
 	set theme(theme: GuiTheme) {
+		if (!this.themer) return
 		this._theme = theme
-		this.root.element.dataset.theme = theme
+		this.root.element.setAttribute('theme', theme)
+		this.root.element.setAttribute('mode', this.themer.mode.value)
 	}
 	get theme() {
 		return this._theme!
