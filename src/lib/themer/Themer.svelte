@@ -2,10 +2,10 @@
 	import { resizable } from '../actions/resizable'
 	import { quadOut, quadIn } from 'svelte/easing'
 	import autoAnimate from '@formkit/auto-animate'
-	import THEME_A from './themes/theme-a.json'
+	import { Themer } from '../themer/Themer'
 	import { hover } from '../actions/hover'
 	import { fly } from 'svelte/transition'
-	import { Themer } from './Themer'
+	import theme1 from './themes/theme-1'
 
 	export let themer = new Themer()
 
@@ -85,7 +85,7 @@
 
 			<div class="kv theme-a">
 				<div class="v">
-					<button on:click={() => themer.create(THEME_A)}> add theme-a </button>
+					<button on:click={() => themer.create(theme1)}> add theme-1 </button>
 				</div>
 			</div>
 

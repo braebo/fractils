@@ -5,56 +5,68 @@
 
 // Generic Globals
 .fracgui-root {
-	--fracgui-font: 'Kodchasan', sans-serif;
-
-	--fracgui-root-header-font-size: 0.75rem;
-	--fracgui-root-header-height: 1.75rem;
-	--header-height: 1.75rem;
-
 	--fracgui-width: 30rem;
 	--fracgui-min-width: 25rem;
 	--fracgui-max-width: 35rem;
+	--fracgui-font: var(--font-d);
+
+	--fracgui-root-header-font-size: var(--font-xs);
+	--fracgui-root-header-font-weight: 500;
+	--fracgui-root-header-height: 1.75rem;
+	--fracgui-root-header-letter-spacing: 0.125rem;
+	--header-height: 1.75rem;
 
 	--fracgui-input-height: 2rem;
-	--fracgui-input-section-1-width: 6rem;
+	--fracgui-input-section-1-width: clamp(6rem, 30%, 12rem);
 	--fracgui-input-section-2-width: 4rem;
 	--fracgui-input-section-3-width: 100%;
 
-	--fracgui-alpha: 0.5;
+	--fracgui-alpha: 0.75;
 	--fracgui-blur: 0.5rem;
 
-	// scale: 1.2;
+	--shadow-lightness: 1;
+}
+.fracgui-root[mode='light'] {
+	--shadow-lightness: 0.2;
 }
 
 .fracgui-root,
-.fracgui-root[data-theme='default'],
-.fracgui-root[data-theme='minimal'] {
+.fracgui-root[theme='default'],
+.fracgui-root[theme='minimal'] {
 	//* Root Folder
 
-	--fracgui-root-content-background: rgba(var(--bg-b-rgb), 0.2);
+	// --fracgui-root-content-background: rgba(var(--bg-b-rgb), 0.2);
+	--fracgui-root-content-background: rgba(var(--bg-b-rgb), 0.3);
 	--fracgui-root-shadow: 0 0 1.5px 0.5px rgba(var(--bg-d-rgb), 0.5) inset;
 
 	//* Folders
-	--fracgui-folder-background: rgba(var(--bg-b-rgb), 0.2);
+	--fracgui-folder-background: rgba(var(--bg-b-rgb), 0.5);
+
 	//? Folder Header
-	--fracgui-folder-header-width: 100%;
 	--fracgui-folder-header-padding-left: 0.25rem;
+
 	--fracgui-folder-header-color: var(--fg-c);
+	--fracgui-folder-header-color-dim: var(--fg-d);
 	--fracgui-folder-header-background: var(--bg-a);
 	--fracgui-folder-header-outline: none;
 	--fracgui-folder-header-border-radius: var(--radius-sm);
 	--fracgui-folder-header-box-shadow: none;
-	--fracgui-folder-header-font-size: var(--font-xxs);
-	--fracgui-folder-header-font-weight: 500;
+
+	--fracgui-folder-header-font-size: var(--font-sm);
+	--fracgui-folder-header-font-weight: 350;
+	--fracgui-folder-header-letter-spacing: 0.75px;
+
 	//? Folder Content
 	--fracgui-folder-content-background: rgba(var(--bg-b-rgb), 0.2);
 	--fracgui-folder-content-padding-left: 0.33rem;
-	--fracgui-folder-content-font-size: 0.8rem;
-	--fracgui-folder-content-font-weight: 300;
+	--fracgui-folder-content-font-size: var(--font-xs);
+	--fracgui-folder-content-font-weight: 350;
+	--fracgui-folder-content-letter-spacing: 0.5px;
 
 	//* Input Containers
 
-	--fracgui-input-container-color: var(--fg-c);
+	--fracgui-input-container-color: var(--fg-d);
+	--fracgui-input-container-color-dim: var(--fg-e);
 	--fracgui-input-container-background: rgba(var(--bg-a-rgb), 0.5);
 	--fracgui-input-container-outline: 1px solid rgba(var(--bg-a-rgb), 0.2);
 	// prettier-ignore
@@ -66,17 +78,22 @@
 	;
 	--fracgui-drawer-toggle-background: rgba(var(--bg-a-rgb), 0.5);
 
+	//* Input Content
+
+	--fracgui-input-background: rgba(var(--bg-c-rgb), 1);
+	--fracgui-input-background-dim: rgba(var(--bg-c-rgb), 0.75);
+	--fracgui-input-color: var(--fg-d);
+	--fracgui-input-shadow: var(--shadow-xs);
+	--fracgui-input-outline: 1px solid rgba(var(--bg-d-rgb), 0.4);
+	--fracgui-input-background-image: none;
+
 	//* Number Input
 
-	--fracgui-input-number-input-color: var(--fg-d);
-	--fracgui-input-number-input-background: rgba(var(--bg-c-rgb), 0.8);
-	--fracgui-input-number-input-outline: 1px solid #0015;
-	--fracgui-input-number-input-background-image: none;
 	//? Number Input Buttons
-	--fracgui-input-number-input-buttons-background: rgba(var(--bg-b-rgb), var(--fracgui-alpha));
-	--fracgui-input-number-input-buttons-color: var(--fg-b);
-	--fracgui-input-number-input-buttons-icon-color: var(--fg-d);
-	--fracgui-input-number-input-buttons-icon-color-active: var(--theme-a);
+	--fracgui-input-buttons-background: rgba(var(--bg-b-rgb), var(--fracgui-alpha));
+	--fracgui-input-buttons-color: var(--fg-b);
+	--fracgui-input-buttons-icon-color: var(--fg-d);
+	--fracgui-input-buttons-icon-color-active: var(--theme-a);
 	--fracgui-input-number-buttons-shadow-inset-hover: 0px 0px 1px 0px hsl(0, 0%, 0%) inset;
 	--fracgui-input-number-buttons-shadow-inset-active: 0px 0px 1px 1px hsl(0, 0%, 5%) inset;
 	--fracgui-input-number-font-size: var(--font-xs);
@@ -89,40 +106,36 @@
 	--fracgui-input-number-range-outline: 1px solid rgba(var(--bg-c-rgb), 0.25);
 	// prettier-ignore
 	--fracgui-input-number-range-shadow: 
-		-4px -2px 2.5px hsla(230, 20%, 10%, 0.5),
-		2px 2px 5px hsla(230, 20%, 20%, 0.5),
-		2px 2px 10px hsla(230, 20%, 0%, 0.5),
-		2px 2px 4px hsla(230, 25%, 0%, 0.5)
+		-2px 2px 2.5px hsla(230, 20%, 0%, 0.2),
+		2px 2px 5px hsla(230, 20%, 0%, 0.2),
+		2px 3px 10px hsla(230, 20%, 0%, 0.2),
+		2px 4px 4px hsla(230, 25%, 0%, 0.2)
 	;
 }
 
-html[theme='light'] .fracgui-folder {
-	--shadow-lightness: 0.2;
-
+.fracgui-root[mode='light'] {
 	// --fracgui-input-number-buttons-shadow-inset: 0px 0px 1.5px 0px hsl(0, 0%, 75%) inset;
 	--fracgui-input-number-buttons-shadow-inset-hover: 0px 0px 1px 0px hsl(0, 0%, 80%) inset;
 	--fracgui-input-number-buttons-shadow-inset-active: 0px 0px 2px 1px hsl(0, 0%, 90%) inset;
 
-	--fracgui-input-number-input-background: var(--bg-a);
-	--fracgui-input-number-input-color: var(--fg-c);
-	--fracgui-input-number-input-outline: 1px solid rgba(var(--bg-d-rgb), 0.1);
-	--fracgui-input-number-input-shadow: var(--shadow-xs);
+	--fracgui-input-background-dim: rgba(var(--bg-a-rgb), 0.5);
+	--fracgui-input-background: rgba(var(--bg-a-rgb), 1);
+	--fracgui-input-color: var(--fg-c);
+	--fracgui-input-outline: 1px solid rgba(var(--bg-d-rgb), 0.1);
 
 	--fracgui-input-number-range-background: var(--bg-b);
 	--fracgui-input-number-range-color: var(--bg-d);
 
 	// prettier-ignore
 	--fracgui-input-number-range-shadow: 
-	-4px -2px 2px hsla(230, 20%, 95%, 0.3),
-	2px 2px 3px hsla(230, 20%, 90%, 0.33),
-	2px 2px 7px hsla(230, 20%, 95%, 0.3),
-	-2px -2px 8px hsla(230, 25%, 95%, 0.3)
+		-2px 2px 2px hsla(230, 20%, 30%, 0.1),
+		2px 2px 3px hsla(230, 20%, 20%, 0.1),
+		2px 2px 7px hsla(230, 20%, 30%, 0.1)
 	;
 }
 
 // todo/wip - neumorphic stuff is unused
-.fracgui-root,
-.fracgui-root[data-theme='soft'] {
+.fracgui-root[theme='soft'] {
 	--gradient-neumorphic-a: linear-gradient(
 		145deg,
 		hsla(230, 20%, 12.5%, 0.5),
