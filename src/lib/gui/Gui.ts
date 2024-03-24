@@ -119,7 +119,38 @@ export const GUI_DEFAULTS = {
 	theme: 'minimal',
 } as const satisfies Omit<GuiOptions, 'parentFolder'>
 
-type StorageOptions = typeof GUI_DEFAULTS.storage
+interface GuiStorageOptions {
+	/**
+	 * Prefix to use for localStorage keys.
+	 * @default "fractils::gui"
+	 */
+	key: string
+	/**
+	 * Whether to persist the size.
+	 * @default true
+	 */
+	size?: boolean
+	/**
+	 * Whether to persist the position when windowManager is enabled.
+	 * @default true
+	 */
+	position?: boolean
+	/**
+	 * Whether to persist the folder's expanded state.
+	 * @default true
+	 */
+	closed?: boolean
+	/**
+	 * How long to debounce writes to localStorage (0 to disable).
+	 * @default 50
+	 */
+	debounce?: number
+	/**
+	 * Whether to persist the theme.
+	 * @default true
+	 */
+	theme?: boolean
+}
 
 /**
  * The root Gui instance.  This is the entry point for creating
