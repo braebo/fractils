@@ -5,6 +5,7 @@ import { get, writable } from 'svelte/store'
 
 export interface PrimitiveState<T> extends Writable<T> {
 	// get(): T
+	readonly isState: true
 	readonly value: T
 	onChange: (cb: (v: T) => void) => void
 	set(this: void, value: T): void
@@ -152,6 +153,7 @@ export function state<T>(defaultValue: T, options?: StateOptions<T>): State<T> {
 
 	return {
 		...store,
+		isState: true as const,
 		get value() {
 			return get(store)
 		},
