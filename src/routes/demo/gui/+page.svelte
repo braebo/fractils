@@ -31,7 +31,8 @@
 
 	onMount(() => {
 		gui = new Gui({
-			// container: document.getElementById('svelte')!,
+			title: 'Orbs',
+			container: document.getElementById('svelte')!,
 			storage: {
 				key: 'fractils::fracgui',
 			},
@@ -58,7 +59,7 @@
 		position = gui.position
 		closed = gui.closed
 
-		const f1 = gui.addFolder({ title: 'Orbs' })
+		const f1 = gui.addFolder({ title: 'main' })
 
 		f1.add({
 			title: 'count',
@@ -67,7 +68,7 @@
 				key: 'orbs',
 			},
 			min: 1,
-			max: 500,
+			max: 250,
 			step: 1,
 		})
 
@@ -80,7 +81,7 @@
 			min: 10,
 			max: window.innerWidth,
 			step: 1,
-		})
+		}).set(window.innerWidth / 2)
 
 		f1.addNumber({
 			title: 'height',
@@ -91,7 +92,7 @@
 			min: 10,
 			max: window.innerHeight,
 			step: 1,
-		})
+		}).set(window.innerHeight / 2)
 
 		const motionFolder = f1.addFolder({ title: 'motion' })
 
@@ -280,15 +281,17 @@
 	.page {
 		width: 100vw;
 		height: 100vh;
+		max-height: 100vh;
 		padding: 1rem;
-		margin: auto;
 
 		background: var(--bg-b);
+		outline: 1px solid red;
+
+		overflow: hidden;
 	}
 
 	.orbs {
 		width: 20rem;
 		height: 20rem;
-		margin: auto;
 	}
 </style>
