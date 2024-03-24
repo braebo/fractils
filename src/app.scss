@@ -8,7 +8,7 @@ html {
 	background: var(--body-bg);
 }
 
-html[theme=light] {
+html[theme='light'] {
 	--body-bg: var(--bg-b);
 	background: var(--body-bg);
 }

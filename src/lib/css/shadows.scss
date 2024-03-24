@@ -1,7 +1,7 @@
 @mixin shadows {
 	--shadow-color: 0deg 0% 0%;
 
-	&[theme='light'] {
+	&[mode='light'] {
 		--shadow-color: 0deg 0% 50%;
 	}
 
