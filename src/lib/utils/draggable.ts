@@ -502,7 +502,7 @@ export class Draggable {
 		// Return if the event target is not a handle element.
 		if (
 			!this.handleEls.some(
-				(e) => e.contains(eventTarget) || e.shadowRoot?.contains(eventTarget),
+				e => e.contains(eventTarget) || e.shadowRoot?.contains(eventTarget),
 			)
 		)
 			return
@@ -519,7 +519,7 @@ export class Draggable {
 		this.eventTarget =
 			this.handleEls.length === 1
 				? this.node
-				: this.handleEls.find((el) => el.contains(eventTarget))!
+				: this.handleEls.find(el => el.contains(eventTarget))!
 
 		this.#active = true
 
@@ -928,7 +928,7 @@ export class Draggable {
 	}
 
 	#cancelElementContains = (dragElements: HTMLElement[]) => {
-		return this.cancelEls.some((cancelEl) => dragElements.some((el) => cancelEl.contains(el)))
+		return this.cancelEls.some(cancelEl => dragElements.some(el => cancelEl.contains(el)))
 	}
 
 	#callEvent = (
