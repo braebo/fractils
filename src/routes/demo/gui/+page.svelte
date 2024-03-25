@@ -39,6 +39,9 @@
 				key: 'fractils::fracgui',
 			},
 			closed: false,
+			placement: {
+				position: 'bottom-right',
+			},
 		})
 
 		size = gui.size
@@ -193,7 +196,7 @@
 		})
 
 		// //? Cool self themer majig 🌈
-		// import('$lib/gui/gui.scss?raw').then((x) => {
+		// import('$lib/gui/gui.scss?raw').then(x => {
 		// 	setTimeout(() => {
 		// 		const root = document.querySelector('.fracgui-root') as HTMLDivElement
 		// 		if (!root) {
@@ -201,8 +204,11 @@
 		// 			return
 		// 		}
 
-		// 		const matches = x.default.match(/--gui-[\w-]+(?=\s*:)/g)?.map((x) => x.trim())
-		// 		if (!matches) return
+		// 		const matches = x.default.match(/--fracgui-[\w-]+(?=\s*:)/g)?.map(x => x.trim())
+		// 		if (!matches) {
+		// 			console.error('no matches')
+		// 			return
+		// 		}
 
 		// 		const theme = matches.reduce(
 		// 			(acc, key) => {
@@ -215,33 +221,113 @@
 		// 		const themerGui = new Gui({
 		// 			container: document.getElementById('svelte')!,
 		// 			title: 'themer',
+		// 			// storage: {
+		// 			// 	key: 'fractils::fracgui-themer',
+		// 			// },
 		// 			storage: {
-		// 				key: 'fractils::gui-themer',
+		// 				key: 'fractils::fracgui-themer',
 		// 			},
-		// 			resizable: {
-		// 				sides: ['right', 'left'],
-		// 				corners: [],
-		// 			},
-		// 			themer: false,
-		// 			draggable: {
-		// 				defaultPosition: {
-		// 					x: window.innerWidth - 250,
-		// 					y: 0,
+		// 			windowManager: {
+		// 				resizable: {
+		// 					sides: ['right', 'left'],
+		// 					corners: [],
+		// 				},
+		// 				draggable: {
+		// 					defaultPosition: {
+		// 						x: window.innerWidth - 250,
+		// 						y: 0,
+		// 					},
 		// 				},
 		// 			},
-		// 			closed: false,
 		// 		})
 
-		// 		const f = themerGui.addFolder({ title: 'theme' })
+		// 		const folders = new Map<string, Folder>()
+		// 		// let currentFolder = themerGui.addFolder({ title: 'theme' })
+		// 		let currentFolder = themerGui as Folder
 
-		// 		for (const [k, v] of Object.entries(theme)) {
-		// 			if (v.endsWith('rem')) {
-		// 				f.add<InputSlider>({
-		// 					title: k.replace('--gui-', '').replace(/-/g, ' '),
-		// 					value: parseFloat(v),
-		// 				}).onChange((v) => {
-		// 					root.style.setProperty(k, v + 'rem')
-		// 				})
+		// 		for (const [key, value] of Object.entries(theme)) {
+		// 			const parts = key.replace('--fracgui-', '').split('-')
+
+		// 			for (let i = 0; i < parts.length - 2; i++) {
+		// 				const folderName = parts[i]
+		// 				if (!folders.has(folderName)) {
+		// 					const newFolder = currentFolder.addFolder({ title: folderName })
+		// 					folders.set(folderName, newFolder)
+		// 				}
+		// 				currentFolder = folders.get(folderName)!
+		// 			}
+
+		// 			const propertyName = parts.length >= 2 ? parts.slice(-2).join(' ') : parts[0]
+
+		// 			if (value.endsWith('rem')) {
+		// 				currentFolder
+		// 					.add({
+		// 						title: propertyName,
+		// 						value: parseFloat(value),
+		// 						min: parseFloat(value) - parseFloat(value) * 5,
+		// 						max: parseFloat(value) * 5,
+		// 						step: 0.01,
+		// 					})
+		// 					.onChange(v => {
+		// 						root.style.setProperty(key, v + 'rem')
+		// 					})
+		// 			} else if (value.endsWith('px')) {
+		// 				currentFolder
+		// 					.add({
+		// 						title: propertyName,
+		// 						value: parseFloat(value),
+		// 						min: parseFloat(value) - parseFloat(value) * 5,
+		// 						max: parseFloat(value) * 5,
+		// 						step: 0.01,
+		// 					})
+		// 					.onChange(v => {
+		// 						root.style.setProperty(key, v + 'px')
+		// 					})
+		// 			} else if (value.endsWith('%')) {
+		// 				currentFolder
+		// 					.add({
+		// 						title: propertyName,
+		// 						value: parseFloat(value),
+		// 						min: 0,
+		// 						max: 100,
+		// 						step: 0.01,
+		// 					})
+		// 					.onChange(v => {
+		// 						root.style.setProperty(key, v + '%')
+		// 					})
+		// 			} else if (parseFloat(value)) {
+		// 				currentFolder
+		// 					.add({
+		// 						title: propertyName,
+		// 						value: parseFloat(value),
+		// 						min: parseFloat(value) - parseFloat(value) * 5,
+		// 						max: parseFloat(value) * 5,
+		// 						step: 0.01,
+		// 					})
+		// 					.onChange(v => {
+		// 						root.style.setProperty(key, String(v))
+		// 					})
+		// 			} else if (value.startsWith('#')) {
+		// 				currentFolder
+		// 					.addColor({
+		// 						title: propertyName,
+		// 						value: value as any as Color,
+		// 						expanded: false,
+		// 					})
+		// 					.onChange(v => {
+		// 						root.style.setProperty(key, v.hex8String)
+		// 					})
+		// 			} else {
+		// 				console.warn('Unsupported value:', value)
+		// 			}
+		// 		}
+
+		// 		// delete empty folders
+		// 		for (const [key, value] of folders.entries()) {
+		// 			if (value.controls.size === 0) {
+		// 				value.dispose()
+		// 			} else {
+		// 				value.close()
 		// 			}
 		// 		}
 		// 	}, 1000)
