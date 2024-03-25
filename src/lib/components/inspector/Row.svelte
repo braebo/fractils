@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Writable, Readable } from 'svelte/store'
 
-	import { nanoid } from 'nanoid'
+	import { nanoid } from '../../utils/nanoid'
 
 	export let key: string
 	export let value: unknown
