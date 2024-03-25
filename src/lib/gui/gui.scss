@@ -172,7 +172,6 @@
 .fracgui-toolbar {
 	z-index: 3;
 }
-
 //⌟
 
 //· Open / Close Animations ··················································¬
@@ -293,6 +292,8 @@
 	height: fit-content; //- important
 	max-height: var(--max-height, 90dvh);
 
+	border-radius: var(--radius-md);
+
 	user-select: none;
 	z-index: 99;
 }
@@ -345,7 +346,6 @@
 
 	width: 100%;
 	margin: 0;
-	// padding: 0 0.15rem;
 
 	border-radius: var(--radius-md);
 	border-top-left-radius: var(--radius-sm);
