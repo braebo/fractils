@@ -14,6 +14,7 @@ import { Logger } from '../utils/logger'
 import { Folder } from './Folder'
 
 import defaultTheme from '../themer/themes/default'
+import { place, type Placement } from './place'
 import theme1 from '../themer/themes/theme-1'
 
 type GuiTheme = 'default' | 'minimal' | (string & {})
@@ -48,19 +49,11 @@ export interface GuiOptions extends FolderOptions {
 	 */
 	windowManager: Partial<WindowManagerOptions>
 
-	// /**
-	//  * Whether the gui should be resizable.  Can be a boolean, or
-	//  * your own {@link ResizableOptions}.  If `false` or `undefined`,
-	//  * the gui will not be resizable.
-	//  */
-	// resizable: boolean | Partial<ResizableOptions>
-	// /**
-	//  * Whether the gui should be draggable.  Can be a boolean, or
-	//  * your own {@link DragOptions}.  If `false` or `undefined`,
-	//  * the gui will not be resizable.
-	//  */
-	// draggable: boolean | Partial<DragOptions>
-
+	placement: {
+		position: Placement
+		bounds?: DOMRect | { x: number; y: number; width: number; height: number } | 'window'
+		margin?: number | { x: number; y: number }
+	}
 	position: { x: number; y: number }
 	size: { width: number; height: number }
 	closed: boolean
@@ -92,8 +85,13 @@ export const GUI_DEFAULTS = {
 		debounce: 50,
 	},
 	closed: false,
-	size: { width: 0, height: 0 },
+	size: { width: 100, height: 400 },
 	position: { x: 16, y: 16 },
+	// placement: 'bottom-right',
+	placement: {
+		position: 'top-right',
+		margin: 16,
+	},
 	theme: 'default',
 	// theme: 'minimal',
 } as const satisfies Omit<GuiOptions, 'parentFolder'>
@@ -142,9 +140,8 @@ export class Gui extends Folder {
 	container!: HTMLElement
 
 	themer?: Themer
-	// resizable?: Resizable
-	// draggable?: Draggable
 	windowManager: WindowManager
+	settingsFolder: Folder
 
 	closed: PrimitiveState<boolean>
 	size: PrimitiveState<{ width: number; height: number }>
@@ -274,14 +271,32 @@ export class Gui extends Folder {
 
 		const dragOptions: Partial<DragOptions> =
 			typeof opts.windowManager?.draggable === 'object' ? opts.windowManager?.draggable : {}
+		this.#log.fn('constructor').info({ dragOptions, opts })
 		dragOptions.handle = this.elements.header
 		dragOptions.bounds = this.container
 
-		dragOptions.defaultPosition = this.position.value
+		// if (!dragOptions.defaultPosition && this.position.value) {
+		if (!opts.placement && !dragOptions.defaultPosition && this.position.value) {
+			//? Prioritize opts.position over opts.draggable.defaultPosition.
+			dragOptions.defaultPosition = this.position.value
+		}
+		// if (opts.placement) {
+		// 	//? Prioritize placement over opts.position.
+		// 	const rect = this.element.getBoundingClientRect()
+		// 	const { position: placement, margin } = opts.placement
+		// 	const bounds = opts.placement.bounds ?? this.container.getBoundingClientRect()
+		// 	const placementPosition = place(rect, placement, {
+		// 		bounds,
+		// 		margin,
+		// 	})
+		// 	dragOptions.defaultPosition = placementPosition
+		// 	this.position.set(placementPosition)
+		// 	this.#log.fn('constructor').info({ rect, placement, margin, bounds })
+		// }
 
 		//? Persist position to state if storage is enabled.
 		if (this.storage.position) {
-			dragOptions.onDragEnd = (data) => {
+			dragOptions.onDragEnd = data => {
 				const { x, y } = data
 				if (x === 0 && y === 0) return
 
@@ -308,7 +323,7 @@ export class Gui extends Folder {
 					: {} // Results in defaults in Resizable.
 
 		if (opts.storage === true || this.storage?.size) {
-			resizeOpts.onResize = (size) => {
+			resizeOpts.onResize = size => {
 				this.size.set(size)
 			}
 
@@ -344,13 +359,33 @@ export class Gui extends Folder {
 		})
 		//⌟
 
-		setTimeout(() => {
-			this.container.appendChild(this.element)
-			this.element.animate([{ opacity: 0 }, { opacity: 1 }], {
-				fill: 'none',
-				duration: 400,
+		Promise.resolve().then(() => {
+			Promise.resolve().then(() => {
+				const ghost = this.element.cloneNode(true) as HTMLElement
+				document.querySelector('.page')?.prepend(ghost)
+				const rect = ghost.getBoundingClientRect()
+				ghost.remove()
+
+				Promise.resolve().then(() => {
+					const { position: placement, margin } = opts.placement
+					const bounds = opts.placement.bounds ?? this.container.getBoundingClientRect()
+
+					const placementPosition = place(rect, placement, {
+						bounds,
+						margin,
+					})
+
+					this.position.set(placementPosition)
+					this.windowManager.windows[0]?.draggableInstance?.moveTo(placementPosition)
+					this.container.appendChild(this.element)
+					this.element.animate([{ opacity: 0 }, { opacity: 1 }], {
+						fill: 'none',
+						duration: 400,
+					})
+				})
 			})
-		}, 15)
+		})
+		// }, 15)
 
 		return this
 	}
