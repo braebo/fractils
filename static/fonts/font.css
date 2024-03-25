@@ -3,7 +3,6 @@
 @font-face {
 	font-family: 'inconsolata';
 	src: url('inconsolata/inconsolata.ttf') format('truetype');
-
 	font-style: normal;
 }
 
@@ -11,7 +10,6 @@
 @font-face {
 	font-family: 'alata';
 	src: url('alata/alata.ttf') format('truetype');
-
 	font-style: normal;
 }
 
@@ -19,19 +17,35 @@
 @font-face {
 	font-family: 'karla';
 	src: url('karla/karla.ttf') format('truetype');
-
 	font-style: normal;
 }
 @font-face {
 	font-family: 'karla';
 	src: url('karla/karla-italic.ttf') format('truetype');
-
 	font-style: italic;
+}
+
+
+@font-face {
+	font-family: 'afacad';
+	src: url('afacad/afacad.ttf') format('truetype');
+}
+
+/* Fredoka-VariableFont_wdth,wght */
+
+@font-face {
+	font-family: 'fredoka';
+	src: url('fredoka/fredoka.ttf') format('truetype');
+	font-stretch: 0% 100%;
+	font-weight: 1 1000;
+	font-display: swap;
 }
 
 :root {
 	--font-a: 'alata', sans-serif;
 	--font-b: 'karla', sans-serif;
+	--font-c: 'afacad', sans-serif;
+	--font-d: 'fredoka', sans-serif;
 	--font-mono: 'inconsolata', 'Comic Mono', 'Fira Code', monospace !important;
 	--system: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
 		Arial, sans-serif;

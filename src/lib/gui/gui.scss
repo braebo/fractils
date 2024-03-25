@@ -322,12 +322,18 @@
 		width: fit-content;
 		height: var(--header-height);
 
-		font-size: var(--fracgui-root-header-font-size);
-		letter-spacing: 2px;
-		line-height: calc(var(--header-height) - 4px);
 		font-family: var(--fracgui-font);
-		font-weight: 400;
-		font-variation-settings: 'wght' 300;
+		font-size: var(--fracgui-root-header-font-size);
+		font-weight: var(--fracgui-root-header-font-weight);
+		font-variation-settings:
+			'wght' var(--fracgui-root-header-font-weight),
+			'wdth' 100;
+		letter-spacing: var(--fracgui-root-header-letter-spacing);
+		line-height: var(--header-height);
+
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
 
 		pointer-events: none;
 	}
