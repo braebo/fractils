@@ -1,12 +1,14 @@
 <script lang="ts">
 	import { inspectElement } from '$lib/actions/inspectElement'
 	import Orbs from '../resizable/Orbs.svelte'
+	import { Themer } from '$lib/themer/Themer'
 	import { Color } from '$lib/color/color'
 	import { Gui } from '$lib/gui/Gui'
 	import { onMount } from 'svelte'
 
-	let gui: Gui
+	let themer: Themer
 
+	let gui: Gui
 	let size: Gui['size']
 	let position: Gui['position']
 	let closed: Gui['closed']
@@ -36,22 +38,6 @@
 			storage: {
 				key: 'fractils::fracgui',
 			},
-			windowManager: {
-				animation: false,
-				draggable: {
-					defaultPosition: {
-						x: 16,
-						y: 16,
-					},
-				},
-				resizable: {
-					color: 'var(--bg-e)',
-					grabberSize: 4,
-					sides: ['right', 'left'],
-					corners: [],
-				},
-			},
-			themer: false,
 			closed: false,
 		})
 
@@ -263,7 +249,20 @@
 
 		inspectElement(gui.element)
 
+		// themer = new Themer(gui.element, {
+		// 	mode: $theme,
+		// })
+
+		// const unsub = theme.subscribe(v => {
+		// 	// const color = v === 'light' ? 'white' : 'black'
+		// 	themer.mode.set(v)
+		// 	// document.body.style.backgroundColor = color
+		// 	// document.documentElement.style.backgroundColor = color
+		// })
+
 		return () => {
+			// unsub()
+			themer.dispose()
 			gui.dispose()
 		}
 	})
@@ -271,6 +270,10 @@
 
 <div class="page">
 	<button on:click={() => console.log(gui)}>Log Gui</button>
+
+	<!-- {#if gui?.themer}
+		<ThemerComponent themer={gui.themer} --right="-0.75rem" --top="1.5rem" />
+	{/if} -->
 
 	<div class="orbs">
 		<Orbs bind:params />
