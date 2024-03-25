@@ -105,5 +105,5 @@ export { highlighter } from './actions/highlighter' // todo
 export type { HighlightEventDetail, HighlightEvent, HighlightAttr } from './actions/highlighter' // todo
 
 export { resizable } from './actions/resizable' // todo
-export type { ResizableEvents, } from './actions/resizable' // todo
+export type { ResizableEvents } from './actions/resizable' // todo
 export type { ResizableOptions, Side } from './utils/resizable' // todo
