@@ -39,8 +39,8 @@ export { default as Root } from './gui/Gui.svelte' // todo
 // Theme
 
 export { initTheme, toggleTheme, applyTheme, theme } from './theme/theme'
-export { default as ThemerComponent } from './theme/Themer.svelte' // todo
-export { Themer } from './theme/Themer' // todo
+export { default as ThemerComponent } from './themer/Themer.svelte' // todo
+export { Themer } from './themer/Themer' // todo
 
 // Icons
 
