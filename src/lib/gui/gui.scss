@@ -5,6 +5,7 @@
 
 // Generic Globals
 .fracgui-root {
+	color-scheme: light dark;
 	--fracgui-width: 30rem;
 	--fracgui-min-width: 25rem;
 	--fracgui-max-width: 35rem;
@@ -23,10 +24,13 @@
 
 	--fracgui-alpha: 0.75;
 	--fracgui-blur: 0.5rem;
-
+}
+.fracgui-root[mode='dark'] {
+	color-scheme: dark;
 	--shadow-lightness: 1;
 }
 .fracgui-root[mode='light'] {
+	color-scheme: light;
 	--shadow-lightness: 0.2;
 }
 
