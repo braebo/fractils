@@ -278,8 +278,10 @@ export class Select<T> {
 		const { top, left, width, height } = this.elements.selected.getBoundingClientRect()
 		const scrollTop = this.elements.selected.scrollTop
 
+		const dropdownWidth = this.elements.dropdown.getBoundingClientRect().width
+
 		this.elements.dropdown.style.setProperty('top', `${top + height + scrollTop}px`)
-		this.elements.dropdown.style.setProperty('width', `${width}px`)
+		this.elements.dropdown.style.setProperty('width', `${Math.max(width, dropdownWidth)}px`)
 		// We need to calculate the left position needed to center the dropdown agains the selected element.
 		this.elements.dropdown.style.setProperty(
 			'left',
