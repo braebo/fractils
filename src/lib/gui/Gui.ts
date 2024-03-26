@@ -376,7 +376,7 @@ export class Gui extends Folder {
 					})
 
 					this.position.set(placementPosition)
-					this.windowManager.windows[0]?.draggableInstance?.moveTo(placementPosition)
+					this.windowManager.windows[0]?.draggableInstance?.moveTo(placementPosition, 0)
 					this.container.appendChild(this.element)
 					this.element.animate([{ opacity: 0 }, { opacity: 1 }], {
 						fill: 'none',
