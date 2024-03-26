@@ -4,54 +4,34 @@
 	import { scale } from 'svelte/transition'
 
 	const windowManager = new WindowManager({
-		draggable: {
-			obstacles: ['.window', '.sidebar'],
-		},
+		draggable: {},
 		resizable: {
 			sides: ['top', 'right', 'bottom', 'left'],
 		},
-		animation: {
-			scale: 1.025,
-			duration: 75,
-		},
+		obstacles: ['.window', '.sidebar'],
+		// animation: {
+		// 	scale: 1,
+		// 	duration: 75,
+		// },
 	})
 
-	// let windows = [1, 2, 3, 4, 5]
+	let windows = [1, 2, 3, 4, 5]
 	// let windows = [4, 5]
-	let windows = [] as number[]
+	// let windows = [] as number[]
 
-	// let deleted = windows.map(() => false)
+	let deleted = windows.map(() => false)
 </script>
 
 <div class="page">
 	<div class="main">
 		<button on:click={() => (windows = [...windows, windows.length + 1])}>Add Window</button>
-		<button on:click={() => console.log(windowManager)}>console.log(windowManager)</button>
+		<!-- <button on:click={() => console.log(windowManager)}>console.log(windowManager)</button> -->
 
-		<div
-			class="window window-1"
-			style="top:500px;left:250px"
-			out:scale={{ duration: 150, easing: quintIn }}
-			use:windowManager.add
-		>
-			<div class="content"><h2>Window 1</h2></div>
-		</div>
-
-		<div
-			class="window window-2"
-			style="top:500px;left:550px"
-			out:scale={{ duration: 150, easing: quintIn }}
-			use:windowManager.add
-		>
-			<div class="content"><h2>Window 2</h2></div>
-		</div>
-
-		<!-- {#each windows as i}
+		{#each windows as i}
 			{@const evenOddClass = i % 2 === 0 ? 'even' : 'odd'}
 			{#if !deleted[i - 1]}
 				<div
 					class="window window-{i} window-{evenOddClass}"
-					out:scale={{ duration: 150, easing: quintIn }}
 					style="top:{100 + (i - 1) * 124}px; left: {i * 75}px;"
 					use:windowManager.add={{
 						preserveZ: i === 2,
@@ -64,7 +44,17 @@
 					</div>
 				</div>
 			{/if}
-		{/each} -->
+		{/each}
+
+		<div class="window containerbox" style="top:500px;left:750px" use:windowManager.add>
+			<div
+				class=""
+				style="top:10px;left:10px;width:50px;height:50px;background-color:pink"
+				use:windowManager.add
+			>
+				Inside
+			</div>
+		</div>
 	</div>
 	<div class="sidebar" />
 </div>
@@ -79,7 +69,7 @@
 
 	.sidebar {
 		background: var(--bg-a);
-		height: 20rem;
+		height: 20vh;
 		margin: auto 0;
 	}
 

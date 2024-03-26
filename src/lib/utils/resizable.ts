@@ -7,6 +7,7 @@ import { state } from '../utils/state'
 import { select } from './select'
 import { clamp } from './clamp'
 import { fn, gr } from './l'
+import { DEV } from 'esm-env'
 
 type ElementsOrSelectors = string | HTMLElement | (string | HTMLElement)[] | undefined
 
@@ -78,6 +79,7 @@ export interface ResizableOptions {
 	 * The element to use as the bounds for resizing.
 	 * @default window['document']['documentElement']
 	 */
+
 	bounds: HTMLElement | (string & {})
 
 	/**
@@ -202,6 +204,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 		this.#cornerGrabberSize = +this.grabberSize * 3
 
 		this.bounds = select(opts.bounds)[0] ?? globalThis.document?.documentElement
+
 		this.obstacleEls = select(opts.obstacles)
 
 		if (!Resizable.initialized) {
@@ -263,11 +266,61 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 
 	clickOffset = { x: 0, y: 0 }
 
-	onGrab = (e: PointerEvent) => {
-		this.#activeGrabber = e.currentTarget as HTMLElement
+	getClosestObstLeft = () => {
+		let closestObst = -Infinity
+		for (const obstacle of this.obstacleEls) {
+			const o = obstacle.getBoundingClientRect()
+			// too high || too low || opposite side
+			if (this.rect.top > o.bottom || this.rect.bottom < o.top || this.rect.left < o.right)
+				continue
+			closestObst = Math.max(closestObst, o.right)
+		}
+		return closestObst
+	}
 
+	getClosestObstRight = () => {
+		let closestObst = Infinity
+		for (const obstacle of this.obstacleEls) {
+			const o = obstacle.getBoundingClientRect()
+			// too high || too low || opposite side
+			if (this.rect.top > o.bottom || this.rect.bottom < o.top || this.rect.right > o.left)
+				continue
+			closestObst = Math.min(closestObst, o.left)
+		}
+		return closestObst
+	}
+
+	getClosestObstTop = () => {
+		let closestObst = -Infinity
+		for (const obstacle of this.obstacleEls) {
+			const o = obstacle.getBoundingClientRect()
+			// too high || too low || opposite side
+			if (this.rect.left > o.right || this.rect.right < o.left || this.rect.top < o.bottom)
+				continue
+			closestObst = Math.max(closestObst, o.bottom)
+		}
+		return closestObst
+	}
+
+	getClosestObstBottom = () => {
+		let closestObst = Infinity
+		for (const obstacle of this.obstacleEls) {
+			const o = obstacle.getBoundingClientRect()
+			// too high || too low || opposite side
+			if (this.rect.left > o.right || this.rect.right < o.left || this.rect.bottom > o.top)
+				continue
+			closestObst = Math.min(closestObst, o.top)
+		}
+		return closestObst
+	}
+
+	onGrab = (e: PointerEvent) => {
+		this.node.setPointerCapture(e.pointerId)
+		this.#activeGrabber = e.currentTarget as HTMLElement
 		this.#activeGrabber.classList.add(this.classes.active)
 		document.body.classList.add(this.classes.active)
+
+		this.obstacleEls = select(this.opts.obstacles)
 
 		const side = this.#activeGrabber.dataset.side
 		if (side!.match(/top/)) this.clickOffset.y = e.clientY - this.rect.top
@@ -282,7 +335,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 		document.addEventListener('pointermove', this.onMove)
 		this.#cleanupGrabListener = () => document.removeEventListener('pointermove', this.onMove)
 
-		this.node.dispatchEvent(new CustomEvent('grab', { detail: { side } }))
+		// this.node.dispatchEvent(new CustomEvent('grab', { detail: { side } }))
 
 		document.addEventListener('pointerup', this.onUp, { once: true })
 	}
@@ -306,20 +359,12 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 	}
 
 	resizeLeft = (x: number) => {
-		const { width, top, bottom, left } = this.node.getBoundingClientRect()
 		const { minWidth, maxWidth, paddingLeft, paddingRight, borderLeftWidth, borderRightWidth } =
 			window.getComputedStyle(this.node)
 
-		let deltaX = x - left
+		const clampedX = Math.max(x, this.getClosestObstLeft())
+		let deltaX = clampedX - this.rect.left
 		if (deltaX === 0) return this
-
-		for (const obstacle of this.obstacleEls) {
-			const o = obstacle.getBoundingClientRect()
-			// too high || too low || opposite side || opposite direction
-			if (top > o.bottom || bottom < o.top || left < o.right || left + deltaX >= o.right)
-				continue
-			deltaX = Math.max(deltaX, o.right - left)
-		}
 
 		const borderBox =
 			parseFloat(paddingLeft) +
@@ -327,39 +372,24 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			parseFloat(borderLeftWidth) +
 			parseFloat(borderRightWidth)
 		const min = Math.max((parseFloat(minWidth) || 0) + borderBox, 25)
-		const max = Math.min(this.boundsRect.width, +maxWidth || Infinity)
-		const newWidth = clamp(width - deltaX, min, max)
 
-		// console.log('borderBox', borderBox)
-		// console.log('minWidth', minWidth)
-		// console.log('min', min)
-		// console.log('max', max)
-		// console.log('newWidth', newWidth)
+		const newWidth = clamp(this.rect.width - deltaX, min, +maxWidth || Infinity)
 
-		if (newWidth === min) deltaX = width - newWidth
+		if (newWidth === min) deltaX = this.rect.width - newWidth
 		this.translateX += deltaX
-
 		this.node.style.setProperty('translate', `${this.translateX}px ${this.translateY}px`)
-		this.node.style.width = `${newWidth}px`
 
+		this.node.style.width = `${newWidth}px`
 		return this
 	}
 
 	resizeRight = (x: number) => {
-		const { width, top, right, bottom } = this.node.getBoundingClientRect()
 		const { minWidth, maxWidth, paddingLeft, paddingRight, borderLeftWidth, borderRightWidth } =
 			window.getComputedStyle(this.node)
 
-		let deltaX = x - right
+		const clampedX = Math.min(x, this.getClosestObstRight())
+		let deltaX = clampedX - this.rect.right
 		if (deltaX === 0) return this
-
-		for (const obstacle of this.obstacleEls) {
-			const o = obstacle.getBoundingClientRect()
-			// too high || too low || already passed || unreachable with delta
-			if (top > o.bottom || bottom < o.top || right > o.left || right + deltaX <= o.left)
-				continue
-			deltaX = Math.min(deltaX, o.left - right)
-		}
 
 		const borderBox =
 			parseFloat(paddingLeft) +
@@ -367,16 +397,14 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			parseFloat(borderLeftWidth) +
 			parseFloat(borderRightWidth)
 		const min = Math.max((parseFloat(minWidth) || 0) + borderBox, 25)
-		const max = Math.min(this.boundsRect.width, +maxWidth || Infinity)
-		const newWidth = clamp(width + deltaX, min, max)
+
+		const newWidth = clamp(this.rect.width + deltaX, min, +maxWidth || Infinity)
 
 		this.node.style.width = `${newWidth}px`
-
 		return this
 	}
 
 	resizeTop = (y: number) => {
-		const { height, top, right, left } = this.node.getBoundingClientRect()
 		const {
 			minHeight,
 			maxHeight,
@@ -386,16 +414,9 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			borderBottomWidth,
 		} = window.getComputedStyle(this.node)
 
-		let deltaY = y - top
+		const clampedY = Math.max(y, this.getClosestObstTop())
+		let deltaY = clampedY - this.rect.top
 		if (deltaY === 0) return this
-
-		for (const obstacle of this.obstacleEls) {
-			const o = obstacle.getBoundingClientRect()
-			// too high || too low || opposite side || opposite direction
-			if (left > o.right || right < o.left || top < o.bottom || top + deltaY >= o.bottom)
-				continue
-			deltaY = Math.max(deltaY, o.bottom - top)
-		}
 
 		const borderBox =
 			parseFloat(paddingTop) +
@@ -403,21 +424,18 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			parseFloat(borderTopWidth) +
 			parseFloat(borderBottomWidth)
 		const min = Math.max((parseFloat(minHeight) || 0) + borderBox, 25)
-		const max = Math.min(this.boundsRect.height, +maxHeight || Infinity)
-		const newHeight = clamp(height - deltaY, min, max)
 
-		if (newHeight === min) deltaY = height - newHeight
+		const newHeight = clamp(this.rect.height - deltaY, min, +maxHeight || Infinity)
 
+		if (newHeight === min) deltaY = this.rect.height - newHeight
 		this.translateY += deltaY
-
 		this.node.style.setProperty('translate', `${this.translateX}px ${this.translateY}px`)
-		this.node.style.height = `${newHeight}px`
 
+		this.node.style.height = `${newHeight}px`
 		return this
 	}
 
 	resizeBottom = (y: number) => {
-		const { height, right, left, bottom } = this.node.getBoundingClientRect()
 		const {
 			minHeight,
 			maxHeight,
@@ -426,17 +444,11 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			borderTopWidth,
 			borderBottomWidth,
 		} = window.getComputedStyle(this.node)
+		const yClosest = this.getClosestObstBottom()
 
-		let deltaY = y - bottom
+		const clampedY = Math.min(y, yClosest)
+		let deltaY = clampedY - this.rect.bottom
 		if (deltaY === 0) return this
-
-		for (const obstacle of this.obstacleEls) {
-			const o = obstacle.getBoundingClientRect()
-			// too high || too low || on the other side || unreachable with delta
-			if (left > o.right || right < o.left || bottom > o.top || bottom + deltaY <= o.top)
-				continue
-			deltaY = Math.min(deltaY, o.top - bottom)
-		}
 
 		const borderBox =
 			parseFloat(paddingTop) +
@@ -444,11 +456,10 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			parseFloat(borderTopWidth) +
 			parseFloat(borderBottomWidth)
 		const min = Math.max((parseFloat(minHeight) || 0) + borderBox, 25)
-		const max = Math.min(this.boundsRect.height, +maxHeight || Infinity)
-		const newHeight = clamp(height + deltaY, min, max)
+
+		const newHeight = clamp(this.rect.height + deltaY, min, +maxHeight || Infinity)
 
 		this.node.style.height = `${newHeight}px`
-
 		return this
 	}
 
@@ -504,6 +515,15 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			width: this.node.offsetWidth,
 			height: this.node.offsetHeight,
 		})
+
+		// if (DEV) {
+		// 	const { width, height } = this.node.getBoundingClientRect()
+		// 	const xdev = this.node.querySelector('.content') as HTMLElement
+		// 	if (xdev) {
+		//  xdev.innerText =``
+
+		// 	}
+		// }
 	}
 
 	onUp = () => {
