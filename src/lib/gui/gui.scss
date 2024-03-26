@@ -547,7 +547,7 @@ $option-padding: 0.1rem 0.75rem;
 
 .fracgui-controller-select-dropdown {
 	display: none;
-	visibility: hidden;
+	// visibility: hidden;
 
 	position: absolute;
 	display: flex;
@@ -580,7 +580,9 @@ $option-padding: 0.1rem 0.75rem;
 
 	&.expanded {
 		display: block;
+		// visibility: visible;
 		width: fit-content;
+		height: fit-content;
 		padding: 0.1rem;
 		opacity: 1;
 		transform: translate(0, 0.5rem) scaleY(1);
@@ -1666,14 +1668,6 @@ input.fracgui-search-input {
 							.fracgui-controller-select-selected {
 								font-size: var(--font-xxs);
 							}
-
-							// .fracgui-controller-select-dropdown {
-							// 	transform: translate(-20%, 0rem);
-							// 	&.expanded {
-							// 		// transform: translate(-10%, -0.25rem);
-							// 		transform: translate(-20%, 0.5rem);
-							// 	}
-							// }
 						}
 
 						&:has(input.a.hovering) {
