@@ -1,5 +1,6 @@
 import type { ElementStyle } from '../color/css'
 
+import { EventManager } from '../utils/EventManager'
 import { deepMerge } from '../utils/deepMerge'
 import { trimCss } from '../utils/trimCss'
 import { entries } from '../utils/object'
@@ -169,10 +170,10 @@ export class Tooltip {
 			}
 		}
 
-		this.listen(node, 'pointerenter', this.show)
+		this.#evm.listen(node, 'pointerenter', this.show)
 
-		this.listen(node, 'pointerleave', this.hide)
-		this.listen(node, 'pointermove', this.updatePosition)
+		this.#evm.listen(node, 'pointerleave', this.hide)
+		this.#evm.listen(node, 'pointermove', this.updatePosition)
 	}
 
 	getText: () => string | number
@@ -355,9 +356,7 @@ export class Tooltip {
 	}
 
 	dispose() {
-		for (const removeCb of this.#listeners) {
-			removeCb()
-		}
+		this.#evm.dispose()
 		this.element.remove()
 	}
 }
