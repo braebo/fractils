@@ -247,8 +247,8 @@ export class Select<T> {
 
 	/** Toggles the dropdown's visibility. */
 	toggle = (e: MouseEvent) => {
-		e.preventDefault()
-		e.stopPropagation()
+		// e.preventDefault()
+		// e.stopPropagation()
 
 		this.#log.fn('toggle').info({ this: this })
 
