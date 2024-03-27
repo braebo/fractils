@@ -79,7 +79,7 @@
 	}
 
 	let reveal = false
-	let timer: NodeJS.Timeout
+	let timer: ReturnType<typeof setTimeout>
 
 	function showScrollbar() {
 		if (timer) clearTimeout(timer)
