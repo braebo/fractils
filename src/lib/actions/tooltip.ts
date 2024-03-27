@@ -82,6 +82,11 @@ export interface TooltipOptions {
 	 * @default document.body
 	 */
 	container?: Element | Document
+	/**
+	 * Hides the tooltip on click if `true`.
+	 * @default false
+	 */
+	hideOnClick?: boolean
 }
 
 export const TOOLTIP_DEFAULTS: TooltipOptions = {
@@ -109,6 +114,7 @@ export const TOOLTIP_DEFAULTS: TooltipOptions = {
 		durationOut: 150,
 		easing: 'cubic-bezier(0.23, 1, 0.320, 1)',
 	},
+	hideOnClick: false,
 }
 
 export class Tooltip {
@@ -174,6 +180,11 @@ export class Tooltip {
 
 		this.#evm.listen(node, 'pointerleave', this.hide)
 		this.#evm.listen(node, 'pointermove', this.updatePosition)
+
+		this.#evm.listen(node, 'click', () => {
+			if (opts.hideOnClick) this.hide()
+			else this.text = this.getText()
+		})
 	}
 
 	getText: () => string | number
@@ -205,11 +216,7 @@ export class Tooltip {
 		}
 	}
 
-	#listeners = new Set<() => void>()
-	listen = (node: HTMLElement, event: string, cb: (...args: any[]) => void) => {
-		node.addEventListener(event, cb)
-		this.#listeners.add(() => this.node.removeEventListener(event, cb))
-	}
+	#evm = new EventManager()
 
 	show = () => {
 		if (this.showing) return
