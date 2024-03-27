@@ -11,6 +11,7 @@ import type { Theme, ThemeDefinition } from './types'
 
 import { deepMerge } from '../utils/deepMerge'
 import { partition } from '../utils/partition'
+import { resolveTheme } from './resolveTheme'
 import { hexToRgb } from '../utils/hexToRgb'
 import defaultTheme from './themes/default'
 import { entries } from '../utils/object'
@@ -18,7 +19,6 @@ import { Logger } from '../utils/logger'
 import { select } from '../utils/select'
 import { c, g, o, r } from '../utils/l'
 import { state } from '../utils/state'
-import { resolveTheme } from './resolveTheme'
 
 export type ThemeTitle = 'theme-default' | 'theme-a' | 'theme-b' | 'theme-c' | (string & {})
 export type ThemeVariant = 'light' | 'dark'
