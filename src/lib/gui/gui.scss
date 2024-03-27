@@ -484,10 +484,11 @@
 		flex-direction: column;
 
 		width: 100%;
+		background: var(--fracgui-folder-content-background, var(--fracgui-folder-background));
 		border-left: var(--fracgui-folder-content-padding-left) solid
 			var(--fracgui-folder-header-background);
 
-		background: var(--fracgui-folder-content-background, var(--fracgui-folder-background));
+		transition: 0.15s;
 	}
 }
 
@@ -545,14 +546,12 @@ $option-padding: 0.1rem 0.75rem;
 	}
 
 	&.active {
-		// outline: 1px solid rgba(var(--bg-d-rgb), 0.75);
 		outline: var(--fracgui-input-outline);
 	}
 }
 
 .fracgui-controller-select-dropdown {
 	display: none;
-	// visibility: hidden;
 
 	position: absolute;
 	display: flex;
@@ -585,7 +584,6 @@ $option-padding: 0.1rem 0.75rem;
 
 	&.expanded {
 		display: block;
-		// visibility: visible;
 		width: fit-content;
 		height: fit-content;
 		padding: 0.1rem;
@@ -665,15 +663,6 @@ $option-padding: 0.1rem 0.75rem;
 	backface-visibility: hidden;
 }
 
-// //- Active
-
-// .fracgui-search-container {
-// 	transform: translate3d(0, 0, 0);
-// }
-// .fracgui-search-container.active {
-// 	transform: translate3d(-0.5rem, 0, 0);
-// }
-
 //? Button
 
 .fracgui-search-button {
@@ -743,7 +732,6 @@ $option-padding: 0.1rem 0.75rem;
 
 	circle {
 		fill: var(--bg-e);
-		// transition-duration: 0.15s !important;
 		transform: translate(-10%, 20%) scale(0.75);
 	}
 }
