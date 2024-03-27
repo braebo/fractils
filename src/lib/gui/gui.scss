@@ -531,6 +531,7 @@ $option-padding: 0.1rem 0.75rem;
 	font-weight: var(--fracgui-folder-content-font-weight);
 	letter-spacing: var(--fracgui-folder-content-letter-spacing);
 
+	overflow: hidden;
 	transition: 0.15s;
 	cursor: pointer;
 
