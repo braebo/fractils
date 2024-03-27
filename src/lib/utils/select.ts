@@ -4,7 +4,7 @@ import { c, r } from './l'
 let log: Logger
 
 export type ElementsOrSelector = string | HTMLElement | undefined
-export type ElementsOrSelectors = string | HTMLElement | (string | HTMLElement)[] | undefined
+export type ElementsOrSelectors = ElementsOrSelector | ElementsOrSelector[]
 
 /**
  * Takes in any combination of selectors and elements, and
@@ -22,6 +22,8 @@ export function select(input: ElementsOrSelectors, node?: HTMLElement): HTMLElem
 	node ??= document.documentElement
 
 	return elements.flatMap((el): HTMLElement[] => {
+		if (!el) return []
+
 		if (el instanceof HTMLElement) return [el]
 
 		if (typeof el === 'string') {
