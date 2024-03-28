@@ -12,23 +12,37 @@ const bypassStyles = false
 const bypassDefer = true
 
 export class Logger {
-	log: ReturnType<typeof logger>
+	#logger: ReturnType<typeof logger>
 
 	constructor(
 		public title: string,
 		public options?: Parameters<typeof logger>[1],
 	) {
-		this.log = logger(title, options)
+		this.#logger = logger(title, options)
+		return this
 	}
 
-	l(prefix: string, ...args: any[]) {
+	get deferred() {
+		return !bypassDefer && this.options?.deferred
+	}
+
+	/**
+	 * Logs any args as well as any logs in the current buffer.
+	 * @param args
+	 */
+	log = (...args: any[]) => {
 		if (this.buffer.length) {
-			this.log(prefix, ...this.buffer, ...args)
+			this.#logger(...this.buffer, ...args)
 			this.buffer = []
 		} else {
-			this.log(...args)
+			this.#logger(...args)
 		}
 	}
+
+	/**
+	 * A shorthand for {@link log}.
+	 */
+	l = this.log
 
 	/**
 	 * {@link DEV} only.  Logs any args as well as any logs in the current buffer.
@@ -63,26 +77,28 @@ export class Logger {
 		return this
 	}
 
-	group() {
-		if (this.options?.deferred) {
-			defer(() => console.group(this.title))
+	group(label?: string) {
+		const title = this.title + (label ? `:${label}` : '')
+		if (this.deferred) {
+			defer(() => console.group(title))
 		} else {
-			console.group(this.title)
+			console.group(title)
 		}
 		return this
 	}
 
-	groupCollapsed() {
-		if (this.options?.deferred) {
-			defer(() => console.groupCollapsed(this.title))
+	groupCollapsed(label?: string) {
+		const title = this.title + (label ? `:${label}` : '')
+		if (this.deferred) {
+			defer(() => console.groupCollapsed(title))
 		} else {
-			console.groupCollapsed(this.title)
+			console.groupCollapsed(title)
 		}
 		return this
 	}
 
 	groupEnd() {
-		if (this.options?.deferred) {
+		if (this.deferred) {
 			defer(() => console.groupEnd())
 		} else {
 			console.groupEnd()
