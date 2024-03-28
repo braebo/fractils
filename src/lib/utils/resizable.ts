@@ -1,3 +1,4 @@
+import type { ElementsOrSelector, ElementsOrSelectors } from './select'
 import type { resizable } from '../actions/resizable'
 import type { State } from '../utils/state'
 
@@ -8,8 +9,6 @@ import { select } from './select'
 import { clamp } from './clamp'
 import { fn, gr } from './l'
 import { DEV } from 'esm-env'
-
-type ElementsOrSelectors = string | HTMLElement | (string | HTMLElement)[] | undefined
 
 /**
  * The sides of an element that can be resized by the {@link resizable} action.
@@ -31,67 +30,55 @@ export interface ResizableOptions {
 	 * @default ['top', 'right', 'bottom', 'left']
 	 */
 	sides: Side[]
-
 	/**
 	 * To only allow resizing on certain corners, specify them here.
 	 * @default ['top-left', 'top-right', 'bottom-right', 'bottom-left']
 	 */
 	corners: ('top-left' | 'top-right' | 'bottom-right' | 'bottom-left')[]
-
 	/**
 	 * The size of the resize handle in pixels.
 	 * @default 6
 	 */
 	grabberSize: number | string
-
 	/**
 	 * Optional callback function that runs when the element is resized.
 	 * @default () => void
 	 */
 	onResize: (size: { width: number; height: number }) => void
-
 	/**
 	 * If provided, the size of the element will be persisted
 	 * to local storage under the specified key.
 	 * @default undefined
 	 */
 	localStorageKey?: string
-
 	/**
 	 * Use a visible or invisible gutter.
 	 * @default false
 	 */
 	visible: boolean
-
 	/**
 	 * Gutter css color (if visible = `true`)
 	 * @default 'var(--fg-d, #1d1d1d)'
 	 */
 	color: string
-
 	/**
 	 * Border radius of the element.
 	 * @default '0.5rem'
 	 */
 	borderRadius: string
-
 	/**
 	 * The element to use as the bounds for resizing.
 	 * @default window['document']['documentElement']
 	 */
-
-	bounds: HTMLElement | (string & {})
-
+	bounds: ElementsOrSelector
 	/**
 	 * Element's or selectors which will act as collision obstacles for the draggable element.
 	 */
 	obstacles: ElementsOrSelectors
-
 	/**
 	 * Whether to apply different `cursor` values to grabbers.
 	 */
 	cursors: boolean
-
 	/**
 	 * The classnames to apply to the resize grabbers, used for styling.
 	 * @default { default: 'resize-grabber', active: 'resize-grabbing' }
@@ -104,9 +91,9 @@ export interface ResizableOptions {
 	}
 }
 
-const RESIZABLE_DEFAULTS = {
-	sides: ['top', 'right', 'bottom', 'left'],
-	corners: ['top-left', 'top-right', 'bottom-right', 'bottom-left'],
+export const RESIZABLE_DEFAULTS: ResizableOptions = {
+	sides: [],
+	corners: [],
 	grabberSize: 6,
 	onResize: () => {},
 	localStorageKey: undefined,
@@ -119,7 +106,8 @@ const RESIZABLE_DEFAULTS = {
 		default: 'resize-grabber',
 		active: 'resize-grabbing',
 	},
-} as const satisfies Omit<ResizableOptions, 'bounds'>
+	bounds: 'document',
+} as const
 
 const px = (size: number | string) => {
 	if (typeof size === 'number') return `${size}px`
@@ -219,8 +207,22 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 		//? Load size from local storage.
 		if (this.localStorageKey) {
 			const { width, height } = this.size.value
-			node.style.width = width + 'px'
-			node.style.height = height + 'px'
+
+			if (width === 0 || height === 0) {
+				this.size.set({
+					width: this.node.offsetWidth,
+					height: this.node.offsetHeight,
+				})
+			} else {
+				if (this.corners.length || this.sides.some(s => s.match(/left|right/))) {
+					node.style.width = width + 'px'
+				}
+
+				if (this.corners.length || this.sides.some(s => s.match(/top|bottom/))) {
+					node.style.height = height + 'px'
+				}
+			}
+
 			node.dispatchEvent(new CustomEvent('resize'))
 		}
 
@@ -247,8 +249,8 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 
 	createGrabbers() {
 		for (const [side, type] of [
-			...this.sides.map((s) => [s, 'side']),
-			...this.corners.map((c) => [c, 'corner']),
+			...this.sides.map(s => [s, 'side']),
+			...this.corners.map(c => [c, 'corner']),
 		]) {
 			const grabber = document.createElement('div')
 			grabber.classList.add(this.opts.classes.default)
@@ -515,15 +517,6 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			width: this.node.offsetWidth,
 			height: this.node.offsetHeight,
 		})
-
-		// if (DEV) {
-		// 	const { width, height } = this.node.getBoundingClientRect()
-		// 	const xdev = this.node.querySelector('.content') as HTMLElement
-		// 	if (xdev) {
-		//  xdev.innerText =``
-
-		// 	}
-		// }
 	}
 
 	onUp = () => {
