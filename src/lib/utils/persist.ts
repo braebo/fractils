@@ -28,8 +28,8 @@ export function persist<T>(
 	}
 
 	return {
-		get value() {
-			if (bail()) return initialValue
+		get value(): T {
+			if (bail()) return initialValue!
 			const storedValue = localStorage.getItem(key)
 			return storedValue ? JSON.parse(storedValue) : initialValue
 		},
