@@ -19,6 +19,7 @@ export type CreateOptions = {
 	attributes?: Record<string, string>
 	value?: string
 	tooltip?: TooltipOptions
+	innerHtml?: string
 } & Partial<Record<keyof HTMLElement | keyof HTMLInputElement, any>>
 
 export function create<const K extends keyof HTMLElementTagNameMap>(
@@ -40,6 +41,7 @@ export function create<const K extends keyof HTMLElementTagNameMap>(
 		if (options.min) el.setAttribute('min', String(options.min))
 		if (options.max) el.setAttribute('max', String(options.max))
 		if (options.step) el.setAttribute('step', String(options.step))
+		if (options.innerHtml) el.innerHTML = options.innerHtml
 
 		if (options.attributes) {
 			for (const [key, value] of entries(options.attributes)) {
