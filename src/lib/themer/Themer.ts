@@ -5,9 +5,9 @@
  * Manages multiple customizable application themes.
  */
 
+import type { BaseColors, ModeColors, Theme, ThemeDefinition } from './types'
 import type { PrimitiveState, State } from '../utils/state'
 import type { ElementsOrSelector } from '../utils/select'
-import type { Theme, ThemeDefinition } from './types'
 
 import { deepMerge } from '../utils/deepMerge'
 import { partition } from '../utils/partition'
@@ -62,6 +62,7 @@ export interface ThemerOptions {
 	 * @default 'fractils::themer'
 	 */
 	localStorageKey?: string
+	wrapper?: HTMLElement
 }
 
 /**
@@ -110,6 +111,7 @@ export class Themer {
 	mode: State<'light' | 'dark' | 'system'>
 	themes: State<Theme[]>
 
+	wrapper?: HTMLElement
 	#initialized = false
 	#persistent: boolean
 	#key: string
@@ -136,6 +138,10 @@ export class Themer {
 		this.#key = String(opts.localStorageKey)
 
 		this.log.fn(g('constructor')).info({ opts, this: this })
+
+		if (opts.wrapper) {
+			this.wrapper = opts.wrapper
+		}
 
 		this.node =
 			node === 'document'
@@ -201,6 +207,19 @@ export class Themer {
 	}
 
 	/**
+	 * The active theme's variables based on the current mode.
+	 */
+	get modeColors(): ModeColors {
+		return this.theme.value.color[this.activeMode]
+	}
+	get baseColors(): BaseColors {
+		return this.theme.value.color.base
+	}
+	get allColors(): ModeColors & BaseColors {
+		return { ...this.baseColors, ...this.modeColors }
+	}
+
+	/**
 	 * The current mode, taking into account the system preferences.
 	 */
 	get activeMode(): 'light' | 'dark' {
@@ -209,8 +228,6 @@ export class Themer {
 			typeof _mode === 'object' && 'value' in _mode
 				? (_mode as { value: 'light' | 'dark' }).value
 				: _mode
-
-		console.log(mode)
 
 		if (mode === 'system') {
 			return this.#systemPref
@@ -234,7 +251,7 @@ export class Themer {
 	/**
 	 * Adds a new theme to the Themer and optionally saves it to localStorage.
 	 */
-	create(
+	create = (
 		/**
 		 * The theme to add.
 		 * @remarks If a theme with the same title already exists, its title
@@ -256,7 +273,7 @@ export class Themer {
 			 */
 			save?: boolean
 		},
-	) {
+	) => {
 		this.log.fn(c('addTheme')).info({ newTheme, options, this: this })
 
 		const theme = structuredClone(newTheme)
@@ -289,8 +306,6 @@ export class Themer {
 				}
 			}
 		}
-
-		this.themes.push(theme)
 
 		if (save) this.save()
 
@@ -398,7 +413,7 @@ export class Themer {
 	 * Loads Themer state from localStorage.
 	 * @returns The JSON that was loaded (if found).
 	 */
-	load() {
+	load = () => {
 		this.log.fn(c('load')).info({ this: this })
 
 		if (this.#persistent && 'localStorage' in globalThis) {
@@ -461,7 +476,7 @@ export class Themer {
 	 * @returns A string of CSS custom properties.
 	 * @internal
 	 */
-	#applyStyleProps(config: Theme) {
+	#applyStyleProps = (config: Theme) => {
 		this.log.fn(c('applyStyleProps')).info({ config, this: this })
 
 		const themeColors = config.color[this.activeMode]
@@ -475,27 +490,37 @@ export class Themer {
 			throw new Error(`Theme not found.`)
 		}
 
+		// Assuming parentElement is only nullish if this.node is the documentElement here..
+		// todo - figure out why `parentElement` is null on the first call.
+		const target = this.wrapper ?? this.node.parentElement ?? this.node
 		for (const [key, value] of [...entries(config.color.base), ...entries(themeColors)]) {
-			this.node.style.setProperty(`--${key}`, value)
-			this.node.style.setProperty(`--${key}-rgb`, hexToRgb(value))
+			target.style.setProperty(`--${key}`, value)
+			target.style.setProperty(`--${key}-rgb`, hexToRgb(value))
 		}
 	}
 
-	generateCssVars(obj: Record<string, string>[]) {
-		function generate(obj: Record<string, string>) {
-			const cssVars: `--${string};`[] = []
-			for (const [key, value] of entries(obj)) {
-				cssVars.push(`--${key}: ${value};`)
-				cssVars.push(`--${key}-rgb: ${hexToRgb(value)};`)
-			}
+	generateCssVars(obj: Theme = this.theme.value): `--${string};`[] {
+		const cssVars = new Set<`--${string};`>()
 
-			return cssVars
+		function generate(obj: Record<string, any>) {
+			for (const [key, value] of entries(obj)) {
+				if (key === 'title') continue
+
+				if (typeof value === 'object') {
+					generate(value)
+				}
+
+				cssVars.add(`--${key}: ${value};`)
+				cssVars.add(`--${key}-rgb: ${hexToRgb(String(value))};`)
+			}
 		}
-		return obj.flatMap(generate)
+
+		generate(obj)
+
+		return Array.from(cssVars)
 	}
 
 	generateStylesheet() {
-		// Create the <style> element.
 		if (!this.#style) {
 			const style = document.createElement('style')
 			style.classList.add('fractils-themer')
@@ -504,7 +529,7 @@ export class Themer {
 			this.#style = style
 		}
 
-		const cssVars = this.generateCssVars([this.theme.value.color[this.activeMode]])
+		const cssVars = this.generateCssVars()
 		const css = cssVars.join('\n')
 
 		this.#style.textContent = css
