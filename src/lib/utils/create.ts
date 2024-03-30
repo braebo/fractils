@@ -23,11 +23,14 @@ export type CreateOptions = {
 	children?: Element[]
 } & Partial<Record<keyof HTMLElement | keyof HTMLInputElement, any>>
 
-export function create<const K extends keyof HTMLElementTagNameMap>(
+export function create<
+	K extends keyof HTMLElementTagNameMap,
+	TOptions extends CreateOptions,
+	TElement = HTMLElementTagNameMap[K] & { dataset: TOptions['dataset'] },
+>(
 	tagname: K,
-	options?: CreateOptions,
-	...children: HTMLElement[]
-): HTMLElementTagNameMap[K] {
+	options?: TOptions,
+): TOptions extends { tooltip: TooltipOptions } ? TElement & { tooltip: Tooltip } : TElement {
 	const el = globalThis?.document?.createElement(tagname)
 
 	if (options) {
@@ -68,14 +71,23 @@ export function create<const K extends keyof HTMLElementTagNameMap>(
 			if (!tooltip) {
 				import('../actions/tooltip').then(({ Tooltip }) => {
 					tooltip = Tooltip
-					new tooltip(el, options.tooltip)
+					const tip = new tooltip(el, options.tooltip)
+					// @ts-expect-error
+					el.tooltip = tip
 				})
 			} else {
-				new tooltip(el, options.tooltip)
+				const tip = new tooltip(el, options.tooltip)
+				// @ts-expect-error
+				el.tooltip = tip
 			}
 		}
 
 		if (options.children) {
 			for (const child of options.children ?? []) el.appendChild(child)
 		}
+	}
+
+	return el as TOptions extends { tooltip: TooltipOptions }
+		? TElement & { tooltip: Tooltip }
+		: TElement
 }
