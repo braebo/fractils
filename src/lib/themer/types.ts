@@ -19,8 +19,9 @@ export type ThemeDefinition = {
 	}
 }
 
-interface BaseColors {
-	[key: string]: string
+export type ThemeColors = BaseColors & ModeColors
+
+export interface BaseColors {
 	'theme-a': string
 	'theme-b': string
 	'theme-c': string
@@ -38,8 +39,7 @@ interface BaseColors {
 	'light-e': string
 }
 
-interface ModeColors {
-	[key: string]: string
+export interface ModeColors {
 	'bg-a': string
 	'bg-b': string
 	'bg-c': string
