@@ -50,7 +50,8 @@ export type ColorInputOptions = {
 	title: string
 	mode: ColorMode
 	expanded: boolean
-} & ValueOrBinding<ColorFormat | Color>
+	onChange?: (value: Color) => void
+} & InputOptions<ColorFormat | Color>
 //⌟
 
 export const COLOR_INPUT_DEFAULTS: ColorInputOptions = {
