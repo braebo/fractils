@@ -20,6 +20,7 @@ export type CreateOptions = {
 	value?: string
 	tooltip?: TooltipOptions
 	innerHtml?: string
+	children?: Element[]
 } & Partial<Record<keyof HTMLElement | keyof HTMLInputElement, any>>
 
 export function create<const K extends keyof HTMLElementTagNameMap>(
@@ -73,9 +74,8 @@ export function create<const K extends keyof HTMLElementTagNameMap>(
 				new tooltip(el, options.tooltip)
 			}
 		}
-	}
 
-	for (const child of children) el.appendChild(child)
-
-	return el
+		if (options.children) {
+			for (const child of options.children ?? []) el.appendChild(child)
+		}
 }
