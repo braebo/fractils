@@ -1,4 +1,4 @@
-import type { InputOptions, InputType, ValidInput } from './inputs/Input'
+import type { ElementMap, InputOptions, InputType, ValidInput } from './inputs/Input'
 import type { Option } from './controllers/Select'
 
 import { InputNumber, type NumberInputOptions } from './inputs/InputNumber'
