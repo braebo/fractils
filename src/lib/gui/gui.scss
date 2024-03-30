@@ -60,6 +60,10 @@
 	--fracgui-folder-header-font-weight: 350;
 	--fracgui-folder-header-letter-spacing: 0.75px;
 
+	//? Folder Toolbar
+	--fracgui-toolbar-icon-color-dim: var(--bg-c);
+	--fracgui-toolbar-icon-color: var(--bg-d);
+
 	//? Folder Content
 	--fracgui-folder-content-background: rgba(var(--bg-b-rgb), 0.2);
 	--fracgui-folder-content-padding-left: 0.33rem;
@@ -664,7 +668,19 @@ $option-padding: 0.1rem 0.75rem;
 
 	width: 75%;
 }
-//⌟
+
+$icon-width: 1.5rem;
+$icon-height: 0.9rem;
+
+.fracgui-toolbar-item {
+	// outline: red;
+	// width: 2rem;
+	// height: 1.5rem;
+
+	svg {
+		max-height: 1rem;
+	}
+}
 
 //·· Search ························································¬
 
@@ -717,7 +733,7 @@ $option-padding: 0.1rem 0.75rem;
 //- Hover
 
 .fracgui-search-button {
-	color: var(--bg-d);
+	color: var(--fracgui-toolbar-icon-color-dim);
 	opacity: 0;
 }
 .fracgui-header:hover .fracgui-search-button {
@@ -799,6 +815,114 @@ input.fracgui-search-input {
 }
 //⌟
 
+//·· Settings Button ···································································¬
+
+.fracgui-settings-button {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 0.25rem;
+
+	// all: unset;
+	border: none;
+	width: 1rem;
+	// height: $icon-height;
+
+	margin: 0;
+	padding: 0;
+	margin-right: 0.5rem;
+
+	color: var(--fracgui-toolbar-icon-color-dim);
+
+	cursor: pointer;
+	transition: 0.15s;
+
+	&:hover {
+		color: var(--fracgui-toolbar-icon-color);
+	}
+
+	.gear,
+	.dot-left,
+	.dot-center,
+	.dot-right {
+		transition: 0.5s cubic-bezier(0.16, 0.9, 0, 1.01);
+		transform-origin: center;
+		pointer-events: none;
+	}
+
+	.gear {
+		transition:
+			all 0.5s cubic-bezier(0.16, 0.9, 0, 1.01),
+			transform 0.33s cubic-bezier(0, 1.07, 0.48, 1.27);
+		opacity: 0;
+		transform: scale(1.33) rotate(-180deg);
+	}
+	&:hover .gear {
+		transition: 0.5s cubic-bezier(0.16, 0.9, 0, 1.01);
+	}
+	&.open .gear {
+		transition: 0.33s cubic-bezier(0, 1.07, 0.48, 1.5);
+	}
+	.dot-left {
+		opacity: 1;
+		transform: translateX(0);
+	}
+	.dot-center {
+		opacity: 1;
+	}
+	.dot-right {
+		opacity: 1;
+		transform: scale(1) translateX(0);
+	}
+
+	// ಠ_ಠ
+	$x: /*(^_^)⊃✨*/ 36%;
+
+	&:hover,
+	&.open {
+		.gear {
+			opacity: 1;
+			transform: scale(1) rotate(0deg);
+		}
+
+		.dot-left {
+			opacity: 0;
+			transform: translateX($x);
+		}
+
+		.dot-center {
+			// filter: brightness(0.75);
+			transform: scale(1.25);
+		}
+
+		.dot-right {
+			opacity: 0;
+			transform: scale(1.2) translateX(-$x);
+		}
+	}
+
+	&.open {
+		// .dot-center {
+		// 	fill: none;
+		// 	stroke: var(--fracgui-toolbar-icon-color);
+		// }
+		.gear {
+			opacity: 1;
+			transform: scale(1) rotate(58deg);
+		}
+
+		// .dot-center {
+		// 	stroke: var(--fracgui-toolbar-icon-color-dim);
+		// }
+	}
+
+	&:active {
+		background: none;
+	}
+}
+
+//⌟
+
 //· Shared ···································································¬
 
 //·· Copy ··························································¬
@@ -807,7 +931,7 @@ input.fracgui-search-input {
 	.copy-button {
 		cursor: pointer;
 
-		width: var(--copy-button-width, 2rem);
+		// width: var(--copy-button-width, 2rem);
 		height: var(--copy-button-height, 2rem);
 		padding: 10%;
 

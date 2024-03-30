@@ -7,12 +7,23 @@ import { InputColor, type ColorInputOptions } from './inputs/InputColor'
 
 import { cancelClassFound } from '../internal/cancelClassFound'
 import { isColor, isColorFormat } from '../color/color'
+import settingsIcon from './svg/settings-icon.svg?raw'
 import { create } from '../utils/create'
 import { nanoid } from '../utils/nanoid'
 import { Logger } from '../utils/logger'
 import { state } from '../utils/state'
 import { Search } from './Search'
 import { Gui } from './Gui'
+
+export interface FolderElements extends ElementMap {
+	header: HTMLElement
+	title: HTMLElement
+	contentWrapper: HTMLElement
+	content: HTMLElement
+	toolbar: {
+		container: HTMLElement
+	}
+}
 
 /**
  * @internal
@@ -37,6 +48,13 @@ export interface FolderOptions {
 	 * @default false
 	 */
 	closed: boolean
+	/**
+	 * Whether the folder should be hidden by default.  If a function is
+	 * provided, it will be called to determine the hidden state.  Use
+	 * {@link refresh} to update the hidden state.
+	 * @default false
+	 */
+	hidden: boolean | (() => boolean)
 	/**
 	 * The element to append the folder to (usually
 	 * the parent folder's content element).
@@ -63,23 +81,17 @@ export class Folder {
 	closed = state(false)
 
 	element: HTMLElement
-	elements = {} as {
-		header: HTMLElement
-		toolbar: HTMLElement
-		title: HTMLElement
-		contentWrapper: HTMLElement
-		content: HTMLElement
-	}
+	elements = {} as FolderElements
 
-	/** global css variables */
-	vars = {
-		get: (key: string) => {
-			return getComputedStyle(this.root.element).getPropertyValue(key)
-		},
-		set: (key: string, value: string) => {
-			this.root.element.style.setProperty(key, value)
-		},
-	}
+	// /** global css variables */
+	// vars = {
+	// 	get: (key: string) => {
+	// 		return getComputedStyle(this.root.element).getPropertyValue(key)
+	// 	},
+	// 	set: (key: string, value: string) => {
+	// 		this.root.element.style.setProperty(key, value)
+	// 	},
+	// }
 
 	#subs: Array<() => void> = []
 	#log: Logger
@@ -93,6 +105,10 @@ export class Folder {
 	#clickTime = 200
 	/** Whether clicking the header to open/close the folder is disabled. */
 	#disabled = false
+	/** Whether the folder is visible. */
+	#hidden: boolean | (() => boolean)
+	/** {@link FolderOptions.hidden} if it was provided as a `function`. */
+	#hiddenFunction?: () => boolean
 
 	constructor(options: FolderOptions, rootContainer: HTMLElement | null = null, instant = true) {
 		const opts = Object.assign({}, options)
@@ -111,10 +127,23 @@ export class Folder {
 			this.root = this as any as Gui
 			this.isRoot = true
 			this.parentFolder = this
+
+			if (!this.isGui()) throw new Error('Root folder must be a GUI.')
+
 			const rootEl = this.#createRootElement(rootContainer)
 			const { element, elements } = this.#createElements(rootEl)
 			this.element = element
-			this.elements = elements
+
+			const settingsButton = this.#createSettingsButton(elements.toolbar.container)
+
+			this.elements = {
+				...elements,
+				toolbar: {
+					container: elements.toolbar.container,
+					settingsButton: settingsButton,
+				},
+			}
+
 			// @ts-expect-error
 			this.theme = opts.theme
 		} else {
@@ -136,6 +165,13 @@ export class Folder {
 			setTimeout(() => {
 				this.element.classList.remove('instant')
 			}, 0)
+		}
+
+		this.#hidden = opts.hidden
+		if (opts.hidden === true) {
+			this.hide()
+		} else {
+			this.show()
 		}
 
 		// Open/close the folder when the closed state changes.
@@ -196,6 +232,9 @@ export class Folder {
 				classes: ['fracgui-folder'],
 				// dataset: { id: this.id },
 			})
+
+		if (!element) throw new Error('Failed to create element.')
+
 		if (el) el.classList.add('fracgui-root')
 
 		const header = create('div', {
@@ -231,7 +270,9 @@ export class Folder {
 			element,
 			elements: {
 				header,
-				toolbar,
+				toolbar: {
+					container: toolbar,
+				},
 				title,
 				contentWrapper,
 				content,
@@ -249,6 +290,58 @@ export class Folder {
 		})
 
 		return rootEl
+	}
+
+	#createSettingsButton(parent: HTMLElement) {
+		if (!this.isGui()) {
+			throw new Error('Settings button can only be created on the root folder.')
+		}
+
+		const svg = new DOMParser().parseFromString(settingsIcon, 'image/svg+xml').documentElement
+
+		const button = create('button', {
+			parent,
+			classes: ['fracgui-toolbar-item', 'fracgui-settings-button'],
+			children: [svg],
+			tooltip: {
+				text: () => (this.settingsFolder.closed.value ? 'Open Settings' : 'Close Settings'),
+				placement: 'left',
+				delay: 750,
+				delayOut: 0,
+				hideOnClick: true,
+			},
+		})
+
+		button.addEventListener('click', () => {
+			this.settingsFolder.toggle()
+
+			this.elements.toolbar.settingsButton.classList.toggle(
+				'open',
+				!this.settingsFolder.closed.value,
+			)
+		})
+
+		return button
+	}
+
+	addFolder(options?: { title?: string; closed?: boolean; header?: boolean; hidden?: boolean }) {
+		const folder = new Folder({
+			title: options?.title ?? '',
+			controls: new Map(),
+			parentFolder: this,
+			children: [],
+			closed: options?.closed ?? false,
+			hidden: options?.hidden ?? false,
+		})
+
+		this.children.push(folder)
+		this.#createIcon()
+
+		if (options?.header === false) {
+			folder.elements.header.style.display = 'none'
+		}
+
+		return folder
 	}
 
 	#createIcon() {
