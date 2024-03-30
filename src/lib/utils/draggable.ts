@@ -1,4 +1,4 @@
-import type { ElementsOrSelectors } from './select'
+import type { ElementsOrSelector, ElementsOrSelectors } from './select'
 import type { Action } from 'svelte/action'
 
 import { cancelClassFound } from '../internal/cancelClassFound'
@@ -7,6 +7,7 @@ import { EventManager } from './EventManager'
 import { cubicOut } from 'svelte/easing'
 import { tweened } from 'svelte/motion'
 import { deepMerge } from './deepMerge'
+import { persist } from './persist'
 import { select } from './select'
 import { Logger } from './logger'
 import { clamp } from './clamp'
@@ -15,7 +16,7 @@ import { DEV } from 'esm-env'
 /**
  * Represents a dom element's bounding rectangle.
  */
-export type VirtualRect = {
+export interface VirtualRect {
 	left: number
 	top: number
 	right: number
@@ -25,42 +26,33 @@ export type VirtualRect = {
 /**
  * Represents the bounds to which the draggable element is limited to.
  */
-export type DragBounds =
-	| (string & {})
-	| HTMLElement
-	| 'parent'
-	| 'body'
-	| false
-	| Partial<VirtualRect>
+export type DragBounds = ElementsOrSelector | false | Partial<VirtualRect>
 
 /**
- * Data passed to listeners of the {@link DragOptions.onDragStart|onDragStart},
- * {@link DragOptions.onDrag|onDrag}, {@link DragOptions.onDragEnd|onDragEnd}, and
- * {@link DragOptions.onCollision|onCollision} events.
+ * Data passed to listeners of the {@link DraggableOptions.onDragStart|onDragStart},
+ * {@link DraggableOptions.onDrag|onDrag}, {@link DraggableOptions.onDragEnd|onDragEnd}, and
+ * {@link DraggableOptions.onCollision|onCollision} events.
  */
 export type DragEventData = {
 	/**
 	 * The node on which the draggable is applied
 	 */
 	rootNode: HTMLElement
-
 	/**
 	 * Total horizontal movement from the node's original position.
 	 */
 	x: number
-
 	/**
 	 * Total vertical movement from the node's original position.
 	 */
 	y: number
-
 	/**
 	 * The complete event object.
 	 */
 	eventTarget: EventTarget
 }
 
-export type DragOptions = {
+export type DraggableOptions = {
 	/**
 	 * The boundary to which the draggable element is limited to.
 	 *
@@ -204,14 +196,24 @@ export type DragOptions = {
 	 * @remarks The animation is subtle, and most noticeable when the
 	 * draggable element is moved a long distance very suddenly.
 	 */
-	tween: {
+	animation: {
 		/**
 		 * Duration of the tween in milliseconds - 0 to disable.
-		 * @default 100
+		 * @default 0
 		 */
 		duration?: number
+		/**
+		 * Easing function for the tween.
+		 * @default cubicOut
+		 */
 		easing?: (t: number) => number
 	}
+
+	/**
+	 * If provided, the position will persist in local storage under this key.
+	 * @default undefined
+	 */
+	localStorageKey?: string
 }
 
 const DEFAULT_CLASSES = {
@@ -221,7 +223,7 @@ const DEFAULT_CLASSES = {
 	cancel: 'fractils-cancel',
 } as const
 
-const DRAG_DEFAULTS = {
+export const DRAG_DEFAULTS: DraggableOptions = {
 	bounds: 'body',
 	axis: 'both',
 	userSelectNone: true,
@@ -238,11 +240,12 @@ const DRAG_DEFAULTS = {
 	onDragEnd: () => {},
 	onCollision: () => {},
 	transform: undefined,
-	tween: {
-		duration: 100,
+	animation: {
+		duration: 0,
 		easing: cubicOut,
 	},
-} as const satisfies DragOptions
+	localStorageKey: undefined,
+} as const
 
 /**
  * Make an element draggable.  Supports touch, mouse, and pointer events,
@@ -262,7 +265,7 @@ const DRAG_DEFAULTS = {
  */
 export class Draggable {
 	static initialized = false
-	opts: DragOptions
+	opts: DraggableOptions
 
 	/**
 	 * Whether the draggable element is currently being dragged.
@@ -297,7 +300,7 @@ export class Draggable {
 	/**
 	 * The original value of `user-select` on the body element
 	 * used to restore the original value after dragging when
-	 * {@link DragOptions.userSelectNone|userSelectNone} is `true`.
+	 * {@link DraggableOptions.userSelectNone|userSelectNone} is `true`.
 	 */
 	#bodyOriginalUserSelectVal = ''
 
@@ -316,18 +319,23 @@ export class Draggable {
 		bottom: Infinity,
 	}
 
-	_position = { x: 0, y: 0 }
+	private _storage?: ReturnType<typeof persist<{ x: number; y: number }>>
+	private _position = { x: 0, y: 0 }
+	/**
+	 * Programmatically sets the position of the draggable element.
+	 */
 	get position() {
 		return this._position
 	}
 	set position(v) {
 		this._position = v
 		this.moveTo(v)
+		this.updateLocalStorage()
 	}
 
 	/**
 	 * Updates the {@link bounds} property to account for any changes in the
-	 * DOM or this instance's {@link DragOptions.bounds|bounds} option.
+	 * DOM or this instance's {@link DraggableOptions.bounds|bounds} option.
 	 */
 	#recomputeBounds: () => void
 
@@ -338,15 +346,9 @@ export class Draggable {
 	eventTarget?: HTMLElement
 
 	/**
-	 * See {@link DragOptions.tween}
+	 * See {@link DraggableOptions.animation}
 	 */
-	tween = tweened(
-		{ x: 0, y: 0 },
-		{
-			duration: 100,
-			easing: cubicOut,
-		},
-	)
+	tween: ReturnType<typeof tweened<{ x: number; y: number }>>
 
 	/**
 	 * Cleanup functions (removeEventLister / unsubscribe) to call in {@link dispose}.
@@ -367,7 +369,7 @@ export class Draggable {
 
 	constructor(
 		public node: HTMLElement,
-		options?: Partial<DragOptions>,
+		options?: Partial<DraggableOptions>,
 	) {
 		this.opts = deepMerge(DRAG_DEFAULTS, options)
 		// todo - delete oldOpts and the error if all goes well.
@@ -387,12 +389,33 @@ export class Draggable {
 			fg: 'SkyBlue',
 			deferred: false,
 		})
-		this.#log.fn('constructor').info({ opts: this.opts, this: this })
+			.fn('constructor')
+			.info({ opts: this.opts, this: this })
+
+		this.tween = tweened(
+			{ x: 0, y: 0 },
+			{
+				duration: this.opts.animation.duration,
+				easing: cubicOut,
+			},
+		)
 
 		this.node.classList.add(this.opts.classes.default)
 
-		this.x = options?.position?.x ?? this.opts.defaultPosition.x
-		this.y = options?.position?.y ?? this.opts.defaultPosition.y
+		const startPosition = this.opts.position ?? this.opts.defaultPosition
+
+		// Setup local storage if the key is provided.
+		if (this.opts.localStorageKey) {
+			this._storage = persist(this.opts.localStorageKey, startPosition)
+			const storagePostion = this._storage.value
+			if (storagePostion) {
+				startPosition.x = storagePostion.x
+				startPosition.y = storagePostion.y
+			}
+		}
+
+		this.x = startPosition.x
+		this.y = startPosition.y
 
 		// Prevents mobile touch-event jank.
 		this.node.style.setProperty('touch-action', 'none')
@@ -414,8 +437,8 @@ export class Draggable {
 			}),
 		)
 
-		if (this.opts.defaultPosition !== DRAG_DEFAULTS.defaultPosition) {
-			this.moveTo(this.opts.defaultPosition)
+		if (startPosition !== DRAG_DEFAULTS.defaultPosition) {
+			this.moveTo(startPosition, 0)
 			this._position = { x: this.x, y: this.y }
 			// Update the virtual rect.
 			const { top, right, bottom, left } = this.node.getBoundingClientRect()
@@ -445,14 +468,14 @@ export class Draggable {
 
 	/**
 	 * Whether the draggable element can move in the x direction,
-	 * based on the {@link DragOptions.axis|axis} option.
+	 * based on the {@link DraggableOptions.axis|axis} option.
 	 */
 	get canMoveX() {
 		return /(both|x)/.test(this.opts.axis)
 	}
 	/**
 	 * Whether the draggable element can move in the x direction,
-	 * based on the {@link DragOptions.axis|axis} option.
+	 * based on the {@link DraggableOptions.axis|axis} option.
 	 */
 	get canMoveY() {
 		return /(both|y)/.test(this.opts.axis)
@@ -542,7 +565,7 @@ export class Draggable {
 		if (this.bounds) this.clientToNodeOffset = { x: e.clientX - left, y: e.clientY - top }
 
 		// Set the initial position (with a forced duration of 0).
-		this.tween.set({ x: this.x, y: this.y }, { ...this.opts.tween, duration: 0 })
+		this.tween.set({ x: this.x, y: this.y }, { ...this.opts.animation, duration: 0 })
 		// Update the bounds rect.
 		this.#recomputeBounds()
 
@@ -601,6 +624,7 @@ export class Draggable {
 		this.clickOffset = { x: 0, y: 0 }
 		this.clientToNodeOffset = { x: 0, y: 0 }
 		this._position = { x: this.x, y: this.y }
+		// if (this._storage) this._storage.value = this._position
 
 		this.#active = false
 
@@ -612,6 +636,8 @@ export class Draggable {
 		setTimeout(() => this.node.classList.remove(this.opts.classes.dragged), 0)
 
 		this.#fireSvelteDragEndEvent()
+
+		this.updateLocalStorage()
 	}
 
 	resize = () => {}
@@ -651,7 +677,7 @@ export class Draggable {
 	 * Moves the {@link node|draggable element} to the specified position, adjusted
 	 * for collisions with {@link obstacleEls obstacles} or {@link boundsRect bounds}.
 	 */
-	moveTo(target: { x: number; y: number }, tweenTime?: number) {
+	moveTo(target: { x: number; y: number }, tweenTime = this.opts.animation.duration) {
 		if (this.canMoveX) {
 			const deltaX = target.x - this.x
 			const x = this.#collisionClampX(deltaX)
@@ -672,19 +698,31 @@ export class Draggable {
 			this.y += y
 		}
 
+		// Tween slower for longer distances.
+		const { left, top } = this.node.getBoundingClientRect()
+		const momentum = Math.abs(this.rect.left + this.rect.top - (left + top))
+
+		const tt = tweenTime ?? 0
+
+		// Start at half tweentime and map the momentum.
+		const speed = tt * 0.75 + (momentum / tt) * (tt / 2)
+		const max = tt * 2
+
+		// // Logs for dialing in the speed.
+		// const c = speed < max ? g : r
+		// console.log(c(speed))
+
+		const duration = Math.min(speed, max) || tt
+
+		const tweenOpts = {
+			duration,
+			easing: this.opts.animation.easing,
+		}
+
 		// Check for a custom user transform function before applying ours.
 		if (!this.opts.transform) {
-			const { left, top } = this.node.getBoundingClientRect()
-
-			// Tween slower for longer distances.
-			const duration =
-				tweenTime ?? Math.abs(this.rect.left + this.rect.top - (left + top)) * 2.5
-
-			// Bounce if collision occured.
-			// const collisionOccured = this.x !== target.x || this.y !== target.y
-
 			// Set the tween and let it animate the position.
-			this.tween.set({ x: this.x, y: this.y }, { duration, easing: cubicOut })
+			this.tween.set({ x: this.x, y: this.y }, tweenOpts)
 		} else {
 			// Call the user's custom transform function.
 			const customTransformResult = this.opts.transform?.({
@@ -701,11 +739,32 @@ export class Draggable {
 				'y' in customTransformResult
 			) {
 				const { x, y } = customTransformResult
-				this.tween.set({ x, y, ...this.opts.tween })
+				this.tween.set({ x, y }, tweenOpts)
 			}
 		}
 
+		// this.updateLocalStorage()
+
 		this.#fireUpdateEvent()
+	}
+
+	/**
+	 * Updates the {@link position} property in local storage.
+	 */
+	updateLocalStorage = () => {
+		if (!this.opts.localStorageKey) return
+
+		this.#log
+			.fn('updateLocalStorage')
+			.debug(
+				'Updating position in localStorage:',
+				`{ x: ${this._position.x}, y: ${this._position.y} }`,
+				this,
+			)
+
+		if (this._storage) {
+			this._storage.value = this._position
+		}
 	}
 
 	/**
@@ -776,10 +835,10 @@ export class Draggable {
 	}
 
 	/**
-	 * Resolves the {@link DragOptions.bounds|bounds} and returns a
+	 * Resolves the {@link DraggableOptions.bounds|bounds} and returns a
 	 * function that updates the {@link bounds} property when called.
 	 */
-	#resolveRecomputeBounds(opts: DragOptions['bounds']): () => void {
+	#resolveRecomputeBounds(opts: DraggableOptions['bounds']): () => void {
 		if (opts === false) return () => void 0
 
 		// Check for a custom bounds rect.
@@ -883,9 +942,9 @@ export interface DragEvents {
  * <div use:draggable> Drag Me </div>
  * ```
  */
-export const draggable: Action<HTMLElement, Partial<DragOptions> | undefined, DragEvents> = (
+export const draggable: Action<HTMLElement, Partial<DraggableOptions> | undefined, DragEvents> = (
 	node: HTMLElement,
-	options?: Partial<DragOptions>,
+	options?: Partial<DraggableOptions>,
 ) => {
 	const d = new Draggable(node, options ?? {})
 
@@ -895,7 +954,7 @@ export const draggable: Action<HTMLElement, Partial<DragOptions> | undefined, Dr
 		},
 		// The update function of a svelte action automatically fires whenever the
 		// options object is changed externally, enabling easy reactivity.
-		update: (options: Partial<DragOptions> | undefined) => {
+		update: (options: Partial<DraggableOptions> | undefined) => {
 			if (!options) return
 
 			// Update all the values that need to be changed
