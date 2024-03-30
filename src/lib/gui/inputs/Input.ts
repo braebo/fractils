@@ -121,18 +121,18 @@ export abstract class Input<
 
 	/**
 	 * Refreshes the value of any controllers to match the current input state.
+	 * @todo - this is wrong -- it should likely be abstract now.
 	 */
 	refresh = (..._args: any[]) => {
 		this.callOnChange()
 	}
 
 	/**
-	 * Updates the input state and calls the `refresh` method.
+	 * Updates the input state and calls the `state.refresh` method.
 	 */
 	update = (v: (currentValue: TValueType) => TValueType) => {
 		const newValue = v(this.state.value as TValueType)
-		// @ts-expect-error //! Lord help me.
-		this.state.set(newValue)
+		this.state.set(newValue as ValidInputValue)
 		this.state.refresh()
 		this.callOnChange(newValue)
 	}
