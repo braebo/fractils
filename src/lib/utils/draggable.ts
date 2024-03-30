@@ -6,6 +6,7 @@ import { isDefined, isHTMLElement, isString } from './is'
 import { EventManager } from './EventManager'
 import { cubicOut } from 'svelte/easing'
 import { tweened } from 'svelte/motion'
+import { deepMerge } from './deepMerge'
 import { select } from './select'
 import { Logger } from './logger'
 import { clamp } from './clamp'
@@ -368,14 +369,19 @@ export class Draggable {
 		public node: HTMLElement,
 		options?: Partial<DragOptions>,
 	) {
-		this.opts = {
-			...DRAG_DEFAULTS,
-			...options,
-			defaultPosition: {
-				...DRAG_DEFAULTS.defaultPosition,
-				...options?.defaultPosition,
-			},
-		}
+		this.opts = deepMerge(DRAG_DEFAULTS, options)
+		// todo - delete oldOpts and the error if all goes well.
+		// const oldOpts = {
+		// 	...DRAG_DEFAULTS,
+		// 	...options,
+		// 	defaultPosition: {
+		// 		...DRAG_DEFAULTS.defaultPosition,
+		// 		...options?.defaultPosition,
+		// 	},
+		// }
+		// if (JSON.stringify(oldOpts) !== JSON.stringify(this.opts)) {
+		// 	throw new Error('Deep merge failed')
+		// }
 
 		this.#log = new Logger('draggable:' + this.node.classList[0], {
 			fg: 'SkyBlue',
