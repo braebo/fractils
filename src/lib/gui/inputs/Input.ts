@@ -30,6 +30,7 @@ export type ValueOrBinding<TValue = ValidInputValue, TBindTarget = BindTargetObj
 
 export type InputOptions<TValue = ValidInputValue, TBindTarget = Record<string, any & TValue>> = {
 	title: string
+	onChange?: (value: TValue) => void
 } & ValueOrBinding<TValue, TBindTarget>
 //⌟
 
@@ -61,6 +62,7 @@ export abstract class Input<
 	}
 
 	#title = ''
+	#firstUpdate = true
 
 	/**
 	 * A set of callbacks to be called when {@link Input.dispose} is called.
@@ -106,6 +108,10 @@ export abstract class Input<
 
 		this.listen(this.elements.drawerToggle, 'click', () => {})
 
+		if (options.onChange) {
+			this.onChange(options.onChange)
+		}
+
 		// this.#log.groupCollapsed().fn('constructor').info({ opts: options, this: this })
 	}
 
@@ -139,18 +145,42 @@ export abstract class Input<
 		this.elements.title.textContent = v
 	}
 
-	#onChangeListeners = new Set<(v: TValueType) => void>()
-	onChange(cb: (v: TValueType) => void) {
+	// todo - can we just extend `controller` to minimize the enable/disable boilerplate in every input?
+	// get disabled(): boolean {
+	// 	return this.#disabled()
+	// }
+	// set disabled(v: boolean | (() => boolean)) {
+	// 	this.#disabled = toFn(v)
+	// 	this.#disabled() ? this.disable() : this.enable()
+	// }
+
+	// enable() {
+	// 	this.#disabled = toFn(false)
+	// }
+	// disable() {
+	// 	this.#disabled = toFn(true)
+	// }
+
+	#onChangeListeners = new Set<(newValue: TValueType, input: Input) => unknown>()
+	onChange(cb: (newValue: TValueType, input: Input) => unknown) {
 		this.#onChangeListeners.add(cb)
 		return () => {
 			this.#onChangeListeners.delete(cb)
 		}
 	}
 	callOnChange(v = this.state.value) {
+		if (this.#firstUpdate) {
+			this.#firstUpdate = false
+			this.#log
+				.fn('callOnChange')
+				.debug('Skipping initial update (subscribers will not be notified).')
+			return
+		}
 		this.#log.fn('callOnChange', debrief(v, { depth: 1, siblings: 3 })).debug()
 		for (const cb of this.#onChangeListeners) {
 			// todo - Shouldn't need to assert here.
-			cb(v as TValueType)
+			cb(v as TValueType, this)
+			// cb.bind(this).call(this, v as TValueType)
 		}
 	}
 
