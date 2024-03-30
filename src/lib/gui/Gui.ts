@@ -1,31 +1,46 @@
 import './gui.scss'
 
 import type { WindowManagerOptions } from '../utils/windowManager'
+import type { FolderElements, FolderOptions } from './Folder'
+import type { Placement, PlacementOptions } from './place'
 import type { ResizableOptions } from '../utils/resizable'
-import type { DragOptions } from '../utils/draggable'
+import type { DraggableOptions } from '../utils/draggable'
 import type { ThemerOptions } from '../themer/Themer'
-import type { FolderOptions } from './Folder'
+import type { PrimitiveState } from '../utils/state'
+import type { Tooltip } from '../actions/tooltip'
 
-import { state, type PrimitiveState } from '../utils/state'
-import { WindowManager } from '../utils/windowManager'
-import { deepMerge } from '$lib/utils/deepMerge'
+import { WindowManager, WINDOWMANAGER_DEFAULTS } from '../utils/windowManager'
+import { RESIZABLE_DEFAULTS } from '../utils/resizable'
+import defaultTheme from '../themer/themes/default'
+import { DRAG_DEFAULTS } from '../utils/draggable'
+import { resolveOpts } from './shared/resolveOpts'
+import { deepMerge } from '../utils/deepMerge'
+import theme1 from '../themer/themes/theme-1'
+import { entries } from '../utils/object'
 import { Themer } from '../themer/Themer'
 import { Logger } from '../utils/logger'
+import { create } from '../utils/create'
+import { state } from '../utils/state'
 import { Folder } from './Folder'
-
-import defaultTheme from '../themer/themes/default'
-import { place, type Placement } from './place'
-import theme1 from '../themer/themes/theme-1'
+import { place } from './place'
 
 type GuiTheme = 'default' | 'minimal' | (string & {})
 
-export interface GuiOptions extends FolderOptions {
+export interface GuiElements extends FolderElements {
+	toolbar: {
+		container: HTMLElement
+		settingsButton: HTMLButtonElement & { tooltip?: Tooltip }
+	}
+}
+
+export interface GuiOptions extends Omit<FolderOptions, 'parentFolder'> {
 	/**
-	 * Persist the gui's state to localStorage by specifying the key
-	 * to save the state under.
-	 * @default undefined
+	 * Persist the gui's state to localStorage.  Specify what
+	 * properties to persist, and under what key.  If `true`,
+	 * the {@link GUI_STORAGE_DEFAULTS} will be used.
+	 * @default false
 	 */
-	storage?: Partial<GuiStorageOptions> | true
+	storage?: boolean | Partial<GuiStorageOptions>
 	/**
 	 * The container to append the gui to.
 	 * @default document.body
@@ -42,25 +57,64 @@ export interface GuiOptions extends FolderOptions {
 	 * Options for the {@link Themer} instance when `themer` is `true`.
 	 */
 	themerOptions: Partial<ThemerOptions>
-
 	/**
-	 * {@link WindowManager} options.  Controls behaviors like dragging,
-	 * resizing, and z-index management.
+	 * The title of the theme to use for the gui.  To add your own themes,
+	 * use {@link themerOptions.themes}.
 	 */
-	windowManager: Partial<WindowManagerOptions>
-
-	placement: {
-		position: Placement
-		bounds?: DOMRect | { x: number; y: number; width: number; height: number } | 'window'
-		margin?: number | { x: number; y: number }
-	}
-	position: { x: number; y: number }
-	size: { width: number; height: number }
-	closed: boolean
 	theme?: GuiTheme
+	/**
+	 * {@link WindowManager} controls behaviors like dragging,
+	 * resizing, and z-index management.  Defaults to {@link WINDOWMANAGER_DEFAULTS}.
+	 * - `false` disables the window manager.
+	 * - `true` uses default options.
+	 */
+	windowManager: boolean | WindowManager | Partial<WindowManagerOptions>
+	placement?: boolean | GuiPlacementOptions
+	closed: boolean
+	/**
+	 * `parentFolder` should always be `undefined` for the root gui.
+	 */
+	parentFolder: undefined
 }
 
-export const GUI_DEFAULTS = {
+export interface GuiPlacementOptions extends PlacementOptions {
+	/**
+	 * The position to place the gui.
+	 */
+	position: Placement
+}
+
+export const GUI_PLACEMENT_DEFAULTS: GuiPlacementOptions = {
+	position: 'top-right',
+	bounds: 'window',
+	margin: 16,
+} as const
+
+export interface GuiStorageOptions {
+	/**
+	 * Prefix to use for localStorage keys.
+	 * @default "fractils::gui"
+	 */
+	key: string
+	/**
+	 * Whether to persist the folder's expanded state.
+	 * @default true
+	 */
+	closed?: boolean
+	/**
+	 * Whether to persist the theme.
+	 * @default true
+	 */
+	theme?: boolean
+}
+
+export const GUI_STORAGE_DEFAULTS: GuiStorageOptions = {
+	key: 'fracgui',
+	closed: true,
+	theme: true,
+} as const
+
+export const GUI_DEFAULTS: GuiOptions = {
 	title: 'gui',
 	controls: new Map(),
 	children: [],
@@ -70,64 +124,23 @@ export const GUI_DEFAULTS = {
 	},
 	windowManager: {
 		resizable: {
+			localStorageKey: 'fracgui::resizable',
 			grabberSize: 9,
 			color: 'var(--bg-d)',
 			sides: ['right'],
 			corners: [],
 		},
-		draggable: true,
+		draggable: {
+			localStorageKey: 'fracgui::draggable',
+		},
 	},
-	storage: {
-		key: 'fracgui',
-		size: true,
-		position: true,
-		closed: true,
-		debounce: 50,
-	},
+	storage: false,
 	closed: false,
-	size: { width: 100, height: 400 },
-	position: { x: 16, y: 16 },
-	// placement: 'bottom-right',
-	placement: {
-		position: 'top-right',
-		margin: 16,
-	},
+	placement: false,
 	theme: 'default',
-	// theme: 'minimal',
-} as const satisfies Omit<GuiOptions, 'parentFolder'>
-
-interface GuiStorageOptions {
-	/**
-	 * Prefix to use for localStorage keys.
-	 * @default "fractils::gui"
-	 */
-	key: string
-	/**
-	 * Whether to persist the size.
-	 * @default true
-	 */
-	size?: boolean
-	/**
-	 * Whether to persist the position when windowManager is enabled.
-	 * @default true
-	 */
-	position?: boolean
-	/**
-	 * Whether to persist the folder's expanded state.
-	 * @default true
-	 */
-	closed?: boolean
-	/**
-	 * How long to debounce writes to localStorage (0 to disable).
-	 * @default 50
-	 */
-	debounce?: number
-	/**
-	 * Whether to persist the theme.
-	 * @default true
-	 */
-	theme?: boolean
-}
+	hidden: false,
+	parentFolder: undefined,
+} as const
 
 /**
  * The root Gui instance.  This is the entry point for creating
@@ -137,76 +150,62 @@ interface GuiStorageOptions {
 export class Gui extends Folder {
 	isRoot = true as const
 
+	declare elements: GuiElements
+
+	static windowManager: WindowManager
+
+	opts: GuiOptions
+
 	container!: HTMLElement
+	wrapper!: HTMLElement
 
 	themer?: Themer
-	windowManager: WindowManager
 	settingsFolder: Folder
 
 	closed: PrimitiveState<boolean>
-	size: PrimitiveState<{ width: number; height: number }>
-	position: PrimitiveState<{ x: number; y: number }>
 
-	/**
-	 * Which state properties to persist to localStorage.
-	 */
-	storage: GuiStorageOptions | Record<string, any>
 	private _theme: GuiOptions['theme']
 
 	#log: Logger
 
 	constructor(options?: Partial<GuiOptions>) {
-		//· Setup ···································································¬
+		//· Setup ····························································¬
 
 		const opts = deepMerge(GUI_DEFAULTS, options ?? {}) as GuiOptions
+		// Resolve storage separately since GUI_DEFAULTS.storage is `false`.
+		opts.storage = resolveOpts(opts.storage, GUI_STORAGE_DEFAULTS)
 		opts.container ??= document.body
-		super(opts, opts.container)
 
-		this.#log = new Logger('Gui:' + opts.title, { fg: 'palevioletred' })
-		this.#log.fn('constructor').info({ opts, this: this })
+		super(opts as any as FolderOptions, opts.container)
 
+		this.opts = opts
 		this.root = this
 		this.container = opts.container
-		this.storage = !opts.storage
-			? {}
-			: opts.storage === true
-				? GUI_DEFAULTS.storage
-				: Object.assign({}, GUI_DEFAULTS.storage, opts.storage)
 
-		this.#log.info('Storage:', this.storage)
+		this.#log = new Logger('Gui:' + opts.title, { fg: 'palevioletred' })
+		this.#log.fn('constructor').info({ options, opts, this: this })
+
+		this.wrapper = create('div', {
+			classes: ['fracgui-wrapper'],
+			style: {
+				display: 'contents',
+			},
+		})
 		//⌟
 
-		//· State ···································································¬
+		//· State ····························································¬
 
-		const getState = <T>(value: T, key: 'size' | 'position' | 'closed') => {
-			if (opts.storage === true)
-				return state<T>(value, { key: this.storage.key + '::' + key, debounce: 50 })
-
-			if (typeof opts.storage === 'object') {
-				const { storage } = this
-
-				if (!storage[key]) return state<T>(value)
-
-				return state<T>(value, {
-					key: storage.key + '::' + key,
-					debounce: storage.debounce,
-				})
-			}
-
-			this.#log.error('Error initializing state:', { key, value, opts, this: this })
-			return state<T>(value)
+		const storageOpts = resolveOpts(opts.storage, GUI_STORAGE_DEFAULTS)
+		if (storageOpts && storageOpts.closed) {
+			this.closed = state(this.opts.closed, {
+				key: storageOpts.key + '::closed',
+			})
+		} else {
+			this.closed = state(this.opts.closed)
 		}
-
-		this.size = getState(opts.size, 'size')
-		this.position = getState(opts.position, 'position')
-		this.closed = getState(closed, 'closed')
-
-		this.settingsFolder = this.addFolder({ title: 'Settings', closed: false, header: false })
-
-		if (this.closed.value) this.close()
 		//⌟
 
-		//· Themer ··································································¬
+		//· Themer ···························································¬
 
 		const { themer, themerOptions } = opts
 
@@ -216,45 +215,53 @@ export class Gui extends Folder {
 			}
 
 			if (themer === true) {
-				if (!themerOptions) {
-					themerOptions
-				}
-				this.themer = new Themer(this.root.element, themerOptions)
+				this.themer = new Themer(this.root.element, {
+					...themerOptions,
+					wrapper: this.wrapper,
+				})
 			} else {
 				this.themer = themer
 			}
+		}
+		//⌟
 
-			//* Global Settings Folder
+		//· Settings ·························································¬
 
+		this.settingsFolder = this.addFolder({
+			title: 'Settings',
+			closed: true,
+			header: false,
+			hidden: false,
+		})
+		this.settingsFolder.element.style.setProperty('--background', 'var(--bg-b)')
+		this.settingsFolder.element.style.setProperty('--color', 'var(--fg-c)')
+
+		if (this.themer) {
 			// todo - add an icon to the toolbar that toggles this folder.
+			// const themeFolder = this.settingsFolder.addFolder({
+			// 	title: 'theme',
+			// })
 
-			const themeFolder = this.settingsFolder.addFolder({
+			// themeFolder.add({
+			this.settingsFolder.add({
 				title: 'theme',
+				options: [
+					{ label: 'default', value: defaultTheme },
+					{ label: 'theme-1', value: theme1 },
+				],
+				// todo - Use this once `state` is changed from `LabeledOption<T>` to `T`.
+				binding: {
+					target: this.themer,
+					key: 'theme',
+					initial: {
+						label: this.themer.theme.value.title,
+						value: this.themer.theme,
+					},
+				},
 			})
-			themeFolder.element.style.setProperty('--background', 'var(--bg-b)')
-			themeFolder.element.style.setProperty('--color', 'var(--fg-c)')
 
-			themeFolder
-				.add({
-					title: 'theme',
-					options: [
-						{ label: 'default', value: defaultTheme },
-						{ label: 'theme-1', value: theme1 },
-					],
-					// todo - Use this once `state` is changed from `LabeledOption<T>` to `T`.
-					// binding: {
-					// 	target: this.themer,
-					// 	key: 'theme',
-					// },21	Q1
-					value: { label: this.themer.theme.value.title, value: this.themer.theme },
-				})
-				.onChange(e => {
-					console.error(e)
-					// alert(e.value)
-					// this.themer?.theme.set(e.value)
-				})
-
-			themeFolder.add({
+			// themeFolder.add({
+			this.settingsFolder.add({
 				title: 'mode',
 				options: ['light', 'dark', 'system'],
 				binding: {
@@ -263,121 +270,102 @@ export class Gui extends Folder {
 				},
 			})
 		}
-		//⌟
 
-		//· Window Manager ·····························································¬
-
-		//··  Draggable ································································¬
-
-		const dragOptions: Partial<DragOptions> =
-			typeof opts.windowManager?.draggable === 'object' ? opts.windowManager?.draggable : {}
-		this.#log.fn('constructor').info({ dragOptions, opts })
-		dragOptions.handle = this.elements.header
-		dragOptions.bounds = this.container
-
-		// if (!dragOptions.defaultPosition && this.position.value) {
-		if (!opts.placement && !dragOptions.defaultPosition && this.position.value) {
-			//? Prioritize opts.position over opts.draggable.defaultPosition.
-			dragOptions.defaultPosition = this.position.value
-		}
-		// if (opts.placement) {
-		// 	//? Prioritize placement over opts.position.
-		// 	const rect = this.element.getBoundingClientRect()
-		// 	const { position: placement, margin } = opts.placement
-		// 	const bounds = opts.placement.bounds ?? this.container.getBoundingClientRect()
-		// 	const placementPosition = place(rect, placement, {
-		// 		bounds,
-		// 		margin,
-		// 	})
-		// 	dragOptions.defaultPosition = placementPosition
-		// 	this.position.set(placementPosition)
-		// 	this.#log.fn('constructor').info({ rect, placement, margin, bounds })
-		// }
-
-		//? Persist position to state if storage is enabled.
-		if (this.storage.position) {
-			dragOptions.onDragEnd = data => {
-				const { x, y } = data
-				if (x === 0 && y === 0) return
-
-				this.position.set({ x, y })
-
-				this.#log.fn('onDragEnd').info('Position updated:', { x, y })
-			}
-		}
-		//⌟
-
-		//·· Resizable ·······························································¬
-
-		//? If `false`, disable resizing
-		// todo - Resizable needs a proper `disabled` option/toggle.
-		//? If `true`, an empty object will result in default options.
-		const resizeOpts: Partial<ResizableOptions> =
-			typeof opts.windowManager?.resizable === 'object'
-				? opts.windowManager?.resizable
-				: opts.windowManager?.resizable === false
-					? {
-							sides: [],
-							corners: [],
-						}
-					: {} // Results in defaults in Resizable.
-
-		if (opts.storage === true || this.storage?.size) {
-			resizeOpts.onResize = size => {
-				this.size.set(size)
-			}
-
-			//? Load size from state if storage is enabled.
-			if (opts.storage === true || opts.storage?.size) {
-				const size = this.size.value
-				this.#log.fn('constructor').info('Loading size from state:', size)
-				if (resizeOpts?.sides?.includes('left') || resizeOpts?.sides?.includes('right')) {
-					this.element.style.width = `${size.width}px`
-				}
-				if (resizeOpts?.sides?.includes('top') || resizeOpts?.sides?.includes('bottom')) {
-					this.element.style.height = `${size.height}px`
-				}
-			}
-		}
-		//⌟
-		//⌟
-
-		this.windowManager = new WindowManager({
-			...opts.windowManager,
-			draggable: dragOptions,
-			resizable: resizeOpts,
-		})
-
-		this.windowManager.add(this.element, {
-			draggable: {
-				bounds: this.container,
-				defaultPosition: this.position.value,
-			},
-			resizable: {
-				bounds: this.container,
+		this.settingsFolder.addButton({
+			title: 'log',
+			text: 'console.log(gui)',
+			onClick: () => {
+				console.log(this)
 			},
 		})
 		//⌟
 
+		//· Window Manager ···················································¬
+
+		if (!Gui.windowManager) {
+			const dragOpts = resolveOpts<DraggableOptions>(
+				opts.windowManager?.['draggable'],
+				DRAG_DEFAULTS,
+			)
+			if (dragOpts) {
+				dragOpts.handle = this.elements.header
+				dragOpts.bounds = this.container
+			}
+
+			const resizeOpts = resolveOpts<ResizableOptions>(
+				opts.windowManager?.['resizable'],
+				RESIZABLE_DEFAULTS,
+			)
+			if (resizeOpts) {
+				resizeOpts.bounds = this.container
+			}
+
+			// Use the provided window manager if it's an instance.
+			if (opts.windowManager instanceof WindowManager) {
+				Gui.windowManager = opts.windowManager
+
+				Gui.windowManager.add(this.element, {
+					draggable: dragOpts,
+					resizable: resizeOpts,
+				})
+			} else {
+				const windowManagerOpts = resolveOpts(opts.windowManager, WINDOWMANAGER_DEFAULTS)
+
+				this.#log
+					.fn('constructor')
+					.info({ options, opts, dragOptions: dragOpts, resizeOpts })
+
+				Gui.windowManager = new WindowManager({
+					...windowManagerOpts,
+					draggable: dragOpts,
+					resizable: resizeOpts,
+				})
+
+				Gui.windowManager.add(this.element, {
+					draggable: dragOpts,
+					resizable: resizeOpts,
+				})
+			}
+		}
+		//⌟
+
+		if (this.closed.value) this.close()
+
+		// Wait until the gui is fully constructed before positioning it
+		// to make sure we can calculate the correct size and position.
+		// todo - This works great but feels ghetto. What's a better way
+		// todo - to do this... maybe debouncing in `add`?
 		Promise.resolve().then(() => {
 			Promise.resolve().then(() => {
+				// Append a non-animating, full-size clone to get the proper rect.
 				const ghost = this.element.cloneNode(true) as HTMLElement
 				document.querySelector('.page')?.prepend(ghost)
 				const rect = ghost.getBoundingClientRect()
 				ghost.remove()
 
 				Promise.resolve().then(() => {
-					const { position: placement, margin } = opts.placement
-					const bounds = opts.placement.bounds ?? this.container.getBoundingClientRect()
+					// todo - This placement stuff should go into `Draggable`
+					const placementOpts = resolveOpts(opts.placement, GUI_PLACEMENT_DEFAULTS)
 
-					const placementPosition = place(rect, placement, {
-						bounds,
-						margin,
-					})
+					if (placementOpts) {
+						const { position: placement, margin } = placementOpts
+						const bounds =
+							placementOpts.bounds ?? this.container.getBoundingClientRect()
 
-					this.position.set(placementPosition)
-					this.windowManager.windows[0]?.draggableInstance?.moveTo(placementPosition, 0)
-					this.container.appendChild(this.element)
+						const placementPosition = place(rect, placement, {
+							bounds,
+							margin,
+						})
+
+						// this.position.set(placementPosition)
+						Gui.windowManager.windows[0]?.draggableInstance?.moveTo(
+							placementPosition,
+							0,
+						)
+					}
+
+					this.wrapper.appendChild(this.element)
+					this.container.appendChild(this.wrapper)
 					this.element.animate([{ opacity: 0 }, { opacity: 1 }], {
 						fill: 'none',
 						duration: 400,
@@ -385,7 +373,6 @@ export class Gui extends Folder {
 				})
 			})
 		})
-		// }, 15)
 
 		return this
 	}
@@ -405,8 +392,8 @@ export class Gui extends Folder {
 
 		window.addEventListener
 		this.themer?.dispose()
-		this.windowManager?.dispose?.()
-		for (const window of this.windowManager.windows) {
+		Gui.windowManager?.dispose?.()
+		for (const window of Gui.windowManager.windows) {
 			window
 		}
 	}
