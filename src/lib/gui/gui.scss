@@ -513,6 +513,26 @@
 
 //· Controllers ······························································¬
 
+.fracgui-controller {
+	width: 100%;
+
+	color: var(--fracgui-controller-color-dim);
+	background: var(--fracgui-controller-background-dim);
+	box-shadow: var(--fracgui-controller-shadow);
+	border-radius: var(--fracgui-controller-radius);
+	outline: var(--fracgui-input-outline);
+
+	&:hover,
+	&:focus-visible,
+	&:active {
+		opacity: 1;
+		color: var(--fracgui-controller-color);
+		background: var(--fracgui-controller-background);
+	}
+
+	transition: 0.15s;
+}
+
 //·· Select ························································¬
 
 $option-height: 1.5rem;

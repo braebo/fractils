@@ -25,12 +25,12 @@ export class Search {
 
 	constructor(public folder: Folder) {
 		const container = create('div', {
-			classes: ['fracgui-search-container'],
-			parent: folder.elements.toolbar,
+			classes: ['fracgui-toolbar-item', 'fracgui-search-container'],
 		})
+		folder.elements.toolbar.container.prepend(container)
 
 		const input = create('input', {
-			classes: ['fracgui-input-text-input', 'fracgui-search-input', 'fractils-cancel'],
+			classes: ['fracgui-controller-text', 'fracgui-search-input', 'fractils-cancel'],
 			parent: container,
 		})
 		this.#evm.listen(input, 'input', e => this.search(e.target.value))

@@ -8,7 +8,7 @@ import { create } from '../../utils/create'
 export const numberController: ControllerFactory<HTMLInputElement> = (input, opts, parent) => {
 	const controller = create('input', {
 		type: 'number',
-		classes: ['fracgui-input-number-input'],
+		classes: ['fracgui-controller', 'fracgui-controller-number'],
 		value: String(input.state.value),
 		parent,
 	})
@@ -125,7 +125,7 @@ export const numberController: ControllerFactory<HTMLInputElement> = (input, opt
 export const rangeController: ControllerFactory<HTMLInputElement> = (input, opts, parent) => {
 	const range = create('input', {
 		type: 'range',
-		classes: ['fracgui-input-number-range'],
+		classes: ['fracgui-controller', 'fracgui-input-number-range'],
 		value: String(input.state.value),
 		parent,
 	})
