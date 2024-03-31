@@ -4,9 +4,9 @@ import type { InputColor } from '../../inputs/InputColor'
 
 import { Color, type ColorValue } from '../../../color/color'
 import { tooltip } from '../../../actions/tooltip'
+import { mapRange } from '../../../utils/mapRange'
+import { debounce } from '../../../utils/debounce'
 import { create } from '../../../utils/create'
-import { mapRange } from '$lib/utils/mapRange'
-import { debounce } from '$lib/utils/debounce'
 import { clamp } from '../../../utils/clamp'
 import { Controller } from '../Controller'
 
@@ -34,6 +34,7 @@ export interface ColorPickerOptions {
 	 * @default 10
 	 */
 	handleSize: number
+	disabled: boolean
 }
 
 export const COLOR_PICKER_DEFAULTS: ColorPickerOptions = {
@@ -41,6 +42,7 @@ export const COLOR_PICKER_DEFAULTS: ColorPickerOptions = {
 	swatches: [],
 	handleSize: 10,
 	container: undefined,
+	disabled: false,
 }
 
 export type ColorPickerElements = {
@@ -51,9 +53,10 @@ export type ColorPickerElements = {
 	alphaSlider: HTMLInputElement
 }
 
-export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
+export class ColorPicker extends Controller<ColorPickerElements> {
 	opts: ColorPickerOptions
 	elements: ColorPickerElements
+	element: HTMLDivElement
 
 	#ctx: CanvasRenderingContext2D
 	#height = 16 * 3
@@ -66,9 +69,12 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 
 	#lockCursorPosition = false
 
-	constructor(input: InputColor, options?: Partial<ColorPickerOptions>) {
+	constructor(
+		public input: InputColor,
+		options?: Partial<ColorPickerOptions>,
+	) {
 		const opts = { ...COLOR_PICKER_DEFAULTS, ...options }
-		super(input)
+		super(opts)
 
 		this.opts = opts
 
@@ -79,6 +85,7 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 			parent: options?.container ?? input.elements.controllers.container,
 			style,
 		})
+		this.element = container
 
 		const canvas = create('canvas', {
 			classes: ['fracgui-input-color-picker-canvas'],
@@ -106,7 +113,7 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 			min: 0,
 			max: 359,
 		})
-		this.input.listen(hueSlider, 'input', this.#updateStateFromHue)
+		this.listen(hueSlider, 'input', this.#updateStateFromHue as EventListener)
 
 		tooltip(hueSlider, {
 			text: () => this.input.state.value.hsla.h,
@@ -126,7 +133,7 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 			max: '1',
 			step: '0.01',
 		})
-		this.input.listen(alphaSlider, 'input', this.setAlpha)
+		this.listen(alphaSlider, 'input', this.setAlpha as EventListener)
 
 		tooltip(alphaSlider, {
 			text: () => this.input.state.value.alpha,
@@ -146,13 +153,15 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 			alphaSlider,
 		}
 
+		this.disabled = opts.disabled
+
 		this.#ctx = canvas.getContext('2d')!
 		this.canvas.width = this.#width
 		this.refresh()
 
-		this.input.listen(this.canvas, 'click', this.#onClick)
-		this.input.listen(this.canvas, 'pointerdown', this.#onPointerDown)
-		this.input.listen(window, 'pointermove', this.#onPointerMove, { passive: true })
+		this.listen(this.canvas, 'click', this.#onClick as EventListener)
+		this.listen(this.canvas, 'pointerdown', this.#onPointerDown)
+		this.listen(window, 'pointermove', this.#onPointerMove, { passive: true })
 
 		this.#updateGradients()
 		setTimeout(this.draw, 10)
@@ -169,6 +178,24 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 
 	get alpha() {
 		return this.input.state.value.alpha
+	}
+
+	enable = () => {
+		super.enable()
+		this.elements.container.classList.remove('fracgui-disabled')
+		this.elements.alphaSlider.disabled = false
+		this.elements.hueSlider.disabled = false
+		this.elements.canvas.style.pointerEvents = 'auto'
+		return this
+	}
+
+	disable = () => {
+		super.disable()
+		this.elements.container.classList.add('fracgui-disabled')
+		this.elements.alphaSlider.disabled = true
+		this.elements.hueSlider.disabled = true
+		this.elements.canvas.style.pointerEvents = 'none'
+		return this
 	}
 
 	set(v: ColorValue) {
@@ -190,7 +217,7 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 	refresh = () => {
 		const color = this.input.state.value
 
-		if (this.#lastColor?.hex8String === color.hex8String) return
+		if (this.#lastColor?.hex8String === color.hex8String) return this
 		this.#lastColor = color.clone()
 
 		this.elements.hueSlider.value = String(this.hue)
@@ -206,6 +233,8 @@ export class ColorPicker extends Controller<InputColor, ColorPickerElements> {
 		} else {
 			this.#updateHandle()
 		}
+
+		return this
 	}
 
 	draw = () => {
