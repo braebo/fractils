@@ -1,19 +1,49 @@
+import type { State } from '../../utils/state'
+
 import { getScrollParent } from '../../dom/scrollParent'
-import { isState, type State } from '../../utils/state'
+import { stringify } from '../../utils/stringify'
+import { debrief } from '../../utils/debrief'
+import { isState } from '../../utils/state'
 import { values } from '../../utils/object'
 import { create } from '../../utils/create'
 import { nanoid } from '../../utils/nanoid'
 import { Logger } from '../../utils/logger'
+import { Controller } from './Controller'
 
 export type LabeledOption<T> = { label: string; value: T }
 export type Option<T> = T | LabeledOption<T>
 
-export interface SelectOptions<T> {
+export interface SelectInputOptions<T> {
 	container: HTMLDivElement
+	disabled: boolean
+	/**
+	 * The default selected option. If not provided, the first option in
+	 * the `options` array will be selected.
+	 * @todo - We need a 'blank' state where no option is selected.
+	 */
 	selected?: Option<T>
+	/**
+	 * The options to display in the select controller.  Pass each
+	 * option as a {@link LabeledOption} (`{ label: string, value: T }`)
+	 * to specify text to display for each option.  Alternatively, if the
+	 * label you want to display is already on the option object, use the
+	 * `labelKey` property to specify the key to use as the label.
+	 */
 	options: Option<T>[]
+	/**
+	 * An optional key on each {@link Option} to use as the `label` when
+	 * converting to a {@link LabeledOption}.
+	 */
+	labelKey?: string
 	/** Just used internally for the logger label. */
 	title?: string
+	/**
+	 * When `true`, options will be automatically selected when a user
+	 * hovers over them in the dropdown.  If none are selected, the
+	 * original value will be restored.
+	 * @default true
+	 */
+	selectOnHover?: boolean
 }
 
 export type SelectElements = {
@@ -23,16 +53,21 @@ export type SelectElements = {
 	options: HTMLDivElement[]
 }
 
-export class Select<T> {
-	opts: {
-		container: HTMLDivElement
+export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
+	input = undefined as never
+	element: HTMLDivElement
+
+	opts: SelectInputOptions<T> & {
 		selected: LabeledOption<T>
 		options: LabeledOption<T>[]
+		selectOnHover: boolean
 	}
 	elements: SelectElements
 
 	/** The currently selected option. */
 	#selected: LabeledOption<T>
+	/** The currently selected option preserved when hot-swapping on:hover. */
+	#currentSelection: LabeledOption<T>
 	/** All options in the select controller. */
 	options: LabeledOption<T>[]
 	/** A map of all options by their (internally generated) id. */
@@ -51,16 +86,23 @@ export class Select<T> {
 	initialOptions: LabeledOption<T>[]
 
 	/** Used to prevent infinite loops when updating internally. */
-	#bubble = true
+	bubble = true
 	/** The parent element that the selected element is scrolling in. */
 	#scrollParent: Element | undefined
-	/** Cleanup function to run in {@link dispose}. */
-	#disposeCallbacks = new Map<string, () => void>()
-	/** Callbacks to run when the selected option changes. */
-	#onChangeCallbacks = new Set<(value: LabeledOption<T>) => void>()
+
 	#log: Logger
 
-	constructor(options: SelectOptions<T>) {
+	constructor(options: SelectInputOptions<T>) {
+		const opts = {
+			...options,
+			selected: toLabeledOption(options.selected ? options.selected : options.options[0]),
+			options: options.options.map(o => toLabeledOption(o)),
+			selectOnHover: options.selectOnHover ?? true,
+		}
+		super(opts)
+
+		this.opts = opts
+
 		if (!options.options?.length) {
 			throw new Error('Select controller must have at least one option')
 		}
@@ -71,19 +113,14 @@ export class Select<T> {
 			this.#log = new Logger('Select', { fg: 'blueviolet' })
 		}
 
-		this.opts = {
-			container: options.container,
-			selected: toLabeledOption(options.selected ? options.selected : options.options[0]),
-			options: options.options.map(o => toLabeledOption(o)),
-		}
-
-		this.#selected = this.initialValue = this.opts.selected
+		this.#selected = this.#currentSelection = this.initialValue = this.opts.selected
 		this.options = this.initialOptions = this.opts.options
 
 		const container = create('div', {
 			classes: ['fracgui-controller-select-container'],
 			parent: options.container,
 		})
+		this.element = container
 
 		const selected = create('div', {
 			classes: ['fracgui-controller-select-selected'],
@@ -91,14 +128,11 @@ export class Select<T> {
 			textContent: String(this.getText(this.selected)),
 		})
 
-		selected.addEventListener('click', this.toggle)
-		this.#disposeCallbacks.set('fracgui-select-element', () =>
-			selected.removeEventListener('click', this.toggle),
-		)
+		this.listen(selected, 'click', this.toggle)
 
 		const dropdown = create('div', {
 			classes: ['fracgui-controller-select-dropdown'],
-			parent: document.body,
+			// parent: document.body
 		})
 
 		this.elements = {
@@ -112,6 +146,8 @@ export class Select<T> {
 			this.add(option)
 		}
 
+		this.disabled = this.opts.disabled
+
 		this.#log.fn('constructor').info({ opts: this.opts, this: this })
 	}
 
@@ -120,19 +156,19 @@ export class Select<T> {
 		return this.#selected
 	}
 	set selected(v: Option<T> | State<Option<T>>) {
-		this.#log.fn('set selected', v).debug()
+		this.#log.fn('set selected').debug(v)
 
 		const newValue = isState(v) ? toLabeledOption(v.value) : toLabeledOption(v)
 
 		this.#selected = newValue as LabeledOption<T>
 		this.elements.selected.textContent = newValue.label
 
-		if (!this.#bubble) {
-			this.#bubble = true
+		if (!this.bubble) {
+			this.bubble = true
 			return
 		}
 
-		this.#callOnChange(this.#selected)
+		this.callOnChange(this.#selected)
 	}
 
 	getText = (v: LabeledOption<T> | State<LabeledOption<T>>) => {
@@ -160,8 +196,9 @@ export class Select<T> {
 			dataset: { optionId: id },
 		})
 
-		el.addEventListener('click', this.select)
-		this.#disposeCallbacks.set(id, () => el.removeEventListener('click', this.select))
+		this.listen(el, 'click', this.select)
+		// el.addEventListener('click', this.select)
+		// this.#disposeCallbacks.set(id, () => el.removeEventListener('click', this.select))
 
 		this.optionMap.set(id, {
 			option: opt,
@@ -194,12 +231,24 @@ export class Select<T> {
 
 		this.elements.options = this.elements.options.filter(el => el !== element)
 		this.optionMap.delete(id)
-		this.#disposeCallbacks.get(id)?.()
 
 		element.remove()
 	}
 
-	select = (v: Option<T> | Event, bubble = true) => {
+	select = (
+		v: Option<T> | Event,
+		/**
+		 * When `false`, the select controller won't call {@link onChange}
+		 * to notify the parent Input or other listeners of the change.
+		 * @default true
+		 */
+		bubble = true,
+	) => {
+		if (this.disabled) {
+			this.#log.fn('select').warn('Select is disabled', { this: this })
+			return this
+		}
+
 		this.#log.fn('select').info('v', v, { this: this })
 
 		if (v instanceof Event) {
@@ -225,17 +274,13 @@ export class Select<T> {
 			if (isState(newValue)) {
 				this.selected = newValue.value as LabeledOption<T>
 			} else if (isLabeledOption(newValue)) {
-				this.#bubble = bubble
+				this.bubble = bubble
 				this.selected = newValue
 			} else {
 				throw new Error('Invalid value: ' + newValue)
 			}
 		}
-	}
 
-	/** A callback that will be called whenever the selected option changes. */
-	onChange = (callback: (value: LabeledOption<T>) => void) => {
-		this.#onChangeCallbacks.add(callback)
 		return this
 	}
 
@@ -243,21 +288,19 @@ export class Select<T> {
 	refresh = () => {
 		// Make sure the selected value text is in the selected div.
 		this.elements.selected.textContent = this.selected.label
+		return this
 	}
 
 	/** Toggles the dropdown's visibility. */
 	toggle = (e: MouseEvent) => {
-		// e.preventDefault()
-		// e.stopPropagation()
-
 		this.#log.fn('toggle').info({ this: this })
-
 		this.expanded ? this.close() : this.open()
 	}
 
 	/** Shows the dropdown. */
 	open = () => {
 		this.expanded = true
+		document.body.appendChild(this.elements.dropdown)
 		this.elements.dropdown.classList.add('expanded')
 		this.elements.selected.classList.add('active')
 
@@ -267,10 +310,21 @@ export class Select<T> {
 		this.#scrollParent ??= getScrollParent(this.elements.selected)
 		this.#scrollParent?.addEventListener('scroll', this.updatePosition)
 
+		addEventListener('keydown', this.#closeOnEscape)
 		addEventListener('click', this.#clickOutside)
 		setTimeout(() => {
 			this.elements.dropdown.style.pointerEvents = 'all'
 		}, 200)
+
+		if (this.opts.selectOnHover) {
+			this.#currentSelection = this.selected
+
+			for (const [, { option, element }] of this.optionMap) {
+				element.addEventListener('mouseenter', () => {
+					this.select(option)
+				})
+			}
+		}
 	}
 
 	/** Positions the dropdown to the selected element. */
@@ -278,6 +332,7 @@ export class Select<T> {
 		const { top, left, width, height } = this.elements.selected.getBoundingClientRect()
 		const scrollTop = this.elements.selected.scrollTop
 
+		this.elements.dropdown.style.setProperty('width', 'unset')
 		const dropdownWidth = this.elements.dropdown.getBoundingClientRect().width
 
 		this.elements.dropdown.style.setProperty('top', `${top + height + scrollTop}px`)
@@ -295,24 +350,54 @@ export class Select<T> {
 		this.elements.dropdown.classList.remove('expanded')
 		this.elements.selected.classList.remove('active')
 		this.elements.dropdown.style.pointerEvents = 'none'
+		removeEventListener('keydown', this.#closeOnEscape)
 		removeEventListener('click', this.#clickOutside)
 		this.#scrollParent?.removeEventListener('scroll', this.updatePosition)
+		setTimeout(() => {
+			this.elements.dropdown.remove()
+		}, 200)
+
+		if (this.opts.selectOnHover) {
+			// this.select(this.#currentSelection)
+			for (const [id, { option, element }] of this.optionMap) {
+				element.removeEventListener('mouseenter', () => {
+					this.select(option)
+				})
+			}
+		}
+	}
+
+	#closeOnEscape = (e: KeyboardEvent) => {
+		if (e.key === 'Escape') {
+			this.close()
+			if (this.opts.selectOnHover) {
+				this.select(this.#currentSelection)
+			}
+		}
 	}
 
 	#clickOutside = (e: MouseEvent) => {
 		if (!e.composedPath().includes(this.elements.container)) {
 			this.close()
+			if (this.opts.selectOnHover) {
+				this.select(this.#currentSelection)
+			}
 		}
 	}
 
-	#callOnChange = (v = this.selected) => {
-		this.elements.selected.dispatchEvent(new CustomEvent('change', { detail: v }))
-		for (const cb of this.#onChangeCallbacks) cb(v)
+	enable() {
+		this.elements.selected.classList.remove('disabled')
+		super.enable()
+		return this
+	}
+
+	disable() {
+		this.elements.selected.classList.add('disabled')
+		super.disable()
+		return this
 	}
 
 	dispose() {
-		for (const cb of this.#disposeCallbacks.values()) cb()
-
 		for (const el of values(this.elements)) {
 			if (Array.isArray(el)) {
 				el.forEach(e => e.remove())
@@ -321,8 +406,12 @@ export class Select<T> {
 
 		this.#scrollParent?.removeEventListener('scroll', this.updatePosition)
 		removeEventListener('click', this.#clickOutside)
+
+		super.dispose()
 	}
 }
+
+const log = new Logger('Select utils', { fg: 'grey' })
 
 export function isLabeledOption<T>(v: any): v is LabeledOption<T> {
 	return typeof v === 'object' && Object.keys(v).length === 2 && 'label' in v && 'value' in v
@@ -330,6 +419,7 @@ export function isLabeledOption<T>(v: any): v is LabeledOption<T> {
 
 export function toLabeledOption<T>(v: Option<T>): LabeledOption<T> {
 	if (isLabeledOption(v)) return v
+	log.fn('toLabeledOption').debug(v)
 
 	if (['string', 'number'].includes(typeof v)) {
 		return {
@@ -346,14 +436,6 @@ export function toLabeledOption<T>(v: Option<T>): LabeledOption<T> {
 	}
 
 	if (v && typeof v === 'object') {
-		console.log('')
-		console.error('v', JSON.stringify(v))
-		console.error('isNamedOption(v):', isLabeledOption(v))
-		console.log('2 keys ===', Object.keys(v).length === 2)
-		console.log('has label ===', 'label' in v)
-		console.log('has value ===', 'value' in v)
-		console.log('')
-
 		return {
 			label: JSON.stringify(v),
 			value: v,
@@ -367,4 +449,26 @@ export function toLabeledOption<T>(v: Option<T>): LabeledOption<T> {
 			'and place your value in the `value` property.',
 	)
 	throw new Error('Missing label:' + JSON.stringify(v))
+}
+
+export function fromLabeledOption<T>(v: Option<T> | State<Option<T>>): T {
+	log.fn('fromLabeledOption', debrief(stringify(v))).debug()
+
+	function rtrn(v: any) {
+		log.fn('fromLabeledOption').debug('Return Value', v)
+		return v
+	}
+
+	if (isLabeledOption(v)) return rtrn(v.value)
+
+	if (isState(v)) {
+		const t = v.value
+		if (isLabeledOption(t)) {
+			return rtrn(t.value)
+		} else {
+			return rtrn(t as T)
+		}
+	}
+
+	return v as T
 }
