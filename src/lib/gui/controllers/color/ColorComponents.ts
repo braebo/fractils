@@ -11,9 +11,12 @@ import { Logger } from '../../../utils/logger'
 
 export interface ColorComponentsOptions {
 	container?: HTMLDivElement
+	disabled: boolean
 }
 
-export const COLOR_PICKER_DEFAULTS: ColorComponentsOptions = {}
+export const COLOR_PICKER_DEFAULTS = {
+	disabled: false,
+} as const satisfies ColorComponentsOptions
 
 export type ColorComponentsElements = {
 	container: HTMLDivElement
@@ -28,8 +31,9 @@ export type ColorComponentsElements = {
 	text: HTMLInputElement
 }
 
-export class ColorComponents extends Controller<InputColor, ColorComponentsElements> {
+export class ColorComponents extends Controller<ColorMode, ColorComponentsElements> {
 	opts: ColorComponentsOptions
+	element: HTMLDivElement
 	elements: ColorComponentsElements
 	select: Select<ColorMode>
 
@@ -41,9 +45,12 @@ export class ColorComponents extends Controller<InputColor, ColorComponentsEleme
 
 	#log = new Logger('ColorComponents', { fg: 'wheat' })
 
-	constructor(input: InputColor, options?: Partial<ColorComponentsOptions>) {
+	constructor(
+		public input: InputColor,
+		options?: Partial<ColorComponentsOptions>,
+	) {
 		const opts = { ...COLOR_PICKER_DEFAULTS, ...options }
-		super(input)
+		super(opts)
 
 		this.opts = opts
 		this.#mode = input.mode
@@ -54,6 +61,7 @@ export class ColorComponents extends Controller<InputColor, ColorComponentsEleme
 			classes: ['fracgui-input-color-components-container'],
 			parent: parent,
 		})
+		this.element = componentsContainer
 
 		const selectContainer = create('div', {
 			classes: ['fracgui-input-color-components-select-container'],
@@ -61,11 +69,12 @@ export class ColorComponents extends Controller<InputColor, ColorComponentsEleme
 		})
 
 		this.select = new Select<ColorMode>({
+			disabled: this.disabled,
 			container: selectContainer,
 			options: ['hex', 'hex8', 'rgba', 'hsla', 'hsva'],
 		})
-		this.select.onChange(({ value }) => {
-			this.updateMode(value)
+		this.select.onChange(v => {
+			this.updateMode(v.value)
 		})
 
 		const numbersContainer = create('div', {
@@ -88,21 +97,25 @@ export class ColorComponents extends Controller<InputColor, ColorComponentsEleme
 		for (const [k, v] of entries(numbers)) {
 			const update = () => {
 				this[k] = +v.value
-				this.input.setState(this.color)
+				this.input.set(this.color)
 			}
 
 			if (this.#modeType() === 'text') {
 				v.classList.add('visible')
 			}
 
-			input.listen(v, 'input', update)
+			this.listen(v, 'input', update)
 		}
 
 		const text = create('input', {
-			classes: ['fracgui-input-text-input', 'fracgui-input-color-components-text'],
+			classes: [
+				'fracgui-controller',
+				'fracgui-controller-text',
+				'fracgui-input-color-components-text',
+			],
 			parent: componentsContainer,
 		})
-		input.listen(text, 'change', (e: Event) => {
+		this.listen(text, 'change', (e: Event) => {
 			let format = parseColorFormat((e.target as HTMLInputElement).value)
 			if (!format) return
 
@@ -268,14 +281,16 @@ export class ColorComponents extends Controller<InputColor, ColorComponentsEleme
 		this.#log.fn('refresh').info()
 		const color = this.input.state.value.hex8String
 		const mode = this.mode
-		if (this.#lastColor === color && mode === this.#lastMode) return
+		if (this.#lastColor === color && mode === this.#lastMode) {
+			return this
+		}
 
 		this.#lastColor = color
 		this.#lastMode = mode
 
 		if (this.#locked) {
 			this.#locked = false
-			return
+			return this
 		}
 
 		if (this.#modeType() === 'text') {
@@ -286,6 +301,28 @@ export class ColorComponents extends Controller<InputColor, ColorComponentsEleme
 			this.elements.numbers.c.value = String(this.c)
 			this.elements.numbers.d.value = String(this.d)
 		}
+
+		return this
+	}
+
+	disable() {
+		super.disable()
+		this.select.disable()
+		this.elements.text.disabled = true
+		for (const [, v] of entries(this.elements.numbers)) {
+			v.disabled = true
+		}
+		return this
+	}
+
+	enable() {
+		super.enable()
+		this.select.enable()
+		this.elements.text.disabled = false
+		for (const [, v] of entries(this.elements.numbers)) {
+			v.disabled = false
+		}
+		return this
 	}
 
 	dispose() {
@@ -296,5 +333,6 @@ export class ColorComponents extends Controller<InputColor, ColorComponentsEleme
 		this.elements.container.remove()
 		this.elements.text.remove()
 		this.select.dispose()
+		super.dispose()
 	}
 }
