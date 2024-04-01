@@ -1,19 +1,6 @@
-<script lang="ts">
-	import { inspectElement } from '$lib/actions/inspectElement'
-	import Orbs from '../resizable/Orbs.svelte'
-	import { Themer } from '$lib/themer/Themer'
-	import { Color } from '$lib/color/color'
-	import { Gui } from '$lib/gui/Gui'
-	import { onMount } from 'svelte'
-
-	let themer: Themer
-
-	let gui: Gui
-	let size: Gui['size']
-	let position: Gui['position']
-	let closed: Gui['closed']
-
+<script lang="ts" context="module">
 	let count = 10
+
 	let params = {
 		orbs: 50,
 		size: 5,
@@ -31,169 +18,23 @@
 		glowB: 50,
 	}
 
+	export type Params = typeof params
+</script>
+
+<script lang="ts">
+	import { inspectElement } from '$lib/actions/inspectElement'
+	import Orbs from '../resizable/Orbs.svelte'
+	// import { DivTweaker } from './divTweaker'
+	import { Color } from '$lib/color/color'
+	import { Gui } from '$lib/gui/Gui'
+	import { onMount } from 'svelte'
+	import { init } from './demoGui'
+
+	let pageEl: HTMLDivElement
+	let gui: Gui
+
 	onMount(() => {
-		gui = new Gui({
-			title: 'Orbs',
-			container: document.getElementById('svelte')!,
-			storage: {
-				key: 'fractils::fracgui',
-			},
-			closed: false,
-			placement: {
-				position: 'bottom-right',
-			},
-		})
-
-		size = gui.size
-		position = gui.position
-		closed = gui.closed
-
-		const f1 = gui.addFolder({ title: 'main' })
-
-		f1.add({
-			title: 'count',
-			binding: {
-				target: params,
-				key: 'orbs',
-			},
-			min: 1,
-			max: 250,
-			step: 1,
-		})
-
-		f1.addNumber({
-			title: 'width',
-			binding: {
-				target: params,
-				key: 'width',
-			},
-			min: 10,
-			max: window.innerWidth,
-			step: 1,
-		}).set(window.innerWidth / 2)
-
-		f1.addNumber({
-			title: 'height',
-			binding: {
-				target: params,
-				key: 'height',
-			},
-			min: 10,
-			max: window.innerHeight,
-			step: 1,
-		}).set(window.innerHeight / 2)
-
-		const motionFolder = f1.addFolder({ title: 'motion' })
-
-		motionFolder.addNumber({
-			title: 'speed',
-			binding: {
-				target: params,
-				key: 'speed',
-			},
-			min: 0.0001,
-			max: 2,
-			step: 0.0001,
-		})
-
-		motionFolder.addNumber({
-			title: 'a1',
-			binding: {
-				target: params,
-				key: 'a1',
-			},
-			min: 0,
-			max: 3,
-			step: 0.001,
-		})
-
-		motionFolder.addNumber({
-			title: 'a2',
-			binding: {
-				target: params,
-				key: 'a2',
-			},
-			min: 1,
-			max: 3,
-			step: 0.001,
-		})
-
-		const appearanceFolder = f1.addFolder({ title: 'appearance' })
-
-		appearanceFolder.addNumber({
-			title: 'size',
-			binding: {
-				target: params,
-				key: 'size',
-			},
-			min: 1,
-			max: 30,
-			step: 1,
-		})
-
-		appearanceFolder.addNumber({
-			title: 'brightness',
-			binding: {
-				target: params,
-				key: 'brightness',
-			},
-			min: 0,
-			max: 1,
-			step: 0.01,
-		})
-
-		appearanceFolder.addColor({
-			title: 'color',
-			mode: 'hsva',
-			binding: {
-				target: params,
-				key: 'color',
-			},
-		})
-
-		appearanceFolder.addColor({
-			title: 'accent',
-			mode: 'hsla',
-			binding: {
-				target: params,
-				key: 'accent',
-			},
-		})
-
-		const glowFolder = appearanceFolder.addFolder({ title: 'glow' })
-
-		glowFolder.addNumber({
-			title: 'glowR',
-			binding: {
-				target: params,
-				key: 'glowR',
-			},
-			min: 0,
-			max: 20,
-			step: 0.01,
-		})
-
-		glowFolder.addNumber({
-			title: 'glowG',
-			binding: {
-				target: params,
-				key: 'glowG',
-			},
-			min: 0,
-			max: 20,
-			step: 0.01,
-		})
-
-		glowFolder.addNumber({
-			title: 'glowB',
-			binding: {
-				target: params,
-				key: 'glowB',
-			},
-			min: 0,
-			max: 20,
-			step: 0.01,
-		})
+		const gui = init(params)
 
 		// //? Cool self themer majig 🌈
 		// import('$lib/gui/gui.scss?raw').then(x => {
@@ -346,15 +187,17 @@
 		// 	// document.documentElement.style.backgroundColor = color
 		// })
 
+		// const pageTweaker = new DivTweaker(pageEl)
+
 		return () => {
 			// unsub()
-			themer.dispose()
+			// themer.dispose()
 			gui.dispose()
 		}
 	})
 </script>
 
-<div class="page">
+<div class="page" bind:this={pageEl}>
 	<button on:click={() => console.log(gui)}>Log Gui</button>
 
 	<!-- {#if gui?.themer}
@@ -373,7 +216,7 @@
 		max-height: 100vh;
 		padding: 1rem;
 
-		background: var(--bg-b);
+		background: color-mix(in lch, var(--bg-a), var(--bg-b));
 		outline: 1px solid red;
 
 		overflow: hidden;
