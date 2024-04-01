@@ -286,6 +286,18 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		this.#pickerContainer.classList.remove('expanded')
 	}
 
+	enable() {
+		this.disabled = false
+		this.picker.enable()
+		return this
+	}
+
+	disable() {
+		this.disabled = true
+		this.picker.disable()
+		return this
+	}
+
 	dispose() {
 		this.#log.fn('dispose').info({ this: this })
 		this.picker.dispose()

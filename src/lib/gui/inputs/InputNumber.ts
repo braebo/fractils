@@ -77,16 +77,7 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 
 		this.listen(this.elements.controllers.input, 'input', this.set)
 
-		this.listen(globalThis.document, 'keydown', this.toggleDrag)
-
 		this.disposeCallbacks.add(this.state.subscribe(this.refresh))
-	}
-
-	// todo - move this into the number controller?
-	toggleDrag(e: KeyboardEvent) {
-		if (e.metaKey || e.ctrlKey) {
-			this.dragEnabled = true
-		}
 	}
 
 	set = (v?: number | Event) => {
@@ -99,20 +90,34 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 				this.state.set(v.target.valueAsNumber as number)
 			}
 		} else {
-			console.log('v', v)
 			this.state.set(v)
 		}
 	}
 
+	enable = () => {
+		this.#log.fn('enable').info()
+		this.disabled = false
+		this.elements.controllers.input.disabled = false
+		return this
+	}
+
+	disable = () => {
+		this.#log.fn('disable').info()
+		this.disabled = true
+		this.elements.controllers.input.disabled = true
+		return this
+	}
+
 	refresh = () => {
 		const v = this.state.value
+		this.#log.fn('refresh').debug(v)
 		this.elements.controllers.range.value = String(v)
 		this.elements.controllers.input.value = String(v)
-
 		this.callOnChange(v) // todo - should this go in the state subscription?
 	}
 
 	dispose() {
+		this.#log.fn('dispose').debug()
 		super.dispose()
 	}
 }
