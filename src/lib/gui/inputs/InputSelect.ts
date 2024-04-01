@@ -1,14 +1,10 @@
+import type { LabeledOption, Option } from '../controllers/Select'
 import type { ElementMap, ValueOrBinding } from './Input'
+import type { State } from '../../utils/state'
 import type { Folder } from '../Folder'
 
-import {
-	isLabeledOption,
-	Select,
-	toLabeledOption,
-	type LabeledOption,
-	type Option,
-} from '../controllers/Select'
-import { isState, state, type State } from '../../utils/state'
+import { isLabeledOption, Select, toLabeledOption, fromLabeledOption } from '../controllers/Select'
+import { isState, state } from '../../utils/state'
 import { Logger } from '../../utils/logger'
 import { create } from '../../utils/create'
 import { Input } from './Input'
@@ -16,10 +12,10 @@ import { Input } from './Input'
 export type SelectInputOptions<T> = {
 	title: string
 	options: T[]
-} & ValueOrBinding<T>
+} & ValueOrBinding<Option<unknown>>
 
 export const SELECT_INPUT_DEFAULTS: SelectInputOptions<Option<any>> = {
-	title: 'Select',
+	title: '',
 	value: '',
 	options: [],
 } as const
@@ -30,7 +26,7 @@ export interface SelectControllerElements<T> extends ElementMap {
 }
 
 export class InputSelect<T> extends Input<
-	LabeledOption<T>,
+	Option<T>,
 	SelectInputOptions<T>,
 	SelectControllerElements<T>
 > {
@@ -39,8 +35,8 @@ export class InputSelect<T> extends Input<
 	select: Select<T>
 	#log = new Logger('InputSelect', { fg: 'cyan' })
 
-	// todo - Move this into the select controller.
-	dragEnabled = false
+	/**  A latch for event propagation. Toggled off everytime an event aborted. */
+	#stopPropagation = true
 
 	constructor(options: Partial<SelectInputOptions<T>>, folder: Folder) {
 		const opts = { ...SELECT_INPUT_DEFAULTS, ...options }
@@ -50,26 +46,36 @@ export class InputSelect<T> extends Input<
 		// //* this is bop it type beat but is cool - brb fire alarm
 		this.#log.fn('constructor').info({ opts, this: this })
 
-		// console.log(opts)
-		let bindingIsState = false
-
+		// The idea here is that we can bind to a value, a `state` instance, a
+		// labeled option, or a labaled option with a `state` instance value.
 		if (opts.binding) {
-			const v = opts.binding.target[opts.binding.key]
+			this.bound = true
+			const v = opts.binding?.initial ?? (opts.binding.target[opts.binding.key] as Option<T>)
+
 			if (isState(v)) {
-				this.initialValue = v.value as LabeledOption<T>
-				this.state = v as State<LabeledOption<T>>
-				this.state.set(this.initialValue)
-				bindingIsState = true
+				this.initialValue = toLabeledOption(v.value as T)
+				this.state = v as State<Option<T>>
 			} else {
-				this.initialValue = toLabeledOption(opts.binding.target[opts.binding.key])
-				this.state = state(this.initialValue)
-				// Bind to the target if it's not already a State object.
+				if (isLabeledOption(v)) {
+					if (isState(v.value)) {
+						this.initialValue = {
+							label: v.label,
+							value: v.value.value as T,
+						}
+						this.state = v.value as State<Option<T>>
+					} else {
+						this.initialValue = v as LabeledOption<T>
+						this.state = state(v) as State<Option<T>>
+					}
+				} else {
+					this.initialValue = toLabeledOption(v as T)
+					this.state = this.resolveState(this.initialValue)
+				}
 			}
 		} else {
-			console.log(toLabeledOption(opts.value))
-			const value = this.resolveState(opts.value)
-			this.initialValue = toLabeledOption(opts.value)
-			this.state = state(toLabeledOption(opts.value))
+			const v = opts.value as T
+			this.state = this.resolveState(v)
+			this.initialValue = toLabeledOption(this.state.value as T)
 		}
 
 		const container = create('div', {
@@ -82,6 +88,7 @@ export class InputSelect<T> extends Input<
 			options: opts.options,
 			selected: this.initialValue,
 			title: this.title,
+			disabled: this.disabled,
 		})
 
 		this.elements.controllers = {
@@ -89,60 +96,88 @@ export class InputSelect<T> extends Input<
 			select: this.select.elements,
 		} as const satisfies SelectControllerElements<T>
 
-		if (bindingIsState) {
+		if (this.bound) {
 			this.disposeCallbacks.add(
-				this.state.subscribe(v => {
-					this.#log.fn('setState').debug({ v, this: this })
+				// todo - fix state types
+				//! This expression is not callable.  Each member of the union type '{ (this: void, run: Subscriber<unknown[]>, invalidate?: Invalidator<unknown[]> | undefined): Unsubscriber; (this: void, run: Subscriber<unknown[]>, invalidate?: Invalidator<unknown[]> | undefined): Unsubscriber; } | ... 4 more ... | { ...; }' has signatures, but none of those signatures are compatible with each other.ts(2349)
+				this.state.subscribe((v: T) => {
+					if (!this.select.bubble) return
+
+					if (this.#stopPropagation) {
+						this.#stopPropagation = false
+						this.#log
+							.fn('bound $state')
+							.debug('Stopped propagation.  Subscribers will not be notified.')
+						return
+					}
+
+					this.#log.fn('bound $state').debug({ v, this: this })
 					this.refresh()
 				}),
 			)
 		} else {
+			// Bind to the target if it's not already a State object.
 			this.disposeCallbacks.add(
+				// todo - fix state types
+				//! This expression is not callable.  Each member of the union type '{ (this: void, run: Subscriber<unknown[]>, invalidate?: Invalidator<unknown[]> | undefined): Unsubscriber; (this: void, run: Subscriber<unknown[]>, invalidate?: Invalidator<unknown[]> | undefined): Unsubscriber; } | ... 4 more ... | { ...; }' has signatures, but none of those signatures are compatible with each other.ts(2349)
 				this.state.subscribe(v => {
-					this.#log.fn('setState').debug({ v, this: this })
+					this.#log.fn('$state').debug({ v, this: this })
+
 					this.targetValue = v.value
 				}),
 			)
 		}
 
-		this.listen(this.elements.controllers.select.selected, 'change', this.set)
-
-		// this.disposeCallbacks.add(this.state.subscribe(() => this.refresh()))
+		// Bind our state to the select controller.
+		this.select.onChange(v => {
+			// Make sure the select controller doesn't react to its own changes.
+			this.#stopPropagation = true
+			this.targetValue = v.value
+		})
 	}
 
-	// export type LabeledOption<T> = { label: string; value: T }
-
-	resolveState(v: T | LabeledOption<T> | State<T> | LabeledOption<State<T>>): State<T> {
+	resolveState(v: T | Option<T> | State<T> | Option<State<T>>): State<Option<T>> {
+		this.#log.fn('resolveState').info(v)
 		if (isState(v)) {
-			return v
+			this.#log.fn('resolveState').info('Value is already state... returning unmodified.')
+			return v as State<Option<T>>
 		}
 
 		if (isLabeledOption(v)) {
 			if (isState(v.value)) {
-				return v.value
+				this.#log
+					.fn('resolveState')
+					.info(
+						"Value is a labeled option who's value is a state instance.  Returning `option.value`.",
+					)
+				return v.value as State<Option<T>>
 			}
 
-			return state(v.value)
+			this.#log
+				.fn('resolveState')
+				.info('Value is a non-state labeled option.  Wrapping in state.')
+			return state(v.value) as State<Option<T>>
 		}
 
-		return state(v)
+		this.#log
+			.fn('resolveState')
+			.info('Value is a non-labeled, non-state option.  Wrapping in state.')
+		return state(v) as State<Option<T>>
 	}
 
 	get targetObject() {
-		// console.log(this.opts.binding?.target)
 		return this.opts.binding?.target
 	}
-
 	get targetKey() {
-		// console.log(this.opts.binding?.key)
 		return this.opts.binding?.key
 	}
-
 	get targetValue(): T {
-		// console.log(this.opts.binding?.target)
 		return this.targetObject?.[this.targetKey as keyof typeof this.targetObject]
 	}
 	set targetValue(v: T) {
+		if (isLabeledOption(v)) v = fromLabeledOption(v) as T
+		this.#log.fn('set targetValue', v).info()
+
 		if (typeof v === 'undefined') {
 			throw new Error('Cannot set target value to undefined')
 		}
@@ -156,44 +191,27 @@ export class InputSelect<T> extends Input<
 			} else {
 				to[tk] = v
 			}
-			// console.log({ to, tk, v })
-			// console.log(`Setting target object key "${tk}" to value "${v}"`)
 		}
 	}
 
-	// todo - Move this into the select controller.
-	toggleDrag(e: KeyboardEvent) {
-		if (e.metaKey || e.ctrlKey) {
-			this.dragEnabled = true
-		}
+	set = () => {
+		this.#log.fn('set').info()
+		this.select.select(this.state.value as T, false)
+		return this
 	}
 
-	set = (v?: CustomEvent<LabeledOption<T>> | State<LabeledOption<T>>) => {
-		this.#log.fn('setState').info({ v, this: this })
+	enable = () => {
+		this.#log.fn('enable').info()
+		this.disabled = false
+		this.select.disable()
+		return this
+	}
 
-		if (!v || typeof v === 'undefined') {
-			return
-		}
-
-		if (typeof v === 'object') {
-			if ('detail' in v) {
-				console.log(v)
-				this.#log.fn('setState(v.detail)').debug(v.detail)
-				if (isLabeledOption(v.detail)) {
-					// this.state.set(v.detail.value) // todo - Use this once `state` is changed to `T` from `LabeledOption<T>`.
-					this.state.set(v.detail)
-					// this.callOnChange(v.detail)
-				} else {
-					this.state.set(v.detail)
-					// this.callOnChange(v.detail)
-				}
-			} else if (isState(v)) {
-				this.#log.fn('setState(v.value)').debug(v.value)
-				this.state.set(v.value)
-			}
-		}
-
-		this.refresh()
+	disable = () => {
+		this.#log.fn('disable').info()
+		this.disabled = true
+		this.select.disable()
+		return this
 	}
 
 	refresh = () => {
