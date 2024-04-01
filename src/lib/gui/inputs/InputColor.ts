@@ -1,7 +1,7 @@
 import type { ColorComponentsElements } from '../controllers/color/ColorComponents'
 import type { ColorPickerElements } from '../controllers/color/ColorPicker'
 import type { ColorFormat } from '$lib/color/types/colorFormat'
-import type { ElementMap, ValueOrBinding } from './Input'
+import type { ElementMap, InputOptions } from './Input'
 import type { Folder } from '../Folder'
 
 import { ColorComponents } from '../controllers/color/ColorComponents'
@@ -55,7 +55,7 @@ export type ColorInputOptions = {
 //⌟
 
 export const COLOR_INPUT_DEFAULTS: ColorInputOptions = {
-	title: 'Color',
+	title: '',
 	value: '#FF0000FF',
 	mode: 'hex',
 	expanded: false,
@@ -150,7 +150,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		// setInterval(this.togglePicker, 1500)
 	}
 
-	setState(v: ColorFormat | Color) {
+	set(v: ColorFormat | Color) {
 		// console.log(Color.isColor(v) ? v.hsva.s : v)
 		if (isColor(v)) {
 			this.state.set(new Color(v.hsva))

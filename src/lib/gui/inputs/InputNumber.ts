@@ -15,7 +15,7 @@ export type NumberInputOptions = {
 } & ValueOrBinding<number>
 
 export const NUMBER_INPUT_DEFAULTS: NumberInputOptions = {
-	title: 'Number',
+	title: '',
 	value: 0.5,
 	min: 0,
 	max: 1,
