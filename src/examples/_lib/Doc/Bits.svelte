@@ -14,23 +14,38 @@
 						<div class="key name">{p.name}</div>
 					</div>
 
-					{#if 'type' in p}
+					<!-- {#if 'type' in p}
 						<div class="code">{p.type}</div>
-					{/if}
+					{/if} -->
 				</div>
+			</div>
+
+			<div>
+				{#if 'type' in p}
+					<div
+						class="row code"
+						class:bool={defaultValue == 'true' || defaultValue == 'false'}
+					>
+						<span class="sep" />
+						<span class="tagname">type</span>
+						{@html p.type}
+					</div>
+				{/if}
+
+				{#if defaultValue}
+					<div
+						class="row default"
+						class:bool={defaultValue == 'true' || defaultValue == 'false'}
+					>
+						<span class="sep" />
+						<span class="tagname">default</span>
+						{@html defaultValue}
+					</div>
+				{/if}
 			</div>
 
 			{#if p.comment?.summary}
 				<div class="description">{@html p.comment.summary}</div>
-			{/if}
-
-			{#if defaultValue}
-				<div
-					class="row default"
-					class:bool={defaultValue == 'true' || defaultValue == 'false'}
-					><span class="tagname">default</span>
-					{@html defaultValue}</div
-				>
 			{/if}
 		</div>
 	{/each}
@@ -51,15 +66,18 @@
 	}
 
 	.description {
-		padding-left: 0.33rem;
+		margin-top: 0.25rem;
+		padding-left: 2rem;
 		line-height: 1.4;
 		color: var(--fg-d);
 	}
 
 	.tagname {
-		color: var(--fg-d);
-		padding-left: 0.66rem;
+		// color: var(--fg-d);
+		padding-left: 0.33rem;
 		padding-right: 0.33rem;
+		width: 5rem;
+		color: var(--fg-c);
 	}
 
 	.keys {
@@ -69,19 +87,19 @@
 		font-family: var(--font-mono);
 	}
 
-	.keys.row {
+	.row {
 		flex-direction: row;
 		align-items: center;
 		height: fit-content;
 	}
 
 	.key.name {
-		padding: 1px 5px;
+		padding: 2px 7px;
 
 		color: var(--fg-a);
 		background: var(--bg-a);
 
-		// color: var(--brand-a);
+		// color: var(--theme-a);
 		// background: rgb(26, 26, 26);
 		// background: black;
 		border-radius: var(--radius-sm);
@@ -92,6 +110,14 @@
 
 		// letter-spacing: 1px;
 		font-size: 1.1rem;
+	}
+
+	.sep {
+		width: 3px;
+		height: 3px;
+		// height: 0.75rem;
+		background: rgba(var(--fg-d-rgb), 0.5);
+		margin-bottom: -3px;
 	}
 
 	.key {
@@ -128,7 +154,8 @@
 		opacity: 0.5;
 		font-family: var(--font-mono);
 	}
-	:global(.description span.code) {
+	:global(.description span.code),
+	:global(.description span.default) {
 		font-size: 0.85rem;
 		font-variation-settings: 'wght' 500;
 		// background: var(--bg-b) !important;
@@ -137,11 +164,12 @@
 	}
 
 	.code,
-	:global(.bit .default code) {
+	.default,
+	:global(.bit .row code) {
 		// background: var(--bg-c);
 		background: none;
 		color: var(--fg-d);
-		color: var(--brand-b);
+		color: var(--theme-b);
 		font-size: 0.85rem;
 		padding: 3px 7px 4px 7px;
 		border-radius: 5px;
@@ -164,15 +192,11 @@
 		flex-direction: row;
 	}
 
-	.default {
+	.row {
 		font-family: var(--font-mono);
 		font-size: var(--font-xs);
 		&.bool {
-			color: var(--brand-c);
-		}
-
-		.tagname {
-			color: var(--bg-d);
+			color: var(--theme-c);
 		}
 	}
 </style>
