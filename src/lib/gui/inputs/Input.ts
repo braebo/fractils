@@ -1,32 +1,54 @@
+import type { InputButtonGrid, ButtonGridInputOptions, ButtonGrid } from './InputButtonGrid'
+import type { InputButton, InputButtonOptions, ButtonClickFunction } from './InputButton'
+import type { InputSelect, SelectInputOptions } from './InputSelect'
 import type { InputNumber, NumberInputOptions } from './InputNumber'
 import type { ColorInputOptions, InputColor } from './InputColor'
 import type { ColorFormat } from '../../color/types/colorFormat'
+import type { InputText, TextInputOptions } from './InputText'
+import type { Option } from '../controllers/Select'
 import type { State } from '../../utils/state'
 import type { Color } from '../../color/color'
-import type { InputSelect, SelectInputOptions } from './InputSelect'
 import type { Folder } from '../Folder'
 
 import { create } from '../../utils/create'
 import { Logger } from '../../utils/logger'
-import type { Option } from '../controllers/Select'
 import { debrief } from '$lib/utils/debrief'
 
 //· Types ··············································································¬
 
-export type ValidInputValue = number | Color | ColorFormat | Option<any>
+export type ValidInputValue = string | number | Color | ColorFormat | Option<any>
 export type ValidInputOptions =
+	| TextInputOptions
 	| NumberInputOptions
 	| ColorInputOptions
 	| SelectInputOptions<Option<any>>
+	| InputButtonOptions
+	| ButtonGridInputOptions
 export type BindTargetObject = Record<string, any>
 
 /** This is currently just used as a sort of "type tag" now that inference is working. */
-
-export type InputType = 'Number' | 'Color' | 'Select'
+export type InputType = 'Text' | 'Number' | 'Color' | 'Select' | 'Button' | 'ButtonGrid'
 
 export type ValueOrBinding<TValue = ValidInputValue, TBindTarget = BindTargetObject> =
-	| { value: TValue; binding?: { target: TBindTarget; key: keyof TBindTarget } | undefined }
-	| { value?: TValue | undefined; binding: { target: TBindTarget; key: keyof TBindTarget } }
+	| {
+			value: TValue
+			binding?: { target: TBindTarget; key: keyof TBindTarget; initial?: TValue }
+	  }
+	| {
+			value?: TValue
+			binding: { target: TBindTarget; key: keyof TBindTarget; initial?: TValue }
+	  }
+	| {
+			value?: TValue
+			binding?: { target: TBindTarget; key: keyof TBindTarget; initial?: TValue }
+			onClick: ButtonClickFunction
+	  }
+	| {
+			value?: TValue
+			binding?: { target: TBindTarget; key: keyof TBindTarget; initial?: TValue }
+			onClick?: ButtonClickFunction
+			grid: ButtonGrid
+	  }
 
 export type InputOptions<TValue = ValidInputValue, TBindTarget = Record<string, any & TValue>> = {
 	title: string
@@ -38,18 +60,36 @@ export interface ElementMap<T = unknown> {
 	[key: string]: HTMLElement | HTMLInputElement | ElementMap | T
 }
 
-export type ValidInput = InputNumber | InputColor | InputSelect<Option<any>>
+export type ValidInput =
+	| InputText
+	| InputNumber
+	| InputColor
+	| InputSelect<Option<any>>
+	| InputButton
+	| InputButtonGrid
 
 export abstract class Input<
 	TValueType extends ValidInputValue = ValidInputValue,
 	TOptions extends InputOptions = InputOptions,
 	TElements extends ElementMap = ElementMap,
 > {
-	declare type: Readonly<string>
+	declare type: Readonly<InputType>
 	declare state: State<TValueType>
 	declare initialValue: ValidInputValue
 	declare opts: ValidInputOptions
 
+	/**
+	 * Whether the input was initialized with a bind target/key.
+	 * @default false
+	 */
+	bound = false
+
+	/**
+	 * Whether all user input controllers are disabled.
+	 * Use {@link enable} and {@link disable} to toggle.
+	 * @default false
+	 */
+	disabled = false
 	elements = {
 		controllers: {},
 	} as {
@@ -183,6 +223,9 @@ export abstract class Input<
 			// cb.bind(this).call(this, v as TValueType)
 		}
 	}
+
+	abstract enable(): this
+	abstract disable(): this
 
 	listen = (
 		element: HTMLElement | Window | Document,

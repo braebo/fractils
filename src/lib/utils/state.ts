@@ -54,8 +54,7 @@ export type State<T> =
 export interface StateOptions<T> extends Partial<Writable<T>> {
 	/**
 	 * If provided, the store will be persisted to local storage
-	 * under the specified key.  If not, the store will not be
-	 * persisted.
+	 * under the specified key.
 	 * @default undefined
 	 */
 	key?: string
