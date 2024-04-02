@@ -1,9 +1,12 @@
 import type { ElementMap, InputOptions, InputType, ValidInput } from './inputs/Input'
 import type { Option } from './controllers/Select'
 
-import { InputNumber, type NumberInputOptions } from './inputs/InputNumber'
+import { InputButtonGrid, type ButtonGridInputOptions } from './inputs/InputButtonGrid'
+import { InputButton, type InputButtonOptions } from './inputs/InputButton'
 import { InputSelect, type SelectInputOptions } from './inputs/InputSelect'
+import { InputNumber, type NumberInputOptions } from './inputs/InputNumber'
 import { InputColor, type ColorInputOptions } from './inputs/InputColor'
+import { InputText, type TextInputOptions } from './inputs/InputText'
 
 import { cancelClassFound } from '../internal/cancelClassFound'
 import { isColor, isColorFormat } from '../color/color'
@@ -344,6 +347,219 @@ export class Folder {
 		return folder
 	}
 
+	add(title: string, options: NumberInputOptions): InputNumber
+	add(options: NumberInputOptions, never?: never): InputNumber
+	add(title: string, options: TextInputOptions): InputText
+	add(options: TextInputOptions, never?: never): InputText
+	add(title: string, options: ColorInputOptions): InputColor
+	add(options: ColorInputOptions, never?: never): InputColor
+	add(title: string, options: InputButtonOptions): InputButton
+	add(options: InputButtonOptions, never?: never): InputButton
+	add(title: string, options: ButtonGridInputOptions): InputButtonGrid
+	add(options: ButtonGridInputOptions, never?: never): InputButtonGrid
+	add<T>(title: string, options: SelectInputOptions<T>): InputSelect<T>
+	add<T>(options: SelectInputOptions<T>, never?: never): InputSelect<T>
+	add(options: InputOptions, never?: never): ValidInput
+	add(titleOrOptions: string | InputOptions, maybeOptions?: InputOptions): ValidInput {
+		const twoArgs = typeof titleOrOptions === 'string' && typeof maybeOptions === 'object'
+		const title = twoArgs ? (titleOrOptions as string) : maybeOptions?.title ?? ''
+		const options = twoArgs ? maybeOptions! : (titleOrOptions as InputOptions)
+		if (!twoArgs && options) options.title ??= title
+
+		const input = this.#createInput(options)
+		this.controls.set(input.title, input)
+		this.#createIcon()
+		return input
+	}
+
+	/** @todo */
+	addMany(obj: Record<string, any>) {}
+
+	addNumber(options: Partial<NumberInputOptions>) {
+		const input = new InputNumber(options, this)
+		this.controls.set(input.title, input)
+		this.#createIcon()
+		return input
+	}
+
+	addText(options: Partial<TextInputOptions>) {
+		const input = new InputText(options, this)
+		this.controls.set(input.title, input)
+		this.#createIcon()
+		return input
+	}
+
+	addColor(options: Partial<ColorInputOptions>) {
+		const input = new InputColor(options, this)
+		this.controls.set(input.title, input)
+		this.#createIcon()
+		return input
+	}
+
+	addButton(options: Partial<InputButtonOptions>) {
+		const input = new InputButton(options, this)
+		this.controls.set(input.title, input)
+		this.#createIcon()
+		return input
+	}
+
+	addButtonGrid(options: Partial<ButtonGridInputOptions>) {
+		const input = new InputButtonGrid(options, this)
+		this.controls.set(input.title, input)
+		this.#createIcon()
+		return input
+	}
+
+	addSelect<T>(options: Partial<SelectInputOptions<T>>) {
+		const input = new InputSelect(options, this)
+		this.controls.set(input.title, input)
+		this.#createIcon()
+		return input
+	}
+
+	#createInput(options: InputOptions) {
+		const type = this.resolveType(options)
+
+		switch (type) {
+			case 'Text':
+				return new InputText(options as TextInputOptions, this)
+			case 'Number':
+				return new InputNumber(options as NumberInputOptions, this)
+			case 'Color':
+				return new InputColor(options as ColorInputOptions, this)
+			case 'Select':
+				return new InputSelect(options as SelectInputOptions<Option<any>>, this)
+			case 'Button':
+				return new InputButton(options as InputButtonOptions, this)
+		}
+
+		throw new Error('Invalid input view: ' + options)
+	}
+
+	resolveType(options: any): InputType {
+		const value = options.value ?? options.binding!.target[options.binding!.key]
+
+		if ('onClick' in options) {
+			return 'Button'
+		}
+
+		if ('options' in options) {
+			return 'Select'
+		}
+
+		switch (typeof value) {
+			case 'number':
+				return 'Number'
+			case 'string':
+				if (isColorFormat(value)) return 'Color'
+				// todo - Could detect CSS units like `rem` and `-5px 0 0 3px` for an advanced `CSSTextInput`.
+				return 'Text'
+			case 'function':
+				return 'Button'
+			case 'object':
+				if (Array.isArray(value)) {
+					return 'Select'
+				}
+				if (isColor(value)) {
+					return 'Color'
+				}
+			default:
+				throw new Error('Invalid input view: ' + value)
+		}
+	}
+
+	isGui(): this is Gui {
+		return this.isRoot
+	}
+
+	toggle = () => {
+		// this.#log.fn('toggle').info()
+		clearTimeout(this.#disabledTimer)
+		if (this.#disabled) {
+			this.reset()
+			return
+		}
+
+		//? If the folder is being dragged, don't toggle.
+		if (this.element.classList.contains('fractils-dragged')) {
+			this.element.classList.remove('fractils-dragged')
+			return
+		}
+
+		const state = !this.closed.value
+		if (this.isGui()) {
+			state ? this.close(true) : this.open(true)
+		} else {
+			this.closed.set(state)
+		}
+	}
+
+	open(updateState = false) {
+		// this.#log.fn('open').info()
+		this.element.classList.remove('closed')
+		if (updateState) this.closed.set(false)
+		this.#disabled = false
+
+		this.#toggleAnimClass()
+	}
+
+	close(updateState = false) {
+		this.#log.fn('close').info()
+
+		this.element.classList.add('closed')
+		if (updateState) this.closed.set(true)
+		this.#disabled = false
+
+		this.#toggleAnimClass()
+	}
+
+	toggleVisibility() {
+		this.#log.fn('toggleVisibility').info()
+		this.element.classList.toggle('hidden')
+	}
+
+	hide() {
+		this.#log.fn('hide').info()
+		this.element.classList.add('hidden')
+		// this.#hiddenFunction = typeof this.#hidden === 'function' ? this.#hidden : undefined
+	}
+
+	show() {
+		this.#log.fn('show').info()
+		this.element.classList.remove('hidden')
+		// this.#hiddenFunction = undefined
+	}
+
+	#toggleTimeout!: ReturnType<typeof setTimeout>
+	#toggleAnimClass = () => {
+		this.element.classList.add('animating')
+
+		clearTimeout(this.#toggleTimeout)
+		this.#toggleTimeout = setTimeout(() => {
+			this.element.classList.remove('animating')
+		}, 600) // todo - this needs to sync with the animation duration in the css... smelly.
+	}
+
+	/**
+	 * A flat array of all child folders of this folder (and their children, etc).
+	 */
+	get allChildren(): Folder[] {
+		return this.children.flatMap<Folder>(child => [child, ...child.allChildren])
+	}
+
+	/**
+	 * A flat array of all controls of all child folders of this folder (and their children, etc).
+	 */
+	get allControls(): Map<string, ValidInput> {
+		const allControls = new Map<string, ValidInput>()
+		for (const child of [this, ...this.allChildren]) {
+			for (const [key, value] of child.controls.entries()) {
+				allControls.set(key, value)
+			}
+		}
+		return allControls
+	}
+
 	#createIcon() {
 		const strokeWidth = 1
 		const x = 12
@@ -498,166 +714,6 @@ export class Folder {
 
 	get folderSvg() {
 		return this.#folderIcon!.querySelector('svg.icon-folder')!
-	}
-
-	addFolder(options?: { title?: string; closed?: boolean; header?: boolean }) {
-		const folder = new Folder({
-			title: options?.title ?? '',
-			controls: new Map(),
-			parentFolder: this,
-			children: [],
-			closed: options?.closed ?? false,
-		})
-
-		this.children.push(folder)
-		this.#createIcon()
-
-		if (options?.header === false) {
-			folder.elements.header.style.display = 'none'
-		}
-
-		return folder
-	}
-
-	add<T>(options: SelectInputOptions<T>): InputSelect<T>
-	add(options: NumberInputOptions): InputNumber
-	add(options: ColorInputOptions): InputColor
-	add(options: InputOptions): ValidInput {
-		const input = this.#createInput(options)
-		this.controls.set(input.title, input)
-		this.#createIcon()
-		return input
-	}
-
-	/** @todo */
-	addMany(obj: Record<string, any>) {}
-
-	addNumber(options: Partial<NumberInputOptions>) {
-		const input = new InputNumber(options, this)
-		this.controls.set(input.title, input)
-		this.#createIcon()
-		return input
-	}
-
-	addColor(options: Partial<ColorInputOptions>) {
-		const input = new InputColor(options, this)
-		this.controls.set(input.title, input)
-		this.#createIcon()
-		return input
-	}
-
-	#createInput(options: InputOptions) {
-		const type = this.resolveType(options)
-
-		switch (type) {
-			case 'Number':
-				return new InputNumber(options as NumberInputOptions, this)
-			case 'Color':
-				return new InputColor(options as ColorInputOptions, this)
-			case 'Select':
-				return new InputSelect(options as SelectInputOptions<Option<any>>, this)
-		}
-
-		throw new Error('Invalid input view: ' + options)
-	}
-
-	resolveType(options: any): InputType {
-		const value = options.value ?? options.binding!.target[options.binding!.key]
-
-		if ('options' in options) {
-			return 'Select'
-		}
-
-		switch (typeof value) {
-			case 'number':
-				return 'Number'
-			case 'string':
-				if (isColorFormat(value)) return 'Color'
-			case 'object':
-				if (Array.isArray(value)) {
-					return 'Select'
-				}
-				if (isColor(value)) {
-					return 'Color'
-				}
-			default:
-				throw new Error('Invalid input view: ' + value)
-		}
-	}
-
-	isGui(): this is Gui {
-		return this.isRoot
-	}
-
-	toggle = () => {
-		// this.#log.fn('toggle').info()
-		clearTimeout(this.#disabledTimer)
-		if (this.#disabled) {
-			this.reset()
-			return
-		}
-
-		//? If the folder is being dragged, don't toggle.
-		if (this.element.classList.contains('fractils-dragged')) {
-			this.element.classList.remove('fractils-dragged')
-			return
-		}
-
-		const state = !this.closed.value
-		if (this.isGui()) {
-			state ? this.close(true) : this.open(true)
-		} else {
-			this.closed.set(state)
-		}
-	}
-
-	open(updateState = false) {
-		// this.#log.fn('open').info()
-		this.element.classList.remove('closed')
-		if (updateState) this.closed.set(false)
-		this.#disabled = false
-
-		this.#toggleAnimClass()
-	}
-
-	close(updateState = false) {
-		this.#log.fn('close').info()
-
-		this.element.classList.add('closed')
-		if (updateState) this.closed.set(true)
-		this.#disabled = false
-
-		this.#toggleAnimClass()
-	}
-
-	#toggleTimeout!: ReturnType<typeof setTimeout>
-	#toggleAnimClass = () => {
-		this.element.classList.add('animating')
-
-		clearTimeout(this.#toggleTimeout)
-		this.#toggleTimeout = setTimeout(() => {
-			this.element.classList.remove('animating')
-		}, 600) // todo - this needs to sync with the animation duration in the css... smelly.
-	}
-
-	/**
-	 * A flat array of all child folders of this folder (and their children, etc).
-	 */
-	get allChildren(): Folder[] {
-		return this.children.flatMap<Folder>(child => [child, ...child.allChildren])
-	}
-
-	/**
-	 * A flat array of all controls of all child folders of this folder (and their children, etc).
-	 */
-	get allControls(): Map<string, ValidInput> {
-		const allControls = new Map<string, ValidInput>()
-		for (const child of [this, ...this.allChildren]) {
-			for (const [key, value] of child.controls.entries()) {
-				allControls.set(key, value)
-			}
-		}
-		return allControls
 	}
 
 	dispose() {
