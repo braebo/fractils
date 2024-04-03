@@ -1153,17 +1153,20 @@ input.fracgui-search-input {
 		}
 
 		.back {
+			opacity: 1;
 			transform: translate(0, 0);
 			transition-duration: $dur;
 			transition-timing-function: $quartInOut;
 		}
 		&.active .back {
+			opacity: 0;
 			transform: translate(15%, 15%);
 		}
 
 		&.outro .back {
-			transition-delay: 0s !important;
-			transition-duration: 1s !important;
+			transition:
+				opacity 0.25s 0.25s,
+				transform 1s 0s;
 		}
 
 		.check {
@@ -1671,6 +1674,7 @@ input.fracgui-search-input {
 					svg {
 						.back {
 							fill: var(--fg-d);
+							stroke: var(--fg-d);
 						}
 					}
 					&:hover {
@@ -1680,6 +1684,7 @@ input.fracgui-search-input {
 						svg {
 							.back {
 								fill: var(--fg-a);
+								stroke: var(--fg-a);
 							}
 						}
 					}

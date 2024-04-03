@@ -23,15 +23,6 @@ export class CopySVG {
 		// back.setAttribute('d', 'M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1')
 		// s.appendChild(back)
 
-		const back = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
-		back.classList.add('back')
-		back.setAttribute('width', '15')
-		back.setAttribute('height', '15')
-		back.setAttribute('rx', '1')
-		back.setAttribute('ry', '1')
-		back.setAttribute('x', '1')
-		back.setAttribute('y', '1')
-
 		const front = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
 		front.classList.add('front')
 		front.setAttribute('width', '13')
@@ -41,14 +32,23 @@ export class CopySVG {
 		front.setAttribute('x', '8')
 		front.setAttribute('y', '8')
 
+		const back = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+		back.classList.add('back')
+		back.setAttribute('width', '15')
+		back.setAttribute('height', '15')
+		back.setAttribute('rx', '1')
+		back.setAttribute('ry', '1')
+		back.setAttribute('x', '1')
+		back.setAttribute('y', '1')
+
 		const check = document.createElementNS('http://www.w3.org/2000/svg', 'path')
 		check.classList.add('check')
 		check.setAttribute('d', 'M17 9l-7 7-4-4')
 		check.setAttribute('fill', 'none')
 		check.setAttribute('stroke-width', '2')
 
-		s.appendChild(back)
 		s.appendChild(front)
+		s.appendChild(back)
 		s.appendChild(check)
 
 		this.svg = s
