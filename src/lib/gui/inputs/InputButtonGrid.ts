@@ -1,7 +1,6 @@
 import type { ElementMap, InputOptions } from './Input'
 import type { Folder } from '../Folder'
 
-// import { buttonController } from '../controllers/button'
 import { Logger } from '../../utils/logger'
 import { create } from '../../utils/create'
 import { state } from '../../utils/state'
@@ -104,24 +103,8 @@ export class InputButtonGrid extends Input<
 	}
 
 	toGrid = (grid: ButtonGrid) => {
-		// The grid is a 2D array of ButtonItems.  We need to get the  rows and
-		// columns of the grid, assign them to buttons we create, update the container's
-		// css grid properties, populate it with buttons, etc
 		const rows = grid.length
 		const cols = Math.max(...grid.map(row => row.length))
-
-		// this.elements.controllers.container.style.setProperty(
-		// 	'grid-template-columns',
-		// 	`repeat(${cols}, 1fr)`,
-		// )
-		// this.elements.controllers.container.style.setProperty(
-		// 	'grid-template-rows',
-		// 	`repeat(${rows}, 1fr)`,
-		// )
-		// this.elements.controllers.container.style.gridTemplateColumns =  `repeat(${cols}, 1fr)`
-		// this.elements.controllers.container.style.gridTemplateRows =  `repeat(${rows}, 1fr)`
-		// this.elements.controllers.container.style.gridAutoColumns = '1fr'
-		// this.elements.controllers.container.style.gridAutoRows = '1fr'
 
 		// Remove all buttons.
 		for (const { element } of this.buttons.values()) {
@@ -148,7 +131,6 @@ export class InputButtonGrid extends Input<
 			'height',
 			getComputedStyle(this.elements.controllers.container).height,
 		)
-		// Create new buttons.
 	}
 
 	addButton = (btn: ButtonItem, id: string, i: number, j: number) => {
@@ -181,30 +163,31 @@ export class InputButtonGrid extends Input<
 		return button
 	}
 
-	static initialized = false
-	static init() {
-		if (this.initialized) return
-		this.initialized = true
+	// todo - would this be a nicer way to do styles?
+	// static initialized = false
+	// static init() {
+	// 	if (this.initialized) return
+	// 	this.initialized = true
 
-		const style = document.createElement('style')
-		style.textContent = this.style
-		document.head.appendChild(style)
-	}
-	static style = /*css*/ `
-		.fracgui-controller-buttons-container {
-			display: flex;
-			flex-wrap: wrap;
-			gap: 0.5em;
-		}
-		.fracgui-controller-buttons-button {
-			padding: 0.5em 1em;
-			margin: 0.25em;
-			border: none;
-			background-color: #333;
-			color: white;
-			cursor: pointer;
-		}
-	`
+	// 	const style = document.createElement('style')
+	// 	style.textContent = this.style
+	// 	document.head.appendChild(style)
+	// }
+	// static style = /*css*/ `
+	// 	.fracgui-controller-buttons-container {
+	// 		display: flex;
+	// 		flex-wrap: wrap;
+	// 		gap: 0.5em;
+	// 	}
+	// 	.fracgui-controller-buttons-button {
+	// 		padding: 0.5em 1em;
+	// 		margin: 0.25em;
+	// 		border: none;
+	// 		background-color: #333;
+	// 		color: white;
+	// 		cursor: pointer;
+	// 	}
+	// `
 
 	enable() {
 		for (const { element } of this.buttons.values()) {
