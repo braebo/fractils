@@ -1195,7 +1195,7 @@ input.fracgui-search-input {
 	right: 0.5rem;
 	top: 0.5rem;
 
-	width: 0.5rem;
+	min-width: 0.33rem;
 	height: 75%;
 
 	color: var(--fg-c);
