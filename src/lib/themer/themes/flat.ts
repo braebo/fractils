@@ -3,20 +3,20 @@ import type { ThemeDefinition } from '../types'
 import { resolveTheme } from '../resolveTheme'
 
 export default resolveTheme({
-	title: 'default',
+	title: 'flat',
 	color: {
 		base: {
 			'theme-a': '#00bcd4',
 			'theme-b': '#f8d2c9',
 			'theme-c': '#ba788a',
 			'dark-a': '#0B0B11',
-			'dark-b': '#1b1d29',
-			'dark-c': '#46465e',
-			'dark-d': '#55566a',
-			'dark-e': '#787b89',
+			'dark-b': '#15161D',
+			'dark-c': '#1F202D',
+			'dark-d': '#353746',
+			'dark-e': '#474A5B',
 			'light-a': '#ffffff',
-			'light-b': '#c9ccd7',
-			'light-c': '#a9adba',
+			'light-b': '#dfe1e9',
+			'light-c': '#BABECA',
 			'light-d': '#777D8F',
 			'light-e': '#5F6377',
 		},
