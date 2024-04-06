@@ -167,9 +167,9 @@ export class Themer {
 		this.activeThemeTitle = state(opts.theme.title, {
 			key: this.#key + '::activeTheme',
 		})
-		// todo - idk if this makes sense or does anything lol
-		if (opts.theme.title !== this.activeThemeTitle.value) {
-			const theme = this.themes.value.find(t => t.title === opts.theme.title)
+		const storedTitle = this.activeThemeTitle.value
+		if (opts.theme.title !== storedTitle) {
+			const theme = this.themes.value.find(t => t.title === storedTitle)
 			if (theme) this.theme.set(theme)
 		}
 
@@ -181,7 +181,10 @@ export class Themer {
 
 		this.#addSub(this.theme, v => {
 			this.#log.fn(o('theme.subscribe')).info({ v, this: this })
-			if (this.#initialized) this.applyTheme()
+			if (this.#initialized) {
+				this.activeThemeTitle.set(v.title)
+				this.applyTheme()
+			}
 		})
 
 		this.#addSub(this.mode, v => {
