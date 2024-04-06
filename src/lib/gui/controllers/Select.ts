@@ -103,11 +103,10 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 
 		this.opts = opts
 
+		// todo - Do we really need an option?
 		if (!options.options?.length) {
 			throw new Error('Select controller must have at least one option')
-		}
-
-		if (options?.title) {
+		} else if (options?.title) {
 			this.#log = new Logger('Select:' + options.title, { fg: 'bisque' })
 		} else {
 			this.#log = new Logger('Select', { fg: 'blueviolet' })
@@ -254,7 +253,7 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 		if (v instanceof Event) {
 			const target = v.target as HTMLDivElement
 
-			const id = target.dataset.optionId
+			const id = target.dataset['optionId']
 			if (typeof id !== 'string') {
 				console.error({ target })
 				throw new Error('No option id found on select click')
@@ -292,7 +291,7 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 	}
 
 	/** Toggles the dropdown's visibility. */
-	toggle = (e: MouseEvent) => {
+	toggle = () => {
 		this.#log.fn('toggle').info({ this: this })
 		this.expanded ? this.close() : this.open()
 	}
@@ -337,6 +336,7 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 
 		this.elements.dropdown.style.setProperty('top', `${top + height + scrollTop}px`)
 		this.elements.dropdown.style.setProperty('width', `${Math.max(width, dropdownWidth)}px`)
+
 		// We need to calculate the left position needed to center the dropdown agains the selected element.
 		this.elements.dropdown.style.setProperty(
 			'left',
@@ -359,7 +359,7 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 
 		if (this.opts.selectOnHover) {
 			// this.select(this.#currentSelection)
-			for (const [id, { option, element }] of this.optionMap) {
+			for (const [_, { option, element }] of this.optionMap) {
 				element.removeEventListener('mouseenter', () => {
 					this.select(option)
 				})
