@@ -78,7 +78,7 @@ export class InputButton extends Input<
 
 		this.listen(this.elements.controllers.button, 'click', this.click)
 
-		this.disposeCallbacks.add(this.state.subscribe(this.refresh))
+		this.disposeCallbacks.add(this.state.subscribe(this.refresh.bind(this)))
 	}
 
 	get text() {
@@ -91,11 +91,11 @@ export class InputButton extends Input<
 	/**
 	 * Manually calls the {@link onClick} function.
 	 */
-	click = () => {
+	click() {
 		this.button.click()
 	}
 
-	enable = () => {
+	enable() {
 		this.button.enable()
 		return this
 	}
