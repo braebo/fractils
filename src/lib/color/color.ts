@@ -341,7 +341,7 @@ export class Color {
 			b = parseUnit(match[3], 255)
 			a = parseUnit(match[4], 1)
 		} else {
-			throw new Error('Invalid rgb string')
+			throw new Error('Invalid rgb string: ' + value)
 		}
 
 		this.rgb = { r, g, b, a }
