@@ -13,14 +13,17 @@ import { deepMerge } from '../utils/deepMerge'
 import { partition } from '../utils/partition'
 import { resolveTheme } from './resolveTheme'
 import { hexToRgb } from '../utils/hexToRgb'
-import defaultTheme from './themes/default'
+import { c, g, o, r, y } from '../utils/l'
 import { entries } from '../utils/object'
 import { Logger } from '../utils/logger'
 import { select } from '../utils/select'
-import { c, g, o, r } from '../utils/l'
 import { state } from '../utils/state'
 
-export type ThemeTitle = 'theme-default' | 'theme-a' | 'theme-b' | 'theme-c' | (string & {})
+import theme_airforce from './themes/airforce'
+import theme_default from './themes/default'
+import theme_flat from './themes/flat'
+
+export type ThemeTitle = string
 export type ThemeVariant = 'light' | 'dark'
 export type ThemeMode = ThemeVariant | 'system'
 
@@ -71,8 +74,8 @@ export interface ThemerOptions {
 const THEMER_DEFAULTS: ThemerOptions = {
 	autoInit: true,
 	persistent: true,
-	themes: [],
-	theme: defaultTheme,
+	theme: theme_default,
+	themes: [theme_default, theme_flat, theme_airforce],
 	mode: 'system',
 	localStorageKey: 'fractils::themer',
 }
@@ -106,19 +109,26 @@ const THEMER_DEFAULTS: ThemerOptions = {
  * ```
  */
 export class Themer {
+	/** The element to theme. */
 	node: HTMLElement
+	/** The currently active theme. */
 	theme: State<Theme>
-	mode: State<'light' | 'dark' | 'system'>
+	/** All themes available to the themer. */
 	themes: State<Theme[]>
-
+	/** The title of the currently active theme. */
+	activeThemeTitle: State<ThemeTitle>
+	/** The current mode ('light', 'dark', or 'system'). */
+	mode: State<'light' | 'dark' | 'system'>
+	/** If provided, theme css vars will be added to the wrapper. */
 	wrapper?: HTMLElement
+
 	#initialized = false
 	#persistent: boolean
 	#key: string
 	#style?: HTMLStyleElement
 	#unsubs: Array<() => void> = []
 
-	log = new Logger('themer', {
+	#log = new Logger('themer', {
 		fg: 'DarkCyan',
 		deferred: false,
 		server: false,
@@ -137,7 +147,7 @@ export class Themer {
 		const opts = deepMerge(THEMER_DEFAULTS, options)
 		this.#key = String(opts.localStorageKey)
 
-		this.log.fn(g('constructor')).info({ opts, this: this })
+		this.#log.fn(g('constructor')).info({ opts, this: this })
 
 		if (opts.wrapper) {
 			this.wrapper = opts.wrapper
@@ -150,24 +160,32 @@ export class Themer {
 					? select(node)[0] ?? document.documentElement
 					: (node as HTMLElement)
 
-		this.theme = state(resolveTheme(opts.theme), {
-			key: this.#key + '::theme',
+		this.theme = state(resolveTheme(opts.theme))
+
+		this.themes = state(opts.themes)
+
+		this.activeThemeTitle = state(opts.theme.title, {
+			key: this.#key + '::activeTheme',
 		})
+		// todo - idk if this makes sense or does anything lol
+		if (opts.theme.title !== this.activeThemeTitle.value) {
+			const theme = this.themes.value.find(t => t.title === opts.theme.title)
+			if (theme) this.theme.set(theme)
+		}
+
 		this.mode = state(opts.mode, {
 			key: this.#key + '::mode',
 		})
-		this.themes = state(opts.themes, {
-			key: this.#key + '::themes',
-		})
+
 		this.#persistent = opts.persistent ?? true
 
 		this.#addSub(this.theme, v => {
-			this.log.fn(o('theme.subscribe')).info({ v, this: this })
+			this.#log.fn(o('theme.subscribe')).info({ v, this: this })
 			if (this.#initialized) this.applyTheme()
 		})
 
 		this.#addSub(this.mode, v => {
-			this.log.fn(o('mode.subscribe')).info('v', v, { this: this })
+			this.#log.fn(o('mode.subscribe')).info('v', v, { this: this })
 
 			if (typeof v === 'undefined') throw new Error('Mode is undefined.')
 
@@ -190,7 +208,7 @@ export class Themer {
 		const themes = this.themes.value
 		const theme = this.theme.value
 
-		this.log.fn(c('init')).info({ theme: this.theme, this: this })
+		this.#log.fn(c('init')).info({ theme: this.theme, this: this })
 		if (typeof document === 'undefined') return
 
 		if (this.#initialized) return this
@@ -274,7 +292,7 @@ export class Themer {
 			save?: boolean
 		},
 	) => {
-		this.log.fn(c('addTheme')).info({ newTheme, options, this: this })
+		this.#log.fn(c('addTheme')).info({ newTheme, options, this: this })
 
 		const theme = structuredClone(newTheme)
 
@@ -299,7 +317,7 @@ export class Themer {
 				}
 
 				if (i > 100) {
-					this.log.fn(c('addTheme')).info(r('Runaway loop detected.') + ' Aborting.', {
+					this.#log.fn(c('addTheme')).info(r('Runaway loop detected.') + ' Aborting.', {
 						this: this,
 					})
 					break
@@ -313,7 +331,7 @@ export class Themer {
 	}
 
 	delete(themeOrTitle: ThemeTitle | Theme) {
-		this.log.fn(c('deleteTheme')).info({ themeOrTitle, this: this })
+		this.#log.fn(c('deleteTheme')).info({ themeOrTitle, this: this })
 
 		const themeTitle = typeof themeOrTitle === 'string' ? themeOrTitle : themeOrTitle.title
 
@@ -322,7 +340,7 @@ export class Themer {
 		const theme = themes.find(t => t.title === themeTitle)
 
 		if (!theme) {
-			this.log.error('`themeTitle` not found in `themes` array.', {
+			this.#log.error('`themeTitle` not found in `themes` array.', {
 				themeTitle,
 				this: this,
 			})
@@ -355,13 +373,13 @@ export class Themer {
 	 * Applies the current theme to the document.
 	 */
 	applyTheme = () => {
-		this.log.fn(c('applyTheme')).info({ theme: this.theme.value.title, this: this })
+		this.#log.fn(c('applyTheme')).info({ theme: this.theme.value.title, this: this })
 		if (!('document' in globalThis)) return
 
 		const theme = this.theme.value
 
 		if (!theme) {
-			this.log.error('theme not found').info({ theme, this: this })
+			this.#log.error('theme not found').info({ theme, this: this })
 			throw new Error(`Theme not found.`)
 		}
 
@@ -382,7 +400,7 @@ export class Themer {
 		theme ??= this.themes.value.find(t => t.title === json.activeTheme)
 
 		if (!theme) {
-			this.log.error('`activeTheme` not found in `themes` array.', {
+			this.#log.error('`activeTheme` not found in `themes` array.', {
 				activeTheme: json.activeTheme,
 				json,
 				this: this,
@@ -414,7 +432,7 @@ export class Themer {
 	 * @returns The JSON that was loaded (if found).
 	 */
 	load = () => {
-		this.log.fn(c('load')).info({ this: this })
+		this.#log.fn(c('load')).info({ this: this })
 
 		if (this.#persistent && 'localStorage' in globalThis) {
 			const json = localStorage.getItem(this.#key + '::themer')
@@ -432,7 +450,7 @@ export class Themer {
 	 * @returns The JSON that was saved.
 	 */
 	save() {
-		this.log.fn(c('save')).info({ this: this })
+		this.#log.fn(c('save')).info({ this: this })
 
 		if (!('localStorage' in globalThis)) return
 		if (!this.#persistent) return
@@ -462,11 +480,11 @@ export class Themer {
 	 * Removes the current Themer state from localStorage.
 	 */
 	clear() {
-		this.log.fn(c('clear')).info({ this: this })
+		this.#log.fn(c('clear')).info({ this: this })
 		if (!('localStorage' in globalThis)) return
 		localStorage.removeItem(`${this.#key}themer`)
-		this.themes.set([defaultTheme])
-		this.theme.set(defaultTheme)
+		this.themes.set([theme_default])
+		this.theme.set(theme_default)
 		this.mode.set('system')
 	}
 
@@ -477,11 +495,11 @@ export class Themer {
 	 * @internal
 	 */
 	#applyStyleProps = (config: Theme) => {
-		this.log.fn(c('applyStyleProps')).info({ config, this: this })
+		this.#log.fn(c('applyStyleProps')).info({ config, this: this })
 
 		const themeColors = config.color[this.activeMode]
 		if (!themeColors) {
-			this.log.error('`theme` not found in `config`.', {
+			this.#log.error('`theme` not found in `config`.', {
 				theme: themeColors,
 				config,
 				'this.activeMode': this.activeMode,
