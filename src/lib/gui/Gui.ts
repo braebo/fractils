@@ -11,12 +11,9 @@ import type { Tooltip } from '../actions/tooltip'
 
 import { WindowManager, WINDOWMANAGER_DEFAULTS } from '../utils/windowManager'
 import { RESIZABLE_DEFAULTS } from '../utils/resizable'
-import defaultTheme from '../themer/themes/default'
 import { DRAG_DEFAULTS } from '../utils/draggable'
 import { resolveOpts } from './shared/resolveOpts'
 import { deepMerge } from '../utils/deepMerge'
-import theme1 from '../themer/themes/theme-1'
-import { entries } from '../utils/object'
 import { Themer } from '../themer/Themer'
 import { Logger } from '../utils/logger'
 import { create } from '../utils/create'
@@ -241,14 +238,16 @@ export class Gui extends Folder {
 			// const themeFolder = this.settingsFolder.addFolder({
 			// 	title: 'theme',
 			// })
+			console.log('this.themer.themes.value', this.themer.themes.value)
 
 			// themeFolder.add({
 			this.settingsFolder.add({
 				title: 'theme',
-				options: [
-					{ label: 'default', value: defaultTheme },
-					{ label: 'theme-1', value: theme1 },
-				],
+				// todo - labelKey: 'title',
+				options: this.themer.themes.value.map(t => ({
+					label: t.title,
+					value: t,
+				})),
 				// todo - Use this once `state` is changed from `LabeledOption<T>` to `T`.
 				binding: {
 					target: this.themer,
@@ -381,41 +380,6 @@ export class Gui extends Folder {
 		const presetsFolder = this.settingsFolder.addFolder({
 			title: 'presets',
 		})
-	}
-
-	presets = new Map<string, Record<string, any>>()
-
-	save(gui: Folder, presetName: string) {
-		const preset = {} as Record<string, any>
-
-		for (const [id, controller] of gui.allControls) {
-			preset[id] = controller.state.value
-		}
-
-		this.presets.set('name', preset)
-	}
-
-	load(presetName: string) {
-		const preset = this.presets.get(presetName)
-		if (!preset) return
-
-		for (const [id, value] of entries(preset)) {
-			const controller = this.controls.get(id)
-			if (!controller) continue
-
-			// controller.state.set(value)
-		}
-	}
-
-	toLocalStorage() {
-		localStorage.setItem('presets', JSON.stringify([...this.presets]))
-	}
-
-	fromLocalStorage() {
-		const presets = localStorage.getItem('presets')
-		if (presets) {
-			this.presets = new Map(JSON.parse(presets))
-		}
 	}
 
 	set theme(theme: GuiTheme) {
