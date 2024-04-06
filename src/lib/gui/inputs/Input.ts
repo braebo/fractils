@@ -10,9 +10,10 @@ import type { State } from '../../utils/state'
 import type { Color } from '../../color/color'
 import type { Folder } from '../Folder'
 
+import { EventManager } from '$lib/utils/EventManager'
+import { debrief } from '$lib/utils/debrief'
 import { create } from '../../utils/create'
 import { Logger } from '../../utils/logger'
-import { debrief } from '$lib/utils/debrief'
 
 //· Types ··············································································¬
 
@@ -112,6 +113,7 @@ export abstract class Input<
 	disposeCallbacks = new Set<() => void>()
 
 	#log: Logger
+	#evm = new EventManager()
 
 	constructor(
 		options: TOptions,
@@ -146,7 +148,7 @@ export abstract class Input<
 			parent: this.elements.content,
 		})
 
-		this.listen(this.elements.drawerToggle, 'click', () => {})
+		this.#evm.listen(this.elements.drawerToggle, 'click', () => {})
 
 		if (options.onChange) {
 			this.onChange(options.onChange)
@@ -159,24 +161,6 @@ export abstract class Input<
 		return this.state.value
 	}
 
-	/**
-	 * Refreshes the value of any controllers to match the current input state.
-	 * @todo - this is wrong -- it should likely be abstract now.
-	 */
-	refresh = (..._args: any[]) => {
-		this.callOnChange()
-	}
-
-	/**
-	 * Updates the input state and calls the `state.refresh` method.
-	 */
-	update = (v: (currentValue: TValueType) => TValueType) => {
-		const newValue = v(this.state.value as TValueType)
-		this.state.set(newValue as ValidInputValue)
-		this.state.refresh()
-		this.callOnChange(newValue)
-	}
-
 	get title() {
 		return this.#title
 	}
@@ -185,21 +169,31 @@ export abstract class Input<
 		this.elements.title.textContent = v
 	}
 
-	// todo - can we just extend `controller` to minimize the enable/disable boilerplate in every input?
-	// get disabled(): boolean {
-	// 	return this.#disabled()
-	// }
-	// set disabled(v: boolean | (() => boolean)) {
-	// 	this.#disabled = toFn(v)
-	// 	this.#disabled() ? this.disable() : this.enable()
-	// }
+	// todo - idr how this went, but should these be implemented here like in the `Controller` class
+	// todo - (as long as consumers don't forget to call super...)
+	abstract enable(): this
+	abstract disable(): this
 
-	// enable() {
-	// 	this.#disabled = toFn(false)
-	// }
-	// disable() {
-	// 	this.#disabled = toFn(true)
-	// }
+	/**
+	 * Refreshes the value of any controllers to match the current input state.
+	 * @todo - this is wrong -- it should likely be abstract now.
+	 */
+	refresh(..._args: any[]) {
+		this.callOnChange()
+		return this
+	}
+
+	/**
+	 * Updates the input state and calls the `state.refresh` method.
+	 */
+	update(v: (currentValue: TValueType) => TValueType) {
+		const newValue = v(this.state.value as TValueType)
+		this.state.set(newValue as ValidInputValue)
+		this.state.refresh()
+		this.callOnChange(newValue)
+	}
+
+	listen = this.#evm.listen
 
 	#onChangeListeners = new Set<(newValue: TValueType, input: Input) => unknown>()
 	onChange(cb: (newValue: TValueType, input: Input) => unknown) {
@@ -218,25 +212,8 @@ export abstract class Input<
 		}
 		this.#log.fn('callOnChange', debrief(v, { depth: 1, siblings: 3 })).debug()
 		for (const cb of this.#onChangeListeners) {
-			// todo - Shouldn't need to assert here.
 			cb(v as TValueType, this)
-			// cb.bind(this).call(this, v as TValueType)
 		}
-	}
-
-	abstract enable(): this
-	abstract disable(): this
-
-	listen = (
-		element: HTMLElement | Window | Document,
-		event: string,
-		cb: (e: any) => void,
-		options?: AddEventListenerOptions,
-	) => {
-		element.addEventListener(event, cb, options)
-		this.disposeCallbacks.add(() => {
-			element.removeEventListener(event, cb, options)
-		})
 	}
 
 	dispose() {
