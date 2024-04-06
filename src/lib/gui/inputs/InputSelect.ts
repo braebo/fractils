@@ -176,7 +176,7 @@ export class InputSelect<T> extends Input<
 	}
 	set targetValue(v: T) {
 		if (isLabeledOption(v)) v = fromLabeledOption(v) as T
-		this.#log.fn('set targetValue', v).info()
+		this.#log.fn('set targetValue').info(v)
 
 		if (typeof v === 'undefined') {
 			throw new Error('Cannot set target value to undefined')
@@ -221,6 +221,8 @@ export class InputSelect<T> extends Input<
 		this.select.select(v as T, false)
 
 		this.callOnChange(v) // todo - should this go in the state subscription?
+
+		return this
 	}
 
 	dispose() {
