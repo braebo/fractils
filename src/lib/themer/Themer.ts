@@ -109,17 +109,39 @@ const THEMER_DEFAULTS: ThemerOptions = {
  * ```
  */
 export class Themer {
-	/** The element to theme. */
+	/**
+	 * The element to theme.
+	 */
 	node: HTMLElement
-	/** The currently active theme. */
+	/**
+	 * The currently active theme.  When `theme.set` is called, the new theme
+	 * passed in is automatically applied.
+	 */
 	theme: State<Theme>
-	/** All themes available to the themer. */
+	/**
+	 * All themes available to the themer.
+	 */
 	themes: State<Theme[]>
-	/** The title of the currently active theme. */
+	/**
+	 * The title of the currently active {@link theme}.
+	 *
+	 * When {@link ThemerOptions.persistent} is `true`, this value is
+	 * saved to localStorage and used to restore the theme on page load.
+	 */
 	activeThemeTitle: State<ThemeTitle>
-	/** The current mode ('light', 'dark', or 'system'). */
+	/**
+	 * The current mode ('light', 'dark', or 'system').
+	 *
+	 * When this state value is re-assigned with `mode.set`, the current theme
+	 * is automatically updated.
+	 *
+	 * When {@link ThemerOptions.persistent} is `true`, this value is saved
+	 * to localStorage and used to restore the mode on page load.
+	 */
 	mode: State<'light' | 'dark' | 'system'>
-	/** If provided, theme css vars will be added to the wrapper. */
+	/**
+	 * If provided, theme css vars will be added to the wrapper.
+	 */
 	wrapper?: HTMLElement
 
 	#initialized = false
