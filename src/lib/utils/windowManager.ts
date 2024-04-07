@@ -186,7 +186,7 @@ export class WindowManager {
 		const initialZ = target_node.style.getPropertyValue('z-index')
 		target_node.style.setProperty('z-index', String(this.opts.zFloor + this.windows.length))
 
-		if (target_node.dataset.keepZ === 'true' || this.opts.preserveZ) {
+		if (target_node.dataset['keepZ'] === 'true' || this.opts.preserveZ) {
 			addEventListener(
 				'pointerup',
 				() => target_node.style.setProperty('z-index', initialZ),
@@ -265,7 +265,7 @@ class WindowInstance {
 		public node: HTMLElement,
 		options: WindowInstanceOptions,
 	) {
-		if (options?.preserveZ) node.dataset.keepZ = 'true'
+		if (options?.preserveZ) node.dataset['keepZ'] = 'true'
 
 		const dragOpts = resolveOpts(options.draggable, DRAG_DEFAULTS)
 		const resizeOpts = resolveOpts(options.resizable, RESIZABLE_DEFAULTS)
