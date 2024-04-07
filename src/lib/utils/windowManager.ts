@@ -1,4 +1,5 @@
 import type { ElementsOrSelector, ElementsOrSelectors } from './select'
+import type { Action } from 'svelte/action'
 
 import { Resizable, RESIZABLE_DEFAULTS, type ResizableOptions } from './resizable'
 import { DRAG_DEFAULTS, Draggable, type DraggableOptions } from './draggable'
@@ -75,14 +76,8 @@ export interface WindowManagerStorageOptions {
 }
 
 export const WINDOWMANAGER_DEFAULTS = {
-	resizable: {
-		...RESIZABLE_DEFAULTS,
-		// localStorageKey: 'fractils::window-manager::resizable',
-	},
-	draggable: {
-		...DRAG_DEFAULTS,
-		// localStorageKey: 'fractils::window-manager::draggable',
-	},
+	resizable: RESIZABLE_DEFAULTS,
+	draggable: DRAG_DEFAULTS,
 	zFloor: 0,
 	preserveZ: false,
 	bounds: undefined,
@@ -100,69 +95,28 @@ export class WindowManager {
 	#log = new Logger('WindowManager', { fg: 'lightseagreen' })
 	#evm = new EventManager()
 
-	// get animationOptions() {
-	// 	return this.opts.animation as AnimationOptions | false
-	// }
-
 	constructor(options?: Partial<WindowManagerOptions>) {
 		this.opts = this.#resolveOptions(options)
 		this.#log.fn('constructor').info({ opts: this.opts, this: this })
 	}
 
-	add = (node: HTMLElement, options?: Partial<WindowInstanceOptions>) => {
-		// const instanceOpts: WindowInstanceOptions = {
-		// 	preserveZ: this.opts.preserveZ,
-		// 	resizable: false,
-		// 	draggable: false,
-		// 	bounds: this.opts.bounds,
-		// }
-
-		// if (options?.draggable !== false) {
-		// 	const dragObstacles = this.#resolveObstacles(options?.draggable, this.opts.draggable)
-		// 	if (dragObstacles) {
-		// 		instanceOpts.draggable = Object.assign({}, this.opts.draggable, dragObstacles)
-		// 	}
-		// }
-
-		// if (options?.resizable !== false) {
-		// 	const resizeObstacles = this.#resolveObstacles(options?.resizable, this.opts.resizable)
-		// 	if (resizeObstacles) {
-		// 		instanceOpts.resizable = Object.assign({}, this.opts.resizable, resizeObstacles)
-		// 	}
-		// }
-
+	add: Action<[HTMLElement, Partial<WindowInstanceOptions>]> = (
+		node: HTMLElement,
+		options?: Partial<WindowInstanceOptions>,
+	) => {
 		const instanceOpts = this.#resolveOptions(options) as WindowInstanceOptions
 		this.#log.fn('add').info({ node, options, instanceOpts })
 
-		this.windows.push(new WindowInstance(node, instanceOpts))
+		this.windows.push(new WindowInstance(this, node, instanceOpts))
 
-		this.#evm.listen(node, 'grab', this.select)
+		const id = this.#evm.listen(node, 'grab', this.select)
 
-		return this
+		return {
+			destroy: () => {
+				this.#evm.unlisten(id)
+			},
+		}
 	}
-
-	// #resolveObstacles<T extends 'draggable' | 'resizable'>(
-	// 	localOverride: T extends 'draggable'
-	// 		? WindowInstanceOptions['draggable'] | boolean | undefined
-	// 		: WindowInstanceOptions['resizable'] | boolean | undefined,
-	// 	localBase: T extends 'draggable'
-	// 		? WindowManagerOptions['draggable'] | undefined
-	// 		: WindowManagerOptions['resizable'] | undefined,
-	// ): { obstacles: ElementsOrSelectors } {
-	// 	let obstacles: ElementsOrSelectors = []
-
-	// 	if (typeof localOverride === 'object' && localOverride?.obstacles) {
-	// 		obstacles = localOverride.obstacles
-	// 	} else if (typeof localBase === 'object' && localBase.obstacles) {
-	// 		obstacles = this.opts.obstacles
-	// 	} else if (localOverride === true) {
-	// 		obstacles = this.opts.obstacles
-	// 	} else if (localOverride === false) {
-	// 		obstacles = []
-	// 	}
-
-	// 	return { obstacles }
-	// }
 
 	applyZ() {
 		for (let i = 1; i < this.windows.length; i++) {
@@ -199,11 +153,13 @@ export class WindowManager {
 			this.windows.push(instance)
 			this.applyZ()
 		}
+
+		return this
 	}
 
 	#resolveOptions(options?: Partial<WindowManagerOptions>): WindowManagerOptions {
 		this.#log.fn('#resolveOptions').info(options)
-		const opts = deepMerge<WindowManagerOptions>(WINDOWMANAGER_DEFAULTS, options)
+		const opts = deepMerge(WINDOWMANAGER_DEFAULTS, options) as WindowManagerOptions
 
 		opts.draggable = resolveOpts(options?.draggable, WINDOWMANAGER_DEFAULTS.draggable)
 		opts.resizable = resolveOpts(options?.resizable, WINDOWMANAGER_DEFAULTS.resizable)
@@ -227,9 +183,7 @@ export class WindowManager {
 			}
 		}
 
-		// Pass on storage options, and add a suffix to the key.
-		// const storageOpts = resolveOpts(options?.storage, WINDOWMANAGER_DEFAULTS.storage)
-		// if (storageOpts) opts.storage = storageOpts
+		this.#log.fn('#resolveOptions').info('resolved:', options)
 
 		return opts
 	}
@@ -244,8 +198,8 @@ export class WindowManager {
 }
 
 interface WindowInstanceOptions {
-	draggable: DraggableOptions | boolean
-	resizable: ResizableOptions | boolean
+	draggable: Partial<DraggableOptions> | boolean
+	resizable: Partial<ResizableOptions> | boolean
 	bounds?: WindowManagerOptions['bounds']
 	obstacles?: WindowManagerOptions['obstacles']
 	preserveZ?: WindowManagerOptions['preserveZ']
@@ -262,6 +216,7 @@ class WindowInstance {
 	size = state({ width: 0, height: 0 })
 
 	constructor(
+		public manager: WindowManager,
 		public node: HTMLElement,
 		options: WindowInstanceOptions,
 	) {
@@ -271,6 +226,8 @@ class WindowInstance {
 		const resizeOpts = resolveOpts(options.resizable, RESIZABLE_DEFAULTS)
 
 		if (dragOpts) {
+			dragOpts.localStorageKey =
+				'window-manager::' + this.manager.windows.length + '::' + dragOpts.localStorageKey
 			this.draggableInstance = new Draggable(node, dragOpts)
 		}
 
