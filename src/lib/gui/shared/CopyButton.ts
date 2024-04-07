@@ -29,10 +29,7 @@ export class CopyButton {
 			title: 'Copy',
 			attributes: {
 				'aria-label': 'Copy',
-			},
-			variables: {
-				'--copy-button-width': '1rem',
-				'--copy-button-height': '1rem',
+				title: 'Copy',
 			},
 		})
 
