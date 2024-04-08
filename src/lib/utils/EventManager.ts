@@ -24,12 +24,13 @@ export class EventManager {
 		event: TEventName,
 		callback: (e: TEventInstance) => void,
 		options?: AddEventListenerOptions,
-	): void => {
+	) => {
 		const id = nanoid()
 		element.addEventListener(event, callback as EventListener, options)
 		this.listeners.set(id, () => {
 			element.removeEventListener(event, callback as EventListener, options)
 		})
+		return id
 	}
 
 	add = (cb: () => void) => {
@@ -42,7 +43,7 @@ export class EventManager {
 	 * Removes a specific listener from the event manager
 	 * without removing the listener from the element.
 	 */
-	ignore(id: string): boolean {
+	unlisten(id: string): boolean {
 		return this.listeners.delete(id)
 	}
 
