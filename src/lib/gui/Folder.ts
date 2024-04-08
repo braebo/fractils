@@ -76,7 +76,7 @@ export class Folder {
 	root: Gui
 	search: Search
 
-	title: string
+	#title: string
 	children: Folder[]
 	controls: Map<string, ValidInput>
 	parentFolder: Folder
@@ -122,7 +122,7 @@ export class Folder {
 		})
 		this.#log.fn('constructor').info({ opts, this: this })
 
-		this.title = opts.title ?? ''
+		this.#title = opts.title ?? ''
 		this.children = opts.children ?? []
 		this.controls = opts.controls ?? new Map<string, ValidInput>()
 
@@ -143,7 +143,7 @@ export class Folder {
 				...elements,
 				toolbar: {
 					container: elements.toolbar.container,
-					settingsButton: settingsButton,
+					settingsButton,
 				},
 			}
 
@@ -183,6 +183,46 @@ export class Folder {
 				v ? this.close() : this.open()
 			}),
 		)
+	}
+
+	get title() {
+		return this.#title
+	}
+	set title(v: string) {
+		if (v === this.#title) return
+		this.#title = v
+		// this.elements.title.textContent = v
+		this.elements.title.animate(
+			{
+				opacity: 0,
+				transform: 'translateY(-0.33rem)',
+			},
+			{
+				duration: 75,
+				easing: 'ease-out',
+				fill: 'forwards',
+			},
+		).onfinish = () => {
+			this.elements.title.textContent = v
+			this.elements.title.animate(
+				[
+					{
+						opacity: 0,
+						transform: 'translateY(.33rem)',
+					},
+					{
+						opacity: 1,
+						transform: 'translateY(0rem)',
+					},
+				],
+				{
+					delay: 0,
+					duration: 75,
+					easing: 'ease-in',
+					fill: 'forwards',
+				},
+			)
+		}
 	}
 
 	// todo - with the addition of the dataset `dragged` attribute from draggable, this might not be necessary.
@@ -307,7 +347,9 @@ export class Folder {
 			classes: ['fracgui-toolbar-item', 'fracgui-settings-button'],
 			children: [svg],
 			tooltip: {
-				text: () => (this.settingsFolder.closed.value ? 'Open Settings' : 'Close Settings'),
+				text: () => {
+					return this.settingsFolder.closed.value ? 'Open Settings' : 'Close Settings'
+				},
 				placement: 'left',
 				delay: 750,
 				delayOut: 0,
@@ -612,8 +654,8 @@ export class Folder {
 			return ids.map(id => circ(circs[id - 1])).join('\n')
 		}
 
-		const circMap = {
-			0: [],
+		const circMap: Record<number, number[]> = {
+			0: [] as number[],
 			1: [1],
 			2: [2, 3],
 			3: [1, 2, 3],
@@ -715,6 +757,9 @@ export class Folder {
 	get folderSvg() {
 		return this.#folderIcon!.querySelector('svg.icon-folder')!
 	}
+
+	// todo
+	// onChange(){}
 
 	dispose() {
 		this.#subs.forEach(unsub => unsub())
