@@ -1,16 +1,55 @@
 import type { ElementMap, InputOptions } from './Input'
 import type { Folder } from '../Folder'
 
+import { create, type CreateOptions } from '../../utils/create'
+// import { randomInt, randomString } from '$lib/utils/random'
+// import { array as arr } from '$lib/utils/array'
 import { Logger } from '../../utils/logger'
-import { create } from '../../utils/create'
 import { state } from '../../utils/state'
 import { Input } from './Input'
 
+/**
+ * A button item to be added to the grid.  This is used in the
+ * {@link ButtonGrid} generated in the {@link InputButtonGrid}
+ * constructor.
+ */
 export interface ButtonItem {
-	text: string
-	onClick: () => void
+	/**
+	 * Text to display on the button.
+	 */
+	label: string
+	/**
+	 * Function to run when the button is clicked.  It is passed an object
+	 * containing the input ({@link InputButtonGrid}), the text of the button,
+	 * and the {@link HTMLButtonElement} itself.
+	 */
+	onClick: (data: { input: InputButtonGrid; text: string; button: HTMLButtonElement }) => void
+	/**
+	 * Optional function to determine if the button is active.  If the function
+	 * returns `true`, the button will have the `active` class added to it, and
+	 * removed if `false`.  This updates in {@link InputButtonGrid.refresh},
+	 * which is called internally whenever the input
+	 * {@link InputButtonGrid.state state} changes.
+	 */
+	isActive?: () => boolean
+	/**
+	 * Optional css styles.
+	 * @example
+	 * ```ts
+	 * {
+	 *   width: '50%',
+	 *   'background-color': 'red',
+	 *   border: '1px solid black',
+	 * }
+	 * ```
+	 */
+	style?: CreateOptions['style']
 }
 
+/**
+ * A {@link ButtonItem} added to the grid is stored internally as a `ButtonGridItem`,
+ * accessible via the {@link InputButtonGrid} map.
+ */
 export interface ButtonGridItem extends ButtonItem {
 	element: HTMLButtonElement & {
 		dataset: {
@@ -28,22 +67,15 @@ export type ButtonGridClickFunction = (this: InputButtonGrid) => void
 export type ButtonGridInputOptions = {
 	title: string
 	grid: ButtonGrid
+	styles?: CreateOptions['style']
 } & InputOptions<ButtonGrid>
 
 export const BUTTONGRID_INPUT_DEFAULTS: ButtonGridInputOptions = {
 	title: '',
-	grid: [
-		[
-			{ text: 'foo', onClick: () => console.log('foo') },
-			{ text: 'bar', onClick: () => console.log('bar') },
-			{ text: 'baz', onClick: () => console.log('baz') },
-		],
-		[
-			{ text: 'foo', onClick: () => console.log('foo') },
-			{ text: 'bar', onClick: () => console.log('bar') },
-		],
-		[{ text: 'baz', onClick: () => console.log('baz') }],
-	],
+	grid: [[{ label: '', onClick: () => {} }]],
+	styles: {
+		gap: '0.5em',
+	},
 } as const
 
 export interface ButtonGridControllerElements extends ElementMap {
@@ -97,12 +129,20 @@ export class InputButtonGrid extends Input<
 			buttonGrid: [],
 		} as const satisfies ButtonGridControllerElements
 
-		this.disposeCallbacks.add(this.state.subscribe(this.refresh))
+		this.disposeCallbacks.add(this.state.subscribe(this.refresh.bind(this)))
 
 		this.toGrid(this.buttonGrid)
+
+		this.refresh()
 	}
 
-	toGrid = (grid: ButtonGrid) => {
+	/**
+	 * Converts a {@link ButtonGrid} into a a grid of {@link HTMLButtonElement}
+	 * elements, and
+	 *
+	 * - appends them to the {@link InputButtonGrid.elements.controllers.container}
+	 */
+	toGrid(grid: ButtonGrid) {
 		const rows = grid.length
 		const cols = Math.max(...grid.map(row => row.length))
 
@@ -116,11 +156,13 @@ export class InputButtonGrid extends Input<
 			const row = create('div', {
 				classes: ['fracgui-controller-buttongrid-row'],
 				parent: this.elements.controllers.container,
+				style: { gap: '0.5em' },
 			})
+
 			for (let j = 0; j < cols; j++) {
 				const btn = grid[i]?.[j]
 				if (btn) {
-					const id = btn.text + i + j
+					const id = btn.label + i + j
 					const button = this.addButton(btn, id, i, j)
 					row.appendChild(button)
 				}
@@ -133,8 +175,8 @@ export class InputButtonGrid extends Input<
 		)
 	}
 
-	addButton = (btn: ButtonItem, id: string, i: number, j: number) => {
-		const { text, onClick } = btn
+	addButton(btn: ButtonItem, id: string, i: number, j: number) {
+		const { label: text, onClick } = btn
 
 		const button = create('button', {
 			classes: [
@@ -148,17 +190,21 @@ export class InputButtonGrid extends Input<
 				row: String(i),
 				col: String(j),
 			},
+			styles: {
+				width: '100%',
+				...btn.style,
+			},
 		})
-
-		button.addEventListener('click', onClick)
 
 		this.buttons.set(id, {
 			element: button,
-			text: text,
-			onClick,
+			...btn,
 		})
 
-		this.listen(button, 'click', onClick)
+		this.listen(button, 'click', () => {
+			onClick({ input: this, text, button })
+			this.refresh()
+		})
 
 		return button
 	}
@@ -189,6 +235,14 @@ export class InputButtonGrid extends Input<
 	// 	}
 	// `
 
+	refresh() {
+		this.#log.fn('refresh').info({ this: this })
+		for (const [, { element, isActive }] of this.buttons) {
+			element.classList.toggle('active', !!isActive?.())
+		}
+		return this
+	}
+
 	enable() {
 		for (const { element } of this.buttons.values()) {
 			element.disabled = false
@@ -206,7 +260,7 @@ export class InputButtonGrid extends Input<
 		return this
 	}
 
-	set = () => {
+	set() {
 		throw new Error('not implemented')
 	}
 
@@ -214,3 +268,15 @@ export class InputButtonGrid extends Input<
 		super.dispose()
 	}
 }
+
+// function randomButtonGrid() {
+// 	const randomStuff = () => (Math.random() > 0.5 ? randomString(3) : String(randomInt(0, 1000)))
+// 	return arr(randomInt(1, 4), () =>
+// 		arr(randomInt(1, 4), () => ({
+// 			label: randomInt(),
+// 			onClick: ({ button }) => {
+// 				button.innerText = randomStuff()
+// 			},
+// 		})),
+// 	)
+// }
