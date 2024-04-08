@@ -1,5 +1,3 @@
-import { isObject } from './is'
-
 /**
  * Deep merges objects together, with some special rules:
  * - Subsequent objects must be partials of the first object.
@@ -10,31 +8,35 @@ import { isObject } from './is'
  * - The original objects are not mutated.
  */
 export function deepMerge<
-	T extends {} = {},
-	U extends Partial<T> | undefined = Partial<T> | undefined,
+	// T extends {} = {},
+	// U extends Partial<T> | undefined = Partial<T> | undefined,
+	T,
+	U,
 >(target: T, ...sources: U[]): T & U {
 	return sources.reduce<T & U>(
 		(acc, curr) => {
 			if (!curr) return acc
 
-			Object.keys(curr).forEach(key => {
-				const v = acc[key]
-				const newV = curr[key]
+			const keys = Object.keys(curr)
+			for (let i = 0; i < keys.length; i++) {
+				const k = keys[i] as keyof T & U
+				const v = acc[k]
+				const newV = curr[k as keyof U] as (T & U)[keyof T & U] | undefined
 
 				if (Array.isArray(v) && Array.isArray(newV)) {
-					acc[key] = [...new Set([...v, ...newV])]
-				} else if (isObject(v)) {
+					acc[k] = [...new Set([...v, ...newV])] as (T & U)[keyof T & U]
+				} else if (v && typeof v === 'object') {
 					if (newV !== true) {
-						if (isObject(newV)) {
-							acc[key] = deepMerge({ ...v }, newV)
+						if (newV && typeof newV === 'object') {
+							acc[k] = deepMerge({ ...v }, newV)
 						} else if (newV === false) {
-							acc[key] = newV
+							acc[k] = newV
 						}
 					}
 				} else if (newV !== undefined) {
-					acc[key] = newV
+					acc[k] = newV
 				}
-			})
+			}
 			return acc
 		},
 		{ ...target } as T & U,
