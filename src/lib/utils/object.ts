@@ -58,7 +58,7 @@ type Entry<T extends {}> = T extends readonly [unknown, ...unknown[]]
 export function entries<const T extends {}>(object: T) {
 	if (typeof object !== 'object' || object === null) {
 		console.error('Error: Invalid object', object)
-		throw new Error('`entries()` util called with invalid object')
+		throw new Error('`entries()` util called with invalid object: ' + object)
 	}
 
 	return Object.entries(object) as unknown as ReadonlyArray<Entry<T>>
