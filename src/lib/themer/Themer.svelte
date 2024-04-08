@@ -5,7 +5,7 @@
 	import { Themer } from '../themer/Themer'
 	import { hover } from '../actions/hover'
 	import { fly } from 'svelte/transition'
-	import theme1 from './themes/theme-1'
+	// import theme1 from './themes/theme-1'
 
 	export let themer = new Themer()
 
@@ -83,11 +83,11 @@
 				</div>
 			</div>
 
-			<div class="kv theme-a">
+			<!-- <div class="kv theme-a">
 				<div class="v">
 					<button on:click={() => themer.create(theme1)}> add theme-1 </button>
 				</div>
-			</div>
+			</div> -->
 
 			<div class="kv clear">
 				<div class="v">

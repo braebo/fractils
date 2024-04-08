@@ -1,31 +1,33 @@
-/**
- * @module themer
- *
- * @description
- * Manages multiple customizable application themes.
- */
-
-import type { BaseColors, ModeColors, Theme, ThemeDefinition } from './types'
 import type { PrimitiveState, State } from '../utils/state'
 import type { ElementsOrSelector } from '../utils/select'
+import type { GuiOptions } from '../gui/Gui'
+import type { Folder } from '../gui/Folder'
+import type {
+	VariableDefinition,
+	ThemeDefinition,
+	ExtendedVars,
+	ThemeTitle,
+	BaseColors,
+	ModeColors,
+	ThemeMode,
+	Theme,
+} from './types'
 
+import { DRAG_DEFAULTS } from '../utils/draggable'
 import { deepMerge } from '../utils/deepMerge'
 import { partition } from '../utils/partition'
 import { resolveTheme } from './resolveTheme'
 import { hexToRgb } from '../utils/hexToRgb'
-import { c, g, o, r, y } from '../utils/l'
 import { entries } from '../utils/object'
 import { Logger } from '../utils/logger'
 import { select } from '../utils/select'
+import { c, g, o, r } from '../utils/l'
 import { state } from '../utils/state'
+import { Gui } from '../gui/Gui'
 
-import theme_airforce from './themes/airforce'
 import theme_default from './themes/default'
+import theme_scout from './themes/scout'
 import theme_flat from './themes/flat'
-
-export type ThemeTitle = string
-export type ThemeVariant = 'light' | 'dark'
-export type ThemeMode = ThemeVariant | 'system'
 
 /**
  * A JSON representation of the {@link Themer} class. Used in the
@@ -66,22 +68,36 @@ export interface ThemerOptions {
 	 */
 	localStorageKey?: string
 	wrapper?: HTMLElement
+	/**
+	 * Additional variables to apply to the theme.
+	 * @default {}
+	 */
+	vars?: ExtendedVars
 }
 
 /**
  * Default {@link ThemerOptions} object.
  */
-const THEMER_DEFAULTS: ThemerOptions = {
+export const THEMER_DEFAULTS: ThemerOptions = {
 	autoInit: true,
 	persistent: true,
 	theme: theme_default,
-	themes: [theme_default, theme_flat, theme_airforce],
+	themes: [theme_default, theme_flat, theme_scout],
 	mode: 'system',
 	localStorageKey: 'fractils::themer',
+	vars: {},
 }
 
 /**
- * The Themer class manages multiple customizable application themes.
+ * The `Themer` class manages multiple customizable themes.  These themes
+ * can be applied globally to the document, or scoped to a specific node.
+ *
+ * A {@link Theme} is a collection of CSS custom properties, most
+ * importantly, shades / colors.  Themes can be created as JavaScript
+ * objects or JSON in the form of a {@link ThemeDefinition}, which is
+ * just a Partial<{@link Theme}> run through {@link resolveTheme} to
+ * generate `theme.colors.dark` and `theme.colors.light` variants from
+ * `theme.colors.base`.  This can be extended arbitrarily (// todo //).
  *
  * It can be used to store, retrieve, create, and apply themes. It can
  * apply themes to either the root document, or a specific node and
@@ -147,8 +163,9 @@ export class Themer {
 	#initialized = false
 	#persistent: boolean
 	#key: string
-	#style?: HTMLStyleElement
+	// #style?: HTMLStyleElement
 	#unsubs: Array<() => void> = []
+	#targets = new Set<HTMLElement>()
 
 	#log = new Logger('themer', {
 		fg: 'DarkCyan',
@@ -182,9 +199,13 @@ export class Themer {
 					? select(node)[0] ?? document.documentElement
 					: (node as HTMLElement)
 
-		this.theme = state(resolveTheme(opts.theme))
+		this.theme = state(resolveTheme(opts.theme, opts.vars))
 
-		this.themes = state(opts.themes)
+		this.themes = state(opts.themes.map(t => {
+			console.log({ t, opts })
+			return resolveTheme(t, opts.vars)
+		}))
+		console.log('this.themes', this.themes)
 
 		this.activeThemeTitle = state(opts.theme.title, {
 			key: this.#key + '::activeTheme',
@@ -216,6 +237,8 @@ export class Themer {
 
 			if (this.#initialized) this.applyTheme()
 		})
+
+		this.#targets.add(this.wrapper ?? this.node.parentElement ?? this.node)
 
 		if (opts.autoInit) {
 			this.init()
@@ -253,10 +276,10 @@ export class Themer {
 	 * The active theme's variables based on the current mode.
 	 */
 	get modeColors(): ModeColors {
-		return this.theme.value.color[this.activeMode]
+		return this.theme.value.vars.color[this.activeMode]
 	}
 	get baseColors(): BaseColors {
-		return this.theme.value.color.base
+		return this.theme.value.vars.color.base
 	}
 	get allColors(): ModeColors & BaseColors {
 		return { ...this.baseColors, ...this.modeColors }
@@ -397,8 +420,10 @@ export class Themer {
 	/**
 	 * Applies the current theme to the document.
 	 */
-	applyTheme = () => {
-		this.#log.fn(c('applyTheme')).info({ theme: this.theme.value.title, this: this })
+	applyTheme = (targets?: HTMLElement[]) => {
+		this.#log
+			.fn(c('applyTheme'))
+			.info({ theme: this.theme.value.title, targets: this.#targets, this: this })
 		if (!('document' in globalThis)) return
 
 		const theme = this.theme.value
@@ -408,7 +433,7 @@ export class Themer {
 			throw new Error(`Theme not found.`)
 		}
 
-		this.#applyStyleProps(theme)
+		this.#applyStyleProps(theme, targets)
 		this.node.setAttribute('theme', theme.title)
 		this.node.setAttribute('mode', this.activeMode)
 
@@ -513,16 +538,22 @@ export class Themer {
 		this.mode.set('system')
 	}
 
+	addTarget(target: HTMLElement) {
+		this.#targets.add(target)
+		this.applyTheme([target])
+	}
+
 	/**
 	 * Generates CSS custom properties from a theme config.
 	 * @param config - The theme config to generate CSS from.
 	 * @returns A string of CSS custom properties.
 	 * @internal
 	 */
-	#applyStyleProps = (config: Theme) => {
+	#applyStyleProps = (themeConfig: Theme, targets = this.#targets as any as HTMLElement[]) => {
+		const config = themeConfig
 		this.#log.fn(c('applyStyleProps')).info({ config, this: this })
 
-		const themeColors = config.color[this.activeMode]
+		const themeColors = config.vars.color[this.activeMode]
 		if (!themeColors) {
 			this.#log.error('`theme` not found in `config`.', {
 				theme: themeColors,
@@ -533,53 +564,101 @@ export class Themer {
 			throw new Error(`Theme not found.`)
 		}
 
-		// Assuming parentElement is only nullish if this.node is the documentElement here..
-		// todo - figure out why `parentElement` is null on the first call.
-		const target = this.wrapper ?? this.node.parentElement ?? this.node
-		for (const [key, value] of [...entries(config.color.base), ...entries(themeColors)]) {
-			target.style.setProperty(`--${key}`, value)
-			target.style.setProperty(`--${key}-rgb`, hexToRgb(value))
-		}
-	}
+		// console.clear()
+		// console.log(targets)
+		// console.log(themeConfig)
 
-	generateCssVars(obj: Theme = this.theme.value): `--${string};`[] {
-		const cssVars = new Set<`--${string};`>()
+		const allVars = new Map<string, string>()
 
-		function generate(obj: Record<string, any>) {
-			for (const [key, value] of entries(obj)) {
-				if (key === 'title') continue
+		for (const target of targets) {
+			// Assuming parentElement is only nullish if this.node is the documentElement here..
+			// todo - figure out why `parentElement` is null on the first call.
+			// const target = this.wrapper ?? this.node.parentElement ?? this.node
+			// for (const [key, value] of [
+			// 	...entries(config.vars.color.base),
+			// 	...entries(themeColors),
+			// ]) {
+			// 	target.style.setProperty(`--${config.prefix}-${key}`, value)
+			// 	target.style.setProperty(`--${config.prefix}-${key}-rgb`, hexToRgb(value))
+			// }
+			// console.log(config)
 
-				if (typeof value === 'object') {
-					generate(value)
+			for (const [key, value] of entries(config.vars)) {
+				// console.log(key)
+				// console.log(value)
+				if (key === 'color') {
+					for (const [k, v] of [
+						...entries(value.base),
+						...entries(value[this.activeMode]),
+					]) {
+						target.style.setProperty(`--${config.prefix}-${k}`, v)
+						target.style.setProperty(`--${config.prefix}-${k}-rgb`, hexToRgb(v))
+					}
+					continue
+				} else {
+					const x: VariableDefinition = config.vars[key]
+
+					for (const [mode, vars] of entries(x)) {
+						// console.log({ key, value })
+						if (mode === 'base') {
+							for (const [k, v] of entries(vars)) {
+								allVars.set(k, v)
+							}
+						} else if (mode === this.activeMode) {
+							for (const [k, v] of entries(vars)) {
+								allVars.set(k, v)
+							}
+						}
+					}
 				}
+			}
 
-				cssVars.add(`--${key}: ${value};`)
-				cssVars.add(`--${key}-rgb: ${hexToRgb(String(value))};`)
+			// console.log({ allVars })
+
+			for (const [k, v] of allVars) {
+				target.style.setProperty(`--${config.prefix}-${k}`, v)
 			}
 		}
-
-		generate(obj)
-
-		return Array.from(cssVars)
 	}
 
-	generateStylesheet() {
-		if (!this.#style) {
-			const style = document.createElement('style')
-			style.classList.add('fractils-themer')
-			style.setAttribute('type', 'text/css')
-			document.head.appendChild(style)
-			this.#style = style
-		}
+	// #generateCssVars(theme: Theme = this.theme.value): `--${string};`[] {
+	// 	const cssVars = new Set<`--${string};`>()
 
-		const cssVars = this.generateCssVars()
-		const css = cssVars.join('\n')
+	// 	function generate(obj: Record<string, any>) {
+	// 		for (const [key, value] of entries(obj)) {
+	// 			if (key === 'title') continue
 
-		this.#style.textContent = css
-		document.head.appendChild(this.#style)
+	// 			if (typeof value === 'object') {
+	// 				generate(value)
+	// 			}
 
-		return css
-	}
+	// 			cssVars.add(`--${theme.prefix}-${key}: ${value};`)
+	// 			cssVars.add(`--${theme.prefix}-${key}-rgb: ${hexToRgb(String(value))};`)
+	// 		}
+	// 	}
+
+	// 	generate(theme)
+
+	// 	return Array.from(cssVars)
+	// }
+
+	// #generateStylesheet() {
+	// 	if (!this.#style) {
+	// 		const style = document.createElement('style')
+	// 		style.classList.add('fractils-themer')
+	// 		style.setAttribute('type', 'text/css')
+	// 		document.head.appendChild(style)
+	// 		this.#style = style
+	// 	}
+
+	// 	const cssVars = this.#generateCssVars()
+	// 	const css = cssVars.join('\n')
+
+	// 	this.#style.textContent = css
+	// 	document.head.appendChild(this.#style)
+
+	// 	return css
+	// }
 
 	dispose() {
 		for (const unsub of this.#unsubs) {
@@ -632,6 +711,69 @@ export class Themer {
 	// 	}
 	// }
 }
-
 // using themer = new Themer()
 // export { themer }
+
+export class ThemeEditor {
+	gui: Gui
+	folder: Folder
+	#unsub: () => void
+
+	constructor(
+		public targetGui: Gui,
+		opts?: Partial<GuiOptions>,
+	) {
+		this.gui = new Gui(opts)
+
+		this.targetGui.windowManager?.add(this.gui.wrapper, {
+			draggable: {
+				...DRAG_DEFAULTS,
+				handle: this.gui.elements.header,
+				localStorageKey:
+					typeof opts?.storage === 'object'
+						? opts?.storage?.key ?? 'fracgui::' + targetGui.title + '::theme-editor'
+						: DRAG_DEFAULTS.localStorageKey,
+			},
+		})
+
+		this.targetGui.themer?.addTarget(this.gui.wrapper)
+
+		this.folder = this.gui.addFolder({
+			title: this.targetGui.themer!.theme.value.title,
+		})
+
+		// //- Old
+		// generateVarGui(
+		// 	// new Map(entries(Object.assign({},this.targetGui.themer!.modeColors,this.targetGui.themer!.theme.value.vars?.[this.targetGui.themer!.activeMode]))),
+		// 	this.targetGui.wrapper,
+		// 	this.folder,
+		// )
+		// generateVarGui(
+		// 	new Map([
+		// 		...mapVars(this.targetGui.themer!.modeColors).entries(),
+		// 		...entries(
+		// 			Object.assign(
+		// 				{},
+		// 				this.targetGui.themer!.theme.value.vars.utility,
+		// 				this.targetGui.themer!.theme.value.vars?.[
+		// 					this.targetGui.themer!.activeMode
+		// 				],
+		// 			),
+		// 		),
+		// 	]),
+		// 	this.targetGui.wrapper,
+		// 	this.folder,
+		// )
+
+		this.#unsub = this.targetGui.themer!.theme.subscribe(t => {
+			this.folder.title = t.title
+		})
+
+		this.targetGui.themer!.applyTheme()
+	}
+
+	dispose() {
+		this.#unsub()
+		this.folder.dispose()
+	}
+}
