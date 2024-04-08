@@ -2,32 +2,28 @@ import type { Params } from './+page.svelte'
 
 import { Gui } from '$lib/gui/Gui'
 
-export function init(params: Params) {
+export function demoGui(params: Params) {
 	// const container = document.getElementById('svelte')!
 
 	const gui = new Gui({
 		title: 'Orbs',
 		storage: {
-			key: 'fractils::fracgui',
+			key: 'fracgui',
 		},
-		placement: {
-			position: 'center',
-			margin: 0,
-		},
-		windowManager: {
-			draggable: {
-				animation: {
-					duration: 0,
-				},
-			},
-		},
+		// placement: {
+		// 	position: 'center',
+		// 	margin: 0,
+		// },
+		// windowManager: {
+		// 	draggable: {
+		// 		animation: {
+		// 			duration: 0,
+		// 		},
+		// 	},
+		// },
 	})
 
 	const f1 = gui.addFolder({ title: 'main' })
-	
-	f1.addButtonGrid({
-		title: 'btns',
-	})
 
 	f1.add({
 		title: 'count',
@@ -49,7 +45,8 @@ export function init(params: Params) {
 		min: 10,
 		max: window.innerWidth,
 		step: 1,
-	}).set(window.innerWidth / 2)
+		// }).set(window.innerWidth / 2)
+	})
 
 	f1.addNumber({
 		title: 'height',
@@ -60,7 +57,8 @@ export function init(params: Params) {
 		min: 10,
 		max: window.innerHeight,
 		step: 1,
-	}).set(window.innerHeight / 2)
+	// }).set(window.innerHeight / 2)
+	})
 
 	const motionFolder = f1.addFolder({ title: 'motion' })
 

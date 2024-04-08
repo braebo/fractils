@@ -22,20 +22,19 @@
 </script>
 
 <script lang="ts">
-	import { inspectElement } from '$lib/actions/inspectElement'
-	import Orbs from '../resizable/Orbs.svelte'
 	// import { DivTweaker } from './divTweaker'
+	import Orbs from '../resizable/Orbs.svelte'
 	import { Color } from '$lib/color/color'
+	import { demoGui } from './demoGui'
 	import { Gui } from '$lib/gui/Gui'
 	import { onMount } from 'svelte'
-	import { init } from './demoGui'
 
-	let pageEl: HTMLDivElement
 	let gui: Gui
 
 	onMount(() => {
-		const gui = init(params)
-
+		const gui = demoGui(params)
+		gui
+		
 		// //? Cool self themer majig 🌈
 		// import('$lib/gui/gui.scss?raw').then(x => {
 		// 	setTimeout(() => {
@@ -164,7 +163,7 @@
 		// 		}
 
 		// 		// delete empty folders
-		// 		for (const [key, value] of folders.entries()) {
+		// 		for (const value of folders.values()) {
 		// 			if (value.controls.size === 0) {
 		// 				value.dispose()
 		// 			} else {
@@ -174,20 +173,20 @@
 		// 	}, 1000)
 		// })
 
-		inspectElement(gui.element)
+		// inspectElement(gui.element)
 
-		// themer = new Themer(gui.element, {
-		// 	mode: $theme,
-		// })
+		// // themer = new Themer(gui.element, {
+		// // 	mode: $theme,
+		// // })
 
-		// const unsub = theme.subscribe(v => {
-		// 	// const color = v === 'light' ? 'white' : 'black'
-		// 	themer.mode.set(v)
-		// 	// document.body.style.backgroundColor = color
-		// 	// document.documentElement.style.backgroundColor = color
-		// })
+		// // const unsub = theme.subscribe(v => {
+		// // 	// const color = v === 'light' ? 'white' : 'black'
+		// // 	themer.mode.set(v)
+		// // 	// document.body.style.backgroundColor = color
+		// // 	// document.documentElement.style.backgroundColor = color
+		// // })
 
-		// const pageTweaker = new DivTweaker(pageEl)
+		// // const pageTweaker = new DivTweaker(pageEl)
 
 		return () => {
 			// unsub()
@@ -197,7 +196,7 @@
 	})
 </script>
 
-<div class="page" bind:this={pageEl}>
+<div class="page">
 	<button on:click={() => console.log(gui)}>Log Gui</button>
 
 	<!-- {#if gui?.themer}
@@ -223,7 +222,8 @@
 	}
 
 	.orbs {
-		width: 20rem;
-		height: 20rem;
+		width: 50%;
+		height: 50%;
+		margin: auto;
 	}
 </style>

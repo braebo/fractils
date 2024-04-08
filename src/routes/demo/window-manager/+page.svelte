@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { WindowManager } from '$lib/utils/windowManager'
-	import { quintIn } from 'svelte/easing'
-	import { scale } from 'svelte/transition'
 
 	const windowManager = new WindowManager({
 		draggable: {},
