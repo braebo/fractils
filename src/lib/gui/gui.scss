@@ -1,221 +1,202 @@
-//· Variables ································································¬
-// Default Font
-//! todo - change to self hosted font or uncomment.
-// @import url('https://fonts.googleapis.com/css2?family=Kodchasan:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
+// //· Variables ································································¬
+// // Default Font
+// //! todo - change to self hosted font or uncomment.
+// // @import url('https://fonts.googleapis.com/css2?family=Kodchasan:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;1,200;1,300;1,400;1,500;1,600;1,700&display=swap');
 
-// Generic Globals
-.fracgui-root {
-	--fracgui-width: 30rem;
-	--fracgui-min-width: 25rem;
-	--fracgui-max-width: 35rem;
-	--fracgui-font: var(--font-d);
-	--fracgui-font-mono: var(--font-mono);
-	// --fracgui-font-mono: var(--font-d);
+// // Generic Globals
+// .fracgui-root {
+// 	--fracgui-width: 30rem;
+// 	--fracgui-root-min-width: 25rem;
+// 	--fracgui-root-max-width: 35rem;
+// 	--fracgui-font-family: var(--fracgui-font-d);
+// 	--fracgui-input-font-family: var(--fracgui-input-font-family);
+// 	// --fracgui-input-font-family: var(--fracgui-font-d);
 
-	--fracgui-root-header-font-size: var(--font-xs);
-	--fracgui-root-header-font-weight: 500;
-	--fracgui-root-header-height: 1.75rem;
-	--fracgui-root-header-letter-spacing: 0.125rem;
+// 	--fracgui-root-header-font-size: var(--fracgui-font-xs);
+// 	--fracgui-root-header-font-weight: 500;
+// 	--fracgui-root-header-height: 1.75rem;
+// 	--fracgui-root-header-letter-spacing: 0.125rem;
 
-	--fracgui-header-height: 1.75rem;
-	--fracgui-input-height: 2rem;
-	--fracgui-input-section-1-width: clamp(6rem, 30%, 12rem);
-	--fracgui-input-section-2-width: 4rem;
-	--fracgui-input-section-3-width: 100%;
+// 	--fracgui-header-height: 1.75rem;
 
-	--fracgui-alpha: 0.75;
-	--fracgui-blur: 0.5rem;
+// 	--fracgui-root-opacity: 0.75;
+// 	--fracgui-root-blur: 0.5rem;
 
-	color-scheme: light dark;
-}
+// 	color-scheme: light dark;
+// }
 
-// Shadow Lightness
-.fracgui-root[mode='dark'] {
-	color-scheme: dark;
-	--shadow-lightness: 0%;
-	--shadow-alpha: 0.2;
-	--shadow-color: hsla(250, 10%, var(--shadow-lightness), var(--shadow-alpha));
-	// --shadow-lightness: 100%;
-	// --shadow-alpha: 0.2;
-	// --shadow-color: hsla(250, 10%, var(--shadow-lightness), var(--shadow-alpha));
-}
-.fracgui-root[mode='light'] {
-	color-scheme: light;
-	--shadow-lightness: 50%;
-	--shadow-alpha: 0.1;
-	--shadow-color: hsla(250, 10%, var(--shadow-lightness), var(--shadow-alpha));
-}
+// // Shadow Lightness
+// .fracgui-root[mode='dark'] {
+// 	color-scheme: dark;
+// 	--fracgui-shadow-lightness: 0%;
+// 	--fracgui-shadow-opacity: 0.2;
+// 	--fracgui-shadow-color: hsla(250, 10%, var(--fracgui-shadow-lightness), var(--fracgui-shadow-opacity));
+// 	// --fracgui-shadow-lightness: 100%;
+// 	// --fracgui-shadow-opacity: 0.2;
+// 	// --fracgui-shadow-color: hsla(250, 10%, var(--fracgui-shadow-lightness), var(--fracgui-shadow-opacity));
+// }
+// .fracgui-root[mode='light'] {
+// 	color-scheme: light;
+// 	--fracgui-shadow-lightness: 50%;
+// 	--fracgui-shadow-opacity: 0.1;
+// 	--fracgui-shadow-color: hsla(250, 10%, var(--fracgui-shadow-lightness), var(--fracgui-shadow-opacity));
+// }
 
-.fracgui-root,
-.fracgui-root[theme='default'],
-.fracgui-root[theme='minimal'] {
-	//* Root Folder
+// .fracgui-root,
+// .fracgui-root[theme='default'],
+// .fracgui-root[theme='nightowl'] {
+// 	//* Root Folder
 
-	// --fracgui-root-content-background: rgba(var(--bg-b-rgb), 0.2);
-	--fracgui-root-content-background: rgba(var(--bg-b-rgb), var(--fracgui-alpha));
-	--fracgui-root-shadow: 0 0 1.5px 0.5px rgba(var(--bg-d-rgb), 0.5) inset;
+// 	// --fracgui-root-content-background: rgba(var(--fracgui-bg-b-rgb), 0.2);
+// 	--fracgui-root-content-background: rgba(var(--fracgui-bg-b-rgb), var(--fracgui-root-opacity));
+// 	--fracgui-root-box-shadow: 0 0 1.5px 0.5px rgba(var(--fracgui-bg-d-rgb), 0.5) inset;
 
-	//* Folders
-	--fracgui-folder-background: rgba(var(--bg-b-rgb), 0.5);
+// 	//* Folders
+// 	--fracgui-folder-background: rgba(var(--fracgui-bg-b-rgb), 0.5);
 
-	//? Folder Header
-	--fracgui-folder-header-padding-left: 0.25rem;
+// 	//? Folder Header
+// 	--fracgui-folder-header-padding-left: 0.25rem;
 
-	--fracgui-folder-header-color: var(--fg-c);
-	--fracgui-folder-header-color-dim: var(--fg-d);
-	--fracgui-folder-header-background: var(--bg-a);
-	--fracgui-folder-header-outline: none;
-	--fracgui-folder-header-border-radius: var(--radius-sm);
-	--fracgui-folder-header-box-shadow: none;
+// 	--fracgui-folder-header-color: var(--fracgui-fg-c);
+// 	--fracgui-folder-header-dim-color: var(--fracgui-fg-d);
+// 	--fracgui-folder-header-background: var(--fracgui-bg-a);
+// 	--fracgui-folder-header-outline: none;
+// 	--fracgui-folder-header-box-shadow: none;
 
-	--fracgui-folder-header-font-size: var(--font-sm);
-	--fracgui-folder-header-font-weight: 350;
-	--fracgui-folder-header-letter-spacing: 0.75px;
+// 	--fracgui-folder-header-font-size: var(--fracgui-font-sm);
+// 	--fracgui-folder-header-font-weight: 350;
+// 	--fracgui-folder-header-letter-spacing: 0.75px;
 
-	//? Folder Toolbar
-	--fracgui-toolbar-icon-color-dim: var(--bg-c);
-	--fracgui-toolbar-icon-color: var(--bg-d);
+// 	//? Folder Toolbar
+// 	--fracgui-toolbar-icon-dim-color: var(--fracgui-bg-c);
+// 	--fracgui-toolbar-icon-color: var(--fracgui-bg-d);
 
-	//? Folder Content
-	--fracgui-folder-content-background: rgba(var(--bg-b-rgb), 0.2);
-	--fracgui-folder-content-padding-left: 0.33rem;
-	--fracgui-folder-content-font-size: var(--font-xs);
-	--fracgui-folder-content-font-weight: 350;
-	--fracgui-folder-content-letter-spacing: 0.5px;
+// 	//? Folder Content
+// 	--fracgui-folder-content-background: rgba(var(--fracgui-bg-b-rgb), 0.2);
+// 	--fracgui-folder-content-padding-left: 0.33rem;
+// 	--fracgui-folder-content-font-size: var(--fracgui-font-xs);
+// 	--fracgui-folder-content-font-weight: 350;
+// 	--fracgui-folder-content-letter-spacing: 0.5px;
 
-	//* Controllers
+// 	//* Controllers
 
-	--fracgui-controller-radius: var(--radius-sm);
-	// prettier-ignore
-	--fracgui-controller-shadow:
-		
-		-1px 1px 2px hsla(250, 10%, var(--shadow-lightness), calc(0.7 * var(--shadow-alpha))),
-		-1px 2px 5px hsla(250, 10%, var(--shadow-lightness), var(--shadow-alpha))
-	;
-	--fracgui-controller-background: rgba(var(--bg-c-rgb), 1);
-	--fracgui-controller-background-dim: rgba(var(--bg-c-rgb), 0.75);
-	--fracgui-controller-background-bright: rgba(var(--bg-d-rgb), 0.75);
-	--fracgui-controller-color: var(--fg-b);
-	--fracgui-controller-color-dim: var(--fg-d);
+// 	--fracgui-controller-radius: var(--fracgui-radius-sm);
+// 	// prettier-ignore
+// 	--fracgui-controller-box-shadow:
+// 		-1px 1px 2px hsla(250, 10%, var(--fracgui-shadow-lightness), calc(0.7 * var(--fracgui-shadow-opacity))),
+// 		-1px 2px 5px hsla(250, 10%, var(--fracgui-shadow-lightness), var(--fracgui-shadow-opacity))
+// 	;
+// 	--fracgui-controller-background: rgba(var(--fracgui-bg-c-rgb), 1);
+// 	--fracgui-controller-dim-background: rgba(var(--fracgui-bg-c-rgb), 0.75);
+// 	--fracgui-controller-active-background: rgba(var(--fracgui-bg-d-rgb), 0.75);
+// 	--fracgui-controller-color: var(--fracgui-fg-b);
+// 	--fracgui-controller-dim-color: var(--fracgui-fg-d);
 
-	//* Inputs
+// 	//* Inputs
 
-	--fracgui-input-container-color: var(--fg-d);
-	--fracgui-input-container-color-dim: var(--fg-e);
-	--fracgui-input-container-background: rgba(var(--bg-a-rgb), 0.5);
-	--fracgui-input-container-outline: 1px solid rgba(var(--bg-a-rgb), 0.2);
-	// prettier-ignore
-	--fracgui-input-container-shadow:
-		-0.15px 0.1px 1px hsla(220, 10%, 2%, calc(0.2 * var(--shadow-alpha))) inset,
-		-2px 2px 15px hsla(220, 10%, 2%, calc(0.075 * var(--shadow-alpha))) inset,
-		-3.0px 3px 25px hsla(220, 10%, 2%, calc(0.05 * var(--shadow-alpha))) inset,
-		-10.0px 10px 50px hsla(220, 10%, 2%, calc(0.025 * var(--shadow-alpha))) inset
-	;
-	--fracgui-drawer-toggle-background: rgba(var(--bg-a-rgb), 0.5);
+// 	--fracgui-input-height: 2rem;
+// 	--fracgui-input-font-size: var(--fracgui-font-xs);
 
-	//? Input Content
+// 	//? Sections
 
-	--fracgui-input-shadow: var(--shadow-xs);
-	--fracgui-input-outline: 1px solid rgba(var(--bg-d-rgb), 0.4);
+// 	--fracgui-input-section-1-width: clamp(6rem, 30%, 12rem);
+// 	--fracgui-input-section-2-width: 4rem;
+// 	--fracgui-input-section-3-width: 100%;
 
-	//? Number Input
+// 	//? Input Container
 
-	//? Number Input Buttons
-	--fracgui-input-buttons-background: rgba(var(--bg-b-rgb), var(--fracgui-alpha));
-	--fracgui-input-buttons-color: var(--fg-b);
-	--fracgui-input-buttons-icon-color: var(--fg-d);
-	--fracgui-input-buttons-icon-color-active: var(--theme-a);
-	--fracgui-input-number-buttons-shadow-inset-hover: 0px 0px 1px 0px hsl(0, 0%, 0%) inset;
-	--fracgui-input-number-buttons-shadow-inset-active: 0px 0px 1px 1px hsl(0, 0%, 5%) inset;
-	--fracgui-input-font-size: var(--font-xs);
+// 	--fracgui-input-container-color: var(--fracgui-fg-d);
+// 	--fracgui-input-container-dim-color: var(--fracgui-fg-e);
+// 	--fracgui-input-container-background: rgba(var(--fracgui-bg-a-rgb), 0.5);
+// 	--fracgui-input-container-outline: 1px solid rgba(var(--fracgui-bg-a-rgb), 0.2);
+// 	// prettier-ignore
+// 	--fracgui-input-container-box-shadow:
+// 		-0.15px 0.1px 1px hsla(220, 10%, 2%, calc(0.2 * var(--fracgui-shadow-opacity))) inset,
+// 		-2px 2px 15px hsla(220, 10%, 2%, calc(0.075 * var(--fracgui-shadow-opacity))) inset,
+// 		-3.0px 3px 25px hsla(220, 10%, 2%, calc(0.05 * var(--fracgui-shadow-opacity))) inset,
+// 		-10.0px 10px 50px hsla(220, 10%, 2%, calc(0.025 * var(--fracgui-shadow-opacity))) inset
+// 	;
+// 	--fracgui-drawer-toggle-background: rgba(var(--fracgui-bg-a-rgb), 0.5);
 
-	//? Range Input
+// 	//? Input Content
 
-	--fracgui-input-number-range-color: var(--bg-c);
-	--fracgui-input-number-range-color-active: var(--theme-a);
-	--fracgui-input-number-range-background: var(--bg-a);
-	--fracgui-input-number-range-outline: 1px solid rgba(var(--bg-c-rgb), 0.25);
-	// prettier-ignore
-	--fracgui-input-number-range-shadow: 
-		-2px 2px 2.5px hsla(230, 20%, 0%, 0.2),
-		2px 2px 5px hsla(230, 20%, 0%, 0.2),
-		2px 3px 10px hsla(230, 20%, 0%, 0.2),
-		2px 4px 4px hsla(230, 25%, 0%, 0.2)
-	;
+// 	--fracgui-input-content-box-shadow: var(--shadow-xs);
+// 	--fracgui-controller-outline: 1px solid rgba(var(--fracgui-bg-d-rgb), 0.4);
 
-	//? Button Input
-	// prettier-ignore
-	--fracgui-input-button-shadow:
-		1px 2px 6px var(--shadow-color),
-		1px -1px 1px hsla(250, 10%, calc(var(--shadow-lightness)), calc(var(--shadow-alpha))) inset,
-		1px -1px 1px hsla(250, 10%, calc(var(--shadow-lightness)), calc(var(--shadow-alpha))) inset,
-		-0.5px 0.5px 0.5px hsla(250, 10%, 50%, calc(var(--shadow-alpha))) inset
-	;
-	// prettier-ignore
-	--fracgui-input-button-shadow-active:
-		1px 2px 2px var(--shadow-color),
-		1px -1px 1px hsla(250, 10%, calc(var(--shadow-lightness) / 2), calc(var(--shadow-alpha) / 3)) inset,
-		1px -1px 1px hsla(250, 10%, calc(var(--shadow-lightness) / 2), calc(var(--shadow-alpha) / 3)) inset,
-		1px -1px 1px hsla(250, 10%, calc(var(--shadow-lightness) / 2), calc(var(--shadow-alpha) / 3)) inset
-	;
-	--fracgui-input-button-background: var(--fragui-input-background);
-	--fracgui-input-button-background-dim: var(--fragui-input-background-dim);
-	// --fracgui-input-button-outline: var(--fragui-input-outline);
-	--fracgui-input-button-outline: transparent;
-	--fracgui-input-button-radius: var(--radius-md);
-}
+// 	//? Number Input
 
-.fracgui-root[mode='light'] {
-	// --fracgui-input-number-buttons-shadow-inset: 0px 0px 1.5px 0px hsl(0, 0%, 75%) inset;
-	--fracgui-input-number-buttons-shadow-inset-hover: 0px 0px 1px 0px hsl(0, 0%, 80%) inset;
-	--fracgui-input-number-buttons-shadow-inset-active: 0px 0px 2px 1px hsl(0, 0%, 90%) inset;
+// 	//? Number Input Buttons
+// 	--fracgui-input-number-buttons-icon-color: var(--fracgui-fg-d);
+// 	--fracgui-input-number-buttons-icon-active-color: var(--fracgui-theme-a);
+// 	--fracgui-input-number-buttons-shadow-inset-hover: 0px 0px 1px 0px hsl(0, 0%, 0%) inset;
+// 	--fracgui-input-number-buttons-shadow-inset-active: 0px 0px 1px 1px hsl(0, 0%, 5%) inset;
 
-	--fracgui-controller-background-dim: rgba(var(--bg-a-rgb), 0.5);
-	--fracgui-controller-background: rgba(var(--bg-a-rgb), 1);
-	--fracgui-controller-color: var(--fg-a);
-	--fracgui-controller-color-dim: var(--fg-c);
-	--fracgui-input-outline: 1px solid rgba(var(--bg-d-rgb), 0.1);
+// 	//? Range Input
 
-	--fracgui-input-number-range-background: var(--bg-b);
-	--fracgui-input-number-range-color: var(--bg-d);
+// 	--fracgui-input-number-range-color: var(--fracgui-bg-c);
+// 	--fracgui-input-number-range-active-color: var(--fracgui-theme-a);
+// 	--fracgui-input-number-range-background: var(--fracgui-bg-a);
+// 	--fracgui-input-number-range-outline: 1px solid rgba(var(--fracgui-bg-c-rgb), 0.25);
+// 	// prettier-ignore
+// 	--fracgui-input-number-range-box-shadow:
+// 		-2px 2px 2.5px hsla(230, 20%, 0%, 0.2),
+// 		2px 2px 5px hsla(230, 20%, 0%, 0.2),
+// 		2px 3px 10px hsla(230, 20%, 0%, 0.2),
+// 		2px 4px 4px hsla(230, 25%, 0%, 0.2)
+// 	;
+// }
 
-	// prettier-ignore
-	--fracgui-input-number-range-shadow: 
-		-2px 2px 2px hsla(230, 20%, 30%, 0.1),
-		2px 2px 3px hsla(230, 20%, 30%, 0.1),
-		2px 2px 7px hsla(230, 20%, 30%, 0.1)
-	;
-}
+// .fracgui-root[mode='light'] {
+// 	// --fracgui-input-number-buttons-shadow-inset: 0px 0px 1.5px 0px hsl(0, 0%, 75%) inset;
+// 	--fracgui-input-number-buttons-shadow-inset-hover: 0px 0px 1px 0px hsl(0, 0%, 80%) inset;
+// 	--fracgui-input-number-buttons-shadow-inset-active: 0px 0px 2px 1px hsl(0, 0%, 90%) inset;
 
-// todo/wip - neumorphic stuff is unused
-.fracgui-root[theme='soft'] {
-	--gradient-neumorphic-a: linear-gradient(
-		145deg,
-		hsla(230, 20%, 12.5%, 0.5),
-		hsla(230, 20%, 5%, 0.66)
-	);
-	// prettier-ignore
-	--shadow-neumorphic-a:
-		-4px -2px 5px hsla(230, 20%, 23%, 0.3),
-	2px 2px 10px hsla(230, 20%, 5%, 0.66),
-	2px 2px 15px hsla(230, 20%, 5%, 0.66),
-	-2px -2px 15px hsla(230, 25%, 21%, 0.3)
-	;
-	// prettier-ignore
-	--shadow-neumorphic-b: 0 0 5px 0.5px hsla(0, 0%, 0%, 0.5),
-	1px 1px 5px 0.5px hsla(0, 0%, 0%, 0.33),
-	0 0 5px 0.5px hsla(0, 0%, 0%, 0.5) inset,
-	-2px -2px 3px 0.5px hsla(230, 20%, 25%, 0.5),
-	-2px -2px 10px 0px hsla(230, 20%, 15%, 0.75),
-	2px 2px 3px 0px hsla(231, 17%, 23%, 0.5) inset
-	;
-}
-//⌟
+// 	--fracgui-controller-dim-background: rgba(var(--fracgui-bg-a-rgb), 0.5);
+// 	--fracgui-controller-background: rgba(var(--fracgui-bg-a-rgb), 1);
+// 	--fracgui-controller-color: var(--fracgui-fg-a);
+// 	--fracgui-controller-dim-color: var(--fracgui-fg-c);
+// 	--fracgui-controller-outline: 1px solid rgba(var(--fracgui-bg-d-rgb), 0.1);
+
+// 	--fracgui-input-number-range-background: var(--fracgui-bg-b);
+// 	--fracgui-input-number-range-color: var(--fracgui-bg-d);
+
+// 	// prettier-ignore
+// 	--fracgui-input-number-range-box-shadow:
+// 		-2px 2px 2px hsla(230, 20%, 30%, 0.1),
+// 		2px 2px 3px hsla(230, 20%, 30%, 0.1),
+// 		2px 2px 7px hsla(230, 20%, 30%, 0.1)
+// 	;
+// }
+
+// // todo/wip - neumorphic stuff is unused
+// .fracgui-root[theme='soft'] {
+// 	--gradient-neumorphic-a: linear-gradient(
+// 		145deg,
+// 		hsla(230, 20%, 12.5%, 0.5),
+// 		hsla(230, 20%, 5%, 0.66)
+// 	);
+// 	// prettier-ignore
+// 	--shadow-neumorphic-a:
+// 		-4px -2px 5px hsla(230, 20%, 23%, 0.3),
+// 	2px 2px 10px hsla(230, 20%, 5%, 0.66),
+// 	2px 2px 15px hsla(230, 20%, 5%, 0.66),
+// 	-2px -2px 15px hsla(230, 25%, 21%, 0.3)
+// 	;
+// 	// prettier-ignore
+// 	--shadow-neumorphic-b: 0 0 5px 0.5px hsla(0, 0%, 0%, 0.5),
+// 	1px 1px 5px 0.5px hsla(0, 0%, 0%, 0.33),
+// 	0 0 5px 0.5px hsla(0, 0%, 0%, 0.5) inset,
+// 	-2px -2px 3px 0.5px hsla(230, 20%, 25%, 0.5),
+// 	-2px -2px 10px 0px hsla(230, 20%, 15%, 0.75),
+// 	2px 2px 3px 0px hsla(231, 17%, 23%, 0.5) inset
+// 	;
+// }
+// //⌟
 
 //· Mixins ···································································¬
 
 @mixin fontMono {
-	font-family: var(--fracgui-font-mono);
+	font-family: var(--fracgui-input-font-family);
 	font-size: var(--fracgui-input-font-size);
 	font-variation-settings: 'wght' 400;
 	text-align: center;
@@ -226,16 +207,20 @@
 @mixin scrollbar {
 	width: 5px;
 	height: 0px;
+	transition: 0.15s !important;
 }
 
 @mixin scrollbarThumb {
 	background: var(--fracgui-controller-background);
 	border: none;
+	transition: 0.15s !important;
 }
 
 @mixin scrollbarTrack {
 	background: var(--fracgui-folder-header-background);
-	border-bottom-right-radius: var(--radius-sm);
+	border-bottom-right-radius: var(--fracgui-radius-sm);
+	// background: inherit;
+	transition: 0.15s !important;
 }
 
 @mixin scrollable {
@@ -391,15 +376,14 @@
 	inset: 0;
 
 	width: var(--fracgui-width);
-	min-width: var(--fracgui-min-width);
-	max-width: var(--fracgui-max-width);
+	min-width: var(--fracgui-root-min-width);
+	max-width: var(--fracgui-root-max-width);
 
-	height: fit-content; //- important
-	max-height: var(--max-height);
+	height: fit-content; //- required for animations
 
-	border-radius: var(--radius-md);
+	border-radius: var(--fracgui-radius-md);
 
-	font-family: var(--fracgui-font);
+	font-family: var(--fracgui-font-family);
 	font-weight: var(--fracgui-folder-content-font-weight);
 	font-size: var(--fracgui-folder-content-font-size);
 
@@ -418,28 +402,28 @@
 	width: 100%;
 	min-height: var(--fracgui-root-header-height);
 
-	color: var(--fg-c);
-	background: var(--bg-a);
-	border-radius: var(--radius-md);
-	border-bottom-left-radius: var(--radius-xs);
-	border-bottom-right-radius: var(--radius-xs);
-	box-shadow: var(--fracgui-root-shadow);
+	color: var(--fracgui-fg-c);
+	background: var(--fracgui-bg-a);
+	border-radius: var(--fracgui-radius-md);
+	border-bottom-left-radius: var(--fracgui-radius-xs);
+	border-bottom-right-radius: var(--fracgui-radius-xs);
+	box-shadow: var(--fracgui-root-box-shadow);
 
 	cursor: pointer;
 	cursor: grab;
 
 	.fracgui-title {
 		width: fit-content;
-		height: var(--fracgui-header-height);
+		height: var(--fracgui-root-header-height);
 
-		// font-family: var(--fracgui-font);
+		// font-family: var(--fracgui-font-family);
 		font-size: var(--fracgui-root-header-font-size);
 		font-weight: var(--fracgui-root-header-font-weight);
 		font-variation-settings:
 			'wght' var(--fracgui-root-header-font-weight),
 			'wdth' 100;
 		letter-spacing: var(--fracgui-root-header-letter-spacing);
-		line-height: var(--fracgui-header-height);
+		line-height: var(--fracgui-root-header-height);
 
 		overflow: hidden;
 		white-space: nowrap;
@@ -455,15 +439,16 @@
 
 	width: 100%;
 	margin: 0;
+	max-height: var(--fracgui-max-height);
 
-	border-radius: var(--radius-md);
-	border-top-left-radius: var(--radius-sm);
-	border-top-right-radius: var(--radius-sm);
+	border-radius: var(--fracgui-radius-md);
+	border-top-left-radius: var(--fracgui-radius-sm);
+	border-top-right-radius: var(--fracgui-radius-sm);
 	background: var(--fracgui-root-content-background);
-	backdrop-filter: blur(var(--fracgui-blur));
+	backdrop-filter: blur(var(--fracgui-root-blur));
 	outline-offset: -1px;
 
-	box-shadow: 0 0 1.5px 0.5px rgba(var(--bg-d-rgb), 0.5) inset;
+	box-shadow: 0 0 1.5px 0.5px rgba(var(--fracgui-bg-d-rgb), 0.5) inset;
 
 	overflow-y: scroll;
 	overflow-x: hidden;
@@ -471,7 +456,7 @@
 	scrollbar-gutter: stable;
 	@-moz-document url-prefix() {
 		& {
-			scrollbar-color: var(--bg-b) var(--bg-a);
+			scrollbar-color: var(--fracgui-bg-b) var(--fracgui-bg-a);
 			scrollbar-width: thin;
 			scrollbar-gutter: auto;
 		}
@@ -516,9 +501,9 @@
 	width: 100%;
 	padding-left: var(--fracgui-folder-header-padding-left);
 
-	color: var(--fracgui-folder-header-color-dim);
+	color: var(--fracgui-folder-header-dim-color);
 	background: var(--fracgui-folder-header-background);
-	outline: var(--fracgui-folder-header-outline, 1px solid rgba(var(--bg-b-rgb), 0.5));
+	outline: var(--fracgui-folder-header-outline, 1px solid rgba(var(--fracgui-bg-b-rgb), 0.5));
 	outline-offset: -1px;
 	box-shadow: var(--fracgui-folder-header-box-shadow, 0 0 0.1rem #000 inset);
 
@@ -528,7 +513,7 @@
 	.fracgui-title {
 		width: fit-content;
 
-		// font-family: var(--fracgui-font);
+		// font-family: var(--fracgui-font-family);
 		font-size: var(--fracgui-folder-header-font-size);
 		font-weight: var(--fracgui-folder-header-font-weight);
 		letter-spacing: var(--fracgui-folder-header-letter-spacing);
@@ -543,7 +528,7 @@
 		width: 1.1rem !important;
 		height: 1.1rem !important;
 
-		color: var(--fg-c);
+		color: var(--fracgui-fg-c);
 
 		opacity: 0.75;
 		transition: opacity 0.15s;
@@ -592,11 +577,11 @@
 .fracgui-controller {
 	width: 100%;
 
-	color: var(--fracgui-controller-color-dim);
-	background: var(--fracgui-controller-background-dim);
-	box-shadow: var(--fracgui-controller-shadow);
+	color: var(--fracgui-controller-dim-color);
+	background: var(--fracgui-controller-dim-background);
+	box-shadow: var(--fracgui-controller-box-shadow);
 	border-radius: var(--fracgui-controller-radius);
-	outline: var(--fracgui-input-outline);
+	outline: var(--fracgui-controller-outline);
 
 	&:hover,
 	&:focus-visible,
@@ -611,7 +596,7 @@
 
 .fracgui-controller-text,
 .fracgui-controller-button {
-	color: color-mix(in lch, var(--fracgui-controller-color), var(--fg-a) 0.5);
+	color: color-mix(in lch, var(--fracgui-controller-color), var(--fracgui-fg-a) 0.5);
 	background: color-mix(in lch, var(--fracgui-controller-background), transparent);
 }
 
@@ -624,14 +609,14 @@
 
 	border: none;
 	border-radius: var(--fracgui-controller-radius);
-	outline: var(--fracgui-input-outline);
+	outline: var(--fracgui-controller-outline);
 	outline-offset: -1px;
 	// prettier-ignore
 	box-shadow:
-		1px 2px 6px var(--shadow-color),
-		1px -1px 1px hsla(250, 10%, calc(var(--shadow-lightness)), calc(var(--shadow-alpha))) inset,
-		1px -1px 1px hsla(250, 10%, calc(var(--shadow-lightness)), calc(var(--shadow-alpha))) inset,
-		-0.5px 0.5px 0.5px hsla(250, 10%, 50%, calc(var(--shadow-alpha))) inset
+		1px 2px 6px var(--fracgui-shadow-color),
+		1px -1px 1px hsla(250, 10%, calc(var(--fracgui-shadow-lightness)), calc(var(--fracgui-shadow-opacity))) inset,
+		1px -1px 1px hsla(250, 10%, calc(var(--fracgui-shadow-lightness)), calc(var(--fracgui-shadow-opacity))) inset,
+		-0.5px 0.5px 0.5px hsla(250, 10%, 50%, calc(var(--fracgui-shadow-opacity))) inset
 	;
 
 	@at-root .fracgui-root[mode='dark'] & {
@@ -652,15 +637,15 @@
 	// transition-duration: 0.2s;
 	&:active {
 		scale: 0.975;
-		color: var(--theme-a);
+		color: var(--fracgui-theme-a);
 		transition-duration: 0.075s;
-		// background: var(--fracgui-controller-background-bright);
+		// background: var(--fracgui-controller-active-background);
 		// prettier-ignore
 		box-shadow:
-			0px 0px 3px var(--shadow-color),
-			0px 0px 5px hsla(250, 10%, calc(var(--shadow-lightness) / 3), calc(var(--shadow-alpha) / 1)) inset,
-			0px 0px 10px hsla(250, 10%, calc(var(--shadow-lightness) / 2), calc(var(--shadow-alpha) / 2)) inset,
-			0px 0px 20px hsla(250, 10%, calc(var(--shadow-lightness) / 1), calc(var(--shadow-alpha) / 2)) inset
+			0px 0px 3px var(--fracgui-shadow-color),
+			0px 0px 5px hsla(250, 10%, calc(var(--fracgui-shadow-lightness) / 3), calc(var(--fracgui-shadow-opacity) / 1)) inset,
+			0px 0px 10px hsla(250, 10%, calc(var(--fracgui-shadow-lightness) / 2), calc(var(--fracgui-shadow-opacity) / 2)) inset,
+			0px 0px 20px hsla(250, 10%, calc(var(--fracgui-shadow-lightness) / 1), calc(var(--fracgui-shadow-opacity) / 2)) inset
 		;
 		// scale: 0.99;
 	}
@@ -676,8 +661,8 @@ $option-padding: 0.1rem 0.75rem;
 }
 
 .fracgui-controller-select-selected {
-	border-radius: var(--radius-xs);
-	outline: 1px solid rgba(var(--bg-d-rgb), 0);
+	border-radius: var(--fracgui-radius-xs);
+	outline: 1px solid rgba(var(--fracgui-bg-d-rgb), 0);
 
 	text-align: center;
 	letter-spacing: var(--fracgui-folder-content-letter-spacing);
@@ -692,11 +677,11 @@ $option-padding: 0.1rem 0.75rem;
 	&:active {
 		filter: contrast(1.1) brightness(1.25);
 		outline-offset: 0.25rem;
-		outline: 1px solid rgba(var(--bg-d-rgb), 0.5);
+		outline: 1px solid rgba(var(--fracgui-bg-d-rgb), 0.5);
 	}
 
 	&.active {
-		outline: var(--fracgui-input-outline);
+		outline: var(--fracgui-controller-outline);
 	}
 }
 
@@ -712,15 +697,15 @@ $option-padding: 0.1rem 0.75rem;
 	padding: 0;
 	margin: 0;
 
-	background: var(--bg-a);
-	border-radius: var(--radius);
+	background: var(--fracgui-bg-a);
+	border-radius: var(--fracgui-radius);
 	box-shadow:
-		0px 0.3px 0.3px hsla(var(--shadow-lightness), 0.49),
-		-0.1px 2.1px 2.2px -0.6px hsla(var(--shadow-lightness), 0.47),
-		-0.2px 4.6px 4.9px -1.2px hsla(var(--shadow-lightness), 0.45),
-		-0.4px 9.2px 9.8px -1.7px hsla(var(--shadow-lightness), 0.42),
-		-0.7px 17.4px 18.5px -2.3px hsla(var(--shadow-lightness), 0.4),
-		-1.2px 30.6px 32.6px -2.9px hsla(var(--shadow-lightness), 0.38);
+		0px 0.3px 0.3px hsla(var(--fracgui-shadow-lightness), 0.49),
+		-0.1px 2.1px 2.2px -0.6px hsla(var(--fracgui-shadow-lightness), 0.47),
+		-0.2px 4.6px 4.9px -1.2px hsla(var(--fracgui-shadow-lightness), 0.45),
+		-0.4px 9.2px 9.8px -1.7px hsla(var(--fracgui-shadow-lightness), 0.42),
+		-0.7px 17.4px 18.5px -2.3px hsla(var(--fracgui-shadow-lightness), 0.4),
+		-1.2px 30.6px 32.6px -2.9px hsla(var(--fracgui-shadow-lightness), 0.38);
 
 	z-index: 100;
 	transition:
@@ -746,32 +731,32 @@ $option-padding: 0.1rem 0.75rem;
 	padding: $option-padding;
 	line-height: $option-height;
 
-	font-family: var(--fracgui-font, var(--font-d));
+	font-family: var(--fracgui-font-family, var(--fracgui-font-d));
 	font-size: 0.8rem;
 	letter-spacing: 0.5px;
-	color: var(--fg-d);
+	color: var(--fracgui-fg-d);
 
 	transition: 0.15s;
-	outline: 1px solid rgba(var(--bg-d-rgb), 0);
+	outline: 1px solid rgba(var(--fracgui-bg-d-rgb), 0);
 
 	&:hover,
 	&:focus-visible {
-		background: var(--bg-c);
+		background: var(--fracgui-bg-c);
 		filter: contrast(1.1) brightness(1.25);
-		outline: 1px solid rgba(var(--bg-d-rgb), 1);
-		color: var(--fg-a);
+		outline: 1px solid rgba(var(--fracgui-bg-d-rgb), 1);
+		color: var(--fracgui-fg-a);
 	}
 
 	cursor: pointer;
 
 	&:first-of-type {
-		border-top-left-radius: var(--radius-sm);
-		border-top-right-radius: var(--radius-sm);
+		border-top-left-radius: var(--fracgui-radius-sm);
+		border-top-right-radius: var(--fracgui-radius-sm);
 	}
 
 	&:last-of-type {
-		border-bottom-left-radius: var(--radius-sm);
-		border-bottom-right-radius: var(--radius-sm);
+		border-bottom-left-radius: var(--fracgui-radius-sm);
+		border-bottom-right-radius: var(--fracgui-radius-sm);
 	}
 }
 //⌟
@@ -865,11 +850,11 @@ $icon-height: 0.9rem;
 //- Hover
 
 .fracgui-search-button {
-	color: var(--fracgui-toolbar-icon-color-dim);
+	color: var(--fracgui-toolbar-icon-dim-color);
 	opacity: 0;
 }
 .fracgui-search-button:hover {
-	color: var(--fg-e);
+	color: var(--fracgui-fg-e);
 	opacity: 1;
 
 	transition-duration: 0.15s;
@@ -878,7 +863,7 @@ $icon-height: 0.9rem;
 	transition-duration: 0.05s;
 
 	background: transparent;
-	color: var(--fg-d);
+	color: var(--fracgui-fg-d);
 	opacity: 1;
 
 	scale: 0.9;
@@ -887,7 +872,7 @@ $icon-height: 0.9rem;
 //- Active
 
 .fracgui-search-container.active .fracgui-search-button {
-	color: var(--bg-e);
+	color: var(--fracgui-bg-e);
 	opacity: 1;
 
 	path {
@@ -896,7 +881,7 @@ $icon-height: 0.9rem;
 	}
 
 	circle {
-		fill: var(--bg-e);
+		fill: var(--fracgui-bg-e);
 		transform: translate(-10%, 20%) scale(0.75);
 	}
 }
@@ -908,16 +893,16 @@ input.fracgui-search-input {
 	height: 1rem;
 	padding: 0 0.25rem;
 
-	color: var(--fg-c);
-	background: var(--bg-b);
-	border-radius: var(--radius-sm);
+	color: var(--fracgui-fg-c);
+	background: var(--fracgui-bg-b);
+	border-radius: var(--fracgui-radius-sm);
 	box-shadow: 0 0 11px #0004 inset;
 	outline: none;
 	border: none;
 
-	font-size: var(--font-xxs);
-	// font-family: var(--fracgui-font);
-	caret-color: var(--bg-e);
+	font-size: var(--fracgui-font-xxs);
+	// font-family: var(--fracgui-font-family);
+	caret-color: var(--fracgui-bg-e);
 	caret-shape: block;
 	line-height: 4px !important;
 
@@ -961,7 +946,8 @@ input.fracgui-search-input {
 	padding: 0;
 	margin-right: 0.5rem;
 
-	color: var(--fracgui-toolbar-icon-color-dim);
+	color: var(--fracgui-toolbar-icon-dim-color);
+	background: none;
 
 	cursor: pointer;
 	transition: 0.15s;
@@ -1041,7 +1027,7 @@ input.fracgui-search-input {
 		}
 
 		// .dot-center {
-		// 	stroke: var(--fracgui-toolbar-icon-color-dim);
+		// 	stroke: var(--fracgui-toolbar-icon-dim-color);
 		// }
 	}
 
@@ -1061,11 +1047,11 @@ input.fracgui-search-input {
 		cursor: pointer;
 
 		// width: var(--copy-button-width, 2rem);
-		height: var(--copy-button-height, 2rem);
+		height: 2rem;
 		padding: 10%;
 
-		color: var(--fg-a);
-		background: rgba(var(--bg-a-rgb), 0);
+		color: var(--fracgui-fg-a);
+		background: rgba(var(--fracgui-bg-a-rgb), 0);
 		outline: 1px solid transparent;
 		border-radius: 0.2rem;
 		backdrop-filter: blur(0px);
@@ -1076,9 +1062,9 @@ input.fracgui-search-input {
 
 		&:not(.active, .outro) {
 			&:hover {
-				color: var(--fg-b);
+				color: var(--fracgui-fg-b);
 				backdrop-filter: blur(2px);
-				background: rgba(var(--bg-a-rgb), 0.75);
+				background: rgba(var(--fracgui-bg-a-rgb), 0.75);
 
 				transition-duration: 0.15s, 0.25s;
 				transition-delay: 0s;
@@ -1086,16 +1072,16 @@ input.fracgui-search-input {
 
 			&:active,
 			&:focus {
-				color: var(--fg-c);
-				background: var(--bg-c);
+				color: var(--fracgui-fg-c);
+				background: var(--fracgui-bg-c);
 			}
 		}
 
 		&.active,
 		&.outro {
-			color: var(--fg-a);
+			color: var(--fracgui-fg-a);
 			outline-color: transparent !important;
-			background: rgba(var(--bg-a-rgb), 0);
+			background: rgba(var(--fracgui-bg-a-rgb), 0);
 			opacity: 1 !important;
 
 			transition-delay: 0s;
@@ -1103,7 +1089,7 @@ input.fracgui-search-input {
 		}
 
 		font-size: 0.8rem;
-		font-family: var(--fracgui-font-mono);
+		font-family: var(--fracgui-input-font-family);
 	}
 
 	.copy-button-svg-container {
@@ -1170,7 +1156,7 @@ input.fracgui-search-input {
 		}
 
 		.check {
-			stroke: var(--color, var(--light-a));
+			stroke: var(--fracgui-light-a);
 
 			opacity: 0;
 
@@ -1198,18 +1184,18 @@ input.fracgui-search-input {
 	min-width: 0.33rem;
 	height: 75%;
 
-	color: var(--fg-c);
+	color: var(--fracgui-fg-c);
 	background: var(--fracgui-drawer-toggle-background);
 	transition: 0.15s;
-	box-shadow: -1px 0 1px 0.5px rgba(var(--bg-a-rgb), 0.5) inset;
+	box-shadow: -1px 0 1px 0.5px rgba(var(--fracgui-bg-a-rgb), 0.5) inset;
 
-	border-top-right-radius: var(--radius-sm);
-	border-bottom-right-radius: var(--radius-sm);
+	border-top-right-radius: var(--fracgui-radius-sm);
+	border-bottom-right-radius: var(--fracgui-radius-sm);
 
 	cursor: pointer;
 
 	&:hover {
-		background: var(--bg-c);
+		background: var(--fracgui-bg-c);
 	}
 }
 
@@ -1243,11 +1229,11 @@ input.fracgui-search-input {
 	// background: var(--fracgui-input-container-background);
 	// todo - thought... if every customizable property assumes a default variable of the same name,
 	// todo - then it would be much simpler to override at runtime in the themer / user options
-	color: var(--color, var(--fracgui-input-container-color));
-	background: var(--background, var(--fracgui-input-container-background));
+	color: var(--fracgui-input-container-color);
+	background: var(--fracgui-input-container-background);
 
 	outline: var(--fracgui-input-container-outline);
-	box-shadow: var(--fracgui-input-container-shadow);
+	box-shadow: var(--fracgui-input-container-box-shadow);
 
 	transition:
 		all 0.15s,
@@ -1258,8 +1244,8 @@ input.fracgui-search-input {
 	$inverted-border-radius-bottom: 0.1rem;
 
 	&:first-of-type {
-		border-top-left-radius: var(--radius-sm);
-		border-top-right-radius: var(--radius-sm);
+		border-top-left-radius: var(--fracgui-radius-sm);
+		border-top-right-radius: var(--fracgui-radius-sm);
 
 		// top left corner
 		&::before {
@@ -1270,7 +1256,7 @@ input.fracgui-search-input {
 			width: $inverted-border-size;
 			height: $inverted-border-size * 2;
 			border-top-left-radius: $inverted-border-radius;
-			box-shadow: 0 -#{$inverted-border-size} 0 0 var(--bg-a);
+			box-shadow: 0 -#{$inverted-border-size} 0 0 var(--fracgui-bg-a);
 
 			clip-path: inset(0 0 0 0);
 			opacity: 1;
@@ -1286,7 +1272,7 @@ input.fracgui-search-input {
 			width: $inverted-border-size;
 			min-height: $inverted-border-size * 2;
 			border-top-right-radius: $inverted-border-radius;
-			box-shadow: 0 -#{$inverted-border-size} 0 0 var(--bg-a);
+			box-shadow: 0 -#{$inverted-border-size} 0 0 var(--fracgui-bg-a);
 
 			clip-path: inset(0 0 0 0);
 			opacity: 1;
@@ -1296,8 +1282,8 @@ input.fracgui-search-input {
 
 	@at-root .fracgui-folder:not(:last-of-type) .fracgui-input-container:last-of-type {
 		// &:last-of-type {
-		border-bottom-left-radius: var(--radius-sm);
-		border-bottom-right-radius: var(--radius-sm);
+		border-bottom-left-radius: var(--fracgui-radius-sm);
+		border-bottom-right-radius: var(--fracgui-radius-sm);
 
 		// bottom left corner
 		&::before {
@@ -1308,7 +1294,7 @@ input.fracgui-search-input {
 			height: $inverted-border-size * 2;
 			width: $inverted-border-size;
 			border-bottom-left-radius: $inverted-border-radius-bottom;
-			box-shadow: 0 $inverted-border-size 0 0 var(--bg-a);
+			box-shadow: 0 $inverted-border-size 0 0 var(--fracgui-bg-a);
 			clip-path: inset(0 0 0 0);
 		}
 		// bottom right corner
@@ -1321,13 +1307,13 @@ input.fracgui-search-input {
 			height: $inverted-border-size * 2;
 			width: $inverted-border-size;
 			border-bottom-right-radius: $inverted-border-radius-bottom;
-			box-shadow: 0 $inverted-border-size 0 0 var(--bg-a);
+			box-shadow: 0 $inverted-border-size 0 0 var(--fracgui-bg-a);
 			clip-path: inset(0 0 0 0);
 		}
 	}
 
 	&:hover {
-		color: var(--fg-b);
+		color: var(--fracgui-fg-b);
 	}
 
 	&:has(input:active),
@@ -1338,7 +1324,7 @@ input.fracgui-search-input {
 		}
 
 		.fracgui-input-title {
-			color: var(--theme-a);
+			color: var(--fracgui-theme-a);
 		}
 	}
 
@@ -1346,7 +1332,7 @@ input.fracgui-search-input {
 		min-height: var(--fracgui-input-height);
 
 		.fracgui-input-title {
-			color: var(--theme-a);
+			color: var(--fracgui-theme-a);
 		}
 	}
 
@@ -1392,7 +1378,7 @@ input.fracgui-search-input {
 			width: 100%;
 			height: 90%;
 
-			border-radius: var(--radius-sm);
+			border-radius: var(--fracgui-radius-sm);
 
 			.fracgui-input-number-buttons-container {
 				display: flex;
@@ -1419,8 +1405,8 @@ input.fracgui-search-input {
 					opacity: 0.5;
 
 					border: none;
-					border-radius: var(--radius-xs);
-					box-shadow: var(--fracgui-input-number-buttons-shadow-inset);
+					border-radius: var(--fracgui-radius-xs);
+					box-shadow: none;
 
 					transition: 0.15s;
 
@@ -1428,7 +1414,7 @@ input.fracgui-search-input {
 						width: 1rem;
 						height: 1rem;
 
-						color: var(--fracgui-input-buttons-icon-color);
+						color: var(--fracgui-fg-d);
 						opacity: 0.1;
 
 						scale: 1;
@@ -1439,39 +1425,40 @@ input.fracgui-search-input {
 					}
 
 					&:hover {
-						box-shadow: var(--fracgui-input-number-buttons-shadow-inset-hover);
-						// background: var(--fracgui-controller-background);
+						box-shadow: 0px 0px 1px 0px hsl(0, 0%, 0%) inset;
+						@at-root .fracgui-root[mode='light'] & {
+							box-shadow: 0px 0px 1px 0px hsl(0, 0%, 100%) inset;
+						}
 						opacity: 1;
 
 						svg {
-							// opacity: 1 !important;
 							opacity: 1;
 						}
 					}
 
 					&:active {
-						// background: unset;
-						// background: var(--fracgui-controller-background);
-						box-shadow: var(--fracgui-input-number-buttons-shadow-inset-active);
 						opacity: 1;
+						box-shadow: 0px 0px 1px 1px hsl(0, 0%, 5%) inset;
+						@at-root .fracgui-root[mode='light'] & {
+							box-shadow: 0px 0px 2px 1px hsl(0, 0%, 90%) inset;
+						}
 
 						svg {
-							// opacity: 1 !important;
 							opacity: 1;
-							color: var(--fracgui-input-buttons-icon-color-active);
+							color: var(--fracgui-theme-a);
 							//? svg shadow glow.
-							filter: drop-shadow(0 0 3px var(--theme-a));
+							filter: drop-shadow(0 0 3px var(--fracgui-theme-a));
 						}
 					}
 				}
 
 				.fracgui-input-number-buttons-increment {
-					border-top-left-radius: var(--radius);
-					border-top-right-radius: var(--radius);
+					border-top-left-radius: var(--fracgui-radius);
+					border-top-right-radius: var(--fracgui-radius);
 				}
 				.fracgui-input-number-buttons-decrement {
-					border-bottom-left-radius: var(--radius);
-					border-bottom-right-radius: var(--radius);
+					border-bottom-left-radius: var(--fracgui-radius);
+					border-bottom-right-radius: var(--fracgui-radius);
 				}
 			}
 		}
@@ -1487,8 +1474,8 @@ input.fracgui-search-input {
 
 			accent-color: var(--fracgui-input-number-range-color);
 			background: var(--fracgui-input-number-range-background);
-			border-radius: var(--radius-xs);
-			box-shadow: var(--fracgui-input-number-range-shadow);
+			border-radius: var(--fracgui-radius-xs);
+			box-shadow: var(--fracgui-input-number-range-box-shadow);
 			outline: var(--fracgui-input-number-range-outline);
 
 			opacity: 0.7;
@@ -1501,10 +1488,10 @@ input.fracgui-search-input {
 				opacity: 1;
 			}
 			&:active {
-				// background: rgba(var(--theme-a-rgb), 0.1);
+				// background: rgba(var(--fracgui-theme-a-rgb), 0.1);
 				background: color-mix(
 					in lch,
-					var(--theme-a),
+					var(--fracgui-theme-a),
 					var(--fracgui-input-number-range-background)
 				);
 			}
@@ -1517,7 +1504,7 @@ input.fracgui-search-input {
 				height: 1rem;
 
 				background: var(--fracgui-input-number-range-color);
-				border-radius: var(--radius-xs);
+				border-radius: var(--fracgui-radius-xs);
 				border: none;
 
 				transition: 0.15s;
@@ -1533,8 +1520,8 @@ input.fracgui-search-input {
 			}
 
 			@mixin rangeThumbActive {
-				background: var(--theme-a);
-				box-shadow: 0 0 20px var(--theme-a);
+				background: var(--fracgui-theme-a);
+				box-shadow: 0 0 20px var(--fracgui-theme-a);
 				opacity: 1;
 			}
 			&:active {
@@ -1551,7 +1538,7 @@ input.fracgui-search-input {
 				-moz-appearance: none;
 				appearance: none;
 
-				border-radius: var(--radius-sm);
+				border-radius: var(--fracgui-radius-sm);
 				border: none;
 				cursor: pointer;
 				z-index: 9;
@@ -1578,7 +1565,7 @@ input.fracgui-search-input {
 			height: 1.25rem;
 
 			border: none;
-			outline: var(--fracgui-input-outline);
+			outline: var(--fracgui-controller-outline);
 
 			@include fontMono;
 
@@ -1594,8 +1581,8 @@ input.fracgui-search-input {
 			}
 
 			&.dragging {
-				outline: 1px solid rgba(var(--theme-a-rgb), 0.5);
-				box-shadow: 0 0 0.75rem rgba(var(--theme-a-rgb), transparent 0.33);
+				outline: 1px solid rgba(var(--fracgui-theme-a-rgb), 0.5);
+				box-shadow: 0 0 0.75rem rgba(var(--fracgui-theme-a-rgb), transparent 0.33);
 			}
 		}
 
@@ -1615,19 +1602,19 @@ input.fracgui-search-input {
 				max-width: unset;
 				height: 1.25rem;
 
-				// color: var(--fracgui-controller-color-dim);
+				// color: var(--fracgui-controller-dim-color);
 				// color: color-mix(
 				// 	in lch,
 				// 	var(--fracgui-controller-color),
-				// 	var(--fracgui-controller-color-dim)
+				// 	var(--fracgui-controller-dim-color)
 				// );
-				// background: var(--fracgui-controller-background-dim);
+				// background: var(--fracgui-controller-dim-background);
 				// background-image: var(--fracgui-controller-background-image);
-				// box-shadow: var(--fracgui-input-shadow);
-				// border-radius: var(--radius-sm);
+				// box-shadow: var(--fracgui-input-content-box-shadow);
+				// border-radius: var(--fracgui-radius-sm);
 
 				border: none;
-				outline: var(--fracgui-input-outline);
+				outline: var(--fracgui-controller-outline);
 
 				@include fontMono;
 				text-align: start;
@@ -1668,23 +1655,23 @@ input.fracgui-search-input {
 					padding: 3px;
 					background: none !important;
 
-					color: var(--fg-d);
+					color: var(--fracgui-fg-d);
 					filter: brightness(0.75) contrast(0.8);
 					backdrop-filter: none;
 					svg {
 						.back {
-							fill: var(--fg-d);
-							stroke: var(--fg-d);
+							fill: var(--fracgui-fg-d);
+							stroke: var(--fracgui-fg-d);
 						}
 					}
 					&:hover {
 						filter: brightness(1) contrast(1);
 						backdrop-filter: none;
-						color: var(--fg-a);
+						color: var(--fracgui-fg-a);
 						svg {
 							.back {
-								fill: var(--fg-a);
-								stroke: var(--fg-a);
+								fill: var(--fracgui-fg-a);
+								stroke: var(--fracgui-fg-a);
 							}
 						}
 					}
@@ -1703,7 +1690,7 @@ input.fracgui-search-input {
 			.fracgui-input-color-current-color-background {
 				$size: 8px;
 				$size2: $size * 2;
-				$color: var(--bg-a);
+				$color: var(--fracgui-bg-a);
 
 				width: var(--fracgui-input-section-2-width);
 				min-width: var(--fracgui-input-section-2-width);
@@ -1719,13 +1706,13 @@ input.fracgui-search-input {
 					0 $size,
 					$size (-$size),
 					(-$size) 0px;
-				border-radius: var(--radius-sm);
+				border-radius: var(--fracgui-radius-sm);
 				overflow: hidden;
 
 				cursor: pointer;
 
 				// clip-path: inset(.25rem 0 .25rem 0);
-				clip-path: xywh(0 12% 100% 72% round var(--radius-sm));
+				clip-path: xywh(0 12% 100% 72% round var(--fracgui-radius-sm));
 			}
 
 			.fracgui-input-color-current-color-display {
@@ -1758,7 +1745,7 @@ input.fracgui-search-input {
 						width: 100%;
 						height: 3rem;
 
-						border-radius: var(--radius);
+						border-radius: var(--fracgui-radius);
 
 						cursor: pointer;
 						overflow: hidden;
@@ -1774,8 +1761,8 @@ input.fracgui-search-input {
 						translate: -50% -50%;
 
 						border-radius: 50%;
-						border: 1px solid var(--fg-a);
-						box-shadow: 0 0 0.25rem 0rem var(--bg-d);
+						border: 1px solid var(--fracgui-fg-a);
+						box-shadow: 0 0 0.25rem 0rem var(--fracgui-bg-d);
 						opacity: 0;
 
 						transition-property: all, opacity;
@@ -1817,7 +1804,7 @@ input.fracgui-search-input {
 						appearance: none;
 
 						width: 99%;
-						border-radius: var(--radius-sm);
+						border-radius: var(--fracgui-radius-sm);
 						background: none;
 						height: 0.5rem;
 
@@ -1842,7 +1829,7 @@ input.fracgui-search-input {
 								hsl(360, 100%, 50%)
 							);
 
-							border-radius: var(--radius-sm);
+							border-radius: var(--fracgui-radius-sm);
 							border: none;
 							cursor: pointer;
 							z-index: 1;
@@ -1858,11 +1845,11 @@ input.fracgui-search-input {
 
 					//- Alpha Slider
 
-					.fracgui-input-color-picker-alpha {
+					.fracgui-input-color-picker-opacity {
 						appearance: none;
 
 						width: 99%;
-						border-radius: var(--radius-sm);
+						border-radius: var(--fracgui-radius-sm);
 						background-color: transparent;
 
 						&::-webkit-slider-thumb {
@@ -1877,7 +1864,7 @@ input.fracgui-search-input {
 
 							background: linear-gradient(to right, transparent, currentColor);
 
-							border-radius: var(--radius-sm);
+							border-radius: var(--fracgui-radius-sm);
 							border: none;
 							cursor: pointer;
 							z-index: 1;
@@ -1887,7 +1874,7 @@ input.fracgui-search-input {
 
 							background: linear-gradient(to right, transparent, currentColor);
 
-							border-radius: var(--radius-sm);
+							border-radius: var(--fracgui-radius-sm);
 							border: none;
 							cursor: pointer;
 							z-index: 1;
@@ -1921,13 +1908,13 @@ input.fracgui-search-input {
 					.fracgui-input-color-components-select-container {
 						width: 2rem;
 
-						color: var(--fg-d);
+						color: var(--fracgui-fg-d);
 						@at-root .fracgui-root[mode='light'] & {
-							color: var(--bg-e);
+							color: var(--fracgui-bg-e);
 						}
 
-						font-size: var(--font-xs);
-						font-family: var(--fracgui-font-mono);
+						font-size: var(--fracgui-font-xs);
+						font-family: var(--fracgui-input-font-family);
 
 						span {
 							transition: 0.4s;
@@ -1935,55 +1922,55 @@ input.fracgui-search-input {
 						}
 
 						.fracgui-controller-select-selected {
-							font-size: var(--font-xxs);
+							font-size: var(--fracgui-font-xxs);
 						}
 					}
 
 					&:has(input.a.hovering) {
 						.fracgui-input-color-components-select-container span.a {
-							color: var(--fg-a);
+							color: var(--fracgui-fg-a);
 						}
 					}
 					&:has(input.a.dragging) {
 						.fracgui-input-color-components-select-container span.a {
-							color: var(--theme-a);
-							text-shadow: 0 0 0.5rem var(--theme-a);
+							color: var(--fracgui-theme-a);
+							text-shadow: 0 0 0.5rem var(--fracgui-theme-a);
 						}
 					}
 
 					&:has(input.b.hovering) {
 						.fracgui-input-color-components-select-container span.b {
-							color: var(--fg-a);
+							color: var(--fracgui-fg-a);
 						}
 					}
 					&:has(input.b.dragging) {
 						.fracgui-input-color-components-select-container span.b {
-							color: var(--theme-a);
-							text-shadow: 0 0 0.5rem var(--theme-a);
+							color: var(--fracgui-theme-a);
+							text-shadow: 0 0 0.5rem var(--fracgui-theme-a);
 						}
 					}
 
 					&:has(input.c.hovering) {
 						.fracgui-input-color-components-select-container span.c {
-							color: var(--fg-a);
+							color: var(--fracgui-fg-a);
 						}
 					}
 					&:has(input.c.dragging) {
 						.fracgui-input-color-components-select-container span.c {
-							color: var(--theme-a);
-							text-shadow: 0 0 0.5rem var(--theme-a);
+							color: var(--fracgui-theme-a);
+							text-shadow: 0 0 0.5rem var(--fracgui-theme-a);
 						}
 					}
 
 					&:has(input.d.hovering) {
 						.fracgui-input-color-components-select-container span.d {
-							color: var(--fg-a);
+							color: var(--fracgui-fg-a);
 						}
 					}
 					&:has(input.d.dragging) {
 						.fracgui-input-color-components-select-container span.d {
-							color: var(--theme-a);
-							text-shadow: 0 0 0.5rem var(--theme-a);
+							color: var(--fracgui-theme-a);
+							text-shadow: 0 0 0.5rem var(--fracgui-theme-a);
 						}
 					}
 
@@ -2039,7 +2026,7 @@ input.fracgui-search-input {
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-			$gap: 0.2rem;
+			$gap: 0.2rem 2rem;
 			gap: $gap;
 
 			width: 100%;
@@ -2052,6 +2039,25 @@ input.fracgui-search-input {
 				width: 100%;
 			}
 
+			.fracgui-controller-buttongrid-button {
+				&.active {
+					background: var(--fracgui-controller-background);
+					color: var(--fracgui-controller-color);
+					color: var(--fracgui-theme-a);
+					
+					font-variation-settings: 'wght' 800;
+					// outline: 1px solid var(--fracgui-controller-active-background);
+				}
+				@at-root .fracgui-root[mode='light'] & {
+					background: var(--fracgui-controller-dim-background);
+					color: var(--fracgui-controller-color);
+					&.active {
+						color: var(--fracgui-theme-a);
+						background: var(--fracgui-bg-e);
+					}
+				}
+			}
+
 			// .fracgui-controller-buttongrid-button {
 			// 	cursor: pointer;
 
@@ -2061,14 +2067,14 @@ input.fracgui-search-input {
 
 			// 	border: none;
 			// 	border-radius: var(--fracgui-controller-radius);
-			// 	outline: var(--fracgui-input-outline);
+			// 	outline: var(--fracgui-controller-outline);
 			// 	outline-offset: -1px;
 			// 	// prettier-ignore
 			// 	box-shadow:
-			// 		1px 2px 6px var(--shadow-color),
-			// 		1px -1px 1px hsla(250, 10%, calc(var(--shadow-lightness)), calc(var(--shadow-alpha))) inset,
-			// 		1px -1px 1px hsla(250, 10%, calc(var(--shadow-lightness)), calc(var(--shadow-alpha))) inset,
-			// 		-0.5px 0.5px 0.5px hsla(250, 10%, 50%, calc(var(--shadow-alpha))) inset
+			// 		1px 2px 6px var(--fracgui-shadow-color),
+			// 		1px -1px 1px hsla(250, 10%, calc(var(--fracgui-shadow-lightness)), calc(var(--fracgui-shadow-opacity))) inset,
+			// 		1px -1px 1px hsla(250, 10%, calc(var(--fracgui-shadow-lightness)), calc(var(--fracgui-shadow-opacity))) inset,
+			// 		-0.5px 0.5px 0.5px hsla(250, 10%, 50%, calc(var(--fracgui-shadow-opacity))) inset
 			// 	;
 
 			// 	@at-root .fracgui-root[mode='dark'] & {
@@ -2076,7 +2082,7 @@ input.fracgui-search-input {
 			// 	}
 			// 	// transition: 1s;
 
-			// 	font: var(--fracgui-font);
+			// 	font: var(--fracgui-font-family);
 			// 	font-weight: 400;
 			// 	text-align: center;
 
@@ -2092,15 +2098,15 @@ input.fracgui-search-input {
 			// 	// transition-duration: 0.2s;
 			// 	&:active {
 			// 		scale: 0.975;
-			// 		color: var(--theme-a);
+			// 		color: var(--fracgui-theme-a);
 			// 		transition-duration: 0.075s;
-			// 		// background: var(--fracgui-controller-background-bright);
+			// 		// background: var(--fracgui-controller-active-background);
 			// 		// prettier-ignore
 			// 		box-shadow:
-			// 			0px 0px 3px var(--shadow-color),
-			// 			0px 0px 5px hsla(250, 10%, calc(var(--shadow-lightness) / 3), calc(var(--shadow-alpha) / 1)) inset,
-			// 			0px 0px 10px hsla(250, 10%, calc(var(--shadow-lightness) / 2), calc(var(--shadow-alpha) / 2)) inset,
-			// 			0px 0px 20px hsla(250, 10%, calc(var(--shadow-lightness) / 1), calc(var(--shadow-alpha) / 2)) inset
+			// 			0px 0px 3px var(--fracgui-shadow-color),
+			// 			0px 0px 5px hsla(250, 10%, calc(var(--fracgui-shadow-lightness) / 3), calc(var(--fracgui-shadow-opacity) / 1)) inset,
+			// 			0px 0px 10px hsla(250, 10%, calc(var(--fracgui-shadow-lightness) / 2), calc(var(--fracgui-shadow-opacity) / 2)) inset,
+			// 			0px 0px 20px hsla(250, 10%, calc(var(--fracgui-shadow-lightness) / 1), calc(var(--fracgui-shadow-opacity) / 2)) inset
 			// 		;
 			// 		// scale: 0.99;
 			// 	}
@@ -2125,16 +2131,16 @@ input.fracgui-search-input {
 		}
 
 		.fracgui-controller-number {
-			color: var(--fg-b);
+			color: var(--fracgui-fg-b);
 		}
 
 		input.fracgui-input-number-range::-webkit-slider-thumb {
-			background-color: var(--bg-d);
+			background-color: var(--fracgui-bg-d);
 			transition: 0.15s;
 			opacity: 1;
 
 			&:active {
-				background-color: var(--theme-a);
+				background-color: var(--fracgui-theme-a);
 			}
 		}
 	}
@@ -2147,16 +2153,16 @@ input.fracgui-search-input {
 			width: 100%;
 			height: 100%;
 
-			font-size: var(--font-xs);
-			// font-family: var(--fracgui-font);
+			font-size: var(--fracgui-font-xs);
+			// font-family: var(--fracgui-font-family);
 
 			.fracgui-controller-select-selected {
 				line-height: 1.25rem;
 				height: 1.25rem;
 
-				background: var(--fracgui-controller-background-dim);
-				border-radius: var(--radius-xs);
-				outline: var(--fracgui-input-outline);
+				background: var(--fracgui-controller-dim-background);
+				border-radius: var(--fracgui-radius-xs);
+				outline: var(--fracgui-controller-outline);
 
 				//? chevron icon
 				&::before {
@@ -2167,7 +2173,7 @@ input.fracgui-search-input {
 
 					margin: auto;
 
-					color: var(--bg-d);
+					color: var(--fracgui-bg-d);
 					transform: rotate(90deg) translateX(0);
 					transition: 0.2s;
 				}
@@ -2181,14 +2187,14 @@ input.fracgui-search-input {
 					background: var(--fracgui-controller-background);
 					outline-offset: 0rem;
 					&::before {
-						color: var(--bg-e);
+						color: var(--fracgui-bg-e);
 					}
 				}
 				&.active {
-					outline: var(--fracgui-input-outline);
+					outline: var(--fracgui-controller-outline);
 
 					&::before {
-						color: var(--fg-d);
+						color: var(--fracgui-fg-d);
 						transform: rotate(90deg) translateX(2px);
 					}
 				}
@@ -2213,33 +2219,33 @@ input.fracgui-search-input {
 
 					// todo - We can't use the theme vars (cus portal).  Will need to fix this.
 					// background: var(--fracgui-controller-background);
-					// backdrop-filter: blur(var(--fracgui-blur));
+					// backdrop-filter: blur(var(--fracgui-root-blur));
 					// .fracgui-controller-select-option:hover {
-					// background: var(fracgui-input-background-dim);
+					// background: var(fracgui-input-dim-background);
 					// }
 
-					color: var(--light-a);
-					background: color-mix(in lch, var(--dark-a) 60%, transparent);
+					color: var(--fracgui-light-a);
+					background: color-mix(in lch, var(--fracgui-dark-a) 60%, transparent);
 					backdrop-filter: blur(5px);
 					outline: 1px solid;
-					outline-color: var(--dark-b);
+					outline-color: var(--fracgui-dark-b);
 
 					.fracgui-controller-select-option:hover {
-						color: var(--light-a);
-						background: color-mix(in lch, var(--dark-c), transparent);
-						outline-color: var(--dark-b);
+						color: var(--fracgui-light-a);
+						background: color-mix(in lch, var(--fracgui-dark-c), transparent);
+						outline-color: var(--fracgui-dark-b);
 					}
 				}
 				&:has(.fracgui-root[mode='light']) {
 					.fracgui-controller-select-dropdown {
-						color: var(--dark-b);
-						background: color-mix(in lch, var(--light-a) 60%, transparent);
-						outline-color: var(--light-b);
+						color: var(--fracgui-dark-b);
+						background: color-mix(in lch, var(--fracgui-light-a) 60%, transparent);
+						outline-color: var(--fracgui-light-b);
 
 						.fracgui-controller-select-option:hover {
-							color: var(--dark-a);
-							background: color-mix(in lch, var(--light-d) 60%, transparent);
-							outline-color: var(--light-d);
+							color: var(--fracgui-dark-a);
+							background: color-mix(in lch, var(--fracgui-light-d) 60%, transparent);
+							outline-color: var(--fracgui-light-d);
 						}
 					}
 				}
@@ -2259,9 +2265,9 @@ input.fracgui-search-input {
 // 	width: 100%;
 // 	padding: 0.5rem;
 
-// 	color: var(--fg-c);
-// 	outline: 1px solid rgba(var(--bg-b-rgb), 0.5);
-// 	border-radius: var(--radius);
+// 	color: var(--fracgui-fg-c);
+// 	outline: 1px solid rgba(var(--fracgui-bg-b-rgb), 0.5);
+// 	border-radius: var(--fracgui-radius);
 
 // 	font-size: 1rem;
 
@@ -2274,7 +2280,7 @@ input.fracgui-search-input {
 
 // 		font-weight: 600;
 // 		font-size: var(--fracgui-input-font-size);
-// 		font-family: var(--font-b);
+// 		font-family: var(--fracgui-font-b);
 // 	}
 
 // 	.v {
@@ -2289,7 +2295,7 @@ input.fracgui-search-input {
 
 // 		width: 100%;
 
-// 		font-family: var(--font-mono);
+// 		font-family: var(--fracgui-input-font-family);
 
 // 		select {
 // 			// all: unset;
@@ -2299,10 +2305,10 @@ input.fracgui-search-input {
 // 			padding: 0.2rem 0.5rem 0.23rem 0.5rem;
 // 			text-align: center;
 
-// 			color: var(--theme-a);
-// 			background: var(--bg-b);
-// 			border-radius: var(--radius-sm);
-// 			border: 1px solid var(--bg-c);
+// 			color: var(--fracgui-theme-a);
+// 			background: var(--fracgui-bg-b);
+// 			border-radius: var(--fracgui-radius-sm);
+// 			border: 1px solid var(--fracgui-bg-c);
 
 // 			font-weight: 300;
 // 			transition:
@@ -2310,7 +2316,7 @@ input.fracgui-search-input {
 // 				font-weight 0.6s;
 
 // 			&:hover {
-// 				border-color: rgba(var(--theme-a-rgb), 0.33);
+// 				border-color: rgba(var(--fracgui-theme-a-rgb), 0.33);
 
 // 				font-weight: 500;
 // 			}
@@ -2332,11 +2338,11 @@ input.fracgui-search-input {
 // 				grid-area: 1 / 1;
 // 			}
 
-// 			background: var(--bg-b);
-// 			border-radius: var(--radius-sm);
-// 			border: 1px solid var(--bg-c);
+// 			background: var(--fracgui-bg-b);
+// 			border-radius: var(--fracgui-radius-sm);
+// 			border: 1px solid var(--fracgui-bg-c);
 // 			div {
-// 				color: var(--theme-a);
+// 				color: var(--fracgui-theme-a);
 // 			}
 
 // 			font-weight: 300;
@@ -2345,17 +2351,17 @@ input.fracgui-search-input {
 // 				font-weight 0.6s;
 
 // 			&:hover {
-// 				border-color: rgba(var(--theme-a-rgb), 0.33);
+// 				border-color: rgba(var(--fracgui-theme-a-rgb), 0.33);
 
 // 				font-weight: 500;
 // 			}
 
 // 			&.active:not(:has(.delete:hover)) {
 // 				div {
-// 					color: var(--bg-b);
+// 					color: var(--fracgui-bg-b);
 // 				}
-// 				background: var(--theme-a);
-// 				// border-color: var(--theme-a);
+// 				background: var(--fracgui-theme-a);
+// 				// border-color: var(--fracgui-theme-a);
 // 			}
 
 // 			&:has(.delete:hover) {
@@ -2378,7 +2384,7 @@ input.fracgui-search-input {
 // 				padding: 0.05rem;
 // 				// padding-top: 0;
 
-// 				color: var(--bg-a);
+// 				color: var(--fracgui-bg-a);
 // 				border-radius: 0.2rem;
 
 // 				opacity: 0;
@@ -2387,9 +2393,9 @@ input.fracgui-search-input {
 // 				z-index: 1;
 
 // 				&:hover {
-// 					background: var(--fg-a);
+// 					background: var(--fracgui-fg-a);
 // 					// background: tomato;
-// 					// color: var(--bg-a);
+// 					// color: var(--fracgui-bg-a);
 // 					color: tomato !important;
 // 				}
 // 			}
