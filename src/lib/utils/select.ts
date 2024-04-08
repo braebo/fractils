@@ -25,8 +25,13 @@ export function select(input: ElementsOrSelectors, node?: HTMLElement): HTMLElem
 		if (!el) return []
 
 		if (el instanceof HTMLElement) return [el]
+		// @ts-expect-error //- idk what the issue is because (document instanceof Document) is always `true`
+		if (el instanceof Document) {
+			return [document.documentElement]
+		}
 
 		if (typeof el === 'string') {
+			if (el === 'document') return [document.documentElement]
 			if (el.startsWith('#')) {
 				const foundEl = document.getElementById(JSON.stringify(el).slice(1))
 				if (foundEl) {
