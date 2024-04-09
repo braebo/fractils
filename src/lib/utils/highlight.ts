@@ -1,6 +1,6 @@
-import type { HighlighterCore } from 'shikiji/core'
-import type { CodeToHastOptions } from 'shikiji'
-import type { Lang, Theme } from 'shiki'
+import type { LanguageInput, ThemeInput } from 'shiki'
+import type { HighlighterCore } from 'shiki/core'
+import type { CodeToHastOptions } from 'shiki'
 
 // import { transformerTwoSlash } from 'shikiji-twoslash'
 import { serendipity } from './highlight.serendipity'
@@ -9,9 +9,9 @@ import {
 	transformerNotationHighlight,
 	transformerNotationFocus,
 	transformerNotationDiff,
-} from 'shikiji-transformers'
+} from '@shikijs/transformers'
 
-import { getWasmInlined, bundledLanguages } from 'shikiji'
+import { getWasmInlined, bundledLanguages } from 'shiki'
 import { logger } from './logger'
 import { fmtTime } from './time'
 import { dim, o } from './l'
@@ -19,17 +19,17 @@ import { dim, o } from './l'
 const DEBUG = false
 const log = logger('highlight', { fg: '#94b8ff', deferred: false, browser: DEBUG, server: DEBUG })
 
-export type HighlightOptions = CodeToHastOptions<Lang, Theme> & {
+export type HighlightOptions = CodeToHastOptions<string, string> & {
 	/**
 	 * The language to highlight.
 	 * @defaultValue 'svelte'
 	 */
-	lang: Lang
+	lang: LanguageInput | string
 	/**
 	 * The language to highlight.
 	 * @defaultValue 'javascript'
 	 */
-	theme: Theme | 'serendipity'
+	theme: ThemeInput | 'serendipity'
 }
 
 export const HIGHLIGHT_DEFAULTS: HighlightOptions = {
@@ -42,10 +42,10 @@ export const HIGHLIGHT_DEFAULTS: HighlightOptions = {
 	// ],
 } as const
 
-const themes = new Set<Theme>()
+const themes = new Set<ThemeInput>()
 
 // The default theme.
-themes.add('serendipity' as Theme)
+themes.add('serendipity' as ThemeInput)
 
 /**
  * Converts text to HTML with syntax highlighting using shikiji.
@@ -54,7 +54,7 @@ export async function highlight(text: string, options?: Partial<HighlightOptions
 	const opts = { ...HIGHLIGHT_DEFAULTS, ...options } as HighlightOptions
 
 	const lang = opts.lang === 'ts' ? 'typescript' : opts.lang
-	const theme = opts.theme as Theme
+	const theme = opts.theme as ThemeInput
 
 	log('highlighting', { lang, theme })
 	const start = performance.now()
@@ -70,7 +70,7 @@ export async function highlight(text: string, options?: Partial<HighlightOptions
 	if (!all.includes(lang)) {
 		log(o('Language not loaded:'), lang, all)
 
-		await highlighter.loadLanguage(bundledLanguages[lang])
+		await highlighter.loadLanguage(bundledLanguages[lang as keyof typeof bundledLanguages])
 
 		log('loaded', lang)
 
