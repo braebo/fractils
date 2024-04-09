@@ -77,14 +77,14 @@ export class Search {
 			const node = controller.elements.container
 
 			// We already have right state.
-			if (node.dataset.search === result) continue
+			if (node.dataset['search'] === result) continue
 
 			const style = getComputedStyle(node)
 
-			node.dataset.search_height ??= style.minHeight
-			node.dataset.search_overflow ??= style.overflow ?? 'unset'
-			node.dataset.search_contain ??= style.contain ?? 'none'
-			node.dataset.search_opacity ??= style.opacity ?? 1
+			node.dataset['search_height'] ??= style.minHeight
+			node.dataset['search_overflow'] ??= style.overflow ?? 'unset'
+			node.dataset['search_contain'] ??= style.contain ?? 'none'
+			node.dataset['search_opacity'] ??= style.opacity ?? 1
 
 			if (result === 'hit') {
 				this.#expand(node)
@@ -92,18 +92,18 @@ export class Search {
 				this.#collapse(node)
 			}
 
-			node.dataset.search = result
+			node.dataset['search'] = result
 		}
 	}
 
 	#expand = (node: HTMLElement) => {
-		if (node.dataset.search === 'miss') {
-			console.log('expand', node.dataset.search)
+		if (node.dataset['search'] === 'miss') {
+			console.log('expand', node.dataset['search'])
 
-			node.style.setProperty('overflow', node.dataset.search_overflow!)
-			node.style.setProperty('contain', node.dataset.search_contain!)
+			node.style.setProperty('overflow', node.dataset['search_overflow']!)
+			node.style.setProperty('contain', node.dataset['search_contain']!)
 
-			const targetHeight = node.dataset.search_height ?? '100%'
+			const targetHeight = node.dataset['search_height'] ?? '100%'
 
 			console.log(targetHeight)
 
@@ -118,7 +118,7 @@ export class Search {
 	}
 
 	#collapse = (node: HTMLElement) => {
-		console.log('collapse', node.dataset.search)
+		console.log('collapse', node.dataset['search'])
 		node.style.setProperty('overflow', 'hidden')
 		node.style.setProperty('contain', 'size')
 

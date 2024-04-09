@@ -71,10 +71,6 @@ let foo = {
 	bar: 'ba',
 }
 
-let bar = {
-	baz: 10,
-}
-
 const undoManager = new UndoManager()
 
 const pushFoo = undoManager.register({

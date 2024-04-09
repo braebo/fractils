@@ -114,6 +114,8 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 		this.elements.controllers.range.value = String(v)
 		this.elements.controllers.input.value = String(v)
 		this.callOnChange(v) // todo - should this go in the state subscription?
+
+		return this
 	}
 
 	dispose() {
