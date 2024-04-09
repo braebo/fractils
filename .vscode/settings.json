@@ -218,9 +218,9 @@
 	"terminal.integrated.env.osx": {},
 	"editor.acceptSuggestionOnCommitCharacter": false,
 	"diffEditor.ignoreTrimWhitespace": false,
-	"editor.renderWhitespace": "all",
+	"editor.renderWhitespace": "none",
 	"workbench.panel.defaultLocation": "left",
 	"window.zoomLevel": 0,
 	"focus.highlightRange": "block",
-	"workbench.colorTheme": "Dark Horizon"
+	"workbench.colorTheme": "Serendipity Morning"
 }
