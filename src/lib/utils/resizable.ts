@@ -8,7 +8,6 @@ import { state } from '../utils/state'
 import { select } from './select'
 import { clamp } from './clamp'
 import { fn, gr } from './l'
-import { DEV } from 'esm-env'
 
 /**
  * The sides of an element that can be resized by the {@link resizable} action.
@@ -256,7 +255,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			grabber.classList.add(this.opts.classes.default)
 			grabber.classList.add(this.opts.classes.default + '-' + type)
 			grabber.classList.add(this.opts.classes.default + '-' + side)
-			grabber.dataset.side = side
+			grabber.dataset['side'] = side
 			// grabber.style.setProperty('opacity', this.opts.visible ? '1' : '0')
 
 			grabber.addEventListener('pointerdown', this.onGrab)
@@ -324,7 +323,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 
 		this.obstacleEls = select(this.opts.obstacles)
 
-		const side = this.#activeGrabber.dataset.side
+		const side = this.#activeGrabber.dataset['side']
 		if (side!.match(/top/)) this.clickOffset.y = e.clientY - this.rect.top
 		if (side!.match(/bottom/)) this.clickOffset.y = e.clientY - this.rect.bottom
 		if (side!.match(/left/)) this.clickOffset.x = e.clientX - this.rect.left
@@ -343,17 +342,17 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 	}
 
 	get translateX() {
-		return +this.node.dataset.translateX! || 0
+		return +this.node.dataset['translateX']! || 0
 	}
 	set translateX(v: number) {
-		this.node.dataset.translateX = String(v)
+		this.node.dataset['translateX'] = String(v)
 	}
 
 	get translateY() {
-		return +this.node.dataset.translateY! || 0
+		return +this.node.dataset['translateY']! || 0
 	}
 	set translateY(v: number) {
-		this.node.dataset.translateY = String(v)
+		this.node.dataset['translateY'] = String(v)
 	}
 
 	get rect() {
