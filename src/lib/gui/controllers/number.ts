@@ -53,7 +53,7 @@ export const numberController: ControllerFactory<HTMLInputElement> = (input, opt
 			controller.removeEventListener('pointerleave', cancelDrag)
 			controller.removeEventListener('pointerdown', maybeDragStart)
 
-			controller.style.cursor = controller.dataset.cursor ?? 'text'
+			controller.style.cursor = controller.dataset['cursor'] ?? 'text'
 
 			if (dragging) {
 				dragEnd()
@@ -69,7 +69,7 @@ export const numberController: ControllerFactory<HTMLInputElement> = (input, opt
 			controller.addEventListener('pointerleave', cancelDrag)
 			controller.addEventListener('pointerdown', maybeDragStart)
 
-			controller.dataset.cursor = getComputedStyle(controller).cursor
+			controller.dataset['cursor'] = getComputedStyle(controller).cursor
 			controller.style.cursor = 'ns-resize'
 		}
 	}
@@ -134,7 +134,7 @@ export const rangeController: ControllerFactory<HTMLInputElement> = (input, opts
 	if ('max' in opts) range.max = String(opts.max)
 	if ('step' in opts) range.step = String(opts.step)
 
-	input.listen(range, 'input', input.set)
+	input.listen(range, 'input', input.set as EventListener)
 
 	return range
 }
