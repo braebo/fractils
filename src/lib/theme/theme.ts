@@ -1,7 +1,7 @@
 import { get, writable } from 'svelte/store'
 import { Logger } from '$lib/utils/logger'
 import { state } from '../utils/state'
-import { bd, r } from '../utils/l'
+import { bd } from '../utils/l'
 
 export type Theme = 'light' | 'dark' | 'system'
 
