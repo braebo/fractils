@@ -1,5 +1,4 @@
 import type { ParsedFile, TSDocComment } from '$scripts/extractinator/src/types'
-import type { Lang } from 'shiki'
 
 import { mkdir, readdir, writeFile } from 'node:fs/promises'
 import { markedHighlight } from 'marked-highlight'
@@ -57,7 +56,7 @@ class CustomRenderer extends Renderer {
 
 	async = true
 
-	code(code: string, lang: string | undefined) {
+	code(code: string) {
 		this.codeBlockCounter++
 		// this.blocks.push({ type: 'code', content: code, lang })
 		return `<__DOCINATOREPLACE__>${code}</__DOCINATOREPLACE__>`
@@ -69,7 +68,7 @@ const renderer = new CustomRenderer()
 interface ParsedHighlightedBlock {
 	code: string
 	info: string
-	lang: Lang
+	lang: string
 	theme: string
 }
 const HL_MAP = new Map<string, ParsedHighlightedBlock>()
@@ -84,10 +83,10 @@ const instance = new Marked(
 			// console.log('highlighting', { code, lang, info })
 
 			const highlighted = await highlight(code, {
-				lang: lang as Lang,
+				lang,
 				theme: 'serendipity',
 			})
-			HL_MAP.set(highlighted, { code, info, lang: lang as Lang, theme: 'serendipity' })
+			HL_MAP.set(highlighted, { code, info, lang, theme: 'serendipity' })
 			return highlighted
 			// } catch (e) {
 			// 	console.trace()
@@ -98,8 +97,6 @@ const instance = new Marked(
 )
 
 instance.setOptions({ renderer })
-
-let i = 0
 
 /**
  * Converts rich-text from examples to {@link Blocks} with syntax highlighting using shikiji.
@@ -117,7 +114,7 @@ async function main(input_path: string, output_path: string) {
 	l('Output:', d(output))
 
 	// Read the directory and get all the files recursively.
-	const files = (await readdir(input)).filter((f) => f.endsWith('.doc.json'))
+	const files = (await readdir(input)).filter(f => f.endsWith('.doc.json'))
 
 	n()
 	l(files.length, d('files found'))
@@ -126,7 +123,7 @@ async function main(input_path: string, output_path: string) {
 
 	// Read all the files.
 	const docs = await Promise.all(
-		files.map(async (file) => {
+		files.map(async file => {
 			const path = `${input}/${file}`
 			const json = await import(path)
 			return json.default as ParsedFile
@@ -141,7 +138,7 @@ async function main(input_path: string, output_path: string) {
 
 	// Write all the files.
 	await Promise.all(
-		highlighted.map(async (doc) => {
+		highlighted.map(async doc => {
 			const path = `${output}/${doc.fileName}.doc.json`
 			await writeFile(path, JSON.stringify(doc, null, 2), 'utf-8')
 		}),
@@ -154,7 +151,7 @@ async function main(input_path: string, output_path: string) {
 
 async function highlightDocs(docs: ParsedFile[]) {
 	const highlighted = await Promise.all(
-		docs.map(async (doc) => {
+		docs.map(async doc => {
 			if (!doc) return doc
 
 			if (doc.type === 'svelte') {
@@ -171,15 +168,14 @@ async function highlightDocs(docs: ParsedFile[]) {
 
 					for (const [index, item] of Object.entries(value)) {
 						if (!item.comment) continue
-						doc[key][index].comment = await highlightComment(item.comment)
-						
+						doc[key][+index].comment = await highlightComment(item.comment)
+
 						// Highlight default values.
 						const { defaultValue } = item.comment
 						if (defaultValue) {
-							doc[key][index].comment.defaultValue =
-								await highlight(defaultValue, {
-									lang: 'ts'
-								})
+							doc[key][+index].comment!.defaultValue = await highlight(defaultValue, {
+								lang: 'ts',
+							})
 						}
 					}
 				}
@@ -193,14 +189,14 @@ async function highlightDocs(docs: ParsedFile[]) {
 						const { comment } = file
 						if (!comment) continue
 
-						doc.exports[index].comment = await highlightComment(comment)
+						doc.exports[+index].comment = await highlightComment(comment)
 					}
 				}
 			}
 
 			return doc
 		}),
-	).catch((err) => {
+	).catch(err => {
 		console.error(err)
 		throw err
 	})
@@ -226,7 +222,7 @@ async function highlightComment(_comment: TSDocComment) {
 	let examples = comment.examples
 	if (comment.examples) {
 		examples = await Promise.all(
-			comment.examples.map(async (example) => {
+			comment.examples.map(async example => {
 				return {
 					...example,
 					blocks: await hl(example.content),
@@ -300,7 +296,7 @@ function splitContent(input: string): Blocks | null {
 		result.push({ type: 'other', content: input.slice(lastIndex).trim() })
 	}
 
-	if (!result.some((b) => b.type === 'code')) {
+	if (!result.some(b => b.type === 'code')) {
 		return null
 	}
 
