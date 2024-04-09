@@ -4,15 +4,14 @@
  * @fileoverview Generates syntax-highlighted HTML from code blocks.
  */
 
-import { getHighlighter, loadTheme } from 'shiki'
+import { getHighlighter } from 'shiki'
+import theme from './serendipity'
 import fs from 'fs/promises'
 
 const lang = 'svelte'
 
-const theme = await loadTheme(__dirname + `/serendipity.json`)
-
 const highlighter = await getHighlighter({
-	theme,
+	themes: [theme],
 	langs: [lang],
 })
 
@@ -21,7 +20,10 @@ const files = import.meta.glob<{ default: string }>('../../examples/**/*.example
 for await (const [path, module] of Object.entries(files)) {
 	const { default: code } = await module()
 
-	const highlighted = highlighter.codeToHtml(code, lang)
+	const highlighted = highlighter.codeToHtml(code, {
+		theme: 'serendipity',
+		lang: 'svelte',
+	})
 
 	const output = new URL(path, import.meta.url).pathname.replace('.example.js', '.html')
 
