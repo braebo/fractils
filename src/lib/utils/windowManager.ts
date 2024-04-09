@@ -100,7 +100,7 @@ export class WindowManager {
 		this.#log.fn('constructor').info({ opts: this.opts, this: this })
 	}
 
-	add: Action<[HTMLElement, Partial<WindowInstanceOptions>]> = (
+	add: Action<HTMLElement, Partial<WindowInstanceOptions> | undefined> = (
 		node: HTMLElement,
 		options?: Partial<WindowInstanceOptions>,
 	) => {
