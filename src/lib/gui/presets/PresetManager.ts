@@ -1,90 +1,110 @@
-import { create } from '$lib/utils/create'
-import type { Gui } from '../Gui'
-import { Input, type InputOptions } from '../inputs/Input'
+import type { Folder } from '../Folder'
 
-// interface PresetManagerElements
+import { create, type CreateOptions } from '../../utils/create'
+import { entries } from '../../utils/object'
 
 type Preset = Record<string, any>
 
 export class PresetManager {
-	presets: Map<string, Preset> = new Map()
+	presets = new Map<string, Preset>()
 
-	constructor(public gui: Gui) {}
+	constructor(public folder: Folder) {}
 
-	load() {}
-}
+	save(presetName: string) {
+		const preset = {} as Preset
 
-export type ButtonItem = {
-	text: string
-	onClick: () => void
-}
+		for (const [id, controller] of this.folder.allControls) {
+			preset[id] = controller.state.value
+		}
 
-export type ButtonGridControllerOptions = {
-	items: ButtonItem[][]
-}
-
-export type ButtonId = string
-
-export class InputButtons {
-	buttons = new Map<ButtonId, HTMLButtonElement>()
-
-	elements: {
-		container: HTMLDivElement
-		buttons: HTMLButtonElement[]
+		this.presets.set(presetName, preset)
 	}
 
-	constructor(
-		public parent: HTMLElement,
-		public options: ButtonGridControllerOptions,
-	) {
-		InputButtons.init()
+	load(presetName: string) {
+		const preset = this.presets.get(presetName)
+		if (!preset) {
+			// todo - toasts?
+			// this.folder.root.toasts.set('Preset not found', 'error')
+			return
+		}
 
-		const container = create('div', {
-			classes: ['fracgui-controller', 'fracgui-controller-buttons-container'],
-		})
+		for (const [id, value] of entries(preset)) {
+			const controller = this.folder.controls.get(id)
+			if (!controller) continue
 
-		this.elements = {
-			container,
-			get buttons() {
-				return Array.from(this.buttons)
-			},
+			// controller.state.set(value)
 		}
 	}
+}
 
-	addButton(id: ButtonId, text: string, onClick: () => void) {
-		const button = create('button', {
-			classes: ['fracgui-controller-buttons-button'],
-			text,
-			parent: this.elements.container,
+interface ElementOptions {
+	namespace?: string
+	classes?: string[]
+}
+
+class Elements<const ContainerType extends HTMLElement = HTMLElement> {
+	ns: string
+	classes: string[]
+
+	constructor(
+		public container: ContainerType,
+		options?: ElementOptions,
+	) {
+		this.classes = options?.classes ?? []
+		this.ns = options?.namespace ?? 'fracgui'
+	}
+
+	addClasses() {
+		for (const el of entries(this)) {
+			if (el instanceof HTMLElement) {
+				el.classList.add(...this.classes)
+			}
+		}
+	}
+}
+
+class PresetManagerElements extends Elements {
+	save: HTMLButtonElement
+	load: HTMLButtonElement
+	preset: HTMLSelectElement
+	presetName: HTMLInputElement
+	duplicate: HTMLButtonElement
+	delete: HTMLButtonElement
+	export: HTMLButtonElement
+	import: HTMLButtonElement
+
+	constructor(container: HTMLElement) {
+		super(container, {
+			namespace: 'fracgui-presetmanager',
+			classes: ['fracgui-controller', 'fracgui-button'],
 		})
 
-		button.addEventListener('click', onClick)
+		const { ns } = this
 
-		this.buttons.set(id, button)
+		this.save = create('button', 'save')
+		this.load = create('button', 'load')
+
+		this.load = create('button', { parent: container, classes: [`${ns}-load`] })
+		this.preset = create('select', { parent: container, classes: [`${ns}-preset`] })
+		this.presetName = create('input', { parent: container, classes: [`${ns}-presetName`] })
+		this.duplicate = create('button', { parent: container, classes: [`${ns}-duplicate`] })
+		this.delete = create('button', { parent: container, classes: [`${ns}-delete`] })
+		this.export = create('button', { parent: container, classes: [`${ns}-export`] })
+		this.import = create('button', { parent: container, classes: [`${ns}-import`] })
 	}
 
-	static initialized = false
-	static init() {
-		if (this.initialized) return
-		this.initialized = true
+	create<const T extends Parameters<typeof create>[0], const O extends CreateOptions>(
+		tagname: T,
+		scope: string,
+		options = {} as O,
+	) {
+		this.container
+		options.parent ??= this.container
+		options.classes ??= []
 
-		const style = document.createElement('style')
-		style.textContent = this.style
-		document.head.appendChild(style)
+		return create(tagname, {
+			...options,
+			classes: ['fracgui-' + scope, ...options.classes.map(c => `${this.ns}=${scope}-${c}`)],
+		})
 	}
-	static style = /*css*/ `
-        .fracgui-controller-buttons-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5em;
-        }
-        .fracgui-controller-buttons-button {
-            padding: 0.5em 1em;
-            margin: 0.25em;
-            border: none;
-            background-color: #333;
-            color: white;
-            cursor: pointer;
-        }
-    `
 }
