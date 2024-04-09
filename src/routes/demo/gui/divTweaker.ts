@@ -1,12 +1,13 @@
-import { isColorFormat, type Color } from '$lib/color/color'
+import type { ColorFormat } from '$lib/color/types/colorFormat'
 import type { StandardPropertiesHyphen } from 'csstype'
-import type { Input } from '$lib/gui/inputs/Input'
+import type { ValidInput } from '$lib/gui/inputs/Input'
+import type { Folder } from '$lib/gui/Folder'
+import type { Color } from '$lib/color/color'
 
 import { deepMerge } from '$lib/utils/deepMerge'
+import { isColorFormat } from '$lib/color/color'
 import { Gui } from '$lib/gui/Gui'
 import { DEV } from 'esm-env'
-import type { Folder } from '$lib/gui/Folder'
-import type { ColorFormat } from '$lib/color/types/colorFormat'
 
 export interface DivTweakerOptions {
 	/** The parent element to mount the {@link Gui} to. */
@@ -83,7 +84,7 @@ export class DivTweaker {
 		this.addStyleBindings()
 	}
 
-	#styleBindings = new Map<keyof StandardPropertiesHyphen | (string & {}), Input>()
+	#styleBindings = new Map<keyof StandardPropertiesHyphen | (string & {}), ValidInput>()
 	folders = new Map<string, Folder>()
 
 	addStyleBindings() {
@@ -115,7 +116,7 @@ export class DivTweaker {
 		const value = this.#computedStyle.getPropertyValue(key as string)
 		const prefix = key.split('-')[0]
 
-		let controller: Input
+		let controller: ValidInput
 
 		if (key.includes('color') && isColorFormat(value)) {
 			controller = folder.addColor({
@@ -162,7 +163,7 @@ export class DivTweaker {
 		document.body.appendChild(clone)
 		// clone.style.setProperty('z-index', '99999')
 
-		const { filter, opacity } = getComputedStyle(clone)
+		// const { filter, opacity } = getComputedStyle(clone)
 
 		clone.animate([{ opacity: 1 }], { duration: 250, fill: 'forwards' }).onfinish = () => {
 			clone.animate(
