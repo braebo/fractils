@@ -46,5 +46,5 @@
 		"emitDecoratorMetadata": true,
 	},
 	"include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.ts", "src/**/*.svelte"],
-	"exclude": ["**/*.example.js"],
+	"exclude": ["**/*.example.js", "./src/scripts/extract/**/*.*", "./src/scripts/extractinator/**/*.*"],
 }
