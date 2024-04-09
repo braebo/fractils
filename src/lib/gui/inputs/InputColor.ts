@@ -160,10 +160,11 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 	}
 
 	refresh = (v = this.state.value) => {
-		// console.log('refresh', this.state.value.hex8String)
 		this.elements.controllers.currentColor.display.style.backgroundColor = v.hex8String
 		this.picker.refresh()
 		this.components.refresh()
+		
+		return this
 	}
 
 	//· Getters & Setters ····················································¬
