@@ -44,7 +44,8 @@
 		content.style.maxHeight = $screenH - content.getBoundingClientRect().top * 2 + 'px'
 	}
 
-	let e: Event
+	let e: Event | undefined = undefined
+	e
 </script>
 
 <div
@@ -57,7 +58,7 @@
 >
 	<div class="nub" on:pointerdown={toggle} aria-disabled="true">{nub}</div>
 
-	<div class="side-menu-content" bind:this={content} on:scroll={(ev) => (e = ev)}>
+	<div class="side-menu-content" bind:this={content} on:scroll={ev => (e = ev)}>
 		<MacScrollbar root=".side-menu-content" --mac-scrollbar-color="#131315" />
 
 		<nav>

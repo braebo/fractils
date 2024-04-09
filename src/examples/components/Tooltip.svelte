@@ -1,26 +1,11 @@
-<script>
+<script lang="ts">
 	import Example from '$examples/_lib/Item/Example.svelte'
 	import Params from '$examples/_lib/Item/Params.svelte'
-	import { pulse } from '$examples/_lib/lib_stores'
 	import Item from '../_lib/Item/Item.svelte'
-	import { Tooltip, theme } from '$lib'
 	import html from './Tooltip.html?raw'
+	import { Tooltip } from '$lib'
 
 	const path = 'components/Tooltip.svelte'
-
-	let timer
-	let animating = false
-	const handlePulse = () => {
-		if (animating) return
-		animating = true
-
-		if (timer) clearTimeout(timer)
-		$pulse = true
-		timer = setTimeout(() => {
-			$pulse = false
-			animating = false
-		}, 1000)
-	}
 </script>
 
 <Item title="Tooltip" type="component" {path} --width="190px">
