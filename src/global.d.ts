@@ -12,6 +12,10 @@ declare global {
 		}
 		// interface Platform {}
 	}
+
+	interface ImportMetaEnv {
+		FRACTILS_LOG_LEVEL: string
+	}
 }
 
 export {}

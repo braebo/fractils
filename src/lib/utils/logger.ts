@@ -1,12 +1,12 @@
 import { randomColor, type CSSColor } from '../color/css'
 
 import { BROWSER, DEV } from 'esm-env'
-import { b, fn, r, y, gr, dim } from './l'
+import { b, r, y, gr, dim } from './l'
 import { isSafari } from './safari'
 import { defer } from './defer'
 
 // todo - Is there a reliable way to type an ImportMetaEnv entry globally for consumers?
-const ENABLED = DEV && import.meta.env.LOG_LEVEL !== 'none'
+const ENABLED = DEV && import.meta.env.FRACTILS_LOG_LEVEL !== 'none'
 const bypassStyles = false
 // const bypassDefer = false
 const bypassDefer = true
