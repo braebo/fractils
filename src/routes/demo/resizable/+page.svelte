@@ -32,7 +32,7 @@
 	]
 </script>
 
-{#each obstacles as { title, style, defaultPosition }, i}
+{#each obstacles as { title, style, defaultPosition }}
 	<div
 		{style}
 		class="obstacle"
