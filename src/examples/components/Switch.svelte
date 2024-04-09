@@ -1,30 +1,28 @@
 <!-- Switch editor wip -- pulled from DHM -->
 
 <script lang="ts">
-	import Switch from '$lib/components/Switch.svelte';
-	import { onMount } from 'svelte';
-	import { theme } from '$lib';
+	import Switch from '$lib/components/Switch.svelte'
+	import { onMount } from 'svelte'
+	import { theme } from '$lib'
 
 	onMount(() => {
-		document.querySelector('.hero-image')?.remove();
+		document.querySelector('.hero-image')?.remove()
 
 		const interval = setInterval(() => {
-			checked = !checked;
-		}, 1000);
+			checked = !checked
+		}, 1000)
 
-		return () => clearInterval(interval);
-	});
+		return () => clearInterval(interval)
+	})
 
-	let checked = $theme !== 'dark';
+	let checked = $theme !== 'dark'
 
-	let width = 3.25;
-	let padding = 0.25;
-	let thumbSize = 1.1;
-	let ratio = 1;
-	let thumbRadius = 1;
-	let sliderRadius = 1.25;
-
-	$: dark = $theme === 'dark';
+	let width = 3.25
+	let padding = 0.25
+	let thumbSize = 1.1
+	let ratio = 1
+	let thumbRadius = 1
+	let sliderRadius = 1.25
 </script>
 
 <div class="page">
@@ -115,15 +113,15 @@
 		<div class="br-sm" />
 
 		<Switch {checked}>
-			<span slot="slider-content-on">🌞</span>
-			<span slot="slider-content-off">🌙</span>
+			<slot name="slider-content-on">🌞</slot>
+			<slot name="slider-content-off">🌙</slot>
 		</Switch>
 		<div class="br-sm" />
 
 		<span style:font-size="0.8rem">
 			<Switch {checked} --switch-accent="var(--theme-b)">
-				<span slot="thumb-content-on">🌞</span>
-				<span slot="thumb-content-off">🌙</span>
+				<slot name="thumb-content-on">🌞</slot>
+				<slot name="thumb-content-off">🌙</slot>
 			</Switch>
 		</span>
 		<div class="br-sm" />
@@ -204,7 +202,10 @@
 
 		background: var(--bg-a);
 		border-radius: var(--radius);
-		box-shadow: 0 3px 5px #0005, 0 1px 2px #0008, 0 -1px 2px #0005 inset,
+		box-shadow:
+			0 3px 5px #0005,
+			0 1px 2px #0008,
+			0 -1px 2px #0005 inset,
 			0 1px 0.25rem rgba(var(--bg-b-rgb), 1) inset;
 	}
 
@@ -236,7 +237,9 @@
 	input::-webkit-slider-thumb {
 		appearance: none;
 		-webkit-appearance: none;
-		box-shadow: 0 1px 2px #0007, 0 4px 8px #0003;
+		box-shadow:
+			0 1px 2px #0007,
+			0 4px 8px #0003;
 		// border: 1px solid #aaa;
 		// max-height: 7px;
 		margin-top: -0.175rem;
