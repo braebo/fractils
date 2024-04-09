@@ -1,47 +1,48 @@
-<script>
-	import { onMount, tick } from 'svelte';
-	import { pulse } from './lib_stores';
-	import { theme } from '$lib';
+<script lang="ts">
+	import { onMount, tick } from 'svelte'
+	import { pulse } from './lib_stores'
+	import { theme } from '$lib'
 
-	let pulseBottom, pulseTop;
-	let bottomY, bottomX, topY, topX;
+	let pulseBottom: DOMRect | undefined
+	let pulseTop: DOMRect | undefined
+	let bottomY: number, bottomX: number, topY: number
 
-	let h = 0;
-	const w = 300;
-	let ready = false;
+	let h = 0
+	const w = 300
+	let ready = false
 
 	async function place() {
-		await tick();
-		pulseBottom = document.getElementById('theme-in')?.getBoundingClientRect();
-		pulseTop = document.getElementById('theme-out')?.getBoundingClientRect();
+		await tick()
+		pulseBottom = document.getElementById('theme-in')?.getBoundingClientRect()
+		pulseTop = document.getElementById('theme-out')?.getBoundingClientRect()
 
 		if (pulseBottom && pulseTop) {
-			const { scrollTop } = document.documentElement;
-			bottomY = Math.floor(pulseBottom.top + pulseBottom.height / 2 + scrollTop);
-			bottomX = Math.floor(pulseBottom.left - w);
-			topY = Math.floor(pulseTop.top + pulseTop.height / 2 + scrollTop);
-			topX = Math.floor(pulseTop.left);
-			h = topY - bottomY;
+			const { scrollTop } = document.documentElement
+			bottomY = Math.floor(pulseBottom.top + pulseBottom.height / 2 + scrollTop)
+			bottomX = Math.floor(pulseBottom.left - w)
+			topY = Math.floor(pulseTop.top + pulseTop.height / 2 + scrollTop)
+			h = topY - bottomY
 		}
 
-		if (!ready) ready = true;
+		if (!ready) ready = true
 	}
 
-	let pulsate, timer;
+	let pulsate = false
+	let timer: ReturnType<typeof setTimeout>
 	const triggerPulse = () => {
-		if (timer) clearTimeout(timer);
-		pulsate = true;
+		if (timer) clearTimeout(timer)
+		pulsate = true
 		timer = setTimeout(() => {
-			pulsate = false;
-		}, 1000);
-	};
+			pulsate = false
+		}, 1000)
+	}
 
 	$: {
-		$pulse;
-		triggerPulse();
+		$pulse
+		triggerPulse()
 	}
 
-	onMount(() => setTimeout(place, 1000));
+	onMount(() => setTimeout(place, 1000))
 </script>
 
 <svelte:window on:resize={place} />
