@@ -609,7 +609,7 @@ export class Folder {
 		const r = 4
 		const fill = 'var(--theme-a)'
 		const theme = 'var(--theme-a)'
-		const altStroke = 'var(--fg-d)'
+		// const altStroke = 'var(--fg-d)'
 
 		this.#folderIcon ??= document.createElement('div')
 		this.#folderIcon.classList.add('icon-folder-container')

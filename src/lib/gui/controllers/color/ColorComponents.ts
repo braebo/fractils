@@ -121,7 +121,7 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 
 			// We need to make the first character lowercase to match the format names.
 			format = format[0].toLowerCase() + format.slice(1)
-
+			// @ts-ignore fuck off
 			this.input.state.value[format] = (e.target as HTMLInputElement).value
 			this.input.state.refresh()
 			this.input.refresh()
@@ -268,6 +268,7 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 
 	#refreshText = () => {
 		this.elements.text.value =
+			// @ts-ignore fuck off
 			this.color[this.mode.startsWith('hex') ? this.mode + 'String' : this.mode]
 	}
 

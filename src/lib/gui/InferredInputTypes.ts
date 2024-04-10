@@ -40,7 +40,7 @@ type InputOptions<V, T extends InputType = InferInputType<V>> = {
 
 export class Input {
     constructor() {}
-    add<V, T extends InputType = InferInputType<V>>(options: InputOptions<V, T>) {}
+    add<V, T extends InputType = InferInputType<V>>(_options: InputOptions<V, T>) {}
 }
 
 // @ts-expect-error ✅ Correct Error: missing min/max/step

@@ -28,7 +28,7 @@ export class PresetManager {
 			return
 		}
 
-		for (const [id, value] of entries(preset)) {
+		for (const [id, _value] of entries(preset)) {
 			const controller = this.folder.controls.get(id)
 			if (!controller) continue
 
@@ -63,7 +63,7 @@ class Elements<const ContainerType extends HTMLElement = HTMLElement> {
 	}
 }
 
-class PresetManagerElements extends Elements {
+export class PresetManagerElements extends Elements {
 	save: HTMLButtonElement
 	load: HTMLButtonElement
 	preset: HTMLSelectElement

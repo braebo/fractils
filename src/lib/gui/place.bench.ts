@@ -71,7 +71,7 @@ end1()
 const end2 = start('place2')
 for (let i = 0; i < benchCount; i++) {
 	for (const { placement, options } of testOptions) {
-		const result = place(node, placement, options)
+		const result = place(node.getBoundingClientRect(), placement, options)
 		result.x = Math.round(result.x)
 		result.y = Math.round(result.y)
 	}
