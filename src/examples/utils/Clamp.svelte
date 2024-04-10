@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import Example from '$examples/_lib/Item/Example.svelte'
 	import Params from '$examples/_lib/Item/Params.svelte'
 	import Range from '$lib/components/Range.svelte'
@@ -30,6 +30,7 @@
 		},
 	]
 
+	let value: number
 	$: value = clamp(value ?? 50, 25, 75)
 </script>
 

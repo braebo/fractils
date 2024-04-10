@@ -1,26 +1,26 @@
-<script>
-	import Example from '$examples/_lib/Item/Example.svelte';
-	import Params from '$examples/_lib/Item/Params.svelte';
-	import { pulse } from '$examples/_lib/lib_stores';
-	import Item from '../_lib/Item/Item.svelte';
-	import { ThemeToggle, theme } from '$lib';
-	import html from './ThemeToggle.html?raw';
+<script lang="ts">
+	import Example from '$examples/_lib/Item/Example.svelte'
+	import Params from '$examples/_lib/Item/Params.svelte'
+	import { pulse } from '$examples/_lib/lib_stores'
+	import Item from '../_lib/Item/Item.svelte'
+	import { ThemeToggle, theme } from '$lib'
+	import html from './ThemeToggle.html?raw'
 
-	const path = 'components/ThemeToggleExample.svelte';
+	const path = 'components/ThemeToggleExample.svelte'
 
-	let timer;
-	let animating = false;
+	let timer: ReturnType<typeof setTimeout>
+	let animating = false
 	const handlePulse = () => {
-		if (animating) return;
-		animating = true;
+		if (animating) return
+		animating = true
 
-		if (timer) clearTimeout(timer);
-		$pulse = true;
+		if (timer) clearTimeout(timer)
+		$pulse = true
 		timer = setTimeout(() => {
-			$pulse = false;
-			animating = false;
-		}, 1000);
-	};
+			$pulse = false
+			animating = false
+		}, 1000)
+	}
 </script>
 
 <Item title="ThemeToggle" type="component" {path}>

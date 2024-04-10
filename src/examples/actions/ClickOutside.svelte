@@ -1,24 +1,24 @@
 <script lang="ts">
-	import { clickOutside, type ClickOutsideEvent } from '$lib/actions/clickOutside.js';
-	import Example from '$examples/_lib/Item/Example.svelte';
-	import Params from '$examples/_lib/Item/Params.svelte';
-	import Item from '$examples/_lib/Item/Item.svelte';
-	import html from './ClickOutside.html?raw';
+	import { clickOutside } from '$lib/actions/clickOutside.js'
+	import Example from '$examples/_lib/Item/Example.svelte'
+	import Params from '$examples/_lib/Item/Params.svelte'
+	import Item from '$examples/_lib/Item/Item.svelte'
+	import html from './ClickOutside.html?raw'
 
-	let clickedOutside = false;
+	let clickedOutside = false
 
-	let timer: ReturnType<typeof setTimeout> | null = null;
+	let timer: ReturnType<typeof setTimeout> | null = null
 
-	const handleClickOutside = (e: ClickOutsideEvent) => {
-		if (timer) clearTimeout(timer);
-		clickedOutside = true;
+	const handleClickOutside = () => {
+		if (timer) clearTimeout(timer)
+		clickedOutside = true
 
 		timer = setTimeout(() => {
-			clickedOutside = false;
-		}, 500);
-	};
+			clickedOutside = false
+		}, 500)
+	}
 
-	const path = 'actions/clickOutside.ts';
+	const path = 'actions/clickOutside.ts'
 
 	const params = [
 		{
@@ -40,7 +40,7 @@
 				},
 			],
 		},
-	];
+	]
 </script>
 
 <Item title="clickOutside" type="action" {path}>
