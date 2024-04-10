@@ -1,4 +1,4 @@
-import type { ElementMap, InputOptions, ValueOrBinding } from './Input'
+import type { ElementMap, InputOptions } from './Input'
 import type { Folder } from '../Folder'
 
 import { textController } from '../controllers/text'
@@ -39,7 +39,7 @@ export class InputText extends Input<string, TextInputOptions, TextControllerEle
 
 		this.opts = opts
 		// //* this is bop it type beat but is cool - brb fire alarm
-		// this.#log.fn('constructor').info({ opts, this: this }).groupEnd()
+		this.#log.fn('constructor').info({ opts, this: this })
 
 		if (opts.binding) {
 			this.initialValue = opts.binding.target[opts.binding.key]
@@ -103,6 +103,8 @@ export class InputText extends Input<string, TextInputOptions, TextControllerEle
 		this.elements.controllers.input.value = v
 
 		this.callOnChange(v) // todo - should this go in the state subscription?
+
+		return this
 	}
 
 	dispose() {
