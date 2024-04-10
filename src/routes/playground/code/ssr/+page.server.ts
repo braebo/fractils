@@ -1,7 +1,5 @@
 // TLDR; Use the `highlight` function on the server and return the HTML to the client.
 
-import type { Lang } from 'shiki'
-
 import { readFile } from 'node:fs/promises'
 import { transform } from './transform'
 import { highlight } from '$lib/utils/highlight'
@@ -12,7 +10,7 @@ export const prerender = true
 export async function load() {
 	const paths = ['./+page.svelte', './+page.server.ts']
 
-	const files: { title: string; text: string; highlightedText: string; lang: Lang }[] = []
+	const files: { title: string; text: string; highlightedText: string; lang: string }[] = []
 
 	for (const path of paths) {
 		const file = new URL(path, import.meta.url)
