@@ -450,20 +450,20 @@ export class Draggable {
 	 * The x position of the draggable element's transform offset.
 	 */
 	get x() {
-		return +this.node.dataset.translateX! || 0
+		return +this.node.dataset['translateX']! || 0
 	}
 	set x(v: number) {
-		this.node.dataset.translateX = String(v)
+		this.node.dataset['translateX'] = String(v)
 	}
 
 	/**
 	 * The y position of the draggable element's transform offset.
 	 */
 	get y() {
-		return +this.node.dataset.translateY! || 0
+		return +this.node.dataset['translateY']! || 0
 	}
 	set y(v: number) {
-		this.node.dataset.translateY = String(v)
+		this.node.dataset['translateY'] = String(v)
 	}
 
 	/**

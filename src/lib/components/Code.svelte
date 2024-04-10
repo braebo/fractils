@@ -52,14 +52,11 @@
 <script lang="ts" context="module">
 	import type { highlight } from '../utils/highlight'
 
-	import { localStorageStore } from '../utils/localStorageStore'
 	import { BROWSER, DEV } from 'esm-env'
-
-	const fontSize = localStorageStore('fractils::settings::codeblock::fontSize', '0.8rem')
 </script>
 
 <script lang="ts">
-	import type { Lang, Theme } from 'shiki'
+	// import type { LanguageInput, ThemeInput } from 'shiki'
 
 	import CopyButton from './CopyButton.svelte'
 	import '../css/shiki.scss'
@@ -104,13 +101,13 @@
 	 * The language to use.  Must be a {@link ValidLanguage}.
 	 * @defaultValue 'json'
 	 */
-	export let lang = 'json5' as Lang | (string & {})
+	export let lang = 'json5'
 
 	/**
 	 * The theme to use.
 	 * @defaultValue 'github'
 	 */
-	export let theme = 'serendipity' as Theme
+	export let theme = 'serendipity'
 
 	/**
 	 * If true, a button will be displayed to copy the code to the clipboard.
@@ -137,7 +134,7 @@
 
 	async function update() {
 		const { highlight } = await import('../utils/highlight')
-		highlightedText = await highlight(text ?? '', { lang: lang as Lang, theme })
+		highlightedText = await highlight(text ?? '', { lang, theme })
 	}
 </script>
 

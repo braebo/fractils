@@ -1,7 +1,7 @@
 import type { Folder } from '../Folder'
 
-import { create, type CreateOptions } from '../../utils/create'
 import { entries } from '../../utils/object'
+import { create } from '../../utils/create'
 
 type Preset = Record<string, any>
 
@@ -91,20 +91,5 @@ export class PresetManagerElements extends Elements {
 		this.delete = create('button', { parent: container, classes: [`${ns}-delete`] })
 		this.export = create('button', { parent: container, classes: [`${ns}-export`] })
 		this.import = create('button', { parent: container, classes: [`${ns}-import`] })
-	}
-
-	create<const T extends Parameters<typeof create>[0], const O extends CreateOptions>(
-		tagname: T,
-		scope: string,
-		options = {} as O,
-	) {
-		this.container
-		options.parent ??= this.container
-		options.classes ??= []
-
-		return create(tagname, {
-			...options,
-			classes: ['fracgui-' + scope, ...options.classes.map(c => `${this.ns}=${scope}-${c}`)],
-		})
 	}
 }

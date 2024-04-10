@@ -1,6 +1,5 @@
 import type { HighlightOptions } from '../utils/highlight'
 import type { Action } from 'svelte/action'
-import type { Theme } from 'shiki'
 
 import { highlight, HIGHLIGHT_DEFAULTS } from '../utils/highlight'
 import { logger } from '../utils/logger'
@@ -42,7 +41,7 @@ export const highlighter: Action<HTMLElement, HighlightOptions, HighlightAttr> =
 
 	let text = node.textContent || ''
 	const lang = opts.lang
-	const theme = opts.theme as Theme
+	const theme = opts.theme
 
 	log('initializing', { lang, theme })
 

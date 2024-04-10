@@ -36,7 +36,7 @@
 	isOpen={$inspectorStore['menu'] ?? false}
 >
 	<div class="state {$theme}">
-		{#each data as { label, store, isOpen }, i}
+		{#each data as { label, store, isOpen }}
 			<Group on:toggle={(e) => saveOpenState(e)} {store} {label} {isOpen} />
 		{/each}
 	</div>

@@ -129,9 +129,9 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 			type: 'range',
 			classes: ['fracgui-input-range', 'fracgui-input-color-picker-alpha'],
 			parent: container,
-			min: '0',
-			max: '1',
-			step: '0.01',
+			min: 0,
+			max: 1,
+			step: 0.01,
 		})
 		this.listen(alphaSlider, 'input', this.setAlpha as EventListener)
 

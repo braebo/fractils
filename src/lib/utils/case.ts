@@ -50,14 +50,13 @@ const caseMap = {
 type Case = keyof typeof caseMap
 
 export function convertCase(str: string, from: Case, to: Case): string {
-	// Pre-process CONSTANT_CASE input
 	if (from === 'constant') {
 		str = str
-			.toLowerCase() // Convert the entire string to lowercase
-			.replace(/_([a-z])/g, (match, p1) => ` ${p1.toUpperCase()}`) // Convert underscores to spaces and capitalize the following letter
-			.trim() // Trim any leading or trailing spaces
+			.toLowerCase()
+			// Convert underscores to spaces and capitalize the following letter
+			.replace(/_([a-z])/g, (_, p1) => ` ${p1.toUpperCase()}`)
+			.trim()
 	}
 
-	// Now convert from the pre-processed format (or original format) to the target format
 	return caseMap[to](str)
 }
