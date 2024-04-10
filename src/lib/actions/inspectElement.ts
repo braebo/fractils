@@ -7,7 +7,7 @@ export const inspectElement: Action = (node: HTMLElement) => {
 	const labelHeight = -20
 	const hue_offset = 30
 
-	elements.forEach((element) => {
+	elements.forEach(element => {
 		;(element as HTMLElement).addEventListener('pointerenter', handlePointerEnter)
 	})
 
@@ -27,9 +27,9 @@ export const inspectElement: Action = (node: HTMLElement) => {
 			disabled = false
 			window.addEventListener(
 				'keyup',
-				(e) => {
+				() => {
 					disabled = true
-					abortFns.forEach((fn) => fn())
+					abortFns.forEach(fn => fn())
 				},
 				{ once: true },
 			)
@@ -58,7 +58,7 @@ export const inspectElement: Action = (node: HTMLElement) => {
 		setActiveLabel(label)
 
 		const tagName = element.tagName
-		const classes = [...element.classList].join('.')
+		const classes = Array.from(element.classList).join('.')
 
 		const elRect = element.getBoundingClientRect()
 
@@ -109,7 +109,7 @@ export const inspectElement: Action = (node: HTMLElement) => {
 		for (const label of labels) {
 			i++
 			if (i === labels.size) continue
-			label.style.opacity = String(((1 / labels.size) * i) * 1.5)
+			label.style.opacity = String((1 / labels.size) * i * 1.5)
 		}
 
 		// Remove the outline when the popover is removed
@@ -137,7 +137,7 @@ export const inspectElement: Action = (node: HTMLElement) => {
 			globalThis.window?.removeEventListener('keydown', toggle)
 			// @ts-expect-error - I need to read up on this passive event thing ig
 			globalThis.window?.removeEventListener('pointermove', updateClientXY, { passive: true })
-			elements.forEach((element) => {
+			elements.forEach(element => {
 				;(element as HTMLElement).removeEventListener('pointerenter', handlePointerEnter)
 			})
 		},
