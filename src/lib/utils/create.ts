@@ -5,7 +5,11 @@ import { entries } from './object'
 
 let tooltip: typeof Tooltip
 
-export type CreateOptions = {
+export type CreateOptions<
+	T extends HTMLElement | HTMLInputElement = HTMLElement,
+	K extends keyof T = keyof T,
+	TK extends T[K] = T[K],
+> = {
 	parent?: Element | Document
 	classes?: string[]
 	id?: string
@@ -20,12 +24,15 @@ export type CreateOptions = {
 	value?: string
 	tooltip?: TooltipOptions
 	innerHtml?: string
-	children?: Element[]
-} & Partial<Record<keyof HTMLElement | keyof HTMLInputElement, any>>
+	children?: HTMLElement[]
+	min?: number
+	max?: number
+	step?: number
+} & Partial<Record<K, TK | unknown>>
 
 export function create<
-	K extends keyof HTMLElementTagNameMap,
-	TOptions extends CreateOptions,
+	const K extends keyof HTMLElementTagNameMap,
+	TOptions extends CreateOptions<HTMLElementTagNameMap[K]>,
 	TElement = HTMLElementTagNameMap[K] & { dataset: TOptions['dataset'] },
 >(
 	tagname: K,
@@ -91,3 +98,68 @@ export function create<
 		? TElement & { tooltip: Tooltip }
 		: TElement
 }
+
+// /**
+//  * A decorator factory for the {@link create} function.
+//  * @param tag - The element's tagname, i.e. `'button' | 'input' | 'div'` etc.
+//  */
+// function el<TagName extends keyof HTMLElementTagNameMap, Options extends CreateOptions>(
+// 	tag: TagName,
+// 	options?: Options,
+// ) {
+// 	return function (target: any, propertyKey: string) {
+// 		const element = create(tag, options)
+// 		Object.defineProperty(target, propertyKey, {
+// 			configurable: false,
+// 			enumerable: true,
+// 			value: element,
+// 		})
+// 	}
+// }
+
+//-------------------------------------------------------------------------
+//-------------------------------------------------------------------------
+
+// interface ElMeta {
+// 	tag: keyof HTMLElementTagNameMap
+// 	options: CreateOptions
+// }
+
+// const __el = Symbol('__el')
+
+// /**
+//  * A decorator factory for the {@link create} function.
+//  * @param tag - The element's tagname, i.e. `'button' | 'input' | 'div'` etc.
+//  */
+// function el<K extends ElMeta['tag'], TOptions extends ElMeta['options']>(
+// 	tag: K,
+// 	options?: TOptions,
+// ) {
+// 	return function (target: any, propertyKey: string) {
+// 		if (!target.__el) {
+// 			target.__el = {}
+// 		}
+// 		target.__el[propertyKey] = { tag, options }
+// 	}
+// }
+
+// function initEl<
+// 	T,
+// 	K extends keyof T,
+// 	TK extends T[K] extends Record<string, ElMeta> ? T[K] : never,
+// >(instance: T, key: K) {
+// 	const el = instance[key] as TK
+// 	for (const k in el) {
+// 		const { tag, options } = el[k]
+// 		instance[key] = create(tag, options)
+// 	}
+// }
+
+// class Test {
+// 	@el('button', { classes: ['button'], textContent: 'click me' })
+// 	button: HTMLButtonElement //! Property 'button' has no initializer and is not definitely assigned in the constructor.ts(2564)
+
+// 	constructor() {
+// 		initEl(this, __el) //! Argument of type 'typeof __el' is not assignable to parameter of type 'keyof this'. Type 'unique symbol' is not assignable to type '"button"'.ts(2345)
+// 	}
+// }
