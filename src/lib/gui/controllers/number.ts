@@ -74,13 +74,13 @@ export const numberController: ControllerFactory<HTMLInputElement> = (input, opt
 		}
 	}
 
-	const maybeDragStart = (e: PointerEvent) => {
+	const maybeDragStart = () => {
 		if (hovering && dragEnabled) {
-			dragStart(e)
+			dragStart()
 		}
 	}
 
-	const dragStart = async (e: PointerEvent) => {
+	const dragStart = async () => {
 		dragging = true
 		controller.addEventListener('pointermove', drag)
 		globalThis.document.addEventListener('pointerup', dragEnd)
