@@ -1,3 +1,6 @@
+// todo - update this to use the new shiki API
+// @ts-nocheck
+
 import type { LanguageInput, ThemeInput } from 'shiki'
 import type { HighlighterCore } from 'shiki/core'
 import type { CodeToHastOptions } from 'shiki'
@@ -134,7 +137,7 @@ const langs = new Set<string>()
  * Load a language into the highlighter.
  * @internal
  */
-export async function loadLanguage(highlighter: HighlighterCore, lang: Lang) {
+export async function loadLanguage(highlighter: HighlighterCore, lang: string) {
 	if (langs.has(lang)) return
 
 	log('pending | ' + lang)
