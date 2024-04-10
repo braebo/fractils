@@ -109,8 +109,10 @@ export class Folder {
 	/** Whether clicking the header to open/close the folder is disabled. */
 	#disabled = false
 	/** Whether the folder is visible. */
+	// @ts-expect-error - // todo
 	#hidden: boolean | (() => boolean)
 	/** {@link FolderOptions.hidden} if it was provided as a `function`. */
+	// @ts-expect-error - // todo
 	#hiddenFunction?: () => boolean
 
 	constructor(options: FolderOptions, rootContainer: HTMLElement | null = null, instant = true) {
@@ -323,6 +325,7 @@ export class Folder {
 		}
 	}
 
+	// @ts-expect-error - // todo
 	#createRootElement(container: HTMLElement | null = null) {
 		container ??= document.body
 
@@ -335,6 +338,7 @@ export class Folder {
 		return rootEl
 	}
 
+	// @ts-expect-error - // todo
 	#createSettingsButton(parent: HTMLElement) {
 		if (!this.isGui()) {
 			throw new Error('Settings button can only be created on the root folder.')
@@ -415,7 +419,7 @@ export class Folder {
 	}
 
 	/** @todo */
-	addMany(obj: Record<string, any>) {}
+	// addMany(obj: Record<string, any>) {}
 
 	addNumber(options: Partial<NumberInputOptions>) {
 		const input = new InputNumber(options, this)
@@ -495,6 +499,7 @@ export class Folder {
 			case 'string':
 				if (isColorFormat(value)) return 'Color'
 				// todo - Could detect CSS units like `rem` and `-5px 0 0 3px` for an advanced `CSSTextInput`.
+				// todo - Or even better, a "TextWithComponents" input that can have any number of "components" (like a color picker, number, select, etc) inside a string.
 				return 'Text'
 			case 'function':
 				return 'Button'
@@ -505,6 +510,7 @@ export class Folder {
 				if (isColor(value)) {
 					return 'Color'
 				}
+				throw new Error('Invalid input view: ' + JSON.stringify(value))
 			default:
 				throw new Error('Invalid input view: ' + value)
 		}
