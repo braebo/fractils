@@ -426,28 +426,28 @@ export function isColorFormat(color: any): color is ColorFormat {
 	return typeof parseColorFormat(color) !== 'undefined'
 }
 
-export function parseColorFormat(color: ColorFormat | (string & {})): string | undefined {
+export function parseColorFormat(color: ColorFormat | (string & {})) {
 	if (typeof color === 'string') {
 		if (color.match(/^#?[0-9a-fA-F]{6}$/)) {
-			return 'HexString'
+			return 'HexString' as const
 		} else if (color.match(/^#?[0-9a-fA-F]{8}$/)) {
-			return 'Hex8String'
+			return 'Hex8String' as const
 		} else if (color.match(/^rgba?/)) {
-			return 'RgbaString'
+			return 'RgbaString' as const
 		} else if (color.match(/^hsla?/)) {
-			return 'HslaString'
+			return 'HslaString' as const
 		}
 	} else if (typeof color === 'object') {
 		if (color instanceof Color) {
-			return 'Color'
+			return 'Color' as const
 		} else if ('r' in color && 'g' in color && 'b' in color) {
-			return 'RgbColor'
+			return 'RgbColor' as const
 		} else if ('h' in color && 's' in color && 'v' in color) {
-			return 'HsvColor'
+			return 'HsvColor' as const
 		} else if ('h' in color && 's' in color && 'l' in color) {
-			return 'HslColor'
+			return 'HslColor' as const
 		} else if ('kelvin' in color) {
-			return 'number'
+			return 'number' as const
 		}
 	}
 
