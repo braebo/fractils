@@ -98,9 +98,7 @@ export class InputSelect<T> extends Input<
 
 		if (this.bound) {
 			this.disposeCallbacks.add(
-				// todo - fix state types
-				//! This expression is not callable.  Each member of the union type '{ (this: void, run: Subscriber<unknown[]>, invalidate?: Invalidator<unknown[]> | undefined): Unsubscriber; (this: void, run: Subscriber<unknown[]>, invalidate?: Invalidator<unknown[]> | undefined): Unsubscriber; } | ... 4 more ... | { ...; }' has signatures, but none of those signatures are compatible with each other.ts(2349)
-				this.state.subscribe((v: T) => {
+				this.state.subscribe(v => {
 					if (!this.select.bubble) return
 
 					if (this.#stopPropagation) {
@@ -118,12 +116,10 @@ export class InputSelect<T> extends Input<
 		} else {
 			// Bind to the target if it's not already a State object.
 			this.disposeCallbacks.add(
-				// todo - fix state types
-				//! This expression is not callable.  Each member of the union type '{ (this: void, run: Subscriber<unknown[]>, invalidate?: Invalidator<unknown[]> | undefined): Unsubscriber; (this: void, run: Subscriber<unknown[]>, invalidate?: Invalidator<unknown[]> | undefined): Unsubscriber; } | ... 4 more ... | { ...; }' has signatures, but none of those signatures are compatible with each other.ts(2349)
 				this.state.subscribe(v => {
 					this.#log.fn('$state').debug({ v, this: this })
 
-					this.targetValue = v.value
+					this.targetValue = (v as LabeledOption<T>).value
 				}),
 			)
 		}

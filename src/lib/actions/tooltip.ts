@@ -341,6 +341,9 @@ export class Tooltip {
 						return 'separate' as Alt
 					} else if (anchor instanceof HTMLElement) {
 						return anchor.getBoundingClientRect()
+					} else {
+						if (DEV) console.warn('Invalid tooltip anchor:', anchor)
+						return this.node.getBoundingClientRect()
 					}
 				}
 				default: {
