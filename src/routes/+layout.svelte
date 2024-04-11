@@ -1,6 +1,5 @@
 <script lang="ts">
 	import 'greset/greset.css'
-
 	import '../prism.css'
 	import '../app.scss'
 
@@ -9,26 +8,34 @@
 	import Switch from '$lib/components/Switch.svelte'
 	import Device from '$lib/stores/Device.svelte'
 	import Github from '$lib/icons/Github.svelte'
-	import { onDestroy, onMount } from 'svelte'
 	import { wait } from '$lib/utils/wait'
+	import { page } from '$app/stores'
 	import { BROWSER } from 'esm-env'
+	import { onMount } from 'svelte'
+	import { parse } from 'cookie'
 
-	// https://github.com/sveltejs/kit/pull/8724
-	onMount(async () => {
-		initTheme()
-		await wait(1)
-		document.documentElement.style.scrollBehavior = 'smooth'
-	})
+	onMount(() => {
+		initTheme({ initial: $page.data.theme, cookie: true })
 
-	onDestroy(() => {
-		if (BROWSER) {
-			console.clear()
-			document.documentElement.style.scrollBehavior = ''
-			window.location.reload()
+		// https://github.com/sveltejs/kit/pull/8724
+		wait(1).then(() => {
+			document.documentElement.style.scrollBehavior = 'smooth'
+		})
+
+		return () => {
+			if (BROWSER) {
+				document.documentElement.style.scrollBehavior = ''
+				window.location.reload()
+			}
 		}
 	})
 
-	$: checked = $theme !== 'dark'
+	// Keep the theme cookie in sync.
+	let checked = $page.data.theme !== 'dark'
+	$: checked = $theme ? $theme !== 'dark' : checked
+	$: if (BROWSER && $theme !== parse(document.cookie)['theme']) {
+		document.cookie = `fractils::theme=${$theme}`
+	}
 </script>
 
 <Device />

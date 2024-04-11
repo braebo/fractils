@@ -1,30 +1,35 @@
-import { get, writable } from 'svelte/store'
 import { Logger } from '$lib/utils/logger'
 import { state } from '../utils/state'
+import { BROWSER } from 'esm-env'
 import { bd } from '../utils/l'
+import { parse } from 'cookie'
 
 export type Theme = 'light' | 'dark' | 'system'
 
-const initialTheme: Theme =
-	typeof window !== 'undefined' && globalThis.localStorage && 'theme' in localStorage
-		? (localStorage.getItem('theme') as Theme) ?? 'dark'
-		: 'dark'
+export const FRACTILS_THEME_ID = 'fractils::theme'
 
-const log = new Logger('themer', { fg: 'white' })
+const initialTheme: Theme | '' =
+	// Cookie?
+	(globalThis.document?.cookie && (parse(document.cookie)?.[FRACTILS_THEME_ID] as Theme)) ||
+	// localStorage?
+	(globalThis.localStorage &&
+		'theme' in localStorage &&
+		(localStorage.getItem(FRACTILS_THEME_ID) as Theme)) ||
+	// Fallback.
+	''
 
-// export const theme = localStorageStore<Theme>('theme', initialTheme as Theme)
+const log = new Logger('fractils|theme', { fg: 'aliceblue' })
 
 /**
  * A store for the current theme persisted in local storage.
  */
-export const theme = state<Theme>(initialTheme, {
-	key: 'fractils::theme',
-	// todo - add cookie mode to `state` and use that here
-	// storage: 'cookie' as 'cookie' | 'localStorage'
+export const theme = state<Theme>(initialTheme as Theme, {
+	key: FRACTILS_THEME_ID,
 	onChange: () => {
 		if (typeof window === 'undefined') return
-		document.documentElement.setAttribute('theme', get(theme))
+		document.documentElement.setAttribute('theme', theme.value)
 	},
+	// cookie: true, // todo - would be cool if `state` had a cookie mode
 })
 
 const detectSystemPreference = (e: MediaQueryListEvent) => applyTheme(e.matches ? 'dark' : 'light')
@@ -32,21 +37,46 @@ const detectSystemPreference = (e: MediaQueryListEvent) => applyTheme(e.matches 
 /**
  * Applies system preference theme and registers a listener for changes.
  */
-export async function initTheme() {
+export async function initTheme(options?: {
+	/**
+	 * The initial theme to apply.
+	 */
+	initial?: Theme
+	/**
+	 * Whether to persist the theme in a cookie.
+	 */
+	cookie?: boolean
+}) {
 	if (typeof window === 'undefined') return
+
 	window
 		?.matchMedia('(prefers-color-scheme: dark)')
 		.addEventListener('change', detectSystemPreference)
 
 	const pref = theme.value
 
-	if (!pref) {
-		log.fn('initTheme').info('No theme found - applying system theme.')
-		applySystemTheme()
-		return
-	}
+	if (BROWSER && options?.cookie) {
+		const cookieTheme = parse(document.cookie)[FRACTILS_THEME_ID]
 
-	applyTheme(pref)
+		if (['light', 'dark', 'system'].includes(cookieTheme)) {
+			theme.set(cookieTheme as Theme)
+		}
+
+		theme.subscribe(value => {
+			if (BROWSER) {
+				document.cookie = `fractils::theme=${value}`
+			}
+		})
+	} else {
+		if (options?.initial && options?.initial !== pref && initialTheme) {
+			applyTheme(initialTheme)
+		} else if (!pref) {
+			log.fn('initTheme').info('No theme found - applying default:', 'system')
+			applySystemTheme()
+		} else {
+			applyTheme(pref)
+		}
+	}
 }
 
 /**
@@ -54,14 +84,12 @@ export async function initTheme() {
  */
 export function toggleTheme() {
 	if (typeof window === 'undefined') return
-	const activeTheme = theme ? get(theme) : initialTheme
+	const activeTheme = theme ? theme.value : initialTheme
 	const newTheme = activeTheme == 'light' ? 'dark' : 'light'
 	log.fn('toggleTheme')
 
 	applyTheme(newTheme)
 }
-
-export const initComplete = writable(false)
 
 const applySystemTheme = (): void => {
 	if (typeof window === 'undefined') return
