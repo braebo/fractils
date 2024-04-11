@@ -1,13 +1,6 @@
 export const randomColor = () => colors[Math.floor(Math.random() * colors.length)]
 
 /**
- * A union of all valid CSS style properties.
- */
-export type ElementStyle = {
-	[K in keyof CSSStyleDeclaration]: CSSStyleDeclaration[K] extends string ? K : never
-}[keyof CSSStyleDeclaration]
-
-/**
  * A hex color string.
  */
 export type HexColor = `#${string}`
