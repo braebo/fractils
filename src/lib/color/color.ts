@@ -399,7 +399,7 @@ export class Color {
 	}
 	set hslString(value: HslString | (string & {})) {
 		const match = REGEX_FUNCTIONAL_HSL.exec(value) || REGEX_FUNCTIONAL_HSLA.exec(value)
-		if (!match) throw new Error('Invalid rgb string')
+		if (!match) throw new Error('Invalid rgb string: ' + value)
 
 		const [r, g, b, a = 1] = match
 			.slice(1)
