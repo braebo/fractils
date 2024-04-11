@@ -35,7 +35,8 @@
 -->
 
 <script lang="ts">
-	import { createEventDispatcher } from "svelte"
+	import { createEventDispatcher } from 'svelte'
+
 	const dispatch = createEventDispatcher()
 
 	interface $$Events {
@@ -98,7 +99,7 @@
 </script>
 
 <button class="switch" {title} class:disabled on:click={toggle}>
-	<input type="checkbox" bind:checked {disabled} on:change name={id} />
+	<input type="checkbox" bind:checked on:change name={id} />
 	<span class="slider round" class:disabled>
 		<span class="thumb-content on" aria-hidden="true">
 			<slot name="thumb-content-on">
@@ -128,7 +129,6 @@
 
 <style lang="scss">
 	$thumb: '.slider:before';
-	$dark: ':global(:root[theme="dark"])';
 
 	.switch {
 		/* User-facing */
