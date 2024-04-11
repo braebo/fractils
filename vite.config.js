@@ -9,4 +9,7 @@ export default defineConfig({
 			plugins: [autoprefixer],
 		},
 	},
+	define: {
+		'import.meta.env.FRACTILS_LOG_LEVEL': JSON.stringify('none'),
+	}	
 })
