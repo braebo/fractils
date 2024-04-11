@@ -49,7 +49,7 @@ export class Logger {
 	 * @todo - Update the condition once loglevel is implemented.
 	 */
 	debug(...args: any[]) {
-		if (DEV) this.l('🐞', ...args)
+		if (DEV && import.meta.env.FRACTILS_LOG_LEVEL === 'debug') this.l('🐞', ...args)
 		return this
 	}
 
