@@ -1,4 +1,4 @@
-import type { ElementStyle } from '../color/css'
+import type { JavascriptStyleProperty } from '../css/types'
 
 import { EventManager } from '../utils/EventManager'
 import { deepMerge } from '../utils/deepMerge'
@@ -56,7 +56,7 @@ export interface TooltipOptions {
 	 * Custom style overrides for the tooltip element (all valid CSS properties are allowed).
 	 * @default { padding: '4px 8px', color: 'var(--fg-a, #fff)', backgroundColor: 'var(--bg-a, #000)', borderRadius: 'var(--radius-sm, 4px)', fontSize: 'var(--font-size-sm, 12px)', minWidth: '3rem', maxWidth: 'auto', minHeight: 'auto', maxHeight: 'auto', textAlign: 'center' }
 	 */
-	styles?: Partial<Record<ElementStyle, string>>
+	styles?: Partial<Record<JavascriptStyleProperty, string>>
 	/**
 	 * Animation in/out duration times / easing.
 	 */
@@ -118,8 +118,6 @@ export const TOOLTIP_DEFAULTS: TooltipOptions = {
 }
 
 export class Tooltip {
-	// opts: TooltipOptions
-
 	/** The node that the tooltip is attached to. */
 	node: HTMLElement
 	/** The tooltip element itself. */
