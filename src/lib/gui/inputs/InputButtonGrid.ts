@@ -162,8 +162,7 @@ export class InputButtonGrid extends Input<
 			for (let j = 0; j < cols; j++) {
 				const btn = grid[i]?.[j]
 				if (btn) {
-					const id = btn.label + i + j
-					const button = this.addButton(btn, id, i, j)
+					const button = this.addButton(btn, btn.label, i, j)
 					row.appendChild(button)
 				}
 			}
