@@ -38,6 +38,12 @@ export interface StartOptions {
 	 * @default '⏹'
 	 */
 	endSymbol?: string
+
+	/**
+	 * Number of decimal places to show for milliseconds.
+	 * @default 1
+	 */
+	decimals?: number
 }
 
 /**
@@ -77,7 +83,7 @@ export function start(label: string, options?: StartOptions) {
 	const start = performance.now()
 
 	return () => {
-		const end = fmtTime(performance.now() - start)
+		const end = fmtTime(performance.now() - start, { decimals: options?.decimals })
 
 		if (pad) n()
 		l(hex(endSymbol + ' ') + label.replace('()', '') + ' ' + end)
@@ -88,15 +94,17 @@ export function start(label: string, options?: StartOptions) {
 /**
  * Formats a number representing time.  Smaller numbers are formatted in
  * milliseconds, and larger numbers in seconds. In both cases, precision
- * is kept to a minimum and trailing zeroes are removed.
+ * is kept to a minimum (trailing zeroes are removed).
  * @param n - Time in milliseconds.
  * @returns Formatted time string.
  */
-export function fmtTime(n: number): string {
+export function fmtTime(n: number, options?: { decimals?: number }): string {
+	const { decimals = n > 1 ? 1 : 2 } = options ?? {}
+
 	if (n < 10) {
 		return removeTrailingZeroes(getBestPrecision(n)) + dim('ms')
 	} else {
-		return removeTrailingZeroes((n / 1000).toFixed(1)) + dim('s')
+		return removeTrailingZeroes((n / 1000).toFixed(decimals)) + dim('s')
 	}
 
 	function removeTrailingZeroes(str: string): string {
@@ -104,12 +112,12 @@ export function fmtTime(n: number): string {
 	}
 
 	function getBestPrecision(ms: number) {
-		for (let precision = 1; precision <= 10; precision++) {
-			const value = ms.toFixed(precision)
+		for (let decimals = 1; decimals <= 10; decimals++) {
+			const value = ms.toFixed(decimals)
 			if (value.at(-1) !== '0') {
 				return value
 			}
 		}
-		return ms.toString() // Unlikely.
+		return ms.toString() // Just in case...
 	}
 }
