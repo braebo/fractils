@@ -15,7 +15,7 @@ import { create } from '../utils/create'
 import { nanoid } from '../utils/nanoid'
 import { Logger } from '../utils/logger'
 import { state } from '../utils/state'
-import { Search } from './Search'
+import { Search } from './toolbar/Search'
 import { Gui } from './Gui'
 
 export interface FolderElements extends ElementMap {
@@ -36,28 +36,28 @@ export interface FolderOptions {
 	 * The title of the folder.
 	 * @default ''
 	 */
-	title: string
+	title?: string
 	/**
 	 * The child folders of this folder.
 	 */
-	children: Folder[]
+	children?: Folder[]
 	/**
 	 * Any controls this folder should contain.
 	 */
-	controls: Map<string, ValidInput>
+	controls?: Map<string, ValidInput>
 	parentFolder: Folder
 	/**
 	 * Whether the folder should be collapsed by default.
 	 * @default false
 	 */
-	closed: boolean
+	closed?: boolean
 	/**
 	 * Whether the folder should be hidden by default.  If a function is
 	 * provided, it will be called to determine the hidden state.  Use
 	 * {@link refresh} to update the hidden state.
 	 * @default false
 	 */
-	hidden: boolean | (() => boolean)
+	hidden?: boolean | (() => boolean)
 	/**
 	 * The element to append the folder to (usually
 	 * the parent folder's content element).
@@ -172,7 +172,7 @@ export class Folder {
 			}, 0)
 		}
 
-		this.#hidden = opts.hidden
+		this.#hidden = opts.hidden ?? false
 		if (opts.hidden === true) {
 			this.hide()
 		} else {
@@ -338,21 +338,20 @@ export class Folder {
 		return rootEl
 	}
 
-	// @ts-expect-error - // todo
-	#createSettingsButton(parent: HTMLElement) {
+	#createSettingsButton = (parent: HTMLElement) => {
 		if (!this.isGui()) {
 			throw new Error('Settings button can only be created on the root folder.')
 		}
 
 		const svg = new DOMParser().parseFromString(settingsIcon, 'image/svg+xml').documentElement
 
-		const button = create('button', {
+		const button = create<'button', any, HTMLButtonElement>('button', {
 			parent,
 			classes: ['fracgui-toolbar-item', 'fracgui-settings-button'],
 			children: [svg],
 			tooltip: {
 				text: () => {
-					return this.settingsFolder.closed.value ? 'Open Settings' : 'Close Settings'
+					return this.settingsFolder?.closed.value ? 'Open Settings' : 'Close Settings'
 				},
 				placement: 'left',
 				delay: 750,
