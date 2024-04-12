@@ -1,5 +1,5 @@
 import type { TooltipOptions, Tooltip } from '../actions/tooltip'
-import type { ElementStyle } from '$lib/color/css'
+import type { JavascriptStyleProperty } from '$lib/css/types'
 
 import { entries } from './object'
 
@@ -17,7 +17,7 @@ export type CreateOptions<
 	textContent?: string
 	innerText?: string
 	cssText?: string
-	style?: Partial<Record<ElementStyle, string | number>>
+	style?: Partial<Record<JavascriptStyleProperty, string | number>>
 	variables?: Record<`--${string}`, string | number>
 	type?: string
 	attributes?: Record<string, string>
