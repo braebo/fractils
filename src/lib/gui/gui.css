@@ -1,16 +1,16 @@
 /* @charset "UTF-8";
 .fracgui-root {
   --fracgui-font: "Kodchasan", sans-serif;
-  --fracgui-root-header-font-size: 0.75rem;
-  --fracgui-root-header-height: 1.75rem;
-  --header-height: 1.75rem;
-  --fracgui-root-width: 30rem;
-  --fracgui-root-min-width: 25rem;
-  --fracgui-root-max-width: 35rem;
-  --fracgui-input-height: 2rem;
-  --fracgui-input-section-1-width: 6rem;
-  --fracgui-input-section-2-width: 4rem;
-  --fracgui-input-section-3-width: 100%;
+  --fracgui-root-header_font-size: 0.75rem;
+  --fracgui-root-header_height: 1.75rem;
+  --header_height: 1.75rem;
+  --fracgui-root_width: 30rem;
+  --fracgui-root_min-width: 25rem;
+  --fracgui-root_max-width: 35rem;
+  --fracgui-input_height: 2rem;
+  --fracgui-input-section-1_width: 6rem;
+  --fracgui-input-section-2_width: 4rem;
+  --fracgui-input-section-3_width: 100%;
   --fracgui-root-alpha: 0.5;
   --fracgui-root-blur: .2rem;
   --shadow-lightness: 1;
@@ -19,49 +19,49 @@
 .fracgui-root,
 .fracgui-root[theme=default],
 .fracgui-root[theme=minimal] {
-  --fracgui-root-content-background: rgba(var(--bg-b-rgb), 0.3);
-  --fracgui-root-box-shadow: 0 0 1.5px 0.5px rgba(var(--bg-d-rgb), 0.5) inset;
-  --fracgui-folder-background: rgba(var(--bg-b-rgb), 0.5);
+  --fracgui-root-content_background: rgba(var(--bg-b-rgb), 0.3);
+  --fracgui-root_box-shadow: 0 0 1.5px 0.5px rgba(var(--bg-d-rgb), 0.5) inset;
+  --fracgui-folder_background: rgba(var(--bg-b-rgb), 0.5);
   --fracgui-folder-header-width: 100%;
-  --fracgui-folder-header-padding-left: 0.25rem;
-  --fracgui-folder-header-color: var(--fg-c);
-  --fracgui-folder-header-background: var(--bg-a);
-  --fracgui-folder-header-outline: none;
+  --fracgui-folder-header_padding-left: 0.25rem;
+  --fracgui-folder-header_color: var(--fg-c);
+  --fracgui-folder-header_background: var(--bg-a);
+  --fracgui-folder-header_outline: none;
   --fracgui-folder-header-border-radius: var(--radius-sm);
-  --fracgui-folder-header-box-shadow: none;
-  --fracgui-folder-header-font-size: var(--font-xxs);
-  --fracgui-folder-header-font-weight: 500;
-  --fracgui-folder-content-background: rgba(var(--bg-b-rgb), 0.2);
-  --fracgui-folder-content-padding-left: 0.33rem;
-  --fracgui-folder-content-font-size: 0.8rem;
-  --fracgui-folder-content-font-weight: 300;
-  --fracgui-input-container-color: var(--fg-c);
-  --fracgui-input-container-background: rgba(var(--bg-a-rgb), 0.5);
-  --fracgui-input-container-outline: 1px solid rgba(var(--bg-a-rgb), 0.2);
-  --fracgui-input-container-box-shadow:
+  --fracgui-folder-header_box-shadow: none;
+  --fracgui-folder-header_font-size: var(--font-xxs);
+  --fracgui-folder-header_font-weight: 500;
+  --fracgui-folder-content_background: rgba(var(--bg-b-rgb), 0.2);
+  --fracgui-folder-content_padding-left: 0.33rem;
+  --fracgui-folder-content_font-size: 0.8rem;
+  --fracgui-folder-content_font-weight: 300;
+  --fracgui-input-container_color: var(--fg-c);
+  --fracgui-input-container_background: rgba(var(--bg-a-rgb), 0.5);
+  --fracgui-input-container_outline: 1px solid rgba(var(--bg-a-rgb), 0.2);
+  --fracgui-input-container_box-shadow:
   	-0.15px 0.1px 1px hsla(220, 10%, 2%, calc(0.2 * var(--shadow-lightness))) inset,
   	-2px 2px 15px hsla(220, 10%, 2%, calc(0.075 * var(--shadow-lightness))) inset,
   	-3.0px 3px 25px hsla(220, 10%, 2%, calc(0.05 * var(--shadow-lightness))) inset,
   	-10.0px 10px 50px hsla(220, 10%, 2%, calc(0.025 * var(--shadow-lightness))) inset ;
-  --fracgui-drawer-toggle-background: rgba(var(--bg-a-rgb), 0.5);
-  --fracgui-controller-background: rgba(var(--bg-c-rgb), 1);
-  --fracgui-controller-dim-background: rgba(var(--bg-c-rgb), 0.75);
-  --fracgui-controller-color: var(--fg-d);
-  --fracgui-input-content-box-shadow: var(--shadow-xs);
-  --fracgui-controller-outline: 1px solid color-mix(in lch, var(--bg-d), transparent 75%);
-  --fracgui-controller-background-image: none;
-  --fracgui-input-buttons-background: rgba(var(--bg-b-rgb), var(--fracgui-root-alpha));
+  --fracgui-drawer-toggle_background: rgba(var(--bg-a-rgb), 0.5);
+  --fracgui-controller_background: rgba(var(--bg-c-rgb), 1);
+  --fracgui-controller-dim_background: rgba(var(--bg-c-rgb), 0.75);
+  --fracgui-controller_color: var(--fg-d);
+  --fracgui-input-content_box-shadow: var(--shadow-xs);
+  --fracgui-controller_outline: 1px solid color-mix(in lch, var(--bg-d), transparent 75%);
+  --fracgui-controller_background-image: none;
+  --fracgui-input-buttons_background: rgba(var(--bg-b-rgb), var(--fracgui-root-alpha));
   --fracgui-input-buttons-color: var(--fg-b);
   --fracgui-input-number-buttons-icon-color: var(--fg-d);
   --fracgui-input-number-buttons-icon-active-color: var(--theme-a);
   --fracgui-input-number-buttons-shadow-inset-hover: 0px 0px 1px 0px hsl(0, 0%, 0%) inset;
   --fracgui-input-number-buttons-shadow-inset-active: 0px 0px 1px 1px hsl(0, 0%, 5%) inset;
-  --fracgui-input-font-size: var(--font-xs);
-  --fracgui-input-number-range-color: var(--bg-c);
-  --fracgui-input-number-range-active-color: var(--theme-a);
-  --fracgui-input-number-range-background: var(--bg-a);
-  --fracgui-input-number-range-outline: 1px solid rgba(var(--bg-c-rgb), 0.25);
-  --fracgui-input-number-range-box-shadow:
+  --fracgui-input_font-size: var(--font-xs);
+  --fracgui-input-number-range_color: var(--bg-c);
+  --fracgui-input-number-range-active_color: var(--theme-a);
+  --fracgui-input-number-range_background: var(--bg-a);
+  --fracgui-input-number-range_outline: 1px solid rgba(var(--bg-c-rgb), 0.25);
+  --fracgui-input-number-range_box-shadow:
   	-2px 2px 2.5px hsla(230, 20%, 0%, 0.2),
   	2px 2px 5px hsla(230, 20%, 0%, 0.2),
   	2px 3px 10px hsla(230, 20%, 0%, 0.2),
@@ -72,13 +72,13 @@
   --shadow-lightness: 0.2;
   --fracgui-input-number-buttons-shadow-inset-hover: 0px 0px 1px 0px hsl(0, 0%, 80%) inset;
   --fracgui-input-number-buttons-shadow-inset-active: 0px 0px 2px 1px hsl(0, 0%, 90%) inset;
-  --fracgui-controller-dim-background: rgba(var(--bg-a-rgb), 0.5);
-  --fracgui-controller-background: rgba(var(--bg-a-rgb), 1);
-  --fracgui-controller-color: var(--fg-c);
-  --fracgui-controller-outline: 1px solid rgba(var(--bg-d-rgb), 0.1);
-  --fracgui-input-number-range-background: var(--bg-b);
-  --fracgui-input-number-range-color: var(--bg-d);
-  --fracgui-input-number-range-box-shadow:
+  --fracgui-controller-dim_background: rgba(var(--bg-a-rgb), 0.5);
+  --fracgui-controller_background: rgba(var(--bg-a-rgb), 1);
+  --fracgui-controller_color: var(--fg-c);
+  --fracgui-controller_outline: 1px solid rgba(var(--bg-d-rgb), 0.1);
+  --fracgui-input-number-range_background: var(--bg-b);
+  --fracgui-input-number-range_color: var(--bg-d);
+  --fracgui-input-number-range_box-shadow:
   -2px 2px 2px hsla(230, 20%, 30%, 0.1),
   2px 2px 3px hsla(230, 20%, 20%, 0.1),
   2px 2px 7px hsla(230, 20%, 30%, 0.1) ;
@@ -126,8 +126,8 @@
 }
 .fracgui-root .fracgui-header,
 .fracgui-folder .fracgui-header {
-  height: var(--header-height);
-  max-height: var(--header-height);
+  height: var(--header_height);
+  max-height: var(--header_height);
 }
 .fracgui-root.closed .fracgui-content-wrapper,
 .fracgui-folder.closed .fracgui-content-wrapper {
@@ -194,9 +194,9 @@
   display: flex;
   flex-direction: column;
   inset: 0;
-  width: var(--fracgui-root-width);
-  min-width: var(--fracgui-root-min-width, 20rem);
-  max-width: var(--fracgui-root-max-width);
+  width: var(--fracgui-root_width);
+  min-width: var(--fracgui-root_min-width, 20rem);
+  max-width: var(--fracgui-root_max-width);
   height: fit-content;
   max-height: var(--max-height, 90dvh);
   user-select: none;
@@ -210,22 +210,22 @@
   justify-content: space-around;
   gap: 0.5rem;
   width: 100%;
-  min-height: var(--fracgui-root-header-height);
+  min-height: var(--fracgui-root-header_height);
   color: var(--fg-c);
   background: var(--bg-a);
   border-radius: var(--radius-md);
   border-bottom-left-radius: var(--radius-xs);
   border-bottom-right-radius: var(--radius-xs);
-  box-shadow: var(--fracgui-root-box-shadow);
+  box-shadow: var(--fracgui-root_box-shadow);
   cursor: pointer;
   cursor: grab;
 }
 .fracgui-root > .fracgui-header .fracgui-title {
   width: fit-content;
-  height: var(--header-height);
-  font-size: var(--fracgui-root-header-font-size);
+  height: var(--header_height);
+  font-size: var(--fracgui-root-header_font-size);
   letter-spacing: 2px;
-  line-height: calc(var(--header-height) - 4px);
+  line-height: calc(var(--header_height) - 4px);
   font-family: var(--fracgui-font);
   font-weight: 400;
   font-variation-settings: "wght" 300;
@@ -240,7 +240,7 @@
   border-radius: var(--radius-md);
   border-top-left-radius: var(--radius-sm);
   border-top-right-radius: var(--radius-sm);
-  background: var(--fracgui-root-content-background);
+  background: var(--fracgui-root-content_background);
   backdrop-filter: blur(var(--fracgui-root-blur));
   outline-offset: -1px;
   box-shadow: 0 0 1.5px 0.5px rgba(var(--bg-d-rgb), 0.5) inset;
@@ -264,19 +264,19 @@
   height: 0px;
 }
 .fracgui-root > .fracgui-content-wrapper > .fracgui-content::-webkit-scrollbar-thumb {
-  background: var(--fracgui-controller-background);
+  background: var(--fracgui-controller_background);
   border: none;
 }
 .fracgui-root > .fracgui-content-wrapper > .fracgui-content::-moz-scrollbar-thumb {
-  background: var(--fracgui-controller-background);
+  background: var(--fracgui-controller_background);
   border: none;
 }
 .fracgui-root > .fracgui-content-wrapper > .fracgui-content::-webkit-scrollbar-track {
-  background: var(--fracgui-folder-header-background);
+  background: var(--fracgui-folder-header_background);
   border-bottom-right-radius: var(--radius-sm);
 }
 .fracgui-root > .fracgui-content-wrapper > .fracgui-content::-moz-scrollbar-track {
-  background: var(--fracgui-folder-header-background);
+  background: var(--fracgui-folder-header_background);
   border-bottom-right-radius: var(--radius-sm);
 }
 
@@ -293,7 +293,7 @@
 
 .fracgui-folder {
   height: fit-content;
-  background: var(--fracgui-folder-background);
+  background: var(--fracgui-folder_background);
 }
 
 .fracgui-folder .fracgui-header {
@@ -302,17 +302,17 @@
   align-items: center;
   gap: 0.5rem;
   width: var(--fracgui-folder-header-width, 100%);
-  padding-left: var(--fracgui-folder-header-padding-left);
-  color: var(--fracgui-folder-header-color, var(--fg-c));
-  background: var(--fracgui-folder-header-background, var(--bg-a));
-  outline: var(--fracgui-folder-header-outline, 1px solid rgba(var(--bg-b-rgb), 0.5));
+  padding-left: var(--fracgui-folder-header_padding-left);
+  color: var(--fracgui-folder-header_color, var(--fg-c));
+  background: var(--fracgui-folder-header_background, var(--bg-a));
+  outline: var(--fracgui-folder-header_outline, 1px solid rgba(var(--bg-b-rgb), 0.5));
   outline-offset: -1px;
-  box-shadow: var(--fracgui-folder-header-box-shadow, 0 0 0.1rem #000 inset);
+  box-shadow: var(--fracgui-folder-header_box-shadow, 0 0 0.1rem #000 inset);
   cursor: pointer;
 }
 .fracgui-folder .fracgui-header .fracgui-title {
-  font-weight: var(--fracgui-folder-header-font-weight);
-  font-size: var(--fracgui-folder-header-font-size);
+  font-weight: var(--fracgui-folder-header_font-weight);
+  font-size: var(--fracgui-folder-header_font-size);
   font-family: var(--fracgui-font);
   width: fit-content;
 }
@@ -331,8 +331,8 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  border-left: var(--fracgui-folder-content-padding-left) solid var(--fracgui-folder-header-background);
-  background: var(--fracgui-folder-content-background, var(--fracgui-folder-background));
+  border-left: var(--fracgui-folder-content_padding-left) solid var(--fracgui-folder-header_background);
+  background: var(--fracgui-folder-content_background, var(--fracgui-folder_background));
 }
 
 .fracgui-controller-select-container {
@@ -344,7 +344,7 @@
   outline: 1px solid rgba(var(--bg-d-rgb), 0);
   text-align: center;
   font-family: var(--fracgui-font);
-  font-size: var(--fracgui-folder-content-font-size);
+  font-size: var(--fracgui-folder-content_font-size);
   transition: 0.15s;
   cursor: pointer;
 }
@@ -354,7 +354,7 @@
   outline: 1px solid rgba(var(--bg-d-rgb), 0.5);
 }
 .fracgui-controller-select-selected.active {
-  outline: var(--fracgui-controller-outline);
+  outline: var(--fracgui-controller_outline);
 }
 
 .fracgui-controller-select-dropdown {
@@ -621,7 +621,7 @@ input.fracgui-search-input {
   width: 0.5rem;
   height: 75%;
   color: var(--fg-c);
-  background: var(--fracgui-drawer-toggle-background);
+  background: var(--fracgui-drawer-toggle_background);
   transition: 0.15s;
   box-shadow: -1px 0 1px 0.5px rgba(var(--bg-a-rgb), 0.5) inset;
   border-top-right-radius: var(--radius-sm);
@@ -632,12 +632,12 @@ input.fracgui-search-input {
   background: var(--bg-c);
 }
 .fracgui-folder .fracgui-input-title {
-  max-width: var(--fracgui-input-section-1-width);
-  min-width: var(--fracgui-input-section-1-width);
+  max-width: var(--fracgui-input-section-1_width);
+  min-width: var(--fracgui-input-section-1_width);
   text-wrap: balance;
   padding-left: 0.5rem;
-  font-size: var(--fracgui-folder-content-font-size);
-  font-weight: var(--fracgui-folder-content-font-weight);
+  font-size: var(--fracgui-folder-content_font-size);
+  font-weight: var(--fracgui-folder-content_font-weight);
   font-family: var(--fracgui-font);
   transition: 0.33s;
 }
@@ -647,11 +647,11 @@ input.fracgui-search-input {
   align-items: center;
   width: 100%;
   height: 0%;
-  min-height: var(--fracgui-input-height);
-  color: var(--fracgui-input-container-color);
-  background: var(--fracgui-input-container-background);
-  outline: var(--fracgui-input-container-outline);
-  box-shadow: var(--fracgui-input-container-box-shadow);
+  min-height: var(--fracgui-input_height);
+  color: var(--fracgui-input-container_color);
+  background: var(--fracgui-input-container_background);
+  outline: var(--fracgui-input-container_outline);
+  box-shadow: var(--fracgui-input-container_box-shadow);
   transition: all 0.15s, opacity 0.15s ease-in 0.2s;
 }
 .fracgui-folder .fracgui-input-container:first-of-type {
@@ -714,13 +714,13 @@ input.fracgui-search-input {
 }
 .fracgui-folder .fracgui-input-container:has(input:active) .fracgui-controller-number, .fracgui-folder .fracgui-input-container:has(.fracgui-controller:active) .fracgui-controller-number {
   opacity: 1;
-  background: var(--fracgui-controller-background);
+  background: var(--fracgui-controller_background);
 }
 .fracgui-folder .fracgui-input-container:has(input:active) .fracgui-input-title, .fracgui-folder .fracgui-input-container:has(.fracgui-controller:active) .fracgui-input-title {
   color: var(--theme-a);
 }
 .fracgui-folder .fracgui-input-container.fracgui-search-hit {
-  min-height: var(--fracgui-input-height);
+  min-height: var(--fracgui-input_height);
 }
 .fracgui-folder .fracgui-input-container.fracgui-search-hit .fracgui-input-title {
   color: var(--theme-a);
@@ -776,7 +776,7 @@ input.fracgui-search-input {
   width: 90%;
   height: 45%;
   color: var(--fracgui-input-buttons-color);
-  background: var(--fracgui-controller-dim-background);
+  background: var(--fracgui-controller-dim_background);
   opacity: 0.5;
   border: none;
   border-radius: var(--radius-xs);
@@ -795,14 +795,14 @@ input.fracgui-search-input {
 }
 .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-input-number-container .fracgui-input-number-buttons-container .fracgui-input-number-button:hover {
   box-shadow: var(--fracgui-input-number-buttons-shadow-inset-hover);
-  background: var(--fracgui-controller-background);
+  background: var(--fracgui-controller_background);
   opacity: 1;
 }
 .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-input-number-container .fracgui-input-number-buttons-container .fracgui-input-number-button:hover svg {
   opacity: 1 !important;
 }
 .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-input-number-container .fracgui-input-number-buttons-container .fracgui-input-number-button:active {
-  background: var(--fracgui-controller-background);
+  background: var(--fracgui-controller_background);
   box-shadow: var(--fracgui-input-number-buttons-shadow-inset-active);
   opacity: 1;
 }
@@ -834,11 +834,11 @@ input.fracgui-search-input {
   appearance: none;
   width: 100%;
   height: 0.5rem;
-  accent-color: var(--fracgui-input-number-range-color);
-  background: var(--fracgui-input-number-range-background);
+  accent-color: var(--fracgui-input-number-range_color);
+  background: var(--fracgui-input-number-range_background);
   border-radius: var(--radius-xs);
-  box-shadow: var(--fracgui-input-number-range-box-shadow);
-  outline: var(--fracgui-input-number-range-outline);
+  box-shadow: var(--fracgui-input-number-range_box-shadow);
+  outline: var(--fracgui-input-number-range_outline);
   opacity: 0.7;
   transition: 0.15s;
   overflow: visible;
@@ -848,14 +848,14 @@ input.fracgui-search-input {
   opacity: 1;
 }
 .fracgui-folder .fracgui-input-container .fracgui-input-content input.fracgui-input-number-range:active {
-  background: color-mix(in lch, var(--theme-a), var(--fracgui-input-number-range-background));
+  background: color-mix(in lch, var(--theme-a), var(--fracgui-input-number-range_background));
 }
 .fracgui-folder .fracgui-input-container .fracgui-input-content input.fracgui-input-number-range::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 0.5rem;
   height: 1rem;
-  background: var(--fracgui-input-number-range-color);
+  background: var(--fracgui-input-number-range_color);
   border-radius: var(--radius-xs);
   border: none;
   transition: 0.15s;
@@ -867,7 +867,7 @@ input.fracgui-search-input {
   appearance: none;
   width: 0.5rem;
   height: 1rem;
-  background: var(--fracgui-input-number-range-color);
+  background: var(--fracgui-input-number-range_color);
   border-radius: var(--radius-xs);
   border: none;
   transition: 0.15s;
@@ -909,17 +909,17 @@ input.fracgui-search-input {
   appearance: textfield;
   width: 100%;
   min-width: 2rem;
-  max-width: var(--fracgui-input-section-2-width);
+  max-width: var(--fracgui-input-section-2_width);
   height: 1.25rem;
-  color: var(--fracgui-controller-color);
-  background: var(--fracgui-controller-dim-background);
-  background-image: var(--fracgui-controller-background-image);
-  box-shadow: var(--fracgui-input-content-box-shadow);
+  color: var(--fracgui-controller_color);
+  background: var(--fracgui-controller-dim_background);
+  background-image: var(--fracgui-controller_background-image);
+  box-shadow: var(--fracgui-input-content_box-shadow);
   border-radius: var(--radius-sm);
   border: none;
-  outline: var(--fracgui-controller-outline);
+  outline: var(--fracgui-controller_outline);
   font-family: var(--font-mono);
-  font-size: var(--fracgui-input-font-size);
+  font-size: var(--fracgui-input_font-size);
   text-align: center;
   font-variation-settings: "wght" 500;
   transition: 0.15s;
@@ -927,7 +927,7 @@ input.fracgui-search-input {
 }
 .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-controller-number:hover,
 .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-controller-text:hover {
-  background: var(--fracgui-controller-background);
+  background: var(--fracgui-controller_background);
 }
 .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-controller-number::-webkit-inner-spin-button, .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-controller-number::-webkit-outer-spin-button,
 .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-controller-text::-webkit-inner-spin-button,
@@ -980,9 +980,9 @@ input.fracgui-search-input {
 .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-input-color-container .fracgui-input-color-current-color-container:hover .copy-button {
   opacity: 1;
 }
-.fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-input-color-container .fracgui-input-color-current-color-background {
-  width: var(--fracgui-input-section-2-width);
-  min-width: var(--fracgui-input-section-2-width);
+.fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-input-color-container .fracgui-input-color-current-color_background {
+  width: var(--fracgui-input-section-2_width);
+  min-width: var(--fracgui-input-section-2_width);
   height: 1.5rem;
   background-image: linear-gradient(45deg, var(--bg-a) 25%, transparent 25%), linear-gradient(-45deg, var(--bg-a) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, var(--bg-a) 75%), linear-gradient(-45deg, transparent 75%, var(--bg-a) 75%);
   background-size: 16px 16px;
@@ -1001,7 +1001,7 @@ input.fracgui-search-input {
   flex-direction: column;
   justify-content: center;
   min-width: 0;
-  width: var(--fracgui-input-section-3-width);
+  width: var(--fracgui-input-section-3_width);
 }
 .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-input-color-container .fracgui-input-color-body .fracgui-input-color-picker-container {
   position: relative;
@@ -1184,11 +1184,11 @@ input.fracgui-search-input {
 .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-input-color-container .fracgui-input-color-body .fracgui-input-color-components-container .fracgui-input-color-components-numbers-container .fracgui-controller-number {
   height: 1.25rem;
   max-width: unset;
-  color: var(--fracgui-controller-color);
-  background: var(--fracgui-controller-dim-background);
+  color: var(--fracgui-controller_color);
+  background: var(--fracgui-controller-dim_background);
   border-radius: var(--radius-sm);
-  box-shadow: var(--fracgui-input-content-box-shadow);
-  outline: var(--fracgui-controller-outline);
+  box-shadow: var(--fracgui-input-content_box-shadow);
+  outline: var(--fracgui-controller_outline);
   transition: 0.15s;
   overflow: visible;
   opacity: 0;
@@ -1197,17 +1197,17 @@ input.fracgui-search-input {
 }
 .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-input-color-container .fracgui-input-color-body .fracgui-input-color-components-container .fracgui-input-color-components-numbers-container .fracgui-controller-number.visible {
   opacity: 1;
-  background: var(--fracgui-controller-background);
+  background: var(--fracgui-controller_background);
   transform: translateX(0);
   pointer-events: all;
 }
 .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-input-color-container .fracgui-input-color-body .fracgui-input-color-components-container .fracgui-input-color-components-numbers-container .fracgui-controller-number:hover {
   color: var(--fg-b);
   opacity: 1;
-  background: var(--fracgui-controller-background);
+  background: var(--fracgui-controller_background);
 }
 .fracgui-folder .fracgui-input-container .fracgui-input-content:hover .fracgui-controller-number {
-  background: var(--fracgui-controller-background);
+  background: var(--fracgui-controller_background);
 }
 .fracgui-folder .fracgui-input-container .fracgui-input-content:hover .fracgui-input-number-buttons-container .fracgui-input-number-button {
   opacity: 1;
@@ -1221,9 +1221,9 @@ input.fracgui-search-input {
 .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-input-select-container .fracgui-controller-select-selected {
   line-height: 1.25rem;
   height: 1.25rem;
-  background: var(--fracgui-controller-dim-background);
+  background: var(--fracgui-controller-dim_background);
   border-radius: var(--radius-xs);
-  outline: var(--fracgui-controller-outline);
+  outline: var(--fracgui-controller_outline);
   filter: unset;
 }
 .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-input-select-container .fracgui-controller-select-selected::before {
@@ -1237,14 +1237,14 @@ input.fracgui-search-input {
   transition: 0.2s;
 }
 .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-input-select-container .fracgui-controller-select-selected.active, .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-input-select-container .fracgui-controller-select-selected:hover, .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-input-select-container .fracgui-controller-select-selected:focus-visible, .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-input-select-container .fracgui-controller-select-selected:active {
-  background: var(--fracgui-controller-background);
+  background: var(--fracgui-controller_background);
   outline-offset: 0rem;
 }
 .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-input-select-container .fracgui-controller-select-selected.active::before, .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-input-select-container .fracgui-controller-select-selected:hover::before, .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-input-select-container .fracgui-controller-select-selected:focus-visible::before, .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-input-select-container .fracgui-controller-select-selected:active::before {
   color: var(--bg-e);
 }
 .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-input-select-container .fracgui-controller-select-selected.active {
-  outline: var(--fracgui-controller-outline);
+  outline: var(--fracgui-controller_outline);
 }
 .fracgui-folder .fracgui-input-container .fracgui-input-content .fracgui-input-select-container .fracgui-controller-select-selected.active::before {
   color: var(--fg-d);

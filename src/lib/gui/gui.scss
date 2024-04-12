@@ -6,18 +6,18 @@
 // // Generic Globals
 // .fracgui-root {
 // 	--fracgui-width: 30rem;
-// 	--fracgui-root-min-width: 25rem;
-// 	--fracgui-root-max-width: 35rem;
-// 	--fracgui-font-family: var(--fracgui-font-d);
-// 	--fracgui-input-font-family: var(--fracgui-input-font-family);
-// 	// --fracgui-input-font-family: var(--fracgui-font-d);
+// 	--fracgui-root_min-width: 25rem;
+// 	--fracgui-root_max-width: 35rem;
+// 	--fracgui-root_font-family: var(--fracgui-font-d);
+// 	--fracgui-input_font-family: var(--fracgui-input_font-family);
+// 	// --fracgui-input_font-family: var(--fracgui-font-d);
 
-// 	--fracgui-root-header-font-size: var(--fracgui-font-xs);
-// 	--fracgui-root-header-font-weight: 500;
-// 	--fracgui-root-header-height: 1.75rem;
-// 	--fracgui-root-header-letter-spacing: 0.125rem;
+// 	--fracgui-root-header_font-size: var(--fracgui-font-xs);
+// 	--fracgui-root-header_font-weight: 500;
+// 	--fracgui-root-header_height: 1.75rem;
+// 	--fracgui-root-header_letter-spacing: 0.125rem;
 
-// 	--fracgui-header-height: 1.75rem;
+// 	--fracgui-header_height: 1.75rem;
 
 // 	--fracgui-root-opacity: 0.75;
 // 	--fracgui-root-blur: 0.5rem;
@@ -47,81 +47,81 @@
 // .fracgui-root[theme='nightowl'] {
 // 	//* Root Folder
 
-// 	// --fracgui-root-content-background: rgba(var(--fracgui-bg-b-rgb), 0.2);
-// 	--fracgui-root-content-background: rgba(var(--fracgui-bg-b-rgb), var(--fracgui-root-opacity));
-// 	--fracgui-root-box-shadow: 0 0 1.5px 0.5px rgba(var(--fracgui-bg-d-rgb), 0.5) inset;
+// 	// --fracgui-root-content_background: rgba(var(--fracgui-bg-b-rgb), 0.2);
+// 	--fracgui-root-content_background: rgba(var(--fracgui-bg-b-rgb), var(--fracgui-root-opacity));
+// 	--fracgui-root_box-shadow: 0 0 1.5px 0.5px rgba(var(--fracgui-bg-d-rgb), 0.5) inset;
 
 // 	//* Folders
-// 	--fracgui-folder-background: rgba(var(--fracgui-bg-b-rgb), 0.5);
+// 	--fracgui-folder_background: rgba(var(--fracgui-bg-b-rgb), 0.5);
 
 // 	//? Folder Header
-// 	--fracgui-folder-header-padding-left: 0.25rem;
+// 	--fracgui-folder-header_padding-left: 0.25rem;
 
-// 	--fracgui-folder-header-color: var(--fracgui-fg-c);
-// 	--fracgui-folder-header-dim-color: var(--fracgui-fg-d);
-// 	--fracgui-folder-header-background: var(--fracgui-bg-a);
-// 	--fracgui-folder-header-outline: none;
-// 	--fracgui-folder-header-box-shadow: none;
+// 	--fracgui-folder-header_color: var(--fracgui-fg-c);
+// 	--fracgui-folder-header-dim_color: var(--fracgui-fg-d);
+// 	--fracgui-folder-header_background: var(--fracgui-bg-a);
+// 	--fracgui-folder-header_outline: none;
+// 	--fracgui-folder-header_box-shadow: none;
 
-// 	--fracgui-folder-header-font-size: var(--fracgui-font-sm);
-// 	--fracgui-folder-header-font-weight: 350;
-// 	--fracgui-folder-header-letter-spacing: 0.75px;
+// 	--fracgui-folder-header_font-size: var(--fracgui-font-sm);
+// 	--fracgui-folder-header_font-weight: 350;
+// 	--fracgui-folder-header_letter-spacing: 0.75px;
 
 // 	//? Folder Toolbar
-// 	--fracgui-toolbar-icon-dim-color: var(--fracgui-bg-c);
-// 	--fracgui-toolbar-icon-color: var(--fracgui-bg-d);
+// 	--fracgui-toolbar-icon-dim_color: var(--fracgui-bg-c);
+// 	--fracgui-toolbar-icon_color: var(--fracgui-bg-d);
 
 // 	//? Folder Content
-// 	--fracgui-folder-content-background: rgba(var(--fracgui-bg-b-rgb), 0.2);
-// 	--fracgui-folder-content-padding-left: 0.33rem;
-// 	--fracgui-folder-content-font-size: var(--fracgui-font-xs);
-// 	--fracgui-folder-content-font-weight: 350;
-// 	--fracgui-folder-content-letter-spacing: 0.5px;
+// 	--fracgui-folder-content_background: rgba(var(--fracgui-bg-b-rgb), 0.2);
+// 	--fracgui-folder-content_padding-left: 0.33rem;
+// 	--fracgui-folder-content_font-size: var(--fracgui-font-xs);
+// 	--fracgui-folder-content_font-weight: 350;
+// 	--fracgui-folder-content_letter-spacing: 0.5px;
 
 // 	//* Controllers
 
-// 	--fracgui-controller-radius: var(--fracgui-radius-sm);
+// 	--fracgui-controller_border-radius: var(--fracgui-radius-sm);
 // 	// prettier-ignore
-// 	--fracgui-controller-box-shadow:
+// 	--fracgui-controller_box-shadow:
 // 		-1px 1px 2px hsla(250, 10%, var(--fracgui-shadow-lightness), calc(0.7 * var(--fracgui-shadow-opacity))),
 // 		-1px 2px 5px hsla(250, 10%, var(--fracgui-shadow-lightness), var(--fracgui-shadow-opacity))
 // 	;
-// 	--fracgui-controller-background: rgba(var(--fracgui-bg-c-rgb), 1);
-// 	--fracgui-controller-dim-background: rgba(var(--fracgui-bg-c-rgb), 0.75);
-// 	--fracgui-controller-active-background: rgba(var(--fracgui-bg-d-rgb), 0.75);
-// 	--fracgui-controller-color: var(--fracgui-fg-b);
-// 	--fracgui-controller-dim-color: var(--fracgui-fg-d);
+// 	--fracgui-controller_background: rgba(var(--fracgui-bg-c-rgb), 1);
+// 	--fracgui-controller-dim_background: rgba(var(--fracgui-bg-c-rgb), 0.75);
+// 	--fracgui-controller-active_background: rgba(var(--fracgui-bg-d-rgb), 0.75);
+// 	--fracgui-controller_color: var(--fracgui-fg-b);
+// 	--fracgui-controller-dim_color: var(--fracgui-fg-d);
 
 // 	//* Inputs
 
-// 	--fracgui-input-height: 2rem;
-// 	--fracgui-input-font-size: var(--fracgui-font-xs);
+// 	--fracgui-input_height: 2rem;
+// 	--fracgui-input_font-size: var(--fracgui-font-xs);
 
 // 	//? Sections
 
-// 	--fracgui-input-section-1-width: clamp(6rem, 30%, 12rem);
-// 	--fracgui-input-section-2-width: 4rem;
-// 	--fracgui-input-section-3-width: 100%;
+// 	--fracgui-input-section-1_width: clamp(6rem, 30%, 12rem);
+// 	--fracgui-input-section-2_width: 4rem;
+// 	--fracgui-input-section-3_width: 100%;
 
 // 	//? Input Container
 
-// 	--fracgui-input-container-color: var(--fracgui-fg-d);
-// 	--fracgui-input-container-dim-color: var(--fracgui-fg-e);
-// 	--fracgui-input-container-background: rgba(var(--fracgui-bg-a-rgb), 0.5);
-// 	--fracgui-input-container-outline: 1px solid rgba(var(--fracgui-bg-a-rgb), 0.2);
+// 	--fracgui-input-container_color: var(--fracgui-fg-d);
+// 	--fracgui-input-container-dim_color: var(--fracgui-fg-e);
+// 	--fracgui-input-container_background: rgba(var(--fracgui-bg-a-rgb), 0.5);
+// 	--fracgui-input-container_outline: 1px solid rgba(var(--fracgui-bg-a-rgb), 0.2);
 // 	// prettier-ignore
-// 	--fracgui-input-container-box-shadow:
+// 	--fracgui-input-container_box-shadow:
 // 		-0.15px 0.1px 1px hsla(220, 10%, 2%, calc(0.2 * var(--fracgui-shadow-opacity))) inset,
 // 		-2px 2px 15px hsla(220, 10%, 2%, calc(0.075 * var(--fracgui-shadow-opacity))) inset,
 // 		-3.0px 3px 25px hsla(220, 10%, 2%, calc(0.05 * var(--fracgui-shadow-opacity))) inset,
 // 		-10.0px 10px 50px hsla(220, 10%, 2%, calc(0.025 * var(--fracgui-shadow-opacity))) inset
 // 	;
-// 	--fracgui-drawer-toggle-background: rgba(var(--fracgui-bg-a-rgb), 0.5);
+// 	--fracgui-drawer-toggle_background: rgba(var(--fracgui-bg-a-rgb), 0.5);
 
 // 	//? Input Content
 
-// 	--fracgui-input-content-box-shadow: var(--shadow-xs);
-// 	--fracgui-controller-outline: 1px solid rgba(var(--fracgui-bg-d-rgb), 0.4);
+// 	--fracgui-input-content_box-shadow: var(--shadow-xs);
+// 	--fracgui-controller_outline: 1px solid rgba(var(--fracgui-bg-d-rgb), 0.4);
 
 // 	//? Number Input
 
@@ -133,12 +133,12 @@
 
 // 	//? Range Input
 
-// 	--fracgui-input-number-range-color: var(--fracgui-bg-c);
-// 	--fracgui-input-number-range-active-color: var(--fracgui-theme-a);
-// 	--fracgui-input-number-range-background: var(--fracgui-bg-a);
-// 	--fracgui-input-number-range-outline: 1px solid rgba(var(--fracgui-bg-c-rgb), 0.25);
+// 	--fracgui-input-number-range_color: var(--fracgui-bg-c);
+// 	--fracgui-input-number-range-active_color: var(--fracgui-theme-a);
+// 	--fracgui-input-number-range_background: var(--fracgui-bg-a);
+// 	--fracgui-input-number-range_outline: 1px solid rgba(var(--fracgui-bg-c-rgb), 0.25);
 // 	// prettier-ignore
-// 	--fracgui-input-number-range-box-shadow:
+// 	--fracgui-input-number-range_box-shadow:
 // 		-2px 2px 2.5px hsla(230, 20%, 0%, 0.2),
 // 		2px 2px 5px hsla(230, 20%, 0%, 0.2),
 // 		2px 3px 10px hsla(230, 20%, 0%, 0.2),
@@ -151,17 +151,17 @@
 // 	--fracgui-input-number-buttons-shadow-inset-hover: 0px 0px 1px 0px hsl(0, 0%, 80%) inset;
 // 	--fracgui-input-number-buttons-shadow-inset-active: 0px 0px 2px 1px hsl(0, 0%, 90%) inset;
 
-// 	--fracgui-controller-dim-background: rgba(var(--fracgui-bg-a-rgb), 0.5);
-// 	--fracgui-controller-background: rgba(var(--fracgui-bg-a-rgb), 1);
-// 	--fracgui-controller-color: var(--fracgui-fg-a);
-// 	--fracgui-controller-dim-color: var(--fracgui-fg-c);
-// 	--fracgui-controller-outline: 1px solid rgba(var(--fracgui-bg-d-rgb), 0.1);
+// 	--fracgui-controller-dim_background: rgba(var(--fracgui-bg-a-rgb), 0.5);
+// 	--fracgui-controller_background: rgba(var(--fracgui-bg-a-rgb), 1);
+// 	--fracgui-controller_color: var(--fracgui-fg-a);
+// 	--fracgui-controller-dim_color: var(--fracgui-fg-c);
+// 	--fracgui-controller_outline: 1px solid rgba(var(--fracgui-bg-d-rgb), 0.1);
 
-// 	--fracgui-input-number-range-background: var(--fracgui-bg-b);
-// 	--fracgui-input-number-range-color: var(--fracgui-bg-d);
+// 	--fracgui-input-number-range_background: var(--fracgui-bg-b);
+// 	--fracgui-input-number-range_color: var(--fracgui-bg-d);
 
 // 	// prettier-ignore
-// 	--fracgui-input-number-range-box-shadow:
+// 	--fracgui-input-number-range_box-shadow:
 // 		-2px 2px 2px hsla(230, 20%, 30%, 0.1),
 // 		2px 2px 3px hsla(230, 20%, 30%, 0.1),
 // 		2px 2px 7px hsla(230, 20%, 30%, 0.1)
@@ -196,8 +196,8 @@
 //· Mixins ···································································¬
 
 @mixin fontMono {
-	font-family: var(--fracgui-input-font-family);
-	font-size: var(--fracgui-input-font-size);
+	font-family: var(--fracgui-input_font-family);
+	font-size: var(--fracgui-input_font-size);
 	font-variation-settings: 'wght' 400;
 	text-align: center;
 }
@@ -211,13 +211,13 @@
 }
 
 @mixin scrollbarThumb {
-	background: var(--fracgui-controller-background);
+	background: var(--fracgui-controller_background);
 	border: none;
 	transition: 0.15s !important;
 }
 
 @mixin scrollbarTrack {
-	background: var(--fracgui-folder-header-background);
+	background: var(--fracgui-folder-header_background);
 	border-bottom-right-radius: var(--fracgui-radius-sm);
 	// background: inherit;
 	transition: 0.15s !important;
@@ -278,8 +278,8 @@
 		animation-timing-function: cubic-bezier(0.1, 1, 0.1, 1);
 	}
 	.fracgui-header {
-		height: var(--fracgui-header-height);
-		max-height: var(--fracgui-header-height);
+		height: var(--fracgui-header_height);
+		max-height: var(--fracgui-header_height);
 	}
 
 	&.closed {
@@ -302,8 +302,8 @@
 		}
 
 		.fracgui-folder .fracgui-header {
-			height: var(--fracgui-header-height);
-			max-height: var(--fracgui-header-height);
+			height: var(--fracgui-header_height);
+			max-height: var(--fracgui-header_height);
 		}
 	}
 }
@@ -375,17 +375,18 @@
 	flex-direction: column;
 	inset: 0;
 
-	width: var(--fracgui-width);
-	min-width: var(--fracgui-root-min-width);
-	max-width: var(--fracgui-root-max-width);
+	width: var(--fracgui-root_width);
+	min-width: var(--fracgui-root_min-width);
+	max-width: var(--fracgui-root_max-width);
 
 	height: fit-content; //- required for animations
 
 	border-radius: var(--fracgui-radius-md);
+	filter: var(--fracgui-filter);
 
-	font-family: var(--fracgui-font-family);
-	font-weight: var(--fracgui-folder-content-font-weight);
-	font-size: var(--fracgui-folder-content-font-size);
+	font-family: var(--fracgui-root_font-family);
+	font-weight: var(--fracgui-folder-content_font-weight);
+	font-size: var(--fracgui-folder-content_font-size);
 
 	user-select: none;
 	z-index: 99;
@@ -400,30 +401,30 @@
 	gap: 0.5rem;
 
 	width: 100%;
-	min-height: var(--fracgui-root-header-height);
+	min-height: var(--fracgui-root-header_height);
 
 	color: var(--fracgui-fg-c);
 	background: var(--fracgui-bg-a);
 	border-radius: var(--fracgui-radius-md);
 	border-bottom-left-radius: var(--fracgui-radius-xs);
 	border-bottom-right-radius: var(--fracgui-radius-xs);
-	box-shadow: var(--fracgui-root-box-shadow);
+	box-shadow: var(--fracgui-root_box-shadow);
 
 	cursor: pointer;
 	cursor: grab;
 
 	.fracgui-title {
 		width: fit-content;
-		height: var(--fracgui-root-header-height);
+		height: var(--fracgui-root-header_height);
 
-		// font-family: var(--fracgui-font-family);
-		font-size: var(--fracgui-root-header-font-size);
-		font-weight: var(--fracgui-root-header-font-weight);
+		// font-family: var(--fracgui-root_font-family);
+		font-size: var(--fracgui-root-header_font-size);
+		font-weight: var(--fracgui-root-header_font-weight);
 		font-variation-settings:
-			'wght' var(--fracgui-root-header-font-weight),
+			'wght' var(--fracgui-root-header_font-weight),
 			'wdth' 100;
-		letter-spacing: var(--fracgui-root-header-letter-spacing);
-		line-height: var(--fracgui-root-header-height);
+		letter-spacing: var(--fracgui-root-header_letter-spacing);
+		line-height: var(--fracgui-root-header_height);
 
 		overflow: hidden;
 		white-space: nowrap;
@@ -439,13 +440,13 @@
 
 	width: 100%;
 	margin: 0;
-	max-height: var(--fracgui-max-height);
+	max-height: var(--fracgui-root_max-height);
 
 	border-radius: var(--fracgui-radius-md);
 	border-top-left-radius: var(--fracgui-radius-sm);
 	border-top-right-radius: var(--fracgui-radius-sm);
-	background: var(--fracgui-root-content-background);
-	backdrop-filter: blur(var(--fracgui-root-blur));
+	background: var(--fracgui-root-content_background);
+	backdrop-filter: blur(var(--fracgui-root_blur));
 	outline-offset: -1px;
 
 	box-shadow: 0 0 1.5px 0.5px rgba(var(--fracgui-bg-d-rgb), 0.5) inset;
@@ -463,6 +464,8 @@
 	}
 
 	@include scrollable;
+
+	backface-visibility: hidden;
 }
 
 .fracgui-root.animating > .fracgui-content-wrapper > .fracgui-content {
@@ -484,7 +487,7 @@
 
 .fracgui-folder {
 	height: fit-content;
-	background: var(--fracgui-folder-background);
+	background: var(--fracgui-folder_background);
 
 	&.hidden {
 		display: none;
@@ -499,13 +502,13 @@
 	gap: 0.5rem;
 
 	width: 100%;
-	padding-left: var(--fracgui-folder-header-padding-left);
+	padding-left: var(--fracgui-folder-header_padding-left);
 
-	color: var(--fracgui-folder-header-dim-color);
-	background: var(--fracgui-folder-header-background);
-	outline: var(--fracgui-folder-header-outline, 1px solid rgba(var(--fracgui-bg-b-rgb), 0.5));
+	color: var(--fracgui-folder-header-dim_color);
+	background: var(--fracgui-folder-header_background);
+	outline: var(--fracgui-folder-header_outline, 1px solid rgba(var(--fracgui-bg-b-rgb), 0.5));
 	outline-offset: -1px;
-	box-shadow: var(--fracgui-folder-header-box-shadow, 0 0 0.1rem #000 inset);
+	box-shadow: var(--fracgui-folder-header_box-shadow, 0 0 0.1rem #000 inset);
 
 	transition: 0.15s;
 	cursor: pointer;
@@ -513,12 +516,12 @@
 	.fracgui-title {
 		width: fit-content;
 
-		// font-family: var(--fracgui-font-family);
-		font-size: var(--fracgui-folder-header-font-size);
-		font-weight: var(--fracgui-folder-header-font-weight);
-		letter-spacing: var(--fracgui-folder-header-letter-spacing);
+		// font-family: var(--fracgui-root_font-family);
+		font-size: var(--fracgui-folder-header_font-size);
+		font-weight: var(--fracgui-folder-header_font-weight);
+		letter-spacing: var(--fracgui-folder-header_letter-spacing);
 		font-variation-settings:
-			'wght' var(--fracgui-folder-header-font-weight),
+			'wght' var(--fracgui-folder-header_font-weight),
 			'wdth' 100;
 
 		transition: 0.15s;
@@ -545,9 +548,9 @@
 		flex-direction: column;
 
 		width: 100%;
-		background: var(--fracgui-folder-content-background, var(--fracgui-folder-background));
-		border-left: var(--fracgui-folder-content-padding-left) solid
-			var(--fracgui-folder-header-background);
+		background: var(--fracgui-folder-content_background, var(--fracgui-folder_background));
+		border-left: var(--fracgui-folder-content_padding-left) solid
+			var(--fracgui-folder-header_background);
 
 		transition: 0.15s;
 	}
@@ -555,10 +558,10 @@
 
 .fracgui-folder:hover:not(.fracgui-root) {
 	> .fracgui-header {
-		color: var(--fracgui-folder-header-color);
+		color: var(--fracgui-folder-header_color);
 		// .fracgui-title {
 		// 	font-variation-settings:
-		// 		'wght' calc(var(--fracgui-folder-header-font-weight) + 20),
+		// 		'wght' calc(var(--fracgui-folder-header_font-weight) + 20),
 		// 		'wdth' 104;
 		// }
 	}
@@ -577,18 +580,20 @@
 .fracgui-controller {
 	width: 100%;
 
-	color: var(--fracgui-controller-dim-color);
-	background: var(--fracgui-controller-dim-background);
-	box-shadow: var(--fracgui-controller-box-shadow);
-	border-radius: var(--fracgui-controller-radius);
-	outline: var(--fracgui-controller-outline);
+	color: var(--fracgui-controller-dim_color);
+	background: var(--fracgui-controller-dim_background);
+	box-shadow: var(--fracgui-controller_box-shadow);
+	border-radius: var(--fracgui-controller_border-radius);
+	outline: var(--fracgui-controller_outline);
 
 	&:hover,
 	&:focus-visible,
 	&:active {
-		opacity: 1;
-		color: var(--fracgui-controller-color);
-		background: var(--fracgui-controller-background);
+		&:not(:disabled) {
+			opacity: 1;
+			color: var(--fracgui-controller_color);
+			background: var(--fracgui-controller_background);
+		}
 	}
 
 	transition: 0.15s;
@@ -596,8 +601,8 @@
 
 .fracgui-controller-text,
 .fracgui-controller-button {
-	color: color-mix(in lch, var(--fracgui-controller-color), var(--fracgui-fg-a) 0.5);
-	background: color-mix(in lch, var(--fracgui-controller-background), transparent);
+	color: color-mix(in lch, var(--fracgui-controller_color), var(--fracgui-fg-a) 0.5);
+	background: color-mix(in lch, var(--fracgui-controller_background), transparent);
 }
 
 .fracgui-controller-button {
@@ -608,8 +613,8 @@
 	padding: 0;
 
 	border: none;
-	border-radius: var(--fracgui-controller-radius);
-	outline: var(--fracgui-controller-outline);
+	border-radius: var(--fracgui-controller_border-radius);
+	outline: var(--fracgui-controller_outline);
 	outline-offset: -1px;
 	// prettier-ignore
 	box-shadow:
@@ -630,16 +635,17 @@
 
 	&:hover,
 	&:active {
-		background: var(--fracgui-controller-background);
-		color: var(--fracgui-controller-color);
+		&:not(:disabled) {
+			background: var(--fracgui-controller_background);
+			color: var(--fracgui-controller_color);
+		}
 	}
 
-	// transition-duration: 0.2s;
 	&:active {
 		scale: 0.975;
 		color: var(--fracgui-theme-a);
 		transition-duration: 0.075s;
-		// background: var(--fracgui-controller-active-background);
+
 		// prettier-ignore
 		box-shadow:
 			0px 0px 3px var(--fracgui-shadow-color),
@@ -647,7 +653,13 @@
 			0px 0px 10px hsla(250, 10%, calc(var(--fracgui-shadow-lightness) / 2), calc(var(--fracgui-shadow-opacity) / 2)) inset,
 			0px 0px 20px hsla(250, 10%, calc(var(--fracgui-shadow-lightness) / 1), calc(var(--fracgui-shadow-opacity) / 2)) inset
 		;
-		// scale: 0.99;
+	}
+
+	// Disabled
+	&:disabled {
+		opacity: 0.5;
+		cursor: default;
+		pointer-events: none;
 	}
 }
 
@@ -665,7 +677,7 @@ $option-padding: 0.1rem 0.75rem;
 	outline: 1px solid rgba(var(--fracgui-bg-d-rgb), 0);
 
 	text-align: center;
-	letter-spacing: var(--fracgui-folder-content-letter-spacing);
+	letter-spacing: var(--fracgui-folder-content_letter-spacing);
 
 	overflow: hidden;
 	transition: 0.15s;
@@ -681,7 +693,7 @@ $option-padding: 0.1rem 0.75rem;
 	}
 
 	&.active {
-		outline: var(--fracgui-controller-outline);
+		outline: var(--fracgui-controller_outline);
 	}
 }
 
@@ -731,7 +743,7 @@ $option-padding: 0.1rem 0.75rem;
 	padding: $option-padding;
 	line-height: $option-height;
 
-	font-family: var(--fracgui-font-family, var(--fracgui-font-d));
+	font-family: var(--fracgui-root_font-family, var(--font-d));
 	font-size: 0.8rem;
 	letter-spacing: 0.5px;
 	color: var(--fracgui-fg-d);
@@ -850,7 +862,7 @@ $icon-height: 0.9rem;
 //- Hover
 
 .fracgui-search-button {
-	color: var(--fracgui-toolbar-icon-dim-color);
+	color: var(--fracgui-toolbar-icon-dim_color);
 	opacity: 0;
 }
 .fracgui-search-button:hover {
@@ -901,7 +913,7 @@ input.fracgui-search-input {
 	border: none;
 
 	font-size: var(--fracgui-font-xxs);
-	// font-family: var(--fracgui-font-family);
+	// font-family: var(--fracgui-root_font-family);
 	caret-color: var(--fracgui-bg-e);
 	caret-shape: block;
 	line-height: 4px !important;
@@ -946,14 +958,14 @@ input.fracgui-search-input {
 	padding: 0;
 	margin-right: 0.5rem;
 
-	color: var(--fracgui-toolbar-icon-dim-color);
+	color: var(--fracgui-toolbar-icon-dim_color);
 	background: none;
 
 	cursor: pointer;
 	transition: 0.15s;
 
 	&:hover {
-		color: var(--fracgui-toolbar-icon-color);
+		color: var(--fracgui-toolbar-icon_color);
 	}
 
 	.gear,
@@ -1019,7 +1031,7 @@ input.fracgui-search-input {
 	&.open {
 		// .dot-center {
 		// 	fill: none;
-		// 	stroke: var(--fracgui-toolbar-icon-color);
+		// 	stroke: var(--fracgui-toolbar-icon_color);
 		// }
 		.gear {
 			opacity: 1;
@@ -1027,7 +1039,7 @@ input.fracgui-search-input {
 		}
 
 		// .dot-center {
-		// 	stroke: var(--fracgui-toolbar-icon-dim-color);
+		// 	stroke: var(--fracgui-toolbar-icon-dim_color);
 		// }
 	}
 
@@ -1089,7 +1101,7 @@ input.fracgui-search-input {
 		}
 
 		font-size: 0.8rem;
-		font-family: var(--fracgui-input-font-family);
+		font-family: var(--fracgui-input_font-family);
 	}
 
 	.copy-button-svg-container {
@@ -1185,7 +1197,7 @@ input.fracgui-search-input {
 	height: 75%;
 
 	color: var(--fracgui-fg-c);
-	background: var(--fracgui-drawer-toggle-background);
+	background: var(--fracgui-drawer-toggle_background);
 	transition: 0.15s;
 	box-shadow: -1px 0 1px 0.5px rgba(var(--fracgui-bg-a-rgb), 0.5) inset;
 
@@ -1202,12 +1214,12 @@ input.fracgui-search-input {
 .fracgui-input-title {
 	// outline: 1px solid hsla(120, 100%, 25%, 0.2); // debug-outline
 
-	max-width: var(--fracgui-input-section-1-width);
-	min-width: var(--fracgui-input-section-1-width);
+	max-width: var(--fracgui-input-section-1_width);
+	min-width: var(--fracgui-input-section-1_width);
 	text-wrap: balance;
 	padding-left: 0.5rem;
 
-	letter-spacing: var(--fracgui-folder-content-letter-spacing);
+	letter-spacing: var(--fracgui-folder-content_letter-spacing);
 
 	overflow: hidden;
 	white-space: nowrap;
@@ -1223,17 +1235,17 @@ input.fracgui-search-input {
 
 	width: 100%;
 	height: 0%;
-	min-height: var(--fracgui-input-height);
+	min-height: var(--fracgui-input_height);
 
-	// color: var(--fracgui-input-container-color);
-	// background: var(--fracgui-input-container-background);
+	// color: var(--fracgui-input-container_color);
+	// background: var(--fracgui-input-container_background);
 	// todo - thought... if every customizable property assumes a default variable of the same name,
 	// todo - then it would be much simpler to override at runtime in the themer / user options
-	color: var(--fracgui-input-container-color);
-	background: var(--fracgui-input-container-background);
+	color: var(--fracgui-input-container_color);
+	background: var(--fracgui-input-container_background);
 
-	outline: var(--fracgui-input-container-outline);
-	box-shadow: var(--fracgui-input-container-box-shadow);
+	outline: var(--fracgui-input-container_outline);
+	box-shadow: var(--fracgui-input-container_box-shadow);
 
 	transition:
 		all 0.15s,
@@ -1320,7 +1332,7 @@ input.fracgui-search-input {
 	&:has(.fracgui-controller:active) {
 		.fracgui-controller-number {
 			opacity: 1;
-			background: var(--fracgui-controller-background);
+			background: var(--fracgui-controller_background);
 		}
 
 		.fracgui-input-title {
@@ -1329,7 +1341,7 @@ input.fracgui-search-input {
 	}
 
 	&.fracgui-search-hit {
-		min-height: var(--fracgui-input-height);
+		min-height: var(--fracgui-input_height);
 
 		.fracgui-input-title {
 			color: var(--fracgui-theme-a);
@@ -1472,11 +1484,11 @@ input.fracgui-search-input {
 			width: 100%;
 			height: 0.5rem;
 
-			accent-color: var(--fracgui-input-number-range-color);
-			background: var(--fracgui-input-number-range-background);
+			accent-color: var(--fracgui-input-number-range_color);
+			background: var(--fracgui-input-number-range_background);
 			border-radius: var(--fracgui-radius-xs);
-			box-shadow: var(--fracgui-input-number-range-box-shadow);
-			outline: var(--fracgui-input-number-range-outline);
+			box-shadow: var(--fracgui-input-number-range_box-shadow);
+			outline: var(--fracgui-input-number-range_outline);
 
 			opacity: 0.7;
 			transition: 0.15s;
@@ -1492,7 +1504,7 @@ input.fracgui-search-input {
 				background: color-mix(
 					in lch,
 					var(--fracgui-theme-a),
-					var(--fracgui-input-number-range-background)
+					var(--fracgui-input-number-range_background)
 				);
 			}
 
@@ -1503,7 +1515,7 @@ input.fracgui-search-input {
 				width: 0.5rem;
 				height: 1rem;
 
-				background: var(--fracgui-input-number-range-color);
+				background: var(--fracgui-input-number-range_color);
 				border-radius: var(--fracgui-radius-xs);
 				border: none;
 
@@ -1561,11 +1573,11 @@ input.fracgui-search-input {
 
 			width: 100%;
 			min-width: 2rem;
-			max-width: var(--fracgui-input-section-2-width);
+			max-width: var(--fracgui-input-section-2_width);
 			height: 1.25rem;
 
 			border: none;
-			outline: var(--fracgui-controller-outline);
+			outline: var(--fracgui-controller_outline);
 
 			@include fontMono;
 
@@ -1602,19 +1614,19 @@ input.fracgui-search-input {
 				max-width: unset;
 				height: 1.25rem;
 
-				// color: var(--fracgui-controller-dim-color);
+				// color: var(--fracgui-controller-dim_color);
 				// color: color-mix(
 				// 	in lch,
-				// 	var(--fracgui-controller-color),
-				// 	var(--fracgui-controller-dim-color)
+				// 	var(--fracgui-controller_color),
+				// 	var(--fracgui-controller-dim_color)
 				// );
-				// background: var(--fracgui-controller-dim-background);
-				// background-image: var(--fracgui-controller-background-image);
-				// box-shadow: var(--fracgui-input-content-box-shadow);
+				// background: var(--fracgui-controller-dim_background);
+				// background-image: var(--fracgui-controller_background-image);
+				// box-shadow: var(--fracgui-input-content_box-shadow);
 				// border-radius: var(--fracgui-radius-sm);
 
 				border: none;
-				outline: var(--fracgui-controller-outline);
+				outline: var(--fracgui-controller_outline);
 
 				@include fontMono;
 				text-align: start;
@@ -1624,8 +1636,8 @@ input.fracgui-search-input {
 				overflow: visible;
 
 				&:hover {
-					color: var(--fracgui-controller-color);
-					background: var(--fracgui-controller-background);
+					color: var(--fracgui-controller_color);
+					background: var(--fracgui-controller_background);
 				}
 			}
 		}
@@ -1687,13 +1699,13 @@ input.fracgui-search-input {
 				}
 			}
 
-			.fracgui-input-color-current-color-background {
+			.fracgui-input-color-current-color_background {
 				$size: 8px;
 				$size2: $size * 2;
 				$color: var(--fracgui-bg-a);
 
-				width: var(--fracgui-input-section-2-width);
-				min-width: var(--fracgui-input-section-2-width);
+				width: var(--fracgui-input-section-2_width);
+				min-width: var(--fracgui-input-section-2_width);
 				height: 1.5rem;
 
 				background-image: linear-gradient(45deg, $color 25%, transparent 25%),
@@ -1729,7 +1741,7 @@ input.fracgui-search-input {
 				// gap: 0.5rem;
 
 				min-width: 0;
-				width: var(--fracgui-input-section-3-width);
+				width: var(--fracgui-input-section-3_width);
 
 				//- Canvas
 
@@ -1791,7 +1803,7 @@ input.fracgui-search-input {
 						height: 0.5rem;
 						padding: 0;
 
-						background-color: var(--fracgui-input-number-range-color);
+						background-color: var(--fracgui-input-number-range_color);
 						border: none;
 
 						transition: 0.15s;
@@ -1914,7 +1926,7 @@ input.fracgui-search-input {
 						}
 
 						font-size: var(--fracgui-font-xs);
-						font-family: var(--fracgui-input-font-family);
+						font-family: var(--fracgui-input_font-family);
 
 						span {
 							transition: 0.4s;
@@ -2041,16 +2053,16 @@ input.fracgui-search-input {
 
 			.fracgui-controller-buttongrid-button {
 				&.active {
-					background: var(--fracgui-controller-background);
-					color: var(--fracgui-controller-color);
+					background: var(--fracgui-controller_background);
+					color: var(--fracgui-controller_color);
 					color: var(--fracgui-theme-a);
-					
+
 					font-variation-settings: 'wght' 800;
-					// outline: 1px solid var(--fracgui-controller-active-background);
+					// outline: 1px solid var(--fracgui-controller-active_background);
 				}
 				@at-root .fracgui-root[mode='light'] & {
-					background: var(--fracgui-controller-dim-background);
-					color: var(--fracgui-controller-color);
+					background: var(--fracgui-controller-dim_background);
+					color: var(--fracgui-controller_color);
 					&.active {
 						color: var(--fracgui-theme-a);
 						background: var(--fracgui-bg-e);
@@ -2066,8 +2078,8 @@ input.fracgui-search-input {
 			// 	padding: 0;
 
 			// 	border: none;
-			// 	border-radius: var(--fracgui-controller-radius);
-			// 	outline: var(--fracgui-controller-outline);
+			// 	border-radius: var(--fracgui-controller_border-radius);
+			// 	outline: var(--fracgui-controller_outline);
 			// 	outline-offset: -1px;
 			// 	// prettier-ignore
 			// 	box-shadow:
@@ -2082,7 +2094,7 @@ input.fracgui-search-input {
 			// 	}
 			// 	// transition: 1s;
 
-			// 	font: var(--fracgui-font-family);
+			// 	font: var(--fracgui-root_font-family);
 			// 	font-weight: 400;
 			// 	text-align: center;
 
@@ -2091,8 +2103,8 @@ input.fracgui-search-input {
 
 			// 	&:hover,
 			// 	&:active {
-			// 		background: var(--fracgui-controller-background);
-			// 		color: var(--fracgui-controller-color);
+			// 		background: var(--fracgui-controller_background);
+			// 		color: var(--fracgui-controller_color);
 			// 	}
 
 			// 	// transition-duration: 0.2s;
@@ -2100,7 +2112,7 @@ input.fracgui-search-input {
 			// 		scale: 0.975;
 			// 		color: var(--fracgui-theme-a);
 			// 		transition-duration: 0.075s;
-			// 		// background: var(--fracgui-controller-active-background);
+			// 		// background: var(--fracgui-controller-active_background);
 			// 		// prettier-ignore
 			// 		box-shadow:
 			// 			0px 0px 3px var(--fracgui-shadow-color),
@@ -2118,14 +2130,14 @@ input.fracgui-search-input {
 
 	&:hover {
 		.fracgui-controller-number {
-			background: var(--fracgui-controller-background);
+			background: var(--fracgui-controller_background);
 		}
 
 		.fracgui-input-number-container {
 			.fracgui-input-number-buttons-container {
 				.fracgui-input-number-button {
 					opacity: 1;
-					background: var(--fracgui-controller-background);
+					background: var(--fracgui-controller_background);
 				}
 			}
 		}
@@ -2154,15 +2166,15 @@ input.fracgui-search-input {
 			height: 100%;
 
 			font-size: var(--fracgui-font-xs);
-			// font-family: var(--fracgui-font-family);
+			// font-family: var(--fracgui-root_font-family);
 
 			.fracgui-controller-select-selected {
 				line-height: 1.25rem;
 				height: 1.25rem;
 
-				background: var(--fracgui-controller-dim-background);
+				background: var(--fracgui-controller-dim_background);
 				border-radius: var(--fracgui-radius-xs);
-				outline: var(--fracgui-controller-outline);
+				outline: var(--fracgui-controller_outline);
 
 				//? chevron icon
 				&::before {
@@ -2184,14 +2196,14 @@ input.fracgui-search-input {
 				&:hover,
 				&:focus-visible,
 				&:active {
-					background: var(--fracgui-controller-background);
+					background: var(--fracgui-controller_background);
 					outline-offset: 0rem;
 					&::before {
 						color: var(--fracgui-bg-e);
 					}
 				}
 				&.active {
-					outline: var(--fracgui-controller-outline);
+					outline: var(--fracgui-controller_outline);
 
 					&::before {
 						color: var(--fracgui-fg-d);
@@ -2218,10 +2230,10 @@ input.fracgui-search-input {
 					}
 
 					// todo - We can't use the theme vars (cus portal).  Will need to fix this.
-					// background: var(--fracgui-controller-background);
+					// background: var(--fracgui-controller_background);
 					// backdrop-filter: blur(var(--fracgui-root-blur));
 					// .fracgui-controller-select-option:hover {
-					// background: var(fracgui-input-dim-background);
+					// background: var(fracgui-input-dim_background);
 					// }
 
 					color: var(--fracgui-light-a);
@@ -2279,7 +2291,7 @@ input.fracgui-search-input {
 // 		max-width: 50%;
 
 // 		font-weight: 600;
-// 		font-size: var(--fracgui-input-font-size);
+// 		font-size: var(--fracgui-input_font-size);
 // 		font-family: var(--fracgui-font-b);
 // 	}
 
@@ -2295,7 +2307,7 @@ input.fracgui-search-input {
 
 // 		width: 100%;
 
-// 		font-family: var(--fracgui-input-font-family);
+// 		font-family: var(--fracgui-input_font-family);
 
 // 		select {
 // 			// all: unset;
