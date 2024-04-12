@@ -13,21 +13,25 @@ import type {
 	Theme,
 } from './types'
 
+import { restructureVars, type StructuredVars } from '../css/vars'
+import { resolveTheme } from './resolveTheme'
+
+import { Gui } from '../gui/Gui'
+
+import theme_default from './themes/default'
+import theme_scout from './themes/scout'
+import theme_flat from './themes/flat'
+
 import { DRAG_DEFAULTS } from '../utils/draggable'
+import { CSS_VAR_INNER } from '../regex/cssVars'
 import { deepMerge } from '../utils/deepMerge'
 import { partition } from '../utils/partition'
-import { resolveTheme } from './resolveTheme'
 import { hexToRgb } from '../utils/hexToRgb'
 import { entries } from '../utils/object'
 import { Logger } from '../utils/logger'
 import { select } from '../utils/select'
 import { c, g, o, r } from '../utils/l'
 import { state } from '../utils/state'
-import { Gui } from '../gui/Gui'
-
-import theme_default from './themes/default'
-import theme_scout from './themes/scout'
-import theme_flat from './themes/flat'
 
 /**
  * A JSON representation of the {@link Themer} class. Used in the
@@ -201,15 +205,16 @@ export class Themer {
 
 		this.theme = state(resolveTheme(opts.theme, opts.vars))
 
-		this.themes = state(opts.themes.map(t => {
-			console.log({ t, opts })
-			return resolveTheme(t, opts.vars)
-		}))
-		console.log('this.themes', this.themes)
+		this.themes = state(
+			opts.themes.map(t => {
+				return resolveTheme(t, opts.vars)
+			}),
+		)
 
 		this.activeThemeTitle = state(opts.theme.title, {
 			key: this.#key + '::activeTheme',
 		})
+
 		const storedTitle = this.activeThemeTitle.value
 		if (opts.theme.title !== storedTitle) {
 			const theme = this.themes.value.find(t => t.title === storedTitle)
@@ -581,8 +586,9 @@ export class Themer {
 			// 	target.style.setProperty(`--${config.prefix}-${key}`, value)
 			// 	target.style.setProperty(`--${config.prefix}-${key}-rgb`, hexToRgb(value))
 			// }
-			// console.log(config)
 
+			// console.log(config)
+			// console.log(target.className)
 			for (const [key, value] of entries(config.vars)) {
 				// console.log(key)
 				// console.log(value)
@@ -591,10 +597,10 @@ export class Themer {
 						...entries(value.base),
 						...entries(value[this.activeMode]),
 					]) {
+						// console.log({ k, v })
 						target.style.setProperty(`--${config.prefix}-${k}`, v)
 						target.style.setProperty(`--${config.prefix}-${k}-rgb`, hexToRgb(v))
 					}
-					continue
 				} else {
 					const x: VariableDefinition = config.vars[key]
 
@@ -613,106 +619,18 @@ export class Themer {
 				}
 			}
 
-			// console.log({ allVars })
-
 			for (const [k, v] of allVars) {
 				target.style.setProperty(`--${config.prefix}-${k}`, v)
 			}
 		}
 	}
 
-	// #generateCssVars(theme: Theme = this.theme.value): `--${string};`[] {
-	// 	const cssVars = new Set<`--${string};`>()
-
-	// 	function generate(obj: Record<string, any>) {
-	// 		for (const [key, value] of entries(obj)) {
-	// 			if (key === 'title') continue
-
-	// 			if (typeof value === 'object') {
-	// 				generate(value)
-	// 			}
-
-	// 			cssVars.add(`--${theme.prefix}-${key}: ${value};`)
-	// 			cssVars.add(`--${theme.prefix}-${key}-rgb: ${hexToRgb(String(value))};`)
-	// 		}
-	// 	}
-
-	// 	generate(theme)
-
-	// 	return Array.from(cssVars)
-	// }
-
-	// #generateStylesheet() {
-	// 	if (!this.#style) {
-	// 		const style = document.createElement('style')
-	// 		style.classList.add('fractils-themer')
-	// 		style.setAttribute('type', 'text/css')
-	// 		document.head.appendChild(style)
-	// 		this.#style = style
-	// 	}
-
-	// 	const cssVars = this.#generateCssVars()
-	// 	const css = cssVars.join('\n')
-
-	// 	this.#style.textContent = css
-	// 	document.head.appendChild(this.#style)
-
-	// 	return css
-	// }
-
 	dispose() {
 		for (const unsub of this.#unsubs) {
 			unsub()
 		}
 	}
-
-	// /**
-	//  * Generates CSS custom properties from a theme config.
-	//  * @param config - The theme config to generate CSS from.
-	//  * @returns A string of CSS custom properties.
-	//  * @internal
-	//  */
-	// #generateCSS_old(config: Theme) {
-	// 	this.log.fn(c('generateCSS')).info({ config, this: this })
-	// 	let css = ''
-
-	// 	const theme = config[this.activeMode]
-	// 	if (!theme) {
-	// 		this.log.error('`theme` not found in `config`.', {
-	// 			theme,
-	// 			config,
-	// 			'this.activeMode': this.activeMode,
-	// 			this: this,
-	// 		})
-	// 		throw new Error(`Theme not found.`)
-	// 	}
-	// 	for (const [key, value] of entries(theme)) {
-	// 		css += `--${key}: ${value};\n`
-	// 		css += `--${key}-rgb: ${hexToRgb(value)};\n`
-	// 	}
-
-	// 	const target =
-	// 		this.node instanceof Document
-	// 			? 'html'
-	// 			: typeof this.#initialNode === 'string'
-	// 				? this.node
-	// 				: this.node.id
-	// 					? `#${this.node.id}`
-	// 					: `.${this.node.classList[0]}`
-
-	// 	return `${target}[theme="${config.title}"] {\n${css}\n}`
-	// }
-
-	//! svelte/svelte-preprocess don't seem to be up to date
-	//! with typescript 5.2 features like the `using` keyword
-	// [Symbol.dispose]() {
-	// 	for (const unsub of this.#unsubs) {
-	// 		unsub()
-	// 	}
-	// }
 }
-// using themer = new Themer()
-// export { themer }
 
 export class ThemeEditor {
 	gui: Gui
@@ -742,28 +660,9 @@ export class ThemeEditor {
 			title: this.targetGui.themer!.theme.value.title,
 		})
 
-		// //- Old
-		// generateVarGui(
-		// 	// new Map(entries(Object.assign({},this.targetGui.themer!.modeColors,this.targetGui.themer!.theme.value.vars?.[this.targetGui.themer!.activeMode]))),
-		// 	this.targetGui.wrapper,
-		// 	this.folder,
-		// )
-		// generateVarGui(
-		// 	new Map([
-		// 		...mapVars(this.targetGui.themer!.modeColors).entries(),
-		// 		...entries(
-		// 			Object.assign(
-		// 				{},
-		// 				this.targetGui.themer!.theme.value.vars.utility,
-		// 				this.targetGui.themer!.theme.value.vars?.[
-		// 					this.targetGui.themer!.activeMode
-		// 				],
-		// 			),
-		// 		),
-		// 	]),
-		// 	this.targetGui.wrapper,
-		// 	this.folder,
-		// )
+		setTimeout(() => {
+			this.generate()
+		}, 0)
 
 		this.#unsub = this.targetGui.themer!.theme.subscribe(t => {
 			this.folder.title = t.title
@@ -775,5 +674,75 @@ export class ThemeEditor {
 	dispose() {
 		this.#unsub()
 		this.folder.dispose()
+	}
+
+	get vars() {
+		return this.targetGui.themer!.theme.value.vars
+	}
+
+	generate() {
+		// console.clear()
+		let currentFolder: Folder = this.folder
+
+		const traverse = (
+			obj: VariableDefinition[keyof VariableDefinition] | StructuredVars,
+			parent: Folder,
+		) => {
+			for (const [k, v] of entries(obj)) {
+				if (typeof v === 'string') {
+					const vars = [...v.matchAll(CSS_VAR_INNER)].map(m => m[1])
+
+					if (vars.length) {
+						function resolveAndInjectVars(string: string, target: HTMLElement) {
+							return string.replace(CSS_VAR_INNER, (str, match) => {
+								return target.style.getPropertyValue(match).trim() || str
+							})
+						}
+
+						parent.add({
+							title: k.split('_').at(-1) || k,
+							value: resolveAndInjectVars(v, this.targetGui.wrapper),
+						})
+					} else {
+						parent.add({
+							title: k.split('_').at(-1) || k,
+							value: v,
+						})
+					}
+				} else {
+					// todo - we need to build the nested folder structure here.
+					if (currentFolder.title !== k) {
+						currentFolder = parent.addFolder({
+							title: k,
+						})
+					}
+
+					traverse(v, currentFolder)
+				}
+			}
+		}
+
+		// const descructure = (o: StructuredVars, parent: Folder) => {}
+
+		const allVars = this.vars
+
+		for (const [title, def] of entries(allVars)) {
+			currentFolder = this.folder.addFolder({ title })
+
+			if (title === 'core' && 'core' in allVars) {
+				for (const [mode, vars] of entries(allVars['core'])) {
+					currentFolder.addFolder({ title: mode })
+					traverse(restructureVars(vars), currentFolder)
+				}
+			} else {
+				for (const [mode, vars] of entries(def)) {
+					if (title === 'color' && mode === 'base') {
+						traverse(vars, currentFolder)
+						continue
+					}
+					traverse(vars, currentFolder.addFolder({ title: mode }))
+				}
+			}
+		}
 	}
 }
