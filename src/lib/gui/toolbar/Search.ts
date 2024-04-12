@@ -1,9 +1,9 @@
-import type { Folder } from './Folder'
+import type { Folder } from '../Folder'
 
-import { EventManager } from '../utils/EventManager'
-import { fuzzysearch } from '../utils/fuzzySearch'
-import { TOOLTIP_DEFAULTS, Tooltip } from '../actions/tooltip'
-import { create } from '../utils/create'
+import { TOOLTIP_DEFAULTS, Tooltip } from '../../actions/tooltip'
+import { EventManager } from '../../utils/EventManager'
+import { fuzzysearch } from '../../utils/fuzzySearch'
+import { create } from '../../utils/create'
 
 export class Search {
 	elements: {
@@ -76,7 +76,7 @@ export class Search {
 			const result = this.needle === '' ? 'hit' : search_result
 			const node = controller.elements.container
 
-			// We already have right state.
+			// We already have the right state.
 			if (node.dataset['search'] === result) continue
 
 			const style = getComputedStyle(node)
