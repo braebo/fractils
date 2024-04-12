@@ -1,3 +1,4 @@
+import type { GUI_VARS } from '../../gui/GUI_VARS'
 import type { ThemeDefinition } from '../types'
 
 import { resolveTheme } from '../resolveTheme'
@@ -13,7 +14,7 @@ export default resolveTheme({
 				'theme-c': '#ff8bd3',
 				'dark-a': '#15161d',
 				'dark-b': '#282a36',
-				'dark-c': '#1d252e',
+				'dark-c': '#272d30',
 				'dark-d': '#3a3a44',
 				'dark-e': '#4d4d58',
 				'light-a': '#dfe1e9',
@@ -25,5 +26,18 @@ export default resolveTheme({
 			dark: {},
 			light: {},
 		},
+		utility: {
+			dark: {
+				filter: 'contrast(1.05) brightness(1.05)',
+			},
+		},
+		core: {
+			dark: {
+				'input-container_background': 'rgba(var(--fracgui-bg-a-rgb), 0.5)',
+			},
+			light: {
+				'controller-dim_background': '#96a09c',
+			},
+		} as Partial<typeof GUI_VARS.core>,
 	},
 } as const satisfies ThemeDefinition)

@@ -23,9 +23,7 @@ export default resolveTheme({
 				'light-e': '#5F6377',
 			},
 			dark: {},
-			light: {
-				'theme-a': '#00bcd4',
-			},
+			light: {},
 		},
 	},
 } as const satisfies ThemeDefinition)
