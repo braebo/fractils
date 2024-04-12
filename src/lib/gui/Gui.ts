@@ -12,19 +12,19 @@ import type { ThemeMode } from '../themer/types'
 
 import { WindowManager, WINDOWMANAGER_DEFAULTS } from '../utils/windowManager'
 import { RESIZABLE_DEFAULTS } from '../utils/resizable'
-import { DRAG_DEFAULTS } from '../utils/draggable'
 import { resolveOpts } from './shared/resolveOpts'
+import { DRAG_DEFAULTS } from '../utils/draggable'
 import { deepMerge } from '../utils/deepMerge'
 import { ThemeEditor } from '../themer/Themer'
-import { VAR_PREFIX } from './Gui.css.js'
 import { Themer } from '../themer/Themer'
+import { VAR_PREFIX } from './GUI_VARS'
 import { Logger } from '../utils/logger'
 import { create } from '../utils/create'
-import { GUI_VARS } from './Gui.css.js'
+import { GUI_VARS } from './GUI_VARS'
 import { state } from '../utils/state'
 import { Folder } from './Folder'
-import { place } from './place'
 import { BROWSER } from 'esm-env'
+import { place } from './place'
 
 type GuiTheme = 'default' | 'minimal' | (string & {})
 
@@ -90,7 +90,7 @@ export interface GuiPlacementOptions extends PlacementOptions {
 	/**
 	 * The position to place the gui.
 	 */
-	position: Placement
+	position: Placement | { x: number; y: number }
 }
 
 export const GUI_PLACEMENT_DEFAULTS: GuiPlacementOptions = {
@@ -209,7 +209,7 @@ export class Gui extends Folder {
 
 		if (typeof storageOpts === 'object') {
 			storageOpts.key =
-				storageOpts.key + '::' + opts.title.toLowerCase().replaceAll(/\s/g, '-')
+				storageOpts.key + '::' + opts.title?.toLowerCase().replaceAll(/\s/g, '-')
 		}
 		if (storageOpts && storageOpts.closed) {
 			this.closed = state(this.opts.closed, {
@@ -231,9 +231,7 @@ export class Gui extends Folder {
 				themerOptions.persistent = (opts?.storage as GuiStorageOptions)?.theme ?? true
 
 				// Load up the default generated theme vars.
-				themerOptions.vars = deepMerge(themerOptions.vars, {
-					fracgui: GUI_VARS,
-				})
+				themerOptions.vars = deepMerge(GUI_VARS, themerOptions.vars)
 			}
 
 			if (themer === true) {
@@ -311,17 +309,19 @@ export class Gui extends Folder {
 
 		//· Theme Editor ·····················································¬
 
-		if (this.themer) {
-			this.themeEditor = new ThemeEditor(this, {
-				title: 'Theme Editor',
-				themer: false, // Prevents infinite recursion.
-				windowManager: this.windowManager, // Recycling!
-				storage: {
-					// This is smelly.
-					key: storageOpts ? storageOpts.key : '',
-				},
-			})
-		}
+		//! TODO - Uncomment this once beats is done.
+		// if (this.themer) {
+		// 	this.themeEditor = new ThemeEditor(this, {
+		// 		title: 'Theme Editor',
+		// 		themer: false, // Prevents infinite recursion.
+		// 		windowManager: this.windowManager, // Recycling!
+		// 		storage: {
+		// 			// This is smelly.
+		// 			key: storageOpts ? storageOpts.key : '',
+		// 		},
+		// 		hidden: true
+		// 	})
+		// }
 		//⌟
 
 		if (this.closed.value) this.close()
@@ -349,15 +349,20 @@ export class Gui extends Folder {
 						const bounds =
 							placementOpts.bounds ?? this.container.getBoundingClientRect()
 
-						const placementPosition = place(rect, placement, {
-							bounds,
-							margin,
-						})
-
-						this.windowManager?.windows[0]?.draggableInstance?.moveTo(
-							placementPosition,
-							0,
-						)
+						if (typeof placement === 'object') {
+							console.log(placement)
+							this.windowManager?.windows.at(-1)?.draggableInstance?.moveTo(placement, 0)
+						} else {
+							console.log(placement)
+							const placementPosition = place(rect, placement, {
+								bounds,
+								margin,
+							})
+							this.windowManager?.windows.at(-1)?.draggableInstance?.moveTo(
+								placementPosition,
+								0,
+							)
+						}
 					}
 
 					this.wrapper.appendChild(this.element)
@@ -397,8 +402,6 @@ export class Gui extends Folder {
 			header: false,
 			hidden: false,
 		})
-		folder.element.style.setProperty('--background', `var(--${VAR_PREFIX}-fg-c)`)
-		console.log(folder.element.classList)
 
 		if (this.themer) {
 			// themeFolder.add({
@@ -437,14 +440,13 @@ export class Gui extends Folder {
 			`0px 0px 10px 0px hsl(10deg, 0%, var(--${VAR_PREFIX}-shadow-lightness), inset`,
 		)
 		for (const child of Array.from(folder.elements.content.children)) {
-			// console.log(child.classList[0])
 			;(child as HTMLElement).style.setProperty('background', `var(--${VAR_PREFIX}-bg-b)`)
 			;(child as HTMLElement).style.setProperty(
-				`--${VAR_PREFIX}-controller-background`,
+				`--${VAR_PREFIX}-controller_background`,
 				`var(--${VAR_PREFIX}-bg-c)`,
 			)
 			;(child as HTMLElement).style.setProperty(
-				`--${VAR_PREFIX}-controller-dim-background`,
+				`--${VAR_PREFIX}-controller-dim_background`,
 				`var(--${VAR_PREFIX}-bg-a)`,
 			)
 			;(child as HTMLElement).style.setProperty('border-radius', 'none', 'important')
@@ -452,7 +454,6 @@ export class Gui extends Folder {
 		folder.elements.content.style.setProperty(
 			'background',
 			`var(--${VAR_PREFIX}-bg-c)`,
-			'important',
 		)
 
 		// const attr = this.#attr.bind(this)
@@ -461,21 +462,21 @@ export class Gui extends Folder {
 		// setTimeout(() => {
 		// 	const styles = [
 		// 		attr('background', prop('fg-c')),
-		// 		attr('controller-background', prop('bg-c')),
-		// 		attr('controller-dim-background', prop('bg-a')),
-		// 		attr('controller-color', prop('fg-a')),
-		// 		attr('controller-dim-color', prop('fg-c')),
+		// 		attr('controller_background', prop('bg-c')),
+		// 		attr('controller-dim_background', prop('bg-a')),
+		// 		attr('controller_color', prop('fg-a')),
+		// 		attr('controller-dim_color', prop('fg-c')),
 		// 		attr('controller-outline', `1px solid rgba(${prop('bg-c-rgb')}, 0.1)`),
 		// 		attr(
 		// 			'controller-dim-outline',
 		// 			prop('1px solid rgba(' + prop('bg-a-rgb)' + ', 0.1')),
 		// 		),
 		// 		attr(
-		// 			'controller-box-shadow',
+		// 			'controller_box-shadow',
 		// 			'0 0 10px 0 hsl(10deg, 0%, ' + prop('shadow-lightness') + ')',
 		// 		),
 		// 		attr(
-		// 			'controller-dim-box-shadow',
+		// 			'controller-dim_box-shadow',
 		// 			'0 0 10px 0 hsl(10deg, 0%, ' + prop('shadow-lightness') + '), inset',
 		// 		),
 		// 	]
