@@ -87,7 +87,7 @@ const GUI_VARS_STRUCTURED = {
 				background: `rgba(var(--${VAR_PREFIX}-bg-d-rgb), 0.75)`,
 			},
 			dim: {
-				color: `var(--${VAR_PREFIX}-fg-d)`,
+				color: `var(--${VAR_PREFIX}-fg-c)`,
 				background: `rgba(var(--${VAR_PREFIX}-bg-c-rgb), 0.75)`,
 			},
 		},

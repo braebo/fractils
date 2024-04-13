@@ -25,5 +25,10 @@ export default resolveTheme({
 			dark: {},
 			light: {},
 		},
+		core: {
+			light: {
+				'controller-dim_background': 'rgba(var(--fracgui-bg-a-rgb), 0.75)',
+			},
+		},
 	},
 } as const satisfies ThemeDefinition)

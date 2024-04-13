@@ -577,11 +577,16 @@
 
 //· Controllers ······························································¬
 
+.fracgui-controller,
+.fracgui-controller-text,
+.fracgui-controller-button {
+	color: var(--fracgui-controller-dim_color);
+	background: var(--fracgui-controller-dim_background);
+}
+
 .fracgui-controller {
 	width: 100%;
 
-	color: var(--fracgui-controller-dim_color);
-	background: var(--fracgui-controller-dim_background);
 	box-shadow: var(--fracgui-controller_box-shadow);
 	border-radius: var(--fracgui-controller_border-radius);
 	outline: var(--fracgui-controller_outline);
@@ -597,12 +602,6 @@
 	}
 
 	transition: 0.15s;
-}
-
-.fracgui-controller-text,
-.fracgui-controller-button {
-	color: color-mix(in lch, var(--fracgui-controller_color), var(--fracgui-fg-a) 0.5);
-	background: color-mix(in lch, var(--fracgui-controller_background), transparent);
 }
 
 .fracgui-controller-button {
