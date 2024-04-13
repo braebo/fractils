@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Corner, Side } from '$lib/utils/resizable'
 	import { resizable } from '$lib/actions/resizable'
 	import { draggable } from '$lib/utils/draggable'
 	import Orbs from './Orbs.svelte'
@@ -30,6 +31,11 @@
 			defaultPosition: { x: 50, y: (H / 5) * 2 },
 		},
 	]
+
+	const defaults = {
+		sides: ['top', 'right', 'bottom', 'left'] as Side[],
+		corners: ['top-left', 'top-right', 'bottom-right', 'bottom-left'] as Corner[],
+	}
 </script>
 
 {#each obstacles as { title, style, defaultPosition }}
@@ -38,11 +44,13 @@
 		class="obstacle"
 		use:resizable={{
 			obstacles: ['.orbs-container'],
+			...defaults,
 		}}
 		use:draggable={{
 			cancel: '.resize-grabber',
 			obstacles: ['.orbs-container'],
 			defaultPosition,
+			...defaults,
 		}}
 	>
 		<div class="label">{title}</div>
@@ -55,6 +63,7 @@
 	use:resizable={{
 		visible: true,
 		obstacles: ['.bounds', '.obstacle'],
+		...defaults,
 	}}
 	use:draggable={{
 		cancel: '.resize-grabber',
@@ -73,6 +82,7 @@
 	use:draggable={{
 		cancel: '.resize-grabber',
 		defaultPosition: { x: 50, y: H - 250 },
+		...defaults,
 	}}
 >
 	<div class="label">Bounds</div>
@@ -83,6 +93,7 @@
 		use:resizable={{
 			visible: true,
 			bounds: '.bounds',
+			...defaults,
 		}}
 		use:draggable={{
 			bounds: '.bounds',
@@ -93,8 +104,6 @@
 		<div class="label">Draggable 0</div>
 	</div>
 </div>
-
-<!-- <div class="filler" style:height="2000px" /> -->
 
 <style lang="scss">
 	.orbs-container,
