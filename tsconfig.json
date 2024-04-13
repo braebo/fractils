@@ -27,9 +27,9 @@
 		"forceConsistentCasingInFileNames": true,
 
 		// Some stricter flags
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
 		"noPropertyAccessFromIndexSignature": true,
+		"noUnusedParameters": true,
+		"noUnusedLocals": true,
 
 		// Output optimizations
 		"importHelpers": true,
