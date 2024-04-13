@@ -5,9 +5,7 @@ import { destructureVars } from '../css/vars'
 
 export const VAR_PREFIX = 'fracgui' as const
 
-const GUI_VARS_COLOR = defaultTheme.vars.color
-
-const GUI_VARS_UTILITY: StructuredVars = {
+const GUI_VARS_UTILITY = {
 	base: {
 		'font-family': "'fredoka', sans-serif",
 		'shadow-lightness': '0%',
@@ -27,7 +25,7 @@ const GUI_VARS_UTILITY: StructuredVars = {
 		'shadow-lightness': '50%',
 		'shadow-opacity': '0.1',
 	},
-}
+} as const satisfies StructuredVars
 
 const GUI_VARS_STRUCTURED = {
 	base: {
@@ -49,7 +47,7 @@ const GUI_VARS_STRUCTURED = {
 			'letter-spacing': '0.125rem',
 		},
 		folder: {
-			background: `rgba(var(--${VAR_PREFIX}-bg-b-rgb), 0.5)`,
+			background: `rgba(var(--${VAR_PREFIX}-bg-b-rgb), 0.6)`,
 			header: {
 				'padding-left': '0.25rem',
 				color: `var(--${VAR_PREFIX}-fg-c)`,
@@ -142,7 +140,7 @@ const GUI_VARS_STRUCTURED = {
 } as const satisfies StructuredVars
 
 export const GUI_VARS = {
-	color: GUI_VARS_COLOR,
+	color: defaultTheme.vars.color,
 	utility: GUI_VARS_UTILITY,
 	core: {
 		base: destructureVars(GUI_VARS_STRUCTURED.base, VAR_PREFIX),
