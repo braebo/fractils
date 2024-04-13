@@ -114,7 +114,7 @@ export type DraggableOptions = {
 	 * and will update the draggable element's position automagically upon reassignment.
 	 * @default { x: 0, y: 0 }
 	 */
-	position: { x: number; y: number }
+	position?: { x: number; y: number }
 
 	/**
 	 * An element or selector (or any combination of the two) for element(s) inside
@@ -229,7 +229,7 @@ export const DRAG_DEFAULTS: DraggableOptions = {
 	userSelectNone: true,
 	ignoreMultitouch: false,
 	disabled: false,
-	position: { x: 0, y: 0 },
+	// position: { x: 0, y: 0 },
 	cancel: undefined,
 	handle: undefined,
 	obstacles: undefined,
