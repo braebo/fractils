@@ -79,9 +79,11 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-
+		
 		height: 4rem;
 		margin: 0 auto;
+
+		pointer-events: none;
 	}
 
 	.gh {
@@ -93,13 +95,15 @@
 		transition: 0.2s;
 
 		filter: drop-shadow(0 2px 2px #0005);
-
+		
 		&:hover,
 		&:focus {
 			fill: var(--fg-a);
 			animation: bubble-up 0.2s ease-in-out forwards;
 			filter: drop-shadow(0 3px 42px #fff);
 		}
+		
+		pointer-events: fill;
 	}
 
 	@keyframes bubble-up {
