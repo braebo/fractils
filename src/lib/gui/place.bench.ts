@@ -1,7 +1,8 @@
 import type { Placement, PlacementOptions, Vec2 } from './place'
 
-import { place_old, place } from './place'
-import { start } from '$lib/utils/time'
+import { describe, bench } from 'vitest'
+import { place_old } from './place_old'
+import { place } from './place'
 
 /**
  * @fileoverview
@@ -13,19 +14,7 @@ import { start } from '$lib/utils/time'
  * - place_old  5.8s
  */
 
-const benchCount = 1e6
-
-// @ts-ignore
-globalThis.window = {
-	innerWidth: 1920,
-	innerHeight: 1080,
-} as Window
-
 const size = 10
-const node = {
-	offsetWidth: size,
-	offsetHeight: size,
-} as HTMLElement
 
 const bound = { x: 0, y: 0, width: 100, height: 100 }
 const margin = 10
@@ -58,22 +47,22 @@ const testOptions: { placement: Placement; options: PlacementOptions; expected: 
 		expected,
 	}))
 
-const end1 = start('place')
-for (let i = 0; i < benchCount; i++) {
-	for (const { placement } of testOptions) {
-		const result = place_old(node, placement)
-		result.x = Math.round(result.x)
-		result.y = Math.round(result.y)
-	}
-}
-end1()
+describe('place', () => {
+	const node = document.createElement('div')
 
-const end2 = start('place2')
-for (let i = 0; i < benchCount; i++) {
-	for (const { placement, options } of testOptions) {
-		const result = place(node.getBoundingClientRect(), placement, options)
-		result.x = Math.round(result.x)
-		result.y = Math.round(result.y)
-	}
-}
-end2()
+	bench('place_old', () => {
+		for (const { placement } of testOptions) {
+			const result = place_old(node, placement)
+			result.x = Math.round(result.x)
+			result.y = Math.round(result.y)
+		}
+	})
+
+	bench('place', () => {
+		for (const { placement, options } of testOptions) {
+			const result = place(node.getBoundingClientRect(), placement, options)
+			result.x = Math.round(result.x)
+			result.y = Math.round(result.y)
+		}
+	})
+})
