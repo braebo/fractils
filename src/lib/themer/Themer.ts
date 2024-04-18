@@ -1,5 +1,6 @@
 import type { PrimitiveState, State } from '../utils/state'
 import type { ElementsOrSelector } from '../utils/select'
+import type { InputOptions } from '../gui/inputs/Input'
 import type { GuiOptions } from '../gui/Gui'
 import type { Folder } from '../gui/Folder'
 import type {
@@ -29,6 +30,7 @@ import { partition } from '../utils/partition'
 import { hexToRgb } from '../utils/hexToRgb'
 import { entries } from '../utils/object'
 import { Logger } from '../utils/logger'
+import { isColor } from '../color/color'
 import { select } from '../utils/select'
 import { c, g, o, r } from '../utils/l'
 import { state } from '../utils/state'
@@ -171,11 +173,7 @@ export class Themer {
 	#unsubs: Array<() => void> = []
 	#targets = new Set<HTMLElement>()
 
-	#log = new Logger('themer', {
-		fg: 'DarkCyan',
-		deferred: false,
-		server: false,
-	})
+	#log = new Logger('themer', { fg: 'DarkCyan' })
 
 	constructor(
 		/**
@@ -634,13 +632,17 @@ export class Themer {
 
 export class ThemeEditor {
 	gui: Gui
-	folder: Folder
 	#unsub: () => void
+	#log: Logger
 
 	constructor(
 		public targetGui: Gui,
 		opts?: Partial<GuiOptions>,
 	) {
+		this.#log = new Logger('ThemeEditor:' + targetGui.title, {
+			fg: 'DarkCyan',
+			deferred: false,
+		})
 		this.gui = new Gui(opts)
 
 		this.targetGui.windowManager?.add(this.gui.wrapper, {
@@ -656,92 +658,153 @@ export class ThemeEditor {
 
 		this.targetGui.themer?.addTarget(this.gui.wrapper)
 
-		this.folder = this.gui.addFolder({
-			title: this.targetGui.themer!.theme.value.title,
+		this.#unsub = this.targetGui.themer!.theme.subscribe(t => {
+			this.gui.title = `${opts?.title} · ${t.title}`
 		})
+
+		this.targetGui.themer!.applyTheme()
 
 		setTimeout(() => {
 			this.generate()
 		}, 0)
-
-		this.#unsub = this.targetGui.themer!.theme.subscribe(t => {
-			this.folder.title = t.title
-		})
-
-		this.targetGui.themer!.applyTheme()
 	}
 
 	dispose() {
 		this.#unsub()
-		this.folder.dispose()
+		this.gui.dispose()
 	}
 
 	get vars() {
 		return this.targetGui.themer!.theme.value.vars
 	}
 
-	generate() {
-		// console.clear()
-		let currentFolder: Folder = this.folder
+	generate = () => {
+		const MAX_DEPTH = 0
+		let currentFolder: Folder = this.gui
+
+		const add = (
+			folder: Folder,
+			title: string,
+			value: string,
+			onChange: InputOptions['onChange'],
+		) => {
+			// this.#log.fn('add').info({ title, value, onChange, this: this })
+			// let v = value
+			if (value.match(/^\d+(\.\d+)?$/g)) {
+				try {
+					const v = parseFloat(value)
+					if (!isNaN(v)) {
+						const av = Math.abs(v)
+						folder
+							.addNumber({
+								title,
+								value: v,
+								min: Math.min(0, av),
+								max: Math.max(0, av < 1 ? 1 : av * 3),
+								step: av < 1 ? 0.01 : av < 10 ? 0.1 : 1,
+							})
+							.onChange(v => onChange!(v))
+						return
+					}
+				} catch (e) {}
+			}
+
+			folder.add({ title, value, onChange })
+		}
 
 		const traverse = (
 			obj: VariableDefinition[keyof VariableDefinition] | StructuredVars,
 			parent: Folder,
+			_depth = 0,
 		) => {
+			_depth++
 			for (const [k, v] of entries(obj)) {
+				const onChange = (v: any) => {
+					if (isColor(v)) {
+						v = v.hex8String
+					}
+					this.#log.fn('onChange').info({ k, v, this: this })
+					this.targetGui.wrapper.style.setProperty(
+						`--${this.targetGui.themer!.theme.value.prefix}-${k}`,
+						v,
+					)
+				}
+
 				if (typeof v === 'string') {
 					const vars = [...v.matchAll(CSS_VAR_INNER)].map(m => m[1])
 
 					if (vars.length) {
-						function resolveAndInjectVars(string: string, target: HTMLElement) {
-							return string.replace(CSS_VAR_INNER, (str, match) => {
-								return target.style.getPropertyValue(match).trim() || str
-							})
-						}
-
-						parent.add({
-							title: k.split('_').at(-1) || k,
-							value: resolveAndInjectVars(v, this.targetGui.wrapper),
-						})
+						// parent.add({
+						// 	title: k.split('_').at(-1) || k,
+						// 	value: v.replace(CSS_VAR_INNER, (str, match) => {
+						// 		return (
+						// 			this.targetGui.wrapper.style.getPropertyValue(match).trim() ||
+						// 			str
+						// 		)
+						// 	}),
+						// 	onChange,
+						// })
+						add(
+							parent,
+							k.split('_').at(-1) || k,
+							v.replace(CSS_VAR_INNER, (str, match) => {
+								return (
+									this.targetGui.wrapper.style.getPropertyValue(match).trim() ||
+									str
+								)
+							}),
+							onChange,
+						)
 					} else {
-						parent.add({
-							title: k.split('_').at(-1) || k,
-							value: v,
-						})
+						// parent.add({
+						// 	title: k.split('_').at(-1) || k,
+						// 	value: v,
+						// 	onChange,
+						// })
+						add(parent, k.split('_').at(-1) || k, v, onChange)
 					}
 				} else {
-					// todo - we need to build the nested folder structure here.
 					if (currentFolder.title !== k) {
 						currentFolder = parent.addFolder({
 							title: k,
+							closed: _depth > MAX_DEPTH,
 						})
 					}
 
-					traverse(v, currentFolder)
+					traverse(v, currentFolder, _depth)
 				}
 			}
+
+			return _depth
 		}
 
-		// const descructure = (o: StructuredVars, parent: Folder) => {}
+		let depth = 1
 
 		const allVars = this.vars
 
 		for (const [title, def] of entries(allVars)) {
-			currentFolder = this.folder.addFolder({ title })
+			currentFolder = this.gui.addFolder({ title, closed: depth > MAX_DEPTH })
 
 			if (title === 'core' && 'core' in allVars) {
 				for (const [mode, vars] of entries(allVars['core'])) {
-					currentFolder.addFolder({ title: mode })
-					traverse(restructureVars(vars), currentFolder)
+					currentFolder.addFolder({ title: mode, closed: depth > MAX_DEPTH })
+					traverse(restructureVars(vars), currentFolder, depth)
 				}
 			} else {
 				for (const [mode, vars] of entries(def)) {
-					if (title === 'color' && mode === 'base') {
-						traverse(vars, currentFolder)
-						continue
-					}
-					traverse(vars, currentFolder.addFolder({ title: mode }))
+					traverse(
+						vars,
+						currentFolder.addFolder({ title: mode, closed: depth > MAX_DEPTH }),
+					)
 				}
+			}
+		}
+
+		for (const folder of this.gui.allChildren) {
+			// Delete all the empty folders.
+			if (!folder.controls.size && !folder.children.length) {
+				folder.dispose()
+				continue
 			}
 		}
 	}
