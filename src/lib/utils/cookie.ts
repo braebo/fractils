@@ -10,6 +10,7 @@ export function parse(str: string): Record<string, string> {
 
 		// When there's no '=', or it comes after a `;`, skip it.
 		if (eq === -1 || (sc !== -1 && eq > sc)) {
+			if (sc === -1) break
 			i = sc + 1
 			continue
 		}
