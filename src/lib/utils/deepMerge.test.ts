@@ -1,98 +1,89 @@
 import { describe, it, expect } from 'vitest'
 import { deepMerge } from './deepMerge'
 
-type Obj = Record<string, any>
-
 describe('deepMerge', () => {
-	it('should merge two simple objects', () => {
-		const obj1: Obj = { a: 1 }
-		const obj2: Obj = { b: 2 }
-		const result = deepMerge(obj1, obj2)
-		expect(result).toEqual({ a: 1, b: 2 })
+	it('should merge simple objects', () => {
+		const a = { 0: 1 }
+		const b = { 1: 1 }
+		const x = { 0: 1, 1: 1 }
+		expect(deepMerge(a, b)).toEqual(x)
 	})
 
 	it('should merge nested objects', () => {
-		const obj1: Obj = { a: { x: 1 } }
-		const obj2: Obj = { a: { y: 2 }, b: 3 }
-		const result = deepMerge(obj1, obj2)
-		expect(result).toEqual({ a: { x: 1, y: 2 }, b: 3 })
+		const a = { 0: { 0: 0 } }
+		const b = { 0: { 1: 0 } }
+		const x = { 0: { 0: 0, 1: 0 } }
+		expect(deepMerge(a, b)).toEqual(x)
 	})
 
 	it('should not mutate the original objects', () => {
-		const obj1: Obj = { a: 1, b: { x: 1 } }
-		const obj2: Obj = { b: { y: 2 } }
-		deepMerge(obj1, obj2)
-		expect(obj1).toEqual({ a: 1, b: { x: 1 } })
-		expect(obj2).toEqual({ b: { y: 2 } })
+		const a = {}
+		const b = { 0: 1 }
+		const x = {}
+		deepMerge(a, b)
+		expect(a).toEqual(x)
 	})
 
-	it('should override undefined values', () => {
-		const obj1: Obj = { a: undefined, b: 1 }
-		const obj2: Obj = { a: 2 }
-		const result = deepMerge(obj1, obj2)
-		expect(result).toEqual({ a: 2, b: 1 })
+	it('should always overwrite `undefined`', () => {
+		const a = { 0: undefined, 1: undefined, 2: undefined, 3: undefined }
+		const b = { 0: 1, 1: '2', 2: true, 3: false }
+		const x = { 0: 1, 1: '2', 2: true, 3: false }
+		expect(deepMerge(a, b)).toEqual(x)
 	})
 
-	it('should override `true`, but not `false`', () => {
-		const obj1: Obj = { a: 'foo', b: true }
-		const obj2: Obj = { a: 'bar', b: { x: 1 } }
-		const result = deepMerge(obj1, obj2)
-		expect(result).toEqual({ a: 'bar', b: { x: 1 } })
+	it('should accept `0`', () => {
+		const a = { 0: 1 }
+		const b = { 0: 0 }
+		const x = { 0: 0 }
+		expect(deepMerge(a, b)).toEqual(x)
 	})
 
-	it('should preserve objects when encountering `true`', () => {
-		const obj1: Obj = { a: { x: 1 } }
-		const obj2: Obj = { a: true }
-		const result = deepMerge(obj1, obj2)
-		expect(result).toEqual({ a: { x: 1 } })
+	it('should reject `true`', () => {
+		const a = { 0: { 0: 0 } }
+		const b = { 0: true }
+		const x = { 0: { 0: 0 } }
+		expect(deepMerge(a, b)).toEqual(x)
 	})
 
-	it('should replace objects with `false`', () => {
-		const obj1: Obj = { a: { x: 1 } }
-		const obj2: Obj = { a: false }
-		const result = deepMerge(obj1, obj2)
-		expect(result).toEqual({ a: false })
+	it('should accept `false`', () => {
+		const a = { 0: { 0: 0 } }
+		const b = { 0: false }
+		const x = { 0: false }
+		expect(deepMerge(a, b)).toEqual(x)
 	})
 
-	it('should not replace a value with `true`', () => {
-		const obj1: Obj = { a: { x: 1 } }
-		const obj2: Obj = { a: true }
-		const result = deepMerge(obj1, obj2)
-		expect(result).toEqual({ a: { x: 1 } })
+	it('should reject `undefined`', () => {
+		const a = { 0: 0 }
+		const b = { 0: undefined }
+		const x = { 0: 0 }
+		expect(deepMerge(a, b)).toEqual(x)
 	})
 
-	it('should always replace a value with `false`', () => {
-		const obj1: Obj = { a: { x: 1 } }
-		const obj2: Obj = { a: false }
-		const result = deepMerge(obj1, obj2)
-		expect(result).toEqual({ a: false })
-	})
-
-	it('should replace booleans with booleans', () => {
-		const obj1: Obj = { a: false, b: true }
-		const obj2: Obj = { a: true, b: false }
-		const result = deepMerge(obj1, obj2)
-		expect(result).toEqual({ a: true, b: false })
-	})
-
-	it('should not replace a value with `undefined`', () => {
-		const obj1: Obj = { a: 1, b: { x: 1 } }
-		const obj2: Obj = { a: undefined, b: undefined }
-		const result = deepMerge(obj1, obj2)
-		expect(result).toEqual({ a: 1, b: { x: 1 } })
+	it('should merge `true`, but not `false`', () => {
+		const a = { 0: true, 1: 1 }
+		const b = { 0: 1, 1: false }
+		const x = { 0: 1, 1: false }
+		expect(deepMerge(a, b)).toEqual(x)
 	})
 
 	it('should concatenate arrays', () => {
-		const obj1: Obj = { a: [1, 2] }
-		const obj2: Obj = { a: [3, 4] }
-		const result = deepMerge(obj1, obj2)
-		expect(result).toEqual({ a: [1, 2, 3, 4] })
+		const a = { 0: [0] }
+		const b = { 0: [1] }
+		const x = { 0: [0, 1] }
+		expect(deepMerge(a, b)).toEqual(x)
 	})
 
 	it('should de-duplicate arrays', () => {
-		const obj1: Obj = { a: [1, 2] }
-		const obj2: Obj = { a: [2, 3] }
-		const result = deepMerge(obj1, obj2)
-		expect(result).toEqual({ a: [1, 2, 3] })
+		const a = { 0: [1, 2] }
+		const b = { 0: [2, 3] }
+		const x = { 0: [1, 2, 3] }
+		expect(deepMerge(a, b)).toEqual(x)
+	})
+
+	it('should accept strings', () => {
+		const a = { 0: { 0: 0 } }
+		const b = { 0: '1' }
+		const x = { 0: '1' }
+		expect(deepMerge(a, b)).toEqual(x)
 	})
 })
