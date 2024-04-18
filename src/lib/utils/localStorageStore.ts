@@ -3,7 +3,7 @@
 import { writable, type Writable } from 'svelte/store'
 import { cancelDefer, defer } from './defer'
 // import { logger } from './logger'
-import { BROWSER } from 'esm-env'
+import { BROWSER, DEV } from 'esm-env'
 
 export interface StateOptions<T> extends Partial<Writable<T>> {
 	/**
@@ -32,6 +32,19 @@ export interface StateOptions<T> extends Partial<Writable<T>> {
 	 * @default undefined
 	 */
 	onChange?: (v: T) => void
+
+	/**
+	 * Log errors to the console.
+	 * @default import.meta.env.DEV
+	 */
+	verbose?: boolean
+
+	/**
+	 * Used for testing.
+	 * @default false
+	 * @internal
+	 */
+	browserOverride?: boolean
 }
 
 /**
@@ -52,9 +65,10 @@ export const localStorageStore = <T>(
 	options?: StateOptions<T>,
 ): Writable<T> => {
 	let currentValue = initial
+	const verbose = options?.verbose ?? DEV
 
 	const { set: setStore, ...readableStore } = writable<T>(initial, () => {
-		if (BROWSER) {
+		if (options?.browserOverride || BROWSER) {
 			getAndSetFromLocalStorage()
 
 			const updateFromStorageEvents = (event: StorageEvent) => {
@@ -67,11 +81,30 @@ export const localStorageStore = <T>(
 		} else return () => {}
 	})
 
+	let serialize = JSON.stringify
+	let deserialize = JSON.parse
+
+	const isMapOrSet = initial instanceof Map || initial instanceof Set
+
+	if (isMapOrSet) {
+		serialize = (value: T) => JSON.stringify(Array.from((value as Map<any, any>).entries()))
+		deserialize = (value: string) => {
+			const parsed = JSON.parse(value)
+			if (Array.isArray(parsed)) {
+				if (initial instanceof Map) return new Map(parsed)
+				if (initial instanceof Set) return new Set(parsed)
+				return parsed
+			}
+			// prettier-ignore
+			if (verbose) console.error('Failed to deserialize Map from localStorageStore:', { parsed, value, initial, key, options })
+			return value
+		}
+	}
+
 	const set = (value: T) => {
 		currentValue = value
 		if (typeof value === 'string' && value.startsWith('"') && value.endsWith('"')) {
-			console.log(value)
-			value = JSON.parse(value)
+			value = deserialize(value)
 		}
 		setStore(value)
 		setItem(value)
@@ -80,11 +113,11 @@ export const localStorageStore = <T>(
 
 	let setItem = (value: T) => {
 		try {
-			value = JSON.stringify(value) as T
+			value = serialize(value) as T
 			localStorage.setItem(key, value as string)
-		} catch (e) {
-			console.error(`Failed to set localStorageStore value.\nkey: ${key}\nvalue: ${value}`)
-			console.error(e)
+		} catch (error) {
+			if (verbose)
+				console.error(`Failed to set localStorageStore value:`, { error, key, value })
 		}
 	}
 
@@ -120,12 +153,14 @@ export const localStorageStore = <T>(
 			set(initial)
 		} else {
 			try {
-				const parsed = JSON.parse(localValue)
+				const parsed = deserialize(localValue)
 				setStore(parsed as T)
 				currentValue = parsed as T
 			} catch (e) {
-				console.error(`Failed to parse localStorageStore value.\nkey: ${key}`)
-				console.error(e)
+				if (verbose) {
+					console.error(`Failed to parse localStorageStore value:`, { key, localValue })
+					console.error(e)
+				}
 			}
 		}
 
