@@ -7,13 +7,19 @@ export interface DebriefOptions {
 	 * @default 2
 	 */
 	depth?: number
-	
+
 	/**
 	 * The max number of object or array entries before truncating.
 	 * @default 4
 	 */
 	siblings?: number
-	
+
+	/**
+	 * If `true` the {@link siblings} limit is bypassed on the top level.
+	 * @default false
+	 */
+	preserveRootSiblings?: boolean
+
 	/**
 	 * The max number of chars per string before truncating.
 	 * @default 30
@@ -22,11 +28,11 @@ export interface DebriefOptions {
 }
 
 /**
- * Like tree for objects, with controls for depth, max siblings, and string length.
+ * Like `tree` for objects, with options for depth, max siblings, and max string length.
  */
 export function debrief<T>(
 	obj: unknown,
-	{ depth = 2, siblings = 4, trim = 30 }: DebriefOptions = {},
+	{ depth = 2, siblings = 4, preserveRootSiblings = false, trim = 30 }: DebriefOptions = {},
 ) {
 	function parse(o: unknown, d: number): unknown {
 		if (o === null) return o
@@ -35,18 +41,15 @@ export function debrief<T>(
 
 		if (Array.isArray(o)) {
 			if (depthReached) return `[...${o.length} ${o.length === 1 ? 'item' : 'items'}]`
-			if (o.length <= siblings || d === 0) return o.map((s) => parse(s, d + 1))
-			return [
-				...o.slice(0, siblings).map((s) => parse(s, d)),
-				`...${o.length - siblings} more`,
-			]
+			if (o.length <= siblings || d === 0) return o.map(s => parse(s, d + 1))
+			return [...o.slice(0, siblings).map(s => parse(s, d)), `...${o.length - siblings} more`]
 		}
 
 		if (typeof o === 'object') {
 			const keyCount = Object.keys(o).length
 			if (depthReached) return `{...${keyCount} ${keyCount === 1 ? 'entry' : 'entries'}}`
 
-			if (keyCount <= siblings || d === 0) {
+			if (keyCount <= siblings || (preserveRootSiblings && d === 0)) {
 				return Object.fromEntries(Object.entries(o).map(([k, v]) => [k, parse(v, d + 1)]))
 			}
 
