@@ -3,11 +3,11 @@ import type { resizable } from '../actions/resizable'
 import type { State } from '../utils/state'
 
 import { debounce } from '../utils/debounce'
-import { Logger, logger } from '../utils/logger'
+import { Logger } from '../utils/logger'
 import { state } from '../utils/state'
 import { select } from './select'
 import { clamp } from './clamp'
-import { fn, gr } from './l'
+import { gr } from './l'
 
 /**
  * The sides of an element that can be resized by the {@link resizable} action.
