@@ -123,7 +123,10 @@ export function state<T>(defaultValue: T, options?: StateOptions<T>): State<T> {
 	} else if (defaultValue instanceof Map) {
 		enhanceStore<Map<any, any>>(store => {
 			store.setKey = (key, value) => {
-				store.update(map => new Map(map).set(key, value))
+				store.update(map => {
+					map.set(key, value)
+					return map
+				})
 			}
 			store.deleteKey = key => {
 				store.update(map => {
