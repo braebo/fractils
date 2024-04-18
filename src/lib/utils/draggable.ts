@@ -14,6 +14,7 @@ import { select } from './select'
 import { Logger } from './logger'
 import { clamp } from './clamp'
 import { DEV } from 'esm-env'
+import { collisionClampX, collisionClampY } from './collisions'
 
 // todo - remove once dev testing is done.
 import { stringify } from './stringify'
@@ -334,6 +335,11 @@ export class Draggable {
 		bottom: Infinity,
 	}
 
+	#leftBound: GLfloat = 0
+	#rightBound: GLfloat = 0
+	#topBound: GLfloat = 0
+	#bottomBound: GLfloat = 0
+
 	private _storage?: ReturnType<typeof persist<{ x: number; y: number }>>
 	private _position = { x: 0, y: 0 }
 	/**
@@ -433,6 +439,7 @@ export class Draggable {
 
 		// this.#recomputeBounds = this.#resolveRecomputeBounds(this.opts.bounds)
 		this.#recomputeBounds()
+		this.#updateBounds()
 
 		this.#evm.listen(this.node, 'pointerdown', this.dragStart)
 		this.#evm.listen(window, 'pointerup', this.dragEnd)
@@ -575,6 +582,7 @@ export class Draggable {
 		this.tween.set({ x: this.x, y: this.y }, { ...this.opts.animation, duration: 0 })
 		// Update the bounds rect.
 		this.#recomputeBounds()
+		this.#updateBounds()
 
 		this.node.dispatchEvent(new CustomEvent('grab'))
 
@@ -606,7 +614,7 @@ export class Draggable {
 		const x = e.clientX - this.clickOffset.x
 		const y = e.clientY - this.clickOffset.y
 		const target = { x, y }
-		if (this.bounds) this.#clampToBounds(target)
+		// if (this.bounds) this.#clampToBounds(target)
 		this.moveTo(target)
 
 		this.#fireSvelteDragEvent()
@@ -648,37 +656,48 @@ export class Draggable {
 
 	resize = () => {}
 
-	#clampToBounds = (target: { x: number; y: number }) => {
-		// Clamp the target position to the bounds.
-		const { left, top, right, bottom } = this.rect
-		const width = right - left
-		const height = bottom - top
-
+	#updateBounds = () => {
+		// refresh style left & top
 		const styleLeft = parseFloat(this.node.style.left) || 0
+		this.#leftBound = this.bounds.left - styleLeft
+		this.#rightBound = this.bounds.right - styleLeft - (this.rect.right - this.rect.left)
+
 		const styleTop = parseFloat(this.node.style.top) || 0
-
-		target.x = clamp(
-			target.x,
-			this.bounds.left - left - styleLeft,
-			this.bounds.right - width - styleLeft,
-		)
-		target.y = clamp(
-			target.y,
-			this.bounds.top - top - styleTop,
-			this.bounds.bottom - height - styleTop,
-		)
-
-		this.#fireUpdateEvent()
-
-		if (DEV) {
-			const xdev = this.node.querySelector('.content') as HTMLElement
-			if (xdev) {
-				highlight(stringify(debrief(this.rect, { round: 2 }), 2)).then(str => {
-					xdev.innerHTML = `${str.replaceAll(/"|{|}/g, '')}`
-				})
-			}
-		}
+		this.#topBound = this.bounds.top - styleTop
+		this.#bottomBound = this.bounds.bottom - styleTop - (this.rect.bottom - this.rect.top)
 	}
+
+	// #clampToBounds = (target: { x: number; y: number }) => {
+	// 	// Clamp the target position to the bounds.
+	// 	const { left, top, right, bottom } = this.rect
+	// 	const width = right - left
+	// 	const height = bottom - top
+
+	// 	const styleLeft = parseFloat(this.node.style.left) || 0
+	// 	const styleTop = parseFloat(this.node.style.top) || 0
+
+	// 	target.x = clamp(
+	// 		target.x,
+	// 		this.bounds.left - left - styleLeft,
+	// 		this.bounds.right - width - styleLeft,
+	// 	)
+	// 	target.y = clamp(
+	// 		target.y,
+	// 		this.bounds.top - top - styleTop,
+	// 		this.bounds.bottom - height - styleTop,
+	// 	)
+
+	// 	this.#fireUpdateEvent()
+
+	// 	if (DEV) {
+	// 		const xdev = this.node.querySelector('.content') as HTMLElement
+	// 		if (xdev) {
+	// 			highlight(stringify(debrief(this.rect, { round: 2 }), 2)).then(str => {
+	// 				xdev.innerHTML = `${str.replaceAll(/"|{|}/g, '')}`
+	// 			})
+	// 		}
+	// 	}
+	// }
 
 	/**
 	 * Moves the {@link node|draggable element} to the specified position, adjusted
@@ -686,23 +705,28 @@ export class Draggable {
 	 */
 	moveTo(target: { x: number; y: number }, tweenTime = this.opts.animation.duration) {
 		if (this.canMoveX) {
+			if (this.bounds) target.x = clamp(target.x, this.#leftBound, this.#rightBound)
 			const deltaX = target.x - this.x
-			const x = this.#collisionClampX(deltaX)
-
-			// Apply delta to x / virtual rect (!! before checking collisionY !!).
-			this.rect.left += x
-			this.rect.right += x
-			this.x += x
+			if (deltaX !== 0) {
+				const x = collisionClampX(deltaX, this.rect, this.obstacleEls)
+				// Apply delta to x / virtual rect (!! before checking collisionY !!).
+				this.rect.left += x
+				this.rect.right += x
+				this.x += x
+			}
 		}
 
 		if (this.canMoveY) {
+			if (this.bounds) target.y = clamp(target.y, this.#topBound, this.#bottomBound)
 			const deltaY = target.y - this.y
-			const y = this.#collisionClampY(deltaY)
-
-			// Apply delta to y / virtual rect.
-			this.rect.top += y
-			this.rect.bottom += y
-			this.y += y
+			if (deltaY !== 0) {
+				// const y = this.#collisionClampY(deltaY)
+				const y = collisionClampY(deltaY, this.rect, this.obstacleEls)
+				// Apply delta to y / virtual rect.
+				this.rect.top += y
+				this.rect.bottom += y
+				this.y += y
+			}
 		}
 
 		// Tween slower for longer distances.
@@ -753,6 +777,15 @@ export class Draggable {
 		// this.updateLocalStorage()
 
 		this.#fireUpdateEvent()
+
+		if (DEV) {
+			const xdev = this.node.querySelector('.content') as HTMLElement
+			if (xdev) {
+				highlight(stringify(debrief(this.rect, { round: 2 }), 2)).then(str => {
+					xdev.innerHTML = `${str.replaceAll(/"|{|}/g, '')}`
+				})
+			}
+		}
 	}
 
 	/**
@@ -780,72 +813,72 @@ export class Draggable {
 		}
 	}
 
-	/**
-	 * Checks for collision with {@link obstacleEls obstacles} to determine the maximum distance
-	 * the draggable can move in the x direction.
-	 *
-	 * @returns The maximum distance the draggable can move in the x direction (`deltaX`) before
-	 * colliding with an obstacle.  If no collision is detected, the full distance (`targetX`)
-	 * is returned.  If the draggable is already colliding with an obstacle, `0` is returned.
-	 */
-	#collisionClampX(deltaX: number) {
-		const { top, bottom, left, right } = this.rect
+	// /**
+	//  * Checks for collision with {@link obstacleEls obstacles} to determine the maximum distance
+	//  * the draggable can move in the x direction.
+	//  *
+	//  * @returns The maximum distance the draggable can move in the x direction (`deltaX`) before
+	//  * colliding with an obstacle.  If no collision is detected, the full distance (`targetX`)
+	//  * is returned.  If the draggable is already colliding with an obstacle, `0` is returned.
+	//  */
+	// #collisionClampX(deltaX: number) {
+	// 	const { top, bottom, left, right } = this.rect
 
-		if (deltaX === 0) return 0
+	// 	if (deltaX === 0) return 0
 
-		// moving right > 0
-		if (deltaX > 0) {
-			for (const obstacle of this.obstacleEls) {
-				const o = obstacle.getBoundingClientRect()
-				// too high || too low || already passed || unreachable with delta
-				if (top > o.bottom || bottom < o.top || right > o.left || right + deltaX <= o.left)
-					continue
-				deltaX = Math.min(deltaX, o.left - right)
-			}
-		} else {
-			for (const obstacle of this.obstacleEls) {
-				const o = obstacle.getBoundingClientRect()
-				// too high || too low || already passed || unreachable with delta
-				if (top > o.bottom || bottom < o.top || left < o.right || left + deltaX >= o.right)
-					continue
-				deltaX = Math.max(deltaX, o.right - left)
-			}
-		}
-		return deltaX
-	}
+	// 	// moving right > 0
+	// 	if (deltaX > 0) {
+	// 		for (const obstacle of this.obstacleEls) {
+	// 			const o = obstacle.getBoundingClientRect()
+	// 			// too high || too low || already passed || unreachable with delta
+	// 			if (top > o.bottom || bottom < o.top || right > o.left || right + deltaX <= o.left)
+	// 				continue
+	// 			deltaX = Math.min(deltaX, o.left - right)
+	// 		}
+	// 	} else {
+	// 		for (const obstacle of this.obstacleEls) {
+	// 			const o = obstacle.getBoundingClientRect()
+	// 			// too high || too low || already passed || unreachable with delta
+	// 			if (top > o.bottom || bottom < o.top || left < o.right || left + deltaX >= o.right)
+	// 				continue
+	// 			deltaX = Math.max(deltaX, o.right - left)
+	// 		}
+	// 	}
+	// 	return deltaX
+	// }
 
-	/**
-	 * Checks for collision with {@link obstacleEls obstacles} to determine the maximum distance
-	 * the draggable can move in the y direction.
-	 *
-	 * @returns The maximum distance the draggable can move in the x direction (`deltaY`) before
-	 * colliding with an obstacle.  If no collision is detected, the full distance (`targetY`)
-	 * is returned.  If the draggable is already colliding with an obstacle, `0` is returned.
-	 */
-	#collisionClampY(deltaY: number) {
-		const { top, bottom, left, right } = this.rect
+	// /**
+	//  * Checks for collision with {@link obstacleEls obstacles} to determine the maximum distance
+	//  * the draggable can move in the y direction.
+	//  *
+	//  * @returns The maximum distance the draggable can move in the x direction (`deltaY`) before
+	//  * colliding with an obstacle.  If no collision is detected, the full distance (`targetY`)
+	//  * is returned.  If the draggable is already colliding with an obstacle, `0` is returned.
+	//  */
+	// #collisionClampY(deltaY: number) {
+	// 	const { top, bottom, left, right } = this.rect
 
-		if (deltaY > 0) {
-			// Moving down.
-			for (const obstacle of this.obstacleEls) {
-				const o = obstacle.getBoundingClientRect()
-				// too far left || too far right || already passed || unreachable with delta
-				if (left > o.right || right < o.left || bottom > o.top || bottom + deltaY <= o.top)
-					continue
-				deltaY = Math.min(deltaY, o.top - bottom)
-			}
-		} else {
-			// Moving up.
-			for (const obstacle of this.obstacleEls) {
-				const o = obstacle.getBoundingClientRect()
-				// too far left || too far right || already passed || unreachable with delta
-				if (left > o.right || right < o.left || top < o.bottom || top + deltaY >= o.bottom)
-					continue
-				deltaY = Math.max(deltaY, o.bottom - top)
-			}
-		}
-		return deltaY
-	}
+	// 	if (deltaY > 0) {
+	// 		// Moving down.
+	// 		for (const obstacle of this.obstacleEls) {
+	// 			const o = obstacle.getBoundingClientRect()
+	// 			// too far left || too far right || already passed || unreachable with delta
+	// 			if (left > o.right || right < o.left || bottom > o.top || bottom + deltaY <= o.top)
+	// 				continue
+	// 			deltaY = Math.min(deltaY, o.top - bottom)
+	// 		}
+	// 	} else {
+	// 		// Moving up.
+	// 		for (const obstacle of this.obstacleEls) {
+	// 			const o = obstacle.getBoundingClientRect()
+	// 			// too far left || too far right || already passed || unreachable with delta
+	// 			if (left > o.right || right < o.left || top < o.bottom || top + deltaY >= o.bottom)
+	// 				continue
+	// 			deltaY = Math.max(deltaY, o.bottom - top)
+	// 		}
+	// 	}
+	// 	return deltaY
+	// }
 
 	/**
 	 * Resolves the {@link DraggableOptions.bounds|bounds} and returns a
