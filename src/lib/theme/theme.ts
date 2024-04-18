@@ -64,7 +64,7 @@ export async function initTheme(options?: {
 
 		theme.subscribe(value => {
 			if (BROWSER) {
-				document.cookie = `fractils::theme=${value}`
+				document.cookie = `fractils::theme=${value}; path=/;`
 			}
 		})
 	} else {

@@ -15,7 +15,10 @@
 	import { parse } from 'cookie'
 
 	onMount(() => {
+		// console.log('INIT THEME')
+		// console.log('$page.data.theme', $page.data.theme)
 		initTheme({ initial: $page.data.theme, cookie: true })
+		// console.log('$theme', $theme)
 
 		// https://github.com/sveltejs/kit/pull/8724
 		wait(1).then(() => {
@@ -30,11 +33,13 @@
 		}
 	})
 
+	// $: console.log('checked', checked), console.log('$theme', $theme) //! REVERT
+
 	// Keep the theme cookie in sync.
 	let checked = $page.data.theme !== 'dark'
 	$: checked = $theme ? $theme !== 'dark' : checked
 	$: if (BROWSER && $theme !== parse(document.cookie)['theme']) {
-		document.cookie = `fractils::theme=${$theme}`
+		document.cookie = `fractils::theme=${$theme}; path=/;`
 	}
 </script>
 
