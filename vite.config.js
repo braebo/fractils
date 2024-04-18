@@ -10,6 +10,9 @@ export default defineConfig({
 		},
 	},
 	define: {
-		'import.meta.env.FRACTILS_LOG_LEVEL': JSON.stringify('none'),
-	}	
+		'import.meta.env.FRACTILS_LOG_LEVEL': JSON.stringify('info'),
+	},
+	test: {
+		environment: 'happy-dom',
+	},
 })

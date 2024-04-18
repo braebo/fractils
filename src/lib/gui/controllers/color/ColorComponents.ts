@@ -150,14 +150,14 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 		return this.#mode
 	}
 	set mode(v: ColorMode) {
-		this.#log.fn(`set mode`, v).info()
+		this.#log.fn(`set mode`, v).debug()
 		this.#mode = v
 
 		this.select.selected = v
 	}
 
 	updateMode = (v = this.mode) => {
-		this.#log.fn(`updateMode`, v).info()
+		this.#log.fn(`updateMode`, v).debug()
 		this.#mode = v
 		if (this.#modeType() === 'text') {
 			this.elements.text.classList.add('visible')
@@ -194,7 +194,7 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 	}
 
 	#setProps = (el: HTMLInputElement, props: { min: number; max: number; step: number }) => {
-		this.#log.fn(`#setProps`, el, props).info()
+		this.#log.fn(`#setProps`, el, props).debug()
 		for (const [k, v] of entries(props)) {
 			el[k] = String(v)
 		}
@@ -279,7 +279,7 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 	 * Updates the UI to reflect the current state of the source color.
 	 */
 	refresh = () => {
-		this.#log.fn('refresh').info()
+		this.#log.fn('refresh').debug()
 		const color = this.input.state.value.hex8String
 		const mode = this.mode
 		if (this.#lastColor === color && mode === this.#lastMode) {
