@@ -39,7 +39,7 @@ export class InputText extends Input<string, TextInputOptions, TextControllerEle
 
 		this.opts = opts
 		// //* this is bop it type beat but is cool - brb fire alarm
-		this.#log.fn('constructor').info({ opts, this: this })
+		this.#log.fn('constructor').debug({ opts, this: this })
 
 		if (opts.binding) {
 			this.initialValue = opts.binding.target[opts.binding.key]

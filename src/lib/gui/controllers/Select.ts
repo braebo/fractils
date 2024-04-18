@@ -147,7 +147,7 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 
 		this.disabled = this.opts.disabled
 
-		this.#log.fn('constructor').info({ opts: this.opts, this: this })
+		this.#log.fn('constructor').debug({ opts: this.opts, this: this })
 	}
 
 	/** The currently selected option. Assigning a new value will update the UI. */
@@ -248,7 +248,7 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 			return this
 		}
 
-		this.#log.fn('select').info('v', v, { this: this })
+		this.#log.fn('select').debug('v', v, { this: this })
 
 		if (v instanceof Event) {
 			const target = v.target as HTMLDivElement
@@ -292,7 +292,7 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 
 	/** Toggles the dropdown's visibility. */
 	toggle = () => {
-		this.#log.fn('toggle').info({ this: this })
+		this.#log.fn('toggle').debug({ this: this })
 		this.expanded ? this.close() : this.open()
 	}
 

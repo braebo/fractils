@@ -87,7 +87,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		this.expanded = opts.expanded
 		this.#mode = opts.mode
 
-		this.#log.fn('constructor').info({ opts, this: this }).groupEnd()
+		this.#log.fn('constructor').debug({ opts, this: this }).groupEnd()
 
 		//? Initialize state.
 		if (opts.binding) {
@@ -300,7 +300,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 	}
 
 	dispose() {
-		this.#log.fn('dispose').info({ this: this })
+		this.#log.fn('dispose').debug({ this: this })
 		this.picker.dispose()
 		super.dispose()
 	}
