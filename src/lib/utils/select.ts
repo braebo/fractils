@@ -25,7 +25,7 @@ export function select(input: ElementsOrSelectors, node?: HTMLElement): HTMLElem
 		if (!el) return []
 
 		if (el instanceof HTMLElement) return [el]
-		// @ts-expect-error //- idk what the issue is because (document instanceof Document) is always `true`
+		// @ts-expect-error //- (document instanceof Document) is always `true`, so this is safe
 		if (el instanceof Document) {
 			return [document.documentElement]
 		}
@@ -37,8 +37,8 @@ export function select(input: ElementsOrSelectors, node?: HTMLElement): HTMLElem
 				if (foundEl) {
 					return [foundEl]
 				} else {
-					log.error(r(`No element found width id: `) + ': ' + c(el))
-					log.error(r(`Make sure the selector is a child of the target node.`))
+					log.debug(r(`No element found width id: `) + ': ' + c(el))
+					log.debug(r(`Make sure the selector is a child of the target node.`))
 					log.debug({ input, node, elements })
 
 					return []
@@ -48,8 +48,8 @@ export function select(input: ElementsOrSelectors, node?: HTMLElement): HTMLElem
 
 		const foundEls = node!.querySelectorAll<HTMLElement>(el)
 		if (foundEls.length === 0) {
-			log.error(r(`No elements found for selector`) + ': ' + c(el))
-			log.error(r(`Make sure the selector is a child of the target node.`))
+			log.debug(r(`No elements found for selector`) + ': ' + c(el))
+			log.debug(r(`Make sure the selector is a child of the target node.`))
 			log.debug({ input, node, elements })
 
 			return []
