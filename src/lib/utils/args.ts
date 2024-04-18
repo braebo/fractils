@@ -53,11 +53,14 @@ export function resolveArg(name: string, args: string[]) {
 
 	for (let i = 0; i < args.length; i++) {
 		if (kvRegex.test(args[i])) {
-			//? Handle key-value pairs like --input=/path
+			// Handle key-value pairs like --input=/path
 			return args[i].split('=')[1]
 		} else if (args[i] === `-${name.charAt(0)}` || args[i] === `--${name}`) {
-			//? Handle separated key and value like --input /path
+			// Handle separated key and value like --input /path
 			if (i + 1 < args.length && !args[i + 1].startsWith('-')) {
+				if (args[i + 1] === '=') {
+					return args[i + 2]
+				}
 				return args[i + 1]
 			}
 			return true //? Handle boolean flags when no following value is present
@@ -99,14 +102,16 @@ export function mapArgs(args: string[], coerce = true): Map<string, string | num
 		const value = resolveArg(name, args)
 
 		if (typeof value !== 'undefined') {
-			console.log({ name, value })
 			map.set(name!, coerce && typeof value === 'string' ? coerceValue(value) : value)
 		}
 
 		if (a.startsWith('--') || a.startsWith('-')) {
 			const next = args[i + 1]
 
-			if (next && !next.startsWith('-')) {
+			if (next === '=') {
+				map.set(a.replace(/^-+/, ''), coerce ? coerceValue(args[i + 2]) : args[i + 2])
+				i += 2
+			} else if (next && !next.startsWith('-')) {
 				map.set(a.replace(/^-+/, ''), coerce ? coerceValue(next) : next)
 			} else {
 				map.set(a.replace(/^-+/, ''), true)

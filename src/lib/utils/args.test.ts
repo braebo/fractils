@@ -1,64 +1,53 @@
-import { describe, test, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { resolveArg, mapArgs, ArgMap } from './args'
 
-const args = ['--name', 'John', '-a', '25', '--pog']
+const args = ['--name', 'John', '-a', '25', '--foo=true', '-b', '=', 'true']
 
-describe('arg', () => {
-	describe('long', () => {
-		test('spaced', () => {
+describe('args', () => {
+	describe('resolveArg', () => {
+		it('should resolve longhand', () => {
 			const result = resolveArg('name', args)
 			expect(result).toBe('John')
 		})
 
-		test('=', () => {
-			const result = resolveArg('name', args)
-			expect(result).toBe('John')
+		it('should handle longhand = sign', () => {
+			const result = resolveArg('foo', args)
+			expect(result).toBeTruthy()
 		})
 
-		test('missing arg is undefined', () => {
+		it('should not work if = sign is used with shorthand', () => {
+			const result = resolveArg('b', args)
+			expect(result).toBe('true')
+		})
+
+		it('missing arg is undefined', () => {
 			const result = resolveArg('height', args)
 			expect(result).toBeUndefined()
 		})
 	})
 
-	describe('short', () => {
-		test('spaced', () => {
-			const result = resolveArg('name', args)
-			expect(result).toBe('John')
+	describe('mapArgs', () => {
+		it('should map arguments to values', () => {
+			const result = mapArgs(args)
+			expect(result.get('name')).toBe('John')
+			expect(result.get('age'), 'Long name fails to resolve short name.').toBeUndefined()
+			expect(result.get('b')).toBe(true)
 		})
 
-		test('missing arg is undefined', () => {
-			const result = resolveArg('height', args)
-			expect(result).toBeUndefined()
+		it('should return an empty map if no arguments are provided', () => {
+			const args: string[] = []
+			const result = mapArgs(args)
+			expect(result.size).toBe(0)
 		})
 	})
-})
 
-describe('mapArgs', () => {
-	test('map arguments to values', () => {
-		const result = mapArgs(args)
-		console.log({ result })
-		expect(result.get('name')).toBe('John')
-		expect(result.get('age'), 'Long name fails to resolve short name.').toBeUndefined()
-		expect(result.get('pog')).toBe(true)
-	})
+	describe('ArgMap', () => {
+		const argMap = new ArgMap(args)
 
-	test('should return an empty map if no arguments are provided', () => {
-		const args: string[] = []
-		const result = mapArgs(args)
-		expect(result.size).toBe(0)
-	})
-})
-
-describe('ArgMap', () => {
-	const argMap = new ArgMap(args)
-
-	test('map arguments to values', () => {
-		console.log(argMap.toObject())
-		console.log(argMap.map)
-
-		expect(argMap.get('name')).toBe('John')
-		expect(argMap.get('age')).toBe(25)
-		expect(argMap.get('pog')).toBe(true)
+		it('should map arguments to values', () => {
+			expect(argMap.get('name')).toBe('John')
+			expect(argMap.get('age')).toBe(25)
+			expect(argMap.get('b')).toBe(true)
+		})
 	})
 })
