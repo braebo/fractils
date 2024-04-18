@@ -4,6 +4,8 @@ import type { InputSelect, SelectInputOptions } from './InputSelect'
 import type { InputNumber, NumberInputOptions } from './InputNumber'
 import type { ColorInputOptions, InputColor } from './InputColor'
 import type { ColorFormat } from '../../color/types/colorFormat'
+
+import type { InputTextArea, TextAreaInputOptions } from './InputTextArea'
 import type { InputText, TextInputOptions } from './InputText'
 import type { Option } from '../controllers/Select'
 import type { State } from '../../utils/state'
@@ -17,23 +19,31 @@ import { Logger } from '../../utils/logger'
 
 //· Types ··············································································¬
 
-export type ValidInputValue = string | number | Color | ColorFormat | Option<any>
-export type ValidInputOptions =
-	| TextInputOptions
-	| NumberInputOptions
-	| ColorInputOptions
-	| SelectInputOptions<Option<any>>
-	| InputButtonOptions
-	| ButtonGridInputOptions
-export type BindTargetObject = Record<string, any>
+export type InputType = (typeof INPUT_TYPES)[number]
+export const INPUT_TYPES = [
+	'Text',
+	'TextArea',
+	'Number',
+	'Color',
+	'Select',
+	'Button',
+	'ButtonGrid',
+] as const
 
-/** This is currently just used as a sort of "type tag" now that inference is working. */
-export type InputType = 'Text' | 'Number' | 'Color' | 'Select' | 'Button' | 'ButtonGrid'
+export type BindTarget = Record<string, any>
+export type BindableObject<T extends BindTarget, K extends keyof T = keyof T> = {
+	target: T
+	key: K
+	initial?: T[K]
+}
 
-export type ValueOrBinding<TValue = ValidInputValue, TBindTarget = BindTargetObject> =
+/**
+ * The initial value of an input can be either a raw value, or a "binding"
+ */
+export type ValueOrBinding<TValue = ValidInputValue, TBindTarget extends BindTarget = BindTarget> =
 	| {
 			value: TValue
-			binding?: { target: TBindTarget; key: keyof TBindTarget; initial?: TValue }
+			binding?: BindableObject<TBindTarget>
 	  }
 	| {
 			value?: TValue
@@ -51,23 +61,37 @@ export type ValueOrBinding<TValue = ValidInputValue, TBindTarget = BindTargetObj
 			grid: ButtonGrid
 	  }
 
-export type InputOptions<TValue = ValidInputValue, TBindTarget = Record<string, any & TValue>> = {
+export type InputOptions<
+	TValue = ValidInputValue,
+	TBindTarget extends BindTarget = Record<string, any & TValue>,
+> = {
 	title: string
 	onChange?: (value: TValue) => void
 } & ValueOrBinding<TValue, TBindTarget>
-//⌟
 
 export interface ElementMap<T = unknown> {
 	[key: string]: HTMLElement | HTMLInputElement | ElementMap | T
 }
 
+export type ValidInputValue = string | number | Color | ColorFormat | Option<any>
+export type ValidInputOptions =
+	| TextInputOptions
+	| TextAreaInputOptions
+	| NumberInputOptions
+	| ColorInputOptions
+	| SelectInputOptions<Option<any>>
+	| InputButtonOptions
+	| ButtonGridInputOptions
+
 export type ValidInput =
 	| InputText
+	| InputTextArea
 	| InputNumber
 	| InputColor
 	| InputSelect<Option<any>>
 	| InputButton
 	| InputButtonGrid
+//⌟
 
 export abstract class Input<
 	TValueType extends ValidInputValue = ValidInputValue,
