@@ -1,7 +1,7 @@
 import type { Placement, PlacementOptions, Vec2 } from './place'
 
 import { describe, it, expect, beforeEach } from 'vitest'
-import { place_old } from './place'
+import { place_old } from './place_old'
 
 beforeEach(() => {
 	Object.defineProperties(HTMLElement.prototype, {

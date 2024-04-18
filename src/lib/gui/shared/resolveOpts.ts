@@ -4,7 +4,6 @@ export type MaybeBooleanOrT<T> = T | boolean
 
 export function resolveOpts<T extends {}>(
 	optionsOrBoolean: MaybeBooleanOrT<Partial<T>> | undefined,
-	// optionsOrBoolean: MaybeBooleanOrT<T> | undefined,
 	defaultOptions: T,
 ): T | false {
 	if (typeof optionsOrBoolean === 'undefined') {

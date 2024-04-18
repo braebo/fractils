@@ -2,11 +2,11 @@ import './gui.scss'
 
 import type { WindowManagerOptions } from '../utils/windowManager'
 import type { FolderElements, FolderOptions } from './Folder'
+import type { PrimitiveState, State } from '../utils/state'
 import type { Placement, PlacementOptions } from './place'
 import type { ResizableOptions } from '../utils/resizable'
 import type { DraggableOptions } from '../utils/draggable'
 import type { ThemerOptions } from '../themer/Themer'
-import type { PrimitiveState } from '../utils/state'
 import type { Tooltip } from '../actions/tooltip'
 import type { ThemeMode } from '../themer/types'
 
@@ -173,6 +173,7 @@ export class Gui extends Folder {
 	settingsFolder: Folder
 
 	closed: PrimitiveState<boolean>
+	closedMap: State<Map<string, boolean>>
 
 	private _theme: GuiOptions['theme']
 
@@ -208,125 +209,59 @@ export class Gui extends Folder {
 		const storageOpts = resolveOpts(opts.storage, GUI_STORAGE_DEFAULTS)
 
 		if (typeof storageOpts === 'object') {
-			storageOpts.key =
-				storageOpts.key + '::' + opts.title?.toLowerCase().replaceAll(/\s/g, '-')
+			storageOpts.key += `::${opts.title?.toLowerCase().replaceAll(/\s/g, '-')}::closed`
 		}
-		if (storageOpts && storageOpts.closed) {
-			this.closed = state(this.opts.closed, {
-				key: storageOpts.key + '::closed',
-			})
-		} else {
-			this.closed = state(this.opts.closed)
-		}
-		//⌟
 
-		//· Themer ···························································¬
+		this.closed = state(this.opts.closed, {
+			key:
+				(storageOpts &&
+					storageOpts.key +
+						`::${opts.title?.toLowerCase().replaceAll(/\s/g, '-')}::closed`) ||
+				'',
+		})
+		this.closedMap = state(new Map(), {
+			key:
+				(storageOpts &&
+					storageOpts.key +
+						`::${opts.title?.toLowerCase().replaceAll(/\s/g, '-')}::closed-map`) ||
+				'',
+		})
 
-		const { themer, themerOptions } = opts
-
-		if (!BROWSER) console.log('asdf')
-
-		if (themer) {
-			if (themerOptions) {
-				themerOptions.persistent = (opts?.storage as GuiStorageOptions)?.theme ?? true
-
-				// Load up the default generated theme vars.
-				themerOptions.vars = deepMerge(GUI_VARS, themerOptions.vars)
-			}
-
-			if (themer === true) {
-				themerOptions.wrapper = this.wrapper
-				this.themer = new Themer(this.root.element, themerOptions)
-			} else {
-				this.themer = themer
-			}
-		}
+		this.closedMap.setKey(this.title, this.closed.value)
+		this.closedMap.subscribe(map => {
+			console.error('map:', map)
+		})
+		setTimeout(() => {
+			console.error('map:', this.closedMap.value.entries())
+		}, 10)
 		//⌟
 
 		this.settingsFolder = this.#createSettingsFolder()
 
-		//· Window Manager ···················································¬
+		this.#createThemer()
 
-		if (!this.windowManager) {
-			const dragOpts = resolveOpts<DraggableOptions>(
-				// @ts-expect-error // todo - Fix this.
-				opts.windowManager?.['draggable'],
-				DRAG_DEFAULTS,
-			)
-			if (dragOpts) {
-				dragOpts.handle = this.elements.header
-				dragOpts.bounds = this.container
-			}
-
-			const resizeOpts = resolveOpts<ResizableOptions>(
-				// @ts-expect-error // todo - Fix this.
-				opts.windowManager?.['resizable'],
-				RESIZABLE_DEFAULTS,
-			)
-			if (resizeOpts) {
-				resizeOpts.bounds = this.container
-			}
-
-			// Use the provided window manager if it's an instance.
-			if (options?.windowManager instanceof WindowManager) {
-				this.windowManager = options.windowManager
-
-				this.windowManager.add(this.element, {
-					draggable: dragOpts,
-					resizable: resizeOpts,
-				})
-			} else {
-				const windowManagerOpts = resolveOpts<WindowManagerOptions>(
-					opts.windowManager as WindowManagerOptions,
-					WINDOWMANAGER_DEFAULTS,
-				)
-				if (storageOpts && storageOpts.key && windowManagerOpts) {
-					if (typeof windowManagerOpts.draggable === 'object') {
-						windowManagerOpts.draggable.localStorageKey = `${storageOpts.key}::${windowManagerOpts.draggable.localStorageKey}`
-					}
-					if (typeof windowManagerOpts.resizable === 'object') {
-						windowManagerOpts.resizable.localStorageKey = `${storageOpts.key}::${windowManagerOpts.resizable.localStorageKey}`
-					}
-				}
-
-				this.#log
-					.fn('constructor')
-					.info({ options, opts, dragOptions: dragOpts, resizeOpts })
-
-				this.windowManager = new WindowManager({
-					...windowManagerOpts,
-					draggable: dragOpts,
-					resizable: resizeOpts,
-				})
-
-				this.windowManager.add(this.element, {
-					draggable: dragOpts,
-					resizable: resizeOpts,
-				})
-			}
-		}
-		//⌟
+		this.windowManager ??= this.#createWindowManager(options, storageOpts)
 
 		//· Theme Editor ·····················································¬
 
 		//! TODO - Uncomment this once beats is done.
-		// if (this.themer) {
-		// 	this.themeEditor = new ThemeEditor(this, {
-		// 		title: 'Theme Editor',
-		// 		themer: false, // Prevents infinite recursion.
-		// 		windowManager: this.windowManager, // Recycling!
-		// 		storage: {
-		// 			// This is smelly.
-		// 			key: storageOpts ? storageOpts.key : '',
-		// 		},
-		// 		hidden: true
-		// 	})
-		// }
+		if (this.themer) {
+			this.themeEditor = new ThemeEditor(this, {
+				title: 'Theme Editor',
+				themer: false, // Prevents infinite recursion.
+				windowManager: this.windowManager, // Recycling!
+				storage: {
+					// This is smelly.
+					key: storageOpts ? storageOpts.key : '',
+				},
+				// hidden: true,
+			})
+		}
 		//⌟
 
 		if (this.closed.value) this.close()
 
-		//· Reveal Animation ···································································¬
+		//· Reveal Animation ·················································¬
 
 		// Wait until the gui is fully constructed before positioning it
 		// to make sure we can calculate the correct size and position.
@@ -336,12 +271,17 @@ export class Gui extends Folder {
 			Promise.resolve().then(() => {
 				// Append a non-animating, full-size clone to get the proper rect.
 				const ghost = this.element.cloneNode(true) as HTMLElement
-				document.querySelector('.page')?.prepend(ghost)
+
+				// todo - this is a hack
+				// document.querySelector('.page')?.prepend(ghost)
+				// todo - maybe this is better?
+				document.body.prepend(ghost)
+
 				const rect = ghost.getBoundingClientRect()
 				ghost.remove()
 
 				Promise.resolve().then(() => {
-					// todo - This placement stuff should go into `Draggable`
+					// todo - This placement stuff should probably go into `Draggable`
 					const placementOpts = resolveOpts(opts.placement, GUI_PLACEMENT_DEFAULTS)
 
 					if (placementOpts) {
@@ -350,18 +290,17 @@ export class Gui extends Folder {
 							placementOpts.bounds ?? this.container.getBoundingClientRect()
 
 						if (typeof placement === 'object') {
-							console.log(placement)
-							this.windowManager?.windows.at(-1)?.draggableInstance?.moveTo(placement, 0)
+							this.windowManager?.windows
+								.at(-1)
+								?.draggableInstance?.moveTo(placement, 0)
 						} else {
-							console.log(placement)
 							const placementPosition = place(rect, placement, {
 								bounds,
 								margin,
 							})
-							this.windowManager?.windows.at(-1)?.draggableInstance?.moveTo(
-								placementPosition,
-								0,
-							)
+							this.windowManager?.windows
+								.at(-1)
+								?.draggableInstance?.moveTo(placementPosition, 0)
 						}
 					}
 
@@ -385,6 +324,126 @@ export class Gui extends Folder {
 	// 	})
 	// }
 
+	#createThemer() {
+		const { themer, themerOptions, storage } = this.opts
+
+		if (!BROWSER) {
+			throw new Error('Themer requires a browser environment.')
+		}
+
+		if (themer) {
+			if (themerOptions) {
+				themerOptions.persistent = (storage as GuiStorageOptions)?.theme ?? true
+
+				// Load up the default generated theme vars.
+				themerOptions.vars = deepMerge(GUI_VARS, themerOptions.vars)
+			}
+
+			if (themer === true) {
+				themerOptions.wrapper = this.wrapper
+				this.themer = new Themer(this.root.element, themerOptions)
+			} else {
+				this.themer = themer
+			}
+
+			if (this.settingsFolder) {
+				this.settingsFolder.add({
+					title: 'theme',
+					// todo - labelKey: 'title',
+					options: this.themer.themes.value.map(t => ({
+						label: t.title,
+						value: t,
+					})),
+					binding: {
+						target: this.themer,
+						key: 'theme',
+						initial: {
+							label: this.themer.theme.value.title,
+							value: this.themer.theme,
+						},
+					},
+				})
+
+				this.settingsFolder.addButtonGrid({
+					title: 'mode',
+					grid: [
+						['light', 'dark', 'system'].map(m => ({
+							label: m,
+							onClick: () => this.themer?.mode.set(m as ThemeMode),
+							isActive: () => this.themer?.mode.value === m,
+						})),
+					],
+				})
+			}
+		}
+	}
+
+	#createWindowManager(options?: Partial<GuiOptions>, storageOpts?: GuiStorageOptions | false) {
+		if (this.windowManager) return this.windowManager
+
+		const dragOpts = resolveOpts<DraggableOptions>(
+			(this.opts.windowManager as WindowManagerOptions)['draggable'],
+			DRAG_DEFAULTS,
+		)
+		if (dragOpts) {
+			dragOpts.handle = this.elements.header
+			dragOpts.bounds = this.container
+		}
+
+		const resizeOpts = resolveOpts<ResizableOptions>(
+			(this.opts.windowManager as WindowManagerOptions)['resizable'],
+			RESIZABLE_DEFAULTS,
+		)
+		if (resizeOpts) {
+			resizeOpts.bounds = this.container
+		}
+
+		// Use the provided window manager if it's an instance.
+		if (options?.windowManager instanceof WindowManager) {
+			const windowManager = options.windowManager
+
+			windowManager.add(this.element, {
+				draggable: dragOpts,
+				resizable: resizeOpts,
+			})
+
+			return windowManager
+		}
+
+		const windowManagerOpts = resolveOpts<WindowManagerOptions>(
+			this.opts.windowManager as WindowManagerOptions,
+			WINDOWMANAGER_DEFAULTS,
+		)
+
+		//? Forward any storage options to the draggable and resizable options.
+		if (storageOpts && storageOpts.key && windowManagerOpts) {
+			if (typeof windowManagerOpts.draggable === 'object') {
+				windowManagerOpts.draggable.localStorageKey = `${storageOpts.key}::${windowManagerOpts.draggable.localStorageKey}`
+			}
+			if (typeof windowManagerOpts.resizable === 'object') {
+				windowManagerOpts.resizable.localStorageKey = `${storageOpts.key}::${windowManagerOpts.resizable.localStorageKey}`
+			}
+		}
+
+		this.#log
+			.fn('constructor')
+			.info({ options, opts: this.opts, dragOptions: dragOpts, resizeOpts })
+
+		const windowManager = new WindowManager({
+			...windowManagerOpts,
+			// todo - should these be deep merged?
+			draggable: dragOpts,
+			resizable: resizeOpts,
+		})
+
+		windowManager.add(this.element, {
+			draggable: dragOpts,
+			resizable: resizeOpts,
+		})
+
+		return windowManager
+	}
+
 	set theme(theme: GuiTheme) {
 		if (!this.themer) return
 		this._theme = theme
@@ -403,38 +462,6 @@ export class Gui extends Folder {
 			hidden: false,
 		})
 
-		if (this.themer) {
-			// themeFolder.add({
-			folder.add({
-				title: 'theme',
-				// todo - labelKey: 'title',
-				options: this.themer.themes.value.map(t => ({
-					label: t.title,
-					value: t,
-				})),
-				// todo - Use this once `state` is changed from `LabeledOption<T>` to `T`.
-				binding: {
-					target: this.themer,
-					key: 'theme',
-					initial: {
-						label: this.themer.theme.value.title,
-						value: this.themer.theme,
-					},
-				},
-			})
-
-			folder.addButtonGrid({
-				title: 'mode',
-				grid: [
-					['light', 'dark', 'system'].map(m => ({
-						label: m,
-						onClick: () => this.themer?.mode.set(m as ThemeMode),
-						isActive: () => this.themer?.mode.value === m,
-					})),
-				],
-			})
-		}
-
 		folder.elements.contentWrapper.style.setProperty(
 			`box-shadow`,
 			`0px 0px 10px 0px hsl(10deg, 0%, var(--${VAR_PREFIX}-shadow-lightness), inset`,
@@ -451,84 +478,17 @@ export class Gui extends Folder {
 			)
 			;(child as HTMLElement).style.setProperty('border-radius', 'none', 'important')
 		}
-		folder.elements.content.style.setProperty(
-			'background',
-			`var(--${VAR_PREFIX}-bg-c)`,
-		)
-
-		// const attr = this.#attr.bind(this)
-		// const prop = this.#prop.bind(this)
-
-		// setTimeout(() => {
-		// 	const styles = [
-		// 		attr('background', prop('fg-c')),
-		// 		attr('controller_background', prop('bg-c')),
-		// 		attr('controller-dim_background', prop('bg-a')),
-		// 		attr('controller_color', prop('fg-a')),
-		// 		attr('controller-dim_color', prop('fg-c')),
-		// 		attr('controller-outline', `1px solid rgba(${prop('bg-c-rgb')}, 0.1)`),
-		// 		attr(
-		// 			'controller-dim-outline',
-		// 			prop('1px solid rgba(' + prop('bg-a-rgb)' + ', 0.1')),
-		// 		),
-		// 		attr(
-		// 			'controller_box-shadow',
-		// 			'0 0 10px 0 hsl(10deg, 0%, ' + prop('shadow-lightness') + ')',
-		// 		),
-		// 		attr(
-		// 			'controller-dim_box-shadow',
-		// 			'0 0 10px 0 hsl(10deg, 0%, ' + prop('shadow-lightness') + '), inset',
-		// 		),
-		// 	]
-
-		// 	const css = styles.join('; ')
-		// }, 0)
-
-		// folder.addButton({
-		// 	title: 'log',
-		// 	text: 'console.log(gui)',
-		// 	onClick: () => {
-		// 		console.log(this)
-		// 	},
-		// })F
+		folder.elements.content.style.setProperty('background', `var(--${VAR_PREFIX}-bg-c)`)
 
 		return folder
 	}
-
-	// #prop(str: string) {
-	// 	// return `var(--${VAR_PREFIX}-${str})`
-	// 	const attr = `--${VAR_PREFIX}-${str}`
-	// 	return getComputedStyle(this.wrapper).getPropertyValue(attr)
-	// }
-
-	// #attr<const Attribute extends string, const Value extends string | undefined = undefined>(
-	// 	attr: Attribute,
-	// 	value?: Value,
-	// ) {
-	// 	let str = `--${VAR_PREFIX}-${attr}`
-	// 	return (value ? (str += `: ${value};`) : str) as Attribute extends string
-	// 		? Value extends string
-	// 			? `--${typeof VAR_PREFIX}-${Attribute}: ${Value};`
-	// 			: `--${typeof VAR_PREFIX}-${Attribute}`
-	// 		: never
-	// }
-
-	// static initialized = false
-	// static #init() {
-	// 	if (this.initialized) return
-	// 	this.initialized = true
-
-	// 	const style = document.createElement('style')
-	// 	style.textContent = this.style
-	// 	document.head.appendChild(style)
-	// }
-	// static style = /*css*/ ``
 
 	dispose = () => {
 		super.dispose()
 
 		window.addEventListener
 		this.themer?.dispose()
+		this.themeEditor?.dispose()
 		this.windowManager?.dispose?.()
 		for (const window of this.windowManager?.windows ?? []) {
 			window

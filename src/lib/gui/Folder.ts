@@ -11,11 +11,11 @@ import { InputText, type TextInputOptions } from './inputs/InputText'
 import { cancelClassFound } from '../internal/cancelClassFound'
 import { isColor, isColorFormat } from '../color/color'
 import settingsIcon from './svg/settings-icon.svg?raw'
+import { Search } from './toolbar/Search'
 import { create } from '../utils/create'
 import { nanoid } from '../utils/nanoid'
 import { Logger } from '../utils/logger'
 import { state } from '../utils/state'
-import { Search } from './toolbar/Search'
 import { Gui } from './Gui'
 
 export interface FolderElements extends ElementMap {
@@ -117,12 +117,13 @@ export class Folder {
 
 	constructor(options: FolderOptions, rootContainer: HTMLElement | null = null, instant = true) {
 		const opts = Object.assign({}, options)
+
 		this.#log = new Logger('Folder:' + opts.title, {
 			fg: 'DarkSalmon',
 			deferred: false,
 			server: false,
 		})
-		this.#log.fn('constructor').info({ opts, this: this })
+		this.#log.fn('constructor').debug({ opts, this: this })
 
 		this.#title = opts.title ?? ''
 		this.children = opts.children ?? []
@@ -173,11 +174,11 @@ export class Folder {
 		}
 
 		this.#hidden = opts.hidden ?? false
-		if (opts.hidden === true) {
-			this.hide()
-		} else {
-			this.show()
-		}
+		// if (opts.hidden === true) {
+		// 	this.hide()
+		// } else {
+		// 	this.show()
+		// }
 
 		// Open/close the folder when the closed state changes.
 		this.#subs.push(
@@ -274,7 +275,8 @@ export class Folder {
 			el ??
 			create('div', {
 				parent: this.parentFolder.elements.content,
-				classes: ['fracgui-folder'],
+				//! classes: ['fracgui-folder'],
+				classes: ['fracgui-folder', 'closed'],
 				// dataset: { id: this.id },
 			})
 
@@ -330,7 +332,7 @@ export class Folder {
 		container ??= document.body
 
 		const rootEl = create('div', {
-			classes: ['fracgui-root', 'fracgui-folder'],
+			classes: ['fracgui-root', 'fracgui-folder', 'closed'],
 			id: 'fracgui-root',
 			dataset: { theme: this.root.theme ?? 'default' },
 		})
@@ -521,14 +523,14 @@ export class Folder {
 	}
 
 	toggle = () => {
-		// this.#log.fn('toggle').info()
+		this.#log.fn('toggle').debug()
 		clearTimeout(this.#disabledTimer)
 		if (this.#disabled) {
 			this.reset()
 			return
 		}
 
-		//? If the folder is being dragged, don't toggle.
+		// If the folder is being dragged, don't toggle.
 		if (this.element.classList.contains('fractils-dragged')) {
 			this.element.classList.remove('fractils-dragged')
 			return
@@ -543,7 +545,7 @@ export class Folder {
 	}
 
 	open(updateState = false) {
-		// this.#log.fn('open').info()
+		this.#log.fn('open').debug()
 		this.element.classList.remove('closed')
 		if (updateState) this.closed.set(false)
 		this.#disabled = false
@@ -552,7 +554,7 @@ export class Folder {
 	}
 
 	close(updateState = false) {
-		this.#log.fn('close').info()
+		this.#log.fn('close').debug()
 
 		this.element.classList.add('closed')
 		if (updateState) this.closed.set(true)
@@ -561,19 +563,19 @@ export class Folder {
 		this.#toggleAnimClass()
 	}
 
-	toggleVisibility() {
-		this.#log.fn('toggleVisibility').info()
+	toggleHidden() {
+		this.#log.fn('toggleHidden').debug()
 		this.element.classList.toggle('hidden')
 	}
 
 	hide() {
-		this.#log.fn('hide').info()
+		this.#log.fn('hide').debug()
 		this.element.classList.add('hidden')
 		// this.#hiddenFunction = typeof this.#hidden === 'function' ? this.#hidden : undefined
 	}
 
 	show() {
-		this.#log.fn('show').info()
+		this.#log.fn('show').debug()
 		this.element.classList.remove('hidden')
 		// this.#hiddenFunction = undefined
 	}
