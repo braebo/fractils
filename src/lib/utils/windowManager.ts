@@ -158,7 +158,7 @@ export class WindowManager {
 	}
 
 	#resolveOptions(options?: Partial<WindowManagerOptions>): WindowManagerOptions {
-		this.#log.fn('#resolveOptions').info(options)
+		this.#log.fn('#resolveOptions').debug(options)
 		const opts = deepMerge(WINDOWMANAGER_DEFAULTS, options) as WindowManagerOptions
 
 		opts.draggable = resolveOpts(options?.draggable, WINDOWMANAGER_DEFAULTS.draggable)
@@ -183,7 +183,7 @@ export class WindowManager {
 			}
 		}
 
-		this.#log.fn('#resolveOptions').info('resolved:', options)
+		this.#log.fn('#resolveOptions').debug('resolved:', options)
 
 		return opts
 	}
