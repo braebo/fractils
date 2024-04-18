@@ -25,6 +25,12 @@ export interface DebriefOptions {
 	 * @default 30
 	 */
 	trim?: number
+
+	/**
+	 * The max number of decimal places to round numbers to.
+	 * @default 3
+	 */
+	round?: number | false
 }
 
 /**
@@ -32,38 +38,25 @@ export interface DebriefOptions {
  */
 export function debrief<T>(
 	obj: unknown,
-	{ depth = 2, siblings = 4, preserveRootSiblings = false, trim = 30 }: DebriefOptions = {},
+	{
+		depth = 2,
+		siblings = 4,
+		preserveRootSiblings = false,
+		trim = 30,
+		round = 3,
+	}: DebriefOptions = {},
 ) {
 	function parse(o: unknown, d: number): unknown {
-		if (o === null) return o
-
-		const depthReached = d > depth
-
-		if (Array.isArray(o)) {
-			if (depthReached) return `[...${o.length} ${o.length === 1 ? 'item' : 'items'}]`
-			if (o.length <= siblings || d === 0) return o.map(s => parse(s, d + 1))
-			return [...o.slice(0, siblings).map(s => parse(s, d)), `...${o.length - siblings} more`]
+		if (o === null) {
+			return o
 		}
-
-		if (typeof o === 'object') {
-			const keyCount = Object.keys(o).length
-			if (depthReached) return `{...${keyCount} ${keyCount === 1 ? 'entry' : 'entries'}}`
-
-			if (keyCount <= siblings || (preserveRootSiblings && d === 0)) {
-				return Object.fromEntries(Object.entries(o).map(([k, v]) => [k, parse(v, d + 1)]))
-			}
-
-			return Object.fromEntries(
-				Object.entries(o)
-					.slice(0, siblings)
-					.concat([['...', `${keyCount - siblings} more`]])
-					.map(([k, v]) => [k, parse(v, d + 1)]),
-			)
-		}
-
-		if (['boolean', 'symbol', 'undefined'].includes(typeof o)) return o
 
 		switch (typeof o) {
+			case 'boolean':
+			case 'symbol':
+			case 'undefined': {
+				return o
+			}
 			case 'string': {
 				// Trim strings that are too long.
 				if (o.length < trim + 3) return o
@@ -72,10 +65,11 @@ export function debrief<T>(
 
 			case 'number': {
 				// Trim numbers that are too long.
-				if (o.toString().length > trim + 3) {
-					return +o.toFixed(trim)
+				const s = round ? o.toFixed(round) : o.toString()
+				if (s.length > trim + 3) {
+					return +s.slice(0, trim) + '...'
 				}
-				return o
+				return +s
 			}
 
 			case 'bigint': {
@@ -85,6 +79,39 @@ export function debrief<T>(
 
 			case 'function': {
 				return o.name
+			}
+
+			case 'object': {
+				const depthReached = d > depth
+
+				if (Array.isArray(o)) {
+					if (depthReached) return `[...${o.length} ${o.length === 1 ? 'item' : 'items'}]`
+					if (o.length <= siblings || d === 0) return o.map(s => parse(s, d + 1))
+
+					return [
+						...o.slice(0, siblings).map(s => parse(s, d)),
+						`...${o.length - siblings} more`,
+					]
+				}
+
+				const keyCount = Object.keys(o).length
+
+				if (depthReached) {
+					return `{...${keyCount} ${keyCount === 1 ? 'entry' : 'entries'}}`
+				}
+
+				if (keyCount <= siblings || (preserveRootSiblings && d === 0)) {
+					return Object.fromEntries(
+						Object.entries(o).map(([k, v]) => [k, parse(v, d + 1)]),
+					)
+				}
+
+				return Object.fromEntries(
+					Object.entries(o)
+						.slice(0, siblings)
+						.concat([['...', `${keyCount - siblings} more`]])
+						.map(([k, v]) => [k, parse(v, d + 1)]),
+				)
 			}
 		}
 
