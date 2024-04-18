@@ -55,6 +55,7 @@ export { l, n, r, g, lg, b, y, c, o, m, p, dim, bd, i, j } from './utils/l' // t
 export { coerce, coerceObject, type CoerceValue } from './utils/coerce' // todo
 export { asyncLocalStorageStore } from './utils/asyncLocalStorageStore'
 export { start, fmtTime, type StartOptions } from './utils/time' // todo
+export { debrief, type DebriefOptions } from './utils/debrief' // todo
 export { localStorageStore } from './utils/localStorageStore'
 export { ArgMap, mapArgs, resolveArg } from './utils/args' // todo
 export { stringify, serialize } from './utils/stringify' // todo
@@ -69,8 +70,8 @@ export { rgbToHex } from './utils/rgbToHex' // todo
 export { hexToRgb } from './utils/hexToRgb' // todo
 export { truncate } from './utils/truncate' // todo
 export { fontSize } from './utils/fontSize' // todo
-export { create } from './utils/create' // todo
 export { mapRange } from './utils/mapRange'
+export { create } from './utils/create' // todo
 export { defer } from './utils/defer' // todo
 export { clamp } from './utils/clamp'
 export { getPx } from './utils/getPx' // todo
