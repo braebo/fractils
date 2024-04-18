@@ -3,7 +3,7 @@ import type { resizable } from '../actions/resizable'
 import type { State } from '../utils/state'
 
 import { debounce } from '../utils/debounce'
-import { logger } from '../utils/logger'
+import { Logger, logger } from '../utils/logger'
 import { state } from '../utils/state'
 import { select } from './select'
 import { clamp } from './clamp'
@@ -26,12 +26,12 @@ export type Corner = 'top-left' | 'top-right' | 'bottom-right' | 'bottom-left'
 export interface ResizableOptions {
 	/**
 	 * To only allow resizing on certain sides, specify them here.
-	 * @default ['top', 'right', 'bottom', 'left']
+	 * @default ['right']
 	 */
 	sides: Side[]
 	/**
 	 * To only allow resizing on certain corners, specify them here.
-	 * @default ['top-left', 'top-right', 'bottom-right', 'bottom-left']
+	 * @default []
 	 */
 	corners: ('top-left' | 'top-right' | 'bottom-right' | 'bottom-left')[]
 	/**
@@ -91,7 +91,7 @@ export interface ResizableOptions {
 }
 
 export const RESIZABLE_DEFAULTS: ResizableOptions = {
-	sides: [],
+	sides: ['right'],
 	corners: [],
 	grabberSize: 6,
 	onResize: () => {},
@@ -168,7 +168,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 	#cleanupGrabListener: (() => void) | null = null
 	#cornerGrabberSize: number
 
-	#log: ReturnType<typeof logger>
+	#log: Logger
 
 	constructor(
 		public node: HTMLElement,
@@ -180,11 +180,11 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 		this.opts = opts
 
 		const label = this.localStorageKey ? gr(':' + this.localStorageKey) : ''
-		this.#log = logger('resizable' + label, {
+		this.#log = new Logger('resizable:' + label, {
 			fg: 'GreenYellow',
 			deferred: false,
 		})
-		this.#log(fn('constructor'), { opts, this: this })
+		this.#log.fn('constructor').info({ opts, this: this })
 
 		this.node.classList.add('fractils-resizable')
 
@@ -479,7 +479,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 		const y = clamp(e.clientY, bounds.top, bounds.top + bounds.height) - this.clickOffset.y
 
 		const { side } = this.#activeGrabber.dataset
-		this.#log(fn('onMove'), side)
+		this.#log.fn('onMove').debug(side)
 
 		switch (side) {
 			case 'top-left':
@@ -672,7 +672,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 		styleEl.innerHTML = css
 
 		document.head.appendChild(styleEl)
-		this.#log('Initialized global styles.')
+		this.#log.debug('Initialized global styles.')
 	}
 
 	dispose() {
