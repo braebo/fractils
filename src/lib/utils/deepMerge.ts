@@ -1,18 +1,14 @@
 /**
  * Deep merges objects together, with some special rules:
- * - Subsequent objects must be partials of the first object.
  * - Arrays are concatenated and de-duplicated.
  * - Objects are recursively merged.
- * - `true` is replaced by objects, but not `false`.
+ * - `false` is only replaced with `true`
  * - An object is never replaced with `true`, `false`, or `undefined`.
  * - The original objects are not mutated.
+ * - `undefined` is always overwritten.
+ * - `0` is accepted.
  */
-export function deepMerge<
-	// T extends {} = {},
-	// U extends Partial<T> | undefined = Partial<T> | undefined,
-	T,
-	U,
->(target: T, ...sources: U[]): T & U {
+export function deepMerge<T, U>(target: T, ...sources: U[]): T & U {
 	return sources.reduce<T & U>(
 		(acc, curr) => {
 			if (!curr) return acc
@@ -29,7 +25,7 @@ export function deepMerge<
 					if (newV !== true) {
 						if (newV && typeof newV === 'object') {
 							acc[k] = deepMerge({ ...v }, newV)
-						} else if (newV === false) {
+						} else if (newV || newV === false) {
 							acc[k] = newV
 						}
 					}
