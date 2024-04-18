@@ -3,7 +3,7 @@ import './gui.scss'
 import type { WindowManagerOptions } from '../utils/windowManager'
 import type { FolderElements, FolderOptions } from './Folder'
 import type { PrimitiveState, State } from '../utils/state'
-import type { Placement, PlacementOptions } from './place'
+import type { Placement, PlacementOptions } from '../dom/place'
 import type { ResizableOptions } from '../utils/resizable'
 import type { DraggableOptions } from '../utils/draggable'
 import type { ThemerOptions } from '../themer/Themer'
@@ -24,7 +24,7 @@ import { GUI_VARS } from './GUI_VARS'
 import { state } from '../utils/state'
 import { Folder } from './Folder'
 import { BROWSER } from 'esm-env'
-import { place } from './place'
+import { place } from '../dom/place'
 
 type GuiTheme = 'default' | 'minimal' | (string & {})
 
@@ -86,7 +86,7 @@ export interface GuiOptions extends Omit<FolderOptions, 'parentFolder'> {
 	parentFolder: undefined
 }
 
-export interface GuiPlacementOptions extends PlacementOptions {
+export type GuiPlacementOptions = PlacementOptions & {
 	/**
 	 * The position to place the gui.
 	 */

@@ -1,4 +1,4 @@
-import type { Placement, PlacementOptions, Vec2 } from './place'
+import type { Placement, PlacementOptions, Vec2 } from '../dom/place'
 
 import { describe, it, expect, beforeEach } from 'vitest'
 import { place_old } from './place_old'

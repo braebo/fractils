@@ -1,17 +1,10 @@
-import type { Vec2, PlacementOptions } from './place'
+import type { Vec2, PlacementOptions } from '../dom/place'
 
 type LeftRight = 'left' | 'right'
 type LRC = LeftRight | 'center'
 
 type TopBottom = 'top' | 'bottom'
 type TBC = TopBottom | 'center'
-
-type VirtualRect = Record<string, any> & {
-	x: number
-	y: number
-	width: number
-	height: number
-}
 
 /**
  * This was the original implementation of the place function before
@@ -23,12 +16,9 @@ type VirtualRect = Record<string, any> & {
 export function place_old(
 	node: HTMLElement,
 	placement = 'bottom-center',
-	options = {
-		bounds: undefined as VirtualRect | undefined,
-		margin: 10 as number | Vec2,
-	} as PlacementOptions,
+	options?: PlacementOptions,
 ) {
-	let { bounds, margin } = options
+	let { bounds = undefined, margin = 10 } = options || {}
 
 	const margins = { x: 0, y: 0 }
 
