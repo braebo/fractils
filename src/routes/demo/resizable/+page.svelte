@@ -11,7 +11,7 @@
 		{
 			title: 'Default',
 			style: ``,
-			defaultPosition: { x: 50, y: H / 5 / 2 },
+			position: { x: 50, y: H / 5 / 2 },
 		},
 		{
 			title: 'min-width',
@@ -20,7 +20,7 @@
 				min-width: 50px;
 				max-width: 250px;
 			`,
-			defaultPosition: { x: 50, y: (H / 5) * 2 },
+			position: { x: 50, y: (H / 5) * 2 },
 		},
 		{
 			title: 'inset',
@@ -28,7 +28,7 @@
 				position: fixed;
 				inset: 0;
 			`,
-			defaultPosition: { x: 50, y: (H / 5) * 2 },
+			position: { x: 50, y: (H / 5) * 2 },
 		},
 	]
 
@@ -38,7 +38,7 @@
 	}
 </script>
 
-{#each obstacles as { title, style, defaultPosition }}
+{#each obstacles as { title, style, position }}
 	<div
 		{style}
 		class="obstacle"
@@ -49,7 +49,7 @@
 		use:draggable={{
 			cancel: '.resize-grabber',
 			obstacles: ['.orbs-container'],
-			defaultPosition,
+			position,
 			...defaults,
 		}}
 	>
@@ -68,7 +68,7 @@
 	use:draggable={{
 		cancel: '.resize-grabber',
 		obstacles: ['.bounds', '.obstacle'],
-		defaultPosition: { x: W / 2 - 100, y: H / 2 - 100 },
+		position: { x: W / 2 - 100, y: H / 2 - 100 },
 	}}
 >
 	<div class="label">Free Orbs</div>
@@ -81,7 +81,7 @@
 	use:resizable
 	use:draggable={{
 		cancel: '.resize-grabber',
-		defaultPosition: { x: 50, y: H - 250 },
+		position: { x: 50, y: H - 250 },
 		...defaults,
 	}}
 >
@@ -98,7 +98,7 @@
 		use:draggable={{
 			bounds: '.bounds',
 			cancel: '.resize-grabber',
-			defaultPosition: { x: 25, y: 25 },
+			position: { x: 25, y: 25 },
 		}}
 	>
 		<div class="label">Draggable 0</div>
