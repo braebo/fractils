@@ -182,6 +182,7 @@
 	}
 
 	.delete {
+		z-index: 100;
 		all: unset;
 		position: absolute;
 		top: 0.4rem;
