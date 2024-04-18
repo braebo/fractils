@@ -1,7 +1,6 @@
 import type { Placement, PlacementOptions, Vec2 } from './place'
 
 import { describe, bench } from 'vitest'
-import { place_old } from '../gui/place_old'
 import { place } from './place'
 
 /**
@@ -49,14 +48,6 @@ const testOptions: { placement: Placement; options: PlacementOptions; expected: 
 
 describe('place', () => {
 	const node = document.createElement('div')
-
-	bench('place_old', () => {
-		for (const { placement } of testOptions) {
-			const result = place_old(node, placement)
-			result.x = Math.round(result.x)
-			result.y = Math.round(result.y)
-		}
-	})
 
 	bench('place', () => {
 		for (const { placement, options } of testOptions) {
