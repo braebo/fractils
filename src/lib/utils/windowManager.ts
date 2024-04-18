@@ -107,13 +107,16 @@ export class WindowManager {
 		const instanceOpts = this.#resolveOptions(options) as WindowInstanceOptions
 		this.#log.fn('add').info({ node, options, instanceOpts })
 
-		this.windows.push(new WindowInstance(this, node, instanceOpts))
+		const instance = new WindowInstance(this, node, instanceOpts)
+		this.windows.push(instance)
 
 		const id = this.#evm.listen(node, 'grab', this.select)
 
 		return {
 			destroy: () => {
+				this.windows = this.windows.filter(i => i !== instance)
 				this.#evm.unlisten(id)
+				instance.dispose()
 			},
 		}
 	}
@@ -197,7 +200,7 @@ export class WindowManager {
 	}
 }
 
-interface WindowInstanceOptions {
+export interface WindowInstanceOptions {
 	draggable: Partial<DraggableOptions> | boolean
 	resizable: Partial<ResizableOptions> | boolean
 	bounds?: WindowManagerOptions['bounds']
