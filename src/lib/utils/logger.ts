@@ -141,6 +141,7 @@ export class Logger {
 export const logger = (
 	title = 'LOG',
 	options?: {
+		// todo - Add a log level override option.
 		/**
 		 * Whether to use the styled logger or the regular console.log.
 		 * @defaultValue true

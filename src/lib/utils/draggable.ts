@@ -1,4 +1,5 @@
 import type { ElementsOrSelector, ElementsOrSelectors } from './select'
+import type { Placement, PlacementOptions } from '../dom/place'
 import type { Action } from 'svelte/action'
 
 import { cancelClassFound } from '../internal/cancelClassFound'
@@ -7,11 +8,17 @@ import { EventManager } from './EventManager'
 import { cubicOut } from 'svelte/easing'
 import { tweened } from 'svelte/motion'
 import { deepMerge } from './deepMerge'
+import { place } from '../dom/place'
 import { persist } from './persist'
 import { select } from './select'
 import { Logger } from './logger'
 import { clamp } from './clamp'
 import { DEV } from 'esm-env'
+
+// todo - remove once dev testing is done.
+import { stringify } from './stringify'
+import { highlight } from './highlight'
+import { debrief } from './debrief'
 
 /**
  * Represents a dom element's bounding rectangle.
@@ -21,6 +28,13 @@ export interface VirtualRect {
 	top: number
 	right: number
 	bottom: number
+}
+
+export type DraggablePlacementOptions = PlacementOptions & {
+	/**
+	 * The position to place the gui.
+	 */
+	position: Placement | { x: number; y: number }
 }
 
 /**
@@ -110,11 +124,17 @@ export type DraggableOptions = {
 	disabled: boolean
 
 	/**
-	 * Control the position manually with your own state. These parameters are reactive,
-	 * and will update the draggable element's position automagically upon reassignment.
+	 * The default position of the draggable element.
 	 * @default { x: 0, y: 0 }
 	 */
-	position?: { x: number; y: number }
+	position?: { x?: number; y?: number } | Placement
+
+	/**
+	 * If {@link position} is a {@link Placement} string, these
+	 * {@link PlacementOptions} will be used to calculate the position.
+	 * @default { margin: 0 }
+	 */
+	placementOptions: PlacementOptions
 
 	/**
 	 * An element or selector (or any combination of the two) for element(s) inside
@@ -162,12 +182,6 @@ export type DraggableOptions = {
 		 */
 		cancel: string
 	}
-
-	/**
-	 * Applies a base offset to the target element's default position.
-	 * @default { x: 0, y: 0 }
-	 */
-	defaultPosition: { x: number; y: number }
 
 	/**
 	 * Fires on `pointerdown` for the element / valid handle elements.
@@ -229,12 +243,13 @@ export const DRAG_DEFAULTS: DraggableOptions = {
 	userSelectNone: true,
 	ignoreMultitouch: false,
 	disabled: false,
-	// position: { x: 0, y: 0 },
+	position: { x: 0, y: 0 },
+	placementOptions: { margin: 0 },
 	cancel: undefined,
 	handle: undefined,
 	obstacles: undefined,
 	classes: DEFAULT_CLASSES,
-	defaultPosition: { x: 0, y: 0 },
+	// defaultPosition: { x: 0, y: 0 },
 	onDragStart: () => {},
 	onDrag: () => {},
 	onDragEnd: () => {},
@@ -372,25 +387,17 @@ export class Draggable {
 		options?: Partial<DraggableOptions>,
 	) {
 		this.opts = deepMerge(DRAG_DEFAULTS, options)
-		// todo - delete oldOpts and the error if all goes well.
-		// const oldOpts = {
-		// 	...DRAG_DEFAULTS,
-		// 	...options,
-		// 	defaultPosition: {
-		// 		...DRAG_DEFAULTS.defaultPosition,
-		// 		...options?.defaultPosition,
-		// 	},
-		// }
-		// if (JSON.stringify(oldOpts) !== JSON.stringify(this.opts)) {
-		// 	throw new Error('Deep merge failed')
-		// }
 
 		this.#log = new Logger('draggable:' + this.node.classList[0], {
 			fg: 'SkyBlue',
 			deferred: false,
 		})
-			.fn('constructor')
-			.info({ opts: this.opts, this: this })
+
+		this.#recomputeBounds = this.#resolveBounds(this.opts.bounds)
+
+		this.opts.position = this.resolvePosition(this.opts.position)
+
+		this.#log.fn('constructor').info({ opts: this.opts, this: this })
 
 		this.tween = tweened(
 			{ x: 0, y: 0 },
@@ -402,7 +409,7 @@ export class Draggable {
 
 		this.node.classList.add(this.opts.classes.default)
 
-		const startPosition = this.opts.position ?? this.opts.defaultPosition
+		const startPosition = this.opts.position as { x: number; y: number }
 
 		// Setup local storage if the key is provided.
 		if (this.opts.localStorageKey) {
@@ -424,7 +431,7 @@ export class Draggable {
 		this.cancelEls = select(this.opts.cancel, this.node)
 		this.obstacleEls = select(this.opts.obstacles)
 
-		this.#recomputeBounds = this.#resolveRecomputeBounds(this.opts.bounds)
+		// this.#recomputeBounds = this.#resolveRecomputeBounds(this.opts.bounds)
 		this.#recomputeBounds()
 
 		this.#evm.listen(this.node, 'pointerdown', this.dragStart)
@@ -437,7 +444,7 @@ export class Draggable {
 			}),
 		)
 
-		if (startPosition !== DRAG_DEFAULTS.defaultPosition) {
+		if (startPosition !== DRAG_DEFAULTS.position) {
 			this.moveTo(startPosition, 0)
 			this._position = { x: this.x, y: this.y }
 			// Update the virtual rect.
@@ -632,7 +639,6 @@ export class Draggable {
 
 		this.node.dispatchEvent(new CustomEvent('release'))
 
-		// todo - this is ghetto
 		setTimeout(() => this.node.classList.remove(this.opts.classes.dragged), 0)
 
 		this.#fireSvelteDragEndEvent()
@@ -667,8 +673,9 @@ export class Draggable {
 		if (DEV) {
 			const xdev = this.node.querySelector('.content') as HTMLElement
 			if (xdev) {
-				xdev.innerText = `this.rect: ${left} , ${top} , ${right}, ${bottom}\n
-			targetX: ${target.x}, targetY: ${target.y}\n`
+				highlight(stringify(debrief(this.rect, { round: 2 }), 2)).then(str => {
+					xdev.innerHTML = `${str.replaceAll(/"|{|}/g, '')}`
+				})
 			}
 		}
 	}
@@ -767,6 +774,12 @@ export class Draggable {
 		}
 	}
 
+	clearLocalStorage = () => {
+		if (this._storage) {
+			this.opts.localStorageKey
+		}
+	}
+
 	/**
 	 * Checks for collision with {@link obstacleEls obstacles} to determine the maximum distance
 	 * the draggable can move in the x direction.
@@ -838,7 +851,7 @@ export class Draggable {
 	 * Resolves the {@link DraggableOptions.bounds|bounds} and returns a
 	 * function that updates the {@link bounds} property when called.
 	 */
-	#resolveRecomputeBounds(opts: DraggableOptions['bounds']): () => void {
+	#resolveBounds(opts: DraggableOptions['bounds']): () => void {
 		if (opts === false) return () => void 0
 
 		// Check for a custom bounds rect.
@@ -883,6 +896,46 @@ export class Draggable {
 		this.#fireUpdateEvent()
 
 		return () => (this.bounds = node.getBoundingClientRect())
+	}
+
+	/**
+	 * Resolves a {@link DraggableOptions.position} option into an `{x,y}` vector
+	 * depending on its type:
+	 * - `undefined` -> {@link DRAG_DEFAULTS.position}
+	 * - {@link Placement} -> {@link place}
+	 * - `{x,y}` -> itself *(merged with {@link DRAG_DEFAULTS.position}*
+	 * if it's a partial.)
+	 */
+	resolvePosition(pos: DraggableOptions['position']) {
+		const defaultPos = DRAG_DEFAULTS.position as { x: number; y: number }
+
+		if (!pos) {
+			return defaultPos
+		}
+
+		if (typeof pos === 'string') {
+			const clone = this.node.cloneNode(true) as HTMLElement
+			clone.style.position = 'absolute'
+			clone.style.opacity = '0'
+			document.body.appendChild(clone)
+			const cloneRect = clone.getBoundingClientRect()
+			document.body.removeChild(clone)
+			return place(cloneRect, pos, {
+				bounds: this.boundsEl?.getBoundingClientRect(),
+				...this.opts.placementOptions,
+			})
+		}
+
+		if (typeof pos === 'object' && ('x' in pos || 'y' in pos)) {
+			return { ...defaultPos, ...pos }
+		}
+
+		throw new Error('Invalid position: ' + JSON.stringify(pos), {
+			cause: {
+				defaultPos,
+				pos,
+			},
+		})
 	}
 
 	#cancelElementContains = (dragElements: HTMLElement[]) => {
@@ -980,8 +1033,11 @@ export const draggable: Action<HTMLElement, Partial<DraggableOptions> | undefine
 			if (dragged) d.node.classList.add(d.opts.classes.default)
 
 			if (d.isControlled) {
-				d.x = options.position?.x ?? d.x
-				d.y = options.position?.y ?? d.y
+				if (options.position) {
+					const pos = d.resolvePosition(options.position)
+					d.x = pos.x
+					d.y = pos.y
+				}
 
 				d.moveTo({ x: d.x, y: d.y })
 			}
