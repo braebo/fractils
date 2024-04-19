@@ -77,9 +77,9 @@ export async function highlight(text: string, options?: Partial<HighlightOptions
 
 		log('loaded', lang)
 
-		if (!all.includes(lang)) {
-			throw new Error(`Unable to load language "${lang}"`)
-		}
+		// if (!all.includes(lang)) {
+		// 	throw new Error(`Unable to load language "${lang}"`)
+		// }
 	}
 
 	if (!themes.has(theme)) {
