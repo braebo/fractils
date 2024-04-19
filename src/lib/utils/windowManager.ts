@@ -7,7 +7,9 @@ import { resolveOpts } from '$lib/gui/shared/resolveOpts'
 import { EventManager } from './EventManager'
 import { deepMerge } from './deepMerge'
 import { Logger } from './logger'
+import { nanoid } from './nanoid'
 import { state } from './state'
+import { r } from './l'
 
 export interface WindowManagerOptions {
 	/**
@@ -110,12 +112,12 @@ export class WindowManager {
 		const instance = new WindowInstance(this, node, instanceOpts)
 		this.windows.push(instance)
 
-		const id = this.#evm.listen(node, 'grab', this.select)
+		const listenerId = this.#evm.listen(node, 'grab', this.select)
 
 		return {
 			destroy: () => {
 				this.windows = this.windows.filter(i => i !== instance)
-				this.#evm.unlisten(id)
+				this.#evm.unlisten(listenerId)
 				instance.dispose()
 			},
 		}
@@ -201,6 +203,7 @@ export class WindowManager {
 }
 
 export interface WindowInstanceOptions {
+	id?: string
 	draggable: Partial<DraggableOptions> | boolean
 	resizable: Partial<ResizableOptions> | boolean
 	bounds?: WindowManagerOptions['bounds']
@@ -211,10 +214,11 @@ export interface WindowInstanceOptions {
 /**
  * A single window in a window manager.
  */
-class WindowInstance {
+export class WindowInstance {
 	draggableInstance?: Draggable
 	resizableInstance?: Resizable
 
+	id: string
 	position = state({ x: 0, y: 0 })
 	size = state({ width: 0, height: 0 })
 
@@ -223,18 +227,28 @@ class WindowInstance {
 		public node: HTMLElement,
 		options: WindowInstanceOptions,
 	) {
-		if (options?.preserveZ) node.dataset['keepZ'] = 'true'
+		this.id = options.id || nanoid()
+		node.id ??= this.id
 
+		if (options?.preserveZ) {
+			node.dataset['keepZ'] = 'true'
+		}
+
+		const i = this.manager.windows.length
 		const dragOpts = resolveOpts(options.draggable, DRAG_DEFAULTS)
 		const resizeOpts = resolveOpts(options.resizable, RESIZABLE_DEFAULTS)
 
 		if (dragOpts) {
-			dragOpts.localStorageKey =
-				'window-manager::' + this.manager.windows.length + '::' + dragOpts.localStorageKey
+			if (dragOpts.localStorageKey) {
+				dragOpts.localStorageKey = `window-manager::${i}::draggable:${dragOpts.localStorageKey}`
+			}
 			this.draggableInstance = new Draggable(node, dragOpts)
 		}
 
 		if (resizeOpts) {
+			if (resizeOpts.localStorageKey) {
+				resizeOpts.localStorageKey = `window-manager::${i}::resizable:${resizeOpts.localStorageKey}`
+			}
 			this.resizableInstance = new Resizable(node, resizeOpts)
 		}
 	}
