@@ -55,11 +55,12 @@
 		font-size: var(--font-xs);
 		font-family: var(--font-b);
 
+		cursor: grab;
 		overflow: hidden;
 	}
 
 	.window-2 {
-		outline: 2px solid lightslategrey;
+		border: 2px solid lightslategrey;
 	}
 
 	.delete {

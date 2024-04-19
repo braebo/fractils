@@ -243,6 +243,12 @@ export class WindowInstance {
 				dragOpts.localStorageKey = `window-manager::${i}::draggable:${dragOpts.localStorageKey}`
 			}
 			this.draggableInstance = new Draggable(node, dragOpts)
+
+			// todo - remove once innerbox is fixed
+			if (this.id === 'innerbox') {
+				console.error(r('[debug]') + ' innerbox bounds', this.draggableInstance.bounds)
+				console.error(r('[debug]') + ' innerbox boundsEl', this.draggableInstance.boundsEl)
+			}
 		}
 
 		if (resizeOpts) {
