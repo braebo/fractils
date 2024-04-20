@@ -1,7 +1,9 @@
 import type { JavascriptStyleProperty } from '../css/types'
+import type { ElementsOrSelector } from '../utils/select'
 
 import { EventManager } from '../utils/EventManager'
 import { deepMerge } from '../utils/deepMerge'
+import { tickLoop } from '../utils/loopTick'
 import { trimCss } from '../utils/trimCss'
 import { entries } from '../utils/object'
 import { create } from '../utils/create'
@@ -16,11 +18,11 @@ export interface TooltipOptions {
 	/**
 	 * The text to display in the tooltip.  Can be a string, number, or a function that returns a string or number.
 	 */
-	text: string | number | (() => string | number)
+	text: string | (() => string)
 	/**
 	 * The placement of the tooltip relative to the element.  Can be `'top'`, `'bottom'`, `'left'`, or `'right'`.
 	 */
-	placement?: 'top' | 'bottom' | 'left' | 'right'
+	placement: 'top' | 'bottom' | 'left' | 'right'
 	/**
 	 * The element to which the tooltip is placed relative to.  Can be a selector,
 	 * an element, or the string literal `'mouse'` to use the pointer position.
@@ -31,51 +33,51 @@ export interface TooltipOptions {
 	 *
 	 * @example { x: 'mouse', y: undefined }
 	 */
-	anchor?: Anchor | Anchors
+	anchor: Anchor | Anchors
 	/**
 	 * Delay in milliseconds before the tooltip is shown.
 	 * @default 250
 	 */
-	delay?: number
+	delay: number
 	/**
 	 * Delay in milliseconds before the tooltip is hidden.
 	 * @default 0
 	 */
-	delayOut?: number
+	delayOut: number
 	/**
 	 * An optional x-axis offset (any valid css unit).
 	 * @default '0%'
 	 */
-	offsetX?: string
+	offsetX: string
 	/**
 	 * An optional y-axis offset (any valid css unit).
 	 * @default '0%'
 	 */
-	offsetY?: string
+	offsetY: string
 	/**
 	 * Custom style overrides for the tooltip element (all valid CSS properties are allowed).
 	 * @default { padding: '4px 8px', color: 'var(--fg-a, #fff)', backgroundColor: 'var(--bg-a, #000)', borderRadius: 'var(--radius-sm, 4px)', fontSize: 'var(--font-size-sm, 12px)', minWidth: '3rem', maxWidth: 'auto', minHeight: 'auto', maxHeight: 'auto', textAlign: 'center' }
 	 */
-	styles?: Partial<Record<JavascriptStyleProperty, string>>
+	styles: Partial<Record<JavascriptStyleProperty, string>>
 	/**
 	 * Animation in/out duration times / easing.
 	 */
-	animation?: {
+	animation: {
 		/**
 		 * The tooltip reveal animation duration in ms.
 		 * @default 300
 		 */
-		duration?: KeyframeAnimationOptions['duration']
+		duration: KeyframeAnimationOptions['duration']
 		/**
 		 * The tooltip hide animation duration in ms.
 		 * @default 150
 		 */
-		durationOut?: KeyframeAnimationOptions['duration']
+		durationOut: KeyframeAnimationOptions['duration']
 		/**
 		 * The tooltip reveal and hide animation easing.
 		 * @default 'cubic-bezier(0.23, 1, 0.320, 1)'
 		 */
-		easing?: KeyframeAnimationOptions['easing']
+		easing: KeyframeAnimationOptions['easing']
 	}
 	/**
 	 * If specified, the container element for the tooltip.
@@ -86,7 +88,7 @@ export interface TooltipOptions {
 	 * Hides the tooltip on click if `true`.
 	 * @default false
 	 */
-	hideOnClick?: boolean
+	hideOnClick: boolean
 }
 
 export const TOOLTIP_DEFAULTS: TooltipOptions = {
@@ -117,6 +119,14 @@ export const TOOLTIP_DEFAULTS: TooltipOptions = {
 	hideOnClick: false,
 }
 
+type TooltipOptionsParsed = Omit<
+	TooltipOptions,
+	'text' | 'container' | 'styles' | 'hideOnClick'
+> & {
+	text: string | number
+	container: Element | Document
+}
+
 export class Tooltip {
 	/** The node that the tooltip is attached to. */
 	node: HTMLElement
@@ -125,34 +135,29 @@ export class Tooltip {
 	/** Whether the tooltip is currently showing. */
 	showing = false
 
-	#placement: TooltipOptions['placement']
-	anchor: TooltipOptions['anchor']
-	delay: TooltipOptions['delay']
-	delayOut: TooltipOptions['delayOut']
-	offsetX: TooltipOptions['offsetX']
-	offsetY: TooltipOptions['offsetY']
-	animation: TooltipOptions['animation']
+	opts: TooltipOptions
 
+	#placement!: TooltipOptionsParsed['placement']
 	#animPositions!: { from: string; to: string }
+
 	#delayInTimer!: ReturnType<typeof setTimeout>
 	#delayOutTimer!: ReturnType<typeof setTimeout>
 
-	constructor(node: HTMLElement, options?: TooltipOptions) {
+	#evm = new EventManager()
+	/** removeEventListener callbacks for listeners with particularly short lifecycles. */
+	#tempListeners = new Set<() => void>()
+
+	constructor(node: HTMLElement, options?: Partial<TooltipOptions>) {
 		const opts = deepMerge(TOOLTIP_DEFAULTS, options)
+		this.opts = opts
 
 		this.node = node
 		this.placement = opts.placement
-		this.anchor = opts.anchor
-		this.delay = opts.delay
-		this.delayOut = opts.delayOut
-		this.offsetX = opts.offsetX
-		this.offsetY = opts.offsetY
-		this.animation = opts.animation
 
 		this.getText =
-			typeof opts.text === 'function'
-				? (opts.text as () => string | number)
-				: ((() => opts.text) as () => string | number)
+			typeof this.opts.text === 'function'
+				? (this.opts.text as () => string)
+				: ((() => this.opts.text) as () => string)
 
 		this.element = create('div', {
 			classes: ['fractils-tooltip'],
@@ -175,22 +180,28 @@ export class Tooltip {
 		}
 
 		this.#evm.listen(node, 'pointerenter', this.show)
-
 		this.#evm.listen(node, 'pointerleave', this.hide)
 		this.#evm.listen(node, 'pointermove', this.updatePosition)
-
 		this.#evm.listen(node, 'click', () => {
 			if (opts.hideOnClick) this.hide()
-			else this.text = this.getText()
+			else this.refresh()
 		})
 	}
 
-	getText: () => string | number
+	refresh() {
+		this.text = this.text
+		setTimeout(() => this.updatePosition(), 0)
+		this.#maybeWatchAnchor()
+	}
+
+	getText: () => string
+	/**
+	 * The text to display in the tooltip.  Assigning a new value will update the tooltip text.
+	 */
 	get text() {
 		return this.getText()
 	}
-	set text(text: string | number) {
-		this.getText = () => text
+	set text(text: string) {
 		this.element.innerText = String(text)
 	}
 
@@ -214,8 +225,6 @@ export class Tooltip {
 		}
 	}
 
-	#evm = new EventManager()
-
 	show = () => {
 		if (this.showing) return
 		clearTimeout(this.#delayInTimer)
@@ -229,12 +238,13 @@ export class Tooltip {
 					{ opacity: '1', transform: this.#animPositions.to },
 				],
 				{
-					duration: this.animation!.duration,
-					easing: this.animation!.easing,
+					duration: this.opts.animation!.duration,
+					easing: this.opts.animation!.easing,
 					fill: 'forwards',
 				},
 			)
-		}, this.delay)
+			this.#maybeWatchAnchor()
+		}, this.opts.delay)
 	}
 
 	hide = () => {
@@ -250,21 +260,31 @@ export class Tooltip {
 						{ opacity: '0', transform: this.#animPositions.from },
 					],
 					{
-						duration: this.animation!.durationOut,
-						easing: this.animation!.easing,
+						duration: this.opts.animation!.durationOut,
+						easing: this.opts.animation!.easing,
 						fill: 'forwards',
 					},
 				)
 			}
-		}, this.delayOut)
+		}, this.opts.delayOut)
 	}
 
-	updatePosition = (e: PointerEvent) => {
+	updatePosition = (e?: PointerEvent) => {
+		console.log('updatePosition()', new Error().stack)
+
 		const tooltipRect = this.element.getBoundingClientRect()
 
 		this.element.innerText = String(this.getText())
 
-		const anchor = this.getAnchorRects(e)
+		if (e?.type === 'pointermove') {
+			this.#mouse = {
+				x: e.clientX,
+				y: e.clientY,
+			}
+		}
+
+		// todo - can we safely "cache" the anchor?
+		const anchor = this.#getAnchorRects()
 
 		let left = 0
 		let top = 0
@@ -292,13 +312,13 @@ export class Tooltip {
 				break
 		}
 
-		this.element.style.left = `calc(${left}px + ${this.offsetX!})`
-		this.element.style.top = `calc(${top}px + ${this.offsetY!})`
+		this.element.style.left = `calc(${left}px + ${this.opts.offsetX!})`
+		this.element.style.top = `calc(${top}px + ${this.opts.offsetY!})`
 	}
 
-	getAnchorRects = (
-		e: PointerEvent,
-	): {
+	#mouse = { x: 0, y: 0 }
+
+	#getAnchorRects = (): {
 		x: AnchorRect
 		y: AnchorRect
 	} => {
@@ -315,8 +335,8 @@ export class Tooltip {
 						}
 						case 'mouse': {
 							return {
-								left: e.clientX + window.scrollX,
-								top: e.clientY + window.scrollY,
+								left: this.#mouse.x + window.scrollX,
+								top: this.#mouse.y + window.scrollY,
 								width: 0,
 								height: 0,
 							}
@@ -351,11 +371,11 @@ export class Tooltip {
 			}
 		}
 
-		const rect = getRect<'separate'>(this.anchor)
+		const rect = getRect<'separate'>(this.opts.anchor)
 
 		if (rect === 'separate') {
-			const x = getRect((this.anchor as Anchors).x)
-			const y = getRect((this.anchor as Anchors).y)
+			const x = getRect((this.opts.anchor as Anchors).x)
+			const y = getRect((this.opts.anchor as Anchors).y)
 
 			return { x, y }
 		}
@@ -363,7 +383,127 @@ export class Tooltip {
 		return { x: rect, y: rect }
 	}
 
+	/**
+	 * Determines if the tooltip should watch any anchors for movement.
+	 */
+	#maybeWatchAnchor = () => {
+		const maybeWatch = (el: ElementsOrSelector | null) => {
+			if (!el) return
+
+			const anchor =
+				el instanceof HTMLElement
+					? el
+					: this.node.querySelector(el) ?? document.querySelector(el)
+
+			const watchAnchor = () => {
+				if (anchor) {
+					this.#watch(anchor as HTMLElement)
+				}
+			}
+
+			if (anchor) {
+				anchor.removeEventListener('transitionrun', watchAnchor)
+				anchor.addEventListener('transitionrun', watchAnchor, { once: true })
+				this.#tempListeners.add(() =>
+					anchor.removeEventListener('transitionrun', watchAnchor),
+				)
+			}
+		}
+
+		const getAnchor = (anchor: Anchor) => {
+			if (anchor instanceof HTMLElement) {
+				return anchor as HTMLElement
+			} else if (typeof anchor === 'string') {
+				return anchor === 'node' ? this.node : anchor === 'mouse' ? null : anchor
+			}
+			return null
+		}
+
+		if (
+			this.opts.anchor &&
+			typeof this.opts.anchor === 'object' &&
+			'x' in this.opts.anchor &&
+			'y' in this.opts.anchor
+		) {
+			const anchorX = getAnchor(this.opts.anchor.x)
+			const anchorY = getAnchor(this.opts.anchor.y)
+
+			if (anchorX === anchorY) {
+				maybeWatch(anchorX)
+			} else {
+				maybeWatch(anchorX)
+				maybeWatch(anchorY)
+			}
+		} else {
+			maybeWatch(getAnchor(this.opts.anchor))
+		}
+	}
+
+	#watchingAnchor = false
+	#watchingFinished = false
+	#watchTimeout: ReturnType<typeof setTimeout> | undefined = undefined
+	/**
+	 * Keeps the tooltip position in sync with the anchor when an anchor's
+	 * transform is in transition while the tooltip is showing.
+	 * @todo - watch animation events too?
+	 */
+	#watch = (el: HTMLElement) => {
+		if (this.#watchingAnchor) {
+			return
+		}
+		this.#watchingFinished = false
+		this.#watchingAnchor = true
+
+		const complete = () => {
+			this.#watchingFinished = true
+			this.#watchingAnchor = false
+			this.element.style.transitionDuration = '0.1s'
+			el.removeEventListener('transitionend', timeout)
+		}
+
+		if (!this.showing) {
+			complete()
+			return
+		}
+
+		const timeout = () => {
+			if (this.#watchingFinished) return
+			complete()
+		}
+
+		clearTimeout(this.#watchTimeout)
+		this.#watchTimeout = setTimeout(() => {
+			if (!this.#watchingFinished) {
+				complete()
+			}
+		}, 500)
+
+		el.removeEventListener('transitionend', timeout)
+		el.addEventListener('transitionend', timeout)
+
+		if (!this.#watchingFinished) {
+			this.node.style.transitionDuration = '0s'
+
+			tickLoop(() => {
+				if (!this.#watchingFinished) {
+					this.updatePosition()
+				} else {
+					return true
+				}
+			})
+		}
+	}
+
 	dispose() {
+		if (this.#watchTimeout) {
+			clearTimeout(this.#watchTimeout)
+		}
+
+		for (const listener of this.#tempListeners) {
+			listener()
+		}
+		this.#tempListeners.clear()
+
 		this.#evm.dispose()
 		this.element.remove()
 	}
