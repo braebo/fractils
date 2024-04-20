@@ -33,6 +33,10 @@ export class EventManager {
 		return id
 	}
 
+	/**
+	 * Adds a listener to the event manager without attaching it to an element.
+	 * @param cb - The callback function to execute when the event is fired.
+	 */
 	add = (cb: () => void) => {
 		const id = nanoid()
 		this.listeners.set(id, cb)
