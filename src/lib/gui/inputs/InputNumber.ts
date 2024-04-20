@@ -95,14 +95,14 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 	}
 
 	enable = () => {
-		this.#log.fn('enable').info()
+		this.#log.fn('enable').debug()
 		this.disabled = false
 		this.elements.controllers.input.disabled = false
 		return this
 	}
 
 	disable = () => {
-		this.#log.fn('disable').info()
+		this.#log.fn('disable').debug()
 		this.disabled = true
 		this.elements.controllers.input.disabled = true
 		return this

@@ -1,11 +1,14 @@
 import type { ElementMap } from '../inputs/Input'
 
-import { create } from '$lib/utils/create'
-import { Logger } from '$lib/utils/logger'
+import { create } from '../../utils/create'
+import { Logger } from '../../utils/logger'
 import { Controller } from './Controller'
 import { toFn } from '../shared/toFn'
 
 export type ButtonClickFunction = () => void
+
+// todo - wtf is this??  All of this is already defined identically in `InputButton`...?
+// todo - this whole `controller` vs `input` thing needs to be nuked from orbit and rethought entirely.
 
 export type InputButtonOptions = {
 	title: string

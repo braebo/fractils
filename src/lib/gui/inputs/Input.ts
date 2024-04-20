@@ -1,12 +1,13 @@
 import type { InputButtonGrid, ButtonGridInputOptions, ButtonGrid } from './InputButtonGrid'
 import type { InputButton, InputButtonOptions, ButtonClickFunction } from './InputButton'
+import type { InputTextArea, TextAreaInputOptions } from './InputTextArea'
+import type { InputSwitch, SwitchInputOptions } from './InputSwitch'
 import type { InputSelect, SelectInputOptions } from './InputSelect'
 import type { InputNumber, NumberInputOptions } from './InputNumber'
 import type { ColorInputOptions, InputColor } from './InputColor'
-import type { ColorFormat } from '../../color/types/colorFormat'
-
-import type { InputTextArea, TextAreaInputOptions } from './InputTextArea'
 import type { InputText, TextInputOptions } from './InputText'
+
+import type { ColorFormat } from '../../color/types/colorFormat'
 import type { Option } from '../controllers/Select'
 import type { State } from '../../utils/state'
 import type { Color } from '../../color/color'
@@ -28,6 +29,7 @@ export const INPUT_TYPES = [
 	'Select',
 	'Button',
 	'ButtonGrid',
+	'Switch',
 ] as const
 
 export type BindTarget = Record<string, any>
@@ -82,6 +84,7 @@ export type ValidInputOptions =
 	| SelectInputOptions<Option<any>>
 	| InputButtonOptions
 	| ButtonGridInputOptions
+	| SwitchInputOptions
 
 export type ValidInput =
 	| InputText
@@ -91,6 +94,7 @@ export type ValidInput =
 	| InputSelect<Option<any>>
 	| InputButton
 	| InputButtonGrid
+	| InputSwitch
 //⌟
 
 export abstract class Input<
@@ -136,15 +140,15 @@ export abstract class Input<
 	 */
 	disposeCallbacks = new Set<() => void>()
 
-	#log: Logger
-	evm = new EventManager()
+	protected log: Logger
+	protected evm = new EventManager()
 
 	constructor(
 		options: TOptions,
 		public folder: Folder,
 	) {
 		this.#title = options.title
-		this.#log = new Logger('Input:' + this.#title, { fg: 'skyblue' })
+		this.log = new Logger('Input:' + this.#title, { fg: 'skyblue' })
 
 		this.elements.container = create('div', {
 			classes: ['fracgui-input-container'],
@@ -193,8 +197,7 @@ export abstract class Input<
 		this.elements.title.textContent = v
 	}
 
-	// todo - idr how this went, but should these be implemented here like in the `Controller` class
-	// todo - (as long as consumers don't forget to call super...)
+	// todo - the `Controller` class should die and its enable/disable methods moved here
 	abstract enable(): this
 	abstract disable(): this
 
@@ -219,29 +222,29 @@ export abstract class Input<
 
 	listen = this.evm.listen
 
-	#onChangeListeners = new Set<(newValue: TValueType, input: Input) => unknown>()
+	protected onChangeListeners = new Set<(newValue: TValueType, input: Input) => unknown>()
 	onChange(cb: (newValue: TValueType, input: Input) => unknown) {
-		this.#onChangeListeners.add(cb)
+		this.onChangeListeners.add(cb)
 		return () => {
-			this.#onChangeListeners.delete(cb)
+			this.onChangeListeners.delete(cb)
 		}
 	}
-	callOnChange(v = this.state.value) {
+	protected callOnChange(v = this.state.value) {
 		if (this.#firstUpdate) {
 			this.#firstUpdate = false
-			this.#log
+			this.log
 				.fn('callOnChange')
 				.debug('Skipping initial update (subscribers will not be notified).')
 			return
 		}
-		this.#log.fn('callOnChange', debrief(v, { depth: 1, siblings: 3 })).debug()
-		for (const cb of this.#onChangeListeners) {
+		this.log.fn('callOnChange', debrief(v, { depth: 1, siblings: 3 })).debug()
+		for (const cb of this.onChangeListeners) {
 			cb(v as TValueType, this)
 		}
 	}
 
 	dispose() {
-		this.#log.fn('dispose').info(this)
+		this.log.fn('dispose').info(this)
 		for (const listener of this.disposeCallbacks) {
 			listener()
 		}

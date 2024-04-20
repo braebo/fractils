@@ -2,6 +2,7 @@ import type { ElementMap, InputOptions, InputType, ValidInput } from './inputs/I
 import type { Option } from './controllers/Select'
 
 import { InputButtonGrid, type ButtonGridInputOptions } from './inputs/InputButtonGrid'
+import { InputSwitch, type SwitchInputOptions } from './inputs/InputSwitch'
 import { InputButton, type InputButtonOptions } from './inputs/InputButton'
 import { InputSelect, type SelectInputOptions } from './inputs/InputSelect'
 import { InputNumber, type NumberInputOptions } from './inputs/InputNumber'
@@ -395,6 +396,8 @@ export class Folder {
 		return folder
 	}
 
+	add(title: string, options: SwitchInputOptions): InputSwitch
+	add(options: SwitchInputOptions, never?: never): InputSwitch
 	add(title: string, options: NumberInputOptions): InputNumber
 	add(options: NumberInputOptions, never?: never): InputNumber
 	add(title: string, options: TextInputOptions): InputText
@@ -465,6 +468,13 @@ export class Folder {
 		return input
 	}
 
+	addSwitch(options: Partial<SwitchInputOptions>) {
+		const input = new InputSwitch(options, this)
+		this.controls.set(input.title, input)
+		this.#createIcon()
+		return input
+	}
+
 	#createInput(options: InputOptions) {
 		const type = this.resolveType(options)
 
@@ -479,6 +489,8 @@ export class Folder {
 				return new InputSelect(options as SelectInputOptions<Option<any>>, this)
 			case 'Button':
 				return new InputButton(options as InputButtonOptions, this)
+			case 'Switch':
+				return new InputSwitch(options as SwitchInputOptions, this)
 		}
 
 		throw new Error('Invalid input view: ' + options)
@@ -496,6 +508,10 @@ export class Folder {
 		}
 
 		switch (typeof value) {
+			case 'boolean':
+				// todo - We need some way to differentiate between a switch and a checkbox once the checkbox is added.
+				// if ((options as SwitchInputOptions).labels) return 'Switch'
+				return 'Switch'
 			case 'number':
 				return 'Number'
 			case 'string':

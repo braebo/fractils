@@ -3,24 +3,12 @@ import type { Params } from './+page.svelte'
 import { Gui } from '$lib/gui/Gui'
 
 export function demoGui(params: Params) {
-	// const container = document.getElementById('svelte')!
-
 	const gui = new Gui({
 		title: 'Orbs',
+		placement: 'center',
 		storage: {
 			key: 'fracgui',
 		},
-		// placement: {
-		// 	position: 'center',
-		// 	margin: 0,
-		// },
-		// windowManager: {
-		// 	draggable: {
-		// 		animation: {
-		// 			duration: 0,
-		// 		},
-		// 	},
-		// },
 	})
 
 	const f1 = gui.addFolder({ title: 'main' })
@@ -57,7 +45,7 @@ export function demoGui(params: Params) {
 		min: 10,
 		max: window.innerHeight,
 		step: 1,
-	// }).set(window.innerHeight / 2)
+		// }).set(window.innerHeight / 2)
 	})
 
 	const motionFolder = f1.addFolder({ title: 'motion' })
@@ -93,6 +81,14 @@ export function demoGui(params: Params) {
 		min: 1,
 		max: 3,
 		step: 0.001,
+	})
+
+	motionFolder.addSwitch({
+		title: 'modulate',
+		binding: {
+			target: params,
+			key: 'modulate',
+		},
 	})
 
 	const appearanceFolder = f1.addFolder({ title: 'appearance' })

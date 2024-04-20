@@ -8,6 +8,7 @@
 		size: 5,
 		a1: 0.1,
 		a2: 0.5,
+		modulate: true,
 		width: count * 10,
 		height: count * 10,
 		speed: 0.02,
