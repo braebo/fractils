@@ -3,10 +3,6 @@ import type { ThemeInput } from 'shiki'
 export default {
 	name: 'Serendipity Midnight',
 	type: 'dark',
-	// "colors": {
-	// 	"editor.background": "#0000",
-	// 	"editor.foreground": "#d4d4d4"
-	// },
 	bg: '#0000',
 	fg: '#d4d4d4',
 	settings: [
