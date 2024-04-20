@@ -78,26 +78,14 @@ export interface GuiOptions extends Omit<FolderOptions, 'parentFolder'> {
 	 * - `true` uses default options.
 	 */
 	windowManager: boolean | WindowManager | Partial<WindowManagerOptions>
-	placement?: boolean | GuiPlacementOptions
+	placement?: Placement
+	placementOptions?: Partial<PlacementOptions>
 	closed: boolean
 	/**
 	 * `parentFolder` should always be `undefined` for the root gui.
 	 */
 	parentFolder: undefined
 }
-
-export type GuiPlacementOptions = PlacementOptions & {
-	/**
-	 * The position to place the gui.
-	 */
-	position: Placement | { x: number; y: number }
-}
-
-export const GUI_PLACEMENT_DEFAULTS: GuiPlacementOptions = {
-	position: 'top-right',
-	bounds: 'window',
-	margin: 16,
-} as const
 
 export interface GuiStorageOptions {
 	/**
@@ -145,7 +133,11 @@ export const GUI_DEFAULTS: GuiOptions = {
 	},
 	storage: false,
 	closed: false,
-	placement: false,
+	placement: undefined,
+	placementOptions: {
+		margin: 0,
+		bounds: 'window',
+	},
 	theme: 'default',
 	hidden: false,
 	parentFolder: undefined,
@@ -169,7 +161,7 @@ export class Gui extends Folder {
 	wrapper!: HTMLElement
 
 	themer?: Themer
-	themeEditor?: ThemeEditor
+	// themeEditor?: ThemeEditor
 	settingsFolder: Folder
 
 	closed: PrimitiveState<boolean>
@@ -187,6 +179,32 @@ export class Gui extends Folder {
 		opts.storage = resolveOpts(opts.storage, GUI_STORAGE_DEFAULTS)
 		opts.container ??= document.body
 
+		// todo - Fucking kill me.  If there isn't a nice way to handle a "MaybeBoolOrObject" option, then fuck this altogether.
+		if (typeof opts.windowManager === 'object') {
+			if (!(opts.windowManager instanceof WindowManager)) {
+				if (typeof opts.windowManager.draggable === 'object') {
+					if (typeof opts.windowManager.draggable.position === 'string') {
+						if (opts.placement && typeof opts.placement === 'object') {
+							opts.placement = opts.windowManager.draggable.position
+						}
+					}
+				}
+			}
+		}
+
+		if (
+			// https://github.com/microsoft/TypeScript/issues/54825#issuecomment-1612948506
+			typeof ((opts.windowManager as WindowManagerOptions)?.draggable as DraggableOptions)
+				?.position === 'string' &&
+			// Don't overwrite placement if it's defined on the top-level.
+			!opts.placement
+		) {
+			// https://github.com/microsoft/TypeScript/issues/54825#issuecomment-1612948506
+			opts.placement = (
+				(opts.windowManager as WindowManagerOptions)?.draggable as DraggableOptions
+			)?.position as Placement
+		}
+
 		super(opts as any as FolderOptions, opts.container)
 
 		this.opts = opts
@@ -201,6 +219,7 @@ export class Gui extends Folder {
 			style: {
 				display: 'contents',
 			},
+			children: [this.element],
 		})
 		//⌟
 
@@ -228,12 +247,13 @@ export class Gui extends Folder {
 		})
 
 		this.closedMap.setKey(this.title, this.closed.value)
-		this.closedMap.subscribe(map => {
-			console.error('map:', map)
+		this.closedMap.subscribe(_map => {
+			// console.error('map:', map)
+			// this.closed.set(map.get(this.title) ?? false)
 		})
-		setTimeout(() => {
-			console.error('map:', this.closedMap.value.entries())
-		}, 10)
+		// setTimeout(() => {
+		// 	console.error('map:', this.closedMap.value.entries())
+		// }, 10)
 		//⌟
 
 		this.settingsFolder = this.#createSettingsFolder()
@@ -246,16 +266,16 @@ export class Gui extends Folder {
 
 		//! TODO - Uncomment this once beats is done.
 		if (this.themer) {
-			this.themeEditor = new ThemeEditor(this, {
-				title: 'Theme Editor',
-				themer: false, // Prevents infinite recursion.
-				windowManager: this.windowManager, // Recycling!
-				storage: {
-					// This is smelly.
-					key: storageOpts ? storageOpts.key : '',
-				},
-				// hidden: true,
-			})
+			// this.themeEditor = new ThemeEditor(this, {
+			// 	title: 'Theme Editor',
+			// 	themer: false, // Prevents infinite recursion.
+			// 	windowManager: this.windowManager, // Recycling!
+			// 	storage: {
+			// 		// This is smelly.
+			// 		key: storageOpts ? storageOpts.key : '',
+			// 	},
+			// 	// hidden: true,
+			// })
 		}
 		//⌟
 
@@ -265,52 +285,34 @@ export class Gui extends Folder {
 
 		// Wait until the gui is fully constructed before positioning it
 		// to make sure we can calculate the correct size and position.
-		// todo - This works great but feels ghetto. What's a better way
-		// todo - to do this... maybe debouncing in `add`?
 		Promise.resolve().then(() => {
-			Promise.resolve().then(() => {
-				// Append a non-animating, full-size clone to get the proper rect.
-				const ghost = this.element.cloneNode(true) as HTMLElement
+			// Append a non-animating, full-size clone to get the proper rect.
+			const ghost = this.wrapper.cloneNode(true) as HTMLElement
+			ghost.style.visibility = 'hidden'
+			this.container.prepend(ghost)
 
-				// todo - this is a hack
-				// document.querySelector('.page')?.prepend(ghost)
-				// todo - maybe this is better?
-				document.body.prepend(ghost)
+			// This is the only to get the correct future rect afaik.
+			const rect = ghost.children[0].getBoundingClientRect()
+			ghost.remove()
 
-				const rect = ghost.getBoundingClientRect()
-				ghost.remove()
-
-				Promise.resolve().then(() => {
-					// todo - This placement stuff should probably go into `Draggable`
-					const placementOpts = resolveOpts(opts.placement, GUI_PLACEMENT_DEFAULTS)
-
-					if (placementOpts) {
-						const { position: placement, margin } = placementOpts
-						const bounds =
-							placementOpts.bounds ?? this.container.getBoundingClientRect()
-
-						if (typeof placement === 'object') {
-							this.windowManager?.windows
-								.at(-1)
-								?.draggableInstance?.moveTo(placement, 0)
-						} else {
-							const placementPosition = place(rect, placement, {
-								bounds,
-								margin,
-							})
-							this.windowManager?.windows
-								.at(-1)
-								?.draggableInstance?.moveTo(placementPosition, 0)
-						}
-					}
-
-					this.wrapper.appendChild(this.element)
-					this.container.appendChild(this.wrapper)
-					this.element.animate([{ opacity: 0 }, { opacity: 1 }], {
-						fill: 'none',
-						duration: 400,
+			if (opts.placement && opts.placementOptions) {
+				if (typeof opts.placement === 'string') {
+					const placementPosition = place(rect, opts.placement, {
+						bounds: opts.placementOptions.bounds ?? this.container,
+						margin: opts.placementOptions.margin,
 					})
-				})
+
+					this.windowManager?.windows
+						.at(-1)
+						?.draggableInstance?.moveTo(placementPosition, 0)
+				}
+			}
+
+			// Now that we're in position and inputs are loaded, we can animate-in.
+			this.container.appendChild(this.wrapper)
+			this.element.animate([{ opacity: 0 }, { opacity: 1 }], {
+				fill: 'none',
+				duration: 400,
 			})
 		})
 		//⌟
@@ -402,7 +404,7 @@ export class Gui extends Folder {
 		if (options?.windowManager instanceof WindowManager) {
 			const windowManager = options.windowManager
 
-			windowManager.add(this.element, {
+			windowManager.add(this.wrapper, {
 				draggable: dragOpts,
 				resizable: resizeOpts,
 			})
@@ -431,7 +433,6 @@ export class Gui extends Folder {
 
 		const windowManager = new WindowManager({
 			...windowManagerOpts,
-			// todo - should these be deep merged?
 			draggable: dragOpts,
 			resizable: resizeOpts,
 		})
@@ -462,6 +463,7 @@ export class Gui extends Folder {
 			hidden: false,
 		})
 
+		// This settingsFolder styling feels so ghetto...
 		folder.elements.contentWrapper.style.setProperty(
 			`box-shadow`,
 			`0px 0px 10px 0px hsl(10deg, 0%, var(--${VAR_PREFIX}-shadow-lightness), inset`,
@@ -488,7 +490,7 @@ export class Gui extends Folder {
 
 		window.addEventListener
 		this.themer?.dispose()
-		this.themeEditor?.dispose()
+		// this.themeEditor?.dispose()
 		this.windowManager?.dispose?.()
 		for (const window of this.windowManager?.windows ?? []) {
 			window
