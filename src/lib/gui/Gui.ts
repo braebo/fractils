@@ -14,8 +14,8 @@ import { WindowManager, WINDOWMANAGER_DEFAULTS } from '../utils/windowManager'
 import { RESIZABLE_DEFAULTS } from '../utils/resizable'
 import { resolveOpts } from './shared/resolveOpts'
 import { DRAG_DEFAULTS } from '../utils/draggable'
+// import { ThemeEditor } from '../themer/Themer'
 import { deepMerge } from '../utils/deepMerge'
-import { ThemeEditor } from '../themer/Themer'
 import { Themer } from '../themer/Themer'
 import { VAR_PREFIX } from './GUI_VARS'
 import { Logger } from '../utils/logger'
@@ -39,7 +39,7 @@ export interface GuiElements extends FolderElements {
  *!	Refactor options into two separate properties, i.e.:
  *!		windowManager: boolean | Partial<GuiStorageOptions>
  *!			👇
- *!		windowManager?: false
+ *!		windowManager?: false | WindowManager
  *!		windowManagerOptions?: Partial<WindowManagerOptions>
  */
 export interface GuiOptions extends Omit<FolderOptions, 'parentFolder'> {
@@ -178,32 +178,11 @@ export class Gui extends Folder {
 		// Resolve storage separately since GUI_DEFAULTS.storage is `false`.
 		opts.storage = resolveOpts(opts.storage, GUI_STORAGE_DEFAULTS)
 		opts.container ??= document.body
-
-		// todo - Fucking kill me.  If there isn't a nice way to handle a "MaybeBoolOrObject" option, then fuck this altogether.
-		if (typeof opts.windowManager === 'object') {
-			if (!(opts.windowManager instanceof WindowManager)) {
-				if (typeof opts.windowManager.draggable === 'object') {
-					if (typeof opts.windowManager.draggable.position === 'string') {
-						if (opts.placement && typeof opts.placement === 'object') {
-							opts.placement = opts.windowManager.draggable.position
-						}
-					}
-				}
-			}
-		}
-
-		if (
+		opts.placement =
+			opts.placement ??
 			// https://github.com/microsoft/TypeScript/issues/54825#issuecomment-1612948506
-			typeof ((opts.windowManager as WindowManagerOptions)?.draggable as DraggableOptions)
-				?.position === 'string' &&
-			// Don't overwrite placement if it's defined on the top-level.
-			!opts.placement
-		) {
-			// https://github.com/microsoft/TypeScript/issues/54825#issuecomment-1612948506
-			opts.placement = (
-				(opts.windowManager as WindowManagerOptions)?.draggable as DraggableOptions
-			)?.position as Placement
-		}
+			(((opts.windowManager as WindowManagerOptions)?.draggable as DraggableOptions)
+				?.position as Placement)
 
 		super(opts as any as FolderOptions, opts.container)
 
