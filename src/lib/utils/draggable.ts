@@ -947,13 +947,7 @@ export class Draggable {
 		}
 
 		if (typeof pos === 'string') {
-			const clone = this.node.cloneNode(true) as HTMLElement
-			clone.style.position = 'absolute'
-			clone.style.opacity = '0'
-			document.body.appendChild(clone)
-			const cloneRect = clone.getBoundingClientRect()
-			document.body.removeChild(clone)
-			return place(cloneRect, pos, {
+			return place(this.node, pos, {
 				bounds: this.boundsEl?.getBoundingClientRect(),
 				...this.opts.placementOptions,
 			})
