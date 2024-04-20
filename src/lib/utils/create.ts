@@ -22,7 +22,7 @@ export type CreateOptions<
 	type?: string
 	attributes?: Record<string, string>
 	value?: string
-	tooltip?: TooltipOptions
+	tooltip?: Partial<TooltipOptions>
 	innerHtml?: string
 	children?: HTMLElement[]
 	min?: number
@@ -37,7 +37,7 @@ export function create<
 >(
 	tagname: K,
 	options?: TOptions,
-): TOptions extends { tooltip: TooltipOptions } ? TElement & { tooltip: Tooltip } : TElement {
+): TOptions extends { tooltip: Partial<TooltipOptions> } ? TElement & { tooltip: Tooltip } : TElement {
 	const el = globalThis?.document?.createElement(tagname)
 
 	if (options) {
@@ -94,7 +94,7 @@ export function create<
 		}
 	}
 
-	return el as TOptions extends { tooltip: TooltipOptions }
+	return el as TOptions extends { tooltip: Partial<TooltipOptions> }
 		? TElement & { tooltip: Tooltip }
 		: TElement
 }
