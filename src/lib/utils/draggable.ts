@@ -451,14 +451,14 @@ export class Draggable {
 		)
 
 		if (startPosition !== DRAG_DEFAULTS.position) {
-			this.#recomputeBounds()
-
-			this.moveTo(startPosition, 0)
-			this._position = { x: this.x, y: this.y }
-			// Update the virtual rect.
+			// Init the virtual rect for updateBounds
 			const { top, right, bottom, left } = this.node.getBoundingClientRect()
 			this.rect = { top, right, bottom, left }
+
+			this.#recomputeBounds()
 			this.#updateBounds()
+			this.moveTo(startPosition, 0)
+			this._position = { x: this.x, y: this.y }
 		}
 	}
 
@@ -673,7 +673,6 @@ export class Draggable {
 		if (this.boundsEl) {
 			const { paddingLeft, paddingRight, paddingTop, paddingBottom } =
 				window.getComputedStyle(this.boundsEl)
-
 			this.#leftBound -= parseFloat(paddingLeft)
 			this.#rightBound -= parseFloat(paddingRight)
 			this.#topBound -= parseFloat(paddingTop)
