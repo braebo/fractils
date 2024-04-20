@@ -9,6 +9,7 @@
 		size: 5,
 		a1: 0.1,
 		a2: 0.5,
+		modulate: true,
 		width: count * 10,
 		height: count * 10,
 		speed: 0.02,
@@ -24,16 +25,14 @@
 	const a2t = tweened(params.a2, { duration: 500 })
 
 	$: time = 1
-	$: snake = circle()
+	// $: snake = circle()
+	let snake = circle()
 	function circle() {
-		let arr = [] as number[][]
+		let arr: number[][] = []
 		for (let i = 0; i < params.orbs; i++) {
-			arr = [
-				...arr,
-				[
-					(Math.sin((i / Math.PI) * $a1t - time) / Math.PI) * params.width + params.mid,
-					(Math.cos((i / Math.PI) * $a2t - time) / Math.PI) * params.height + params.mid,
-				],
+			arr[i] = [
+				(Math.sin((i / Math.PI) * $a1t - time) / Math.PI) * params.width + params.mid,
+				(Math.cos((i / Math.PI) * $a2t - time) / Math.PI) * params.height + params.mid,
 			]
 		}
 		return arr
@@ -41,8 +40,8 @@
 
 	function animate() {
 		requestAnimationFrame(() => {
-			$a1t = params.a1
-			$a2t = params.a2
+			$a1t = params.a1 * (!params.modulate ? 1 : 0.5 + Math.sin(time) / 2)
+			$a2t = params.a2 * (!params.modulate ? 1 : 0.5 + Math.cos(time) / 2)
 			requestAnimationFrame(() => {
 				time += params.speed / 10
 				snake = circle()
