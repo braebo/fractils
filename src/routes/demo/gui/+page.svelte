@@ -33,7 +33,7 @@
 	let gui: Gui
 
 	onMount(() => {
-		const gui = demoGui(params)
+		gui = demoGui(params)
 
 		return () => {
 			gui.dispose()
@@ -43,6 +43,7 @@
 
 <div class="page">
 	<button on:click={() => console.log(gui)}>Log Gui</button>
+	<button on:click={() => localStorage.clear()}>Clear localStorage</button>
 
 	<div class="orbs">
 		<Orbs bind:params />
