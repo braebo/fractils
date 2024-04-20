@@ -43,7 +43,7 @@ export class InputTextArea extends Input<string, TextAreaInputOptions, TextAreaC
 			this.initialValue = opts.binding.target[opts.binding.key]
 			this.state = state(this.initialValue)
 
-			this.disposeCallbacks.add(
+			this.evm.add(
 				this.state.subscribe(v => {
 					opts.binding!.target[opts.binding!.key] = v
 				}),
@@ -63,9 +63,9 @@ export class InputTextArea extends Input<string, TextAreaInputOptions, TextAreaC
 			input: textareaController(this, opts, container),
 		} as const satisfies TextAreaControllerElements
 
-		this.listen(this.elements.controllers.input, 'input', this.set)
+		this.evm.listen(this.elements.controllers.input, 'input', this.set)
 
-		this.disposeCallbacks.add(this.state.subscribe(this.refresh))
+		this.evm.add(this.state.subscribe(this.refresh))
 	}
 
 	enable() {

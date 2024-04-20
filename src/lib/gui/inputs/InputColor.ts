@@ -94,7 +94,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 			this.initialValue = new Color(opts.binding.target[opts.binding.key])
 			this.state = state(this.initialValue)
 
-			this.disposeCallbacks.add(
+			this.evm.add(
 				this.state.subscribe(v => {
 					opts.binding!.target[opts.binding!.key] = v
 				}),
@@ -206,7 +206,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 			classes: ['fracgui-input-color-current-color-display'],
 			parent: displayBackground,
 		})
-		this.listen(display, 'click', this.togglePicker)
+		this.evm.listen(display, 'click', this.togglePicker)
 
 		const copyButton = new CopyButton(
 			container,

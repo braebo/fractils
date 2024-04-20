@@ -137,7 +137,7 @@ export abstract class Input<
 	disposeCallbacks = new Set<() => void>()
 
 	#log: Logger
-	#evm = new EventManager()
+	evm = new EventManager()
 
 	constructor(
 		options: TOptions,
@@ -172,7 +172,7 @@ export abstract class Input<
 			parent: this.elements.content,
 		})
 
-		this.#evm.listen(this.elements.drawerToggle, 'click', () => {})
+		this.evm.listen(this.elements.drawerToggle, 'click', () => {})
 
 		if (options.onChange) {
 			this.onChange(options.onChange)
@@ -217,7 +217,7 @@ export abstract class Input<
 		this.callOnChange(newValue)
 	}
 
-	listen = this.#evm.listen
+	listen = this.evm.listen
 
 	#onChangeListeners = new Set<(newValue: TValueType, input: Input) => unknown>()
 	onChange(cb: (newValue: TValueType, input: Input) => unknown) {

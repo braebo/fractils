@@ -52,7 +52,7 @@ export class InputButton extends Input<
 			this.initialValue = opts.binding.target[opts.binding.key]
 			// this.state = state(this.initialValue)
 
-			this.disposeCallbacks.add(
+			this.evm.add(
 				this.state.subscribe(v => {
 					opts.binding!.target[opts.binding!.key] = v
 				}),
@@ -76,9 +76,9 @@ export class InputButton extends Input<
 			button: this.button.elements.button,
 		} as const satisfies ButtonControllerElements
 
-		this.listen(this.elements.controllers.button, 'click', this.click)
+		this.evm.listen(this.elements.controllers.button, 'click', this.click)
 
-		this.disposeCallbacks.add(this.state.subscribe(this.refresh.bind(this)))
+		this.evm.add(this.state.subscribe(this.refresh.bind(this)))
 	}
 
 	get text() {

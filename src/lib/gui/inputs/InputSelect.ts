@@ -97,7 +97,7 @@ export class InputSelect<T> extends Input<
 		} as const satisfies SelectControllerElements<T>
 
 		if (this.bound) {
-			this.disposeCallbacks.add(
+			this.evm.add(
 				this.state.subscribe(v => {
 					if (!this.select.bubble) return
 
@@ -115,7 +115,7 @@ export class InputSelect<T> extends Input<
 			)
 		} else {
 			// Bind to the target if it's not already a State object.
-			this.disposeCallbacks.add(
+			this.evm.add(
 				this.state.subscribe(v => {
 					this.#log.fn('$state').debug({ v, this: this })
 

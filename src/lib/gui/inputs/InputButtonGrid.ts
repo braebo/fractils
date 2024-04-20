@@ -110,7 +110,7 @@ export class InputButtonGrid extends Input<
 			this.initialValue = opts.binding.target[opts.binding.key]
 			// this.state = state(this.initialValue)
 
-			this.disposeCallbacks.add(
+			this.evm.add(
 				this.state.subscribe(v => {
 					opts.binding!.target[opts.binding!.key] = v
 				}),
@@ -129,7 +129,7 @@ export class InputButtonGrid extends Input<
 			buttonGrid: [],
 		} as const satisfies ButtonGridControllerElements
 
-		this.disposeCallbacks.add(this.state.subscribe(this.refresh.bind(this)))
+		this.evm.add(this.state.subscribe(this.refresh.bind(this)))
 
 		this.toGrid(this.buttonGrid)
 
@@ -200,7 +200,7 @@ export class InputButtonGrid extends Input<
 			...btn,
 		})
 
-		this.listen(button, 'click', () => {
+		this.evm.listen(button, 'click', () => {
 			onClick({ input: this, text, button })
 			this.refresh()
 		})
