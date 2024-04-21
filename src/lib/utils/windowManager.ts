@@ -9,7 +9,6 @@ import { deepMerge } from './deepMerge'
 import { Logger } from './logger'
 import { nanoid } from './nanoid'
 import { state } from './state'
-import { r } from './l'
 
 export interface WindowManagerOptions {
 	/**
@@ -243,12 +242,6 @@ export class WindowInstance {
 				dragOpts.localStorageKey = `window-manager::${i}::draggable:${dragOpts.localStorageKey}`
 			}
 			this.draggableInstance = new Draggable(node, dragOpts)
-
-			// todo - remove once innerbox is fixed
-			if (this.id === 'innerbox') {
-				console.error(r('[debug]') + ' innerbox bounds', this.draggableInstance.bounds)
-				console.error(r('[debug]') + ' innerbox boundsEl', this.draggableInstance.boundsEl)
-			}
 		}
 
 		if (resizeOpts) {
