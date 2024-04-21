@@ -99,13 +99,14 @@ export type ValidInput =
 
 export abstract class Input<
 	TValueType extends ValidInputValue = ValidInputValue,
-	TOptions extends InputOptions = InputOptions,
+	TOptions extends ValidInputOptions = InputOptions,
 	TElements extends ElementMap = ElementMap,
 > {
 	declare type: Readonly<InputType>
 	declare state: State<TValueType>
 	declare initialValue: ValidInputValue
-	declare opts: ValidInputOptions
+	// declare opts: ValidInputOptions
+	declare opts: TOptions
 
 	/**
 	 * Whether the input was initialized with a bind target/key.
@@ -178,8 +179,8 @@ export abstract class Input<
 
 		this.evm.listen(this.elements.drawerToggle, 'click', () => {})
 
-		if (options.onChange) {
-			this.onChange(options.onChange)
+		if ('onChange' in options) {
+			this.onChange(options.onChange as (value: TValueType) => void)
 		}
 
 		// this.#log.groupCollapsed().fn('constructor').info({ opts: options, this: this })
