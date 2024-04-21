@@ -223,7 +223,8 @@ export class Folder {
 	#skip_header_click_if_drag = (event: PointerEvent) => {
 		if (event.button !== 0) return
 
-		this.element.addEventListener('pointerup', this.toggle, { once: true })
+		this.element.removeEventListener('pointerup', this.toggle.bind(this))
+		this.element.addEventListener('pointerup', this.toggle.bind(this), { once: true })
 
 		// todo - Figure out why `stopPropagation` doesn't work so we don't need this.
 		if (cancelClassFound(event)) return this.disable()
@@ -233,12 +234,15 @@ export class Folder {
 		clearTimeout(this.#disabledTimer)
 		// First we delay the drag check to allow for messy clicks.
 		this.#disabledTimer = setTimeout(() => {
-			this.elements.header.addEventListener('pointermove', this.disable, { once: true })
+			this.elements.header.removeEventListener('pointermove', this.disable.bind(this))
+			this.elements.header.addEventListener('pointermove', this.disable.bind(this), {
+				once: true,
+			})
 
 			// Then we set a timer to disable the drag check.
 			this.#disabledTimer = setTimeout(() => {
-				this.elements.header.removeEventListener('pointermove', this.disable)
-				this.element.removeEventListener('pointerup', this.toggle)
+				this.elements.header.removeEventListener('pointermove', this.disable.bind(this))
+				this.element.removeEventListener('pointerup', this.toggle.bind(this))
 				this.#disabled = false
 			}, this.#clickTime)
 		}, 150)
@@ -246,7 +250,7 @@ export class Folder {
 		if (this.#disabled) return
 	}
 
-	disable = () => {
+	disable() {
 		if (!this.#disabled) {
 			this.#disabled = true
 			this.#log.fn('disable').debug('Clicks DISABLED')
@@ -261,7 +265,7 @@ export class Folder {
 		this.#disabled = false
 	}
 
-	#createElements(el?: HTMLElement) {
+	#createElements(el?: HTMLElement): { element: HTMLElement; elements: FolderElements } {
 		const element =
 			el ??
 			create('div', {
@@ -526,7 +530,7 @@ export class Folder {
 		return this.isRoot
 	}
 
-	toggle = () => {
+	toggle() {
 		this.#log.fn('toggle').debug()
 		clearTimeout(this.#disabledTimer)
 		if (this.#disabled) {
