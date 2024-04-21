@@ -119,17 +119,7 @@ export const TOOLTIP_DEFAULTS: TooltipOptions = {
 	hideOnClick: false,
 }
 
-type TooltipOptionsParsed = Omit<
-	TooltipOptions,
-	'text' | 'container' | 'styles' | 'hideOnClick'
-> & {
-	text: string | number
-	container: Element | Document
-}
-
 export class Tooltip {
-	/** The node that the tooltip is attached to. */
-	node: HTMLElement
 	/** The tooltip element itself. */
 	element: HTMLDivElement
 	/** Whether the tooltip is currently showing. */
@@ -137,7 +127,7 @@ export class Tooltip {
 
 	opts: TooltipOptions
 
-	#placement!: TooltipOptionsParsed['placement']
+	#placement!: TooltipOptions['placement']
 	#animPositions!: { from: string; to: string }
 
 	#delayInTimer!: ReturnType<typeof setTimeout>
@@ -147,11 +137,14 @@ export class Tooltip {
 	/** removeEventListener callbacks for listeners with particularly short lifecycles. */
 	#tempListeners = new Set<() => void>()
 
-	constructor(node: HTMLElement, options?: Partial<TooltipOptions>) {
+	constructor(
+		/** The node that the tooltip is attached to. */
+		public node: HTMLElement,
+		options?: Partial<TooltipOptions>,
+	) {
 		const opts = deepMerge(TOOLTIP_DEFAULTS, options)
 		this.opts = opts
 
-		this.node = node
 		this.placement = opts.placement
 
 		this.getText =
@@ -508,12 +501,36 @@ export class Tooltip {
 	}
 }
 
+/**
+ * A wrapper function that creates a new {@link Tooltip} instance and returns
+ * an object with `update` and `destroy` methods for svelte-action compatibility.
+ *
+ * @example Vanilla
+ * ```js
+ * import { tooltip } from 'lib/actions/tooltip'
+ *
+ * const el = document.querySelector('div')
+ * const tip = tooltip(el, { text: 'Hello, world!', placement: 'top' })
+ * ```
+ *
+ * @example Svelte
+ * ```svelte
+ * <script>
+ * 	import { tooltip } from 'lib/actions/tooltip'
+ * </script>
+ *
+ * <div use:tooltip={{ text: 'Hello, world!', placement: 'top' }}>
+ * 	Hover me!
+ * </div>
+ * ```
+ */
 export const tooltip = (node: HTMLElement, options?: TooltipOptions) => {
 	const tt = new Tooltip(node, options)
 
 	return {
 		update(opts: TooltipOptions) {
-			Object.assign(tt, opts)
+			// todo - We're not actually triggering any updates here...
+			Object.assign(tt.opts, opts)
 		},
 		destroy() {
 			tt.dispose()
