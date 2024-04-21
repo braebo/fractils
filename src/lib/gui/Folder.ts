@@ -87,16 +87,6 @@ export class Folder {
 	element: HTMLElement
 	elements = {} as FolderElements
 
-	// /** global css variables */
-	// vars = {
-	// 	get: (key: string) => {
-	// 		return getComputedStyle(this.root.element).getPropertyValue(key)
-	// 	},
-	// 	set: (key: string, value: string) => {
-	// 		this.root.element.style.setProperty(key, value)
-	// 	},
-	// }
-
 	#subs: Array<() => void> = []
 	#log: Logger
 	#folderIcon?: HTMLElement
@@ -276,9 +266,7 @@ export class Folder {
 			el ??
 			create('div', {
 				parent: this.parentFolder.elements.content,
-				//! classes: ['fracgui-folder'],
 				classes: ['fracgui-folder', 'closed'],
-				// dataset: { id: this.id },
 			})
 
 		if (!element) throw new Error('Failed to create element.')
