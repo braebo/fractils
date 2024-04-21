@@ -248,5 +248,16 @@ export abstract class Input<
 		for (const listener of this.disposeCallbacks) {
 			listener()
 		}
+
+		const rm = (elOrObj: any) => {
+			if (elOrObj instanceof HTMLElement) {
+				elOrObj.remove()
+			} else if (typeof elOrObj === 'object') {
+				for (const k in elOrObj) {
+					rm(elOrObj[k])
+				}
+			}
+		}
+		rm(this.elements)
 	}
 }
