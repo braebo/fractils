@@ -2,7 +2,6 @@ import type { ElementMap, InputOptions } from './Input'
 import type { Tooltip } from '../../actions/tooltip'
 import type { Folder } from '../Folder'
 
-// import { switchController } from '../controllers/switch'
 import { Logger } from '../../utils/logger'
 import { create } from '../../utils/create'
 import { state } from '../../utils/state'
@@ -16,7 +15,7 @@ export type SwitchInputOptions = {
 		true: {
 			/**
 			 * Represents the `true` state, i.e. `'on' | 'active' | 'enabled'`
-			 * @default 'On'
+			 * @default 'on'
 			 */
 			state?: string
 			/**
@@ -30,7 +29,7 @@ export type SwitchInputOptions = {
 		false: {
 			/**
 			 * Represents the `false` state, i.e. `'off' | 'inactive' | 'disabled'`
-			 * @default 'Off'
+			 * @default 'off'
 			 */
 			state?: string
 			/**
@@ -48,11 +47,11 @@ export const SWITCH_INPUT_DEFAULTS: SwitchInputOptions = {
 	value: true,
 	labels: {
 		true: {
-			state: 'On',
+			state: 'on',
 			verb: 'Enable',
 		},
 		false: {
-			state: 'Off',
+			state: 'off',
 			verb: 'Disable',
 		},
 	},
@@ -62,6 +61,7 @@ export interface SwitchInputElements extends ElementMap {
 	container: HTMLElement
 	input: HTMLButtonElement & { tooltip: Tooltip }
 	thumb: HTMLDivElement
+	stateText: HTMLDivElement
 }
 
 export class InputSwitch extends Input<boolean, SwitchInputOptions, SwitchInputElements> {
@@ -92,9 +92,6 @@ export class InputSwitch extends Input<boolean, SwitchInputOptions, SwitchInputE
 			this.state = state(!!opts.value!)
 		}
 
-		// console.log(this.state)
-		// console.log(this.state.value)
-
 		//- Container
 		const container = create('div', {
 			classes: ['fracgui-input-switch-container'],
@@ -108,22 +105,33 @@ export class InputSwitch extends Input<boolean, SwitchInputOptions, SwitchInputE
 			tooltip: {
 				text: () => {
 					return (
-						(this.state.value ? opts.labels?.true.verb : opts.labels?.false.verb) || ''
+						(this.state.value ? opts.labels?.false.verb : opts.labels?.true.verb) || ''
 					)
 				},
 				anchor: '.fracgui-controller-switch-thumb',
+				delay: 750,
 			},
 		})
 		const thumb = create('div', {
 			classes: ['fracgui-controller-switch-thumb'],
 			parent: input,
-			// innerText: '.',
+		})
+
+		//- State Text
+		const stateText = create('div', {
+			classes: ['fracgui-controller-switch-state-text'],
+			parent: container,
+			innerText: this.state.value ? opts.labels?.true.state : opts.labels?.false.state,
+			style: {
+				opacity: '0.75',
+			},
 		})
 
 		this.elements.controllers = {
 			container,
 			input,
 			thumb,
+			stateText,
 		} as const satisfies SwitchInputElements
 
 		this.evm.listen(this.elements.controllers.input, 'click', () => this.set())
@@ -148,6 +156,8 @@ export class InputSwitch extends Input<boolean, SwitchInputOptions, SwitchInputE
 
 		this.elements.controllers.input.classList.toggle('active', v)
 		this.elements.controllers.input?.tooltip?.refresh()
+		this.elements.controllers.stateText.innerText =
+			(this.state.value ? this.opts.labels?.true.state : this.opts.labels?.false.state) ?? ''
 
 		this.callOnChange(v) // todo - should this go in the state subscription?
 
