@@ -335,10 +335,10 @@ export class Draggable {
 		bottom: Infinity,
 	}
 
-	#leftBound: GLfloat = 0
-	#rightBound: GLfloat = 0
-	#topBound: GLfloat = 0
-	#bottomBound: GLfloat = 0
+	#leftBound: GLfloat = -Infinity
+	#topBound: GLfloat = -Infinity
+	#rightBound: GLfloat = Infinity
+	#bottomBound: GLfloat = Infinity
 
 	private _storage?: ReturnType<typeof persist<{ x: number; y: number }>>
 	private _position = { x: 0, y: 0 }
@@ -438,8 +438,7 @@ export class Draggable {
 		this.obstacleEls = select(this.opts.obstacles)
 
 		// this.#recomputeBounds = this.#resolveRecomputeBounds(this.opts.bounds)
-		this.#recomputeBounds()
-		this.#updateBounds()
+		// this.#recomputeBounds()
 
 		this.#evm.listen(this.node, 'pointerdown', this.dragStart)
 		this.#evm.listen(window, 'pointerup', this.dragEnd)
@@ -452,11 +451,14 @@ export class Draggable {
 		)
 
 		if (startPosition !== DRAG_DEFAULTS.position) {
-			this.moveTo(startPosition, 0)
-			this._position = { x: this.x, y: this.y }
-			// Update the virtual rect.
+			// Init the virtual rect for updateBounds
 			const { top, right, bottom, left } = this.node.getBoundingClientRect()
 			this.rect = { top, right, bottom, left }
+
+			this.#recomputeBounds()
+			this.#updateBounds()
+			this.moveTo(startPosition, 0)
+			this._position = { x: this.x, y: this.y }
 		}
 	}
 
@@ -659,45 +661,24 @@ export class Draggable {
 	#updateBounds = () => {
 		// refresh style left & top
 		const styleLeft = parseFloat(this.node.style.left) || 0
-		this.#leftBound = this.bounds.left - styleLeft
-		this.#rightBound = this.bounds.right - styleLeft - (this.rect.right - this.rect.left)
+		this.#leftBound = -styleLeft
+		this.#rightBound =
+			this.bounds.right - this.bounds.left - (this.rect.right - this.rect.left) - styleLeft
 
 		const styleTop = parseFloat(this.node.style.top) || 0
-		this.#topBound = this.bounds.top - styleTop
-		this.#bottomBound = this.bounds.bottom - styleTop - (this.rect.bottom - this.rect.top)
+		this.#topBound = -styleTop
+		this.#bottomBound =
+			this.bounds.bottom - this.bounds.top - styleTop - (this.rect.bottom - this.rect.top)
+		// refresh bounds element padding ...
+		if (this.boundsEl) {
+			const { paddingLeft, paddingRight, paddingTop, paddingBottom } =
+				window.getComputedStyle(this.boundsEl)
+			this.#leftBound -= parseFloat(paddingLeft)
+			this.#rightBound -= parseFloat(paddingRight)
+			this.#topBound -= parseFloat(paddingTop)
+			this.#bottomBound -= parseFloat(paddingBottom)
+		}
 	}
-
-	// #clampToBounds = (target: { x: number; y: number }) => {
-	// 	// Clamp the target position to the bounds.
-	// 	const { left, top, right, bottom } = this.rect
-	// 	const width = right - left
-	// 	const height = bottom - top
-
-	// 	const styleLeft = parseFloat(this.node.style.left) || 0
-	// 	const styleTop = parseFloat(this.node.style.top) || 0
-
-	// 	target.x = clamp(
-	// 		target.x,
-	// 		this.bounds.left - left - styleLeft,
-	// 		this.bounds.right - width - styleLeft,
-	// 	)
-	// 	target.y = clamp(
-	// 		target.y,
-	// 		this.bounds.top - top - styleTop,
-	// 		this.bounds.bottom - height - styleTop,
-	// 	)
-
-	// 	this.#fireUpdateEvent()
-
-	// 	if (DEV) {
-	// 		const xdev = this.node.querySelector('.content') as HTMLElement
-	// 		if (xdev) {
-	// 			highlight(stringify(debrief(this.rect, { round: 2 }), 2)).then(str => {
-	// 				xdev.innerHTML = `${str.replaceAll(/"|{|}/g, '')}`
-	// 			})
-	// 		}
-	// 	}
-	// }
 
 	/**
 	 * Moves the {@link node|draggable element} to the specified position, adjusted
