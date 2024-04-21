@@ -1,34 +1,3 @@
-@property --fracgui-color-a {
-	syntax: '<color>';
-	inherits: true;
-	initial-value: var(--theme-a);
-}
-@property --fracgui-color-b {
-	syntax: '<color>';
-	inherits: true;
-	initial-value: rgba(var(--theme-a-rgb), 0);
-}
-@property --fracgui-color-c {
-	syntax: '<color>';
-	inherits: true;
-	initial-value: rgba(var(--theme-a-rgb), 0);
-}
-@property --fracgui-color-d {
-	syntax: '<color>';
-	inherits: true;
-	initial-value: rgba(var(--theme-a-rgb), 0);
-}
-@property --fracgui-color-e {
-	syntax: '<color>';
-	inherits: true;
-	initial-value: rgba(var(--theme-a-rgb), 0);
-}
-@property --fracgui-color-f {
-	syntax: '<color>';
-	inherits: true;
-	initial-value: var(--fracgui-input-number-range_background);
-}
-
 //· Mixins ···································································¬
 
 @mixin fontMono {
@@ -1912,10 +1881,10 @@ input.fracgui-search-input {
 				}
 
 				box-shadow:
-					-1px 1px 7px 0px #0002 inset,
-					-1px 1px 1px 0px #0002 inset;
-					// background: var(--fracgui-controller-dim_background);
-					background: var(--fracgui-input-number-range_background);
+					-1px 1px 7px 0px #000f inset,
+					-1px 1px 1px 0px #000c inset;
+				// background: var(--fracgui-controller-dim_background);
+				background: var(--fracgui-input-number-range_background);
 				background-image: radial-gradient(
 					circle at 25% 50% in lab,
 					var(--fracgui-theme-a) 0%,
@@ -1925,10 +1894,14 @@ input.fracgui-search-input {
 					rgba(var(--fracgui-theme-a-rgb), 0.1) 30%,
 					rgba(var(--fracgui-theme-a-rgb), 0.1) 50%,
 					var(--fracgui-input-number-range_background) 100%
-					// var(--fracgui-controller-dim_background) 100%
+						// var(--fracgui-controller-dim_background) 100%
 				);
 
 				@at-root .fracgui-root[mode='light'] & {
+					box-shadow:
+						-1px 1px 7px 0px #0002 inset,
+						-1px 1px 1px 0px #0002 inset;
+
 					background-image: radial-gradient(
 						circle at 25% 50% in lab,
 						var(--fracgui-theme-a) 3%,
@@ -1938,7 +1911,7 @@ input.fracgui-search-input {
 						rgba(var(--fracgui-theme-a-rgb), 0.1) 30%,
 						rgba(var(--fracgui-theme-a-rgb), 0.05) 50%,
 						var(--fracgui-input-number-range_background) 100%
-						// var(--fracgui-controller-dim_background) 100%
+							// var(--fracgui-controller-dim_background) 100%
 					);
 				}
 
@@ -1959,8 +1932,13 @@ input.fracgui-search-input {
 					// background: var(--fracgui-controller-dim_background);
 					background: var(--fracgui-input-number-range_background);
 					box-shadow:
-						-1px 1px 7px 0px #0002 inset,
-						-1px 1px 1px 0px #0002 inset;
+						-1px 1px 7px 0px #000c inset,
+						-1px 1px 1px 0px #000c inset;
+					@at-root .fracgui-root[mode='light'] & {
+						box-shadow:
+							-1px 1px 7px 0px #0002 inset,
+							-1px 1px 1px 0px #0002 inset;
+					}
 
 					opacity: 1;
 
@@ -1988,7 +1966,6 @@ input.fracgui-search-input {
 					min-height: 66%;
 
 					background: var(--fracgui-controller_background);
-					// background: var(--fracgui-controller-dim_background);
 					border: 1px solid var(--fracgui-input-dim_color);
 					border-radius: var(--fracgui-radius-xs);
 					box-shadow:
@@ -2002,7 +1979,6 @@ input.fracgui-search-input {
 
 				//- Positioning
 				.fracgui-controller-switch-thumb {
-					// transform: translateX(20%);
 					right: calc(100% - $tw - 0.25rem);
 				}
 				&.active {
@@ -2012,12 +1988,12 @@ input.fracgui-search-input {
 							-2px 0px #00000069,
 							-2px 0px rgba(var(--fracgui-theme-a-rgb), 0.1),
 							1px -1px 1px #0002 inset;
-							@at-root .fracgui-root[mode='light'] & {
-						box-shadow:
-							-2px 0px #a6a7ad69,
-							1px -1px 1px #0002 inset;
+
+						@at-root .fracgui-root[mode='light'] & {
+							box-shadow:
+								-2px 0px #a6a7ad69,
+								1px -1px 1px #0002 inset;
 						}
-						// transform: translateX(calc(150%));
 					}
 				}
 			}
@@ -2065,60 +2041,6 @@ input.fracgui-search-input {
 					}
 				}
 			}
-
-			// .fracgui-controller-buttongrid-button {
-			// 	cursor: pointer;
-
-			// 	height: 1.5rem;
-			// 	margin: 0;
-			// 	padding: 0;
-
-			// 	border: none;
-			// 	border-radius: var(--fracgui-controller_border-radius);
-			// 	outline: var(--fracgui-controller_outline);
-			// 	outline-offset: -1px;
-			// 	// prettier-ignore
-			// 	box-shadow:
-			// 		1px 2px 6px var(--fracgui-shadow-color),
-			// 		1px -1px 1px hsla(250, 10%, calc(var(--fracgui-shadow-lightness)), calc(var(--fracgui-shadow-opacity))) inset,
-			// 		1px -1px 1px hsla(250, 10%, calc(var(--fracgui-shadow-lightness)), calc(var(--fracgui-shadow-opacity))) inset,
-			// 		-0.5px 0.5px 0.5px hsla(250, 10%, 50%, calc(var(--fracgui-shadow-opacity))) inset
-			// 	;
-
-			// 	@at-root .fracgui-root[mode='dark'] & {
-			// 		outline: none;
-			// 	}
-			// 	// transition: 1s;
-
-			// 	font: var(--fracgui-root_font-family);
-			// 	font-weight: 400;
-			// 	text-align: center;
-
-			// 	scale: 1;
-			// 	backface-visibility: hidden;
-
-			// 	&:hover,
-			// 	&:active {
-			// 		background: var(--fracgui-controller_background);
-			// 		color: var(--fracgui-controller_color);
-			// 	}
-
-			// 	// transition-duration: 0.2s;
-			// 	&:active {
-			// 		scale: 0.975;
-			// 		color: var(--fracgui-theme-a);
-			// 		transition-duration: 0.075s;
-			// 		// background: var(--fracgui-controller-active_background);
-			// 		// prettier-ignore
-			// 		box-shadow:
-			// 			0px 0px 3px var(--fracgui-shadow-color),
-			// 			0px 0px 5px hsla(250, 10%, calc(var(--fracgui-shadow-lightness) / 3), calc(var(--fracgui-shadow-opacity) / 1)) inset,
-			// 			0px 0px 10px hsla(250, 10%, calc(var(--fracgui-shadow-lightness) / 2), calc(var(--fracgui-shadow-opacity) / 2)) inset,
-			// 			0px 0px 20px hsla(250, 10%, calc(var(--fracgui-shadow-lightness) / 1), calc(var(--fracgui-shadow-opacity) / 2)) inset
-			// 		;
-			// 		// scale: 0.99;
-			// 	}
-			// }
 		}
 	}
 
