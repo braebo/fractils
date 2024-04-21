@@ -342,7 +342,7 @@ export class Folder {
 	}
 
 	// @ts-expect-error - // todo - Why tf can't typescript see this is used?
-	#createSettingsButton = (parent: HTMLElement) => {
+	#createSettingsButton(parent: HTMLElement) {
 		if (!this.isGui()) {
 			throw new Error('Settings button can only be created on the root folder.')
 		}

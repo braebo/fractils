@@ -172,9 +172,9 @@ export class Tooltip {
 			}
 		}
 
-		this.#evm.listen(node, 'pointerenter', this.show)
-		this.#evm.listen(node, 'pointerleave', this.hide)
-		this.#evm.listen(node, 'pointermove', this.updatePosition)
+		this.#evm.listen(node, 'pointerenter', this.show.bind(this))
+		this.#evm.listen(node, 'pointerleave', this.hide.bind(this))
+		this.#evm.listen(node, 'pointermove', this.updatePosition.bind(this))
 		this.#evm.listen(node, 'click', () => {
 			if (opts.hideOnClick) this.hide()
 			else this.refresh()
@@ -218,7 +218,7 @@ export class Tooltip {
 		}
 	}
 
-	show = () => {
+	show() {
 		if (this.showing) return
 		clearTimeout(this.#delayInTimer)
 		clearTimeout(this.#delayOutTimer)
@@ -241,7 +241,7 @@ export class Tooltip {
 		}, this.opts.delay)
 	}
 
-	hide = () => {
+	hide() {
 		clearTimeout(this.#delayInTimer)
 		clearTimeout(this.#delayOutTimer)
 
@@ -263,7 +263,7 @@ export class Tooltip {
 		}, this.opts.delayOut)
 	}
 
-	updatePosition = (e?: PointerEvent) => {
+	updatePosition(e?: PointerEvent) {
 		const tooltipRect = this.element.getBoundingClientRect()
 
 		this.element.innerText = String(this.getText())
@@ -310,10 +310,10 @@ export class Tooltip {
 
 	#mouse = { x: 0, y: 0 }
 
-	#getAnchorRects = (): {
+	#getAnchorRects(): {
 		x: AnchorRect
 		y: AnchorRect
-	} => {
+	} {
 		const getRect = <Alt extends string = never>(
 			anchor: TooltipOptions['anchor'],
 		): AnchorRect | Alt => {
@@ -378,7 +378,7 @@ export class Tooltip {
 	/**
 	 * Determines if the tooltip should watch any anchors for movement.
 	 */
-	#maybeWatchAnchor = () => {
+	#maybeWatchAnchor() {
 		const maybeWatch = (el: ElementsOrSelector | null) => {
 			if (!el) return
 
@@ -439,7 +439,7 @@ export class Tooltip {
 	 * transform is in transition while the tooltip is showing.
 	 * @todo - watch animation events too?
 	 */
-	#watch = (el: HTMLElement) => {
+	#watch(el: HTMLElement) {
 		if (this.#watchingAnchor) {
 			return
 		}
