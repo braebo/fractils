@@ -243,6 +243,7 @@ export class Tooltip {
 					fill: 'forwards',
 				},
 			)
+			this.updatePosition()
 			this.#maybeWatchAnchor()
 		}, this.opts.delay)
 	}
@@ -270,8 +271,6 @@ export class Tooltip {
 	}
 
 	updatePosition = (e?: PointerEvent) => {
-		console.log('updatePosition()', new Error().stack)
-
 		const tooltipRect = this.element.getBoundingClientRect()
 
 		this.element.innerText = String(this.getText())
@@ -458,17 +457,17 @@ export class Tooltip {
 			this.#watchingFinished = true
 			this.#watchingAnchor = false
 			this.element.style.transitionDuration = '0.1s'
-			el.removeEventListener('transitionend', timeout)
-		}
-
-		if (!this.showing) {
-			complete()
-			return
+			if (timeout) el.removeEventListener('transitionend', timeout)
 		}
 
 		const timeout = () => {
 			if (this.#watchingFinished) return
 			complete()
+		}
+
+		if (!this.showing) {
+			complete()
+			return
 		}
 
 		clearTimeout(this.#watchTimeout)
