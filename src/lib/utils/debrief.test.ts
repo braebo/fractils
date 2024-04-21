@@ -68,7 +68,7 @@ describe('debrief', () => {
 		})
 	})
 
-	it('Only truncate objects and arrays at the depth limit with options: { depth: 3, siblings: 5 }', () => {
+	it('should only truncate objects and arrays at the depth limit with options: { depth: 3, siblings: 5 }', () => {
 		const arr = [
 			{
 				some: 'some',
