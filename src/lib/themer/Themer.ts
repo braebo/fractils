@@ -14,7 +14,7 @@ import type {
 	Theme,
 } from './types'
 
-import { restructureVars, type StructuredVars } from '../css/vars'
+import { restructureVars, type ThemeVars } from '../css/vars'
 import { resolveTheme } from './resolveTheme'
 
 import { Gui } from '../gui/Gui'
@@ -713,7 +713,7 @@ export class ThemeEditor {
 		}
 
 		const traverse = (
-			obj: VariableDefinition[keyof VariableDefinition] | StructuredVars,
+			obj: VariableDefinition[keyof VariableDefinition] | ThemeVars,
 			parent: Folder,
 			_depth = 0,
 		) => {
