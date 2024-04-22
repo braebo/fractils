@@ -1,3 +1,4 @@
+import type { StructuredVars } from '../css/custom-properties'
 import type { PrimitiveState, State } from '../utils/state'
 import type { ElementsOrSelector } from '../utils/select'
 import type { InputOptions } from '../gui/inputs/Input'
@@ -14,7 +15,7 @@ import type {
 	Theme,
 } from './types'
 
-import { restructureVars, type ThemeVars } from '../css/custom-properties'
+import { restructureVars, CSS_VAR_INNER } from '../css/custom-properties'
 import { resolveTheme } from './resolveTheme'
 
 import { Gui } from '../gui/Gui'
@@ -24,7 +25,6 @@ import theme_scout from './themes/scout'
 import theme_flat from './themes/flat'
 
 import { DRAG_DEFAULTS } from '../utils/draggable'
-import { CSS_VAR_INNER } from '../regex/cssVars'
 import { deepMerge } from '../utils/deepMerge'
 import { partition } from '../utils/partition'
 import { hexToRgb } from '../utils/hexToRgb'
@@ -169,7 +169,6 @@ export class Themer {
 	#initialized = false
 	#persistent: boolean
 	#key: string
-	// #style?: HTMLStyleElement
 	#unsubs: Array<() => void> = []
 	#targets = new Set<HTMLElement>()
 
@@ -567,35 +566,15 @@ export class Themer {
 			throw new Error(`Theme not found.`)
 		}
 
-		// console.clear()
-		// console.log(targets)
-		// console.log(themeConfig)
-
 		const allVars = new Map<string, string>()
 
 		for (const target of targets) {
-			// Assuming parentElement is only nullish if this.node is the documentElement here..
-			// todo - figure out why `parentElement` is null on the first call.
-			// const target = this.wrapper ?? this.node.parentElement ?? this.node
-			// for (const [key, value] of [
-			// 	...entries(config.vars.color.base),
-			// 	...entries(themeColors),
-			// ]) {
-			// 	target.style.setProperty(`--${config.prefix}-${key}`, value)
-			// 	target.style.setProperty(`--${config.prefix}-${key}-rgb`, hexToRgb(value))
-			// }
-
-			// console.log(config)
-			// console.log(target.className)
 			for (const [key, value] of entries(config.vars)) {
-				// console.log(key)
-				// console.log(value)
 				if (key === 'color') {
 					for (const [k, v] of [
 						...entries(value.base),
 						...entries(value[this.activeMode]),
 					]) {
-						// console.log({ k, v })
 						target.style.setProperty(`--${config.prefix}-${k}`, v)
 						target.style.setProperty(`--${config.prefix}-${k}-rgb`, hexToRgb(v))
 					}
@@ -688,8 +667,8 @@ export class ThemeEditor {
 			value: string,
 			onChange: InputOptions['onChange'],
 		) => {
-			// this.#log.fn('add').info({ title, value, onChange, this: this })
-			// let v = value
+			this.#log.fn('add').debug({ title, value, onChange, this: this })
+
 			if (value.match(/^\d+(\.\d+)?$/g)) {
 				try {
 					const v = parseFloat(value)
@@ -713,7 +692,7 @@ export class ThemeEditor {
 		}
 
 		const traverse = (
-			obj: VariableDefinition[keyof VariableDefinition] | ThemeVars,
+			obj: VariableDefinition[keyof VariableDefinition] | StructuredVars,
 			parent: Folder,
 			_depth = 0,
 		) => {
@@ -734,16 +713,6 @@ export class ThemeEditor {
 					const vars = [...v.matchAll(CSS_VAR_INNER)].map(m => m[1])
 
 					if (vars.length) {
-						// parent.add({
-						// 	title: k.split('_').at(-1) || k,
-						// 	value: v.replace(CSS_VAR_INNER, (str, match) => {
-						// 		return (
-						// 			this.targetGui.wrapper.style.getPropertyValue(match).trim() ||
-						// 			str
-						// 		)
-						// 	}),
-						// 	onChange,
-						// })
 						add(
 							parent,
 							k.split('_').at(-1) || k,
@@ -756,11 +725,6 @@ export class ThemeEditor {
 							onChange,
 						)
 					} else {
-						// parent.add({
-						// 	title: k.split('_').at(-1) || k,
-						// 	value: v,
-						// 	onChange,
-						// })
 						add(parent, k.split('_').at(-1) || k, v, onChange)
 					}
 				} else {
