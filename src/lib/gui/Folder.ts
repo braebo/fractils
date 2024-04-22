@@ -671,24 +671,15 @@ export class Folder {
 		return { icon, connector }
 	}
 
-	// get localIndex() {
-	// 	return this.parentFolder.children.indexOf(this)
-	// }
-
-	im = 150
-	dm = 20
-
-	get hue() {
+	get #hue() {
 		const localIndex = this.parentFolder.children.indexOf(this)
-		// todo - this is a gross hack to filter out the "Settings Folder"
+
+		// todo - This will break if we ever add built-in folders other than "Settings Folder".
 		const i = this.parentFolder.isGui() ? localIndex - 1 : localIndex
-		const d = this.depth - 1
+		// Don't count the root folder.
+		const depth = this.depth - 1
 
-		const im = 20
-		const dm = 80
-
-		// this.title = this.title.split('_')[0] + `_i:${i * im}(${i})_depth:${d * dm}(${d}) - ${i * im + d * dm}`
-		return i * im + d * dm
+		return i * 20 + depth * 80
 	}
 
 	//·· Icon ································································¬
@@ -705,7 +696,7 @@ export class Folder {
 		icon.classList.add('fracgui-folder-icon-container')
 
 		const count = this.allChildren.length + this.inputs.size
-		icon.style.setProperty('filter', `hue-rotate(${this.hue}deg)`)
+		icon.style.setProperty('filter', `hue-rotate(${this.#hue}deg)`)
 
 		const circs = [
 			{ id: 1, cx: 16.43, cy: 11.93, r: 1.1103 },
@@ -881,7 +872,7 @@ export class Folder {
 		svg.style.setProperty('pointer-events', 'none')
 		svg.style.setProperty('overflow', 'hidden')
 		svg.style.setProperty('z-index', '10')
-		svg.style.setProperty('filter', `hue-rotate(${this.hue}deg)`)
+		svg.style.setProperty('filter', `hue-rotate(${this.#hue}deg)`)
 
 		//? Path
 		const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
