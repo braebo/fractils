@@ -43,7 +43,7 @@ export interface ButtonItem {
 	 * }
 	 * ```
 	 */
-	style?: CreateOptions['style']
+	style?: CreateOptions['styles']
 }
 
 /**
@@ -67,7 +67,7 @@ export type ButtonGridClickFunction = (this: InputButtonGrid) => void
 export type ButtonGridInputOptions = {
 	title: string
 	grid: ButtonGrid
-	styles?: CreateOptions['style']
+	styles?: CreateOptions['styles']
 } & InputOptions<ButtonGrid>
 
 export const BUTTONGRID_INPUT_DEFAULTS: ButtonGridInputOptions = {

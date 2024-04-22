@@ -1,4 +1,4 @@
-import { select, type ElementsOrSelector } from '$lib/utils/select'
+import { select, type ElementOrSelector } from '$lib/utils/select'
 
 export type Placement = 'center' | `${TBC}-${LRC}` | `${LRC}-${TBC}`
 
@@ -41,7 +41,7 @@ export function place(
 		| DOMRect
 		| VirtualRect
 		| (Record<string, any> & { width: number; height: number })
-		| ElementsOrSelector,
+		| ElementOrSelector,
 	placement = 'top-right',
 	options?: {
 		/**
@@ -49,7 +49,7 @@ export function place(
 		 * DOMRect, custom {@link VirtualRect}, or `'window'`.
 		 * @default 'window'
 		 */
-		bounds?: DOMRect | VirtualRect | 'window' | ElementsOrSelector
+		bounds?: DOMRect | VirtualRect | 'window' | ElementOrSelector
 		/**
 		 * The margin in pixels to apply to the placement.  Can be a number
 		 * to apply the same margin to both x and y, or an object with x

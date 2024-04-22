@@ -1,4 +1,4 @@
-import type { ElementsOrSelector, ElementsOrSelectors } from './select'
+import type { ElementOrSelector, ElementsOrSelectors } from './select'
 import type { resizable } from '../actions/resizable'
 import type { State } from '../utils/state'
 
@@ -69,7 +69,7 @@ export interface ResizableOptions {
 	 * The element to use as the bounds for resizing.
 	 * @default window['document']['documentElement']
 	 */
-	bounds: ElementsOrSelector
+	bounds: ElementOrSelector
 	/**
 	 * Element's or selectors which will act as collision obstacles for the draggable element.
 	 */

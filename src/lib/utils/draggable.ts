@@ -1,4 +1,4 @@
-import type { ElementsOrSelector, ElementsOrSelectors } from './select'
+import type { ElementOrSelector, ElementsOrSelectors } from './select'
 import type { Placement, PlacementOptions } from '../dom/place'
 import type { Action } from 'svelte/action'
 
@@ -40,7 +40,7 @@ export type DraggablePlacementOptions = PlacementOptions & {
 /**
  * Represents the bounds to which the draggable element is limited to.
  */
-export type DragBounds = ElementsOrSelector | false | Partial<VirtualRect>
+export type DragBounds = ElementOrSelector | false | Partial<VirtualRect>
 
 /**
  * Data passed to listeners of the {@link DraggableOptions.onDragStart|onDragStart},

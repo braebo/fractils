@@ -18,7 +18,7 @@ export type CreateOptions<
 	textContent?: string
 	innerText?: string
 	cssText?: string
-	style?: Partial<Record<JavascriptStyleProperty, string | number>>
+	styles?: Partial<Record<JavascriptStyleProperty, string | number>>
 	variables?: Record<`--${string}`, string | number>
 	type?: string
 	attributes?: Record<string, string>
@@ -63,8 +63,8 @@ export function create<
 			}
 		}
 
-		if (options.style) {
-			for (const [key, value] of entries(options.style)) {
+		if (options.styles) {
+			for (const [key, value] of entries(options.styles)) {
 				el.style[key] = String(value)
 			}
 		}

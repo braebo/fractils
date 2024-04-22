@@ -1,4 +1,4 @@
-import type { ElementsOrSelector, ElementsOrSelectors } from './select'
+import type { ElementOrSelector, ElementsOrSelectors } from './select'
 import type { Action } from 'svelte/action'
 
 import { Resizable, RESIZABLE_DEFAULTS, type ResizableOptions } from './resizable'
@@ -35,7 +35,7 @@ export interface WindowManagerOptions {
 	 * Element's or selectors which will act as bounds obstacles for the element.
 	 * @default ''
 	 */
-	bounds: ElementsOrSelector
+	bounds: ElementOrSelector
 
 	/**
 	 * The base z-index value.

@@ -3,8 +3,8 @@ import { c, r } from './l'
 
 let log: Logger
 
-export type ElementsOrSelector = string | HTMLElement | undefined
-export type ElementsOrSelectors = ElementsOrSelector | ElementsOrSelector[]
+export type ElementOrSelector = string | HTMLElement | undefined | 'document' | 'window'
+export type ElementsOrSelectors = ElementOrSelector | ElementOrSelector[]
 
 /**
  * Takes in any combination of selectors and elements, and
@@ -31,7 +31,7 @@ export function select(input: ElementsOrSelectors, node?: HTMLElement): HTMLElem
 		}
 
 		if (typeof el === 'string') {
-			if (el === 'document') return [document.documentElement]
+			if (el === 'document' || el === 'window') return [document.documentElement]
 			if (el.startsWith('#')) {
 				const foundEl = document.getElementById(JSON.stringify(el).slice(1))
 				if (foundEl) {

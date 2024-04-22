@@ -1,6 +1,6 @@
 import type { StructuredVars } from '../css/custom-properties'
 import type { PrimitiveState, State } from '../utils/state'
-import type { ElementsOrSelector } from '../utils/select'
+import type { ElementOrSelector } from '../utils/select'
 import type { InputOptions } from '../gui/inputs/Input'
 import type { GuiOptions } from '../gui/Gui'
 import type { Folder } from '../gui/Folder'
@@ -181,7 +181,7 @@ export class Themer {
 		 * the document element.
 		 * @default 'document'
 		 */
-		node: ElementsOrSelector | Document | 'document' = 'document',
+		node: ElementOrSelector | Document | 'document' = 'document',
 		options?: Partial<ThemerOptions>,
 	) {
 		const opts = deepMerge(THEMER_DEFAULTS, options)
