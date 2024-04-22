@@ -1,27 +1,9 @@
 import { entries } from '../utils/object'
 
+// import { StandardPropertiesHyphen } from 'csstype'
+
 /**
- * Represents a structured mapping to CSS custom properties, facilitating the
- * definition and organization of CSS variables in a hierarchical manner. Each
- * key in the nested structure corresponds to a fragment of a CSS variable name,
- * enabling a structured and readable way to define and access CSS variables.
- *
- * For example, the following object structure:
- * ```ts
- * {
- *   input: {
- *     checkbox: {
- *       color: 'red'
- *     }
- *   }
- * }
- * ```
- * Represents this CSS variable:
- * ```css
- * { --input-checkbox_color: red; }
- * ```
- *
- * The rules for defining structured variables are as follows:
+ * A structured object representing CSS custom properties using the following rules:
  * - Each key represents a fragment of the CSS variable name. Fragments are
  *   concatenated with a hyphen `-`,  except for the last fragment, which is
  *   concatenated with an underscore `_` to the preceding fragment(s).
@@ -29,17 +11,37 @@ import { entries } from '../utils/object'
  *   such as `color`, `min-width`, etc.
  * - The value assigned to the last fragment represents the CSS variable's value.
  *
- * This interface is intended to be used in contexts where CSS variables are
+ * For example, the following object:
+ * ```ts
+ * { button: { secondary: { color: 'red' } } }
+ * ```
+ * Maps this CSS variable:
+ * ```css
+ * { --button-secondary_color: red; }
+ * ```
+ *
+ * @remarks This interface is intended to be used in contexts where CSS variables are
  * dynamically generated or  managed in Typescript, such as the {@link Themer}.
  */
+export interface ThemeVars {
+	[key: string]: StructuredVars
+	base: StructuredVars
+	light: StructuredVars
+	dark: StructuredVars
+}
 export interface StructuredVars {
 	[key: string]: string | StructuredVars
 }
 
 type Entries = Array<[string, string]> | IterableIterator<[string, string]>
+type Prev = [never, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] // Infinite recursion prevention.
 
-// Limits the depth of the recursive type.
-type Prev = [never, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+/**
+ * @internal
+ * Unrolls a {@link ThemeVars} object into a flat object of strongly inferred CSS variables
+ * where the last key in each branch is concatenated with an underscore `_` to the preceding
+ * fragment(s), while all other keys are concatenated with a hyphen `-`.
+ */
 type AccumulateKeys<T, Prefix extends string = '', Depth extends number = 10> = Depth extends 0
 	? never
 	: T extends object
@@ -60,21 +62,26 @@ type FlattenStructuredVars<T, P extends string> = {
 	[K in AccumulateKeys<T> as `--${P}-${K}`]: string
 }
 
-type DestructuredVars<T extends StructuredVars, Prefix extends string = ''> = FlattenStructuredVars<
-	T,
-	Prefix
->
+/**
+ * Converts a {@link ThemeVars} object into a flat object of CSS variables.
+ */
+export type DestructuredVars<
+	Obj extends StructuredVars,
+	Prefix extends string = '',
+> = FlattenStructuredVars<Obj, Prefix>
 
 /**
- * Converts a {@link StructuredVars} object into a flat object of CSS variables.
+ * Converts a {@link ThemeVars} object into a flat object of CSS variables.
  * @example
+ * ```ts
  * const vars = { root: { header: { width: '1rem' }, // etc... }
  *
  * destructureVars(vars) // { '--root-header_width': '1rem' }
+ * ```
  */
-export function destructureVars<const T extends StructuredVars, const P extends string>(
-	vars: T,
-	_prefix: P,
+export function destructureVars<const Obj extends StructuredVars, const Prefix extends string>(
+	vars: Obj,
+	_prefix: Prefix,
 ) {
 	const flatVars: Record<string, string> = {}
 
@@ -90,11 +97,11 @@ export function destructureVars<const T extends StructuredVars, const P extends 
 
 	destructure(vars)
 
-	return flatVars as Partial<DestructuredVars<T, P>>
+	return flatVars as Partial<DestructuredVars<Obj, Prefix>>
 }
 
 /**
- * Converts a flat object/map/entries of CSS variables into a {@link StructuredVars} object.
+ * Converts a flat object/map/entries of CSS variables into a {@link ThemeVars} object.
  *
  * @example
  * ```ts
@@ -117,7 +124,7 @@ export function restructureVars(
 }
 
 function unroll(entries: Entries): StructuredVars {
-	const structuredVars: StructuredVars = {}
+	const structuredVars = {} as StructuredVars
 
 	for (const [key, value] of entries) {
 		const parts = key.split(/[_-]/)
@@ -126,7 +133,7 @@ function unroll(entries: Entries): StructuredVars {
 		for (let i = 0; i < parts.length - 1; i++) {
 			current[parts[i]] ||= {}
 
-			current = current[parts[i]] as StructuredVars
+			current = current[parts[i]] as ThemeVars
 		}
 
 		current[parts[parts.length - 1]] = value
