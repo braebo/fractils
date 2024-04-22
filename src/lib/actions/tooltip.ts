@@ -526,7 +526,7 @@ export class Tooltip {
  * </div>
  * ```
  */
-export const tooltip = (node: HTMLElement, options?: TooltipOptions) => {
+export const tooltip = (node: HTMLElement, options?: Partial<TooltipOptions>) => {
 	const tt = new Tooltip(node, options)
 
 	return {
