@@ -14,7 +14,7 @@ import type {
 	Theme,
 } from './types'
 
-import { restructureVars, type ThemeVars } from '../css/vars'
+import { restructureVars, type ThemeVars } from '../css/custom-properties'
 import { resolveTheme } from './resolveTheme'
 
 import { Gui } from '../gui/Gui'

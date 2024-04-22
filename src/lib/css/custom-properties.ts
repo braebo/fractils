@@ -3,6 +3,16 @@ import { entries } from '../utils/object'
 // import { StandardPropertiesHyphen } from 'csstype'
 
 /**
+ * A structured object representing a theme's CSS custom properties.
+ */
+export interface ThemeVars {
+	[key: string]: StructuredVars
+	base: StructuredVars
+	light: StructuredVars
+	dark: StructuredVars
+}
+
+/**
  * A structured object representing CSS custom properties using the following rules:
  * - Each key represents a fragment of the CSS variable name. Fragments are
  *   concatenated with a hyphen `-`,  except for the last fragment, which is
@@ -23,12 +33,6 @@ import { entries } from '../utils/object'
  * @remarks This interface is intended to be used in contexts where CSS variables are
  * dynamically generated or  managed in Typescript, such as the {@link Themer}.
  */
-export interface ThemeVars {
-	[key: string]: StructuredVars
-	base: StructuredVars
-	light: StructuredVars
-	dark: StructuredVars
-}
 export interface StructuredVars {
 	[key: string]: string | StructuredVars
 }
@@ -141,3 +145,19 @@ function unroll(entries: Entries): StructuredVars {
 
 	return structuredVars
 }
+
+/**
+ * Regex to extract the inner variable name from a CSS variable.
+ * @example
+ * | `rgba(var(--my-color), 0.5)`.match(CSS_VAR_INNER)[0]
+ * > '--my-color'
+ */
+export const CSS_VAR_INNER = /\bvar\((--[a-zA-Z0-9_-]+)\)/g
+
+/**
+ * Regex to match a CSS variable.
+ * @example
+ * | `rgba(var(--my-color), 0.5)`.match(CSS_VAR)[0]
+ * > 'var(--my-color)'
+ */
+export const CSS_VAR_OUTER = /(?:var\()(!?[a-z-]+)/g
