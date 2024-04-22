@@ -1062,8 +1062,8 @@ input.fracgui-search-input {
 		opacity 0.15s ease-in 0.2s;
 
 	$inverted-border-size: 0.5rem;
-	$inverted-border-radius: 0.2rem;
-	$inverted-border-radius-bottom: 0.1rem;
+	$inverted-border-radius: 0.25rem;
+	$inverted-border-radius-bottom: 0.25rem;
 
 	&:first-of-type {
 		border-top-left-radius: var(--fracgui-radius-sm);
