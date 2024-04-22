@@ -2,7 +2,7 @@ import type { ElementsOrSelector, ElementsOrSelectors } from './select'
 import type { Placement, PlacementOptions } from '../dom/place'
 import type { Action } from 'svelte/action'
 
-import { cancelClassFound } from '../internal/cancelClassFound'
+import { collisionClampX, collisionClampY } from './collisions'
 import { isDefined, isHTMLElement, isString } from './is'
 import { EventManager } from './EventManager'
 import { cubicOut } from 'svelte/easing'
@@ -14,7 +14,6 @@ import { select } from './select'
 import { Logger } from './logger'
 import { clamp } from './clamp'
 import { DEV } from 'esm-env'
-import { collisionClampX, collisionClampY } from './collisions'
 
 // todo - remove once dev testing is done.
 import { stringify } from './stringify'
@@ -517,7 +516,13 @@ export class Draggable {
 
 		if (this.opts.ignoreMultitouch && !e.isPrimary) return
 		// Abort if a cancel element was clicked.
-		if (cancelClassFound(e, this.opts.classes.cancel)) return
+		if (
+			e
+				.composedPath()
+				.some(n => (n as HTMLElement).classList?.contains(this.opts.classes.cancel))
+		) {
+			return
+		}
 
 		// Refresh the obstacles.
 		this.obstacleEls = select(this.opts.obstacles)
