@@ -69,6 +69,7 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 		})
 
 		this.select = new Select<ColorMode>({
+			input: this.input,
 			disabled: this.disabled,
 			container: selectContainer,
 			options: ['hex', 'hex8', 'rgba', 'hsla', 'hsva'],

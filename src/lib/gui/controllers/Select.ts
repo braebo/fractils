@@ -1,4 +1,5 @@
 import type { State } from '../../utils/state'
+import type { Input } from '../inputs/Input'
 
 import { getScrollParent } from '../../dom/scrollParent'
 import { stringify } from '../../utils/stringify'
@@ -14,6 +15,7 @@ export type LabeledOption<T> = { label: string; value: T }
 export type Option<T> = T | LabeledOption<T>
 
 export interface SelectInputOptions<T> {
+	input: Input
 	container: HTMLDivElement
 	disabled: boolean
 	/**
@@ -54,7 +56,7 @@ export type SelectElements = {
 }
 
 export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
-	input = undefined as never
+	// input = undefined as never
 	element: HTMLDivElement
 
 	opts: SelectInputOptions<T> & {
@@ -127,7 +129,7 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 			textContent: String(this.getText(this.selected)),
 		})
 
-		this.listen(selected, 'click', this.toggle)
+		this.listen(selected, 'click', this.toggle.bind(this))
 
 		const dropdown = create('div', {
 			classes: ['fracgui-controller-select-dropdown'],
@@ -183,7 +185,7 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 	 * @param option The option to add.
 	 * @returns The id of the added option.
 	 */
-	add = (option: Option<T>): string => {
+	add(option: Option<T>): string {
 		const opt = toLabeledOption(option)
 
 		const id = nanoid()
@@ -195,7 +197,7 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 			dataset: { optionId: id },
 		})
 
-		this.listen(el, 'click', this.select)
+		this.listen(el, 'click', this.select.bind(this))
 		// el.addEventListener('click', this.select)
 		// this.#disposeCallbacks.set(id, () => el.removeEventListener('click', this.select))
 
@@ -212,7 +214,7 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 	 * Removes an option from the select controller.
 	 * @param id The id of the option to remove.
 	 */
-	remove = (id: string) => {
+	remove(id: string) {
 		const found = this.optionMap.get(id)
 		if (!found) {
 			console.error({ this: this })
@@ -234,7 +236,7 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 		element.remove()
 	}
 
-	select = (
+	select(
 		v: Option<T> | Event,
 		/**
 		 * When `false`, the select controller won't call {@link onChange}
@@ -242,7 +244,7 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 		 * @default true
 		 */
 		bubble = true,
-	) => {
+	) {
 		if (this.disabled) {
 			this.#log.fn('select').warn('Select is disabled', { this: this })
 			return this
@@ -291,25 +293,26 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 	}
 
 	/** Toggles the dropdown's visibility. */
-	toggle = () => {
+	toggle() {
 		this.#log.fn('toggle').debug({ this: this })
 		this.expanded ? this.close() : this.open()
 	}
 
 	/** Shows the dropdown. */
-	open = () => {
+	open() {
 		this.expanded = true
-		document.body.appendChild(this.elements.dropdown)
+		this.opts.input.folder.root.wrapper.appendChild(this.elements.dropdown)
 		this.elements.dropdown.classList.add('expanded')
 		this.elements.selected.classList.add('active')
-
 		this.updatePosition()
 
 		// We need to monitor the selected element's scroll parent for scroll events to keep the dropdown position synced up.
 		this.#scrollParent ??= getScrollParent(this.elements.selected)
-		this.#scrollParent?.addEventListener('scroll', this.updatePosition)
+		this.#scrollParent?.addEventListener('scroll', this.updatePosition.bind(this))
 
+		removeEventListener('keydown', this.#closeOnEscape)
 		addEventListener('keydown', this.#closeOnEscape)
+		removeEventListener('click', this.#clickOutside)
 		addEventListener('click', this.#clickOutside)
 		setTimeout(() => {
 			this.elements.dropdown.style.pointerEvents = 'all'
@@ -319,6 +322,9 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 			this.#currentSelection = this.selected
 
 			for (const [, { option, element }] of this.optionMap) {
+				element.removeEventListener('mouseenter', () => {
+					this.select(option)
+				})
 				element.addEventListener('mouseenter', () => {
 					this.select(option)
 				})
@@ -326,25 +332,34 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 		}
 	}
 
-	/** Positions the dropdown to the selected element. */
-	updatePosition = () => {
-		const { top, left, width, height } = this.elements.selected.getBoundingClientRect()
-		const scrollTop = this.elements.selected.scrollTop
-
+	/**
+	 * Positions the dropdown to the selected element.
+	 */
+	updatePosition() {
 		this.elements.dropdown.style.setProperty('width', 'unset')
-		const dropdownWidth = this.elements.dropdown.getBoundingClientRect().width
+		this.elements.dropdown.style.setProperty('top', 'unset')
 
-		this.elements.dropdown.style.setProperty('top', `${top + height + scrollTop}px`)
-		this.elements.dropdown.style.setProperty('width', `${Math.max(width, dropdownWidth)}px`)
+		const { dropdown, selected } = this.elements
+		const guiScrollTop = this.opts.input.folder.root.elements.content.scrollTop
+		const { top, left } = selected.getBoundingClientRect()
 
-		// We need to calculate the left position needed to center the dropdown agains the selected element.
+		this.elements.dropdown.style.setProperty(
+			'width',
+			`${Math.max(selected.offsetWidth, dropdown.offsetWidth)}px`,
+		)
+		this.elements.dropdown.style.setProperty(
+			'top',
+			`${top + selected.offsetHeight - guiScrollTop}px`,
+		)
 		this.elements.dropdown.style.setProperty(
 			'left',
-			`${left + width / 2 - this.elements.dropdown.offsetWidth / 2}px`,
+			`${left + selected.offsetWidth / 2 - dropdown.offsetWidth / 2}px`,
 		)
 	}
 
-	/** Hides the dropdown. */
+	/**
+	 * Hides the dropdown.
+	 */
 	close = () => {
 		this.expanded = false
 		this.elements.dropdown.classList.remove('expanded')
@@ -352,13 +367,12 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 		this.elements.dropdown.style.pointerEvents = 'none'
 		removeEventListener('keydown', this.#closeOnEscape)
 		removeEventListener('click', this.#clickOutside)
-		this.#scrollParent?.removeEventListener('scroll', this.updatePosition)
+		this.#scrollParent?.removeEventListener('scroll', this.updatePosition.bind(this))
 		setTimeout(() => {
 			this.elements.dropdown.remove()
 		}, 200)
 
 		if (this.opts.selectOnHover) {
-			// this.select(this.#currentSelection)
 			for (const [_, { option, element }] of this.optionMap) {
 				element.removeEventListener('mouseenter', () => {
 					this.select(option)
@@ -404,7 +418,7 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 			} else el.remove()
 		}
 
-		this.#scrollParent?.removeEventListener('scroll', this.updatePosition)
+		this.#scrollParent?.removeEventListener('scroll', this.updatePosition.bind(this))
 		removeEventListener('click', this.#clickOutside)
 
 		super.dispose()

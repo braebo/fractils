@@ -84,6 +84,7 @@ export class InputSelect<T> extends Input<
 		})
 
 		this.select = new Select<T>({
+			input: this,
 			container,
 			options: opts.options,
 			selected: this.initialValue,
@@ -190,20 +191,20 @@ export class InputSelect<T> extends Input<
 		}
 	}
 
-	set = () => {
+	set() {
 		this.#log.fn('set').info()
 		this.select.select(this.state.value as T, false)
 		return this
 	}
 
-	enable = () => {
+	enable() {
 		this.#log.fn('enable').info()
 		this.disabled = false
 		this.select.disable()
 		return this
 	}
 
-	disable = () => {
+	disable() {
 		this.#log.fn('disable').info()
 		this.disabled = true
 		this.select.disable()
