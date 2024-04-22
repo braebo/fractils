@@ -282,7 +282,6 @@
 }
 
 .fracgui-root > .fracgui-content-wrapper > .fracgui-folder {
-	// display: flex;
 	padding-right: 0.25rem;
 	background: #15161d;
 }
@@ -296,6 +295,10 @@
 
 	&.hidden {
 		display: none;
+	}
+
+	&:not(.fracgui-root) {
+		position: relative;
 	}
 }
 
@@ -315,7 +318,7 @@
 	outline-offset: -1px;
 	box-shadow: var(--fracgui-folder-header_box-shadow, 0 0 0.1rem #000 inset);
 
-	transition: 0.15s;
+	transition: 0.1s;
 	cursor: pointer;
 
 	.fracgui-title {
@@ -329,10 +332,10 @@
 			'wght' var(--fracgui-folder-header_font-weight),
 			'wdth' 100;
 
-		transition: 0.15s;
+		transition: 0.1s;
 	}
 
-	.icon-folder-container {
+	.fracgui-folder-icon-container {
 		width: 1.1rem !important;
 		height: 1.1rem !important;
 
@@ -357,7 +360,7 @@
 		border-left: var(--fracgui-folder-content_padding-left) solid
 			var(--fracgui-folder-header_background);
 
-		transition: 0.15s;
+		transition: 0.1s;
 	}
 }
 
@@ -407,7 +410,8 @@
 		}
 	}
 
-	transition: 0.15s;
+	// transition: 0.15s;
+	transition: 0.1s;
 }
 
 .fracgui-controller-button {
@@ -623,7 +627,7 @@ $icon-height: 0.9rem;
 	padding: 0.25rem 0.1rem 0.25rem 0;
 
 	cursor: pointer;
-	transition: 0.15s;
+	transition: 0.1s;
 	backface-visibility: hidden;
 }
 
@@ -1004,7 +1008,7 @@ input.fracgui-search-input {
 
 	color: var(--fracgui-fg-c);
 	background: var(--fracgui-drawer-toggle_background);
-	transition: 0.15s;
+	transition: 0.1s;
 	box-shadow: -1px 0 1px 0.5px rgba(var(--fracgui-bg-a-rgb), 0.5) inset;
 
 	border-top-right-radius: var(--fracgui-radius-sm);
@@ -1226,7 +1230,7 @@ input.fracgui-search-input {
 					border-radius: var(--fracgui-radius-xs);
 					box-shadow: none;
 
-					transition: 0.15s;
+					transition: 0.1s;
 
 					svg {
 						width: 1rem;
@@ -1236,7 +1240,7 @@ input.fracgui-search-input {
 						opacity: 0.1;
 
 						scale: 1;
-						transition: 0.15s;
+						transition: 0.1s;
 
 						user-select: none;
 						pointer-events: none;
@@ -1387,7 +1391,7 @@ input.fracgui-search-input {
 
 			@include fontMono;
 
-			transition: 0.15s;
+			transition: 0.1s;
 			overflow: visible;
 
 			&::-webkit-inner-spin-button,
@@ -1438,7 +1442,7 @@ input.fracgui-search-input {
 				text-align: start;
 				padding-left: 0.5rem;
 
-				transition: 0.15s;
+				transition: 0.1s;
 				overflow: visible;
 
 				&:hover {

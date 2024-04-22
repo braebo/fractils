@@ -11,7 +11,15 @@ export function demoGui(params: Params) {
 		},
 	})
 
-	const f1 = gui.addFolder({ title: 'main' })
+	gui.addText({
+		title: 'title',
+		binding: {
+			target: gui,
+			key: 'title',
+		},
+	})
+
+	const f1 = gui.addFolder({ title: 'base' })
 
 	f1.add({
 		title: 'count',
@@ -33,7 +41,6 @@ export function demoGui(params: Params) {
 		min: 10,
 		max: window.innerWidth,
 		step: 1,
-		// }).set(window.innerWidth / 2)
 	})
 
 	f1.addNumber({
@@ -45,10 +52,9 @@ export function demoGui(params: Params) {
 		min: 10,
 		max: window.innerHeight,
 		step: 1,
-		// }).set(window.innerHeight / 2)
 	})
 
-	const motionFolder = f1.addFolder({ title: 'motion' })
+	const motionFolder = gui.addFolder({ title: 'motion' })
 
 	motionFolder.addNumber({
 		title: 'speed',
@@ -91,7 +97,7 @@ export function demoGui(params: Params) {
 		},
 	})
 
-	const appearanceFolder = f1.addFolder({ title: 'appearance' })
+	const appearanceFolder = gui.addFolder({ title: 'appearance' })
 
 	appearanceFolder.addNumber({
 		title: 'size',
