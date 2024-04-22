@@ -69,7 +69,7 @@ export class Search {
 	search = (query: string) => {
 		this.needle = query
 
-		for (const [key, controller] of this.folder.allControls) {
+		for (const [key, controller] of this.folder.allInputs) {
 			const search_result = fuzzysearch(this.needle.toLocaleLowerCase(), key.toLowerCase())
 				? 'hit'
 				: 'miss'
@@ -127,7 +127,7 @@ export class Search {
 	}
 
 	clear = () => {
-		for (const [, controller] of this.folder.allControls) {
+		for (const [, controller] of this.folder.allInputs) {
 			this.#expand(controller.elements.container)
 		}
 	}

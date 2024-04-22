@@ -13,7 +13,7 @@ export class PresetManager {
 	save(presetName: string) {
 		const preset = {} as Preset
 
-		for (const [id, controller] of this.folder.allControls) {
+		for (const [id, controller] of this.folder.allInputs) {
 			preset[id] = controller.state.value
 		}
 
@@ -29,7 +29,7 @@ export class PresetManager {
 		}
 
 		for (const [id, _value] of entries(preset)) {
-			const controller = this.folder.controls.get(id)
+			const controller = this.folder.inputs.get(id)
 			if (!controller) continue
 
 			// controller.state.set(value)

@@ -802,7 +802,7 @@ export class ThemeEditor {
 
 		for (const folder of this.gui.allChildren) {
 			// Delete all the empty folders.
-			if (!folder.controls.size && !folder.children.length) {
+			if (!folder.inputs.size && !folder.children.length) {
 				folder.dispose()
 				continue
 			}

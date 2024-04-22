@@ -141,6 +141,7 @@ export const GUI_DEFAULTS: GuiOptions = {
 	theme: 'default',
 	hidden: false,
 	parentFolder: undefined,
+	depth: 0,
 } as const
 
 /**

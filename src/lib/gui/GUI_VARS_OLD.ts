@@ -223,7 +223,7 @@ export function generateVarGui(target: HTMLElement, parentFolder: Folder) {
 
 	// delete empty folders
 	for (const f of folders.values()) {
-		if (f.controls.size === 0) {
+		if (f.inputs.size === 0) {
 			f.dispose()
 		} else {
 			f.close()

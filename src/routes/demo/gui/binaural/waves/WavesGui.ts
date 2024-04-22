@@ -66,7 +66,7 @@ export class WavesGui extends Gui {
 						onClick: () => {
 							if (waves.playing) return
 							waves.start()
-							this.allControls.forEach(c => c.refresh())
+							this.allInputs.forEach(c => c.refresh())
 						},
 						isActive() {
 							return waves.playing && !waves.stopping
