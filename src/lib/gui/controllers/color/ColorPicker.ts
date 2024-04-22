@@ -116,7 +116,7 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 		this.listen(hueSlider, 'input', this.#updateStateFromHue as EventListener)
 
 		tooltip(hueSlider, {
-			text: () => this.input.state.value.hsla.h,
+			text: () => `${this.input.state.value.hsla.h}`,
 			placement: 'top',
 			offsetX: '0px',
 			anchor: {
@@ -136,7 +136,7 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 		this.listen(alphaSlider, 'input', this.setAlpha as EventListener)
 
 		tooltip(alphaSlider, {
-			text: () => this.input.state.value.alpha,
+			text: () => `${this.input.state.value.alpha}`,
 			placement: 'top',
 			offsetX: '0px',
 			anchor: {
