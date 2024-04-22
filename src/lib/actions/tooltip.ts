@@ -185,6 +185,8 @@ export class Tooltip {
 		this.text = this.text
 		setTimeout(() => this.updatePosition(), 0)
 		this.#maybeWatchAnchor()
+		clearTimeout(this.#delayInTimer)
+		clearTimeout(this.#delayOutTimer)
 	}
 
 	getText: () => string
