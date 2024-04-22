@@ -69,6 +69,21 @@ html[theme='light'] {
 	min-height: 100vh;
 }
 
+section.page {
+	@include flex;
+	@include col;
+	@include center;
+
+	gap: 1rem;
+
+	max-width: calc(100vw - var(--padding-sm));
+	padding: var(--padding-sm);
+	margin: 2rem auto;
+
+	border-radius: 0.5rem;
+	width: fit-content;
+}
+
 a {
 	color: inherit;
 	text-decoration: underline;

@@ -1,3 +1,38 @@
+@keyframes fly-in {
+	from {
+		transform: translateY(0.5rem);
+	}
+	to {
+		transform: translateY(0);
+	}
+}
+@keyframes fly-out {
+	from {
+		transform: translateY(0);
+	}
+	to {
+		transform: translateY(0.5rem);
+	}
+}
+
+@keyframes land-in {
+	from {
+		transform: scale(1.2);
+	}
+	to {
+		transform: scale(1);
+	}
+}
+
+@keyframes expand {
+	from {
+		transform: scaleX(0);
+	}
+	to {
+		transform: scaleX(1);
+	}
+}
+
 @keyframes fade-out {
 	from {
 		opacity: 1;
@@ -117,40 +152,5 @@
 	to {
 		clip-path: inset(0);
 		opacity: 1;
-	}
-}
-
-@keyframes fly-in {
-	from {
-		transform: translateY(0.5rem);
-	}
-	to {
-		transform: translateY(0);
-	}
-}
-@keyframes fly-out {
-	from {
-		transform: translateY(0);
-	}
-	to {
-		transform: translateY(0.5rem);
-	}
-}
-
-@keyframes land-in {
-	from {
-		transform: scale(1.2);
-	}
-	to {
-		transform: scale(1);
-	}
-}
-
-@keyframes expand {
-	from {
-		transform: scaleX(0);
-	}
-	to {
-		transform: scaleX(1);
 	}
 }
