@@ -65,14 +65,6 @@
 					"fontStyle": ""
 				}
 			},
-			//? Folded code background.
-			{
-				"scope": ["editor.foldBackground"],
-				"settings": {
-					"foreground": "red",
-					"background": "blue"
-				}
-			},
 			//? More subtle Template Tags
 			// {
 			// 	"scope": [
@@ -135,7 +127,7 @@
 		},
 		{
 			"tag": "todo",
-			"color": "#FF8C00",
+			"color": "#ff8c00a2",
 			"strikethrough": false,
 			"underline": false,
 			"backgroundColor": "transparent",
@@ -197,7 +189,8 @@
 
 	//- File nesting.
 
-	"explorer.fileNesting.enabled": true,
+	// "explorer.fileNesting.enabled": true,
+	"explorer.fileNesting.enabled": false,
 	"explorer.fileNesting.expand": false,
 	"explorer.fileNesting.patterns": {
 		".gitignore": ".gitattributes, .gitmodules, .gitmessage, .mailmap, .git-blame*",
@@ -222,5 +215,5 @@
 	"workbench.panel.defaultLocation": "left",
 	"window.zoomLevel": 0,
 	"focus.highlightRange": "block",
-	"workbench.colorTheme": "Mo Darker"
+	"workbench.colorTheme": "One Dark Pro Monokai Darker"
 }
