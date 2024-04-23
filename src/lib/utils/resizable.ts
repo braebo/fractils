@@ -8,6 +8,17 @@ import { state } from '../utils/state'
 import { select } from './select'
 import { clamp } from './clamp'
 import { gr } from './l'
+import { collisionClampX, collisionClampY } from './collisions'
+
+/**
+ * Represents a dom element's bounding rectangle.
+ */
+export interface VirtualRect {
+	left: number
+	top: number
+	right: number
+	bottom: number
+}
 
 /**
  * The sides of an element that can be resized by the {@link resizable} action.
@@ -19,6 +30,12 @@ export type Side = 'top' | 'right' | 'bottom' | 'left'
  * @see {@link Side}
  */
 export type Corner = 'top-left' | 'top-right' | 'bottom-right' | 'bottom-left'
+
+//! We should use the same bounds as Draggable...
+// /**
+//  * Represents the bounds to which the draggable element is limited to.
+//  */
+// export type DragBounds = ElementOrSelector | false | Partial<VirtualRect>
 
 /**
  * Options for the {@link resizable} action.
@@ -70,6 +87,25 @@ export interface ResizableOptions {
 	 * @default window['document']['documentElement']
 	 */
 	bounds: ElementOrSelector
+
+	//! We should use the same bounds as Draggable...
+	//  **
+	//  * The boundary to which the draggable element is limited to.
+	//  *
+	//  * Valid values:
+	//  *
+	//  * - `undefined` - defaults to `document.documentElement`
+	//  * - An `HTMLElement` or query selector string, _i.e. `.container` or `#container`_
+	//  * - `'parent'` - the element's {@link HTMLElement.offsetParent|offsetParent}
+	//  * - `'body'` - `document.body`
+	//  * - `false` - no boundary
+	//  * - `{ top: number, right: number, bottom: number, left: number }` - A custom {@link VirtualRect rect} relative to the viewport.
+	//  *
+	//  * **Note**: Make sure the bounds is smaller than the node's min size.
+	//  * @default undefined
+	//  */
+	//  bounds: DragBounds
+
 	/**
 	 * Element's or selectors which will act as collision obstacles for the draggable element.
 	 */
@@ -267,53 +303,53 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 
 	clickOffset = { x: 0, y: 0 }
 
-	getClosestObstLeft = () => {
-		let closestObst = -Infinity
-		for (const obstacle of this.obstacleEls) {
-			const o = obstacle.getBoundingClientRect()
-			// too high || too low || opposite side
-			if (this.rect.top > o.bottom || this.rect.bottom < o.top || this.rect.left < o.right)
-				continue
-			closestObst = Math.max(closestObst, o.right)
-		}
-		return closestObst
-	}
+	// getClosestObstLeft = () => {
+	// 	let closestObst = -Infinity
+	// 	for (const obstacle of this.obstacleEls) {
+	// 		const o = obstacle.getBoundingClientRect()
+	// 		// too high || too low || opposite side
+	// 		if (this.rect.top > o.bottom || this.rect.bottom < o.top || this.rect.left < o.right)
+	// 			continue
+	// 		closestObst = Math.max(closestObst, o.right)
+	// 	}
+	// 	return closestObst
+	// }
 
-	getClosestObstRight = () => {
-		let closestObst = Infinity
-		for (const obstacle of this.obstacleEls) {
-			const o = obstacle.getBoundingClientRect()
-			// too high || too low || opposite side
-			if (this.rect.top > o.bottom || this.rect.bottom < o.top || this.rect.right > o.left)
-				continue
-			closestObst = Math.min(closestObst, o.left)
-		}
-		return closestObst
-	}
+	// getClosestObstRight = () => {
+	// 	let closestObst = Infinity
+	// 	for (const obstacle of this.obstacleEls) {
+	// 		const o = obstacle.getBoundingClientRect()
+	// 		// too high || too low || opposite side
+	// 		if (this.rect.top > o.bottom || this.rect.bottom < o.top || this.rect.right > o.left)
+	// 			continue
+	// 		closestObst = Math.min(closestObst, o.left)
+	// 	}
+	// 	return closestObst
+	// }
 
-	getClosestObstTop = () => {
-		let closestObst = -Infinity
-		for (const obstacle of this.obstacleEls) {
-			const o = obstacle.getBoundingClientRect()
-			// too high || too low || opposite side
-			if (this.rect.left > o.right || this.rect.right < o.left || this.rect.top < o.bottom)
-				continue
-			closestObst = Math.max(closestObst, o.bottom)
-		}
-		return closestObst
-	}
+	// getClosestObstTop = () => {
+	// 	let closestObst = -Infinity
+	// 	for (const obstacle of this.obstacleEls) {
+	// 		const o = obstacle.getBoundingClientRect()
+	// 		// too high || too low || opposite side
+	// 		if (this.rect.left > o.right || this.rect.right < o.left || this.rect.top < o.bottom)
+	// 			continue
+	// 		closestObst = Math.max(closestObst, o.bottom)
+	// 	}
+	// 	return closestObst
+	// }
 
-	getClosestObstBottom = () => {
-		let closestObst = Infinity
-		for (const obstacle of this.obstacleEls) {
-			const o = obstacle.getBoundingClientRect()
-			// too high || too low || opposite side
-			if (this.rect.left > o.right || this.rect.right < o.left || this.rect.bottom > o.top)
-				continue
-			closestObst = Math.min(closestObst, o.top)
-		}
-		return closestObst
-	}
+	// getClosestObstBottom = () => {
+	// 	let closestObst = Infinity
+	// 	for (const obstacle of this.obstacleEls) {
+	// 		const o = obstacle.getBoundingClientRect()
+	// 		// too high || too low || opposite side
+	// 		if (this.rect.left > o.right || this.rect.right < o.left || this.rect.bottom > o.top)
+	// 			continue
+	// 		closestObst = Math.min(closestObst, o.top)
+	// 	}
+	// 	return closestObst
+	// }
 
 	onGrab = (e: PointerEvent) => {
 		this.node.setPointerCapture(e.pointerId)
@@ -337,7 +373,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 		this.#cleanupGrabListener = () => document.removeEventListener('pointermove', this.onMove)
 
 		// this.node.dispatchEvent(new CustomEvent('grab', { detail: { side } }))
-
+		this.#computedStyleValues()
 		document.addEventListener('pointerup', this.onUp, { once: true })
 	}
 
@@ -359,54 +395,153 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 		return this.node.getBoundingClientRect()
 	}
 
-	resizeLeft = (x: number) => {
-		const { minWidth, maxWidth, paddingLeft, paddingRight, borderLeftWidth, borderRightWidth } =
-			window.getComputedStyle(this.node)
+	// resizeLeft = (x: number) => {
+	// 	const { minWidth, maxWidth, paddingLeft, paddingRight, borderLeftWidth, borderRightWidth } =
+	// 		window.getComputedStyle(this.node)
 
-		const clampedX = Math.max(x, this.getClosestObstLeft())
-		let deltaX = clampedX - this.rect.left
-		if (deltaX === 0) return this
+	// 	const clampedX = Math.max(x, this.getClosestObstLeft())
+	// 	let deltaX = clampedX - this.rect.left
+	// 	if (deltaX === 0) return this
 
-		const borderBox =
-			parseFloat(paddingLeft) +
-			parseFloat(paddingRight) +
-			parseFloat(borderLeftWidth) +
-			parseFloat(borderRightWidth)
-		const min = Math.max((parseFloat(minWidth) || 0) + borderBox, 25)
+	// 	const borderBox =
+	// 		parseFloat(paddingLeft) +
+	// 		parseFloat(paddingRight) +
+	// 		parseFloat(borderLeftWidth) +
+	// 		parseFloat(borderRightWidth)
+	// 	const min = Math.max((parseFloat(minWidth) || 0) + borderBox, 25)
 
-		const newWidth = clamp(this.rect.width - deltaX, min, +maxWidth || Infinity)
+	// 	const newWidth = clamp(this.rect.width - deltaX, min, +maxWidth || Infinity)
 
-		if (newWidth === min) deltaX = this.rect.width - newWidth
-		this.translateX += deltaX
-		this.node.style.setProperty('translate', `${this.translateX}px ${this.translateY}px`)
+	// 	if (newWidth === min) deltaX = this.rect.width - newWidth
+	// 	this.translateX += deltaX
+	// 	this.node.style.setProperty('translate', `${this.translateX}px ${this.translateY}px`)
 
-		this.node.style.width = `${newWidth}px`
-		return this
+	// 	this.node.style.width = `${newWidth}px`
+	// 	return this
+	// }
+
+	// resizeRight = (x: number) => {
+	// 	const { minWidth, maxWidth, paddingLeft, paddingRight, borderLeftWidth, borderRightWidth } =
+	// 		window.getComputedStyle(this.node)
+
+	// 	const clampedX = Math.min(x, this.getClosestObstRight())
+	// 	let deltaX = clampedX - this.rect.right
+	// 	if (deltaX === 0) return this
+
+	// 	const borderBox =
+	// 		parseFloat(paddingLeft) +
+	// 		parseFloat(paddingRight) +
+	// 		parseFloat(borderLeftWidth) +
+	// 		parseFloat(borderRightWidth)
+	// 	const min = Math.max((parseFloat(minWidth) || 0) + borderBox, 25)
+
+	// 	const newWidth = clamp(this.rect.width + deltaX, min, +maxWidth || Infinity)
+
+	// 	this.node.style.width = `${newWidth}px`
+	// 	return this
+	// }
+
+	// resizeTop = (y: number) => {
+	// 	const {
+	// 		minHeight,
+	// 		maxHeight,
+	// 		paddingTop,
+	// 		paddingBottom,
+	// 		borderTopWidth,
+	// 		borderBottomWidth,
+	// 	} = window.getComputedStyle(this.node)
+
+	// 	const clampedY = Math.max(y, this.getClosestObstTop())
+	// 	let deltaY = clampedY - this.rect.top
+	// 	if (deltaY === 0) return this
+
+	// 	const borderBox =
+	// 		parseFloat(paddingTop) +
+	// 		parseFloat(paddingBottom) +
+	// 		parseFloat(borderTopWidth) +
+	// 		parseFloat(borderBottomWidth)
+	// 	const min = Math.max((parseFloat(minHeight) || 0) + borderBox, 25)
+
+	// 	const newHeight = clamp(this.rect.height - deltaY, min, +maxHeight || Infinity)
+
+	// 	if (newHeight === min) deltaY = this.rect.height - newHeight
+	// 	this.translateY += deltaY
+	// 	this.node.style.setProperty('translate', `${this.translateX}px ${this.translateY}px`)
+
+	// 	this.node.style.height = `${newHeight}px`
+	// 	return this
+	// }
+
+	// resizeBottom = (y: number) => {
+	// 	const {
+	// 		minHeight,
+	// 		maxHeight,
+	// 		paddingTop,
+	// 		paddingBottom,
+	// 		borderTopWidth,
+	// 		borderBottomWidth,
+	// 	} = window.getComputedStyle(this.node)
+	// 	const yClosest = this.getClosestObstBottom()
+
+	// 	const clampedY = Math.min(y, yClosest)
+	// 	let deltaY = clampedY - this.rect.bottom
+	// 	if (deltaY === 0) return this
+
+	// 	const borderBox =
+	// 		parseFloat(paddingTop) +
+	// 		parseFloat(paddingBottom) +
+	// 		parseFloat(borderTopWidth) +
+	// 		parseFloat(borderBottomWidth)
+	// 	const min = Math.max((parseFloat(minHeight) || 0) + borderBox, 25)
+
+	// 	const newHeight = clamp(this.rect.height + deltaY, min, +maxHeight || Infinity)
+
+	// 	this.node.style.height = `${newHeight}px`
+	// 	return this
+	// }
+
+	// #updateBounds = () => {
+	// 	// refresh style left & top
+	// 	const styleLeft = parseFloat(this.node.style.left) || 0
+	// 	this.#boundsRect.left = -styleLeft
+	// 	this.#boundsRect.right =
+	// 		this.bounds.right - this.bounds.left - (this.rect.right - this.rect.left) - styleLeft
+
+	// 	const styleTop = parseFloat(this.node.style.top) || 0
+	// 	this.#boundsRect.top = -styleTop
+	// 	this.#boundsRect.bottom =
+	// 		this.bounds.bottom - this.bounds.top - styleTop - (this.rect.bottom - this.rect.top)
+	// 	// refresh bounds element padding ...
+	// 	if (this.boundsEl) {
+	// 		const { paddingLeft, paddingRight, paddingTop, paddingBottom } =
+	// 			window.getComputedStyle(this.boundsEl)
+	// 		this.#boundsRect.left -= parseFloat(paddingLeft)
+	// 		this.#boundsRect.right -= parseFloat(paddingRight)
+	// 		this.#boundsRect.top -= parseFloat(paddingTop)
+	// 		this.#boundsRect.bottom -= parseFloat(paddingBottom)
+	// 	}
+	// }
+
+	// Private computedStyleValues
+
+	#minWidth: GLfloat = 0
+	#maxWidth: GLfloat = 0
+	#minHeight: GLfloat = 0
+	#maxHeight: GLfloat = 0
+	#boundsRect: VirtualRect = {
+		left: -Infinity,
+		top: -Infinity,
+		right: Infinity,
+		bottom: Infinity,
 	}
-
-	resizeRight = (x: number) => {
-		const { minWidth, maxWidth, paddingLeft, paddingRight, borderLeftWidth, borderRightWidth } =
-			window.getComputedStyle(this.node)
-
-		const clampedX = Math.min(x, this.getClosestObstRight())
-		let deltaX = clampedX - this.rect.right
-		if (deltaX === 0) return this
-
-		const borderBox =
-			parseFloat(paddingLeft) +
-			parseFloat(paddingRight) +
-			parseFloat(borderLeftWidth) +
-			parseFloat(borderRightWidth)
-		const min = Math.max((parseFloat(minWidth) || 0) + borderBox, 25)
-
-		const newWidth = clamp(this.rect.width + deltaX, min, +maxWidth || Infinity)
-
-		this.node.style.width = `${newWidth}px`
-		return this
-	}
-
-	resizeTop = (y: number) => {
+	#computedStyleValues = () => {
 		const {
+			minWidth,
+			maxWidth,
+			paddingLeft,
+			paddingRight,
+			borderLeftWidth,
+			borderRightWidth,
 			minHeight,
 			maxHeight,
 			paddingTop,
@@ -415,52 +550,84 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			borderBottomWidth,
 		} = window.getComputedStyle(this.node)
 
-		const clampedY = Math.max(y, this.getClosestObstTop())
-		let deltaY = clampedY - this.rect.top
-		if (deltaY === 0) return this
+		const borderBoxX =
+			parseFloat(paddingLeft) +
+			parseFloat(paddingRight) +
+			parseFloat(borderLeftWidth) +
+			parseFloat(borderRightWidth)
 
-		const borderBox =
+		const borderBoxY =
 			parseFloat(paddingTop) +
 			parseFloat(paddingBottom) +
 			parseFloat(borderTopWidth) +
 			parseFloat(borderBottomWidth)
-		const min = Math.max((parseFloat(minHeight) || 0) + borderBox, 25)
 
-		const newHeight = clamp(this.rect.height - deltaY, min, +maxHeight || Infinity)
+		this.#minWidth = Math.max((parseFloat(minWidth) || 0) + borderBoxX, 25)
+		this.#maxWidth = Math.min(parseFloat(maxWidth) || Infinity)
+		this.#minHeight = Math.max((parseFloat(minHeight) || 0) + borderBoxY, 25)
+		this.#maxHeight = Math.min(parseFloat(maxHeight) || Infinity)
 
-		if (newHeight === min) deltaY = this.rect.height - newHeight
-		this.translateY += deltaY
-		this.node.style.setProperty('translate', `${this.translateX}px ${this.translateY}px`)
-
-		this.node.style.height = `${newHeight}px`
-		return this
+		this.#boundsRect = this.bounds.getBoundingClientRect()
 	}
 
-	resizeBottom = (y: number) => {
-		const {
-			minHeight,
-			maxHeight,
-			paddingTop,
-			paddingBottom,
-			borderTopWidth,
-			borderBottomWidth,
-		} = window.getComputedStyle(this.node)
-		const yClosest = this.getClosestObstBottom()
+	resizeX = (x: number, borderleft?: boolean) => {
+		let deltaX
+		// if (this.#boundsRect) x = clamp(x, this.#boundsRect.left, this.#boundsRect.right)
+		if (borderleft) {
+			deltaX = x - this.rect.left
+			if (deltaX === 0) return this
 
-		const clampedY = Math.min(y, yClosest)
-		let deltaY = clampedY - this.rect.bottom
-		if (deltaY === 0) return this
+			deltaX = collisionClampX(deltaX, this.rect, this.obstacleEls)
+			if (this.#boundsRect) deltaX = Math.max(deltaX, this.#boundsRect.left - this.rect.left)
 
-		const borderBox =
-			parseFloat(paddingTop) +
-			parseFloat(paddingBottom) +
-			parseFloat(borderTopWidth) +
-			parseFloat(borderBottomWidth)
-		const min = Math.max((parseFloat(minHeight) || 0) + borderBox, 25)
+			const newWidth = clamp(this.rect.width - deltaX, this.#minWidth, this.#maxWidth)
+			if (newWidth === this.#minWidth) deltaX = this.rect.width - newWidth
+			this.translateX += deltaX
+			this.node.style.setProperty('translate', `${this.translateX}px ${this.translateY}px`)
 
-		const newHeight = clamp(this.rect.height + deltaY, min, +maxHeight || Infinity)
+			this.node.style.width = `${newWidth}px`
+		} else {
+			deltaX = x - this.rect.right
+			if (deltaX === 0) return this
 
-		this.node.style.height = `${newHeight}px`
+			deltaX = collisionClampX(deltaX, this.rect, this.obstacleEls)
+			if (this.#boundsRect)
+				deltaX = Math.min(deltaX, this.#boundsRect.right - this.rect.right)
+			const newWidth = clamp(this.rect.width + deltaX, this.#minWidth, this.#maxWidth)
+			this.node.style.width = `${newWidth}px`
+		}
+		return this
+	}
+	resizeY = (y: number, bordertop?: boolean) => {
+		let deltaY
+		// if (this.#boundsRect) y = clamp(y, this.#boundsRect.top, this.#boundsRect.bottom)
+		if (bordertop) {
+			deltaY = y - this.rect.top
+			if (deltaY != 0) {
+				deltaY = collisionClampY(deltaY, this.rect, this.obstacleEls)
+				if (this.#boundsRect)
+					deltaY = Math.max(deltaY, this.#boundsRect.top - this.rect.top)
+				const newHeight = clamp(this.rect.height - deltaY, this.#minHeight, this.#maxHeight)
+
+				if (newHeight === this.#minHeight) deltaY = this.rect.height - newHeight
+				this.translateY += deltaY
+				this.node.style.setProperty(
+					'translate',
+					`${this.translateX}px ${this.translateY}px`,
+				)
+				this.node.style.height = `${newHeight}px`
+			}
+		} else {
+			deltaY = y - this.rect.bottom
+			if (deltaY !== 0) {
+				deltaY = collisionClampY(deltaY, this.rect, this.obstacleEls)
+				if (this.#boundsRect)
+					deltaY = Math.min(deltaY, this.#boundsRect.bottom - this.rect.bottom)
+				const newHeight = clamp(this.rect.height + deltaY, this.#minHeight, this.#maxHeight)
+				this.node.style.height = `${newHeight}px`
+			}
+		}
+
 		return this
 	}
 
@@ -473,38 +640,68 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			return
 		}
 
-		const bounds = this.boundsRect
+		// const bounds = this.boundsRect
 
-		const x = clamp(e.clientX, bounds.left, bounds.left + bounds.width) - this.clickOffset.x
-		const y = clamp(e.clientY, bounds.top, bounds.top + bounds.height) - this.clickOffset.y
+		// const x = clamp(e.clientX, bounds.left, bounds.left + bounds.width) - this.clickOffset.x
+		// const y = clamp(e.clientY, bounds.top, bounds.top + bounds.height) - this.clickOffset.y
+
+		const x = e.clientX - this.clickOffset.x
+		const y = e.clientY - this.clickOffset.y
 
 		const { side } = this.#activeGrabber.dataset
 		this.#log.fn('onMove').debug(side)
 
+		// switch (side) {
+		// 	case 'top-left':
+		// 		this.resizeTop(y).resizeLeft(x)
+		// 		break
+		// 	case 'top-right':
+		// 		this.resizeTop(y).resizeRight(x)
+		// 		break
+		// 	case 'bottom-right':
+		// 		this.resizeBottom(y).resizeRight(x)
+		// 		break
+		// 	case 'bottom-left':
+		// 		this.resizeBottom(y).resizeLeft(x)
+		// 		break
+		// 	case 'top':
+		// 		this.resizeTop(y)
+		// 		break
+		// 	case 'right':
+		// 		this.resizeRight(x)
+		// 		break
+		// 	case 'bottom':
+		// 		this.resizeBottom(y)
+		// 		break
+		// 	case 'left':
+		// 		this.resizeLeft(x)
+		// 		break
+		// }
+
 		switch (side) {
 			case 'top-left':
-				this.resizeTop(y).resizeLeft(x)
+				this.resizeY(y, true).resizeX(x, true)
 				break
 			case 'top-right':
-				this.resizeTop(y).resizeRight(x)
+				this.resizeY(y, true).resizeX(x)
 				break
 			case 'bottom-right':
-				this.resizeBottom(y).resizeRight(x)
+				this.resizeY(y).resizeX(x)
 				break
 			case 'bottom-left':
-				this.resizeBottom(y).resizeLeft(x)
+				this.resizeY(y).resizeX(x, true)
 				break
 			case 'top':
-				this.resizeTop(y)
+				this.resizeY(y, true)
 				break
 			case 'right':
-				this.resizeRight(x)
+				this.resizeX(x)
 				break
 			case 'bottom':
-				this.resizeBottom(y)
+				this.resizeY(y)
 				break
 			case 'left':
-				this.resizeLeft(x)
+				this.resizeX(x, true)
 				break
 		}
 
