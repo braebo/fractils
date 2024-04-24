@@ -29,19 +29,27 @@ export const COLOR_MODES = [
 
 export interface ColorControllerElements extends ElementMap<ColorPicker> {
 	container: HTMLDivElement
-	/** A color swatch that displays the current color and toggles the color-picker when clicked. */
+	/**
+	 * A color swatch that displays the current color and toggles the color-picker when clicked.
+	 */
 	currentColor: {
 		container: HTMLDivElement
 		displayBackground: HTMLDivElement
 		display: HTMLDivElement
 		copyButton: CopyButton
 	}
-	/** The main input content body. */
+	/**
+	 * The main input content body.
+	 */
 	body: {
 		container: HTMLDivElement
-		/** All elements related to the color picker. */
+		/**
+		 * All elements related to the color picker.
+		 */
 		picker: ColorPickerElements
-		/** Number controllers for rgb/hsl/hsv components. */
+		/**
+		 * Number controllers for rgb/hsl/hsv components.
+		 */
 		components: ColorComponentsElements
 	}
 }
@@ -62,20 +70,29 @@ export const COLOR_INPUT_DEFAULTS: ColorInputOptions = {
 } as const
 
 export class InputColor extends Input<Color, ColorInputOptions, ColorControllerElements> {
-	initialValue: Color
-	/** The color picker controller. */
+	readonly type = 'Color' as const
+	readonly initialValue: Color
+	/**
+	 * The color picker instance.
+	 */
 	picker: ColorPicker
-	/** RGBA/HSLA/HSVA number component inputs */
+	/**
+	 * RGBA/HSLA/HSVA number component inputs.
+	 */
 	components: ColorComponents
-	/** When true, the color picker is visible. */
+	/**
+	 * When `true`, the color picker is visible.
+	 */
 	expanded: boolean
 
 	#mode: ColorMode
-	// #pickerHeight: number
-	// #pickerHeight = '120px'
-	#pickerHeight = '5.3rem'
-
-	type = 'Color' as const
+	get mode() {
+		return this.#mode
+	}
+	set mode(v: ColorMode) {
+		this.#mode = v
+		this.components.mode = v
+	}
 
 	#log = new Logger('InputColor', { fg: 'cyan' })
 
@@ -113,7 +130,6 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 		//- Current Color
 		this.elements.controllers.currentColor = this.#createCurrentColor(container)
-		// this.#updateCurrentColorCopyButtonColor()
 
 		//- Body
 		const body = create('div', {
@@ -140,18 +156,12 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 		this.components.refresh()
 
-		// Promise.resolve().then(() => {
 		setTimeout(() => {
 			this.expanded ? this.open() : this.close(0)
 		}, 10)
-		// })
-
-		// //! TEST
-		// setInterval(this.togglePicker, 1500)
 	}
 
 	set(v: ColorFormat | Color) {
-		// console.log(Color.isColor(v) ? v.hsva.s : v)
 		if (isColor(v)) {
 			this.state.set(new Color(v.hsva))
 		} else {
@@ -163,19 +173,11 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		this.elements.controllers.currentColor.display.style.backgroundColor = v.hex8String
 		this.picker.refresh()
 		this.components.refresh()
-		
+
 		return this
 	}
 
-	//· Getters & Setters ····················································¬
-
-	get mode() {
-		return this.#mode
-	}
-	set mode(v: ColorMode) {
-		this.#mode = v
-		this.components.mode = v
-	}
+	//· Getters & Setters ········································································¬
 
 	get aTitle() {
 		return this.mode === 'rgba' ? 'r' : 'h'
@@ -224,68 +226,77 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		}
 	}
 
-	#animOpts = {
-		duration: 250,
-		easing: 'cubic-bezier(0.23, 1, 0.32, 1)',
-		fill: 'forwards',
-	} satisfies KeyframeAnimationOptions
+	//· Open/Close ···············································································¬
+
+	static readonly #pickerHeight = '75px'
 
 	get #pickerContainer() {
 		return this.picker.elements.container
 	}
 
-	togglePicker = () => {
+	togglePicker = async () => {
 		if (!this.expanded) {
-			this.open()
+			await this.open()
 		} else {
-			this.close()
+			await this.close()
 		}
 	}
 
-	open = (height = this.#pickerHeight) => {
+	open = async () => {
 		this.expanded = true
 
-		const opts = {
-			...this.#animOpts,
-			easing: 'cubic-bezier(.08,.38,0,0.92)',
-			duration: this.#animOpts.duration,
-		}
+		this.elements.container.dataset['search_height'] = '100px'
 
-		this.#pickerContainer.animate(
+		const pickerAnim = this.#pickerContainer.animate(
 			[
-				{
-					height: '0px',
-					clipPath: 'inset(0 0 100% 0)',
-				},
-				{
-					height: height,
-					clipPath: 'inset(0 0 -50% 0)',
-				},
+				{ height: '0px', clipPath: 'inset(0 0 100% 0)' },
+				{ height: InputColor.#pickerHeight, clipPath: 'inset(0 0 -50% 0)' },
 			],
-			opts,
-		).onfinish = () => {
-			this.#pickerContainer.style.overflow = 'visible'
-		}
+			{ duration: 200, easing: 'cubic-bezier(.08,.38,0,0.92)', fill: 'forwards' },
+		)
+
+		const containerAnim = this.elements.container.animate(
+			{ maxHeight: '100px', height: '100px' },
+			{ duration: 200, easing: 'cubic-bezier(.08,.38,0,0.92)', fill: 'forwards' },
+		)
+
+		this.#pickerContainer.style.overflow = 'visible'
 		this.#pickerContainer.classList.add('expanded')
 
-		this.elements.container.style.height = `unset`
+		await Promise.all([pickerAnim.finished, containerAnim.finished])
+		pickerAnim.commitStyles()
+		containerAnim.commitStyles()
 	}
 
-	close = (duration = this.#animOpts.duration) => {
+	close = async (duration = 300) => {
 		this.expanded = false
 
-		const opts = { ...this.#animOpts, duration }
+		delete this.elements.container.dataset['search_height']
 
-		this.#pickerContainer.animate(
+		const pickerAnim = this.#pickerContainer.animate(
 			[
-				{ height: this.#pickerHeight, clipPath: 'inset(0 0 -100% 0)' },
+				{ height: InputColor.#pickerHeight, clipPath: 'inset(0 0 -100% 0)' },
 				{ height: '0px', clipPath: 'inset(0 0 100% 0)' },
 			],
-			opts,
+			{ duration: duration, easing: 'cubic-bezier(.13,.09,.02,.96)', fill: 'forwards' },
 		)
+		const containerAnim = this.elements.container.animate(
+			{
+				minHeight: 'var(--fracgui-input_height)',
+				maxHeight: 'var(--fracgui-input_height)',
+				height: 'var(--fracgui-input_height)',
+			},
+			{ duration: duration, easing: 'cubic-bezier(.13,.09,.02,.96)', fill: 'forwards' },
+		)
+
 		this.#pickerContainer.style.overflow = 'hidden'
 		this.#pickerContainer.classList.remove('expanded')
+
+		await Promise.all([pickerAnim.finished, containerAnim.finished])
+		pickerAnim.commitStyles()
+		containerAnim.commitStyles()
 	}
+	//⌟
 
 	enable() {
 		this.disabled = false

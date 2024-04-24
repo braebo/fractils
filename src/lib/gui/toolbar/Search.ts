@@ -60,12 +60,6 @@ export class Search {
 		return this
 	}
 
-	#animOpts = {
-		duration: 300,
-		easing: 'cubic-bezier(0.23, 1, 0.32, 1)',
-		fill: 'forwards',
-	} as const
-
 	search = (query: string) => {
 		this.needle = query
 
@@ -87,48 +81,56 @@ export class Search {
 			node.dataset['search_opacity'] ??= style.opacity ?? 1
 
 			if (result === 'hit') {
-				this.#expand(node)
+				this.#expandInput(node)
 			} else if (result === 'miss') {
-				this.#collapse(node)
+				this.#collapseInput(node)
 			}
 
 			node.dataset['search'] = result
 		}
 	}
 
-	#expand = (node: HTMLElement) => {
+	#expandInput = async (node: HTMLElement) => {
 		if (node.dataset['search'] === 'miss') {
-			console.log('expand', node.dataset['search'])
-
 			node.style.setProperty('overflow', node.dataset['search_overflow']!)
 			node.style.setProperty('contain', node.dataset['search_contain']!)
 
 			const targetHeight = node.dataset['search_height'] ?? '100%'
 
-			console.log(targetHeight)
-
-			node.animate(
+			const anim = node.animate(
 				[
 					{ opacity: 0, height: '0px', minHeight: '0px' },
 					{ opacity: 1, height: targetHeight, minHeight: targetHeight },
 				],
-				this.#animOpts,
+				{
+					duration: 300,
+					easing: 'cubic-bezier(0.23, 1, 0.32, 1)',
+					fill: 'forwards',
+				},
 			)
+
+			await anim.finished
+			anim.commitStyles()
 		}
 	}
 
-	#collapse = (node: HTMLElement) => {
-		console.log('collapse', node.dataset['search'])
+	#collapseInput = async (node: HTMLElement) => {
 		node.style.setProperty('overflow', 'hidden')
 		node.style.setProperty('contain', 'size')
 
-		node.animate([{ opacity: 0, height: '0px', minHeight: '0px' }], this.#animOpts).onfinish =
-			() => {}
+		const anim = node.animate([{ opacity: 0, height: '0px', minHeight: '0px' }], {
+			duration: 300,
+			easing: 'cubic-bezier(0.23, 1, 0.32, 1)',
+			fill: 'forwards',
+		})
+
+		await anim.finished
+		anim.commitStyles()
 	}
 
 	clear = () => {
 		for (const [, controller] of this.folder.allInputs) {
-			this.#expand(controller.elements.container)
+			this.#expandInput(controller.elements.container)
 		}
 	}
 
@@ -145,7 +147,9 @@ export class Search {
 		this.elements.container.classList.add('active')
 		this.elements.input.focus()
 
+		removeEventListener('click', this.#clickOutside)
 		addEventListener('click', this.#clickOutside)
+		removeEventListener('keydown', this.#escape)
 		addEventListener('keydown', this.#escape)
 
 		this.tooltip.hide()
