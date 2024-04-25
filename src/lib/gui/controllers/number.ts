@@ -14,7 +14,14 @@ export const numberController: ControllerFactory<HTMLInputElement> = (input, opt
 		tooltip: {
 			text: /*html*/ `Hold <span class="fractils-hotkey">⌘</span> or <span class="fractils-hotkey">ctrl</span> to drag`,
 			placement: 'top',
-			delay: 1000,
+			delay: 1500,
+			parent,
+			styles: {
+				background: 'var(--fracgui-bg-a)',
+				color: 'var(--fracgui-fg-a)',
+				'--fractils-hotkey_background': 'var(--fracgui-bg-b)',
+				'--fractils-hotkey_color': 'var(--fracgui-fg-a)',
+			},
 		},
 	})
 
