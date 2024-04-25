@@ -880,10 +880,10 @@ export class Draggable {
 		) {
 			return () => {
 				this.bounds = {
-					left: 0,
-					right: 0,
-					top: 0,
-					bottom: 0,
+					left: -Infinity,
+					right: Infinity,
+					top: -Infinity,
+					bottom: Infinity,
 					...(this.opts.bounds as Partial<VirtualRect>),
 				}
 			}
