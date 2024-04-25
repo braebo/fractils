@@ -35,10 +35,11 @@ export interface ResizableEvents {
  * }} />
  * ```
  */
-export const resizable: Action<HTMLElement, Partial<ResizableOptions> | undefined, ResizableEvents> = (
-	node: HTMLElement,
-	options?: Partial<ResizableOptions>,
-) => {
+export const resizable: Action<
+	HTMLElement,
+	Partial<ResizableOptions> | undefined,
+	ResizableEvents
+> = (node: HTMLElement, options?: Partial<ResizableOptions>) => {
 	const resizeable = new Resizable(node, options)
 
 	return {
