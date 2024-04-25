@@ -529,6 +529,7 @@ export class Draggable {
 
 		if (DEV) {
 			for (const el of this.obstacleEls) {
+				el.dataset['outline'] = el.style.outline
 				el.style.outline = '2px dotted red'
 			}
 		}
@@ -633,7 +634,7 @@ export class Draggable {
 		// todo - delete!
 		if (DEV) {
 			for (const el of this.obstacleEls) {
-				el.style.outline = 'none'
+				el.style.outline = el.dataset['outline'] ?? 'none'
 			}
 		}
 
