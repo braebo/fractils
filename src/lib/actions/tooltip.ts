@@ -1,13 +1,14 @@
 import type { JavascriptStyleProperty } from '../css/types'
-import type { ElementsOrSelector } from '../utils/select'
+import type { ElementOrSelector } from '../utils/select'
 
 import { EventManager } from '../utils/EventManager'
 import { deepMerge } from '../utils/deepMerge'
 import { tickLoop } from '../utils/loopTick'
-import { trimCss } from '../utils/trimCss'
+// import { trimCss } from '../utils/trimCss'
 import { entries } from '../utils/object'
 import { create } from '../utils/create'
 import { DEV } from 'esm-env'
+import { styled } from '$lib/decorators/styled'
 
 type Selector = `#${string}` | `.${string}`
 type Anchor = Element | Selector | 'mouse' | 'node' | null
@@ -36,57 +37,58 @@ export interface TooltipOptions {
 	anchor: Anchor | Anchors
 	/**
 	 * Delay in milliseconds before the tooltip is shown.
-	 * @default 250
+	 * @defaultValue 250
 	 */
 	delay: number
 	/**
 	 * Delay in milliseconds before the tooltip is hidden.
-	 * @default 0
+	 * @defaultValue 0
 	 */
 	delayOut: number
 	/**
 	 * An optional x-axis offset (any valid css unit).
-	 * @default '0%'
+	 * @defaultValue '0%'
 	 */
 	offsetX: string
 	/**
 	 * An optional y-axis offset (any valid css unit).
-	 * @default '0%'
+	 * @defaultValue '0%'
 	 */
 	offsetY: string
 	/**
 	 * Custom style overrides for the tooltip element (all valid CSS properties are allowed).
-	 * @default { padding: '4px 8px', color: 'var(--fg-a, #fff)', backgroundColor: 'var(--bg-a, #000)', borderRadius: 'var(--radius-sm, 4px)', fontSize: 'var(--font-size-sm, 12px)', minWidth: '3rem', maxWidth: 'auto', minHeight: 'auto', maxHeight: 'auto', textAlign: 'center' }
+	 * i.e. { padding: '4px 8px', color: 'var(--fg-a, #fff)' }
+	 * @defaultValue undefined
 	 */
-	styles: Partial<Record<JavascriptStyleProperty, string>>
+	styles?: Partial<Record<JavascriptStyleProperty, string>>
 	/**
 	 * Animation in/out duration times / easing.
 	 */
 	animation: {
 		/**
 		 * The tooltip reveal animation duration in ms.
-		 * @default 300
+		 * @defaultValue 300
 		 */
 		duration: KeyframeAnimationOptions['duration']
 		/**
 		 * The tooltip hide animation duration in ms.
-		 * @default 150
+		 * @defaultValue 150
 		 */
 		durationOut: KeyframeAnimationOptions['duration']
 		/**
 		 * The tooltip reveal and hide animation easing.
-		 * @default 'cubic-bezier(0.23, 1, 0.320, 1)'
+		 * @defaultValue 'cubic-bezier(0.23, 1, 0.320, 1)'
 		 */
 		easing: KeyframeAnimationOptions['easing']
 	}
 	/**
 	 * If specified, the container element for the tooltip.
-	 * @default document.body
+	 * @defaultValue document.body
 	 */
 	container?: Element | Document
 	/**
 	 * Hides the tooltip on click if `true`.
-	 * @default false
+	 * @defaultValue false
 	 */
 	hideOnClick: boolean
 }
@@ -100,16 +102,16 @@ export const TOOLTIP_DEFAULTS: TooltipOptions = {
 	offsetX: '0%',
 	offsetY: '0%',
 	styles: {
-		padding: '4px 8px',
-		color: 'var(--fg-a, #fff)',
-		backgroundColor: 'var(--bg-a, #000)',
-		borderRadius: 'var(--radius-sm, 4px)',
-		fontSize: 'var(--font-size-sm, 12px)',
-		minWidth: '3rem',
-		maxWidth: 'auto',
-		minHeight: 'auto',
-		maxHeight: 'auto',
-		textAlign: 'center',
+		// padding: '4px 8px',
+		// color: 'var(--fg-a, #fff)',
+		// backgroundColor: 'var(--bg-a, #000)',
+		// borderRadius: 'var(--radius-sm, 4px)',
+		// fontSize: 'var(--font-size-sm, 12px)',
+		// minWidth: '3rem',
+		// maxWidth: 'auto',
+		// minHeight: 'auto',
+		// maxHeight: 'auto',
+		// textAlign: 'center',
 	},
 	animation: {
 		duration: 300,
@@ -119,6 +121,7 @@ export const TOOLTIP_DEFAULTS: TooltipOptions = {
 	hideOnClick: false,
 }
 
+@styled
 export class Tooltip {
 	/** The tooltip element itself. */
 	element: HTMLDivElement
@@ -127,7 +130,6 @@ export class Tooltip {
 
 	opts: TooltipOptions
 
-	#placement!: TooltipOptions['placement']
 	#animPositions!: { from: string; to: string }
 
 	#delayInTimer!: ReturnType<typeof setTimeout>
@@ -155,15 +157,21 @@ export class Tooltip {
 		this.element = create('div', {
 			classes: ['fractils-tooltip'],
 			parent: options?.container ?? document.getElementById('svelte') ?? document.body,
-			innerText: String(this.getText()),
-			cssText: trimCss(/*css*/ `{
-				position: absolute;
-				opacity: 0;
-				pointer-events: none;
-				transition: opacity 0.1s;
-				z-index: 1000;
-				box-shadow: var(--shadow-sm);
-			}`),
+			innerHTML: String(this.getText()),
+			styles: this.opts.styles,
+			// cssText: trimCss(/*css*/ `{
+			// 	position: absolute;
+			// 	opacity: 0;
+			// 	pointer-events: none;
+			// 	transition: opacity 0.1s;
+			// 	z-index: 1000;
+			// 	box-shadow: var(--shadow-sm, 0rem 0.0313rem 0.0469rem hsl(var(--shadow-color) / 0.02),
+			// 		0rem 0.125rem 0.0938rem hsl(var(--shadow-color) / 0.02),
+			// 		0rem 0.1563rem 0.125rem hsl(var(--shadow-color) / 0.025),
+			// 		0rem 0.1875rem 0.1875rem hsl(var(--shadow-color) / 0.05),
+			// 		0rem 0.3125rem 0.3125rem hsl(var(--shadow-color) / 0.05),
+			// 		0rem 0.4375rem 0.625rem hsl(var(--shadow-color) / 0.075););
+			// }`),
 		})
 
 		for (const [key, value] of entries(opts.styles!)) {
@@ -197,14 +205,14 @@ export class Tooltip {
 		return this.getText()
 	}
 	set text(text: string) {
-		this.element.innerText = String(text)
+		this.element.innerHTML = String(text)
 	}
 
 	get placement() {
-		return this.#placement
+		return this.opts.placement
 	}
 	set placement(v) {
-		this.#placement = v
+		this.opts.placement = v
 		switch (v) {
 			case 'top':
 				this.#animPositions = { from: 'translateY(4px)', to: 'translateY(0)' }
@@ -218,6 +226,22 @@ export class Tooltip {
 			case 'right':
 				this.#animPositions = { from: 'translateX(-4px)', to: 'translateX(0)' }
 		}
+	}
+
+	get offsetX() {
+		return this.opts.offsetX!
+	}
+	set offsetX(v) {
+		this.opts.offsetX = v
+		this.updatePosition()
+	}
+
+	get offsetY() {
+		return this.opts.offsetY!
+	}
+	set offsetY(v) {
+		this.opts.offsetY = v
+		this.updatePosition()
 	}
 
 	show() {
@@ -268,7 +292,7 @@ export class Tooltip {
 	updatePosition(e?: PointerEvent) {
 		const tooltipRect = this.element.getBoundingClientRect()
 
-		this.element.innerText = String(this.getText())
+		this.text = this.text
 
 		if (e?.type === 'pointermove') {
 			this.#mouse = {
@@ -310,6 +334,7 @@ export class Tooltip {
 		this.element.style.top = `calc(${top}px + ${this.opts.offsetY!})`
 	}
 
+	// todo - mobile touch events support?
 	#mouse = { x: 0, y: 0 }
 
 	#getAnchorRects(): {
@@ -381,7 +406,7 @@ export class Tooltip {
 	 * Determines if the tooltip should watch any anchors for movement.
 	 */
 	#maybeWatchAnchor() {
-		const maybeWatch = (el: ElementsOrSelector | null) => {
+		const maybeWatch = (el: ElementOrSelector | null) => {
 			if (!el) return
 
 			const anchor =
@@ -501,6 +526,52 @@ export class Tooltip {
 		this.#evm.dispose()
 		this.element.remove()
 	}
+
+	/**
+	 * A default style for the tooltip element.
+	 */
+	static style = /*css*/ `
+		.fractils-tooltip {
+			position: absolute;
+			
+			min-width: 3rem;
+			max-width: auto;
+			min-height: auto;
+			max-height: auto;
+			padding: 4px 8px;
+			
+			opacity: 0;
+			color: var(--fg-a, #fff);
+			background-color: var(--bg-a, #000);
+			border-radius: var(--radius-sm, 4px);
+			box-shadow: var(--shadow-sm, 0rem 0.0313rem 0.0469rem hsl(var(--shadow-color) / 0.02),
+			0rem 0.125rem 0.0938rem hsl(var(--shadow-color) / 0.02),
+			0rem 0.1563rem 0.125rem hsl(var(--shadow-color) / 0.025),
+			0rem 0.1875rem 0.1875rem hsl(var(--shadow-color) / 0.05),
+			0rem 0.3125rem 0.3125rem hsl(var(--shadow-color) / 0.05),
+			0rem 0.4375rem 0.625rem hsl(var(--shadow-color) / 0.075));
+			
+			text-align: center;
+			font-size: var(--font-size-sm, 12px);
+
+			z-index: 1000;
+			pointer-events: none;
+			transition: opacity 0.1s;
+		}
+		
+		.fractils-tooltip .fractils-hotkey {
+			filter: contrast(1.1);
+			background: #1118;
+			background: rgba(var(--bg-c-rgb), 0.66);
+			padding: 0px 3px;
+			border-radius: 2px;
+			box-shadow: 0 1px 4px rgba(0, 0, 0, 0.33);
+		}
+
+		:root[theme='dark'] .fractils-tooltip .fractils-hotkey {
+			background: rgba(var(--bg-d-rgb), 1);
+		}
+	`
 }
 
 /**
