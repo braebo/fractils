@@ -24,7 +24,7 @@ export type CreateOptions<
 	attributes?: Record<string, string>
 	value?: string
 	tooltip?: Partial<TooltipOptions>
-	innerHtml?: string
+	innerHTML?: string
 	children?: HTMLElement[]
 	min?: number
 	max?: number
@@ -46,16 +46,16 @@ export function create<
 	if (options) {
 		if (options.classes) el.classList.add(...options.classes)
 		if (options.id) el.id = options.id
-		if (options.dataset) Object.assign(el.dataset, options.dataset)
+		if (options.innerHTML) el.innerHTML = options.innerHTML
 		if (options.textContent) el.textContent = options.textContent
 		if (options.innerText) el.innerText = options.innerText
 		if (options.cssText) el.style.cssText = options.cssText
+		if (options.dataset) Object.assign(el.dataset, options.dataset)
 		if (options.value && el instanceof HTMLInputElement) el.value = options.value
 		if (options.type) el.setAttribute('type', options.type)
 		if (options.min) el.setAttribute('min', String(options.min))
 		if (options.max) el.setAttribute('max', String(options.max))
 		if (options.step) el.setAttribute('step', String(options.step))
-		if (options.innerHtml) el.innerHTML = options.innerHtml
 
 		if (options.attributes) {
 			for (const [key, value] of entries(options.attributes)) {

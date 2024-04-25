@@ -105,7 +105,6 @@ export class Folder {
 
 	#subs: Array<() => void> = []
 	#log: Logger
-	//! #folderIcon?: HTMLElement
 	/**
 	 * Used to disable clicking the header to open/close the folder.
 	 */
@@ -353,7 +352,7 @@ export class Folder {
 			return
 		}
 
-		// If the folder is being dragged, don't toggle.
+		// If the folder is being dragged, don't toggle. // todo - Is this doing anything?
 		if (this.element.classList.contains('fractils-dragged')) {
 			this.element.classList.remove('fractils-dragged')
 			return
@@ -412,7 +411,7 @@ export class Folder {
 		clearTimeout(this.#toggleTimeout)
 		this.#toggleTimeout = setTimeout(() => {
 			this.element.classList.remove('animating')
-		}, 600) // todo - this needs to sync with the animation duration in the css... smelly.
+		}, 600) // todo - This needs to sync with the animation duration in the css... smelly.
 	}
 	//⌟
 	//⌟
@@ -446,7 +445,7 @@ export class Folder {
 		return input
 	}
 
-	/** @todo */
+	// todo - This should take any object and build the inputs from it.
 	// addMany(obj: Record<string, any>) {}
 
 	addNumber(options: Partial<NumberInputOptions>) {
@@ -963,7 +962,7 @@ export class Folder {
 		this.graphics.connector.path.animate(keyframes, timing)
 	}
 
-	// todo - this will likely be needed when dynamically adding/removing inputs.
+	// todo - This will likely be needed when dynamically adding/removing inputs.
 	#updateConnector(svg: SVGSVGElement, path: SVGPathElement) {
 		if (!this.graphics) return
 

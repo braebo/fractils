@@ -68,10 +68,11 @@ export class DivTweaker {
 			// placement: {
 			// 	position: 'bottom-center',
 			// },
-			windowManager: {
-				draggable: false,
-				resizable: false,
-			},
+			windowManager: false,
+			// windowManagerOptions: {
+			// 	draggable: false,
+			// 	resizable: false,
+			// },
 			themer: true,
 		})
 

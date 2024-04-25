@@ -34,32 +34,31 @@ export interface GuiElements extends FolderElements {
 		settingsButton: HTMLButtonElement & { tooltip?: Tooltip }
 	}
 }
-/**
- * @todo
- *!	Refactor options into two separate properties, i.e.:
- *!		windowManager: boolean | Partial<GuiStorageOptions>
- *!			👇
- *!		windowManager?: false | WindowManager
- *!		windowManagerOptions?: Partial<WindowManagerOptions>
- */
+
 export interface GuiOptions extends Omit<FolderOptions, 'parentFolder'> {
 	/**
-	 * Persist the gui's state to localStorage.  Specify what
-	 * properties to persist, and under what key.  If `true`,
-	 * the {@link GUI_STORAGE_DEFAULTS} will be used.
-	 * @default false
+	 * Defines which properties to persist in localStorage, and under which
+	 * key, if any.  If `true`, the {@link GUI_STORAGE_DEFAULTS} will be used.
+	 * If `false`, no state will be persisted.
+	 * @defaultValue false
 	 */
 	storage?: boolean | Partial<GuiStorageOptions>
 	/**
 	 * The container to append the gui to.
-	 * @default document.body
+	 * @defaultValue document.body
 	 */
 	container?: HTMLElement
+	/**
+	 * The title of the theme to use for the gui.  To add your own themes,
+	 * use {@link themerOptions.themes}.
+	 * @defaultValue 'default'
+	 */
+	theme?: GuiTheme
 	/**
 	 * Optional {@link Themer} instance for syncing the gui's theme
 	 * with your app's theme.  If `true`, a new themer will be created
 	 * for you. If `false` or `undefined`, no themer will be created.
-	 * @default true
+	 * @defaultValue true
 	 */
 	themer: Themer | boolean
 	/**
@@ -67,42 +66,76 @@ export interface GuiOptions extends Omit<FolderOptions, 'parentFolder'> {
 	 */
 	themerOptions: Partial<ThemerOptions>
 	/**
-	 * The title of the theme to use for the gui.  To add your own themes,
-	 * use {@link themerOptions.themes}.
-	 */
-	theme?: GuiTheme
-	/**
-	 * {@link WindowManager} controls behaviors like dragging,
-	 * resizing, and z-index management.  Defaults to {@link WINDOWMANAGER_DEFAULTS}.
+	 * {@link WindowManager} controls behaviors like dragging, resizing, and
+	 * z-index management.  This option can be:
+	 * - Your own {@link WindowManager} instance.
 	 * - `false` disables the window manager.
 	 * - `true` uses default options.
+	 * @defaultValue true
 	 */
-	windowManager: boolean | WindowManager | Partial<WindowManagerOptions>
-	placement?: Placement
+	windowManager?: boolean | WindowManager
+	/**
+	 * Options for the {@link WindowManager} instance when `windowManager` is
+	 * `true`.  They will be merged with the {@link WINDOWMANAGER_DEFAULTS}.
+	 * @defaultValue {@link GUI_WINDOWMANAGER_DEFAULTS}
+	 */
+	windowManagerOptions?: Partial<WindowManagerOptions>
+	/**
+	 * The gui's initial position on the screen.  If `undefined`, the gui will
+	 * be placed in the top-right corner of the screen.
+	 *
+	 * This value can either be a {@link Placement} string, or an object with
+	 * `x` and `y` properties representing the position in pixels.
+	 * @defaultValue 'top-right'
+	 */
+	position?: Placement | { x: number; y: number }
+	/**
+	 * Additional options when using a {@link Placement} string for `position`
+	 * instead of an explicit {x, y} object.
+	 * @defaultValue { margin: 16, bounds: 'window' } // todo - Update the defaults.
+	 */
 	placementOptions?: Partial<PlacementOptions>
+	/**
+	 * The initial expanded state of the gui.
+	 * @defaultValue false
+	 */
 	closed: boolean
 	/**
 	 * `parentFolder` should always be `undefined` for the root gui.
+	 * @private
+	 * @internal
 	 */
-	parentFolder: undefined
+	_parentFolder: undefined
 }
 
 export interface GuiStorageOptions {
 	/**
 	 * Prefix to use for localStorage keys.
-	 * @default "fractils::gui"
+	 * @defaultValue "fractils::gui"
 	 */
 	key: string
 	/**
 	 * Whether to persist the folder's expanded state.
-	 * @default true
+	 * @defaultValue true
 	 */
 	closed?: boolean
 	/**
 	 * Whether to persist the theme.
-	 * @default true
+	 * @defaultValue true
 	 */
 	theme?: boolean
+	/**
+	 * Whether to persist the gui's position.
+	 * @defaultValue false
+	 * /// todo - implement this!
+	 */
+	position?: boolean
+	/**
+	 * Whether to persist the gui's size.
+	 * @defaultValue false
+	 * /// todo - implement this!
+	 */
+	size?: boolean
 }
 
 export const GUI_STORAGE_DEFAULTS: GuiStorageOptions = {
@@ -110,6 +143,23 @@ export const GUI_STORAGE_DEFAULTS: GuiStorageOptions = {
 	closed: true,
 	theme: true,
 } as const
+
+export const GUI_WINDOWMANAGER_DEFAULTS: WindowManagerOptions = {
+	preserveZ: false,
+	zFloor: 0,
+	bounds: 'window',
+	obstacles: undefined,
+	resizable: {
+		localStorageKey: 'fracgui::resizable',
+		grabberSize: 9,
+		color: 'var(--bg-d)',
+		sides: ['right'],
+		corners: [],
+	},
+	draggable: {
+		localStorageKey: 'fracgui::draggable',
+	},
+}
 
 export const GUI_DEFAULTS: GuiOptions = {
 	title: 'gui',
@@ -119,7 +169,8 @@ export const GUI_DEFAULTS: GuiOptions = {
 	themerOptions: {
 		localStorageKey: 'fracgui::themer',
 	},
-	windowManager: {
+	windowManager: undefined,
+	windowManagerOptions: {
 		resizable: {
 			localStorageKey: 'fracgui::resizable',
 			grabberSize: 9,
@@ -133,14 +184,14 @@ export const GUI_DEFAULTS: GuiOptions = {
 	},
 	storage: false,
 	closed: false,
-	placement: undefined,
+	position: 'top-right',
 	placementOptions: {
-		margin: 0,
+		margin: 16,
 		bounds: 'window',
 	},
 	theme: 'default',
 	hidden: false,
-	parentFolder: undefined,
+	_parentFolder: undefined,
 	depth: 0,
 } as const
 
@@ -154,19 +205,17 @@ export class Gui extends Folder {
 
 	declare elements: GuiElements
 
-	windowManager?: WindowManager
-
 	opts: GuiOptions
-
-	container!: HTMLElement
-	wrapper!: HTMLElement
-
-	themer?: Themer
-	// themeEditor?: ThemeEditor
-	settingsFolder: Folder
-
 	closed: PrimitiveState<boolean>
 	closedMap: State<Map<string, boolean>>
+
+	wrapper!: HTMLElement
+	container!: HTMLElement
+	settingsFolder: Folder
+
+	themer?: Themer
+	// themeEditor?: ThemeEditor // todo
+	windowManager?: WindowManager
 
 	private _theme: GuiOptions['theme']
 
@@ -179,11 +228,12 @@ export class Gui extends Folder {
 		// Resolve storage separately since GUI_DEFAULTS.storage is `false`.
 		opts.storage = resolveOpts(opts.storage, GUI_STORAGE_DEFAULTS)
 		opts.container ??= document.body
-		opts.placement =
-			opts.placement ??
+		opts.position =
+			opts.position ??
 			// https://github.com/microsoft/TypeScript/issues/54825#issuecomment-1612948506
-			(((opts.windowManager as WindowManagerOptions)?.draggable as DraggableOptions)
+			(((opts.windowManagerOptions as WindowManagerOptions)?.draggable as DraggableOptions)
 				?.position as Placement)
+		opts.windowManagerOptions
 
 		super(opts as any as FolderOptions, opts.container)
 
@@ -218,6 +268,8 @@ export class Gui extends Folder {
 						`::${opts.title?.toLowerCase().replaceAll(/\s/g, '-')}::closed`) ||
 				'',
 		})
+
+		// todo - Finish this whole "deep expanded persistence" thing with `closedMap`
 		this.closedMap = state(new Map(), {
 			key:
 				(storageOpts &&
@@ -225,15 +277,11 @@ export class Gui extends Folder {
 						`::${opts.title?.toLowerCase().replaceAll(/\s/g, '-')}::closed-map`) ||
 				'',
 		})
-
 		this.closedMap.setKey(this.title, this.closed.value)
-		this.closedMap.subscribe(_map => {
-			// console.error('map:', map)
-			// this.closed.set(map.get(this.title) ?? false)
+		// todo - We will need to emit a close/open event from `Folder`, and listen for it here.
+		this.closedMap.subscribe(map => {
+			this.closed.set(map.get(this.title) ?? false)
 		})
-		// setTimeout(() => {
-		// 	console.error('map:', this.closedMap.value.entries())
-		// }, 10)
 		//⌟
 
 		this.settingsFolder = this.#createSettingsFolder()
@@ -244,7 +292,7 @@ export class Gui extends Folder {
 
 		//· Theme Editor ·····················································¬
 
-		//! TODO - Uncomment this once beats is done.
+		// todo - Uncomment this once it has a button.
 		if (this.themer) {
 			// this.themeEditor = new ThemeEditor(this, {
 			// 	title: 'Theme Editor',
@@ -275,9 +323,9 @@ export class Gui extends Folder {
 			const rect = ghost.children[0].getBoundingClientRect()
 			ghost.remove()
 
-			if (opts.placement && opts.placementOptions) {
-				if (typeof opts.placement === 'string') {
-					const placementPosition = place(rect, opts.placement, {
+			if (opts.position && opts.placementOptions) {
+				if (typeof opts.position === 'string') {
+					const placementPosition = place(rect, opts.position, {
 						bounds: opts.placementOptions.bounds ?? this.container,
 						margin: opts.placementOptions.margin,
 					})
@@ -364,7 +412,7 @@ export class Gui extends Folder {
 		if (this.windowManager) return this.windowManager
 
 		const dragOpts = resolveOpts<DraggableOptions>(
-			(this.opts.windowManager as WindowManagerOptions)['draggable'],
+			(this.opts.windowManagerOptions as WindowManagerOptions)['draggable'],
 			DRAG_DEFAULTS,
 		)
 		if (dragOpts) {
@@ -373,7 +421,7 @@ export class Gui extends Folder {
 		}
 
 		const resizeOpts = resolveOpts<ResizableOptions>(
-			(this.opts.windowManager as WindowManagerOptions)['resizable'],
+			(this.opts.windowManagerOptions as WindowManagerOptions)['resizable'],
 			RESIZABLE_DEFAULTS,
 		)
 		if (resizeOpts) {
@@ -393,7 +441,7 @@ export class Gui extends Folder {
 		}
 
 		const windowManagerOpts = resolveOpts<WindowManagerOptions>(
-			this.opts.windowManager as WindowManagerOptions,
+			this.opts.windowManagerOptions as WindowManagerOptions,
 			WINDOWMANAGER_DEFAULTS,
 		)
 

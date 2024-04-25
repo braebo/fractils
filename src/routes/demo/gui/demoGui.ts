@@ -5,7 +5,7 @@ import { Gui } from '$lib/gui/Gui'
 export function demoGui(params: Params) {
 	const gui = new Gui({
 		title: 'Orbs',
-		placement: 'center',
+		position: 'center',
 		storage: {
 			key: 'fracgui',
 		},

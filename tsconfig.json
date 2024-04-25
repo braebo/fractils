@@ -2,7 +2,7 @@
 	"$schema": "http://json.schemastore.org/tsconfig",
 	"extends": "./.svelte-kit/tsconfig.json",
 	"compilerOptions": {
-		"types": ["@sveltejs/kit", "svelte", "react"],
+		"types": ["@sveltejs/kit", "svelte"],
 		"lib": ["ESNext"],
 		"target": "ESNext",
 		"module": "ESNext",
@@ -41,12 +41,12 @@
 
 		// Experimental
 		"experimentalDecorators": true,
-		"emitDecoratorMetadata": true,
+		"emitDecoratorMetadata": true
 	},
 	"include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.ts", "src/**/*.svelte"],
 	"exclude": [
 		"**/*.example.js",
 		"./src/scripts/extract/**/*.*",
-		"./src/scripts/extractinator/**/*.*",
-	],
+		"./src/scripts/extractinator/**/*.*"
+	]
 }

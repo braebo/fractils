@@ -45,11 +45,11 @@ export class WavesGui extends Gui {
 			title: kind,
 			closed: false,
 			windowManager: waves.beats.gui!.windowManager,
-			placement: { position: positions[kind] },
+			position: positions[kind],
 			storage: false,
 		})
 
-		console.log(this.opts.placement)
+		console.log(this.opts.position)
 
 		// todo - handle state so we can do:
 		// gui.add({
