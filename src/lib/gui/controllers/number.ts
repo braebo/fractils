@@ -11,6 +11,11 @@ export const numberController: ControllerFactory<HTMLInputElement> = (input, opt
 		classes: ['fracgui-controller', 'fracgui-controller-number'],
 		value: String(input.state.value),
 		parent,
+		tooltip: {
+			text: /*html*/ `Hold <span class="fractils-hotkey">⌘</span> or <span class="fractils-hotkey">ctrl</span> to drag`,
+			placement: 'top',
+			delay: 1000,
+		},
 	})
 
 	if ('step' in opts) {
