@@ -85,7 +85,7 @@ export interface TooltipOptions {
 	 * If specified, the container element for the tooltip.
 	 * @defaultValue document.body
 	 */
-	container?: Element | Document
+	parent?: HTMLElement
 	/**
 	 * Hides the tooltip on click if `true`.
 	 * @defaultValue false
@@ -101,18 +101,7 @@ export const TOOLTIP_DEFAULTS: TooltipOptions = {
 	delayOut: 0,
 	offsetX: '0%',
 	offsetY: '0%',
-	styles: {
-		// padding: '4px 8px',
-		// color: 'var(--fg-a, #fff)',
-		// backgroundColor: 'var(--bg-a, #000)',
-		// borderRadius: 'var(--radius-sm, 4px)',
-		// fontSize: 'var(--font-size-sm, 12px)',
-		// minWidth: '3rem',
-		// maxWidth: 'auto',
-		// minHeight: 'auto',
-		// maxHeight: 'auto',
-		// textAlign: 'center',
-	},
+	styles: {},
 	animation: {
 		duration: 300,
 		durationOut: 150,
@@ -125,6 +114,8 @@ export const TOOLTIP_DEFAULTS: TooltipOptions = {
 export class Tooltip {
 	/** The tooltip element itself. */
 	element: HTMLDivElement
+	/** The parent element of the tooltip. */
+	parent: HTMLElement
 	/** Whether the tooltip is currently showing. */
 	showing = false
 
@@ -154,29 +145,18 @@ export class Tooltip {
 				? (this.opts.text as () => string)
 				: ((() => this.opts.text) as () => string)
 
+		this.parent = options?.parent ?? document.getElementById('svelte') ?? document.body
+		if (this.opts.styles) console.error(this.opts.styles.background)
 		this.element = create('div', {
 			classes: ['fractils-tooltip'],
-			parent: options?.container ?? document.getElementById('svelte') ?? document.body,
 			innerHTML: String(this.getText()),
-			styles: this.opts.styles,
-			// cssText: trimCss(/*css*/ `{
-			// 	position: absolute;
-			// 	opacity: 0;
-			// 	pointer-events: none;
-			// 	transition: opacity 0.1s;
-			// 	z-index: 1000;
-			// 	box-shadow: var(--shadow-sm, 0rem 0.0313rem 0.0469rem hsl(var(--shadow-color) / 0.02),
-			// 		0rem 0.125rem 0.0938rem hsl(var(--shadow-color) / 0.02),
-			// 		0rem 0.1563rem 0.125rem hsl(var(--shadow-color) / 0.025),
-			// 		0rem 0.1875rem 0.1875rem hsl(var(--shadow-color) / 0.05),
-			// 		0rem 0.3125rem 0.3125rem hsl(var(--shadow-color) / 0.05),
-			// 		0rem 0.4375rem 0.625rem hsl(var(--shadow-color) / 0.075););
-			// }`),
+			// styles: this.opts.styles,
+			styles: options?.styles,
 		})
 
 		for (const [key, value] of entries(opts.styles!)) {
 			if (key && value) {
-				this.element.style[key] = value
+				this.element.style.setProperty(key, value)
 			}
 		}
 
@@ -249,7 +229,8 @@ export class Tooltip {
 		clearTimeout(this.#delayInTimer)
 		clearTimeout(this.#delayOutTimer)
 
-		this.#delayInTimer = setTimeout(() => {
+		this.#delayInTimer = setTimeout(async () => {
+			this.parent.appendChild(this.element)
 			this.showing = true
 			this.element.animate(
 				[
@@ -271,10 +252,10 @@ export class Tooltip {
 		clearTimeout(this.#delayInTimer)
 		clearTimeout(this.#delayOutTimer)
 
-		this.#delayOutTimer = setTimeout(() => {
+		this.#delayOutTimer = setTimeout(async () => {
 			if (this.showing) {
 				this.showing = false
-				this.element.animate(
+				await this.element.animate(
 					[
 						{ opacity: '1', transform: this.#animPositions.to },
 						{ opacity: '0', transform: this.#animPositions.from },
@@ -284,9 +265,22 @@ export class Tooltip {
 						easing: this.opts.animation!.easing,
 						fill: 'forwards',
 					},
-				)
+				).finished
+				this.remove()
 			}
 		}, this.opts.delayOut)
+	}
+
+	mounted = false
+	appent() {
+		if (this.mounted) return
+		this.mounted = true
+		this.parent.appendChild(this.element)
+	}
+	remove() {
+		if (!this.mounted) return
+		this.mounted = false
+		this.parent.removeChild(this.element)
 	}
 
 	updatePosition(e?: PointerEvent) {
@@ -330,8 +324,10 @@ export class Tooltip {
 				break
 		}
 
-		this.element.style.left = `calc(${left}px + ${this.opts.offsetX!})`
-		this.element.style.top = `calc(${top}px + ${this.opts.offsetY!})`
+		const parentRect = this.parent.getBoundingClientRect()
+
+		this.element.style.left = `calc(${left - parentRect.left}px + ${this.opts.offsetX!})`
+		this.element.style.top = `calc(${top - parentRect.top}px + ${this.opts.offsetY!})`
 	}
 
 	// todo - mobile touch events support?
@@ -544,7 +540,7 @@ export class Tooltip {
 			color: var(--fg-a, #fff);
 			background-color: var(--bg-a, #000);
 			border-radius: var(--radius-sm, 4px);
-			box-shadow: var(--shadow-sm, 0rem 0.0313rem 0.0469rem hsl(var(--shadow-color) / 0.02),
+			box-shadow: var(--shadow, 0rem 0.0313rem 0.0469rem hsl(var(--shadow-color) / 0.02),
 			0rem 0.125rem 0.0938rem hsl(var(--shadow-color) / 0.02),
 			0rem 0.1563rem 0.125rem hsl(var(--shadow-color) / 0.025),
 			0rem 0.1875rem 0.1875rem hsl(var(--shadow-color) / 0.05),
@@ -561,15 +557,16 @@ export class Tooltip {
 		
 		.fractils-tooltip .fractils-hotkey {
 			filter: contrast(1.1);
-			background: #1118;
-			background: rgba(var(--bg-c-rgb), 0.66);
+			background: var(--fractils-hotkey_background, #1118);
+			background: var(--fractils-hotkey_background, rgba(var(--bg-c-rgb), 0.66));
+			color: var(--fractils-hotkey_color, var(--fg-a, #fff));
 			padding: 0px 3px;
 			border-radius: 2px;
-			box-shadow: 0 1px 4px rgba(0, 0, 0, 0.33);
+			box-shadow: 0 0 2px rgba(0, 0, 0, 0.33);
 		}
 
 		:root[theme='dark'] .fractils-tooltip .fractils-hotkey {
-			background: rgba(var(--bg-d-rgb), 1);
+			background: var(--fractils-hotkey_background, rgba(var(--bg-d-rgb), 1));
 		}
 	`
 }
