@@ -1,14 +1,16 @@
 import type { ElementOrSelector, ElementsOrSelectors } from './select'
 import type { resizable } from '../actions/resizable'
-import type { State } from '../utils/state'
+import type { State } from './state'
 
-import { debounce } from '../utils/debounce'
-import { Logger } from '../utils/logger'
-import { state } from '../utils/state'
+import { collisionClampX, collisionClampY } from './collisions'
+import { deepMerge } from './deepMerge'
+import { debounce } from './debounce'
+import { nanoid } from './nanoid'
+import { Logger } from './logger'
 import { select } from './select'
+import { state } from './state'
 import { clamp } from './clamp'
 import { gr } from './l'
-import { collisionClampX, collisionClampY } from './collisions'
 
 /**
  * Represents a dom element's bounding rectangle.
@@ -43,48 +45,53 @@ export type Corner = 'top-left' | 'top-right' | 'bottom-right' | 'bottom-left'
 export interface ResizableOptions {
 	/**
 	 * To only allow resizing on certain sides, specify them here.
-	 * @default ['right']
+	 * @defaultValue ['right']
 	 */
 	sides: Side[]
 	/**
 	 * To only allow resizing on certain corners, specify them here.
-	 * @default []
+	 * @defaultValue []
 	 */
 	corners: ('top-left' | 'top-right' | 'bottom-right' | 'bottom-left')[]
 	/**
 	 * The size of the resize handle in pixels.
-	 * @default 6
+	 * @defaultValue 6
 	 */
-	grabberSize: number | string
+	grabberSize: number
 	/**
 	 * Optional callback function that runs when the element is resized.
-	 * @default () => void
+	 * @defaultValue () => void
 	 */
 	onResize: (size: { width: number; height: number }) => void
 	/**
 	 * If provided, the size of the element will be persisted
 	 * to local storage under the specified key.
-	 * @default undefined
+	 * @defaultValue undefined
 	 */
 	localStorageKey?: string
 	/**
 	 * Use a visible or invisible gutter.
-	 * @default false
+	 * @defaultValue false
 	 */
 	visible: boolean
 	/**
 	 * Gutter css color (if visible = `true`)
-	 * @default 'var(--fg-d, #1d1d1d)'
+	 * @defaultValue 'var(--fg-d, #1d1d1d)'
 	 */
 	color: string
 	/**
+	 * The max opacity (0-1) when hovering/dragging a grabber.
+	 * @defaultValue 1
+	 */
+	opacity: number
+	/**
 	 * Border radius of the element.
-	 * @default '0.5rem'
+	 * @defaultValue '0.5rem'
 	 */
 	borderRadius: string
 	/**
 	 * The element to use as the bounds for resizing.
-	 * @default window['document']['documentElement']
+	 * @defaultValue window['document']['documentElement']
 	 */
 	bounds: ElementOrSelector
 
@@ -102,7 +109,7 @@ export interface ResizableOptions {
 	//  * - `{ top: number, right: number, bottom: number, left: number }` - A custom {@link VirtualRect rect} relative to the viewport.
 	//  *
 	//  * **Note**: Make sure the bounds is smaller than the node's min size.
-	//  * @default undefined
+	//  * @defaultValue undefined
 	//  */
 	//  bounds: DragBounds
 
@@ -116,24 +123,25 @@ export interface ResizableOptions {
 	cursors: boolean
 	/**
 	 * The classnames to apply to the resize grabbers, used for styling.
-	 * @default { default: 'resize-grabber', active: 'resize-grabbing' }
+	 * @defaultValue { default: 'resize-grabber', active: 'resize-grabbing' }
 	 */
 	classes: {
-		/** @default 'resize-grabber' */
+		/** @defaultValue 'resize-grabber' */
 		default: string
-		/** @default 'resize-grabbing' */
+		/** @defaultValue 'resize-grabbing' */
 		active: string
 	}
 }
 
 export const RESIZABLE_DEFAULTS: ResizableOptions = {
-	sides: ['right'],
-	corners: [],
+	sides: ['right', 'bottom'],
+	corners: ['bottom-right'],
 	grabberSize: 6,
 	onResize: () => {},
 	localStorageKey: undefined,
 	visible: false,
 	color: 'var(--fg-d, #1d1d1d)',
+	opacity: 0.75,
 	borderRadius: '50%',
 	obstacles: undefined,
 	cursors: true,
@@ -180,19 +188,20 @@ const px = (size: number | string) => {
  * })
  * ```
  */
-export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
+export class Resizable {
 	static initialized = false
+	id = nanoid(8)
 	opts: ResizableOptions
 
-	sides!: ResizableOptions['sides']
-	corners!: ResizableOptions['corners']
-	color!: ResizableOptions['color']
-	visible!: ResizableOptions['visible']
-	borderRadius!: ResizableOptions['borderRadius']
-	grabberSize!: ResizableOptions['grabberSize']
-	onResize!: ResizableOptions['onResize']
-	cursors!: ResizableOptions['cursors']
-	classes!: ResizableOptions['classes']
+	// sides!: ResizableOptions['sides']
+	// corners!: ResizableOptions['corners']
+	// color!: ResizableOptions['color']
+	// visible!: ResizableOptions['visible']
+	// borderRadius!: ResizableOptions['borderRadius']
+	// grabberSize!: ResizableOptions['grabberSize']
+	// onResize!: ResizableOptions['onResize']
+	// cursors!: ResizableOptions['cursors']
+	// classes!: ResizableOptions['classes']
 
 	bounds: HTMLElement
 	obstacleEls: HTMLElement[]
@@ -210,30 +219,24 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 		public node: HTMLElement,
 		options?: Partial<ResizableOptions>,
 	) {
-		const opts = Object.assign({}, RESIZABLE_DEFAULTS, options) as ResizableOptions
-		// const opts = { ...RESIZABLE_DEFAULTS, ...options }
-		Object.assign(this, opts)
-		this.opts = opts
+		this.opts = deepMerge(RESIZABLE_DEFAULTS, options)
 
 		const label = this.localStorageKey ? gr(':' + this.localStorageKey) : ''
 		this.#log = new Logger('resizable:' + label, {
 			fg: 'GreenYellow',
 			deferred: false,
 		})
-		this.#log.fn('constructor').info({ opts, this: this })
+		this.#log.fn('constructor').info({ opts: this.opts, this: this })
 
 		this.node.classList.add('fractils-resizable')
 
-		this.#cornerGrabberSize = +this.grabberSize * 3
+		this.#cornerGrabberSize = this.opts.grabberSize * 3
 
-		this.bounds = select(opts.bounds)[0] ?? globalThis.document?.documentElement
+		this.bounds = select(this.opts.bounds)[0] ?? globalThis.document?.documentElement
 
-		this.obstacleEls = select(opts.obstacles)
+		this.obstacleEls = select(this.opts.obstacles)
 
-		if (!Resizable.initialized) {
-			Resizable.initialized = true
-			this.generateGlobalCSS()
-		}
+		this.generateStyles()
 
 		const { offsetWidth: width, offsetHeight: height } = node
 
@@ -249,11 +252,11 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 					height: this.node.offsetHeight,
 				})
 			} else {
-				if (this.corners.length || this.sides.some(s => s.match(/left|right/))) {
+				if (this.opts.corners.length || this.opts.sides.some(s => s.match(/left|right/))) {
 					node.style.width = width + 'px'
 				}
 
-				if (this.corners.length || this.sides.some(s => s.match(/top|bottom/))) {
+				if (this.opts.corners.length || this.opts.sides.some(s => s.match(/top|bottom/))) {
 					node.style.height = height + 'px'
 				}
 			}
@@ -284,13 +287,13 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 
 	createGrabbers() {
 		for (const [side, type] of [
-			...this.sides.map(s => [s, 'side']),
-			...this.corners.map(c => [c, 'corner']),
+			...this.opts.sides.map(s => [s, 'side']),
+			...this.opts.corners.map(c => [c, 'corner']),
 		]) {
 			const grabber = document.createElement('div')
-			grabber.classList.add(this.opts.classes.default)
-			grabber.classList.add(this.opts.classes.default + '-' + type)
-			grabber.classList.add(this.opts.classes.default + '-' + side)
+			grabber.classList.add(`${this.opts.classes.default}-${this.id}`)
+			grabber.classList.add(`${this.opts.classes.default}-${type}-${this.id}`)
+			grabber.classList.add(`${this.opts.classes.default}-${side}-${this.id}`)
 			grabber.dataset['side'] = side
 			// grabber.style.setProperty('opacity', this.opts.visible ? '1' : '0')
 
@@ -354,8 +357,8 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 	onGrab = (e: PointerEvent) => {
 		this.node.setPointerCapture(e.pointerId)
 		this.#activeGrabber = e.currentTarget as HTMLElement
-		this.#activeGrabber.classList.add(this.classes.active)
-		document.body.classList.add(this.classes.active)
+		this.#activeGrabber.classList.add(this.opts.classes.active)
+		document.body.classList.add(this.opts.classes.active)
 
 		this.obstacleEls = select(this.opts.obstacles)
 
@@ -395,139 +398,12 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 		return this.node.getBoundingClientRect()
 	}
 
-	// resizeLeft = (x: number) => {
-	// 	const { minWidth, maxWidth, paddingLeft, paddingRight, borderLeftWidth, borderRightWidth } =
-	// 		window.getComputedStyle(this.node)
-
-	// 	const clampedX = Math.max(x, this.getClosestObstLeft())
-	// 	let deltaX = clampedX - this.rect.left
-	// 	if (deltaX === 0) return this
-
-	// 	const borderBox =
-	// 		parseFloat(paddingLeft) +
-	// 		parseFloat(paddingRight) +
-	// 		parseFloat(borderLeftWidth) +
-	// 		parseFloat(borderRightWidth)
-	// 	const min = Math.max((parseFloat(minWidth) || 0) + borderBox, 25)
-
-	// 	const newWidth = clamp(this.rect.width - deltaX, min, +maxWidth || Infinity)
-
-	// 	if (newWidth === min) deltaX = this.rect.width - newWidth
-	// 	this.translateX += deltaX
-	// 	this.node.style.setProperty('translate', `${this.translateX}px ${this.translateY}px`)
-
-	// 	this.node.style.width = `${newWidth}px`
-	// 	return this
-	// }
-
-	// resizeRight = (x: number) => {
-	// 	const { minWidth, maxWidth, paddingLeft, paddingRight, borderLeftWidth, borderRightWidth } =
-	// 		window.getComputedStyle(this.node)
-
-	// 	const clampedX = Math.min(x, this.getClosestObstRight())
-	// 	let deltaX = clampedX - this.rect.right
-	// 	if (deltaX === 0) return this
-
-	// 	const borderBox =
-	// 		parseFloat(paddingLeft) +
-	// 		parseFloat(paddingRight) +
-	// 		parseFloat(borderLeftWidth) +
-	// 		parseFloat(borderRightWidth)
-	// 	const min = Math.max((parseFloat(minWidth) || 0) + borderBox, 25)
-
-	// 	const newWidth = clamp(this.rect.width + deltaX, min, +maxWidth || Infinity)
-
-	// 	this.node.style.width = `${newWidth}px`
-	// 	return this
-	// }
-
-	// resizeTop = (y: number) => {
-	// 	const {
-	// 		minHeight,
-	// 		maxHeight,
-	// 		paddingTop,
-	// 		paddingBottom,
-	// 		borderTopWidth,
-	// 		borderBottomWidth,
-	// 	} = window.getComputedStyle(this.node)
-
-	// 	const clampedY = Math.max(y, this.getClosestObstTop())
-	// 	let deltaY = clampedY - this.rect.top
-	// 	if (deltaY === 0) return this
-
-	// 	const borderBox =
-	// 		parseFloat(paddingTop) +
-	// 		parseFloat(paddingBottom) +
-	// 		parseFloat(borderTopWidth) +
-	// 		parseFloat(borderBottomWidth)
-	// 	const min = Math.max((parseFloat(minHeight) || 0) + borderBox, 25)
-
-	// 	const newHeight = clamp(this.rect.height - deltaY, min, +maxHeight || Infinity)
-
-	// 	if (newHeight === min) deltaY = this.rect.height - newHeight
-	// 	this.translateY += deltaY
-	// 	this.node.style.setProperty('translate', `${this.translateX}px ${this.translateY}px`)
-
-	// 	this.node.style.height = `${newHeight}px`
-	// 	return this
-	// }
-
-	// resizeBottom = (y: number) => {
-	// 	const {
-	// 		minHeight,
-	// 		maxHeight,
-	// 		paddingTop,
-	// 		paddingBottom,
-	// 		borderTopWidth,
-	// 		borderBottomWidth,
-	// 	} = window.getComputedStyle(this.node)
-	// 	const yClosest = this.getClosestObstBottom()
-
-	// 	const clampedY = Math.min(y, yClosest)
-	// 	let deltaY = clampedY - this.rect.bottom
-	// 	if (deltaY === 0) return this
-
-	// 	const borderBox =
-	// 		parseFloat(paddingTop) +
-	// 		parseFloat(paddingBottom) +
-	// 		parseFloat(borderTopWidth) +
-	// 		parseFloat(borderBottomWidth)
-	// 	const min = Math.max((parseFloat(minHeight) || 0) + borderBox, 25)
-
-	// 	const newHeight = clamp(this.rect.height + deltaY, min, +maxHeight || Infinity)
-
-	// 	this.node.style.height = `${newHeight}px`
-	// 	return this
-	// }
-
-	// #updateBounds = () => {
-	// 	// refresh style left & top
-	// 	const styleLeft = parseFloat(this.node.style.left) || 0
-	// 	this.#boundsRect.left = -styleLeft
-	// 	this.#boundsRect.right =
-	// 		this.bounds.right - this.bounds.left - (this.rect.right - this.rect.left) - styleLeft
-
-	// 	const styleTop = parseFloat(this.node.style.top) || 0
-	// 	this.#boundsRect.top = -styleTop
-	// 	this.#boundsRect.bottom =
-	// 		this.bounds.bottom - this.bounds.top - styleTop - (this.rect.bottom - this.rect.top)
-	// 	// refresh bounds element padding ...
-	// 	if (this.boundsEl) {
-	// 		const { paddingLeft, paddingRight, paddingTop, paddingBottom } =
-	// 			window.getComputedStyle(this.boundsEl)
-	// 		this.#boundsRect.left -= parseFloat(paddingLeft)
-	// 		this.#boundsRect.right -= parseFloat(paddingRight)
-	// 		this.#boundsRect.top -= parseFloat(paddingTop)
-	// 		this.#boundsRect.bottom -= parseFloat(paddingBottom)
-	// 	}
-	// }
-
 	// Private computedStyleValues
 
-	#minWidth: GLfloat = 0
-	#maxWidth: GLfloat = 0
-	#minHeight: GLfloat = 0
-	#maxHeight: GLfloat = 0
+	#minWidth = 0
+	#maxWidth = 0
+	#minHeight = 0
+	#maxHeight = 0
 	#boundsRect: VirtualRect = {
 		left: -Infinity,
 		top: -Infinity,
@@ -572,7 +448,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 
 	resizeX = (x: number, borderleft?: boolean) => {
 		let deltaX
-		// if (this.#boundsRect) x = clamp(x, this.#boundsRect.left, this.#boundsRect.right)
+
 		if (borderleft) {
 			deltaX = x - this.rect.left
 			if (deltaX === 0) return this
@@ -596,11 +472,12 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			const newWidth = clamp(this.rect.width + deltaX, this.#minWidth, this.#maxWidth)
 			this.node.style.width = `${newWidth}px`
 		}
+
 		return this
 	}
 	resizeY = (y: number, bordertop?: boolean) => {
 		let deltaY
-		// if (this.#boundsRect) y = clamp(y, this.#boundsRect.top, this.#boundsRect.bottom)
+
 		if (bordertop) {
 			deltaY = y - this.rect.top
 			if (deltaY != 0) {
@@ -640,43 +517,11 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 			return
 		}
 
-		// const bounds = this.boundsRect
-
-		// const x = clamp(e.clientX, bounds.left, bounds.left + bounds.width) - this.clickOffset.x
-		// const y = clamp(e.clientY, bounds.top, bounds.top + bounds.height) - this.clickOffset.y
-
 		const x = e.clientX - this.clickOffset.x
 		const y = e.clientY - this.clickOffset.y
 
 		const { side } = this.#activeGrabber.dataset
 		this.#log.fn('onMove').debug(side)
-
-		// switch (side) {
-		// 	case 'top-left':
-		// 		this.resizeTop(y).resizeLeft(x)
-		// 		break
-		// 	case 'top-right':
-		// 		this.resizeTop(y).resizeRight(x)
-		// 		break
-		// 	case 'bottom-right':
-		// 		this.resizeBottom(y).resizeRight(x)
-		// 		break
-		// 	case 'bottom-left':
-		// 		this.resizeBottom(y).resizeLeft(x)
-		// 		break
-		// 	case 'top':
-		// 		this.resizeTop(y)
-		// 		break
-		// 	case 'right':
-		// 		this.resizeRight(x)
-		// 		break
-		// 	case 'bottom':
-		// 		this.resizeBottom(y)
-		// 		break
-		// 	case 'left':
-		// 		this.resizeLeft(x)
-		// 		break
-		// }
 
 		switch (side) {
 			case 'top-left':
@@ -709,7 +554,7 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 
 		if (this.localStorageKey) this.saveSize()
 
-		this.onResize({
+		this.opts.onResize({
 			width: this.node.offsetWidth,
 			height: this.node.offsetHeight,
 		})
@@ -717,8 +562,8 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 
 	onUp = () => {
 		this.#cleanupGrabListener?.()
-		document.body.classList.remove(this.classes.active)
-		this.#activeGrabber?.classList.remove(this.classes.active)
+		document.body.classList.remove(this.opts.classes.active)
+		this.#activeGrabber?.classList.remove(this.opts.classes.active)
 
 		this.node.dispatchEvent(new CustomEvent('release'))
 	}
@@ -726,34 +571,32 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 	/**
 	 * Creates the global stylesheet (but only once).
 	 */
-	generateGlobalCSS() {
+	generateStyles() {
+		this.#log.fn('generateStyles').debug('Generating global styles for', this)
 		let css = /*css*/ `
-			
-			.resize-grabber {
+			.resize-grabber-${this.id} {
 				position: absolute;
 				display: flex;
 
-				padding: ${px(this.grabberSize)};
-
-				opacity: ${this.opts.visible ? 1 : 0};
-				border-radius: ${this.borderRadius} !important;
+				opacity: ${this.opts.visible ? this.opts.opacity : 0};
+				border-radius: ${this.opts.borderRadius};
 				border-radius: inherit;
 
 				transition: opacity 0.1s;
 			}
-			
-			.fractils-resizable:not(.fractils-grabbing) .resize-grabber:hover {
-				opacity: 0.5;
+
+			.fractils-resizable:not(.fractils-grabbing) .resize-grabber-${this.id}:hover {
+				opacity: ${this.opts.opacity / 2};
 			}
 
-			.resize-grabber:active {
-				opacity: 0.75;
+			.resize-grabber-${this.id}:active {
+				opacity: ${this.opts.opacity * 0.75};
 			}
 		`
 
 		if (this.opts.cursors) {
 			css += /*css*/ `
-				.resize-grabbing *, .resize-grabber:active {
+				.resize-grabbing-${this.id} *, .resize-grabber-${this.id}:active {
 					cursor: grabbing !important;
 				}
 			`
@@ -765,96 +608,92 @@ export class Resizable implements Omit<ResizableOptions, 'size' | 'obstacles'> {
 				: `
 				cursor: ${v};`
 
-		const offset = -this.grabberSize
-		const gradient = `transparent 35%, ${this.color} 40%, ${this.color} 50%, transparent 60%, transparent 100%`
+		const offset = this.opts.grabberSize / 2
+		const gradient = `transparent 20%, ${this.opts.color} 33%, ${this.opts.color} 66%, transparent 75%, transparent 100%`
 		const lengthPrcnt = 98
 
-		if (this.sides.includes('top'))
+		if (this.opts.sides.includes('top'))
 			css += /*css*/ `
-			.${this.classes.default}-top {
+			.${this.opts.classes.default}-top-${this.id} {
 				${cursor('ns-resize')}
-				top: ${offset}px;
+				top: ${-offset}px;
 				left: ${50 - lengthPrcnt * 0.5}%;
 
 				width: ${lengthPrcnt}%;
-				height: ${this.grabberSize}px;
+				height: ${this.opts.grabberSize}px;
 
 				background: linear-gradient(to bottom, ${gradient});
 			}
 		`
-		if (this.sides.includes('right'))
+		if (this.opts.sides.includes('right'))
 			css += /*css*/ `
-			.${this.classes.default}-right {
+			.${this.opts.classes.default}-right-${this.id} {
 				${cursor('ew-resize')}
-				right: ${offset}px;
+				right: ${-offset}px;
 				top: ${50 - lengthPrcnt * 0.5}%;
 
-				width: ${this.grabberSize}px;
+				width: ${this.opts.grabberSize}px;
 				height: ${lengthPrcnt}%;
 
 				background: linear-gradient(to left, ${gradient});
 			}
 		`
-		if (this.sides.includes('bottom'))
+		if (this.opts.sides.includes('bottom'))
 			css += /*css*/ `
-			.${this.classes.default}-bottom {
+			.${this.opts.classes.default}-bottom-${this.id} {
 				${cursor('ns-resize')}
-				bottom: ${offset}px;
+				bottom: ${-offset}px;
 				left: ${50 - lengthPrcnt * 0.5}%;
 
 				width: ${lengthPrcnt}%;
-				height: ${this.grabberSize}px;
+				height: ${this.opts.grabberSize}px;
 
 				background: linear-gradient(to top, ${gradient});
 			}
 		`
-		if (this.sides.includes('left'))
+		if (this.opts.sides.includes('left'))
 			css += /*css*/ `
-				.${this.classes.default}-left {
+				.${this.opts.classes.default}-left-${this.id} {
 					${cursor('ew-resize')}
-					left: ${offset}px;
+					left: ${-offset}px;
 					top: ${50 - lengthPrcnt * 0.5}%;
 
-					width: ${this.grabberSize}px;
+					width: ${this.opts.grabberSize}px;
 					height: ${lengthPrcnt}%;
 
 					background: linear-gradient(to right, ${gradient});
 				}
 			`
 
-		css += `.fractils-grabbing .resize-grabber {cursor: default}`
+		css += `.fractils-grabbing .resize-grabber { cursor: default }`
 
 		const cSize = this.#cornerGrabberSize
-		const cScale = 3
-		const cOffset = -6
-		const cPadding = 20
 
 		const opposites = {
-			'top-left': `${100 - cPadding}% ${100 - cPadding}%`,
-			'top-right': `${cPadding}% ${100 - cPadding}%`,
-			'bottom-left': `${100 - cPadding}% ${cPadding}%`,
-			'bottom-right': `${cPadding}% ${cPadding}%`,
+			'top-left': '100% 100%',
+			'top-right': '0% 100%',
+			'bottom-left': '100% 0%',
+			'bottom-right': '0% 0%',
 		} as const
 
 		const corner = (corner: Corner, cursorValue: string) => {
-			if (!this.corners.includes(corner)) return
+			if (!this.opts.corners.includes(corner)) return
 
-			const classname = `${this.classes.default}-${corner}`
-			const sides = corner.replace(this.classes.default, '').split('-')
+			const classname = `${this.opts.classes.default}-${corner}-${this.id}`
+			const sides = corner.replace(this.opts.classes.default, '').split('-')
 
 			css += `
 				.${classname} {${cursor(cursorValue)}
-					${sides[0]}: ${cOffset / cScale}px;
-					${sides[1]}: ${cOffset / cScale}px;
+					${sides[0]}: 0px;
+					${sides[1]}: 0px;
 					width: ${cSize}px;
 					height: ${cSize}px;
 				}
 				.${classname}::after {
 					content: '';
-					scale: ${cScale};
 					width: 100%;
 					height: 100%;
-					background: radial-gradient(farthest-corner at ${opposites[corner]}, transparent 50%, ${this.color} 100%);
+					background: radial-gradient(farthest-corner at ${opposites[corner]}, transparent 70%, ${this.opts.color} 86%);
 					border-radius: 15%;
 				}
 			`
