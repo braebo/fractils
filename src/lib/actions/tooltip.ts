@@ -3,18 +3,20 @@ import type { ElementOrSelector } from '../utils/select'
 
 import { EventManager } from '../utils/EventManager'
 import { deepMerge } from '../utils/deepMerge'
+import { styled } from '../decorators/styled'
 import { tickLoop } from '../utils/loopTick'
-// import { trimCss } from '../utils/trimCss'
 import { entries } from '../utils/object'
 import { create } from '../utils/create'
 import { DEV } from 'esm-env'
-import { styled } from '$lib/decorators/styled'
 
 type Selector = `#${string}` | `.${string}`
 type Anchor = Element | Selector | 'mouse' | 'node' | null
 type Anchors = { x: Anchor; y: Anchor }
 type AnchorRect = DOMRect | { left: number; top: number; width: number; height: number }
 
+/**
+ * Options for the tooltip.
+ */
 export interface TooltipOptions {
 	/**
 	 * The text to display in the tooltip.  Can be a string, number, or a function that returns a string or number.
@@ -146,7 +148,7 @@ export class Tooltip {
 				: ((() => this.opts.text) as () => string)
 
 		this.parent = options?.parent ?? document.getElementById('svelte') ?? document.body
-		if (this.opts.styles) console.error(this.opts.styles.background)
+
 		this.element = create('div', {
 			classes: ['fractils-tooltip'],
 			innerHTML: String(this.getText()),

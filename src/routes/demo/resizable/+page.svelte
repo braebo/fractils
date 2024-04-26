@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Corner, Side } from '$lib/utils/resizable'
+	import type { ResizableOptions, Corner, Side } from '$lib/utils/resizable'
 	import { resizable } from '$lib/actions/resizable'
 	import { draggable } from '$lib/utils/draggable'
 	import Orbs from './Orbs.svelte'
@@ -33,9 +33,11 @@
 	]
 
 	const defaults = {
+		color: 'var(--fg-b)',
+		opacity: 1,
 		sides: ['top', 'right', 'bottom', 'left'] as Side[],
 		corners: ['top-left', 'top-right', 'bottom-right', 'bottom-left'] as Corner[],
-	}
+	} as const satisfies Partial<ResizableOptions>
 </script>
 
 {#each obstacles as { title, style, position }}
@@ -43,14 +45,14 @@
 		{style}
 		class="obstacle"
 		use:resizable={{
-			obstacles: ['.orbs-container'],
 			...defaults,
+			obstacles: ['.orbs-container'],
 		}}
 		use:draggable={{
+			...defaults,
 			cancel: '.resize-grabber',
 			obstacles: ['.orbs-container'],
 			position,
-			...defaults,
 		}}
 	>
 		<div class="label">{title}</div>
@@ -61,9 +63,9 @@
 <div
 	class="orbs-container"
 	use:resizable={{
+		...defaults,
 		visible: true,
 		obstacles: ['.bounds', '.obstacle'],
-		...defaults,
 	}}
 	use:draggable={{
 		cancel: '.resize-grabber',
@@ -71,7 +73,6 @@
 		position: { x: W / 2 - 100, y: H / 2 - 100 },
 	}}
 >
-	<div class="label">Free Orbs</div>
 	<Orbs />
 </div>
 
@@ -80,9 +81,9 @@
 	style="min-width: 75px; min-height: 75px;"
 	use:resizable
 	use:draggable={{
+		...defaults,
 		cancel: '.resize-grabber',
 		position: { x: 50, y: H - 250 },
-		...defaults,
 	}}
 >
 	<div class="label">Bounds</div>
@@ -91,9 +92,9 @@
 		class="draggable1"
 		style="min-width: 75px; min-height: 75px;"
 		use:resizable={{
+			...defaults,
 			visible: true,
 			bounds: '.bounds',
-			...defaults,
 		}}
 		use:draggable={{
 			bounds: '.bounds',
@@ -116,17 +117,11 @@
 
 		background: rgba(var(--bg-a-rgb), 0.5);
 		backdrop-filter: blur(0.25rem);
-		border: 3px solid tomato;
+		box-shadow: 0 2px 10px #0002;
 		border-radius: var(--radius);
+		outline: 1px solid var(--bg-c);
 
 		overflow: hidden;
-
-		.label {
-			max-width: 100%;
-			overflow: hidden;
-			position: absolute;
-			padding: 0.4rem;
-		}
 	}
 
 	pre {
