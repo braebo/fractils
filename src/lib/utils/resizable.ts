@@ -152,11 +152,6 @@ export const RESIZABLE_DEFAULTS: ResizableOptions = {
 	bounds: 'document',
 } as const
 
-const px = (size: number | string) => {
-	if (typeof size === 'number') return `${size}px`
-	else return size
-}
-
 /**
  * Makes an element resizable by dragging its edges.  For the
  * svelte-action version, see {@link resizable}.
