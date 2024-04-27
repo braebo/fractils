@@ -60,11 +60,11 @@ export class Rect<T extends RectTarget = RectTarget> {
 		return this.#center()
 	}
 
-	contains(rect: Rect) {
+	contains(_rect: Rect) {
 		// todo
 	}
 
-	intersects(rect: Rect): { intersects: boolean; deltaX: number; deltaY: number } {
+	intersects(_rect: Rect): { intersects: boolean; deltaX: number; deltaY: number } {
 		let intersects = false
 		let deltaX = 0
 		let deltaY = 0

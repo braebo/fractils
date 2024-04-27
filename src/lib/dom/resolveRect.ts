@@ -3,8 +3,10 @@ import type { ElementOrSelector } from '../utils/select'
 import { select } from '../utils/select'
 import { isVirtualRect } from './rect'
 
-export type RectTarget = DOMRect | HTMLElement | Window
 export type RectReference = SimpleRect | ElementOrSelector | Window | 'window' | 'document'
+
+export type RectTarget = DOMRect | HTMLElement | Window
+
 export interface SimpleRect {
 	x: number
 	y: number
