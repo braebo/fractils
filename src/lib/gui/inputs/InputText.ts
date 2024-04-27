@@ -8,20 +8,18 @@ import { state } from '../../utils/state'
 import { Input } from './Input'
 
 export type TextInputOptions = {
-	title: string
 	/**
 	 * The maximum number of characters that can be entered.
 	 * @default 50
 	 */
 	maxLength?: number
-	// } & ValueOrBinding<string> & InputOptions<string>
 } & InputOptions<string>
 
-export const TEXT_INPUT_DEFAULTS: TextInputOptions = {
+export const TEXT_INPUT_DEFAULTS = {
 	title: '',
 	value: 'foo',
 	maxLength: 50,
-} as const
+} as const satisfies TextInputOptions
 
 export interface TextControllerElements extends ElementMap {
 	container: HTMLElement
@@ -65,40 +63,37 @@ export class InputText extends Input<string, TextInputOptions, TextControllerEle
 			input: textController(this, opts, container),
 		} as const satisfies TextControllerElements
 
-		this.evm.listen(this.elements.controllers.input, 'input', this.set)
+		this.evm.listen(this.elements.controllers.input, 'input', this.set.bind(this))
 
 		this.evm.add(this.state.subscribe(this.refresh))
 	}
 
 	enable() {
+		super.enable()
 		this.elements.controllers.input.disabled = false
-		this.disabled = false
 		return this
 	}
 	disable() {
+		super.disable()
 		this.elements.controllers.input.disabled = true
-		this.disabled = true
 		return this
 	}
 
-	set = (v?: string | Event) => {
-		console.log(CSS.supports('border', ((v as Event).target as HTMLTextAreaElement)?.value))
-		if (typeof v === 'undefined') {
-			return
-		}
+	set(v?: string | Event) {
+		if (typeof v === 'undefined') return
 
 		if (typeof v !== 'string') {
 			if (v?.target && 'value' in v.target) {
+				this.commit(v.target.value as string)
 				this.state.set(v.target.value as string)
 			}
 		} else {
+			this.commit(v)
 			this.state.set(v)
 		}
 	}
 
 	refresh = () => {
-		// if (this.disabled) return
-
 		const v = this.state.value
 		this.elements.controllers.input.value = v
 

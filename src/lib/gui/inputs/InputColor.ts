@@ -55,7 +55,6 @@ export interface ColorControllerElements extends ElementMap<ColorPicker> {
 }
 
 export type ColorInputOptions = {
-	title: string
 	mode: ColorMode
 	expanded: boolean
 	onChange?: (value: Color) => void

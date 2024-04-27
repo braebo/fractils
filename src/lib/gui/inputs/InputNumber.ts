@@ -1,4 +1,4 @@
-import type { ElementMap, ValueOrBinding } from './Input'
+import type { ElementMap, InputOptions } from './Input'
 import type { Folder } from '../Folder'
 
 import { numberController, numberButtonsController, rangeController } from '../controllers/number'
@@ -8,11 +8,10 @@ import { state } from '../../utils/state'
 import { Input } from './Input'
 
 export type NumberInputOptions = {
-	title: string
 	min?: number
 	max?: number
 	step?: number
-} & ValueOrBinding<number>
+} & InputOptions<number>
 
 export const NUMBER_INPUT_DEFAULTS: NumberInputOptions = {
 	title: '',
@@ -87,9 +86,11 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 
 		if (typeof v !== 'number') {
 			if (v?.target && 'valueAsNumber' in v.target) {
+				this.commit(v.target.valueAsNumber as number)
 				this.state.set(v.target.valueAsNumber as number)
 			}
 		} else {
+			this.commit(v)
 			this.state.set(v)
 		}
 	}

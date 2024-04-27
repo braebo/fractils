@@ -3,7 +3,7 @@ import type { Option } from './controllers/Select'
 
 import { InputButtonGrid, type ButtonGridInputOptions } from './inputs/InputButtonGrid'
 import { InputSwitch, type SwitchInputOptions } from './inputs/InputSwitch'
-import { InputButton, type InputButtonOptions } from './inputs/InputButton'
+import { InputButton, type ButtonInputOptions } from './inputs/InputButton'
 import { InputSelect, type SelectInputOptions } from './inputs/InputSelect'
 import { InputNumber, type NumberInputOptions } from './inputs/InputNumber'
 import { InputColor, type ColorInputOptions } from './inputs/InputColor'
@@ -426,8 +426,8 @@ export class Folder {
 	add(options: TextInputOptions, never?: never): InputText
 	add(title: string, options: ColorInputOptions): InputColor
 	add(options: ColorInputOptions, never?: never): InputColor
-	add(title: string, options: InputButtonOptions): InputButton
-	add(options: InputButtonOptions, never?: never): InputButton
+	add(title: string, options: ButtonInputOptions): InputButton
+	add(options: ButtonInputOptions, never?: never): InputButton
 	add(title: string, options: ButtonGridInputOptions): InputButtonGrid
 	add(options: ButtonGridInputOptions, never?: never): InputButtonGrid
 	add<T>(title: string, options: SelectInputOptions<T>): InputSelect<T>
@@ -469,7 +469,7 @@ export class Folder {
 		return input
 	}
 
-	addButton(options: Partial<InputButtonOptions>) {
+	addButton(options: Partial<ButtonInputOptions>) {
 		const input = new InputButton(options, this)
 		this.inputs.set(input.title, input)
 		this.#refreshIcon()
@@ -510,7 +510,7 @@ export class Folder {
 			case 'Select':
 				return new InputSelect(options as SelectInputOptions<Option<any>>, this)
 			case 'Button':
-				return new InputButton(options as InputButtonOptions, this)
+				return new InputButton(options as ButtonInputOptions, this)
 			case 'Switch':
 				return new InputSwitch(options as SwitchInputOptions, this)
 		}

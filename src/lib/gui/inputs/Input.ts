@@ -1,5 +1,5 @@
 import type { InputButtonGrid, ButtonGridInputOptions, ButtonGrid } from './InputButtonGrid'
-import type { InputButton, InputButtonOptions, ButtonClickFunction } from './InputButton'
+import type { InputButton, ButtonInputOptions, ButtonClickFunction } from './InputButton'
 import type { InputTextArea, TextAreaInputOptions } from './InputTextArea'
 import type { InputSwitch, SwitchInputOptions } from './InputSwitch'
 import type { InputSelect, SelectInputOptions } from './InputSelect'
@@ -17,6 +17,7 @@ import { EventManager } from '$lib/utils/EventManager'
 import { debrief } from '$lib/utils/debrief'
 import { create } from '../../utils/create'
 import { Logger } from '../../utils/logger'
+import { toFn } from '../shared/toFn'
 
 //· Types ··············································································¬
 
@@ -67,7 +68,16 @@ export type InputOptions<
 	TValue = ValidInputValue,
 	TBindTarget extends BindTarget = Record<string, any & TValue>,
 > = {
+	/**
+	 * The title displayed to the left of the input.
+	 */
 	title: string
+	/**
+	 * Whether the inputs are disabled.  A function can be
+	 * used to dynamically determine the disabled state.
+	 * @default false
+	 */
+	disabled?: boolean
 	onChange?: (value: TValue) => void
 } & ValueOrBinding<TValue, TBindTarget>
 
@@ -82,7 +92,7 @@ export type ValidInputOptions =
 	| NumberInputOptions
 	| ColorInputOptions
 	| SelectInputOptions<Option<any>>
-	| InputButtonOptions
+	| ButtonInputOptions
 	| ButtonGridInputOptions
 	| SwitchInputOptions
 
@@ -114,12 +124,6 @@ export abstract class Input<
 	 */
 	bound = false
 
-	/**
-	 * Whether all user input controllers are disabled.
-	 * Use {@link enable} and {@link disable} to toggle.
-	 * @default false
-	 */
-	disabled = false
 	elements = {
 		controllers: {},
 	} as {
@@ -133,6 +137,7 @@ export abstract class Input<
 
 	#title = ''
 	#firstUpdate = true
+	#disabled: () => boolean
 
 	/**
 	 * A set of callbacks to be called when {@link Input.dispose} is called.
@@ -149,6 +154,7 @@ export abstract class Input<
 		public folder: Folder,
 	) {
 		this.#title = options.title
+		this.#disabled = toFn(options.disabled ?? false)
 		this.log = new Logger('Input:' + this.#title, { fg: 'skyblue' })
 
 		this.elements.container = create('div', {
@@ -190,6 +196,10 @@ export abstract class Input<
 		return this.state.value
 	}
 
+	get undoManager() {
+		return this.folder.root.undoManager
+	}
+
 	get title() {
 		return this.#title
 	}
@@ -198,9 +208,36 @@ export abstract class Input<
 		this.elements.title.textContent = v
 	}
 
-	// todo - the `Controller` class should die and its enable/disable methods moved here
-	abstract enable(): this
-	abstract disable(): this
+	/**
+	 * Whether the input is disabled.  A function can be used to
+	 * dynamically determine the disabled state.
+	 */
+	get disabled(): boolean {
+		return this.#disabled()
+	}
+	set disabled(v: boolean | (() => boolean)) {
+		this.#disabled = toFn(v)
+		this.#disabled() ? this.disable() : this.enable()
+	}
+
+	abstract set(v: TValueType): void
+
+	commit(v: TValueType) {
+		this.undoManager.add<TValueType>({
+			input: this as Input<TValueType>,
+			from: this.state.value as TValueType,
+			to: v,
+		})
+	}
+
+	enable() {
+		this.#disabled = toFn(false)
+		return this
+	}
+	disable() {
+		this.#disabled = toFn(true)
+		return this
+	}
 
 	/**
 	 * Refreshes the value of any controllers to match the current input state.

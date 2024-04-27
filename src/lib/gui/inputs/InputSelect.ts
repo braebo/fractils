@@ -1,5 +1,5 @@
 import type { LabeledOption, Option } from '../controllers/Select'
-import type { ElementMap, ValueOrBinding } from './Input'
+import type { ElementMap, InputOptions } from './Input'
 import type { State } from '../../utils/state'
 import type { Folder } from '../Folder'
 
@@ -12,7 +12,7 @@ import { Input } from './Input'
 export type SelectInputOptions<T> = {
 	title: string
 	options: T[]
-} & ValueOrBinding<Option<unknown>>
+} & InputOptions<Option<unknown>>
 
 export const SELECT_INPUT_DEFAULTS: SelectInputOptions<Option<any>> = {
 	title: '',

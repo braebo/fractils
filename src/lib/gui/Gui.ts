@@ -12,6 +12,7 @@ import type { ThemeMode } from '../themer/types'
 
 import { WindowManager, WINDOWMANAGER_DEFAULTS } from '../utils/windowManager'
 import { RESIZABLE_DEFAULTS } from '../utils/resizable'
+import { UndoManager } from '../utils/undoManager'
 import { resolveOpts } from './shared/resolveOpts'
 import { DRAG_DEFAULTS } from '../utils/draggable'
 // import { ThemeEditor } from '../themer/Themer'
@@ -216,6 +217,7 @@ export class Gui extends Folder {
 	themer?: Themer
 	// themeEditor?: ThemeEditor // todo
 	windowManager?: WindowManager
+	undoManager = new UndoManager()
 
 	private _theme: GuiOptions['theme']
 
@@ -251,6 +253,16 @@ export class Gui extends Folder {
 			},
 			children: [this.element],
 		})
+
+		const undo = (e: KeyboardEvent) => {
+			// todo - make sure the active element is within the gui first
+			if (!e.metaKey || e.key !== 'z') return
+			e.preventDefault()
+			e.shiftKey ? this.undoManager.redo() : this.undoManager.undo()
+		}
+
+		removeEventListener('keydown', undo)
+		addEventListener('keydown', undo)
 		//⌟
 
 		//· State ····························································¬

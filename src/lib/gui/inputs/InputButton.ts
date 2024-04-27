@@ -9,13 +9,13 @@ import { Input } from './Input'
 
 export type ButtonClickFunction = (this: InputButton) => void
 
-export type InputButtonOptions = {
+export type ButtonInputOptions = {
 	title: string
 	text: string | (() => string)
 	onClick: () => void
 } & InputOptions<ButtonClickFunction>
 
-export const BUTTON_INPUT_DEFAULTS: InputButtonOptions = {
+export const BUTTON_INPUT_DEFAULTS: ButtonInputOptions = {
 	title: 'Button',
 	text: () => 'click me',
 	onClick: () => {},
@@ -28,7 +28,7 @@ export interface ButtonControllerElements extends ElementMap {
 
 export class InputButton extends Input<
 	ButtonClickFunction,
-	InputButtonOptions,
+	ButtonInputOptions,
 	ButtonControllerElements
 > {
 	type = 'Button' as const
@@ -39,7 +39,7 @@ export class InputButton extends Input<
 
 	#log = new Logger('InputButton', { fg: 'cyan' })
 
-	constructor(options: Partial<InputButtonOptions>, folder: Folder) {
+	constructor(options: Partial<ButtonInputOptions>, folder: Folder) {
 		const opts = Object.assign({}, BUTTON_INPUT_DEFAULTS, options)
 		super(opts, folder)
 

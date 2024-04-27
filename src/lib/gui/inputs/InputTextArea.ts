@@ -8,7 +8,6 @@ import { state } from '../../utils/state'
 import { Input } from './Input'
 
 export type TextAreaInputOptions = {
-	title: string
 	/**
 	 * The maximum number of characters that can be entered.
 	 * @default 50
