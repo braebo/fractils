@@ -1,7 +1,9 @@
 import type { ElementMap, InputOptions } from './Input'
 import type { Folder } from '../Folder'
 
-import { numberController, numberButtonsController, rangeController } from '../controllers/number'
+import { NumberButtonsController } from '../controllers/NumberButtonsController'
+import { NumberController } from '../controllers/NumberController'
+import { rangeController } from '../controllers/number'
 import { Logger } from '../../utils/logger'
 import { create } from '../../utils/create'
 import { state } from '../../utils/state'
@@ -37,8 +39,11 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 	initialValue: number
 	#log = new Logger('InputNumber', { fg: 'cyan' })
 
-	// todo - move this into the number controller?
+	// todo - Move this into the number controller?
 	dragEnabled = false
+
+	numberController: NumberController
+	numberButtonsController: NumberButtonsController
 
 	constructor(options: Partial<NumberInputOptions>, folder: Folder) {
 		const opts = { ...NUMBER_INPUT_DEFAULTS, ...options }
@@ -67,14 +72,17 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 			parent: this.elements.content,
 		})
 
+		this.numberController = new NumberController(this, opts, container)
+		this.numberButtonsController = new NumberButtonsController(this, opts, container)
+
 		this.elements.controllers = {
 			container,
-			input: numberController(this, opts, container),
-			buttons: numberButtonsController(this, opts, container),
+			input: this.numberController.element,
+			buttons: this.numberButtonsController.elements,
 			range: rangeController(this, opts, container),
 		} as const satisfies NumberControllerElements
 
-		this.evm.listen(this.elements.controllers.input, 'input', this.set)
+		// this.evm.listen(this.elements.controllers.input, 'input', this.set.bind(this))
 
 		this.evm.add(this.state.subscribe(this.refresh.bind(this)))
 

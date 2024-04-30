@@ -1,7 +1,7 @@
 import type { ColorMode, InputColor } from '../../inputs/InputColor'
 
 import { parseColorFormat } from '../../../color/color'
-import { numberController } from '../number'
+import { NumberController } from '../NumberController'
 import { Controller } from '../Controller'
 import { Select } from '../Select'
 
@@ -84,10 +84,10 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 		})
 
 		const numbers = {
-			a: numberController(this.input, this.input.opts, numbersContainer),
-			b: numberController(this.input, this.input.opts, numbersContainer),
-			c: numberController(this.input, this.input.opts, numbersContainer),
-			d: numberController(this.input, this.input.opts, numbersContainer),
+			a: new NumberController(this.input, this.input.opts, numbersContainer).element,
+			b: new NumberController(this.input, this.input.opts, numbersContainer).element,
+			c: new NumberController(this.input, this.input.opts, numbersContainer).element,
+			d: new NumberController(this.input, this.input.opts, numbersContainer).element,
 		}
 
 		numbers.a.classList.add('a')

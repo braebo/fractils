@@ -271,6 +271,7 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 	//· Pointer Events ···································································¬
 
 	#onPointerDown = (e: PointerEvent) => {
+		this.element.dispatchEvent(new CustomEvent('onPointerDown'))
 		this.#dragging = true
 		this.#updateFromMousePosition(e)
 
@@ -284,6 +285,7 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 	}
 
 	#onPointerUp = () => {
+		this.element.dispatchEvent(new CustomEvent('onPointerUp'))
 		this.#dragging = false
 	}
 
@@ -323,6 +325,10 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 
 	#updateStateFromHue = (e: InputEvent) => {
 		this.#lockCursorPosition = true
+		const commit = {
+			input: this.input,
+			from: this.input.state.value.rgba as any as Color, // todo
+		}
 
 		const hue = Number((e.target as HTMLInputElement).value)
 
@@ -330,6 +336,10 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 		this.input.state.value.hsva = { h: hue, s, v, a }
 		this.input.state.set(this.input.state.value)
 
+		this.input.undoManager.commit({
+			...commit,
+			to: this.input.state.value.rgba as any as Color, // todo
+		})
 		this.elements.handle.style.background = this.input.state.value.hexString
 
 		this.draw()

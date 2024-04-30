@@ -5,134 +5,134 @@ import type { ControllerFactory } from './types'
 import { svgChevron } from '../svg/chevronSvg'
 import { create } from '../../utils/create'
 
-export const numberController: ControllerFactory<HTMLInputElement> = (input, opts, parent) => {
-	const controller = create('input', {
-		type: 'number',
-		classes: ['fracgui-controller', 'fracgui-controller-number'],
-		value: String(input.state.value),
-		parent,
-		tooltip: {
-			text: /*html*/ `Hold <span class="fractils-hotkey">⌘</span> or <span class="fractils-hotkey">ctrl</span> to drag`,
-			placement: 'top',
-			delay: 1500,
-			parent,
-			styles: {
-				background: 'var(--fracgui-bg-a)',
-				color: 'var(--fracgui-fg-a)',
-				'--fractils-hotkey_background': 'var(--fracgui-bg-b)',
-				'--fractils-hotkey_color': 'var(--fracgui-fg-a)',
-			},
-		},
-	})
+// export const numberController: ControllerFactory<HTMLInputElement> = (input, opts, parent) => {
+// 	const controller = create('input', {
+// 		type: 'number',
+// 		classes: ['fracgui-controller', 'fracgui-controller-number'],
+// 		value: String(input.state.value),
+// 		parent,
+// 		tooltip: {
+// 			text: /*html*/ `Hold <span class="fractils-hotkey">⌘</span> or <span class="fractils-hotkey">ctrl</span> to drag`,
+// 			placement: 'top',
+// 			delay: 1500,
+// 			parent,
+// 			styles: {
+// 				background: 'var(--fracgui-bg-a)',
+// 				color: 'var(--fracgui-fg-a)',
+// 				'--fractils-hotkey_background': 'var(--fracgui-bg-b)',
+// 				'--fractils-hotkey_color': 'var(--fracgui-fg-a)',
+// 			},
+// 		},
+// 	})
 
-	if ('step' in opts) {
-		controller.step = String(opts.step)
-	}
+// 	if ('step' in opts) {
+// 		controller.step = String(opts.step)
+// 	}
 
-	let dragEnabled = false
-	let dragging = false
-	let hovering = false
+// 	let dragEnabled = false
+// 	let dragging = false
+// 	let hovering = false
 
-	const hoverStart = (e: PointerEvent) => {
-		hovering = true
-		controller.classList.add('hovering')
+// 	const hoverStart = (e: PointerEvent) => {
+// 		hovering = true
+// 		controller.classList.add('hovering')
 
-		maybeEnableDrag(e)
+// 		maybeEnableDrag(e)
 
-		controller.addEventListener('pointerleave', hoverEnd)
-		globalThis.document.addEventListener('keydown', maybeEnableDrag)
-	}
+// 		controller.addEventListener('pointerleave', hoverEnd)
+// 		globalThis.document.addEventListener('keydown', maybeEnableDrag)
+// 	}
 
-	const hoverEnd = (e: PointerEvent) => {
-		hovering = false
-		controller.classList.remove('hovering')
+// 	const hoverEnd = (e: PointerEvent) => {
+// 		hovering = false
+// 		controller.classList.remove('hovering')
 
-		cancelDrag(e)
+// 		cancelDrag(e)
 
-		controller.removeEventListener('pointerleave', hoverEnd)
-		globalThis.document.removeEventListener('keydown', maybeEnableDrag)
-	}
+// 		controller.removeEventListener('pointerleave', hoverEnd)
+// 		globalThis.document.removeEventListener('keydown', maybeEnableDrag)
+// 	}
 
-	const dragKeyHeld = (e: KeyboardEvent | PointerEvent) => {
-		return navigator.platform.toUpperCase().includes('MAC') ? e.metaKey : e.ctrlKey
-	}
+// 	const dragKeyHeld = (e: KeyboardEvent | PointerEvent) => {
+// 		return navigator.platform.toUpperCase().includes('MAC') ? e.metaKey : e.ctrlKey
+// 	}
 
-	const cancelDrag = (e: KeyboardEvent | PointerEvent) => {
-		dragEnabled = e.type === 'keyup' ? dragKeyHeld(e) : false
+// 	const cancelDrag = (e: KeyboardEvent | PointerEvent) => {
+// 		dragEnabled = e.type === 'keyup' ? dragKeyHeld(e) : false
 
-		if (!dragEnabled) {
-			globalThis.document.removeEventListener('keyup', cancelDrag)
-			controller.removeEventListener('pointerleave', cancelDrag)
-			controller.removeEventListener('pointerdown', maybeDragStart)
+// 		if (!dragEnabled) {
+// 			globalThis.document.removeEventListener('keyup', cancelDrag)
+// 			controller.removeEventListener('pointerleave', cancelDrag)
+// 			controller.removeEventListener('pointerdown', maybeDragStart)
 
-			controller.style.cursor = controller.dataset['cursor'] ?? 'text'
+// 			controller.style.cursor = controller.dataset['cursor'] ?? 'text'
 
-			if (dragging) {
-				dragEnd()
-			}
-		}
-	}
+// 			if (dragging) {
+// 				dragEnd()
+// 			}
+// 		}
+// 	}
 
-	const maybeEnableDrag = (e: KeyboardEvent | PointerEvent) => {
-		if (dragKeyHeld(e)) {
-			dragEnabled = true
+// 	const maybeEnableDrag = (e: KeyboardEvent | PointerEvent) => {
+// 		if (dragKeyHeld(e)) {
+// 			dragEnabled = true
 
-			document.addEventListener('keyup', cancelDrag)
-			controller.addEventListener('pointerleave', cancelDrag)
-			controller.addEventListener('pointerdown', maybeDragStart)
+// 			document.addEventListener('keyup', cancelDrag)
+// 			controller.addEventListener('pointerleave', cancelDrag)
+// 			controller.addEventListener('pointerdown', maybeDragStart)
 
-			controller.dataset['cursor'] = getComputedStyle(controller).cursor
-			controller.style.cursor = 'ns-resize'
-		}
-	}
+// 			controller.dataset['cursor'] = getComputedStyle(controller).cursor
+// 			controller.style.cursor = 'ns-resize'
+// 		}
+// 	}
 
-	const maybeDragStart = () => {
-		if (hovering && dragEnabled) {
-			dragStart()
-		}
-	}
+// 	const maybeDragStart = () => {
+// 		if (hovering && dragEnabled) {
+// 			dragStart()
+// 		}
+// 	}
 
-	const dragStart = async () => {
-		dragging = true
-		controller.addEventListener('pointermove', drag)
-		globalThis.document.addEventListener('pointerup', dragEnd)
+// 	const dragStart = async () => {
+// 		dragging = true
+// 		controller.addEventListener('pointermove', drag)
+// 		globalThis.document.addEventListener('pointerup', dragEnd)
 
-		controller.classList.add('dragging')
-		// ts is wrong -- this _is_ async
-		await controller.requestPointerLock()
-		controller.blur()
-	}
+// 		controller.classList.add('dragging')
+// 		// ts is wrong -- this _is_ async
+// 		await controller.requestPointerLock()
+// 		controller.blur()
+// 	}
 
-	const dragEnd = () => {
-		dragging = false
-		controller.classList.remove('dragging')
+// 	const dragEnd = () => {
+// 		dragging = false
+// 		controller.classList.remove('dragging')
 
-		controller.removeEventListener('pointermove', drag)
-		globalThis.document.removeEventListener('pointerup', dragEnd)
+// 		controller.removeEventListener('pointermove', drag)
+// 		globalThis.document.removeEventListener('pointerup', dragEnd)
 
-		document.exitPointerLock()
-	}
+// 		document.exitPointerLock()
+// 	}
 
-	let delta = 0
-	const drag = (e: PointerEvent) => {
-		if (!dragging) return
+// 	let delta = 0
+// 	const drag = (e: PointerEvent) => {
+// 		if (!dragging) return
 
-		const multiplier = e.shiftKey ? 0.1 : e.altKey ? 4 : 1
+// 		const multiplier = e.shiftKey ? 0.1 : e.altKey ? 4 : 1
 
-		const direction = Math.sign(e.movementY)
-		delta += Math.abs(e.movementY) * multiplier
+// 		const direction = Math.sign(e.movementY)
+// 		delta += Math.abs(e.movementY) * multiplier
 
-		if (delta > +controller.step) {
-			direction === -1 ? controller.stepUp() : controller.stepDown()
-			delta = 0
-			controller.dispatchEvent(new Event('input'))
-		}
-	}
+// 		if (delta > +controller.step) {
+// 			direction === -1 ? controller.stepUp() : controller.stepDown()
+// 			delta = 0
+// 			controller.dispatchEvent(new Event('input'))
+// 		}
+// 	}
 
-	input.listen(controller, 'pointerenter', hoverStart)
+// 	input.listen(controller, 'pointerenter', hoverStart)
 
-	return controller
-}
+// 	return controller
+// }
 
 export const rangeController: ControllerFactory<HTMLInputElement> = (input, opts, parent) => {
 	const range = create('input', {
@@ -146,7 +146,7 @@ export const rangeController: ControllerFactory<HTMLInputElement> = (input, opts
 	if ('max' in opts) range.max = String(opts.max)
 	if ('step' in opts) range.step = String(opts.step)
 
-	input.listen(range, 'input', input.set as EventListener)
+	input.listen(range, 'input', input.set.bind(input) as EventListener)
 
 	return range
 }
