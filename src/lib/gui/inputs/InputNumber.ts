@@ -42,9 +42,6 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 	// todo - Move this into the number controller?
 	dragEnabled = false
 
-	numberController: NumberController
-	numberButtonsController: NumberButtonsController
-
 	constructor(options: Partial<NumberInputOptions>, folder: Folder) {
 		const opts = { ...NUMBER_INPUT_DEFAULTS, ...options }
 		super(opts, folder)
@@ -72,13 +69,10 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 			parent: this.elements.content,
 		})
 
-		this.numberController = new NumberController(this, opts, container)
-		this.numberButtonsController = new NumberButtonsController(this, opts, container)
-
 		this.elements.controllers = {
 			container,
-			input: this.numberController.element,
-			buttons: this.numberButtonsController.elements,
+			input: new NumberController(this, opts, container).element,
+			buttons: new NumberButtonsController(this, opts, container).elements,
 			range: rangeController(this, opts, container),
 		} as const satisfies NumberControllerElements
 
@@ -132,7 +126,7 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 		this.#log.fn('refresh').debug(v)
 		this.elements.controllers.range.value = String(v)
 		this.elements.controllers.input.value = String(v)
-		this.callOnChange(v) // todo - Should this go in the state subscription?
+		this.callOnChange(v)
 
 		return this
 	}
