@@ -103,7 +103,7 @@ export class InputButtonGrid extends Input<
 
 		this.buttonGrid = this.initialValue = opts.grid
 
-		this.#log.fn('constructor').info({ opts, this: this }).groupEnd()
+		this.#log.fn('constructor').debug({ opts, this: this })
 		this.opts = opts
 
 		if (opts.binding) {
@@ -235,7 +235,7 @@ export class InputButtonGrid extends Input<
 	// `
 
 	refresh() {
-		this.#log.fn('refresh').info({ this: this })
+		this.#log.fn('refresh').debug({ this: this })
 		for (const [, { element, isActive }] of this.buttons) {
 			element.classList.toggle('active', !!isActive?.())
 		}

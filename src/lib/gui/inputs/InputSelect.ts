@@ -35,7 +35,9 @@ export class InputSelect<T> extends Input<
 	select: Select<T>
 	#log = new Logger('InputSelect', { fg: 'cyan' })
 
-	/**  A latch for event propagation. Toggled off everytime an event aborted. */
+	/**
+	 * A latch for event propagation. Toggled off everytime an event aborted.
+	 */
 	#stopPropagation = true
 
 	constructor(options: Partial<SelectInputOptions<T>>, folder: Folder) {
@@ -44,7 +46,7 @@ export class InputSelect<T> extends Input<
 
 		this.opts = opts
 		// //* this is bop it type beat but is cool - brb fire alarm
-		this.#log.fn('constructor').info({ opts, this: this })
+		this.#log.fn('constructor').debug({ opts, this: this })
 
 		// The idea here is that we can bind to a value, a `state` instance, a
 		// labeled option, or a labaled option with a `state` instance value.
@@ -134,9 +136,9 @@ export class InputSelect<T> extends Input<
 	}
 
 	resolveState(v: T | Option<T> | State<T> | Option<State<T>>): State<Option<T>> {
-		this.#log.fn('resolveState').info(v)
+		this.#log.fn('resolveState').debug(v)
 		if (isState(v)) {
-			this.#log.fn('resolveState').info('Value is already state... returning unmodified.')
+			this.#log.fn('resolveState').debug('Value is already state... returning unmodified.')
 			return v as State<Option<T>>
 		}
 
