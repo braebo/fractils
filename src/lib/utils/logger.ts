@@ -1,15 +1,18 @@
 import { randomColor, type CSSColor } from '../color/css'
 
+import { stringify } from './stringify'
 import { BROWSER, DEV } from 'esm-env'
 import { b, r, y, gr, dim } from './l'
 import { isSafari } from './safari'
 import { defer } from './defer'
 
 // todo - Is there a reliable way to type an ImportMetaEnv entry globally for consumers?
-const ENABLED = DEV && import.meta.env.FRACTILS_LOG_LEVEL !== 'none'
+const ENABLED = DEV && import.meta.env.FRACTILS_LOG_LEVEL !== 'off'
 const bypassStyles = false
 // const bypassDefer = false
 const bypassDefer = true
+
+export type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
 
 export class Logger {
 	#logger: ReturnType<typeof logger>
@@ -39,41 +42,28 @@ export class Logger {
 		}
 	}
 
-	/**
-	 * A shorthand for {@link log}.
-	 */
-	l = this.log
-
-	/**
-	 * {@link DEV} only.  Logs any args as well as any logs in the current buffer.
-	 * @todo - Update the condition once loglevel is implemented.
-	 */
 	debug(...args: any[]) {
-		if (DEV && import.meta.env.FRACTILS_LOG_LEVEL === 'debug') this.l('🐞', ...args)
+		if (import.meta.env.FRACTILS_LOG_LEVEL === 'debug') this.log('🐞', ...args)
 		return this
 	}
 
-	/**
-	 * {@link DEV} only.  Logs any args as well as any logs in the current buffer.
-	 */
 	info(...args: any[]) {
-		if (DEV) this.l(b('ⓘ'), ...args)
+		this.log(b('ⓘ'), ...args)
 		return this
 	}
 
-	/**
-	 * DEV and PROD.  Logs any args as well as any logs in the current buffer.
-	 */
 	warn(...args: any[]) {
-		this.l(y('⚠'), ...args)
+		this.log(y('⚠'), ...args)
 		return this
 	}
 
-	/**
-	 * DEV and PROD.  Logs any args as well as any logs in the current buffer.
-	 */
 	error(...args: any[]) {
 		this.log(r('⛔'), ...args)
+		return this
+	}
+
+	fatal(...args: any[]) {
+		this.log(r('💀'), ...args)
 		return this
 	}
 
@@ -131,7 +121,7 @@ export class Logger {
 		this.buffer.push(
 			gr(str) +
 				dim('(') +
-				args.map(a => gr(typeof a === 'object' ? JSON.stringify(a) : a)).join(', ') +
+				args.map(a => gr(typeof a === 'object' ? stringify(a) : a)).join(', ') +
 				dim(')'),
 		)
 		return this
@@ -177,6 +167,11 @@ export const logger = (
 		 * @defaultValue true
 		 */
 		browser?: boolean
+		/**
+		 * Whether to only run the logger in development mode.
+		 * @defaultValue true
+		 */
+		devOnly?: boolean
 		/**
 		 * Print's the url of the file that called the logger.
 		 */
