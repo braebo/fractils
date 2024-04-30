@@ -10,7 +10,7 @@ import { Color, isColor } from '../../color/color'
 import { CopyButton } from '../shared/CopyButton'
 import { create } from '../../utils/create'
 import { Logger } from '../../utils/logger'
-import { state } from '../../utils/state'
+import { state, type State } from '../../utils/state'
 import { Input } from './Input'
 
 export type ColorMode = (typeof COLOR_MODES)[number]
@@ -70,7 +70,9 @@ export const COLOR_INPUT_DEFAULTS: ColorInputOptions = {
 
 export class InputColor extends Input<Color, ColorInputOptions, ColorControllerElements> {
 	readonly type = 'Color' as const
-	readonly initialValue: Color
+	initialValue: Color
+	state: State<Color>
+	events = ['change']
 	/**
 	 * The color picker instance.
 	 */
@@ -93,16 +95,17 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		this.components.mode = v
 	}
 
-	#log = new Logger('InputColor', { fg: 'cyan' })
+	#log: Logger
 
 	constructor(options: Partial<ColorInputOptions>, folder: Folder) {
-		const opts = { ...COLOR_INPUT_DEFAULTS, ...options } as ColorInputOptions
+		const opts = Object.assign({}, COLOR_INPUT_DEFAULTS, options, {
+			type: 'Color' as const,
+		})
 		super(opts, folder)
 
-		this.opts = opts
 		this.expanded = opts.expanded
 		this.#mode = opts.mode
-
+		this.#log = new Logger(`InputColor:${opts.title}`, { fg: 'cyan' })
 		this.#log.fn('constructor').debug({ opts, this: this }).groupEnd()
 
 		//? Initialize state.

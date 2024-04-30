@@ -59,7 +59,7 @@ export class WavesGui extends Gui {
 
 		this.addButtonGrid({
 			title: 'Playback',
-			grid: [
+			value: [
 				[
 					{
 						label: 'Start',

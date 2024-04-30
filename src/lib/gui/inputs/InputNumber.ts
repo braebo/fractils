@@ -1,4 +1,5 @@
 import type { ElementMap, InputOptions } from './Input'
+import type { State } from '../../utils/state'
 import type { Folder } from '../Folder'
 
 import { NumberButtonsController } from '../controllers/NumberButtonsController'
@@ -37,18 +38,19 @@ export interface NumberControllerElements extends ElementMap {
 export class InputNumber extends Input<number, NumberInputOptions, NumberControllerElements> {
 	type = 'Number' as const
 	initialValue: number
-	#log = new Logger('InputNumber', { fg: 'cyan' })
+	state: State<number>
+	events = ['change']
+	#log: Logger
 
 	// todo - Move this into the number controller?
 	dragEnabled = false
 
 	constructor(options: Partial<NumberInputOptions>, folder: Folder) {
-		const opts = { ...NUMBER_INPUT_DEFAULTS, ...options }
+		const opts = Object.assign({}, NUMBER_INPUT_DEFAULTS, options, { type: 'Number' as const })
 		super(opts, folder)
 
-		this.opts = opts
-		// //* this is bop it type beat but is cool - brb fire alarm
-		// this.#log.fn('constructor').info({ opts, this: this }).groupEnd()
+		this.#log = new Logger(`InputNumber:${opts.title}`, { fg: 'cyan' })
+		this.#log.fn('constructor').info({ opts, this: this })
 
 		if (opts.binding) {
 			this.initialValue = opts.binding.target[opts.binding.key]
@@ -75,8 +77,6 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 			buttons: new NumberButtonsController(this, opts, container).elements,
 			range: rangeController(this, opts, container),
 		} as const satisfies NumberControllerElements
-
-		// this.evm.listen(this.elements.controllers.input, 'input', this.set.bind(this))
 
 		this.evm.add(this.state.subscribe(this.refresh.bind(this)))
 
@@ -109,15 +109,15 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 
 	enable() {
 		this.#log.fn('enable').debug()
-		this.disabled = false
 		this.elements.controllers.input.disabled = false
+		super.enable()
 		return this
 	}
 
 	disable() {
 		this.#log.fn('disable').debug()
-		this.disabled = true
 		this.elements.controllers.input.disabled = true
+		super.disable()
 		return this
 	}
 

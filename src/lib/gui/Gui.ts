@@ -397,7 +397,7 @@ export class Gui extends Folder {
 
 				this.settingsFolder.addButtonGrid({
 					title: 'mode',
-					grid: [
+					value: [
 						['light', 'dark', 'system'].map(m => ({
 							label: m,
 							onClick: () => this.themer?.mode.set(m as ThemeMode),

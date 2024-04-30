@@ -1,4 +1,5 @@
 import type { ElementMap, InputOptions } from './Input'
+import type { State } from '../../utils/state'
 import type { Folder } from '../Folder'
 
 import { ButtonController } from '../controllers/ButtonController'
@@ -31,35 +32,25 @@ export class InputButton extends Input<
 	ButtonInputOptions,
 	ButtonControllerElements
 > {
-	type = 'Button' as const
-	// #text!: () => string
+	readonly type = 'Button' as const
+	readonly initialValue = {} as ButtonClickFunction
+	readonly state = state({}) as State<ButtonClickFunction>
+	readonly events = ['change', 'click']
+
 	onClick: ButtonClickFunction = () => {}
 
 	button: ButtonController
 
-	#log = new Logger('InputButton', { fg: 'cyan' })
+	#log: Logger
 
 	constructor(options: Partial<ButtonInputOptions>, folder: Folder) {
-		const opts = Object.assign({}, BUTTON_INPUT_DEFAULTS, options)
+		const opts = Object.assign({}, BUTTON_INPUT_DEFAULTS, options, { type: 'Button' as const })
 		super(opts, folder)
 
+		this.#log = new Logger(`InputButton:${opts.title}`, { fg: 'cyan' })
 		this.#log.fn('constructor').info({ opts, this: this }).groupEnd()
-		this.opts = opts
 
 		this.onClick = opts.onClick
-
-		if (opts.binding) {
-			this.initialValue = opts.binding.target[opts.binding.key]
-			// this.state = state(this.initialValue)
-
-			this.evm.add(
-				this.state.subscribe(v => {
-					opts.binding!.target[opts.binding!.key] = v
-				}),
-			)
-		} else {
-			this.state = state(opts.value!)
-		}
 
 		const container = create('div', {
 			classes: ['fracgui-input-button-container'],
@@ -97,11 +88,13 @@ export class InputButton extends Input<
 
 	enable() {
 		this.button.enable()
+		super.enable()
 		return this
 	}
 
 	disable() {
 		this.button.disable()
+		super.disable()
 		return this
 	}
 

@@ -4,7 +4,7 @@ import type { Folder } from '../Folder'
 import { textareaController } from '../controllers/textarea'
 import { Logger } from '../../utils/logger'
 import { create } from '../../utils/create'
-import { state } from '../../utils/state'
+import { state, type State } from '../../utils/state'
 import { Input } from './Input'
 
 export type TextAreaInputOptions = {
@@ -27,15 +27,18 @@ export interface TextAreaControllerElements extends ElementMap {
 }
 
 export class InputTextArea extends Input<string, TextAreaInputOptions, TextAreaControllerElements> {
-	type = 'TextArea' as const
-	initialValue: string
-	#log = new Logger('InputTextArea', { fg: 'cyan' })
+	readonly type = 'TextArea' as const
+	readonly initialValue: string
+	readonly events = ['change']
+	readonly state: State<string>
+	#log: Logger
 
 	constructor(options: Partial<TextAreaInputOptions>, folder: Folder) {
-		const opts = { ...TEXTAREA_INPUT_DEFAULTS, ...options }
+		const opts = { ...TEXTAREA_INPUT_DEFAULTS, ...options, type: 'TextArea' as const }
 		super(opts, folder)
 
-		this.opts = opts
+		this.#log = new Logger(`InputTextArea:${opts.title}`, { fg: 'cyan' })
+
 		this.#log.fn('constructor').info({ opts, this: this })
 
 		if (opts.binding) {
@@ -70,11 +73,13 @@ export class InputTextArea extends Input<string, TextAreaInputOptions, TextAreaC
 	enable() {
 		this.elements.controllers.input.disabled = false
 		this.disabled = false
+		super.enable()
 		return this
 	}
 	disable() {
 		this.elements.controllers.input.disabled = true
 		this.disabled = true
+		super.disable()
 		return this
 	}
 

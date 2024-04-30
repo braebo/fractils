@@ -4,7 +4,7 @@ import type { Folder } from '../Folder'
 
 import { Logger } from '../../utils/logger'
 import { create } from '../../utils/create'
-import { state } from '../../utils/state'
+import { state, type State } from '../../utils/state'
 import { Input } from './Input'
 
 export type SwitchInputOptions = {
@@ -65,15 +65,18 @@ export interface SwitchInputElements extends ElementMap {
 }
 
 export class InputSwitch extends Input<boolean, SwitchInputOptions, SwitchInputElements> {
-	type = 'Switch' as const
+	readonly type = 'Switch' as const
+	readonly state: State<boolean>
+	readonly events = ['change']
+
 	initialValue: boolean
-	#log = new Logger('InputBoolean', { fg: 'cyan' })
+	#log: Logger
 
 	constructor(options: Partial<SwitchInputOptions>, folder: Folder) {
-		const opts = { ...SWITCH_INPUT_DEFAULTS, ...options }
+		const opts = { ...SWITCH_INPUT_DEFAULTS, ...options, type: 'Switch' as const }
 		super(opts, folder)
 
-		this.opts = opts
+		this.#log = new Logger(`InputBoolean:${opts.title}`, { fg: 'cyan' })
 		this.#log.fn('constructor').debug({ opts, this: this })
 
 		if (opts.binding) {

@@ -1,4 +1,5 @@
 import type { ElementMap, InputOptions } from './Input'
+import type { State } from '../../utils/state'
 import type { Folder } from '../Folder'
 
 import { create, type CreateOptions } from '../../utils/create'
@@ -66,13 +67,13 @@ export type ButtonGridClickFunction = (this: InputButtonGrid) => void
 
 export type ButtonGridInputOptions = {
 	title: string
-	grid: ButtonGrid
+	value: ButtonGrid
 	styles?: CreateOptions['styles']
 } & InputOptions<ButtonGrid>
 
 export const BUTTONGRID_INPUT_DEFAULTS: ButtonGridInputOptions = {
 	title: '',
-	grid: [[{ label: '', onClick: () => {} }]],
+	value: [[{ label: '', onClick: () => {} }]],
 	styles: {
 		gap: '0.5em',
 	},
@@ -90,21 +91,25 @@ export class InputButtonGrid extends Input<
 	ButtonGridInputOptions,
 	ButtonGridControllerElements
 > {
-	type = 'ButtonGrid' as const
+	readonly type = 'ButtonGrid' as const
+	readonly initialValue = {} as ButtonGrid
+	readonly state = state({}) as State<ButtonGrid>
+	readonly events = ['change', 'click']
+
 	buttons: Map<ButtonId, ButtonGridItem> = new Map()
 	buttonGrid: ButtonGrid
-	initialValue: ButtonGrid
 
-	#log = new Logger('InputButtonGrid', { fg: 'cyan' })
+	#log: Logger
 
 	constructor(options: Partial<ButtonGridInputOptions>, folder: Folder) {
-		const opts = Object.assign({}, BUTTONGRID_INPUT_DEFAULTS, options)
+		const opts = Object.assign({}, BUTTONGRID_INPUT_DEFAULTS, options, {
+			type: 'ButtonGrid' as const,
+		})
 		super(opts, folder)
 
-		this.buttonGrid = this.initialValue = opts.grid
-
+		this.buttonGrid = this.initialValue = opts.value
+		this.#log = new Logger(`InputButtonGrid:${opts.title}`, { fg: 'cyan' })
 		this.#log.fn('constructor').debug({ opts, this: this })
-		this.opts = opts
 
 		if (opts.binding) {
 			this.initialValue = opts.binding.target[opts.binding.key]
@@ -203,6 +208,8 @@ export class InputButtonGrid extends Input<
 		this.evm.listen(button, 'click', () => {
 			onClick({ input: this, text, button })
 			this.refresh()
+			this._afterSet()
+			this.evm.emit('click', { input: this, text, button })
 		})
 
 		return button

@@ -74,6 +74,11 @@ export type InputOptions<
 	 */
 	title: string
 	/**
+	 * If provided, will be used as the key for the input's value in a preset.
+	 * @defaultValue `<folder_title>:<input_type>:<input_title>`
+	 */
+	presetId?: string
+	/**
 	 * Whether the inputs are disabled.  A function can be
 	 * used to dynamically determine the disabled state.
 	 * @default false
@@ -81,6 +86,15 @@ export type InputOptions<
 	disabled?: boolean
 	onChange?: (value: TValue) => void
 } & ValueOrBinding<TValue, TBindTarget>
+
+export type InputPreset<T extends ValidInputOptions> = InputOptions<T> & {
+	type: InputType
+	title: string
+	disabled: boolean
+	presetId: string
+	value: ValidInputValue
+	binding?: BindableObject<BindTarget>
+}
 
 export interface ElementMap<T = unknown> {
 	[key: string]: HTMLElement | HTMLInputElement | ElementMap | T
@@ -113,18 +127,18 @@ export abstract class Input<
 	TOptions extends ValidInputOptions = InputOptions,
 	TElements extends ElementMap = ElementMap,
 > {
-	declare type: Readonly<InputType>
-	declare state: State<TValueType>
-	declare initialValue: ValidInputValue
-	// declare opts: ValidInputOptions
-	declare opts: TOptions
+	abstract state: State<TValueType>
+	abstract initialValue: ValidInputValue
+	abstract events: readonly string[]
 
+	readonly type: InputType
+	opts: TOptions
+	presetId: string
 	/**
 	 * Whether the input was initialized with a bind target/key.
 	 * @default false
 	 */
 	bound = false
-
 	elements = {
 		controllers: {},
 	} as {
@@ -152,21 +166,19 @@ export abstract class Input<
 	 */
 	protected lockCommit = {} as Commit
 	protected log: Logger
-	protected evm = new EventManager()
-	/**
-	 * A set of callbacks to be called when {@link Input.dispose} is called.
-	 * @internal
-	 * @private
-	 */
-	protected disposeCallbacks = new Set<() => void>()
+	protected evm = new EventManager<this['events']>()
 
 	constructor(
-		options: TOptions,
+		options: TOptions & { type: InputType },
 		public folder: Folder,
 	) {
+		this.opts = options
+		this.type = options.type
+		this.presetId = options.presetId ?? `${folder.title}:${options.type}:${options.title}`
+		this.log = new Logger('Input:' + options.title, { fg: 'skyblue' })
+
 		this.#title = options.title
 		this.#disabled = toFn(options.disabled ?? false)
-		this.log = new Logger('Input:' + this.#title, { fg: 'skyblue' })
 
 		this.elements.container = create('div', {
 			classes: ['fracgui-input-container'],
@@ -195,6 +207,7 @@ export abstract class Input<
 			tooltip: {
 				text: 'Reset to default',
 				placement: 'left',
+				delay: 1000,
 			},
 			onclick: () => {
 				this.set(this.initialValue as TValueType)
@@ -250,7 +263,6 @@ export abstract class Input<
 	}
 	set dirty(v: boolean) {
 		this.#dirty = v
-		console.log('dirty', v)
 		this.elements.resetBtn.classList.toggle('dirty', v)
 	}
 
@@ -258,6 +270,7 @@ export abstract class Input<
 
 	protected _afterSet() {
 		this.dirty = this.state.value != this.initialValue
+		this.evm.emit('change', this.state.value)
 	}
 
 	/**
@@ -308,7 +321,7 @@ export abstract class Input<
 	}
 
 	// todo - Make `state` private (#) and enforce using `Input.value` and `Input.update` to make sure out `callOnChange` is called by subclasses?
-	// todo - Either that, or call onChange in `_afterSet` and remove it from
+	// todo - Or maybe just call `onChange` in `_afterSet`?
 
 	/**
 	 * Updates the input state and calls the `state.refresh` method.
@@ -320,7 +333,7 @@ export abstract class Input<
 		this.callOnChange(newValue)
 	}
 
-	protected listen = this.evm.listen
+	listen = this.evm.listen
 
 	protected onChangeListeners = new Set<(newValue: TValueType, input: Input) => unknown>()
 	onChange(cb: (newValue: TValueType, input: Input) => unknown) {
@@ -343,11 +356,20 @@ export abstract class Input<
 		}
 	}
 
+	// save() {
+	// 	const json: InputPreset<TOptions> = {
+	// 		type: this.type,
+	// 		title: this.title,
+	// 		value: this.state.value,
+	// 		disabled: this.disabled,
+	// 		presetId: this.presetId,
+	// 		binding: this.opts.binding,
+	// 	}
+	// }
+
 	dispose() {
 		this.log.fn('dispose').info(this)
-		for (const listener of this.disposeCallbacks) {
-			listener()
-		}
+		this.evm.dispose()
 
 		const rm = (elOrObj: any) => {
 			if (elOrObj instanceof HTMLElement) {

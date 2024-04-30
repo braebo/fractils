@@ -7,7 +7,7 @@ export class BinauralBeatsGui extends Gui {
 
 		this.addButtonGrid({
 			title: 'Presets',
-			grid: [
+			value: [
 				Object.keys(WAVE_PRESETS).map(kind => {
 					return {
 						label: kind,

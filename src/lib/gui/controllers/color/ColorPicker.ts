@@ -61,6 +61,7 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 	#ctx: CanvasRenderingContext2D
 	#height = 16 * 3
 	#width = 256
+	#resizeObserver: ResizeObserver
 
 	#gradientWhite!: CanvasGradient
 	#gradientBlack!: CanvasGradient
@@ -94,9 +95,9 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 		})
 		// Reposition the handle when the canvas is resized.
 		const debouncedUpdateHandle = debounce(this.#updateHandle, 100)
-		const resizeObserver = new ResizeObserver(() => debouncedUpdateHandle())
-		resizeObserver.observe(canvas)
-		this.input.disposeCallbacks.add(resizeObserver.disconnect)
+		this.#resizeObserver = new ResizeObserver(() => debouncedUpdateHandle())
+		this.#resizeObserver.observe(canvas)
+
 
 		const handle = create('div', {
 			classes: ['fracgui-input-color-picker-handle'],
@@ -375,5 +376,7 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 		this.elements.handle.remove()
 		this.elements.canvas.remove()
 		this.elements.container.remove()
+
+		this.#resizeObserver.disconnect()
 	}
 }

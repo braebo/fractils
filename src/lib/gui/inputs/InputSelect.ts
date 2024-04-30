@@ -32,20 +32,22 @@ export class InputSelect<T> extends Input<
 > {
 	type = 'Select' as const
 	initialValue: LabeledOption<T>
+	state: State<Option<T>>
+	events = ['change', 'preview']
+
 	select: Select<T>
-	#log = new Logger('InputSelect', { fg: 'cyan' })
 
 	/**
 	 * A latch for event propagation. Toggled off everytime an event aborted.
 	 */
 	#stopPropagation = true
+	#log: Logger
 
 	constructor(options: Partial<SelectInputOptions<T>>, folder: Folder) {
-		const opts = { ...SELECT_INPUT_DEFAULTS, ...options }
+		const opts = { ...SELECT_INPUT_DEFAULTS, ...options, type: 'Select' as const }
 		super(opts, folder)
 
-		this.opts = opts
-		// //* this is bop it type beat but is cool - brb fire alarm
+		this.#log = new Logger(`InputSelect:${opts.title}`, { fg: 'cyan' })
 		this.#log.fn('constructor').debug({ opts, this: this })
 
 		// The idea here is that we can bind to a value, a `state` instance, a
