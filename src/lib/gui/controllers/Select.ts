@@ -7,7 +7,6 @@ import { debrief } from '../../utils/debrief'
 import { isState } from '../../utils/state'
 import { values } from '../../utils/object'
 import { create } from '../../utils/create'
-import { nanoid } from '../../utils/nanoid'
 import { Logger } from '../../utils/logger'
 import { Controller } from './Controller'
 
@@ -66,13 +65,21 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 	}
 	elements: SelectElements
 
-	/** The currently selected option. */
+	/**
+	 * The currently selected option.
+	 */
 	#selected: LabeledOption<T>
-	/** The currently selected option preserved when hot-swapping on:hover. */
+	/**
+	 * The currently selected option preserved when hot-swapping on:hover.
+	 */
 	#currentSelection: LabeledOption<T>
-	/** All options in the select controller. */
+	/**
+	 * All options in the select controller.
+	 */
 	options: LabeledOption<T>[]
-	/** A map of all options by their (internally generated) id. */
+	/**
+	 * A map of all options by their (internally generated) id.
+	 */
 	optionMap = new Map<
 		string,
 		{
@@ -80,16 +87,26 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 			element: HTMLDivElement
 		}
 	>()
-	/** Whether the dropdown is currently visible. */
+	/**
+	 * Whether the dropdown is currently visible.
+	 */
 	expanded = false
-	/** The initial selected option. */
+	/**
+	 * The initial selected option.
+	 */
 	initialValue: LabeledOption<T>
-	/** The initial options array. */
+	/**
+	 * The initial options array.
+	 */
 	initialOptions: LabeledOption<T>[]
 
-	/** Used to prevent infinite loops when updating internally. */
+	/**
+	 * Used to prevent infinite loops when updating internally.
+	 */
 	bubble = true
-	/** The parent element that the selected element is scrolling in. */
+	/**
+	 * The parent element that the selected element is scrolling in.
+	 */
 	#scrollParent: Element | undefined
 
 	#log: Logger
@@ -152,7 +169,9 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 		this.#log.fn('constructor').debug({ opts: this.opts, this: this })
 	}
 
-	/** The currently selected option. Assigning a new value will update the UI. */
+	/**
+	 * The currently selected option. Assigning a new value will update the UI.
+	 */
 	get selected(): LabeledOption<T> {
 		return this.#selected
 	}
@@ -172,7 +191,7 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 		this.callOnChange(this.#selected)
 	}
 
-	getText = (v: LabeledOption<T> | State<LabeledOption<T>>) => {
+	getText(v: LabeledOption<T> | State<LabeledOption<T>>) {
 		if (isState(v)) {
 			return v.value.label
 		} else {
@@ -185,29 +204,26 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 	 * @param option The option to add.
 	 * @returns The id of the added option.
 	 */
-	add(option: Option<T>): string {
+	add(option: Option<T>) {
 		const opt = toLabeledOption(option)
-
-		const id = nanoid()
 
 		const el = create('div', {
 			classes: ['fracgui-controller-select-option'],
 			parent: this.elements.dropdown,
 			innerText: opt.label,
-			dataset: { optionId: id },
 		})
 
-		this.listen(el, 'click', this.select.bind(this))
-		// el.addEventListener('click', this.select)
-		// this.#disposeCallbacks.set(id, () => el.removeEventListener('click', this.select))
+		const id = this.listen(el, 'click', this.select.bind(this))
+		el.dataset['optionId'] = id
 
 		this.optionMap.set(id, {
 			option: opt,
 			element: el,
 		})
+
 		this.elements.options.push(el)
 
-		return id
+		return this
 	}
 
 	/**
@@ -285,20 +301,26 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 		return this
 	}
 
-	/** Updates the UI to reflect the current state of the source color. */
+	/**
+	 * Updates the UI to reflect the current state of the source color.
+	 */
 	refresh = () => {
 		// Make sure the selected value text is in the selected div.
 		this.elements.selected.textContent = this.selected.label
 		return this
 	}
 
-	/** Toggles the dropdown's visibility. */
+	/**
+	 * Toggles the dropdown's visibility.
+	 */
 	toggle() {
 		this.#log.fn('toggle').debug({ this: this })
 		this.expanded ? this.close() : this.open()
 	}
 
-	/** Shows the dropdown. */
+	/**
+	 * Shows the dropdown.
+	 */
 	open() {
 		this.expanded = true
 		this.opts.input.folder.root.wrapper.appendChild(this.elements.dropdown)
@@ -330,6 +352,8 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 				})
 			}
 		}
+
+		this.element.dispatchEvent(new Event('open'))
 	}
 
 	/**
@@ -379,6 +403,8 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 				})
 			}
 		}
+
+		this.element.dispatchEvent(new Event('close'))
 	}
 
 	#closeOnEscape = (e: KeyboardEvent) => {
