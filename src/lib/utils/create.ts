@@ -29,6 +29,7 @@ export type CreateOptions<
 	min?: number
 	max?: number
 	step?: number
+	onclick?: (e: MouseEvent) => void
 } & Partial<Record<K, TK | unknown>>
 
 export function create<
@@ -94,6 +95,10 @@ export function create<
 
 		if (options.children) {
 			for (const child of options.children ?? []) el.appendChild(child)
+		}
+
+		if (options.onclick) {
+			el.addEventListener('click', options.onclick as EventListener)
 		}
 	}
 
