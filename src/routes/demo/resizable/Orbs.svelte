@@ -9,6 +9,7 @@
 		size: 5,
 		a1: 0.1,
 		a2: 0.5,
+		drift: 1,
 		modulate: true,
 		width: count * 10,
 		height: count * 10,
@@ -20,9 +21,11 @@
 		glowR: 10,
 		glowG: 10,
 		glowB: 50,
+		floop: 1,
 	}
 	const a1t = tweened(params.a1, { duration: 500 })
 	const a2t = tweened(params.a2, { duration: 500 })
+	const floop = tweened(params.floop, { duration: 300 })
 
 	$: time = 1
 	// $: snake = circle()
@@ -31,8 +34,14 @@
 		let arr: number[][] = []
 		for (let i = 0; i < params.orbs; i++) {
 			arr[i] = [
-				(Math.sin((i / Math.PI) * $a1t - time) / Math.PI) * params.width + params.mid,
-				(Math.cos((i / Math.PI) * $a2t - time) / Math.PI) * params.height + params.mid,
+				(Math.sin((i / Math.PI + (params.orbs - i) * params.drift) * $a1t - time) /
+					Math.PI) *
+					params.width +
+					params.mid,
+				(Math.cos((i / Math.PI + (params.orbs - i) * params.drift) * $a2t - time) /
+					Math.PI) *
+					params.height +
+					params.mid,
 			]
 		}
 		return arr
@@ -42,6 +51,7 @@
 		requestAnimationFrame(() => {
 			$a1t = params.a1 * (!params.modulate ? 1 : 0.5 + Math.sin(time) / 2)
 			$a2t = params.a2 * (!params.modulate ? 1 : 0.5 + Math.cos(time) / 2)
+			$floop = params.floop
 			requestAnimationFrame(() => {
 				time += params.speed / 10
 				snake = circle()
@@ -65,7 +75,10 @@
 								fill="url(#orb{i})"
 								cx={x}
 								cy={y}
-								r="{Math.max(0, params.size)}px"
+								r="{Math.max(
+									0,
+									params.size * Math.sin($floop * time * (params.orbs + 1 - i)),
+								)}px"
 							/>
 
 							<defs>

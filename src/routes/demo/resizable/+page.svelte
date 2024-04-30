@@ -33,7 +33,7 @@
 	]
 
 	const defaults = {
-		color: 'var(--fg-b)',
+		color: 'var(--fg-d)',
 		opacity: 1,
 		sides: ['top', 'right', 'bottom', 'left'] as Side[],
 		corners: ['top-left', 'top-right', 'bottom-right', 'bottom-left'] as Corner[],
@@ -114,6 +114,7 @@
 
 		width: 200px;
 		height: 200px;
+		padding: 0.5rem;
 
 		background: rgba(var(--bg-a-rgb), 0.5);
 		backdrop-filter: blur(0.25rem);

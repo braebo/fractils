@@ -6,8 +6,10 @@
 	let params = {
 		orbs: 50,
 		size: 5,
+		floop: 0.01,
 		a1: 0.1,
 		a2: 0.5,
+		drift: 0,
 		modulate: true,
 		width: count * 10,
 		height: count * 10,
@@ -67,6 +69,6 @@
 	.orbs {
 		width: 50%;
 		height: 50%;
-		margin: auto;
+		margin: 45% auto 0 auto;
 	}
 </style>

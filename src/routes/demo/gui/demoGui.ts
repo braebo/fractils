@@ -5,7 +5,10 @@ import { Gui } from '$lib/gui/Gui'
 export function demoGui(params: Params) {
 	const gui = new Gui({
 		title: 'Orbs',
-		position: 'center',
+		position: 'top-center',
+		placementOptions: {
+			margin: 60,
+		},
 		storage: {
 			key: 'fracgui',
 		},
@@ -28,7 +31,7 @@ export function demoGui(params: Params) {
 			key: 'orbs',
 		},
 		min: 1,
-		max: 250,
+		max: 150,
 		step: 1,
 	})
 
@@ -39,7 +42,7 @@ export function demoGui(params: Params) {
 			key: 'width',
 		},
 		min: 10,
-		max: window.innerWidth,
+		max: 250,
 		step: 1,
 	})
 
@@ -50,7 +53,7 @@ export function demoGui(params: Params) {
 			key: 'height',
 		},
 		min: 10,
-		max: window.innerHeight,
+		max: 250,
 		step: 1,
 	})
 
@@ -68,7 +71,7 @@ export function demoGui(params: Params) {
 	})
 
 	motionFolder.addNumber({
-		title: 'a1',
+		title: 'force x',
 		binding: {
 			target: params,
 			key: 'a1',
@@ -79,13 +82,24 @@ export function demoGui(params: Params) {
 	})
 
 	motionFolder.addNumber({
-		title: 'a2',
+		title: 'force y',
 		binding: {
 			target: params,
 			key: 'a2',
 		},
 		min: 1,
 		max: 3,
+		step: 0.001,
+	})
+
+	motionFolder.addNumber({
+		title: 'temporal drift',
+		binding: {
+			target: params,
+			key: 'drift',
+		},
+		min: -5,
+		max: 5,
 		step: 0.001,
 	})
 
@@ -108,6 +122,17 @@ export function demoGui(params: Params) {
 		min: 1,
 		max: 30,
 		step: 1,
+	})
+
+	appearanceFolder.addNumber({
+		title: 'floop',
+		binding: {
+			target: params,
+			key: 'floop',
+		},
+		min: 0.001,
+		max: 0.5,
+		step: 0.001,
 	})
 
 	appearanceFolder.addNumber({
