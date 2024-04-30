@@ -1,9 +1,9 @@
 import './gui.scss'
 
 import type { WindowManagerOptions } from '../utils/windowManager'
+import type { Placement, PlacementOptions } from '../dom/place'
 import type { FolderElements, FolderOptions } from './Folder'
 import type { PrimitiveState, State } from '../utils/state'
-import type { Placement, PlacementOptions } from '../dom/place'
 import type { ResizableOptions } from '../utils/resizable'
 import type { DraggableOptions } from '../utils/draggable'
 import type { ThemerOptions } from '../themer/Themer'
@@ -18,14 +18,14 @@ import { DRAG_DEFAULTS } from '../utils/draggable'
 // import { ThemeEditor } from '../themer/Themer'
 import { deepMerge } from '../utils/deepMerge'
 import { Themer } from '../themer/Themer'
-import { VAR_PREFIX } from './GUI_VARS'
 import { Logger } from '../utils/logger'
 import { create } from '../utils/create'
-import { GUI_VARS } from './GUI_VARS'
+import { VAR_PREFIX } from './GUI_VARS'
 import { state } from '../utils/state'
+import { GUI_VARS } from './GUI_VARS'
+import { place } from '../dom/place'
 import { Folder } from './Folder'
 import { BROWSER } from 'esm-env'
-import { place } from '../dom/place'
 
 type GuiTheme = 'default' | 'minimal' | (string & {})
 
@@ -171,18 +171,7 @@ export const GUI_DEFAULTS: GuiOptions = {
 		localStorageKey: 'fracgui::themer',
 	},
 	windowManager: undefined,
-	windowManagerOptions: {
-		resizable: {
-			localStorageKey: 'fracgui::resizable',
-			grabberSize: 9,
-			color: 'var(--bg-d)',
-			sides: ['right'],
-			corners: [],
-		},
-		draggable: {
-			localStorageKey: 'fracgui::draggable',
-		},
-	},
+	windowManagerOptions: GUI_WINDOWMANAGER_DEFAULTS,
 	storage: false,
 	closed: false,
 	position: 'top-right',

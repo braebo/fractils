@@ -6,6 +6,7 @@ import type { InputSelect, SelectInputOptions } from './InputSelect'
 import type { InputNumber, NumberInputOptions } from './InputNumber'
 import type { ColorInputOptions, InputColor } from './InputColor'
 import type { InputText, TextInputOptions } from './InputText'
+import type { Commit } from '../../utils/undoManager'
 
 import type { ColorFormat } from '../../color/types/colorFormat'
 import type { Option } from '../controllers/Select'
@@ -13,8 +14,8 @@ import type { State } from '../../utils/state'
 import type { Color } from '../../color/color'
 import type { Folder } from '../Folder'
 
-import { EventManager } from '$lib/utils/EventManager'
-import { debrief } from '$lib/utils/debrief'
+import { EventManager } from '../../utils/EventManager'
+import { debrief } from '../../utils/debrief'
 import { create } from '../../utils/create'
 import { Logger } from '../../utils/logger'
 import { toFn } from '../shared/toFn'
@@ -133,9 +134,11 @@ export abstract class Input<
 		drawer: HTMLElement
 		drawerToggle: HTMLElement
 		controllers: TElements
+		resetBtn: HTMLElement
 	}
 
 	#title = ''
+	#dirty = false
 	#firstUpdate = true
 	#disabled: () => boolean
 	/**
@@ -186,12 +189,26 @@ export abstract class Input<
 			parent: this.elements.container,
 		})
 
+		this.elements.resetBtn = create('div', {
+			classes: ['fracgui-input-reset-btn'],
+			parent: this.elements.content,
+			tooltip: {
+				text: 'Reset to default',
+				placement: 'left',
+			},
+			onclick: () => {
+				this.set(this.initialValue as TValueType)
+			},
+		})
+
 		this.elements.drawer = create('div', {
 			classes: ['fracgui-input-drawer'],
 			parent: this.elements.content,
 		})
 
-		this.evm.listen(this.elements.drawerToggle, 'click', () => {})
+		this.evm.listen(this.elements.drawerToggle, 'click', () => {
+			console.warn('todo')
+		})
 
 		if ('onChange' in options) {
 			this.onChange(options.onChange as (value: TValueType) => void)
@@ -226,6 +243,15 @@ export abstract class Input<
 	set disabled(v: boolean | (() => boolean)) {
 		this.#disabled = toFn(v)
 		this.#disabled() ? this.disable() : this.enable()
+	}
+
+	get dirty() {
+		return this.#dirty
+	}
+	set dirty(v: boolean) {
+		this.#dirty = v
+		console.log('dirty', v)
+		this.elements.resetBtn.classList.toggle('dirty', v)
 	}
 
 	abstract set(v: TValueType): void
@@ -274,12 +300,15 @@ export abstract class Input<
 
 	/**
 	 * Refreshes the value of any controllers to match the current input state.
-	 * @todo - this is wrong -- it should likely be abstract now.
+	 *! todo - This is wrong!! It should likely be abstract now...
 	 */
 	refresh(..._args: any[]) {
 		this.callOnChange()
 		return this
 	}
+
+	// todo - Make `state` private (#) and enforce using `Input.value` and `Input.update` to make sure out `callOnChange` is called by subclasses?
+	// todo - Either that, or call onChange in `_afterSet` and remove it from
 
 	/**
 	 * Updates the input state and calls the `state.refresh` method.

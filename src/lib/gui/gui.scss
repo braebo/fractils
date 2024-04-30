@@ -1027,13 +1027,46 @@ input.fracgui-search-input {
 	}
 }
 
+.fracgui-input-reset-btn {
+	position: absolute;
+	left: 9px;
+	top: 0;
+	bottom: 0;
+
+	width: 4px;
+	height: 4px;
+	margin: auto 0;
+	transform: translateX(-19px) scale(1);
+
+	opacity: 0;
+	border-radius: 50%;
+	color: var(--fracgui-fg-c);
+	background-image: radial-gradient(circle, var(--fracgui-theme-a) 0%, transparent 100%);
+
+	cursor: pointer;
+	pointer-events: none;
+
+	transition:
+		opacity 0.15s,
+		transform 0.25s;
+
+	&:hover {
+		transform: translateX(-19px) scale(2.5);
+	}
+
+	&.dirty {
+		opacity: 1;
+		pointer-events: all;
+	}
+}
+
 .fracgui-input-title {
 	// outline: 1px solid hsla(120, 100%, 25%, 0.2); // debug-outline
 
 	max-width: var(--fracgui-input-section-1_width);
 	min-width: var(--fracgui-input-section-1_width);
 	text-wrap: balance;
-	padding-left: 0.5rem;
+	padding-left: 8px;
 
 	letter-spacing: var(--fracgui-folder-content_letter-spacing);
 
@@ -1185,6 +1218,7 @@ input.fracgui-search-input {
 	}
 
 	.fracgui-input-content {
+		position: relative;
 		display: flex;
 		align-items: center;
 		justify-content: space-evenly;
