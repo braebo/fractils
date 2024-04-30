@@ -138,19 +138,27 @@ export class InputSwitch extends Input<boolean, SwitchInputOptions, SwitchInputE
 		this.evm.add(this.state.subscribe(this.refresh.bind(this)))
 	}
 
-	set = (v = !this.state.value) => {
+	set(v = !this.state.value) {
 		this.#log.fn('set').info({ v, this: this })
 
 		if (typeof v === 'boolean') {
+			this.undoManager.commit({
+				input: this,
+				from: this.state.value,
+				to: v,
+			})
 			this.state.set(v)
 		} else {
 			throw new Error(
 				`InputBoolean.set() received an invalid value: ${JSON.stringify(v)} (${typeof v})`,
 			)
 		}
+
+		this._afterSet()
+		return this
 	}
 
-	refresh = (v = this.state.value) => {
+	refresh(v = this.state.value) {
 		this.#log.fn('refresh').info({ v, this: this })
 		if (this.disabled) return this
 

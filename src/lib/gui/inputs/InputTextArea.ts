@@ -91,6 +91,9 @@ export class InputTextArea extends Input<string, TextAreaInputOptions, TextAreaC
 		} else {
 			this.state.set(v)
 		}
+
+		this._afterSet()
+		return this
 	}
 
 	refresh = () => {

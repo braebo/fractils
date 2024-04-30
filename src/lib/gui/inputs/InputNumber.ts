@@ -76,45 +76,55 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 
 		this.evm.listen(this.elements.controllers.input, 'input', this.set)
 
-		this.evm.add(this.state.subscribe(this.refresh))
+		this.evm.add(this.state.subscribe(this.refresh.bind(this)))
+
+		this.evm.listen(this.elements.controllers.range, 'pointerdown', this.#lock.bind(this))
+		this.evm.listen(this.elements.controllers.range, 'pointerup', this.#unlock.bind(this))
 	}
 
-	set = (v?: number | Event) => {
-		if (typeof v === 'undefined') {
-			return
-		}
-
-		if (typeof v !== 'number') {
-			if (v?.target && 'valueAsNumber' in v.target) {
-				this.commit(v.target.valueAsNumber as number)
-				this.state.set(v.target.valueAsNumber as number)
-			}
-		} else {
-			this.commit(v)
-			this.state.set(v)
-		}
+	#lock() {
+		this.lock()
+	}
+	#unlock() {
+		this.unlock()
 	}
 
-	enable = () => {
+	set(v?: number | Event) {
+		if (typeof v === 'undefined') return
+
+		let newValue = v as number
+
+		if (v instanceof Event && v?.target && 'valueAsNumber' in v.target) {
+			newValue = v.target.valueAsNumber as number
+		}
+
+		this.commit({ to: newValue })
+		this.state.set(newValue)
+
+		this._afterSet()
+		return this
+	}
+
+	enable() {
 		this.#log.fn('enable').debug()
 		this.disabled = false
 		this.elements.controllers.input.disabled = false
 		return this
 	}
 
-	disable = () => {
+	disable() {
 		this.#log.fn('disable').debug()
 		this.disabled = true
 		this.elements.controllers.input.disabled = true
 		return this
 	}
 
-	refresh = () => {
+	refresh() {
 		const v = this.state.value
 		this.#log.fn('refresh').debug(v)
 		this.elements.controllers.range.value = String(v)
 		this.elements.controllers.input.value = String(v)
-		this.callOnChange(v) // todo - should this go in the state subscription?
+		this.callOnChange(v) // todo - Should this go in the state subscription?
 
 		return this
 	}

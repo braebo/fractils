@@ -138,16 +138,24 @@ export abstract class Input<
 	#title = ''
 	#firstUpdate = true
 	#disabled: () => boolean
-
+	/**
+	 * Prevents the input from registering commits to undo history until
+	 * {@link unlock} is called.
+	 */
+	protected undoLock = false
+	/**
+	 * The commit object used to store the initial value of the input when
+	 * {@link lock} is called.
+	 */
+	protected lockCommit = {} as Commit
+	protected log: Logger
+	protected evm = new EventManager()
 	/**
 	 * A set of callbacks to be called when {@link Input.dispose} is called.
 	 * @internal
 	 * @private
 	 */
-	disposeCallbacks = new Set<() => void>()
-
-	protected log: Logger
-	protected evm = new EventManager()
+	protected disposeCallbacks = new Set<() => void>()
 
 	constructor(
 		options: TOptions,
@@ -222,12 +230,37 @@ export abstract class Input<
 
 	abstract set(v: TValueType): void
 
-	commit(v: TValueType) {
-		this.undoManager.add<TValueType>({
+	protected _afterSet() {
+		this.dirty = this.state.value != this.initialValue
+	}
+
+	/**
+	 * Prevents the input from registering undo history, storing the initial
+	 * for the eventual commit in {@link unlock}.
+	 */
+	protected lock(from = this.state.value) {
+		this.undoLock = true
+		this.lockCommit.from = from
+	}
+	/**
+	 * Unlocks commits and saves the current commit stored in lock.
+	 */
+	protected unlock(commit?: Partial<Commit>) {
+		commit ??= {}
+		commit.input ??= this
+		commit.to ??= this.state.value as TValueType
+		commit.from ??= this.lockCommit.from
+		this.undoLock = false
+		this.commit(commit)
+	}
+
+	commit(commit: Partial<Commit>) {
+		commit.from = this.state.value as TValueType
+		if (this.undoLock) return
+		this.undoManager.commit<TValueType>({
 			input: this as Input<TValueType>,
-			from: this.state.value as TValueType,
-			to: v,
-		})
+			...commit,
+		} as Commit)
 	}
 
 	enable() {
@@ -251,14 +284,14 @@ export abstract class Input<
 	/**
 	 * Updates the input state and calls the `state.refresh` method.
 	 */
-	update(v: (currentValue: TValueType) => TValueType) {
+	protected update(v: (currentValue: TValueType) => TValueType) {
 		const newValue = v(this.state.value as TValueType)
 		this.state.set(newValue as ValidInputValue)
 		this.state.refresh()
 		this.callOnChange(newValue)
 	}
 
-	listen = this.evm.listen
+	protected listen = this.evm.listen
 
 	protected onChangeListeners = new Set<(newValue: TValueType, input: Input) => unknown>()
 	onChange(cb: (newValue: TValueType, input: Input) => unknown) {

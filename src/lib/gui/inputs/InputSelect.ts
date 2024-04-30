@@ -194,6 +194,7 @@ export class InputSelect<T> extends Input<
 	set() {
 		this.#log.fn('set').info()
 		this.select.select(this.state.value as T, false)
+		this._afterSet()
 		return this
 	}
 

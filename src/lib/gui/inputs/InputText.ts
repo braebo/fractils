@@ -84,13 +84,16 @@ export class InputText extends Input<string, TextInputOptions, TextControllerEle
 
 		if (typeof v !== 'string') {
 			if (v?.target && 'value' in v.target) {
-				this.commit(v.target.value as string)
+				this.commit({ to: v.target.value as string })
 				this.state.set(v.target.value as string)
 			}
 		} else {
-			this.commit(v)
+			this.commit({ to: v })
 			this.state.set(v)
 		}
+
+		this._afterSet()
+		return this
 	}
 
 	refresh = () => {

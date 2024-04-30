@@ -1,6 +1,6 @@
 import type { ColorComponentsElements } from '../controllers/color/ColorComponents'
 import type { ColorPickerElements } from '../controllers/color/ColorPicker'
-import type { ColorFormat } from '$lib/color/types/colorFormat'
+import type { ColorFormat } from '../../color/types/colorFormat'
 import type { ElementMap, InputOptions } from './Input'
 import type { Folder } from '../Folder'
 
@@ -158,14 +158,48 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		setTimeout(() => {
 			this.expanded ? this.open() : this.close(0)
 		}, 10)
+
+		this.listen(this.picker.element, 'onPointerDown', this.#lock.bind(this))
+		this.listen(this.picker.element, 'onPointerUp', this.#unlock.bind(this))
+	}
+
+	/**
+	 * Prevents the range slider from registering undo history commits while dragging,
+	 * storing the initial value on pointerdown for the eventual commit in #unlock.
+	 */
+	#lock() {
+		this.lock(this.state.value.rgba)
+	}
+	/**
+	 * Saves the commit stored in #lock on pointerup.
+	 */
+	#unlock() {
+		this.unlock({
+			input: this,
+			to: this.state.value.rgba,
+			setter: v => {
+				this.state.value.set(v)
+				this.state.refresh()
+			},
+		})
+		this.refresh()
 	}
 
 	set(v: ColorFormat | Color) {
 		if (isColor(v)) {
+			this.commit({
+				to: v.rgba as any,
+				from: this.state.value.rgba as any,
+			})
 			this.state.set(new Color(v.hsva))
 		} else {
-			this.state.set(new Color(v))
+			const newColor = new Color(v)
+			this.commit({ to: newColor.rgba as any, from: this.state.value.rgba as any })
+			this.state.set(newColor)
 		}
+
+		this._afterSet()
+		return this
 	}
 
 	refresh = (v = this.state.value) => {
