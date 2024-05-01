@@ -1,3 +1,9 @@
+:root[theme='light'] {
+	.code-window {
+		background: var(--dark-d);
+	}
+}
+
 .code-window {
 	position: relative;
 
@@ -5,7 +11,7 @@
 
 	margin: auto;
 
-	background: var(--bg, var(--bg-a, #15161d));
+	background: var(--bg, var(--dark-a, #15161d));
 	border-radius: 0.25rem;
 	outline: 1px solid var(--bg-a, #282a36);
 	box-shadow: var(--shadow-sm);
@@ -201,7 +207,7 @@ pre.shiki-wrapper::-webkit-scrollbar-corner {
 	border-radius: 0.1px !important;
 	outline: none;
 }
-html[theme="light"] .shiki {
+html[theme='light'] .shiki {
 	filter: brightness(1.1);
 }
 
