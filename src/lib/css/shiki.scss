@@ -22,7 +22,8 @@
 		flex-grow: 1;
 
 		width: 100%;
-		max-height: min(var(--max-height, 450px), min(50vh, 450px));
+		max-width: var(--max-width, 98vw);
+		max-height: max(var(--max-height, 450px), min(50vh, 450px));
 		&.collapsed {
 			max-height: 0px;
 		}
