@@ -50,7 +50,7 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 		super(opts, folder)
 
 		this.#log = new Logger(`InputNumber:${opts.title}`, { fg: 'cyan' })
-		this.#log.fn('constructor').info({ opts, this: this })
+		this.#log.fn('constructor').debug({ opts, this: this })
 
 		if (opts.binding) {
 			this.initialValue = opts.binding.target[opts.binding.key]
@@ -82,6 +82,8 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 
 		this.evm.listen(this.elements.controllers.range, 'pointerdown', this.#lock.bind(this))
 		this.evm.listen(this.elements.controllers.range, 'pointerup', this.#unlock.bind(this))
+
+		this.evm.listen(this.elements.controllers.input, 'change', this.set.bind(this))
 	}
 
 	#lock() {
