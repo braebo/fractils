@@ -49,6 +49,8 @@
 	```
 -->
 
+<!-- //todo - Document the events -->
+
 <script lang="ts" context="module">
 	import type { highlight } from '../utils/highlight'
 
