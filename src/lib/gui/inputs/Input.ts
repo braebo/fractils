@@ -96,10 +96,10 @@ export type InputOptions<
 export type InputPreset<T extends ValidInputOptions> = InputOptions<T> & {
 	type: InputType
 	title: string
-	disabled: boolean
 	presetId: string
 	value: ValidInputValue
-	binding?: BindableObject<BindTarget>
+	disabled: boolean
+	hidden: boolean
 }
 
 export interface ElementMap<T = unknown> {
@@ -372,16 +372,29 @@ export abstract class Input<
 		}
 	}
 
-	// save() {
-	// 	const json: InputPreset<TOptions> = {
-	// 		type: this.type,
-	// 		title: this.title,
-	// 		value: this.state.value,
-	// 		disabled: this.disabled,
-	// 		presetId: this.presetId,
-	// 		binding: this.opts.binding,
-	// 	}
-	// }
+	save() {
+		const preset: InputPreset<any> = {
+			type: this.type,
+			title: this.title,
+			value: this.state.value,
+			disabled: this.disabled,
+			presetId: this.presetId,
+			hidden: this.hidden,
+		}
+
+		this.log.fn('save').debug(preset)
+
+		return preset
+	}
+
+	load(json: InputPreset<TOptions> | string) {
+		const data = typeof json === 'string' ? (JSON.parse(json) as InputPreset<TOptions>) : json
+		this.title = data.title
+		this.presetId = data.presetId
+		this.disabled = data.disabled
+		this.hidden = data.hidden
+		this.set(data.value as TValueType)
+	}
 
 	dispose() {
 		this.log.fn('dispose').debug(this)
