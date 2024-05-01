@@ -1,5 +1,5 @@
-import type { InputButtonGrid, ButtonGridInputOptions, ButtonGrid } from './InputButtonGrid'
 import type { InputButton, ButtonInputOptions, ButtonClickFunction } from './InputButton'
+import type { InputButtonGrid, ButtonGridInputOptions } from './InputButtonGrid'
 import type { InputTextArea, TextAreaInputOptions } from './InputTextArea'
 import type { InputSwitch, SwitchInputOptions } from './InputSwitch'
 import type { InputSelect, SelectInputOptions } from './InputSelect'
@@ -62,7 +62,7 @@ export type ValueOrBinding<TValue = ValidInputValue, TBindTarget extends BindTar
 			value?: TValue
 			binding?: { target: TBindTarget; key: keyof TBindTarget; initial?: TValue }
 			onClick?: ButtonClickFunction
-			grid: ButtonGrid
+			// grid: ButtonGrid
 	  }
 
 export type InputOptions<
@@ -84,6 +84,12 @@ export type InputOptions<
 	 * @default false
 	 */
 	disabled?: boolean
+	/**
+	 * Whether the input is hidden. A function can be
+	 * used to dynamically determine the hidden state.
+	 * @default false
+	 */
+	hidden?: boolean
 	onChange?: (value: TValue) => void
 } & ValueOrBinding<TValue, TBindTarget>
 
@@ -155,6 +161,7 @@ export abstract class Input<
 	#dirty = false
 	#firstUpdate = true
 	#disabled: () => boolean
+	#hidden: () => boolean
 	/**
 	 * Prevents the input from registering commits to undo history until
 	 * {@link unlock} is called.
@@ -179,6 +186,7 @@ export abstract class Input<
 
 		this.#title = options.title
 		this.#disabled = toFn(options.disabled ?? false)
+		this.#hidden = toFn(options.hidden ?? false)
 
 		this.elements.container = create('div', {
 			classes: ['fracgui-input-container'],
@@ -256,6 +264,14 @@ export abstract class Input<
 	set disabled(v: boolean | (() => boolean)) {
 		this.#disabled = toFn(v)
 		this.#disabled() ? this.disable() : this.enable()
+	}
+
+	get hidden(): boolean {
+		return this.elements.container.classList.contains('hidden')
+	}
+	set hidden(v: boolean | (() => boolean)) {
+		this.#hidden = toFn(v)
+		this.elements.container.classList.toggle('hidden', this.#hidden())
 	}
 
 	get dirty() {
@@ -368,7 +384,7 @@ export abstract class Input<
 	// }
 
 	dispose() {
-		this.log.fn('dispose').info(this)
+		this.log.fn('dispose').debug(this)
 		this.evm.dispose()
 
 		const rm = (elOrObj: any) => {
