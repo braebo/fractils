@@ -58,8 +58,11 @@
 <script lang="ts">
 	// import type { LanguageInput, ThemeInput } from 'shiki'
 
+	import { createEventDispatcher } from 'svelte'
 	import CopyButton from './CopyButton.svelte'
 	import '../css/shiki.scss'
+
+	const dispatch = createEventDispatcher()
 
 	/**
 	 * The string to highlight.
@@ -144,9 +147,27 @@
 <div aria-hidden="true" class="code-window">
 	<div class="nav" aria-hidden="true">
 		<div class="dots">
-			<button class="dot red" on:click={() => (collapsed = true)} />
-			<button class="dot yellow" on:click={() => (collapsed = true)} />
-			<button class="dot green" on:click={() => (collapsed = false)} />
+			<button
+				class="dot red"
+				on:click={() => {
+					collapsed = true
+					dispatch('close')
+				}}
+			/>
+			<button
+				class="dot yellow"
+				on:click={() => {
+					collapsed = true
+					dispatch('minimize')
+				}}
+			/>
+			<button
+				class="dot green"
+				on:click={() => {
+					collapsed = false
+					dispatch('maximize')
+				}}
+			/>
 		</div>
 
 		{#if title}
