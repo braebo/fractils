@@ -7,19 +7,20 @@ import { Logger } from '../../utils/logger'
 import { create } from '../../utils/create'
 import { state } from '../../utils/state'
 import { Input } from './Input'
+import { DEV } from 'esm-env'
 
 export type ButtonClickFunction = (this: InputButton) => void
 
-export type ButtonInputOptions = {
+export type ButtonInputOptions = InputOptions<ButtonClickFunction> & {
+	type?: 'Button'
 	title: string
 	text: string | (() => string)
-	onClick: () => void
-} & InputOptions<ButtonClickFunction>
+	onClick?: () => void
+}
 
 export const BUTTON_INPUT_DEFAULTS: ButtonInputOptions = {
 	title: 'Button',
 	text: () => 'click me',
-	onClick: () => {},
 } as const
 
 export interface ButtonControllerElements extends ElementMap {

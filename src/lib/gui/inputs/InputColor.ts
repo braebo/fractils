@@ -55,6 +55,7 @@ export interface ColorControllerElements extends ElementMap<ColorPicker> {
 }
 
 export type ColorInputOptions = {
+	type?: 'Color'
 	mode: ColorMode
 	expanded: boolean
 	onChange?: (value: Color) => void
@@ -62,6 +63,7 @@ export type ColorInputOptions = {
 //⌟
 
 export const COLOR_INPUT_DEFAULTS: ColorInputOptions = {
+	type: 'Color' as const,
 	title: '',
 	value: '#FF0000FF',
 	mode: 'hex',

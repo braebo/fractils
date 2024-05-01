@@ -15,24 +15,26 @@ import type { Color } from '../../color/color'
 import type { Folder } from '../Folder'
 
 import { EventManager } from '../../utils/EventManager'
-import { debrief } from '../../utils/debrief'
 import { create } from '../../utils/create'
 import { Logger } from '../../utils/logger'
+import { keys } from '../../utils/object'
 import { toFn } from '../shared/toFn'
 
 //· Types ··············································································¬
-
 export type InputType = (typeof INPUT_TYPES)[number]
-export const INPUT_TYPES = [
-	'Text',
-	'TextArea',
-	'Number',
-	'Color',
-	'Select',
-	'Button',
-	'ButtonGrid',
-	'Switch',
-] as const
+
+export const INPUT_TYPE_MAP = Object.freeze({
+	Text: 'Text',
+	TextArea: 'TextArea',
+	Number: 'Number',
+	Color: 'Color',
+	Select: 'Select',
+	Button: 'Button',
+	ButtonGrid: 'ButtonGrid',
+	Switch: 'Switch',
+})
+
+export const INPUT_TYPES = Object.freeze(keys(INPUT_TYPE_MAP))
 
 export type BindTarget = Record<string, any>
 export type BindableObject<T extends BindTarget, K extends keyof T = keyof T> = {
@@ -70,6 +72,10 @@ export type InputOptions<
 	TBindTarget extends BindTarget = Record<string, any & TValue>,
 > = {
 	/**
+	 * The type of input.
+	 */
+	type?: InputType
+	/**
 	 * The title displayed to the left of the input.
 	 */
 	title: string
@@ -93,9 +99,8 @@ export type InputOptions<
 	onChange?: (value: TValue) => void
 } & ValueOrBinding<TValue, TBindTarget>
 
-export type InputPreset<T extends ValidInputOptions> = InputOptions<T> & {
+export type InputPreset<T extends ValidInputOptions> = Omit<InputOptions<T>, 'title'> & {
 	type: InputType
-	title: string
 	presetId: string
 	value: ValidInputValue
 	disabled: boolean

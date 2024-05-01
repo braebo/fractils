@@ -10,11 +10,13 @@ import { create } from '../../utils/create'
 import { Input } from './Input'
 
 export type SelectInputOptions<T> = {
+	type?: 'Select'
 	title: string
 	options: T[]
 } & InputOptions<Option<unknown>>
 
 export const SELECT_INPUT_DEFAULTS: SelectInputOptions<Option<any>> = {
+	type: 'Select' as const,
 	title: '',
 	value: '',
 	options: [],

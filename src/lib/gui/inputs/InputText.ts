@@ -7,15 +7,17 @@ import { create } from '../../utils/create'
 import { state, type State } from '../../utils/state'
 import { Input } from './Input'
 
-export type TextInputOptions = {
+export type TextInputOptions = InputOptions<string> & {
+	type?: 'Text'
 	/**
 	 * The maximum number of characters that can be entered.
 	 * @default 50
 	 */
 	maxLength?: number
-} & InputOptions<string>
+}
 
 export const TEXT_INPUT_DEFAULTS = {
+	type: 'Text' as const,
 	title: '',
 	value: 'foo',
 	maxLength: 50,

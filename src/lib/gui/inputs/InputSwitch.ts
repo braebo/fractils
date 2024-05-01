@@ -7,7 +7,8 @@ import { create } from '../../utils/create'
 import { state, type State } from '../../utils/state'
 import { Input } from './Input'
 
-export type SwitchInputOptions = {
+export type SwitchInputOptions = InputOptions<boolean> & {
+	type: 'Switch'
 	title: string
 	/** Text to display in various parts of the switch. */
 	labels?: {
@@ -40,9 +41,10 @@ export type SwitchInputOptions = {
 			verb?: string
 		}
 	}
-} & InputOptions<boolean>
+}
 
 export const SWITCH_INPUT_DEFAULTS: SwitchInputOptions = {
+	type: 'Switch',
 	title: '',
 	value: true,
 	labels: {

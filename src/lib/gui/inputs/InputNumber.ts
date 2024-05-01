@@ -11,12 +11,14 @@ import { state } from '../../utils/state'
 import { Input } from './Input'
 
 export type NumberInputOptions = {
+	type?: 'Number'
 	min?: number
 	max?: number
 	step?: number
 } & InputOptions<number>
 
 export const NUMBER_INPUT_DEFAULTS: NumberInputOptions = {
+	type: 'Number' as const,
 	title: '',
 	value: 0.5,
 	min: 0,

@@ -66,18 +66,26 @@ export type ButtonGrid = ButtonItem[][]
 export type ButtonGridClickFunction = (this: InputButtonGrid) => void
 
 export type ButtonGridInputOptions = {
+	type?: 'ButtonGrid'
 	title: string
 	value: ButtonGrid
 	styles?: CreateOptions['styles']
+	/**
+	 * If `true`, the last clicked button will have the `active` class added to it.
+	 * @default true
+	 */
+	activeOnClick?: boolean
 } & InputOptions<ButtonGrid>
 
-export const BUTTONGRID_INPUT_DEFAULTS: ButtonGridInputOptions = {
+export const BUTTONGRID_INPUT_DEFAULTS = {
+	type: 'ButtonGrid' as const,
 	title: '',
 	value: [[{ label: '', onClick: () => {} }]],
 	styles: {
 		gap: '0.5em',
 	},
-} as const
+	activeOnClick: false,
+} as const satisfies ButtonGridInputOptions
 
 export interface ButtonGridControllerElements extends ElementMap {
 	container: HTMLElement
