@@ -122,10 +122,7 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 
 		this.opts = opts
 
-		// todo - Do we really need an option?
-		if (!options.options?.length) {
-			throw new Error('Select controller must have at least one option')
-		} else if (options?.title) {
+		if (options?.title) {
 			this.#log = new Logger('Select:' + options.title, { fg: 'bisque' })
 		} else {
 			this.#log = new Logger('Select', { fg: 'blueviolet' })
@@ -283,8 +280,8 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 				throw new Error('No option found in map')
 			}
 
-			this.selected = option.option
 			this.close()
+			this.selected = option.option
 		} else {
 			const newValue = toLabeledOption(v)
 
