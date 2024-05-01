@@ -48,7 +48,7 @@ export class InputButton extends Input<
 		super(opts, folder)
 
 		this.#log = new Logger(`InputButton:${opts.title}`, { fg: 'cyan' })
-		this.#log.fn('constructor').info({ opts, this: this }).groupEnd()
+		this.#log.fn('constructor').debug({ opts, this: this })
 
 		this.onClick = opts.onClick
 
@@ -67,7 +67,7 @@ export class InputButton extends Input<
 			button: this.button.elements.button,
 		} as const satisfies ButtonControllerElements
 
-		this.evm.listen(this.elements.controllers.button, 'click', this.click)
+		this.evm.listen(this.elements.controllers.button, 'click', this.click.bind(this))
 
 		this.evm.add(this.state.subscribe(this.refresh.bind(this)))
 	}
