@@ -1,4 +1,5 @@
 import type { InputOptions, ValidInput } from '../inputs/Input'
+import type { Tooltip } from '../../actions/tooltip'
 
 import { create } from '../../utils/create'
 
@@ -6,7 +7,7 @@ export class NumberController<
 	TInput extends ValidInput = ValidInput,
 	TOptions extends InputOptions<any> = InputOptions,
 > {
-	element: HTMLInputElement
+	element: HTMLInputElement & { tooltip: Tooltip }
 
 	dragEnabled = false
 	dragging = false
@@ -107,11 +108,13 @@ export class NumberController<
 		this.dragging = true
 		this.element.dispatchEvent(new Event('dragstart'))
 
+		this.element.tooltip.hide()
+
 		this.element.addEventListener('pointermove', this.drag.bind(this))
 		globalThis.document.addEventListener('pointerup', this.dragEnd.bind(this))
 
 		this.element.classList.add('dragging')
-		// ts is wrong -- this _is_ async
+		// https://developer.mozilla.org/en-US/docs/Web/API/Element/requestPointerLock#browser_compatibility
 		await this.element.requestPointerLock()
 		this.element.blur()
 	}
