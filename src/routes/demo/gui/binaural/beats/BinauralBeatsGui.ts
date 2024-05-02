@@ -23,7 +23,7 @@ export class BinauralBeatsGui extends Gui {
 		this.addNumber({
 			title: 'Volume',
 			value: this.beats.volume,
-		}).onChange(v => {
+		}).on('change', v => {
 			this.beats.volume = v
 		})
 	}

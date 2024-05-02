@@ -1,6 +1,9 @@
 import type { Params } from './+page.svelte'
 
+import { writable } from 'svelte/store'
 import { Gui } from '$lib/gui/Gui'
+
+export const code = writable('')
 
 export function demoGui(params: Params) {
 	const gui = new Gui({
@@ -12,15 +15,21 @@ export function demoGui(params: Params) {
 		storage: {
 			key: 'fracgui',
 		},
-	})
-
-	gui.addText({
-		title: 'title',
-		binding: {
-			target: gui,
-			key: 'title',
+		windowManagerOptions: {
+			zFloor: 0,
 		},
 	})
+
+	gui.on('toggle', v => {
+		console.log(v)
+	})
+	// gui.addText({
+	// 	title: 'title',
+	// 	binding: {
+	// 		target: gui,
+	// 		key: 'title',
+	// 	},
+	// })
 
 	const f1 = gui.addFolder({ title: 'base' })
 
@@ -42,7 +51,7 @@ export function demoGui(params: Params) {
 			key: 'width',
 		},
 		min: 10,
-		max: 250,
+		max: window.innerWidth / 4,
 		step: 1,
 	})
 
@@ -53,7 +62,7 @@ export function demoGui(params: Params) {
 			key: 'height',
 		},
 		min: 10,
-		max: 250,
+		max: window.innerHeight / 8,
 		step: 1,
 	})
 

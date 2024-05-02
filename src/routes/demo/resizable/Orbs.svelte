@@ -27,7 +27,7 @@
 	const a2t = tweened(params.a2, { duration: 500 })
 	const floop = tweened(params.floop, { duration: 300 })
 
-	$: time = 1
+	$: time = 0
 	// $: snake = circle()
 	let snake = circle()
 	function circle() {
@@ -49,8 +49,8 @@
 
 	function animate() {
 		requestAnimationFrame(() => {
-			$a1t = params.a1 * (!params.modulate ? 1 : 0.5 + Math.sin(time) / 2)
-			$a2t = params.a2 * (!params.modulate ? 1 : 0.5 + Math.cos(time) / 2)
+			$a1t = params.a1 * (!params.modulate ? 1 : 0.25 + Math.sin(time) / 2)
+			$a2t = params.a2 * (!params.modulate ? 1 : 0.75 + Math.cos(time) / 2)
 			$floop = params.floop
 			requestAnimationFrame(() => {
 				time += params.speed / 10

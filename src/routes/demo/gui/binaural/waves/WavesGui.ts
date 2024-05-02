@@ -104,7 +104,7 @@ export class WavesGui extends Gui {
 				max: 1,
 				step: 0.01,
 			})
-			.onChange(v => {
+			.on('change', v => {
 				waves.volL = v
 			})
 
@@ -116,7 +116,7 @@ export class WavesGui extends Gui {
 				max: 440,
 				step: 1,
 			})
-			.onChange(v => {
+			.on('change', v => {
 				this.waves.freqL = v
 			})
 
@@ -130,7 +130,7 @@ export class WavesGui extends Gui {
 				max: 1,
 				step: 0.01,
 			})
-			.onChange(v => {
+			.on('change', v => {
 				this.waves.volR = v
 			})
 
@@ -142,7 +142,7 @@ export class WavesGui extends Gui {
 				max: 440,
 				step: 1,
 			})
-			.onChange(v => {
+			.on('change', v => {
 				this.waves.freqR = v
 			})
 	}
