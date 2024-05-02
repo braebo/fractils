@@ -1,6 +1,7 @@
 import type { TooltipOptions, Tooltip } from '../actions/tooltip'
 import type { JavascriptStyleProperty } from '$lib/css/types'
 
+import type { PropertiesHyphen } from 'csstype'
 import { entries } from './object'
 import { DEV } from 'esm-env'
 
@@ -32,6 +33,25 @@ export type CreateOptions<
 	onclick?: (e: MouseEvent) => void
 } & Partial<Record<K, TK | unknown>>
 
+export interface PropSetters {
+	setProp<
+		TCustomProperties extends string[] = string[],
+		K extends keyof PropertiesHyphen | TCustomProperties[number] = keyof PropertiesHyphen,
+	>(
+		prop: K,
+		value: PropertiesHyphen<keyof PropertiesHyphen>,
+	): void
+	setProps<
+		TCustomProperties extends string[] = string[],
+		K extends keyof PropertiesHyphen | TCustomProperties[number] = keyof PropertiesHyphen,
+		V = K extends keyof PropertiesHyphen
+			? PropertiesHyphen[K] | (string & {})
+			: string | (string & {}),
+	>(
+		props: Partial<Record<K, V>>,
+	): void
+}
+
 export function create<
 	const K extends keyof HTMLElementTagNameMap,
 	TOptions extends CreateOptions<HTMLElementTagNameMap[K]>,
@@ -40,9 +60,20 @@ export function create<
 	tagname: K,
 	options?: TOptions,
 ): TOptions extends { tooltip: Partial<TooltipOptions> }
-	? TElement & { tooltip: Tooltip }
-	: TElement {
+	? TElement & { tooltip: Tooltip } & PropSetters
+	: TElement & PropSetters {
 	const el = globalThis?.document?.createElement(tagname)
+
+	if ('style' in el) {
+		;(el as TElement & PropSetters).setProp = (prop, value) => {
+			el.style.setProperty(prop, `${value}`)
+		}
+		;(el as TElement & PropSetters).setProps = props => {
+			for (const [key, value] of entries(props)) {
+				el.style.setProperty(key, `${value}`)
+			}
+		}
+	}
 
 	if (options) {
 		if (options.classes) el.classList.add(...options.classes)
@@ -108,8 +139,8 @@ export function create<
 	}
 
 	return el as TOptions extends { tooltip: Partial<TooltipOptions> }
-		? TElement & { tooltip: Tooltip }
-		: TElement
+		? TElement & { tooltip: Tooltip } & PropSetters
+		: TElement & PropSetters
 }
 
 /**
