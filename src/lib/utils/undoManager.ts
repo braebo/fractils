@@ -35,7 +35,7 @@ export class UndoManager {
 		this.pointer++
 		this.stack.push(commit)
 
-		this.logState('\nadd()', commit)
+		// this.logState('\nadd()', commit)
 	}
 
 	undo() {
@@ -51,7 +51,7 @@ export class UndoManager {
 		}
 
 		this.pointer--
-		this.logState('\nundo()', commit)
+		// this.logState('\nundo()', commit)
 	}
 
 	redo() {
@@ -68,17 +68,16 @@ export class UndoManager {
 		}
 
 		this.pointer++
-		this.logState('redo()', commit)
+		// this.logState('redo()', commit)
 	}
 
-	logState(str: string, commit?: Commit) {
-		return
-		console.log(str)
-		console.log('pointer', this.pointer)
-		console.log('stack', this.stack.length, this.stack)
+	// logState(str: string, commit?: Commit) {
+	// 	console.log(str)
+	// 	console.log('pointer', this.pointer)
+	// 	console.log('stack', this.stack.length, this.stack)
 
-		if (commit) {
-			console.log('commit', commit)
-		}
-	}
+	// 	if (commit) {
+	// 		console.log('commit', commit)
+	// 	}
+	// }
 }
