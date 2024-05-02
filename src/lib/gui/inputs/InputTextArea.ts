@@ -97,15 +97,15 @@ export class InputTextArea extends Input<string, TextAreaInputOptions, TextAreaC
 			this.state.set(v)
 		}
 
-		this._afterSet()
+		this._emit('change', this.state.value)
 		return this
 	}
 
 	refresh = () => {
 		const v = this.state.value
-		this.elements.controllers.input.value = v
+		super.refresh(v)
 
-		this.callOnChange(v) // todo - should this go in the state subscription?
+		this.elements.controllers.input.value = v
 
 		return this
 	}

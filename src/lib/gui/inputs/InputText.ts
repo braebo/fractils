@@ -28,11 +28,15 @@ export interface TextControllerElements extends ElementMap {
 	input: HTMLInputElement
 }
 
-export class InputText extends Input<string, TextInputOptions, TextControllerElements> {
+export class InputText extends Input<
+	string,
+	TextInputOptions,
+	TextControllerElements,
+	'change' | 'refresh'
+> {
 	type = 'Text' as const
 	initialValue: string
 	state: State<string>
-	events = ['change']
 
 	#log: Logger
 
@@ -96,16 +100,14 @@ export class InputText extends Input<string, TextInputOptions, TextControllerEle
 			this.state.set(v)
 		}
 
-		this._afterSet()
+		this._emit('change', this.state.value)
 		return this
 	}
 
 	refresh = () => {
 		const v = this.state.value
 		this.elements.controllers.input.value = v
-
-		this.callOnChange(v) // todo - should this go in the state subscription?
-
+		super.refresh(v)
 		return this
 	}
 

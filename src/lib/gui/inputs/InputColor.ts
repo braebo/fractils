@@ -155,7 +155,8 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 		this.state.subscribe(v => {
 			this.refresh(v)
-			this.callOnChange(v)
+			this._emit('change', v)
+			// this.callOnChange(v)
 		})
 
 		this.components.refresh()
@@ -203,7 +204,6 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 			this.state.set(newColor)
 		}
 
-		this._afterSet()
 		return this
 	}
 
@@ -211,6 +211,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		this.elements.controllers.currentColor.display.style.backgroundColor = v.hex8String
 		this.picker.refresh()
 		this.components.refresh()
+		super.refresh()
 
 		return this
 	}

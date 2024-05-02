@@ -51,7 +51,7 @@ export class InputButton extends Input<
 		this.#log = new Logger(`InputButton:${opts.title}`, { fg: 'cyan' })
 		this.#log.fn('constructor').debug({ opts, this: this })
 
-		this.onClick = opts.onClick
+		if (opts.onClick) this.onClick = opts.onClick
 
 		const container = create('div', {
 			classes: ['fracgui-input-button-container'],
@@ -103,7 +103,24 @@ export class InputButton extends Input<
 	 * Assigns {@link onClick} to a new function.
 	 */
 	set = (v: ButtonClickFunction) => {
+		if (typeof v !== 'function') {
+			if (DEV) {
+				console.error(
+					'InputButton.set() must be called with a function to assign a new onClick action.',
+				)
+			}
+			return
+		}
 		this.onClick = v
+	}
+
+	/**
+	 * Refreshes the button text.
+	 */
+	refresh() {
+		this.button.refresh()
+		super.refresh()
+		return this
 	}
 
 	dispose() {

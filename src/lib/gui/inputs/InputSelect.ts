@@ -49,8 +49,10 @@ export class InputSelect<T> extends Input<
 		const opts = { ...SELECT_INPUT_DEFAULTS, ...options, type: 'Select' as const }
 		super(opts, folder)
 
+		this.evm.registerEvents(this.events)
+
 		this.#log = new Logger(`InputSelect:${opts.title}`, { fg: 'cyan' })
-		this.#log.fn('constructor').debug({ opts, this: this })
+		this.#log.fn('constructor').info({ opts, this: this })
 
 		// The idea here is that we can bind to a value, a `state` instance, a
 		// labeled option, or a labaled option with a `state` instance value.
@@ -103,32 +105,30 @@ export class InputSelect<T> extends Input<
 			select: this.select.elements,
 		} as const satisfies SelectControllerElements<T>
 
-		if (this.bound) {
-			this.evm.add(
-				this.state.subscribe(v => {
-					if (!this.select.bubble) return
+		const bound = this.bound
+		this.evm.add(
+			this.state.subscribe(v => {
+				if (!this.select.bubble) return
 
-					if (this.#stopPropagation) {
-						this.#stopPropagation = false
-						this.#log
-							.fn('bound $state')
-							.debug('Stopped propagation.  Subscribers will not be notified.')
-						return
-					}
+				if (this.#stopPropagation) {
+					this.#stopPropagation = false
+					this.#log
+						.fn('bound $state')
+						.info('Stopped propagation.  Subscribers will not be notified.')
+					return
+				}
 
-					this.#log.fn('bound $state').debug({ v, this: this })
-					this.refresh()
-				}),
-			)
-		} else {
-			// Bind to the target if it's not already a State object.
-			this.evm.add(
-				this.state.subscribe(v => {
-					this.#log.fn('$state').debug({ v, this: this })
-
+				if (bound) {
 					this.targetValue = (v as LabeledOption<T>).value
-				}),
-			)
+				}
+
+				this.#log.fn('bound $state').info({ v, this: this })
+				this.refresh()
+			}),
+		)
+
+		if (options.onChange) {
+			this.evm.on('change', options.onChange)
 		}
 
 		// Bind our state to the select controller.
@@ -140,9 +140,9 @@ export class InputSelect<T> extends Input<
 	}
 
 	resolveState(v: T | Option<T> | State<T> | Option<State<T>>): State<Option<T>> {
-		this.#log.fn('resolveState').debug(v)
+		this.#log.fn('resolveState').info(v)
 		if (isState(v)) {
-			this.#log.fn('resolveState').debug('Value is already state... returning unmodified.')
+			this.#log.fn('resolveState').info('Value is already state... returning unmodified.')
 			return v as State<Option<T>>
 		}
 
@@ -182,6 +182,8 @@ export class InputSelect<T> extends Input<
 		this.#log.fn('set targetValue').info(v)
 
 		if (typeof v === 'undefined') {
+			console.error('Cannot set target value to undefined')
+			console.error('this', this)
 			throw new Error('Cannot set target value to undefined')
 		}
 
@@ -195,12 +197,18 @@ export class InputSelect<T> extends Input<
 				to[tk] = v
 			}
 		}
+
+		if (this.select.expanded) {
+			this._emit('preview')
+		} else {
+			this._emit('change')
+		}
 	}
 
 	set() {
 		this.#log.fn('set').info()
 		this.select.select(this.state.value as T, false)
-		this._afterSet()
+		this._emit('change', this.state.value as T)
 		return this
 	}
 
@@ -224,8 +232,7 @@ export class InputSelect<T> extends Input<
 
 		this.select.select(v as T, false)
 
-		this.callOnChange(v) // todo - should this go in the state subscription?
-
+		super.refresh()
 		return this
 	}
 

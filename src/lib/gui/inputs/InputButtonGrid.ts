@@ -3,34 +3,33 @@ import type { State } from '../../utils/state'
 import type { Folder } from '../Folder'
 
 import { create, type CreateOptions } from '../../utils/create'
-// import { randomInt, randomString } from '$lib/utils/random'
-// import { array as arr } from '$lib/utils/array'
 import { Logger } from '../../utils/logger'
 import { state } from '../../utils/state'
+import { toFn } from '../shared/toFn'
 import { Input } from './Input'
+import { DEV } from 'esm-env'
 
 /**
  * A button item to be added to the grid.  This is used in the
  * {@link ButtonGrid} generated in the {@link InputButtonGrid}
  * constructor.
  */
-export interface ButtonItem {
+export interface ButtonItemOptions {
 	/**
 	 * Text to display on the button.
 	 */
-	label: string
+	label: string | (() => string)
 	/**
-	 * Function to run when the button is clicked.  It is passed an object
-	 * containing the input ({@link InputButtonGrid}), the text of the button,
-	 * and the {@link HTMLButtonElement} itself.
+	 * Function to run when the button is clicked.  It is passed a {@link ButtonItem}
+	 * object containing both the {@link InputButtonGrid|`input`} and the individual
+	 * {@link ButtonItem|`button`} in the {@link ButtonGrid|`buttongrid`} that was clicked.
 	 */
-	onClick: (data: { input: InputButtonGrid; text: string; button: HTMLButtonElement }) => void
+	onClick: (payload: ButtonItem) => void
 	/**
-	 * Optional function to determine if the button is active.  If the function
-	 * returns `true`, the button will have the `active` class added to it, and
-	 * removed if `false`.  This updates in {@link InputButtonGrid.refresh},
-	 * which is called internally whenever the input
-	 * {@link InputButtonGrid.state state} changes.
+	 * Optional function to determine if the button is active.  If the function returns `true`,
+	 * the button will have the `active` class added to it, and removed if `false`.  This updates
+	 * in the {@link InputButtonGrid.refresh|`refresh`} method, which is called internally
+	 * whenever the input {@link InputButtonGrid.state|`state`} changes.
 	 */
 	isActive?: () => boolean
 	/**
@@ -48,8 +47,19 @@ export interface ButtonItem {
 }
 
 /**
- * A {@link ButtonItem} added to the grid is stored internally as a `ButtonGridItem`,
- * accessible via the {@link InputButtonGrid} map.
+ * A {@link ButtonItemOptions} object, with the `label` property coerced into a function that
+ * returns a string.
+ */
+export interface ButtonItem extends ButtonItemOptions {
+	/**
+	 * Text to display on the button.
+	 */
+	label: () => string
+}
+
+/**
+ * A {@link ButtonItemOptions} added to the grid is stored internally as a `ButtonGridItem`,
+ * accessible via the {@link InputButtonGrid.buttonGrid | buttonGrid} map.
  */
 export interface ButtonGridItem extends ButtonItem {
 	element: HTMLButtonElement & {
@@ -61,9 +71,12 @@ export interface ButtonGridItem extends ButtonItem {
 	}
 }
 
-export type ButtonGrid = ButtonItem[][]
+/**
+ * A 2D array of {@link ButtonItemOptions} objects, representing a grid of buttons.
+ */
+export type ButtonGrid = ButtonItemOptions[][]
 
-export type ButtonGridClickFunction = (this: InputButtonGrid) => void
+export type ButtonGridClickFunction = (payload: ButtonItem) => void
 
 export type ButtonGridInputOptions = {
 	type?: 'ButtonGrid'
@@ -95,14 +108,13 @@ export interface ButtonGridControllerElements extends ElementMap {
 export type ButtonId = string
 
 export class InputButtonGrid extends Input<
-	ButtonGrid,
+	ButtonItem,
 	ButtonGridInputOptions,
 	ButtonGridControllerElements
 > {
 	readonly type = 'ButtonGrid' as const
 	readonly initialValue = {} as ButtonGrid
-	readonly state = state({}) as State<ButtonGrid>
-	readonly events = ['change', 'click']
+	readonly state = state({} as ButtonItem) as State<ButtonItem>
 
 	buttons: Map<ButtonId, ButtonGridItem> = new Map()
 	buttonGrid: ButtonGrid
@@ -116,21 +128,21 @@ export class InputButtonGrid extends Input<
 		super(opts, folder)
 
 		this.buttonGrid = this.initialValue = opts.value
-		this.#log = new Logger(`InputButtonGrid:${opts.title}`, { fg: 'cyan' })
-		this.#log.fn('constructor').debug({ opts, this: this })
+		this.#log = new Logger(`InputButtonGrid : ${opts.title}`, { fg: 'cyan' })
+		this.#log.fn('constructor').info({ opts, this: this })
 
-		if (opts.binding) {
-			this.initialValue = opts.binding.target[opts.binding.key]
-			// this.state = state(this.initialValue)
+		// if (opts.binding) {
+		// this.initialValue = opts.binding.target[opts.binding.key]
+		// this.state = state(this.initialValue)
 
-			this.evm.add(
-				this.state.subscribe(v => {
-					opts.binding!.target[opts.binding!.key] = v
-				}),
-			)
-		} else {
-			this.state = state(opts.value!)
-		}
+		// this.evm.add(
+		// 	this.state.subscribe(v => {
+		// 		opts.binding!.target[opts.binding!.key] = v
+		// 	}),
+		// )
+		// } else {
+		// this.state = state(opts.value!)
+		// }
 
 		const container = create('div', {
 			classes: ['fracgui-input', 'fracgui-input-buttongrid-container'],
@@ -142,11 +154,16 @@ export class InputButtonGrid extends Input<
 			buttonGrid: [],
 		} as const satisfies ButtonGridControllerElements
 
-		this.evm.add(this.state.subscribe(this.refresh.bind(this)))
+		// this.evm.add(this.state.subscribe(this.refresh.bind(this)))
 
 		this.toGrid(this.buttonGrid)
 
 		this.refresh()
+	}
+
+	onClick(callback: ButtonGridClickFunction) {
+		this.#log.fn('onClick').debug({ payload: this.state.value, this: this })
+		this.evm.on('click', () => callback(this.state.value))
 	}
 
 	/**
@@ -175,7 +192,7 @@ export class InputButtonGrid extends Input<
 			for (let j = 0; j < cols; j++) {
 				const btn = grid[i]?.[j]
 				if (btn) {
-					const button = this.addButton(btn, btn.label, i, j)
+					const button = this.addButton(btn, toFn(btn.label)(), i, j)
 					row.appendChild(button)
 				}
 			}
@@ -187,8 +204,8 @@ export class InputButtonGrid extends Input<
 		)
 	}
 
-	addButton(btn: ButtonItem, id: string, i: number, j: number) {
-		const { label: text, onClick } = btn
+	addButton(opts: ButtonItemOptions, id: string, i: number, j: number) {
+		const label = toFn(opts.label)
 
 		const button = create('button', {
 			classes: [
@@ -196,7 +213,7 @@ export class InputButtonGrid extends Input<
 				'fracgui-controller-button',
 				'fracgui-controller-buttongrid-button',
 			],
-			textContent: text,
+			textContent: label(),
 			dataset: {
 				id,
 				row: String(i),
@@ -204,56 +221,68 @@ export class InputButtonGrid extends Input<
 			},
 			styles: {
 				width: '100%',
-				...btn.style,
+				...opts.style,
 			},
 		})
 
-		this.buttons.set(id, {
+		let btn = {
+			...opts,
 			element: button,
-			...btn,
-		})
+			label,
+		}
 
-		this.evm.listen(button, 'click', () => {
-			onClick({ input: this, text, button })
-			this.refresh()
-			this._afterSet()
-			this.evm.emit('click', { input: this, text, button })
+		if (typeof opts.isActive !== 'function') {
+			if (this.opts.activeOnClick) {
+				btn.isActive = () => {
+					return this.state.value === btn
+				}
+			}
+		}
+
+		this.buttons.set(id, btn)
+
+		this.evm.listen(button, 'click', e => {
+			const id = (e.target as HTMLButtonElement).dataset['id']
+
+			if (!id) {
+				if (DEV) console.error('ButtonGrid button missing id', e.target)
+				return
+			}
+
+			const button = this.buttons.get(id)
+
+			if (!button) {
+				if (DEV) console.error('ButtonGrid button not found', id)
+				return
+			}
+
+			button.onClick(button)
+			this.set(button)
 		})
 
 		return button
 	}
 
-	// todo - would this be a nicer way to do styles?
-	// static initialized = false
-	// static init() {
-	// 	if (this.initialized) return
-	// 	this.initialized = true
+	set(button: ButtonItem) {
+		this.state.set(button)
 
-	// 	const style = document.createElement('style')
-	// 	style.textContent = this.style
-	// 	document.head.appendChild(style)
-	// }
-	// static style = /*css*/ `
-	// 	.fracgui-controller-buttons-container {
-	// 		display: flex;
-	// 		flex-wrap: wrap;
-	// 		gap: 0.5em;
-	// 	}
-	// 	.fracgui-controller-buttons-button {
-	// 		padding: 0.5em 1em;
-	// 		margin: 0.25em;
-	// 		border: none;
-	// 		background-color: #333;
-	// 		color: white;
-	// 		cursor: pointer;
-	// 	}
-	// `
+		this._emit('click', button)
+		this.refresh()
+	}
 
 	refresh() {
 		this.#log.fn('refresh').debug({ this: this })
-		for (const [, { element, isActive }] of this.buttons) {
-			element.classList.toggle('active', !!isActive?.())
+
+		for (const [, { element, isActive, label }] of this.buttons) {
+			if (typeof isActive === 'function') {
+				element.classList.toggle('active', !!isActive())
+			}
+			if (typeof label === 'function') {
+				element.textContent = label()
+			}
 		}
+
+		super.refresh()
 		return this
 	}
 
@@ -274,23 +303,7 @@ export class InputButtonGrid extends Input<
 		return this
 	}
 
-	set() {
-		throw new Error('not implemented')
-	}
-
 	dispose() {
 		super.dispose()
 	}
 }
-
-// function randomButtonGrid() {
-// 	const randomStuff = () => (Math.random() > 0.5 ? randomString(3) : String(randomInt(0, 1000)))
-// 	return arr(randomInt(1, 4), () =>
-// 		arr(randomInt(1, 4), () => ({
-// 			label: randomInt(),
-// 			onClick: ({ button }) => {
-// 				button.innerText = randomStuff()
-// 			},
-// 		})),
-// 	)
-// }

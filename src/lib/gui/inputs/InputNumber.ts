@@ -107,7 +107,7 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 		this.commit({ to: newValue })
 		this.state.set(newValue)
 
-		this._afterSet()
+		this._emit('change', newValue)
 		return this
 	}
 
@@ -130,7 +130,7 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 		this.#log.fn('refresh').debug(v)
 		this.elements.controllers.range.value = String(v)
 		this.elements.controllers.input.value = String(v)
-		this.callOnChange(v)
+		super.refresh(v)
 
 		return this
 	}

@@ -131,16 +131,19 @@ export type ValidInput =
 	| InputButton
 	| InputButtonGrid
 	| InputSwitch
+
+export type InputEvents = 'change' | 'refresh' | string
 //⌟
 
 export abstract class Input<
 	TValueType extends ValidInputValue = ValidInputValue,
 	TOptions extends ValidInputOptions = InputOptions,
 	TElements extends ElementMap = ElementMap,
+	TEvents extends InputEvents = InputEvents,
 > {
 	abstract state: State<TValueType>
 	abstract initialValue: ValidInputValue
-	abstract events: readonly string[]
+	// declare events: TEvents
 
 	readonly type: InputType
 	opts: TOptions
@@ -164,7 +167,7 @@ export abstract class Input<
 
 	#title = ''
 	#dirty = false
-	#firstUpdate = true
+	// #firstUpdate = true
 	#disabled: () => boolean
 	#hidden: () => boolean
 	/**
@@ -178,7 +181,7 @@ export abstract class Input<
 	 */
 	protected lockCommit = {} as Commit
 	protected log: Logger
-	protected evm = new EventManager<this['events']>()
+	protected evm = new EventManager<InputEvents | TEvents>(['change', 'refresh'])
 
 	constructor(
 		options: TOptions & { type: InputType },
@@ -186,7 +189,9 @@ export abstract class Input<
 	) {
 		this.opts = options
 		this.type = options.type
-		this.presetId = options.presetId ?? `${folder.title}:${options.type}:${options.title}`
+		this.presetId =
+			options.presetId ?? `${folder.resolvePresetId()}_${options.type}:${options.title}`
+
 		this.log = new Logger('Input:' + options.title, { fg: 'skyblue' })
 
 		this.#title = options.title
@@ -218,7 +223,7 @@ export abstract class Input<
 			classes: ['fracgui-input-reset-btn'],
 			parent: this.elements.content,
 			tooltip: {
-				text: 'Reset to default',
+				text: 'Reset',
 				placement: 'left',
 				delay: 1000,
 			},
@@ -232,19 +237,21 @@ export abstract class Input<
 			parent: this.elements.content,
 		})
 
+		// this.evm.registerEvents()
+
 		this.evm.listen(this.elements.drawerToggle, 'click', () => {
 			console.warn('todo')
 		})
 
 		if ('onChange' in options) {
-			this.onChange(options.onChange as (value: TValueType) => void)
+			this.evm.on('change', options.onChange as (value: TValueType) => void)
 		}
 
 		// this.#log.groupCollapsed().fn('constructor').info({ opts: options, this: this })
 	}
 
 	get value() {
-		return this.state.value
+		return this.state.value as TValueType
 	}
 
 	get undoManager() {
@@ -289,9 +296,13 @@ export abstract class Input<
 
 	abstract set(v: TValueType): void
 
-	protected _afterSet() {
+	/**
+	 * Called from subclasses at the end of their `set` method to emit the `change` event.
+	 */
+	_emit(event: TEvents, v = this.state.value as TValueType) {
 		this.dirty = this.state.value != this.initialValue
-		this.evm.emit('change', this.state.value)
+		this.evm.emit(event, { value: v, input: this })
+		if (event === 'change') this.folder.evm.emit('change', { value: v, input: this })
 	}
 
 	/**
@@ -315,10 +326,10 @@ export abstract class Input<
 	}
 
 	commit(commit: Partial<Commit>) {
-		commit.from = this.state.value as TValueType
+		commit.from = this.state.value
 		if (this.undoLock) return
 		this.undoManager.commit<TValueType>({
-			input: this as Input<TValueType>,
+			input: this,
 			...commit,
 		} as Commit)
 	}
@@ -332,55 +343,47 @@ export abstract class Input<
 		return this
 	}
 
-	/**
-	 * Refreshes the value of any controllers to match the current input state.
-	 *! todo - This is wrong!! It should likely be abstract now...
-	 */
-	refresh(..._args: any[]) {
-		this.callOnChange()
+	// /**
+	//  * Refreshes the value of any controllers to match the current input state.
+	//  *! todo - This is wrong!! It should likely be abstract now...
+	//  */
+	refresh(v = this.state.value as TValueType) {
+		this.evm.emit('refresh', { value: v, input: this })
+
 		return this
 	}
 
 	// todo - Make `state` private (#) and enforce using `Input.value` and `Input.update` to make sure out `callOnChange` is called by subclasses?
 	// todo - Or maybe just call `onChange` in `_afterSet`?
 
-	/**
-	 * Updates the input state and calls the `state.refresh` method.
-	 */
-	protected update(v: (currentValue: TValueType) => TValueType) {
-		const newValue = v(this.state.value as TValueType)
-		this.state.set(newValue as ValidInputValue)
-		this.state.refresh()
-		this.callOnChange(newValue)
-	}
+	// /**
+	//  * Updates the input state and calls the `state.refresh` method.
+	//  */
+	// protected update(v: (currentValue: TValueType) => TValueType) {
+	// 	const newValue = v(this.state.value as TValueType)
+	// 	this.state.set(newValue as ValidInputValue)
+	// 	this.state.refresh()
+	// 	// this.callOnChange(newValue)
+	// 	this.evm.emit('change', v, this)
+	// }
 
 	listen = this.evm.listen
+	on = this.evm.on
 
-	protected onChangeListeners = new Set<(newValue: TValueType, input: Input) => unknown>()
-	onChange(cb: (newValue: TValueType, input: Input) => unknown) {
-		this.onChangeListeners.add(cb)
-		return () => {
-			this.onChangeListeners.delete(cb)
-		}
-	}
-	protected callOnChange(v = this.state.value) {
-		if (this.#firstUpdate) {
-			this.#firstUpdate = false
-			this.log
-				.fn('callOnChange')
-				.debug('Skipping initial update (subscribers will not be notified).')
-			return
-		}
-		this.log.fn('callOnChange', debrief(v, { depth: 1, siblings: 3 })).debug()
-		for (const cb of this.onChangeListeners) {
-			cb(v as TValueType, this)
-		}
-	}
+	// protected onChangeListeners = new Set<(newValue: TValueType, input: Input) => unknown>()
+	// protected callOnChange(v = this.state.value) {
+	// 	if (this.#firstUpdate) {
+	// 		this.#firstUpdate = false
+	// 		this.log
+	// 			.fn('callOnChange')
+	// 			.debug('Skipping initial update (subscribers will not be notified).')
+	// 		return
+	// 	}
+	// }
 
 	save() {
 		const preset: InputPreset<any> = {
 			type: this.type,
-			title: this.title,
 			value: this.state.value,
 			disabled: this.disabled,
 			presetId: this.presetId,
@@ -394,7 +397,6 @@ export abstract class Input<
 
 	load(json: InputPreset<TOptions> | string) {
 		const data = typeof json === 'string' ? (JSON.parse(json) as InputPreset<TOptions>) : json
-		this.title = data.title
 		this.presetId = data.presetId
 		this.disabled = data.disabled
 		this.hidden = data.hidden

@@ -5,21 +5,21 @@ export type EventCallback = (...args: any[]) => void
 /**
  * Represents an event manager that provides methods for adding and removing event listeners.
  */
-export class EventManager<const TEventName extends string> {
+export class EventManager<const TEvent extends string> {
 	listeners = new Map<string, EventCallback>()
-	handlers = new Map<TEventName, Map<string, EventCallback>>()
+	handlers = new Map<TEvent, Map<string, EventCallback>>()
 
-	constructor(events?: TEventName[]) {
-		if (events) this.registerEvents(['change', ...events] as TEventName[])
+	constructor(events?: TEvent[]) {
+		if (events) this.registerEvents(['change', ...events] as TEvent[])
 	}
 
-	registerEvents(events: TEventName[]) {
+	registerEvents(events: TEvent[]) {
 		for (const event of events) {
-			this.handlers.set(event as TEventName, new Map())
+			this.handlers.set(event as TEvent, new Map())
 		}
 	}
 
-	on = (event: TEventName, callback: EventCallback): string => {
+	on = (event: TEvent, callback: EventCallback): string => {
 		const id = nanoid()
 		const listeners = this.handlers.get(event)
 
@@ -33,7 +33,7 @@ export class EventManager<const TEventName extends string> {
 		return id
 	}
 
-	emit(event: TEventName, ...args: Parameters<EventCallback>) {
+	emit(event: TEvent, ...args: Parameters<EventCallback>) {
 		for (const cb of this.handlers.get(event)?.values() ?? []) {
 			cb(...args)
 		}

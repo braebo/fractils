@@ -69,7 +69,6 @@ export interface SwitchInputElements extends ElementMap {
 export class InputSwitch extends Input<boolean, SwitchInputOptions, SwitchInputElements> {
 	readonly type = 'Switch' as const
 	readonly state: State<boolean>
-	readonly events = ['change']
 
 	initialValue: boolean
 	#log: Logger
@@ -148,6 +147,7 @@ export class InputSwitch extends Input<boolean, SwitchInputOptions, SwitchInputE
 
 		if (typeof v === 'boolean') {
 			this.undoManager.commit({
+				// @ts-expect-error - ??
 				input: this,
 				from: this.state.value,
 				to: v,
@@ -159,7 +159,7 @@ export class InputSwitch extends Input<boolean, SwitchInputOptions, SwitchInputE
 			)
 		}
 
-		this._afterSet()
+		this._emit('change', v)
 		return this
 	}
 
@@ -172,8 +172,7 @@ export class InputSwitch extends Input<boolean, SwitchInputOptions, SwitchInputE
 		this.elements.controllers.stateText.innerText =
 			(this.state.value ? this.opts.labels?.true.state : this.opts.labels?.false.state) ?? ''
 
-		this.callOnChange(v) // todo - should this go in the state subscription?
-
+		this._emit('refresh', v)
 		return this
 	}
 
