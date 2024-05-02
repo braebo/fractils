@@ -507,7 +507,7 @@ export class Folder {
 		}
 
 		if (this.isGui()) {
-			this.activePresetId.set(preset.presetId)
+			this.activePreset.set(preset)
 		}
 	}
 	//⌟

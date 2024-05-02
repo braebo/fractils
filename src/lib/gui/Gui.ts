@@ -200,7 +200,7 @@ export class Gui extends Folder {
 	closed: PrimitiveState<boolean>
 	closedMap: State<Map<string, boolean>>
 	presets: State<Map<string, FolderPreset>>
-	activePresetId = state('')
+	activePreset = state({} as FolderPreset)
 
 	wrapper!: HTMLElement
 	container!: HTMLElement
@@ -353,12 +353,6 @@ export class Gui extends Folder {
 		})
 	}
 
-	// createPresetManager() {
-	// 	const presetsFolder = this.settingsFolder.addFolder({
-	// 		title: 'presets',
-	// 	})
-	// }
-
 	#createWindowManager(options?: Partial<GuiOptions>, storageOpts?: GuiStorageOptions | false) {
 		if (this.windowManager) return this.windowManager
 
@@ -437,8 +431,8 @@ export class Gui extends Folder {
 	#createSettingsFolder() {
 		const settingsFolder = this.addFolder({
 			title: Gui.settingsFolderTitle,
-			//! closed: true,
-			closed: true,
+			// closed: true,
+			closed: false,
 			header: false,
 			hidden: false,
 		})
@@ -454,7 +448,7 @@ export class Gui extends Folder {
 	#createPresetsFolder(parentFolder: Folder) {
 		const presetsFolder = parentFolder.addFolder({
 			title: 'presets',
-			//! closed: true,
+			// closed: true,
 			closed: false,
 		})
 		// const presetsFolder = parentFolder
@@ -515,29 +509,34 @@ export class Gui extends Folder {
 
 		const presetSelect = presetsFolder.addSelect({
 			title: 'presets',
-			options: Array.from(this.presets.value.keys()).map(p => ({ label: p, value: p })),
+			options: Array.from(this.presets.value.entries()).map(([k, v]) => ({
+				label: k,
+				value: v,
+			})),
 			binding: {
 				target: this,
-				key: 'activePresetId',
-				initial: this.activePresetId.value,
+				key: 'activePreset',
+				initial: '',
 			},
 			onChange: v => {
-				this.#log.info('select Input options.onChange(), v:', v)
+				console.log('\n\nLoading preset:', v)
+				this.load(v.value.value)
 			},
 		})
 
-		presetSelect.on('change', v => {
-			this.#log.info('select Input on.change(), v:', v)
-		})
+		// presetSelect.on('change', v => {
+			// console.warn(v)
+			// this.#log.info('select Input on.change(), v:', v)
+		// })
 	}
 
 	#renamePreset(title: string) {
 		this.presets.update(presets => {
-			const preset = presets.get(this.activePresetId.value)
+			const preset = presets.get(this.activePreset.value.presetId)
 			if (!preset) throw new Error('No preset found.')
 
 			preset.presetTitle = title
-			presets.set(this.activePresetId.value, preset)
+			presets.set(this.activePreset.value.presetId, preset)
 
 			return presets
 		})
