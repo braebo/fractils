@@ -52,7 +52,7 @@ export class InputSelect<T> extends Input<
 		this.evm.registerEvents(this.events)
 
 		this.#log = new Logger(`InputSelect:${opts.title}`, { fg: 'cyan' })
-		this.#log.fn('constructor').info({ opts, this: this })
+		this.#log.fn('constructor').debug({ opts, this: this })
 
 		// The idea here is that we can bind to a value, a `state` instance, a
 		// labeled option, or a labaled option with a `state` instance value.
@@ -114,7 +114,7 @@ export class InputSelect<T> extends Input<
 					this.#stopPropagation = false
 					this.#log
 						.fn('bound $state')
-						.info('Stopped propagation.  Subscribers will not be notified.')
+						.debug('Stopped propagation.  Subscribers will not be notified.')
 					return
 				}
 
@@ -122,8 +122,8 @@ export class InputSelect<T> extends Input<
 					this.targetValue = (v as LabeledOption<T>).value
 				}
 
-				this.#log.fn('bound $state').info({ v, this: this })
-				this.refresh()
+				this.#log.fn('bound $state').debug({ v, this: this })
+				this.set(v)
 			}),
 		)
 
@@ -136,13 +136,16 @@ export class InputSelect<T> extends Input<
 			// Make sure the select controller doesn't react to its own changes.
 			this.#stopPropagation = true
 			this.targetValue = v.value
+			// console.warn(v)
+			// console.warn(this.state.value)
+			this.set(v)
 		})
 	}
 
 	resolveState(v: T | Option<T> | State<T> | Option<State<T>>): State<Option<T>> {
-		this.#log.fn('resolveState').info(v)
+		this.#log.fn('resolveState').debug(v)
 		if (isState(v)) {
-			this.#log.fn('resolveState').info('Value is already state... returning unmodified.')
+			this.#log.fn('resolveState').debug('Value is already state... returning unmodified.')
 			return v as State<Option<T>>
 		}
 
@@ -150,7 +153,7 @@ export class InputSelect<T> extends Input<
 			if (isState(v.value)) {
 				this.#log
 					.fn('resolveState')
-					.info(
+					.debug(
 						"Value is a labeled option who's value is a state instance.  Returning `option.value`.",
 					)
 				return v.value as State<Option<T>>
@@ -158,13 +161,13 @@ export class InputSelect<T> extends Input<
 
 			this.#log
 				.fn('resolveState')
-				.info('Value is a non-state labeled option.  Wrapping in state.')
+				.debug('Value is a non-state labeled option.  Wrapping in state.')
 			return state(v.value) as State<Option<T>>
 		}
 
 		this.#log
 			.fn('resolveState')
-			.info('Value is a non-labeled, non-state option.  Wrapping in state.')
+			.debug('Value is a non-labeled, non-state option.  Wrapping in state.')
 		return state(v) as State<Option<T>>
 	}
 
@@ -179,7 +182,7 @@ export class InputSelect<T> extends Input<
 	}
 	set targetValue(v: T) {
 		if (isLabeledOption(v)) v = fromLabeledOption(v) as T
-		this.#log.fn('set targetValue').info(v)
+		this.#log.fn('set targetValue').debug(v)
 
 		if (typeof v === 'undefined') {
 			console.error('Cannot set target value to undefined')
@@ -198,31 +201,31 @@ export class InputSelect<T> extends Input<
 			}
 		}
 
-		if (this.select.expanded) {
-			this._emit('preview')
-		} else {
-			this._emit('change')
-		}
+		// if (this.select.expanded) {
+		// 	this._emit('preview')
+		// } else {
+		// 	this._emit('change')
+		// }
 	}
 
-	set() {
+	set(v = this.state.value) {
 		this.#log.fn('set').info()
-		this.select.select(this.state.value as T, false)
-		this._emit('change', this.state.value as T)
+		this.select.select(v as T, false)
+		this._emit('change', v as T)
 		return this
 	}
 
 	enable() {
-		this.#log.fn('enable').info()
-		this.disabled = false
-		this.select.disable()
+		this.#log.fn('enable').debug()
+		this.select.enable()
+		super.enable()
 		return this
 	}
 
 	disable() {
-		this.#log.fn('disable').info()
-		this.disabled = true
+		this.#log.fn('disable').debug()
 		this.select.disable()
+		super.disable()
 		return this
 	}
 
@@ -232,7 +235,7 @@ export class InputSelect<T> extends Input<
 
 		this.select.select(v as T, false)
 
-		super.refresh()
+		super.refresh(v as T)
 		return this
 	}
 
