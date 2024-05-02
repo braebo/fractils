@@ -682,7 +682,7 @@ export class ThemeEditor {
 								max: Math.max(0, av < 1 ? 1 : av * 3),
 								step: av < 1 ? 0.01 : av < 10 ? 0.1 : 1,
 							})
-							.onChange(v => onChange!(v))
+							.on('change', v => onChange!(v))
 						return
 					}
 				} catch (e) {}

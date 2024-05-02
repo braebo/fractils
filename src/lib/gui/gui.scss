@@ -1139,7 +1139,7 @@ input.fracgui-search-input {
 			width: $inverted-border-size;
 			height: $inverted-border-size * 2;
 			border-top-left-radius: $inverted-border-radius;
-			box-shadow: 0 -#{$inverted-border-size} 0 0 var(--fracgui-bg-a);
+			box-shadow: 0 -#{$inverted-border-size} 0 0 var(--fracgui-folder-header_background);
 
 			clip-path: inset(0 0 0 0);
 			opacity: 1;
@@ -1155,7 +1155,7 @@ input.fracgui-search-input {
 			width: $inverted-border-size;
 			min-height: $inverted-border-size * 2;
 			border-top-right-radius: $inverted-border-radius;
-			box-shadow: 0 -#{$inverted-border-size} 0 0 var(--fracgui-bg-a);
+			box-shadow: 0 -#{$inverted-border-size} 0 0 var(--fracgui-folder-header_background);
 
 			clip-path: inset(0 0 0 0);
 			opacity: 1;
@@ -1177,7 +1177,7 @@ input.fracgui-search-input {
 			height: $inverted-border-size * 2;
 			width: $inverted-border-size;
 			border-bottom-left-radius: $inverted-border-radius-bottom;
-			box-shadow: 0 $inverted-border-size 0 0 var(--fracgui-bg-a);
+			box-shadow: 0 $inverted-border-size 0 0 var(--fracgui-folder-header_background);
 			clip-path: inset(0 0 0 0);
 		}
 		// bottom right corner
@@ -1190,7 +1190,7 @@ input.fracgui-search-input {
 			height: $inverted-border-size * 2;
 			width: $inverted-border-size;
 			border-bottom-right-radius: $inverted-border-radius-bottom;
-			box-shadow: 0 $inverted-border-size 0 0 var(--fracgui-bg-a);
+			box-shadow: 0 $inverted-border-size 0 0 var(--fracgui-folder-header_background);
 			clip-path: inset(0 0 0 0);
 		}
 	}
@@ -2105,7 +2105,8 @@ input.fracgui-search-input {
 					color: var(--fracgui-controller_color);
 					&.active {
 						color: var(--fracgui-theme-a);
-						background: var(--fracgui-bg-e);
+						// background: var(--fracgui-bg-e);
+						background: var(--fracgui-controller_background);
 					}
 				}
 			}

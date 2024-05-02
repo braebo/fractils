@@ -204,7 +204,7 @@ export function generateVarGui(target: HTMLElement, parentFolder: Folder) {
 				title: propertyName,
 				value,
 			})
-			.onChange(v => {
+			.on('change', v => {
 				const kind = kindMap.get(k)
 
 				if (!kind) {
