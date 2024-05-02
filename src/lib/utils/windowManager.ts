@@ -39,7 +39,7 @@ export interface WindowManagerOptions {
 
 	/**
 	 * The base z-index value.
-	 * @default 0
+	 * @default 10
 	 */
 	zFloor: number
 
@@ -79,7 +79,7 @@ export interface WindowManagerStorageOptions {
 export const WINDOWMANAGER_DEFAULTS = {
 	resizable: RESIZABLE_DEFAULTS,
 	draggable: DRAG_DEFAULTS,
-	zFloor: 0,
+	zFloor: 10,
 	preserveZ: false,
 	bounds: undefined,
 	obstacles: undefined,
@@ -141,21 +141,23 @@ export class WindowManager {
 
 		// this.#animate(node)
 
-		const initialZ = target_node.style.getPropertyValue('z-index')
-		target_node.style.setProperty('z-index', String(this.opts.zFloor + this.windows.length))
+		if (this.windows.length > 1) {
+			const initialZ = target_node.style.getPropertyValue('z-index')
+			target_node.style.setProperty('z-index', String(this.opts.zFloor + this.windows.length))
 
-		if (target_node.dataset['keepZ'] === 'true' || this.opts.preserveZ) {
-			addEventListener(
-				'pointerup',
-				() => target_node.style.setProperty('z-index', initialZ),
-				{
-					once: true,
-				},
-			)
-		} else {
-			this.windows = this.windows.filter(i => i !== instance)
-			this.windows.push(instance)
-			this.applyZ()
+			if (target_node.dataset['keepZ'] === 'true' || this.opts.preserveZ) {
+				addEventListener(
+					'pointerup',
+					() => target_node.style.setProperty('z-index', initialZ),
+					{
+						once: true,
+					},
+				)
+			} else {
+				this.windows = this.windows.filter(i => i !== instance)
+				this.windows.push(instance)
+				this.applyZ()
+			}
 		}
 
 		return this
