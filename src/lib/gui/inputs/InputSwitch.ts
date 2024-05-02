@@ -77,7 +77,7 @@ export class InputSwitch extends Input<boolean, SwitchInputOptions, SwitchInputE
 		const opts = { ...SWITCH_INPUT_DEFAULTS, ...options, type: 'Switch' as const }
 		super(opts, folder)
 
-		this.#log = new Logger(`InputBoolean:${opts.title}`, { fg: 'cyan' })
+		this.#log = new Logger(`InputSwitch : ${opts.title}`, { fg: 'cyan' })
 		this.#log.fn('constructor').debug({ opts, this: this })
 
 		if (opts.binding) {
@@ -164,7 +164,7 @@ export class InputSwitch extends Input<boolean, SwitchInputOptions, SwitchInputE
 	}
 
 	refresh(v = this.state.value) {
-		this.#log.fn('refresh').info({ v, this: this })
+		this.#log.fn('refresh').debug({ v, this: this })
 		if (this.disabled) return this
 
 		this.elements.controllers.input.classList.toggle('active', v)
@@ -178,12 +178,12 @@ export class InputSwitch extends Input<boolean, SwitchInputOptions, SwitchInputE
 
 	enable() {
 		this.elements.controllers.input.disabled = false
-		this.disabled = false
+		super.enable()
 		return this
 	}
 	disable() {
 		this.elements.controllers.input.disabled = true
-		this.disabled = true
+		super.disable()
 		return this
 	}
 

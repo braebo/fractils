@@ -187,7 +187,7 @@ export class Themer {
 		const opts = deepMerge(THEMER_DEFAULTS, options)
 		this.#key = String(opts.localStorageKey)
 
-		this.#log.fn(g('constructor')).info({ opts, this: this })
+		this.#log.fn(g('constructor')).debug({ opts, this: this })
 
 		if (opts.wrapper) {
 			this.wrapper = opts.wrapper
@@ -225,7 +225,7 @@ export class Themer {
 		this.#persistent = opts.persistent ?? true
 
 		this.#addSub(this.theme, v => {
-			this.#log.fn(o('theme.subscribe')).info({ v, this: this })
+			this.#log.fn(o('theme.subscribe')).debug({ v, this: this })
 			if (this.#initialized) {
 				this.activeThemeTitle.set(v.title)
 				this.applyTheme()
@@ -233,7 +233,7 @@ export class Themer {
 		})
 
 		this.#addSub(this.mode, v => {
-			this.#log.fn(o('mode.subscribe')).info('v', v, { this: this })
+			this.#log.fn(o('mode.subscribe')).debug('v', v, { this: this })
 
 			if (typeof v === 'undefined') throw new Error('Mode is undefined.')
 
@@ -258,7 +258,7 @@ export class Themer {
 		const themes = this.themes.value
 		const theme = this.theme.value
 
-		this.#log.fn(c('init')).info({ theme: this.theme, this: this })
+		this.#log.fn(c('init')).debug({ theme: this.theme, this: this })
 		if (typeof document === 'undefined') return
 
 		if (this.#initialized) return this
@@ -342,7 +342,7 @@ export class Themer {
 			save?: boolean
 		},
 	) => {
-		this.#log.fn(c('addTheme')).info({ newTheme, options, this: this })
+		this.#log.fn(c('addTheme')).debug({ newTheme, options, this: this })
 
 		const theme = structuredClone(newTheme)
 
@@ -367,7 +367,7 @@ export class Themer {
 				}
 
 				if (i > 100) {
-					this.#log.fn(c('addTheme')).info(r('Runaway loop detected.') + ' Aborting.', {
+					this.#log.fn(c('addTheme')).debug(r('Runaway loop detected.') + ' Aborting.', {
 						this: this,
 					})
 					break
@@ -381,7 +381,7 @@ export class Themer {
 	}
 
 	delete(themeOrTitle: ThemeTitle | Theme) {
-		this.#log.fn(c('deleteTheme')).info({ themeOrTitle, this: this })
+		this.#log.fn(c('deleteTheme')).debug({ themeOrTitle, this: this })
 
 		const themeTitle = typeof themeOrTitle === 'string' ? themeOrTitle : themeOrTitle.title
 
@@ -425,13 +425,13 @@ export class Themer {
 	applyTheme = (targets?: HTMLElement[]) => {
 		this.#log
 			.fn(c('applyTheme'))
-			.info({ theme: this.theme.value.title, targets: this.#targets, this: this })
+			.debug({ theme: this.theme.value.title, targets: this.#targets, this: this })
 		if (!('document' in globalThis)) return
 
 		const theme = this.theme.value
 
 		if (!theme) {
-			this.#log.error('theme not found').info({ theme, this: this })
+			this.#log.error('theme not found').debug({ theme, this: this })
 			throw new Error(`Theme not found.`)
 		}
 
@@ -484,7 +484,7 @@ export class Themer {
 	 * @returns The JSON that was loaded (if found).
 	 */
 	load = () => {
-		this.#log.fn(c('load')).info({ this: this })
+		this.#log.fn(c('load')).debug({ this: this })
 
 		if (this.#persistent && 'localStorage' in globalThis) {
 			const json = localStorage.getItem(this.#key + '::themer')
@@ -502,7 +502,7 @@ export class Themer {
 	 * @returns The JSON that was saved.
 	 */
 	save() {
-		this.#log.fn(c('save')).info({ this: this })
+		this.#log.fn(c('save')).debug({ this: this })
 
 		if (!('localStorage' in globalThis)) return
 		if (!this.#persistent) return
@@ -532,7 +532,7 @@ export class Themer {
 	 * Removes the current Themer state from localStorage.
 	 */
 	clear() {
-		this.#log.fn(c('clear')).info({ this: this })
+		this.#log.fn(c('clear')).debug({ this: this })
 		if (!('localStorage' in globalThis)) return
 		localStorage.removeItem(`${this.#key}themer`)
 		this.themes.set([theme_default])
@@ -553,7 +553,7 @@ export class Themer {
 	 */
 	#applyStyleProps = (themeConfig: Theme, targets = this.#targets as any as HTMLElement[]) => {
 		const config = themeConfig
-		this.#log.fn(c('applyStyleProps')).info({ config, this: this })
+		this.#log.fn(c('applyStyleProps')).debug({ config, this: this })
 
 		const themeColors = config.vars.color[this.activeMode]
 		if (!themeColors) {
@@ -702,7 +702,7 @@ export class ThemeEditor {
 					if (isColor(v)) {
 						v = v.hex8String
 					}
-					this.#log.fn('onChange').info({ k, v, this: this })
+					this.#log.fn('onChange').debug({ k, v, this: this })
 					this.targetGui.wrapper.style.setProperty(
 						`--${this.targetGui.themer!.theme.value.prefix}-${k}`,
 						v,

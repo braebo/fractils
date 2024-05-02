@@ -129,7 +129,7 @@ export class InputButtonGrid extends Input<
 
 		this.buttonGrid = this.initialValue = opts.value
 		this.#log = new Logger(`InputButtonGrid : ${opts.title}`, { fg: 'cyan' })
-		this.#log.fn('constructor').info({ opts, this: this })
+		this.#log.fn('constructor').debug({ opts, this: this })
 
 		// if (opts.binding) {
 		// this.initialValue = opts.binding.target[opts.binding.key]
