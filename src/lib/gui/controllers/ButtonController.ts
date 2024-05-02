@@ -60,13 +60,8 @@ export class ButtonController extends Controller<void, ButtonControllerElements>
 		return this.#text()
 	}
 	set text(v: string | (() => string)) {
-		if (typeof v === 'function') {
-			this.#text = v
-			this.elements.button.innerText = v()
-		} else {
-			this.#text = () => v
-			this.elements.button.innerText = v
-		}
+		this.#text = toFn(v)
+		this.elements.button.innerText = this.#text()
 	}
 
 	click = () => {
