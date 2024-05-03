@@ -30,12 +30,13 @@ export interface SelectControllerElements<T> extends ElementMap {
 export class InputSelect<T> extends Input<
 	Option<T>,
 	SelectInputOptions<T>,
-	SelectControllerElements<T>
+	SelectControllerElements<T>,
+	'change' | 'preview' | 'open' | 'close' | 'cancel'
 > {
 	type = 'Select' as const
 	initialValue: LabeledOption<T>
 	state: State<Option<T>>
-	events = ['change', 'preview']
+	on = this.evm.on
 
 	select: Select<T>
 
@@ -49,7 +50,7 @@ export class InputSelect<T> extends Input<
 		const opts = { ...SELECT_INPUT_DEFAULTS, ...options, type: 'Select' as const }
 		super(opts, folder)
 
-		this.evm.registerEvents(this.events)
+		this.evm.registerEvents(['change', 'preview', 'open', 'close', 'cancel'])
 
 		this.#log = new Logger(`InputSelect:${opts.title}`, { fg: 'cyan' })
 		this.#log.fn('constructor').debug({ opts, this: this })
@@ -123,12 +124,15 @@ export class InputSelect<T> extends Input<
 				}
 
 				this.#log.fn('bound $state').debug({ v, this: this })
+				// @ts-expect-error - // todo
 				this.set(v)
 			}),
 		)
 
 		if (options.onChange) {
-			this.evm.on('change', options.onChange)
+			this.evm.on('change', () => {
+				options.onChange!(toLabeledOption(this.state.value as T))
+			})
 		}
 
 		// Bind our state to the select controller.
@@ -138,7 +142,22 @@ export class InputSelect<T> extends Input<
 			this.targetValue = v.value
 			// console.warn(v)
 			// console.warn(this.state.value)
+			// console.error('select.onChange()', v)
+			this.#log.fn('select.onChange').debug(v)
 			this.set(v)
+		})
+
+		this.listen(this.select.element, 'preview', () => {
+			this._emit('preview')
+		})
+		this.listen(this.select.element, 'open', () => {
+			this._emit('open')
+		})
+		this.listen(this.select.element, 'close', () => {
+			this._emit('close')
+		})
+		this.listen(this.select.element, 'cancel', () => {
+			this._emit('cancel')
 		})
 	}
 
@@ -208,9 +227,11 @@ export class InputSelect<T> extends Input<
 		// }
 	}
 
-	set(v = this.state.value) {
+	set(v = this.state.value as Option<T>) {
 		this.#log.fn('set').info()
 		this.select.select(v as T, false)
+		// @ts-expect-error - // todo
+		this.state.set(v as Option<T>)
 		this._emit('change', v as T)
 		return this
 	}

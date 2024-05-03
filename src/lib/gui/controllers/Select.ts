@@ -258,10 +258,7 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 		 */
 		bubble = true,
 	) {
-		if (this.disabled) {
-			this.#log.fn('select').warn('Select is disabled', { this: this })
-			return this
-		}
+		if (this.disabled) return this
 
 		this.#log.fn('select').debug('v', v, { this: this })
 
@@ -312,7 +309,12 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 	 */
 	toggle() {
 		this.#log.fn('toggle').debug({ this: this })
-		this.expanded ? this.close() : this.open()
+		if (this.expanded) {
+			this.element.dispatchEvent(new Event('cancel'))
+			this.close()
+		} else {
+			this.open()
+		}
 	}
 
 	/**
@@ -411,15 +413,19 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 				this.select(this.#currentSelection)
 			}
 		}
+
+		this.element.dispatchEvent(new Event('cancel'))
 	}
 
 	#clickOutside = (e: MouseEvent) => {
-		if (!e.composedPath().includes(this.elements.container)) {
-			this.close()
-			if (this.opts.selectOnHover) {
-				this.select(this.#currentSelection)
-			}
+		if (e.composedPath().includes(this.elements.selected)) return
+
+		this.close()
+		if (this.opts.selectOnHover) {
+			this.select(this.#currentSelection)
 		}
+
+		this.element.dispatchEvent(new Event('cancel'))
 	}
 
 	enable() {
