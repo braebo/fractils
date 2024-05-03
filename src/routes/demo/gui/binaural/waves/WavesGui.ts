@@ -57,7 +57,7 @@ export class WavesGui extends Gui {
 		// 	value: params.freqL,
 		// })
 
-		this.addButtonGrid({
+		const btnGrid = this.addButtonGrid({
 			title: 'Playback',
 			value: [
 				[
@@ -74,16 +74,16 @@ export class WavesGui extends Gui {
 					},
 					{
 						label: 'Stop',
-						onClick: ({ input, button }) => {
+						onClick: (item) => {
 							if (!waves.playing) return
 							waves.stop()
-							const startBtn = input.buttons.get('Start')
+							const startBtn = btnGrid.buttons.get('Start')
 							startBtn?.element.setAttribute('disabled', '')
-							const { color } = button.style
-							button.style.color = 'tomato'
+							const { color } = item.element.style
+							item.element.style.color = 'tomato'
 							setTimeout(() => {
 								startBtn?.element.removeAttribute('disabled')
-								button.style.color = color
+								item.element.style.color = color
 							}, 0.25 * 1000)
 						},
 						isActive() {
