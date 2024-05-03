@@ -201,6 +201,7 @@ export class Gui extends Folder {
 	closedMap: State<Map<string, boolean>>
 	presets: State<Map<string, FolderPreset>>
 	activePreset = state({} as FolderPreset)
+	#presetSnapshot: FolderPreset | undefined
 
 	wrapper!: HTMLElement
 	container!: HTMLElement
@@ -507,27 +508,38 @@ export class Gui extends Folder {
 		renameBtn
 		deleteBtn
 
-		const presetSelect = presetsFolder.addSelect({
-			title: 'presets',
-			options: Array.from(this.presets.value.entries()).map(([k, v]) => ({
-				label: k,
-				value: v,
-			})),
-			binding: {
-				target: this,
-				key: 'activePreset',
-				initial: '',
-			},
-			onChange: v => {
-				console.log('\n\nLoading preset:', v)
-				this.load(v.value.value)
-			},
-		})
+		// Let the folders load before saving the default preset.
+		Promise.resolve().then(() => {
+			const defaultPreset = { label: 'default', value: this.save('default') }
+			this.presets.setKey('default', defaultPreset.value)
+			this.activePreset.set(defaultPreset.value)
 
-		// presetSelect.on('change', v => {
-			// console.warn(v)
-			// this.#log.info('select Input on.change(), v:', v)
-		// })
+			const presetSelectInput = presetsFolder.addSelect({
+				title: 'presets',
+				options: Array.from(this.presets.value.entries()).map(([k, v]) => ({
+					label: k,
+					value: v,
+				})),
+				binding: {
+					target: this,
+					key: 'activePreset',
+					initial: defaultPreset,
+				},
+				onChange: v => {
+					// @ts-expect-error	// todo
+					this.load(v.value)
+				},
+			})
+
+			presetSelectInput.on('open', () => {
+				this.#presetSnapshot = this.save('snapshot')
+			})
+			presetSelectInput.on('cancel', () => {
+				if (this.#presetSnapshot) {
+					this.load(this.#presetSnapshot)
+				}
+			})
+		})
 	}
 
 	#renamePreset(title: string) {
