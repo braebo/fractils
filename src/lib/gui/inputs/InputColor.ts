@@ -1,7 +1,7 @@
 import type { ColorComponentsElements } from '../controllers/color/ColorComponents'
 import type { ColorPickerElements } from '../controllers/color/ColorPicker'
+import type { ElementMap, InputOptions, InputPreset } from './Input'
 import type { ColorFormat } from '../../color/types/colorFormat'
-import type { ElementMap, InputOptions } from './Input'
 import type { Folder } from '../Folder'
 
 import { ColorComponents } from '../controllers/color/ColorComponents'
@@ -153,17 +153,21 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 			components: this.components.elements,
 		}
 
-		this.state.subscribe(v => {
-			this.refresh(v)
-			this._emit('change', v)
+		this.state.subscribe(_v => {
 			// this.callOnChange(v)
+			// if (first) return first = false
+			// throw new Error('Do not set state directly')
+			// throw new Error('Do not set state directly')
 		})
 
-		this.components.refresh()
+		// this.components.refresh()
 
 		setTimeout(() => {
 			this.expanded ? this.open() : this.close(0)
 		}, 10)
+
+		this._emit('change')
+		this.refresh()
 
 		this.listen(this.picker.element, 'onPointerDown', this.#lock.bind(this))
 		this.listen(this.picker.element, 'onPointerUp', this.#unlock.bind(this))
@@ -188,7 +192,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 				this.state.refresh()
 			},
 		})
-		this.refresh()
+		// this.refresh()
 	}
 
 	set(v: ColorFormat | Color) {
@@ -196,14 +200,29 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 			this.commit({
 				to: v.rgba as any,
 				from: this.state.value.rgba as any,
+				setter: v => {
+					this.state.value.set(v)
+					this.state.refresh()
+				},
 			})
 			this.state.set(new Color(v.hsva))
 		} else {
 			const newColor = new Color(v)
-			this.commit({ to: newColor.rgba as any, from: this.state.value.rgba as any })
+			this.commit({
+				to: newColor.rgba as any,
+				from: this.state.value.rgba as any,
+				setter: v => {
+					this.state.value.set(v)
+					this.state.refresh()
+				},
+			})
 			this.state.set(newColor)
 		}
 
+		const newValue = this.state.value
+
+		this._emit('change', newValue)
+		this.refresh(newValue)
 		return this
 	}
 
@@ -337,6 +356,12 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 	}
 	//⌟
 
+	//· Super Overrides ···································································¬
+
+	protected dirtyCheck() {
+		return this.state.value.hex8String !== this.initialValue.hex8String
+	}
+
 	enable() {
 		this.picker.enable()
 		super.enable()
@@ -348,6 +373,16 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		super.disable()
 		return this
 	}
+
+	save() {
+		return super.save({ value: this.state.value.hex8String })
+	}
+
+	load(json: string | InputPreset<ColorInputOptions>) {
+		const { value } = typeof json === 'string' ? JSON.parse(json) : json
+		this.set(new Color(value))
+	}
+	//⌟
 
 	dispose() {
 		this.#log.fn('dispose').debug({ this: this })
