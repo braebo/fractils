@@ -162,7 +162,7 @@ export class Color {
 	 * Calls all the registered {@link onChange} callbacks.
 	 */
 	#callOnChange = () => {
-		this.#onChangeListeners.forEach((callback) => callback(this))
+		this.#onChangeListeners.forEach(callback => callback(this))
 	}
 
 	/** i.e. `{ h: 261, s: 100, v: 47 }` */
@@ -357,7 +357,7 @@ export class Color {
 	}
 
 	get hex(): HexString {
-		return this.hexString
+		return this.hex8String
 	}
 	/** i.e. `'#5500ee'` */
 	get hexString(): HexString {
@@ -375,7 +375,7 @@ export class Color {
 
 		const [r, g, b, a = 255] = match
 			.slice(1)
-			.map((c) => parseHexInt(c.length === 1 ? `${c}${c}` : c))
+			.map(c => parseHexInt(c.length === 1 ? `${c}${c}` : c))
 
 		this.rgb = { r, g, b, a: +a / 255 }
 	}
@@ -415,6 +415,18 @@ export class Color {
 	}
 	set hslaString(value: HslaString | (string & {})) {
 		this.hslString = value
+	}
+
+	toString() {
+		return this.hex8String
+	}
+
+	toJSON() {
+		return {
+			isColor: true,
+			...this.rgba,
+			hex: this.hex8String,
+		}
 	}
 }
 
