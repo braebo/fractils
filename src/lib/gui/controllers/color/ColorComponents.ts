@@ -117,15 +117,14 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 			parent: componentsContainer,
 		})
 		this.listen(text, 'change', (e: Event) => {
-			let format = parseColorFormat((e.target as HTMLInputElement).value)
+			const target = e.target as HTMLInputElement
+			let format = parseColorFormat(target.value)
 			if (!format) return
 
 			// We need to make the first character lowercase to match the format names.
 			format = format[0].toLowerCase() + format.slice(1)
 			// @ts-ignore fuck off
-			this.input.state.value[format] = (e.target as HTMLInputElement).value
-			this.input.state.refresh()
-			this.input.refresh()
+			this.input.set(target.value)
 		})
 
 		if (this.#modeType() === 'text') {
@@ -211,7 +210,7 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 			this.color.hue = v
 		}
 		this.#locked = true
-		this.input.state.refresh()
+		this.input.refresh()
 	}
 
 	get b() {
@@ -224,7 +223,7 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 			this.color.saturation = v
 		}
 		this.#locked = true
-		this.input.state.refresh()
+		this.input.refresh()
 	}
 
 	get c() {
@@ -247,7 +246,7 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 			this.color.value = v
 		}
 		this.#locked = true
-		this.input.state.refresh()
+		this.input.refresh()
 	}
 
 	get d() {
@@ -256,7 +255,7 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 	set d(v: number) {
 		this.color.alpha = v
 		this.#locked = true
-		this.input.state.refresh()
+		this.input.refresh()
 	}
 
 	#modeType(): 'text' | 'numbers' {

@@ -211,13 +211,13 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 
 	set(v: ColorValue) {
 		this.input.state.value.set(v)
-		this.input.state.refresh()
+		this.input.refresh()
 		this.refresh()
 	}
 
 	setAlpha = (e: InputEvent) => {
 		this.input.state.value.alpha = Number((e.target as HTMLInputElement).value)
-		this.input.state.refresh()
+		this.input.refresh()
 	}
 
 	#lastColor: Color | undefined
@@ -305,7 +305,7 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 
 		const { s, v } = this.#getColorAtPosition(x, y)
 		this.input.state.value.hsv = { h: this.hue, s, v }
-		this.input.state.set(this.input.state.value)
+		this.input.set(this.input.state.value)
 
 		this.#drawHandle(this.#getHandlePosition(this.input.state.value))
 	}
@@ -335,7 +335,7 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 
 		const { s, v, a } = this.input.state.value.hsva
 		this.input.state.value.hsva = { h: hue, s, v, a }
-		this.input.state.set(this.input.state.value)
+		this.input.set(this.input.state.value)
 
 		this.input.undoManager.commit({
 			...commit,
