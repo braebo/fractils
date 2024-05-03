@@ -293,6 +293,9 @@ export abstract class Input<
 		this.#dirty = v
 		this.elements.resetBtn.classList.toggle('dirty', v)
 	}
+	protected dirtyCheck() {
+		return this.state.value !== this.initialValue
+	}
 
 	abstract set(v: TValueType): void
 
@@ -300,7 +303,7 @@ export abstract class Input<
 	 * Called from subclasses at the end of their `set` method to emit the `change` event.
 	 */
 	_emit(event: TEvents, v = this.state.value as TValueType) {
-		this.dirty = this.state.value != this.initialValue
+		this.dirty = this.dirtyCheck()
 		this.evm.emit(event, { value: v, input: this })
 		if (event === 'change') this.folder.evm.emit('change', { value: v, input: this })
 	}
@@ -381,7 +384,7 @@ export abstract class Input<
 	// 	}
 	// }
 
-	save() {
+	save(overrides: Partial<InputPreset<TOptions>> = {}) {
 		const preset: InputPreset<any> = {
 			type: this.type,
 			value: this.state.value,
@@ -392,7 +395,7 @@ export abstract class Input<
 
 		this.log.fn('save').debug(preset)
 
-		return preset
+		return Object.assign(preset, overrides)
 	}
 
 	load(json: InputPreset<TOptions> | string) {
