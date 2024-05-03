@@ -55,6 +55,7 @@ export interface ButtonItem extends ButtonItemOptions {
 	 * Text to display on the button.
 	 */
 	label: () => string
+	element: HTMLButtonElement
 }
 
 /**
@@ -131,19 +132,6 @@ export class InputButtonGrid extends Input<
 		this.#log = new Logger(`InputButtonGrid : ${opts.title}`, { fg: 'cyan' })
 		this.#log.fn('constructor').debug({ opts, this: this })
 
-		// if (opts.binding) {
-		// this.initialValue = opts.binding.target[opts.binding.key]
-		// this.state = state(this.initialValue)
-
-		// this.evm.add(
-		// 	this.state.subscribe(v => {
-		// 		opts.binding!.target[opts.binding!.key] = v
-		// 	}),
-		// )
-		// } else {
-		// this.state = state(opts.value!)
-		// }
-
 		const container = create('div', {
 			classes: ['fracgui-input', 'fracgui-input-buttongrid-container'],
 			parent: this.elements.content,
@@ -153,8 +141,6 @@ export class InputButtonGrid extends Input<
 			container,
 			buttonGrid: [],
 		} as const satisfies ButtonGridControllerElements
-
-		// this.evm.add(this.state.subscribe(this.refresh.bind(this)))
 
 		this.toGrid(this.buttonGrid)
 
