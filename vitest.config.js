@@ -13,7 +13,10 @@ export default defineConfig({
 		'import.meta.env.FRACTILS_LOG_LEVEL': JSON.stringify('info'),
 	},
 	test: {
-		environment: 'happy-dom',
+		environment: 'jsdom',
 		include: ['**/src/lib/**/*.test.ts'],
+		exclude: ['test/**.*', '**/scripts/**.*'],
+		setupFiles: './mocks.ts',
+		globals: true,
 	},
 })
