@@ -137,7 +137,7 @@ export class Tooltip {
 		public node: HTMLElement,
 		options?: Partial<TooltipOptions>,
 	) {
-		const opts = deepMerge(TOOLTIP_DEFAULTS, options)
+		const opts = deepMerge([TOOLTIP_DEFAULTS, options])
 		this.opts = opts
 
 		this.placement = opts.placement
