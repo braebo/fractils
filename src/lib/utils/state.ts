@@ -173,6 +173,10 @@ export function isState<T>(v: any): v is State<T> {
 	return v.isState === true
 }
 
+export function fromState<T>(state: T | State<T>) {
+	return (isState(state) ? state.value : state) as T
+}
+
 // //- Test cases
 // {
 // 	const numArray = state([1, 2, 3])
