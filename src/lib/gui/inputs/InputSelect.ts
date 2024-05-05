@@ -49,6 +49,7 @@ export class InputSelect<T> extends Input<
 	constructor(options: Partial<SelectInputOptions<T>>, folder: Folder) {
 		const opts = { ...SELECT_INPUT_DEFAULTS, ...options, type: 'Select' as const }
 		super(opts, folder)
+		this.#log = new Logger(`InputSelect : ${opts.title}`, { fg: 'cyan' })
 
 		this.evm.registerEvents(['change', 'preview', 'open', 'close', 'cancel'])
 

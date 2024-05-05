@@ -150,7 +150,7 @@ export class Folder {
 	constructor(options: FolderOptions, rootContainer: HTMLElement | null = null, instant = true) {
 		const opts = Object.assign({}, options)
 
-		this.#log = new Logger('Folder:' + opts.title, {
+		this.#log = new Logger('Folder : ' + opts.title, {
 			fg: 'DarkSalmon',
 			deferred: false,
 			server: false,

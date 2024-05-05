@@ -44,7 +44,7 @@ export class InputText extends Input<
 		const opts = { ...TEXT_INPUT_DEFAULTS, ...options, type: 'Text' as const }
 		super(opts, folder)
 
-		this.#log = new Logger(`InputText:${opts.title}`, { fg: 'cyan' })
+		this.#log = new Logger(`InputText : ${opts.title}`, { fg: 'cyan' })
 		this.#log.fn('constructor').debug({ opts, this: this })
 
 		if (opts.binding) {

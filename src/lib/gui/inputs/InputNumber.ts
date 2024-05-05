@@ -51,7 +51,7 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 		const opts = Object.assign({}, NUMBER_INPUT_DEFAULTS, options, { type: 'Number' as const })
 		super(opts, folder)
 
-		this.#log = new Logger(`InputNumber:${opts.title}`, { fg: 'cyan' })
+		this.#log = new Logger(`InputNumber : ${opts.title}`, { fg: 'cyan' })
 		this.#log.fn('constructor').debug({ opts, this: this })
 
 		if (opts.binding) {
