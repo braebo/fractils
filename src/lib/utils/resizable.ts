@@ -43,14 +43,15 @@ export type Corner = 'top-left' | 'top-right' | 'bottom-right' | 'bottom-left'
  * Options for the {@link resizable} action.
  */
 export interface ResizableOptions {
+	type?: 'ResizableOptions'
 	/**
 	 * To only allow resizing on certain sides, specify them here.
-	 * @defaultValue ['right']
+	 * @defaultValue ['right', 'bottom']
 	 */
 	sides: Side[]
 	/**
 	 * To only allow resizing on certain corners, specify them here.
-	 * @defaultValue []
+	 * @defaultValue ['bottom-right']
 	 */
 	corners: ('top-left' | 'top-right' | 'bottom-right' | 'bottom-left')[]
 	/**
