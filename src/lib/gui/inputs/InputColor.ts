@@ -107,7 +107,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 		this.expanded = opts.expanded
 		this.#mode = opts.mode
-		this.#log = new Logger(`InputColor:${opts.title}`, { fg: 'cyan' })
+		this.#log = new Logger(`InputColor : ${opts.title}`, { fg: 'cyan' })
 		this.#log.fn('constructor').debug({ opts, this: this }).groupEnd()
 
 		//? Initialize state.
