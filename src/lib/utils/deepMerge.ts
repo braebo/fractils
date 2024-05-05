@@ -1,14 +1,28 @@
 /**
  * Deep merges objects together, with some special rules:
- * - Arrays are concatenated and de-duplicated.
+ * - Arrays are concatenated and de-duplicated unless {@link DeepMergeOptions.concatArrays|`concatArrays`} is `false`.
  * - Objects are recursively merged.
  * - `false` is only replaced with `true`
  * - An object is never replaced with `true`, `false`, or `undefined`.
  * - The original objects are not mutated.
  * - `undefined` is always overwritten.
  * - `0` is accepted.
+ * @todo More options would be nice.
  */
-export function deepMerge<T, U>(target: T, ...sources: U[]): T & U {
+export function deepMerge<T, U>(
+	objects: [target: T, ...sources: U[]],
+	options?: {
+		/**
+		 * If `true`, arrays are concatenated and de-duplicated.
+		 * If `false`, arrays are replaced.
+		 * @default false
+		 */
+		concatArrays?: boolean
+	},
+): T & U {
+	const [target, ...sources] = objects
+	const { concatArrays = true } = options ?? {}
+
 	return sources.reduce<T & U>(
 		(acc, curr) => {
 			if (!curr) return acc
@@ -20,11 +34,15 @@ export function deepMerge<T, U>(target: T, ...sources: U[]): T & U {
 				const newV = curr[k as keyof U] as (T & U)[keyof T & U] | undefined
 
 				if (Array.isArray(v) && Array.isArray(newV)) {
-					acc[k] = [...new Set([...v, ...newV])] as (T & U)[keyof T & U]
+					if (concatArrays) {
+						acc[k] = [...new Set([...v, ...newV])] as (T & U)[keyof T & U]
+					} else {
+						acc[k] = newV
+					}
 				} else if (v && typeof v === 'object') {
 					if (newV !== true) {
 						if (newV && typeof newV === 'object') {
-							acc[k] = deepMerge({ ...v }, newV)
+							acc[k] = deepMerge([{ ...v }, newV], options)
 						} else if (newV || newV === false) {
 							acc[k] = newV
 						}
