@@ -15,7 +15,14 @@ export type ButtonInputOptions = InputOptions<ButtonClickFunction> & {
 	type?: 'Button'
 	title: string
 	text: string | (() => string)
-	onClick?: () => void
+	/**
+	 * The function to call when the button is clicked.
+	 */
+	value?: ButtonClickFunction
+	/**
+	 * An alias for {@link value} (does the same thing).
+	 */
+	onClick?: ButtonClickFunction
 }
 
 export const BUTTON_INPUT_DEFAULTS: ButtonInputOptions = {
@@ -51,7 +58,15 @@ export class InputButton extends Input<
 		this.#log = new Logger(`InputButton : ${opts.title}`, { fg: 'cyan' })
 		this.#log.fn('constructor').debug({ opts, this: this })
 
-		if (opts.onClick) this.onClick = opts.onClick
+		if (opts.value) this.onClick = opts.value
+		else if (opts.onClick) this.onClick = opts.onClick
+		else {
+			if (DEV) {
+				console.error(
+					`${this.title} created with no onClick function. Use the 'value' or 'onClick' property to assign one.`,
+				)
+			}
+		}
 
 		const container = create('div', {
 			classes: ['fracgui-input-button-container'],
@@ -85,6 +100,8 @@ export class InputButton extends Input<
 	 */
 	click() {
 		this.button.click()
+		this._emit('click')
+		this._emit('change')
 	}
 
 	enable() {
