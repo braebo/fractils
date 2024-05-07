@@ -1,24 +1,39 @@
-import type { LabeledOption, Option } from '../controllers/Select'
+import type { LabeledOption } from '../controllers/Select'
 import type { ElementMap, InputOptions } from './Input'
 import type { State } from '../../utils/state'
 import type { Folder } from '../Folder'
 
 import { isLabeledOption, Select, toLabeledOption, fromLabeledOption } from '../controllers/Select'
-import { isState, state } from '../../utils/state'
+import { fromState, isState, state } from '../../utils/state'
+import { stringify } from '$lib/utils/stringify'
 import { Logger } from '../../utils/logger'
 import { create } from '../../utils/create'
+import { toFn } from '../shared/toFn'
+import { b } from '$lib/utils/l'
 import { Input } from './Input'
 
-export type SelectInputOptions<T> = {
+export type SelectInputOptions<T = unknown> = Omit<
+	InputOptions<T | { label: string; value: T }>,
+	'onChange' | 'value'
+> & {
 	type?: 'Select'
-	title: string
-	options: T[]
-} & InputOptions<Option<unknown>>
+	onChange?: (value: LabeledOption<T>) => void
+} & (
+		| {
+				labelKey?: never
+				value?: { label: string; value: T }
+				options: { label: string; value: T }[] | (() => { label: string; value: T }[])
+		  }
+		| {
+				labelKey: keyof T
+				value?: T
+				options: T[] | (() => T[])
+		  }
+	)
 
-export const SELECT_INPUT_DEFAULTS: SelectInputOptions<Option<any>> = {
+export const SELECT_INPUT_DEFAULTS: SelectInputOptions = {
 	type: 'Select' as const,
 	title: '',
-	value: '',
 	options: [],
 } as const
 
@@ -27,77 +42,79 @@ export interface SelectControllerElements<T> extends ElementMap {
 	select: Select<T>['elements']
 }
 
-export class InputSelect<T> extends Input<
-	Option<T>,
+export class InputSelect<T = unknown> extends Input<
+	LabeledOption<T>,
 	SelectInputOptions<T>,
 	SelectControllerElements<T>,
 	'change' | 'preview' | 'open' | 'close' | 'cancel'
 > {
 	type = 'Select' as const
 	initialValue: LabeledOption<T>
-	state: State<Option<T>>
-	on = this.evm.on
-
+	state: State<LabeledOption<T>>
+	#options: SelectInputOptions['options']
+	set options(v: SelectInputOptions['options']) {
+		this.#options = toFn(v)
+	}
+	get options(): LabeledOption<T>[] {
+		return this.resolveOptions(this.#options)
+	}
+	/**
+	 * The select controller instance.
+	 */
 	select: Select<T>
 
 	/**
 	 * A latch for event propagation. Toggled off everytime an event aborted.
 	 */
 	#stopPropagation = true
+	/**
+	 * The currently selected option as a labeled option.
+	 */
+	labeledSelection: LabeledOption<T>
 	#log: Logger
 
 	constructor(options: Partial<SelectInputOptions<T>>, folder: Folder) {
-		const opts = { ...SELECT_INPUT_DEFAULTS, ...options, type: 'Select' as const }
+		const opts = Object.assign({}, SELECT_INPUT_DEFAULTS as SelectInputOptions<T>, options, {
+			type: 'Select' as const,
+		})
+
+		const YEET = (str: string, ...args: any[]) => {
+			if (this.title === 'theme') this.#log.debug(b(str), ...args)
+		}
+
 		super(opts, folder)
+
 		this.#log = new Logger(`InputSelect : ${opts.title}`, { fg: 'cyan' })
+		this.#log.fn('constructor').debug({ opts, this: this })
 
 		this.evm.registerEvents(['change', 'preview', 'open', 'close', 'cancel'])
 
-		this.#log = new Logger(`InputSelect:${opts.title}`, { fg: 'cyan' })
-		this.#log.fn('constructor').debug({ opts, this: this })
+		opts.value ??= opts.binding?.initial ?? fromState(this.targetValue)
+		this.initialValue = this.resolveInitialValue(opts)
+		YEET('this.initialValue', this.initialValue)
+		YEET('opts.value', opts.value)
 
-		// The idea here is that we can bind to a value, a `state` instance, a
-		// labeled option, or a labaled option with a `state` instance value.
-		if (opts.binding) {
-			this.bound = true
-			const v = opts.binding?.initial ?? (opts.binding.target[opts.binding.key] as Option<T>)
-
-			if (isState(v)) {
-				this.initialValue = toLabeledOption(v.value as T)
-				this.state = v as State<Option<T>>
-			} else {
-				if (isLabeledOption(v)) {
-					if (isState(v.value)) {
-						this.initialValue = {
-							label: v.label,
-							value: v.value.value as T,
-						}
-						this.state = v.value as State<Option<T>>
-					} else {
-						this.initialValue = v as LabeledOption<T>
-						this.state = state(v) as State<Option<T>>
-					}
-				} else {
-					this.initialValue = toLabeledOption(v as T)
-					this.state = this.resolveState(this.initialValue)
-				}
-			}
-		} else {
-			const v = opts.value as T
-			this.state = this.resolveState(v)
-			this.initialValue = toLabeledOption(this.state.value as T)
+		this.labeledSelection = {
+			value: fromLabeledOption(this.initialValue),
+			label: this.resolveInitialLabel(this.initialValue, opts),
 		}
+		YEET('this.labeledSelection', this.labeledSelection)
+		YEET('opts.options', opts.options)
+
+		this.#options = this.opts.options
+
+		this.state = state(this.initialValue)
 
 		const container = create('div', {
 			classes: ['fracgui-input-select-container'],
 			parent: this.elements.content,
 		})
 
-		this.select = new Select<T>({
+		this.select = new Select({
 			input: this,
 			container,
-			options: opts.options,
-			selected: this.initialValue,
+			options: this.options,
+			selected: this.labeledSelection,
 			title: this.title,
 			disabled: this.disabled,
 		})
@@ -107,44 +124,44 @@ export class InputSelect<T> extends Input<
 			select: this.select.elements,
 		} as const satisfies SelectControllerElements<T>
 
-		const bound = this.bound
 		this.evm.add(
 			this.state.subscribe(v => {
 				if (!this.select.bubble) return
 
+				if (this.targetObject) {
+					if (isState(this.targetValue)) {
+						this.#log
+							.fn('updating binding')
+							.debug({ from: this.targetValue.value, to: v.value })
+						this.targetValue.set(v.value)
+					} else {
+						this.targetValue = v.value
+					}
+				}
+
 				if (this.#stopPropagation) {
 					this.#stopPropagation = false
 					this.#log
-						.fn('bound $state')
+						.fn('state.subscribe')
 						.debug('Stopped propagation.  Subscribers will not be notified.')
 					return
 				}
 
-				if (bound) {
-					this.targetValue = (v as LabeledOption<T>).value
-				}
-
-				this.#log.fn('bound $state').debug({ v, this: this })
-				// @ts-expect-error - // todo
 				this.set(v)
 			}),
 		)
 
 		if (options.onChange) {
 			this.evm.on('change', () => {
-				options.onChange!(toLabeledOption(this.state.value as T))
+				options.onChange?.(toLabeledOption(this.state.value))
 			})
 		}
 
 		// Bind our state to the select controller.
 		this.select.onChange(v => {
+			this.#log.fn('select.onChange').debug(v)
 			// Make sure the select controller doesn't react to its own changes.
 			this.#stopPropagation = true
-			this.targetValue = v.value
-			// console.warn(v)
-			// console.warn(this.state.value)
-			// console.error('select.onChange()', v)
-			this.#log.fn('select.onChange').debug(v)
 			this.set(v)
 		})
 
@@ -160,35 +177,64 @@ export class InputSelect<T> extends Input<
 		this.listen(this.select.element, 'cancel', () => {
 			this._emit('cancel')
 		})
+
+		this.#log.fn('constructor').debug({ this: this })
 	}
 
-	resolveState(v: T | Option<T> | State<T> | Option<State<T>>): State<Option<T>> {
-		this.#log.fn('resolveState').debug(v)
-		if (isState(v)) {
-			this.#log.fn('resolveState').debug('Value is already state... returning unmodified.')
-			return v as State<Option<T>>
+	resolveOptions(providedOptions: SelectInputOptions['options']): LabeledOption<T>[] {
+		function isLabeledOptionsArray(v: any): v is LabeledOption<T>[] {
+			return isLabeledOption(v[0])
 		}
 
-		if (isLabeledOption(v)) {
-			if (isState(v.value)) {
-				this.#log
-					.fn('resolveState')
-					.debug(
-						"Value is a labeled option who's value is a state instance.  Returning `option.value`.",
-					)
-				return v.value as State<Option<T>>
+		let selectOptions = toFn(providedOptions)() as T[] | LabeledOption<T>[]
+
+		if (!isLabeledOptionsArray(selectOptions)) {
+			if (!this.opts.labelKey) {
+				throw new Error(
+					'Recieved unlabeled options with no `labelKey` specified.  Please label your options or provide the `labelKey` to use as a label.',
+				)
 			}
 
-			this.#log
-				.fn('resolveState')
-				.debug('Value is a non-state labeled option.  Wrapping in state.')
-			return state(v.value) as State<Option<T>>
+			return selectOptions.map(o => ({
+				label: o[this.opts.labelKey!] as string,
+				value: o,
+			}))
 		}
 
-		this.#log
-			.fn('resolveState')
-			.debug('Value is a non-labeled, non-state option.  Wrapping in state.')
-		return state(v) as State<Option<T>>
+		return selectOptions
+	}
+
+	resolveInitialValue(opts: SelectInputOptions<T>) {
+		const value = opts.binding ? opts.binding.target[opts.binding.key] : opts.value!
+		const v = fromState(value)
+		if (!isLabeledOption(v)) {
+			if (!opts.labelKey) {
+				throw new Error(
+					'Cannot resolve initial value.  Please provide a `labelKey` or use labeled options.',
+				)
+			}
+
+			return {
+				label: v[opts.labelKey],
+				value: v,
+			}
+		}
+
+		return v
+	}
+
+	resolveInitialLabel(initialValue: this['initialValue'], opts: SelectInputOptions<T>): string {
+		const v = isState(initialValue) ? initialValue.value : initialValue
+
+		if (isLabeledOption(v)) {
+			return v.label
+		}
+
+		if (opts.labelKey) {
+			return initialValue[opts.labelKey as keyof this['initialValue']] as string
+		}
+
+		return stringify(v)
 	}
 
 	get targetObject() {
@@ -220,20 +266,17 @@ export class InputSelect<T> extends Input<
 				to[tk] = v
 			}
 		}
-
-		// if (this.select.expanded) {
-		// 	this._emit('preview')
-		// } else {
-		// 	this._emit('change')
-		// }
 	}
 
-	set(v = this.state.value as Option<T>) {
-		this.#log.fn('set').info()
-		this.select.select(v as T, false)
-		// @ts-expect-error - // todo
-		this.state.set(v as Option<T>)
-		this._emit('change', v as T)
+	/**
+	 * Selects the option with the given value.
+	 */
+	set(value: LabeledOption<T>) {
+		this.#log.fn('set').debug(value)
+
+		this.select.select(value, false)
+		this.state.set(value)
+		this._emit('change', value)
 		return this
 	}
 
@@ -253,11 +296,19 @@ export class InputSelect<T> extends Input<
 
 	refresh = () => {
 		const v = this.state.value
-		this.#log.fn('refresh').info({ v, this: this })
+		this.#log.fn('refresh').debug({ v, this: this })
 
-		this.select.select(v as T, false)
+		if (!this.labeledSelection) {
+			throw new Error('Failed to find labeled selection.')
+		}
 
-		super.refresh(v as T)
+		const newOptions = this.options.filter(o => !this.select.options.includes(o))
+		for (const option of newOptions) {
+			this.select.add(option)
+		}
+		this.select.select(this.labeledSelection, false)
+
+		super.refresh()
 		return this
 	}
 

@@ -35,9 +35,7 @@ export interface SelectInputOptions<T> {
 	 * An optional key on each {@link Option} to use as the `label` when
 	 * converting to a {@link LabeledOption}.
 	 */
-	labelKey?: string
-	/** Just used internally for the logger label. */
-	title?: string
+	labelKey?: T extends Record<infer K, any> ? K : never
 	/**
 	 * When `true`, options will be automatically selected when a user
 	 * hovers over them in the dropdown.  If none are selected, the
@@ -45,6 +43,11 @@ export interface SelectInputOptions<T> {
 	 * @default true
 	 */
 	selectOnHover?: boolean
+	/**
+	 * Just used internally for the logger label.
+	 * @internal
+	 */
+	title?: string
 }
 
 export type SelectElements = {
@@ -123,7 +126,7 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 		this.opts = opts
 
 		if (options?.title) {
-			this.#log = new Logger('Select:' + options.title, { fg: 'bisque' })
+			this.#log = new Logger(`Select : ${options.title}`, { fg: 'burlywood' })
 		} else {
 			this.#log = new Logger('Select', { fg: 'blueviolet' })
 		}
@@ -145,10 +148,7 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 
 		this.listen(selected, 'click', this.toggle.bind(this))
 
-		const dropdown = create('div', {
-			classes: ['fracgui-controller-select-dropdown'],
-			// parent: document.body
-		})
+		const dropdown = create('div', { classes: ['fracgui-controller-select-dropdown'] })
 
 		this.elements = {
 			container,
@@ -250,7 +250,7 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 	}
 
 	select(
-		v: Option<T> | Event,
+		v: LabeledOption<T> | Event,
 		/**
 		 * When `false`, the select controller won't call {@link onChange}
 		 * to notify the parent Input or other listeners of the change.
@@ -299,6 +299,7 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 	 * Updates the UI to reflect the current state of the source color.
 	 */
 	refresh = () => {
+		this.#log.fn('refresh').debug({ this: this })
 		// Make sure the selected value text is in the selected div.
 		this.elements.selected.textContent = this.selected.label
 		return this
@@ -322,7 +323,7 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 	 */
 	open() {
 		this.expanded = true
-		this.opts.input.folder.root.wrapper.appendChild(this.elements.dropdown)
+		this.opts.input.folder.gui!.wrapper.appendChild(this.elements.dropdown)
 		this.elements.dropdown.classList.add('expanded')
 		this.elements.selected.classList.add('active')
 		this.updatePosition()
@@ -466,12 +467,14 @@ export function toLabeledOption<T>(v: Option<T>): LabeledOption<T> {
 
 	if (['string', 'number'].includes(typeof v)) {
 		return {
-			label: v,
+			label: String(v),
 			value: v,
 		} as LabeledOption<T>
 	}
 
 	if (isState(v)) {
+		if (isLabeledOption(v.value)) return v.value as LabeledOption<T>
+
 		return {
 			label: String(v.value),
 			value: v,
@@ -491,7 +494,8 @@ export function toLabeledOption<T>(v: Option<T>): LabeledOption<T> {
 		'. Please provide a named option ({ label: string, value: T })' +
 			'and place your value in the `value` property.',
 	)
-	throw new Error('Missing label:' + JSON.stringify(v))
+
+	throw new Error('Missing label:' + JSON.stringify(v), { cause: { v } })
 }
 
 export function fromLabeledOption<T>(v: Option<T> | State<Option<T>>): T {
