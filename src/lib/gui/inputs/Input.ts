@@ -1,6 +1,6 @@
-import type { InputButton, ButtonInputOptions, ButtonClickFunction } from './InputButton'
 import type { InputButtonGrid, ButtonGridInputOptions } from './InputButtonGrid'
 import type { InputTextArea, TextAreaInputOptions } from './InputTextArea'
+import type { InputButton, ButtonInputOptions } from './InputButton'
 import type { InputSwitch, SwitchInputOptions } from './InputSwitch'
 import type { InputSelect, SelectInputOptions } from './InputSelect'
 import type { InputNumber, NumberInputOptions } from './InputNumber'
@@ -15,6 +15,7 @@ import type { Color } from '../../color/color'
 import type { Folder } from '../Folder'
 
 import { EventManager } from '../../utils/EventManager'
+import { isState, state } from '../../utils/state'
 import { create } from '../../utils/create'
 import { Logger } from '../../utils/logger'
 import { keys } from '../../utils/object'
@@ -36,7 +37,7 @@ export const INPUT_TYPE_MAP = Object.freeze({
 
 export const INPUT_TYPES = Object.freeze(keys(INPUT_TYPE_MAP))
 
-export type BindTarget = Record<string, any>
+export type BindTarget = Record<any, any>
 export type BindableObject<T extends BindTarget, K extends keyof T = keyof T> = {
 	target: T
 	key: K
@@ -47,6 +48,7 @@ export type BindableObject<T extends BindTarget, K extends keyof T = keyof T> = 
  * The initial value of an input can be either a raw value, or a "binding"
  */
 export type ValueOrBinding<TValue = ValidInputValue, TBindTarget extends BindTarget = BindTarget> =
+	// todo - this is silly
 	| {
 			value: TValue
 			binding?: BindableObject<TBindTarget>
@@ -58,23 +60,22 @@ export type ValueOrBinding<TValue = ValidInputValue, TBindTarget extends BindTar
 	| {
 			value?: TValue
 			binding?: { target: TBindTarget; key: keyof TBindTarget; initial?: TValue }
-			onClick: ButtonClickFunction
 	  }
 	| {
-			value?: TValue
+			value: TValue
 			binding?: { target: TBindTarget; key: keyof TBindTarget; initial?: TValue }
-			onClick?: ButtonClickFunction
-			// grid: ButtonGrid
 	  }
+// | {
+// 		type?: 'Select'
+// 		value: TValue | {label: string, value: TValue }
+// 		binding?: { target: TBindTarget; key: keyof TBindTarget; initial?: TValue }
+// 		options: (TValue | LabeledOption<TValue>)[]
+//   }
 
 export type InputOptions<
 	TValue = ValidInputValue,
-	TBindTarget extends BindTarget = Record<string, any & TValue>,
+	TBindTarget extends BindTarget = Record<any, any & TValue>,
 > = {
-	/**
-	 * The type of input.
-	 */
-	type?: InputType
 	/**
 	 * The title displayed to the left of the input.
 	 */
@@ -143,7 +144,6 @@ export abstract class Input<
 > {
 	abstract state: State<TValueType>
 	abstract initialValue: ValidInputValue
-	// declare events: TEvents
 
 	readonly type: InputType
 	opts: TOptions
@@ -237,8 +237,6 @@ export abstract class Input<
 			parent: this.elements.content,
 		})
 
-		// this.evm.registerEvents()
-
 		this.evm.listen(this.elements.drawerToggle, 'click', () => {
 			console.warn('todo')
 		})
@@ -246,8 +244,6 @@ export abstract class Input<
 		if ('onChange' in options) {
 			this.evm.on('change', options.onChange as (value: TValueType) => void)
 		}
-
-		// this.#log.groupCollapsed().fn('constructor').info({ opts: options, this: this })
 	}
 
 	get value() {
@@ -255,7 +251,7 @@ export abstract class Input<
 	}
 
 	get undoManager() {
-		return this.folder.root.undoManager
+		return this.folder.gui?.undoManager
 	}
 
 	get title() {
@@ -299,13 +295,35 @@ export abstract class Input<
 
 	abstract set(v: TValueType): void
 
+	protected resolveState<T = TValueType>(opts: TOptions): State<T> {
+		if (opts.binding) {
+			const s = state<T>(opts.binding.target[opts.binding.key])
+
+			this.evm.add(
+				s.subscribe(v => {
+					opts.binding!.target[opts.binding!.key] = v
+				}),
+			)
+
+			return s
+		} else {
+			this.initialValue = opts.value!
+			return state<T>(opts.value!)
+		}
+	}
+
+	protected resolveInitialValue(opts: TOptions) {
+		const value = opts.binding ? opts.binding.target[opts.binding.key] : opts.value!
+		return isState(value) ? value.value : value
+	}
+
 	/**
 	 * Called from subclasses at the end of their `set` method to emit the `change` event.
 	 */
 	_emit(event: TEvents, v = this.state.value as TValueType) {
 		this.dirty = this.dirtyCheck()
-		this.evm.emit(event, { value: v, input: this })
-		if (event === 'change') this.folder.evm.emit('change', { value: v, input: this })
+		this.evm.emit(event, v)
+		if (event === 'change') this.folder.evm.emit('change', v)
 	}
 
 	/**
@@ -328,61 +346,45 @@ export abstract class Input<
 		this.commit(commit)
 	}
 
+	/**
+	 * Commits a change to the input's value to the undo manager.
+	 */
 	commit(commit: Partial<Commit>) {
 		commit.from = this.state.value
 		if (this.undoLock) return
-		this.undoManager.commit<TValueType>({
+		this.undoManager?.commit<TValueType>({
 			input: this,
 			...commit,
 		} as Commit)
 	}
 
+	/**
+	 * Enables the input and any associated controllers.
+	 */
 	enable() {
 		this.#disabled = toFn(false)
 		return this
 	}
+	/**
+	 * Disables the input and any associated controllers. A disabled input's state can't be
+	 * changed or interacted with.
+	 */
 	disable() {
 		this.#disabled = toFn(true)
 		return this
 	}
 
-	// /**
-	//  * Refreshes the value of any controllers to match the current input state.
-	//  *! todo - This is wrong!! It should likely be abstract now...
-	//  */
+	/**
+	 * Refreshes the value of any controllers to match the current input state.
+	 */
 	refresh(v = this.state.value as TValueType) {
-		this.evm.emit('refresh', { value: v, input: this })
+		this.evm.emit('refresh', v)
 
 		return this
 	}
 
-	// todo - Make `state` private (#) and enforce using `Input.value` and `Input.update` to make sure out `callOnChange` is called by subclasses?
-	// todo - Or maybe just call `onChange` in `_afterSet`?
-
-	// /**
-	//  * Updates the input state and calls the `state.refresh` method.
-	//  */
-	// protected update(v: (currentValue: TValueType) => TValueType) {
-	// 	const newValue = v(this.state.value as TValueType)
-	// 	this.state.set(newValue as ValidInputValue)
-	// 	this.state.refresh()
-	// 	// this.callOnChange(newValue)
-	// 	this.evm.emit('change', v, this)
-	// }
-
 	listen = this.evm.listen
 	on = this.evm.on
-
-	// protected onChangeListeners = new Set<(newValue: TValueType, input: Input) => unknown>()
-	// protected callOnChange(v = this.state.value) {
-	// 	if (this.#firstUpdate) {
-	// 		this.#firstUpdate = false
-	// 		this.log
-	// 			.fn('callOnChange')
-	// 			.debug('Skipping initial update (subscribers will not be notified).')
-	// 		return
-	// 	}
-	// }
 
 	save(overrides: Partial<InputPreset<TOptions>> = {}) {
 		const preset: InputPreset<any> = {
