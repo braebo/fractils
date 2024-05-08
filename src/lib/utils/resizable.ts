@@ -43,7 +43,7 @@ export type Corner = 'top-left' | 'top-right' | 'bottom-right' | 'bottom-left'
  * Options for the {@link resizable} action.
  */
 export interface ResizableOptions {
-	type?: 'ResizableOptions'
+	__type?: 'ResizableOptions'
 	/**
 	 * To only allow resizing on certain sides, specify them here.
 	 * @defaultValue ['right', 'bottom']
@@ -135,6 +135,7 @@ export interface ResizableOptions {
 }
 
 export const RESIZABLE_DEFAULTS: ResizableOptions = {
+	__type: 'ResizableOptions' as const,
 	sides: ['right', 'bottom'],
 	corners: ['bottom-right'],
 	grabberSize: 6,
@@ -185,19 +186,10 @@ export const RESIZABLE_DEFAULTS: ResizableOptions = {
  * ```
  */
 export class Resizable {
+	static readonly type = 'Resizable' as const
 	static initialized = false
 	id = nanoid(8)
 	opts: ResizableOptions
-
-	// sides!: ResizableOptions['sides']
-	// corners!: ResizableOptions['corners']
-	// color!: ResizableOptions['color']
-	// visible!: ResizableOptions['visible']
-	// borderRadius!: ResizableOptions['borderRadius']
-	// grabberSize!: ResizableOptions['grabberSize']
-	// onResize!: ResizableOptions['onResize']
-	// cursors!: ResizableOptions['cursors']
-	// classes!: ResizableOptions['classes']
 
 	bounds: HTMLElement
 	obstacleEls: HTMLElement[]
@@ -215,7 +207,7 @@ export class Resizable {
 		public node: HTMLElement,
 		options?: Partial<ResizableOptions>,
 	) {
-		this.opts = deepMerge(RESIZABLE_DEFAULTS, options)
+		this.opts = deepMerge([RESIZABLE_DEFAULTS, options], { concatArrays: false })
 
 		const label = this.localStorageKey ? gr(':' + this.localStorageKey) : ''
 		this.#log = new Logger('resizable:' + label, {
@@ -301,54 +293,6 @@ export class Resizable {
 	}
 
 	clickOffset = { x: 0, y: 0 }
-
-	// getClosestObstLeft = () => {
-	// 	let closestObst = -Infinity
-	// 	for (const obstacle of this.obstacleEls) {
-	// 		const o = obstacle.getBoundingClientRect()
-	// 		// too high || too low || opposite side
-	// 		if (this.rect.top > o.bottom || this.rect.bottom < o.top || this.rect.left < o.right)
-	// 			continue
-	// 		closestObst = Math.max(closestObst, o.right)
-	// 	}
-	// 	return closestObst
-	// }
-
-	// getClosestObstRight = () => {
-	// 	let closestObst = Infinity
-	// 	for (const obstacle of this.obstacleEls) {
-	// 		const o = obstacle.getBoundingClientRect()
-	// 		// too high || too low || opposite side
-	// 		if (this.rect.top > o.bottom || this.rect.bottom < o.top || this.rect.right > o.left)
-	// 			continue
-	// 		closestObst = Math.min(closestObst, o.left)
-	// 	}
-	// 	return closestObst
-	// }
-
-	// getClosestObstTop = () => {
-	// 	let closestObst = -Infinity
-	// 	for (const obstacle of this.obstacleEls) {
-	// 		const o = obstacle.getBoundingClientRect()
-	// 		// too high || too low || opposite side
-	// 		if (this.rect.left > o.right || this.rect.right < o.left || this.rect.top < o.bottom)
-	// 			continue
-	// 		closestObst = Math.max(closestObst, o.bottom)
-	// 	}
-	// 	return closestObst
-	// }
-
-	// getClosestObstBottom = () => {
-	// 	let closestObst = Infinity
-	// 	for (const obstacle of this.obstacleEls) {
-	// 		const o = obstacle.getBoundingClientRect()
-	// 		// too high || too low || opposite side
-	// 		if (this.rect.left > o.right || this.rect.right < o.left || this.rect.bottom > o.top)
-	// 			continue
-	// 		closestObst = Math.min(closestObst, o.top)
-	// 	}
-	// 	return closestObst
-	// }
 
 	onGrab = (e: PointerEvent) => {
 		this.node.setPointerCapture(e.pointerId)
@@ -517,7 +461,7 @@ export class Resizable {
 		const y = e.clientY - this.clickOffset.y
 
 		const { side } = this.#activeGrabber.dataset
-		this.#log.fn('onMove').debug(side)
+		this.#log.fn('onMove').info(side)
 
 		switch (side) {
 			case 'top-left':
@@ -704,7 +648,6 @@ export class Resizable {
 		styleEl.innerHTML = css
 
 		document.head.appendChild(styleEl)
-		this.#log.debug('Initialized global styles.')
 	}
 
 	dispose() {
@@ -713,4 +656,10 @@ export class Resizable {
 		}
 		this.#cleanupGrabListener?.()
 	}
+}
+
+export function isResizableOptions<T extends Record<string, any>>(
+	opts: T,
+): opts is T & ResizableOptions {
+	return '__type' in opts && opts['__type'] === 'ResizableOptions'
 }

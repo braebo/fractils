@@ -67,6 +67,7 @@ export type DragEventData = {
 }
 
 export type DraggableOptions = {
+	__type?: 'DraggableOptions'
 	/**
 	 * The boundary to which the draggable element is limited to.
 	 *
@@ -238,6 +239,7 @@ const DEFAULT_CLASSES = {
 } as const
 
 export const DRAG_DEFAULTS: DraggableOptions = {
+	__type: 'DraggableOptions',
 	bounds: 'body',
 	axis: 'both',
 	userSelectNone: true,
@@ -391,7 +393,7 @@ export class Draggable {
 		public node: HTMLElement,
 		options?: Partial<DraggableOptions>,
 	) {
-		this.opts = deepMerge(DRAG_DEFAULTS, options)
+		this.opts = deepMerge([DRAG_DEFAULTS, options])
 
 		this.#log = new Logger('draggable:' + this.node.classList[0], {
 			fg: 'SkyBlue',
