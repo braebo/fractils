@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import type { ColorFormat } from '$lib/color/types/colorFormat'
 import type { StandardPropertiesHyphen } from 'csstype'
 import type { ValidInput } from '$lib/gui/inputs/Input'
@@ -39,14 +41,7 @@ const DIV_TWEAKER_DEFAULTS: DivTweakerOptions = {
 export class DivTweaker {
 	gui!: Gui
 	opts!: DivTweakerOptions
-	params = {
-		// background: {
-		// 	value: new Color('#020305'),
-		// 	update: (value: Color) => {
-		// 		this.node.style.setProperty('background', value.hex8String)
-		// 	},
-		// } as const,
-	} as const
+	params = {} as const
 	#computedStyle!: CSSStyleDeclaration
 
 	constructor(
@@ -58,21 +53,14 @@ export class DivTweaker {
 			return
 		}
 
-		this.opts = deepMerge(DIV_TWEAKER_DEFAULTS, options)
+		this.opts = deepMerge([DIV_TWEAKER_DEFAULTS, options])
 
 		this.gui = new Gui({
 			title: 'Page Tweaker',
 			container: options?.container ?? document.body,
 			storage: undefined,
 			closed: false,
-			// placement: {
-			// 	position: 'bottom-center',
-			// },
 			windowManager: false,
-			// windowManagerOptions: {
-			// 	draggable: false,
-			// 	resizable: false,
-			// },
 			themer: true,
 		})
 

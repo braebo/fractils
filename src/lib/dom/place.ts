@@ -1,4 +1,4 @@
-import { select, type ElementOrSelector } from '$lib/utils/select'
+import { select, type ElementOrSelector } from '../utils/select'
 
 export type Placement = 'center' | `${TBC}-${LRC}` | `${LRC}-${TBC}`
 

@@ -16,26 +16,28 @@ import type { Folder } from '../Folder'
 
 import { EventManager } from '../../utils/EventManager'
 import { isState, state } from '../../utils/state'
+import { keys, values } from '../../utils/object'
 import { create } from '../../utils/create'
 import { Logger } from '../../utils/logger'
-import { keys } from '../../utils/object'
 import { toFn } from '../shared/toFn'
 
 //· Types ··············································································¬
 export type InputType = (typeof INPUT_TYPES)[number]
+export type InputOptionType = (typeof INPUT_OPTION_TYPES)[number]
 
 export const INPUT_TYPE_MAP = Object.freeze({
-	Text: 'Text',
-	TextArea: 'TextArea',
-	Number: 'Number',
-	Color: 'Color',
-	Select: 'Select',
-	Button: 'Button',
-	ButtonGrid: 'ButtonGrid',
-	Switch: 'Switch',
+	InputText: 'TextInputOptions',
+	InputTextArea: 'TextAreaInputOptions',
+	InputNumber: 'NumberInputOptions',
+	InputColor: 'ColorInputOptions',
+	InputSelect: 'SelectInputOptions',
+	InputButton: 'ButtonInputOptions',
+	InputButtonGrid: 'ButtonGridInputOptions',
+	InputSwitch: 'SwitchInputOptions',
 })
 
 export const INPUT_TYPES = Object.freeze(keys(INPUT_TYPE_MAP))
+export const INPUT_OPTION_TYPES = Object.freeze(values(INPUT_TYPE_MAP))
 
 export type BindTarget = Record<any, any>
 export type BindableObject<T extends BindTarget, K extends keyof T = keyof T> = {
@@ -101,7 +103,7 @@ export type InputOptions<
 } & ValueOrBinding<TValue, TBindTarget>
 
 export type InputPreset<T extends ValidInputOptions> = Omit<InputOptions<T>, 'title'> & {
-	type: InputType
+	__type: InputOptionType
 	presetId: string
 	value: ValidInputValue
 	disabled: boolean
@@ -136,17 +138,24 @@ export type ValidInput =
 export type InputEvents = 'change' | 'refresh' | string
 //⌟
 
+export type MapInputToOptions<T extends InputType = InputType> = (typeof INPUT_TYPE_MAP)[T]
+export type MapOptionsToInput<T extends InputOptionType = InputOptionType> = {
+	[K in keyof typeof INPUT_TYPE_MAP]: (typeof INPUT_TYPE_MAP)[K] extends T ? K : never
+}[keyof typeof INPUT_TYPE_MAP]
+
 export abstract class Input<
 	TValueType extends ValidInputValue = ValidInputValue,
 	TOptions extends ValidInputOptions = InputOptions,
 	TElements extends ElementMap = ElementMap,
 	TEvents extends InputEvents = InputEvents,
+	TType extends InputType = InputType,
+	T__TYPE = (typeof INPUT_TYPE_MAP)[TType],
 > {
+	abstract readonly __type: TType
 	abstract state: State<TValueType>
-	abstract initialValue: ValidInputValue
+	abstract readonly initialValue: ValidInputValue
 
-	readonly type: InputType
-	opts: TOptions
+	opts: TOptions & { __type: T__TYPE }
 	presetId: string
 	/**
 	 * Whether the input was initialized with a bind target/key.
@@ -184,13 +193,13 @@ export abstract class Input<
 	protected evm = new EventManager<InputEvents | TEvents>(['change', 'refresh'])
 
 	constructor(
-		options: TOptions & { type: InputType },
+		options: TOptions & { __type: T__TYPE },
 		public folder: Folder,
 	) {
 		this.opts = options
-		this.type = options.type
+		// this.__type = options.__type
 		this.presetId =
-			options.presetId ?? `${folder.resolvePresetId()}_${options.type}:${options.title}`
+			options.presetId ?? `${folder.resolvePresetId()}_${options.__type}:${options.title}`
 
 		this.log = new Logger('Input:' + options.title, { fg: 'skyblue' })
 
@@ -307,7 +316,7 @@ export abstract class Input<
 
 			return s
 		} else {
-			this.initialValue = opts.value!
+			// this.initialValue = opts.value!
 			return state<T>(opts.value!)
 		}
 	}
@@ -339,7 +348,7 @@ export abstract class Input<
 	 */
 	protected unlock(commit?: Partial<Commit>) {
 		commit ??= {}
-		commit.input ??= this
+		commit.input ??= this as unknown as ValidInput
 		commit.to ??= this.state.value as TValueType
 		commit.from ??= this.lockCommit.from
 		this.undoLock = false
@@ -388,7 +397,7 @@ export abstract class Input<
 
 	save(overrides: Partial<InputPreset<TOptions>> = {}) {
 		const preset: InputPreset<any> = {
-			type: this.type,
+			__type: INPUT_TYPE_MAP[this.__type],
 			value: this.state.value,
 			disabled: this.disabled,
 			presetId: this.presetId,

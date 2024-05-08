@@ -1,5 +1,6 @@
 import type { InputOptions, InputPreset, InputType, ValidInput } from './inputs/Input'
 import type { Option } from './controllers/Select'
+import type { Tooltip } from '../actions/tooltip'
 
 import { InputButtonGrid, type ButtonGridInputOptions } from './inputs/InputButtonGrid'
 import { InputSwitch, type SwitchInputOptions } from './inputs/InputSwitch'
@@ -12,11 +13,12 @@ import { InputText, type TextInputOptions } from './inputs/InputText'
 import { animateConnector, createFolderConnector, createFolderSvg } from './svg/folderSvgs'
 import { composedPathContains } from '../internal/cancelClassFound'
 import { isColor, isColorFormat } from '../color/color'
-import settingsIcon from './svg/settings-icon.svg?raw'
 import { EventManager } from '../utils/EventManager'
+import { deepMerge } from '../utils/deepMerge'
 import { Search } from './toolbar/Search'
 import { create } from '../utils/create'
 import { Logger } from '../utils/logger'
+import { nanoid } from '../utils/nanoid'
 import { state } from '../utils/state'
 import { toFn } from './shared/toFn'
 import { Gui } from './Gui'
@@ -28,6 +30,7 @@ export interface FolderElements {
 	content: HTMLElement
 	toolbar: {
 		container: HTMLElement
+		settingsButton?: HTMLButtonElement & { tooltip?: Tooltip }
 	}
 }
 
@@ -35,10 +38,11 @@ export interface FolderElements {
  * @internal
  */
 export interface FolderOptions {
+	__type?: 'FolderOptions'
 	/**
 	 * A preset namespace to use for saving/loading.  By default, the title is used,
 	 * so this is only necessary if you want to use the same title for multiple folders.
-	 * @defaultValue {@link title}
+	 * @default {@link title}
 	 */
 	presetId?: string
 	/**
@@ -50,14 +54,14 @@ export interface FolderOptions {
 	 * The child folders of this folder.
 	 */
 	children?: Folder[]
-	/**
-	 * Any controls this folder should contain.
-	 */
-	controls?: Map<string, ValidInput>
+	// /**
+	//  * Any controls this folder should contain.
+	//  */
+	// controls?: Map<string, ValidInput>
 	/**
 	 * The parent folder of this folder (or a circular reference if this is the root folder).
 	 */
-	parentFolder: Folder
+	parentFolder?: Folder
 	/**
 	 * Whether the folder should be collapsed by default.
 	 * @default false
@@ -74,14 +78,33 @@ export interface FolderOptions {
 	 * The element to append the folder to (usually
 	 * the parent folder's content element).
 	 */
-	element?: HTMLElement
+	container?: HTMLElement
+	/**
+	 * The GUI instance this folder belongs to.
+	 */
+	gui?: Gui
 	/**
 	 * The depth of the folder in the hierarchy.
+	 * @default 0
 	 */
-	depth: number
+	depth?: number
+	/**
+	 * Whether this folder is the root folder.  This is set automatically
+	 * by {@link Gui}.  Be wary of infinite loops when setting manually.
+	 */
+	_isRoot?: boolean
 }
 
+export const FOLDER_DEFAULTS = {
+	title: '',
+	children: [],
+	closed: false,
+	hidden: false,
+	depth: 0,
+} as const satisfies FolderOptions
+
 export interface FolderPreset {
+	__type: 'FolderPreset'
 	presetTitle?: string
 	presetId: string
 	closed: boolean
@@ -94,23 +117,30 @@ export interface FolderPreset {
  * @internal
  */
 export class Folder {
-	isFolder = true as const
+	__type = 'Folder' as const
+	// isFolder = true as const
 	isRoot = false
+	id = nanoid()
+
+	gui?: Gui
 
 	static #i = 0
 	index = Folder.#i++
 	depth: number
 
-	root: Gui
+	root: Folder
 	search: Search
 
 	#title: string
 	presetId: string
 	children: Folder[]
-	inputs: Map<string, ValidInput>
+	inputs = new Map<string, ValidInput>()
 	parentFolder: Folder
+	// parentFolder: Folder | { isRoot: boolean }
+	settingsFolder!: Folder
 
 	closed = state(false)
+	static closedMap = new Map<string, boolean>()
 
 	element: HTMLElement
 	elements = {} as FolderElements
@@ -147,8 +177,12 @@ export class Folder {
 	evm = new EventManager(['change', 'toggle'])
 	on = this.evm.on
 
-	constructor(options: FolderOptions, rootContainer: HTMLElement | null = null, instant = true) {
-		const opts = Object.assign({}, options)
+	constructor(
+		options: FolderOptions,
+		instant = true,
+		// rootContainer: HTMLElement | null = null,
+	) {
+		const opts = deepMerge([FOLDER_DEFAULTS, options], { concatArrays: false })
 
 		this.#log = new Logger('Folder : ' + opts.title, {
 			fg: 'DarkSalmon',
@@ -157,41 +191,54 @@ export class Folder {
 		})
 		this.#log.fn('constructor').debug({ opts, this: this })
 
-		this.depth = opts.depth ?? 0
-		this.#title = opts.title ?? ''
+		this.isRoot = !!opts._isRoot
+		this.parentFolder = this.isRoot ? this : opts.parentFolder!
+		this.root = this.parentFolder.root
+
+		// console.log('this.parentFolder', this.parentFolder)
+		this.gui = opts.gui ?? opts.parentFolder?.gui
+		this.depth = opts.depth
+		this.#title = opts.title
 		this.children = opts.children ?? []
-		this.inputs = opts.controls ?? new Map<string, ValidInput>()
 
-		if (rootContainer) {
-			this.root = this as any as Gui
-			this.isRoot = true
-			this.parentFolder = this
+		// if (rootContainer) {
+		// this.root = this as any as Gui
+		// this.parentFolder = this
 
-			if (!this.isGui()) throw new Error('Root folder must be a GUI.')
+		// if (!this.isGui()) throw new Error('Root folder must be a GUI.')
 
-			const rootEl = this.#createRootElement(rootContainer)
-			const { element, elements } = this.#createElements(rootEl)
-			this.element = element as HTMLElement
+		// const rootEl = this.#createRootElement(rootContainer)
+		// const { element, elements } = this.#createElements(rootEl)
+		// this.element = element as HTMLElement
 
-			const settingsButton = this.#createSettingsButton(elements.toolbar.container)
+		// const settingsButton = this.#createSettingsButton(elements.toolbar.container)
 
-			this.elements = {
-				...elements,
-				toolbar: {
-					container: elements.toolbar.container,
-					settingsButton,
-				},
-			}
+		// this.elements = {
+		// 	...elements,
+		// 	toolbar: {
+		// 		...elements.toolbar,
+		// 		settingsButton,
+		// 	},
+		// }
 
-			// @ts-expect-error
-			this.theme = opts.theme
-		} else {
-			this.parentFolder = opts.parentFolder
-			this.root = this.parentFolder.root
-			const { element, elements } = this.#createElements(opts.element)
-			this.element = element
-			this.elements = elements
-		}
+		// this.theme = opts.theme
+		// } else {
+		// this.parentFolder = this.isRoot ? this : opts.parentFolder
+		// const root = this.parentFolder.isRoot
+		// if (isType<Folder>(this.parentFolder, 'Folder')) {
+		// 	this.root = this.parentFolder.root
+		// } else {
+		// 	this.root = this
+		// 	this.isRoot = true
+		// }
+
+		this.element = this.#createElement(opts.container)
+		this.elements = this.#createElements(this.element)
+		// const settingsButton = this.#createSettingsButton(elements.toolbar.container)
+		// }
+		// if (opts.settingsFolder) {
+		// 	this.settingsFolder = this.#createSettingsFolder()
+		// }
 
 		this.presetId = this.resolvePresetId(opts)
 
@@ -214,15 +261,21 @@ export class Folder {
 			this.closed.subscribe(v => {
 				v ? this.close() : this.open()
 				this.evm.emit('toggle', v)
+				// this.root.closedMap?.setKey(this.presetId, v)
 			}),
 		)
 
+		this.createGraphics()
+	}
+
+	createGraphics() {
 		Promise.resolve().then(() => {
-			if (!this.isRoot) {
+			if (!this.isRootFolder()) {
 				this.graphics = this.#createSvgs()
 				this.elements.header.prepend(this.graphics.icon)
 				this.element.prepend(this.graphics.connector.container)
 			}
+			this.createTerminalSvg(this)
 		})
 	}
 
@@ -296,7 +349,7 @@ export class Folder {
 		return allControls
 	}
 
-	isGui(): this is Gui {
+	isRootFolder(): this is Folder & { isRoot: true } {
 		return this.isRoot
 	}
 
@@ -310,16 +363,20 @@ export class Folder {
 		hidden?: boolean
 		presetId?: string
 	}) {
-		const folder = new Folder({
-			presetId: options?.presetId ?? '',
-			title: options?.title ?? '',
-			controls: new Map(),
-			parentFolder: this,
-			children: [],
-			closed: options?.closed ?? false,
-			hidden: options?.hidden ?? false,
-			depth: this.depth + 1,
-		})
+		const folder = new Folder(
+			{
+				container: this.elements.content,
+				presetId: options?.presetId ?? '',
+				title: options?.title ?? '',
+				// controls: new Map(),
+				parentFolder: this,
+				children: [],
+				closed: options?.closed ?? false,
+				hidden: options?.hidden ?? false,
+				depth: this.depth + 1,
+			},
+			false,
+		)
 
 		this.children.push(folder)
 		this.#createSvgs()
@@ -395,11 +452,11 @@ export class Folder {
 		}
 
 		const state = !this.closed.value
-		if (this.isGui()) {
-			state ? this.close(true) : this.open(true)
-		} else {
-			this.closed.set(state)
-		}
+		// if (this.isGui()) {
+		// 	state ? this.close(true) : this.open(true)
+		// } else {
+		this.closed.set(state)
+		// }
 
 		this.evm.emit('toggle', state)
 	}
@@ -455,7 +512,13 @@ export class Folder {
 
 	resolvePresetId = (opts?: FolderOptions) => {
 		const getPaths = (folder: Folder): string[] => {
-			if (folder.isRoot || !folder.parentFolder) return [folder.title]
+			// console.log(folder.title)
+			// console.log(folder.parentFolder)
+			// console.log(folder.isRootFolder())
+
+			if (folder.isRootFolder.bind(folder) || !(folder.parentFolder === this))
+				return [folder.title]
+
 			return [...getPaths(folder.parentFolder), folder.title]
 		}
 		const paths = getPaths(this)
@@ -475,6 +538,7 @@ export class Folder {
 
 	save(presetTitle?: string) {
 		const data: FolderPreset = {
+			__type: 'FolderPreset',
 			presetId: this.presetId,
 			closed: this.closed.value,
 			hidden: toFn(this.#hidden)(),
@@ -484,7 +548,7 @@ export class Folder {
 			controllers: Array.from(this.inputs.values()).map(input => input.save()),
 		}
 
-		if (this.isGui()) {
+		if (this.isRootFolder()) {
 			if (!presetTitle) {
 				throw new Error('Root folder must have a preset title.')
 			}
@@ -495,20 +559,26 @@ export class Folder {
 	}
 
 	load(preset: FolderPreset) {
+		this.#log.fn('load').info({ preset })
+
 		this.closed.set(preset.closed)
 		this.hidden = preset.hidden
+
 		for (const child of this.children) {
-			const data = preset.children.find(f => f.presetId === child.presetId)
+			const data = preset.children?.find(f => f.presetId === child.presetId)
 			if (data) child.load(data)
 		}
+
 		for (const input of this.inputs.values()) {
 			const data = preset.controllers.find(c => c.presetId === input.presetId)
+			// @ts-ignore
 			if (data) input.load(data)
 		}
 
-		if (this.isGui()) {
-			this.activePreset.set(preset)
-		}
+		// if (this.isGui()) {
+		// this.presetManager.set(preset)
+		// console.groupEnd()
+		// }
 	}
 	//⌟
 	//⌟
@@ -598,17 +668,17 @@ export class Folder {
 		const type = this.resolveType(options)
 
 		switch (type) {
-			case 'Text':
+			case 'InputText':
 				return new InputText(options as TextInputOptions, this)
-			case 'Number':
+			case 'InputNumber':
 				return new InputNumber(options as NumberInputOptions, this)
-			case 'Color':
+			case 'InputColor':
 				return new InputColor(options as ColorInputOptions, this)
-			case 'Select':
+			case 'InputSelect':
 				return new InputSelect(options as SelectInputOptions<Option<any>>, this)
-			case 'Button':
+			case 'InputButton':
 				return new InputButton(options as ButtonInputOptions, this)
-			case 'Switch':
+			case 'InputSwitch':
 				return new InputSwitch(options as SwitchInputOptions, this)
 		}
 
@@ -619,33 +689,33 @@ export class Folder {
 		const value = options.value ?? options.binding!.target[options.binding!.key]
 
 		if ('onClick' in options) {
-			return 'Button'
+			return 'InputButton'
 		}
 
 		if ('options' in options) {
-			return 'Select'
+			return 'InputSelect'
 		}
 
 		switch (typeof value) {
 			case 'boolean':
 				// todo - We need some way to differentiate between a switch and a checkbox once the checkbox is added.
-				// if ((options as SwitchInputOptions).labels) return 'Switch'
-				return 'Switch'
+				// if ((options as SwitchInputOptions).labels) return 'InputSwitch'
+				return 'InputSwitch'
 			case 'number':
-				return 'Number'
+				return 'InputNumber'
 			case 'string':
-				if (isColorFormat(value)) return 'Color'
+				if (isColorFormat(value)) return 'InputColor'
 				// todo - Could detect CSS units like `rem` and `-5px 0 0 3px` for an advanced `CSSTextInput`.
 				// todo - Or even better, a "TextComponents" input that can have any number of "components" (like a color picker, number, select, etc) inside a string.
-				return 'Text'
+				return 'InputText'
 			case 'function':
-				return 'Button'
+				return 'InputButton'
 			case 'object':
 				if (Array.isArray(value)) {
-					return 'Select'
+					return 'InputSelect'
 				}
 				if (isColor(value)) {
-					return 'Color'
+					return 'InputColor'
 				}
 				throw new Error('Invalid input view: ' + JSON.stringify(value))
 			default:
@@ -656,19 +726,24 @@ export class Folder {
 
 	//· Elements ·····························································¬
 
-	#createElements(el?: HTMLElement): { element: HTMLElement; elements: FolderElements } {
-		const element =
-			el ??
-			create('div', {
-				parent: this.parentFolder.elements.content,
-				classes: ['fracgui-folder', 'closed'],
-				// metaurl: import.meta.url, // todo - there must be a solution for this
+	#createElement(el?: HTMLElement) {
+		if (this.isRoot) {
+			return create('div', {
+				id: `fracgui-root_${this.id}`,
+				classes: ['fracgui-root', 'fracgui-folder', 'closed'],
+				dataset: { theme: this.gui!.theme ?? 'default' },
+				parent: el,
 			})
+		}
 
-		if (!element) throw new Error('Failed to create element.')
+		return create('div', {
+			parent: this.parentFolder.elements.content,
+			classes: ['fracgui-folder', 'closed'],
+			// metaurl: import.meta.url, // todo - there must be a solution for this
+		})
+	}
 
-		if (el) el.classList.add('fracgui-root')
-
+	#createElements(element: HTMLElement): FolderElements {
 		const header = create('div', {
 			parent: element,
 			classes: ['fracgui-header'],
@@ -696,65 +771,15 @@ export class Folder {
 		})
 
 		return {
-			element,
-			elements: {
-				header,
-				toolbar: {
-					container: toolbar,
-				},
-				title,
-				contentWrapper,
-				content,
+			header,
+			toolbar: {
+				container: toolbar,
+				// settingsButton,
 			},
+			title,
+			contentWrapper,
+			content,
 		}
-	}
-
-	// @ts-expect-error - // todo - Why tf can't typescript see this is used?
-	#createRootElement(container: HTMLElement | null = null) {
-		container ??= document.body
-
-		const rootEl = create('div', {
-			classes: ['fracgui-root', 'fracgui-folder', 'closed'],
-			id: 'fracgui-root',
-			dataset: { theme: this.root.theme ?? 'default' },
-		})
-
-		return rootEl
-	}
-
-	// @ts-expect-error - // todo - Why tf can't typescript see this is used?
-	#createSettingsButton(parent: HTMLElement) {
-		if (!this.isGui()) {
-			throw new Error('Settings button can only be created on the root folder.')
-		}
-
-		const svg = new DOMParser().parseFromString(settingsIcon, 'image/svg+xml').documentElement
-
-		const button = create<'button', any, HTMLButtonElement>('button', {
-			parent,
-			classes: ['fracgui-toolbar-item', 'fracgui-settings-button'],
-			children: [svg],
-			tooltip: {
-				text: () => {
-					return this.settingsFolder?.closed.value ? 'Open Settings' : 'Close Settings'
-				},
-				placement: 'left',
-				delay: 750,
-				delayOut: 0,
-				hideOnClick: true,
-			},
-		})
-
-		button.addEventListener('click', () => {
-			this.settingsFolder.toggle()
-
-			this.elements.toolbar.settingsButton.classList.toggle(
-				'open',
-				!this.settingsFolder.closed.value,
-			)
-		})
-
-		return button
 	}
 	//⌟
 
@@ -767,11 +792,37 @@ export class Folder {
 		return { icon, connector }
 	}
 
+	createTerminalSvg(folder: Folder) {
+		const container = create('div', {
+			classes: ['fracgui-terminal-icon'],
+			style: {
+				width: '16px',
+				height: '16px',
+			},
+			onclick: e => {
+				e.stopPropagation()
+				// console.log(this)
+			},
+		})
+		container.setProps({
+			width: '16px',
+			height: '16px',
+		})
+		container.innerHTML = /*html*/ `
+			<svg class="icon terminal" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+				<polyline points="4 17 10 11 4 5"></polyline>
+				<line x1="12" x2="20" y1="19" y2="19"></line>
+			</svg>
+		`.trim()
+
+		folder.elements.header.prepend(container)
+	}
+
 	get hue() {
 		const localIndex = this.parentFolder.children.indexOf(this)
 
 		// todo - This will break if we ever add built-in folders other than "Settings Folder".
-		const i = this.parentFolder.isGui() ? localIndex - 1 : localIndex
+		const i = this.parentFolder.isRootFolder() ? localIndex - 1 : localIndex
 		// Don't count the root folder.
 		const depth = this.depth - 1
 

@@ -48,9 +48,9 @@ export interface StateOptions<T> extends Partial<Writable<T>> {
 }
 
 /**
- * A Svelte store that uses localStorage to store data asyncronously.
- * It supports debouncing and deferring localStorage updates, and
- * syncronizes with localStorage events across tabs.
+ * An observable store that uses localStorage to store data asyncronously.
+ * It supports Maps and Sets, debouncing and deferring localStorage updates,
+ * and syncronizes with localStorage events across tabs.
  * @param key - The key to store the data under.
  * @param initial - The initial value of the store.
  * @param options - {@link StateOptions}
@@ -84,7 +84,8 @@ export const localStorageStore = <T>(
 	let serialize = JSON.stringify
 	let deserialize = JSON.parse
 
-	const isMapOrSet = initial instanceof Map || initial instanceof Set
+	const type = initial instanceof Map ? 'Map' : initial instanceof Set ? 'Set' : ''
+	const isMapOrSet = ['Map', 'Set'].includes(type)
 
 	if (isMapOrSet) {
 		serialize = (value: T) => JSON.stringify(Array.from((value as Map<any, any>).entries()))
@@ -96,7 +97,7 @@ export const localStorageStore = <T>(
 				return parsed
 			}
 			// prettier-ignore
-			if (verbose) console.error('Failed to deserialize Map from localStorageStore:', { parsed, value, initial, key, options })
+			if (verbose) console.error(`Failed to deserialize ${type} from localStorageStore:`, { parsed, value, initial, key, options })
 			return value
 		}
 	}
@@ -163,8 +164,6 @@ export const localStorageStore = <T>(
 				}
 			}
 		}
-
-		// log('new value: ', { currentValue })
 	}
 
 	const update = (fn: (T: T) => T) => {

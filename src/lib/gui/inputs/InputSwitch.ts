@@ -1,14 +1,15 @@
 import type { ElementMap, InputOptions } from './Input'
 import type { Tooltip } from '../../actions/tooltip'
+import type { State } from '../../utils/state'
 import type { Folder } from '../Folder'
 
 import { Logger } from '../../utils/logger'
 import { create } from '../../utils/create'
-import { state, type State } from '../../utils/state'
+import { state } from '../../utils/state'
 import { Input } from './Input'
 
 export type SwitchInputOptions = InputOptions<boolean> & {
-	type: 'Switch'
+	readonly __type?: 'SwitchInputOptions'
 	title: string
 	/** Text to display in various parts of the switch. */
 	labels?: {
@@ -43,8 +44,8 @@ export type SwitchInputOptions = InputOptions<boolean> & {
 	}
 }
 
-export const SWITCH_INPUT_DEFAULTS: SwitchInputOptions = {
-	type: 'Switch',
+export const SWITCH_INPUT_DEFAULTS = {
+	__type: 'SwitchInputOptions' as const,
 	title: '',
 	value: true,
 	labels: {
@@ -57,7 +58,7 @@ export const SWITCH_INPUT_DEFAULTS: SwitchInputOptions = {
 			verb: 'Disable',
 		},
 	},
-} as const
+} as const satisfies SwitchInputOptions
 
 export interface SwitchInputElements extends ElementMap {
 	container: HTMLElement
@@ -67,14 +68,14 @@ export interface SwitchInputElements extends ElementMap {
 }
 
 export class InputSwitch extends Input<boolean, SwitchInputOptions, SwitchInputElements> {
-	readonly type = 'Switch' as const
+	readonly __type = 'InputSwitch' as const
 	readonly state: State<boolean>
 
 	initialValue: boolean
 	#log: Logger
 
 	constructor(options: Partial<SwitchInputOptions>, folder: Folder) {
-		const opts = { ...SWITCH_INPUT_DEFAULTS, ...options, type: 'Switch' as const }
+		const opts = Object.assign({}, SWITCH_INPUT_DEFAULTS, options)
 		super(opts, folder)
 
 		this.#log = new Logger(`InputSwitch : ${opts.title}`, { fg: 'cyan' })
@@ -143,10 +144,10 @@ export class InputSwitch extends Input<boolean, SwitchInputOptions, SwitchInputE
 	}
 
 	set(v = !this.state.value) {
-		this.#log.fn('set').info({ v, this: this })
+		this.#log.fn('set').debug({ v, this: this })
 
 		if (typeof v === 'boolean') {
-			this.undoManager.commit({
+			this.undoManager?.commit({
 				// @ts-expect-error - ??
 				input: this,
 				from: this.state.value,

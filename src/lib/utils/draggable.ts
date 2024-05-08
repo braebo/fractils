@@ -238,7 +238,7 @@ const DEFAULT_CLASSES = {
 	cancel: 'fractils-cancel',
 } as const
 
-export const DRAG_DEFAULTS: DraggableOptions = {
+export const DRAGGABLE_DEFAULTS: DraggableOptions = {
 	__type: 'DraggableOptions',
 	bounds: 'body',
 	axis: 'both',
@@ -393,7 +393,7 @@ export class Draggable {
 		public node: HTMLElement,
 		options?: Partial<DraggableOptions>,
 	) {
-		this.opts = deepMerge([DRAG_DEFAULTS, options])
+		this.opts = deepMerge([DRAGGABLE_DEFAULTS, options])
 
 		this.#log = new Logger('draggable:' + this.node.classList[0], {
 			fg: 'SkyBlue',
@@ -451,7 +451,7 @@ export class Draggable {
 			}),
 		)
 
-		if (startPosition !== DRAG_DEFAULTS.position) {
+		if (startPosition !== DRAGGABLE_DEFAULTS.position) {
 			// Init the virtual rect for updateBounds
 			const { top, right, bottom, left } = this.node.getBoundingClientRect()
 			this.rect = { top, right, bottom, left }
@@ -923,13 +923,13 @@ export class Draggable {
 	/**
 	 * Resolves a {@link DraggableOptions.position} option into an `{x,y}` vector
 	 * depending on its type:
-	 * - `undefined` -> {@link DRAG_DEFAULTS.position}
+	 * - `undefined` -> {@link DRAGGABLE_DEFAULTS.position}
 	 * - {@link Placement} -> {@link place}
-	 * - `{x,y}` -> itself *(merged with {@link DRAG_DEFAULTS.position}*
+	 * - `{x,y}` -> itself *(merged with {@link DRAGGABLE_DEFAULTS.position}*
 	 * if it's a partial.)
 	 */
 	resolvePosition(pos: DraggableOptions['position']) {
-		const defaultPos = DRAG_DEFAULTS.position as { x: number; y: number }
+		const defaultPos = DRAGGABLE_DEFAULTS.position as { x: number; y: number }
 
 		if (!pos) {
 			return defaultPos
@@ -1027,13 +1027,13 @@ export const draggable: Action<HTMLElement, Partial<DraggableOptions> | undefine
 			if (!options) return
 
 			// Update all the values that need to be changed
-			d.opts.axis = options.axis || DRAG_DEFAULTS.axis
-			d.disabled = options.disabled ?? DRAG_DEFAULTS.disabled
-			d.opts.ignoreMultitouch = options.ignoreMultitouch ?? DRAG_DEFAULTS.ignoreMultitouch
+			d.opts.axis = options.axis || DRAGGABLE_DEFAULTS.axis
+			d.disabled = options.disabled ?? DRAGGABLE_DEFAULTS.disabled
+			d.opts.ignoreMultitouch = options.ignoreMultitouch ?? DRAGGABLE_DEFAULTS.ignoreMultitouch
 			d.opts.handle = options.handle
 			d.opts.bounds = options.bounds!
 			d.opts.cancel = options.cancel
-			d.opts.userSelectNone = options.userSelectNone ?? DRAG_DEFAULTS.userSelectNone
+			d.opts.userSelectNone = options.userSelectNone ?? DRAGGABLE_DEFAULTS.userSelectNone
 			d.opts.transform = options.transform
 
 			const dragged = d.node.classList.contains(d.opts.classes.dragged)

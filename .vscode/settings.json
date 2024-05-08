@@ -53,7 +53,7 @@
 
 	// "workbench.colorTheme": "Mo Darker",
 	"workbench.preferredDarkColorTheme": "Mo Darker",
-	"workbench.preferredLightColorTheme": "Moxer Light",
+	"workbench.preferredLightColorTheme": "Catppuccin Latte",
 	"workbench.iconTheme": "material-icon-theme",
 	"window.autoDetectColorScheme": true,
 	"editor.tokenColorCustomizations": {
@@ -215,5 +215,5 @@
 	"workbench.panel.defaultLocation": "left",
 	"window.zoomLevel": 0,
 	"focus.highlightRange": "block",
-	"workbench.colorTheme": "One Dark Pro Monokai Darker"
+	"workbench.colorTheme": "Serendipity Morning V1"
 }

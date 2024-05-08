@@ -1,13 +1,18 @@
 import { randomColor, type CSSColor } from '../color/css'
 
+import { BROWSER } from '../dom/BROWSER'
 import { stringify } from './stringify'
-import { BROWSER, DEV } from 'esm-env'
 import { b, r, y, gr, dim } from './l'
 import { isSafari } from './safari'
 import { defer } from './defer'
+import { DEV } from 'esm-env'
+import { debrief } from './debrief'
 
 // todo - Is there a reliable way to type an ImportMetaEnv entry globally for consumers?
-const ENABLED = DEV && import.meta.env.FRACTILS_LOG_LEVEL !== 'off'
+const ENABLED =
+	DEV &&
+	import.meta.env.FRACTILS_LOG_LEVEL !== 'off' &&
+	!(import.meta.env.VITEST && !import.meta.env.FRACTILS_LOG_VITEST)
 const bypassStyles = false
 // const bypassDefer = false
 const bypassDefer = true
@@ -186,8 +191,8 @@ export const logger = (
 	const browser = options.browser ?? true
 	const server = options.server ?? false
 
-	if (BROWSER && !browser) return () => void 0
-	if (!BROWSER && !server) return () => void 0
+	if (BROWSER() && !browser) return () => void 0
+	if (!BROWSER() && !server) return () => void 0
 
 	options.styled ??= true
 	const styled = options.styled && !bypassStyles
@@ -237,7 +242,12 @@ export const logger = (
 					// `${title.padEnd(10, ' ')} |`,
 					`${title.padEnd(10, ' ')}`,
 					`color:initial;background:${bg};padding:0.1rem;${css}`,
-					...args,
+					...args.map(
+						a =>
+							// Testing console goes nuts with large objects, so we debrief them.
+							import.meta.env.VITEST ? debrief(a, { depth: 1, siblings: 1 }) : a,
+						// a
+					),
 					`color:#666;background:${bg};padding:0.1rem;${css};font-size:0.66rem;`,
 					options?.callsite ? `${callsite}` : '',
 				)
@@ -253,6 +263,7 @@ export const logger = (
  * @returns A url to the file, the file name, line number, and column number of the call site.
  */
 function getCallSite() {
+	if (import.meta.env.VITEST) return failed(true)
 	const err = new Error()
 	const stackLines = err.stack?.split('\n').slice(2).filter(Boolean)
 
@@ -290,8 +301,8 @@ function getCallSite() {
 		return match || ''
 	}
 
-	function failed() {
-		if (DEV && BROWSER) {
+	function failed(silent = DEV && BROWSER()) {
+		if (!silent) {
 			console.warn('getCallSite(): Failed to parse call site from stack trace.')
 
 			console.groupCollapsed('getCallSite(): debug info')

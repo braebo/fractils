@@ -1,4 +1,4 @@
-import { deepMerge } from '$lib/utils/deepMerge'
+import { deepMerge } from '../../utils/deepMerge'
 
 export type MaybeBooleanOrT<T> = T | boolean
 
@@ -19,7 +19,7 @@ export function resolveOpts<T extends {}>(
 	}
 
 	if (typeof optionsOrBoolean === 'object') {
-		return deepMerge(defaultOptions, optionsOrBoolean)
+		return deepMerge([defaultOptions, optionsOrBoolean], { concatArrays: false })
 	}
 
 	return optionsOrBoolean

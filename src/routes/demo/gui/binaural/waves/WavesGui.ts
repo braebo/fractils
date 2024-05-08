@@ -1,3 +1,4 @@
+// @ts-nocheck
 // import type { BinauralBeatsGui } from '../beats/BinauralBeatsGui'
 import type { Waves } from './Waves'
 

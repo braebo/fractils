@@ -1,13 +1,14 @@
 import type { ElementMap, InputOptions } from './Input'
+import type { State } from '../../utils/state'
 import type { Folder } from '../Folder'
 
 import { textareaController } from '../controllers/textarea'
 import { Logger } from '../../utils/logger'
 import { create } from '../../utils/create'
-import { state, type State } from '../../utils/state'
 import { Input } from './Input'
 
 export type TextAreaInputOptions = {
+	readonly __type?: 'TextAreaInputOptions'
 	/**
 	 * The maximum number of characters that can be entered.
 	 * @default 50
@@ -16,6 +17,7 @@ export type TextAreaInputOptions = {
 } & InputOptions<string>
 
 export const TEXTAREA_INPUT_DEFAULTS: TextAreaInputOptions = {
+	__type: 'TextAreaInputOptions' as const,
 	title: '',
 	value: 'foo',
 	maxLength: 50,
@@ -26,34 +28,29 @@ export interface TextAreaControllerElements extends ElementMap {
 	input: HTMLInputElement
 }
 
-export class InputTextArea extends Input<string, TextAreaInputOptions, TextAreaControllerElements> {
-	readonly type = 'TextArea' as const
+export class InputTextArea extends Input<
+	string,
+	TextAreaInputOptions,
+	TextAreaControllerElements,
+	'change' | 'refresh'
+> {
+	readonly __type = 'InputTextArea' as const
 	readonly initialValue: string
-	readonly events = ['change']
 	readonly state: State<string>
+
 	#log: Logger
 
 	constructor(options: Partial<TextAreaInputOptions>, folder: Folder) {
-		const opts = { ...TEXTAREA_INPUT_DEFAULTS, ...options, type: 'TextArea' as const }
+		const opts = Object.assign({}, TEXTAREA_INPUT_DEFAULTS, options, {
+			__type: 'TextAreaInputOptions' as const,
+		})
 		super(opts, folder)
 
-		this.#log = new Logger(`InputTextArea:${opts.title}`, { fg: 'cyan' })
-
+		this.#log = new Logger(`InputTextArea : ${opts.title}`, { fg: 'cyan' })
 		this.#log.fn('constructor').info({ opts, this: this })
 
-		if (opts.binding) {
-			this.initialValue = opts.binding.target[opts.binding.key]
-			this.state = state(this.initialValue)
-
-			this.evm.add(
-				this.state.subscribe(v => {
-					opts.binding!.target[opts.binding!.key] = v
-				}),
-			)
-		} else {
-			this.initialValue = opts.value!
-			this.state = state(opts.value!)
-		}
+		this.initialValue = this.resolveInitialValue(opts)
+		this.state = this.resolveState(opts)
 
 		const container = create('div', {
 			classes: ['fracgui-input-textarea-container'],
@@ -84,7 +81,6 @@ export class InputTextArea extends Input<string, TextAreaInputOptions, TextAreaC
 	}
 
 	set = (v?: string | Event) => {
-		// console.log(CSS.supports('border', ((v as Event).target as HTMLTextAreaElement)?.value))
 		if (typeof v === 'undefined') {
 			return
 		}

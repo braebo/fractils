@@ -20,7 +20,7 @@ export class Search {
 
 	tooltip: Tooltip
 	get defaultTooltipText() {
-		return 'Search ' + (this.folder.isGui() ? 'All' : this.folder.title)
+		return 'Search ' + (this.folder.isRootFolder() ? 'All' : this.folder.title)
 	}
 
 	constructor(public folder: Folder) {

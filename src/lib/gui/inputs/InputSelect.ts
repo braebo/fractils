@@ -5,18 +5,18 @@ import type { Folder } from '../Folder'
 
 import { isLabeledOption, Select, toLabeledOption, fromLabeledOption } from '../controllers/Select'
 import { fromState, isState, state } from '../../utils/state'
-import { stringify } from '$lib/utils/stringify'
+import { stringify } from '../../utils/stringify'
 import { Logger } from '../../utils/logger'
 import { create } from '../../utils/create'
 import { toFn } from '../shared/toFn'
-import { b } from '$lib/utils/l'
+import { b } from '../../utils/l'
 import { Input } from './Input'
 
 export type SelectInputOptions<T = unknown> = Omit<
 	InputOptions<T | { label: string; value: T }>,
 	'onChange' | 'value'
 > & {
-	type?: 'Select'
+	__type?: 'SelectInputOptions'
 	onChange?: (value: LabeledOption<T>) => void
 } & (
 		| {
@@ -32,7 +32,7 @@ export type SelectInputOptions<T = unknown> = Omit<
 	)
 
 export const SELECT_INPUT_DEFAULTS: SelectInputOptions = {
-	type: 'Select' as const,
+	__type: 'SelectInputOptions' as const,
 	title: '',
 	options: [],
 } as const
@@ -48,8 +48,8 @@ export class InputSelect<T = unknown> extends Input<
 	SelectControllerElements<T>,
 	'change' | 'preview' | 'open' | 'close' | 'cancel'
 > {
-	type = 'Select' as const
-	initialValue: LabeledOption<T>
+	readonly __type = 'InputSelect' as const
+	readonly initialValue: LabeledOption<T>
 	state: State<LabeledOption<T>>
 	#options: SelectInputOptions['options']
 	set options(v: SelectInputOptions['options']) {
@@ -75,7 +75,7 @@ export class InputSelect<T = unknown> extends Input<
 
 	constructor(options: Partial<SelectInputOptions<T>>, folder: Folder) {
 		const opts = Object.assign({}, SELECT_INPUT_DEFAULTS as SelectInputOptions<T>, options, {
-			type: 'Select' as const,
+			__type: 'SelectInputOptions' as const,
 		})
 
 		const YEET = (str: string, ...args: any[]) => {

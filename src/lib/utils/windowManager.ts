@@ -2,8 +2,8 @@ import type { ElementOrSelector, ElementsOrSelectors } from './select'
 import type { Action } from 'svelte/action'
 
 import { Resizable, RESIZABLE_DEFAULTS, type ResizableOptions } from './resizable'
-import { DRAG_DEFAULTS, Draggable, type DraggableOptions } from './draggable'
-import { resolveOpts } from '$lib/gui/shared/resolveOpts'
+import { DRAGGABLE_DEFAULTS, Draggable, type DraggableOptions } from './draggable'
+import { resolveOpts } from '../gui/shared/resolveOpts'
 import { EventManager } from './EventManager'
 import { deepMerge } from './deepMerge'
 import { Logger } from './logger'
@@ -11,6 +11,7 @@ import { nanoid } from './nanoid'
 import { state } from './state'
 
 export interface WindowManagerOptions {
+	__type?: 'WindowManagerOptions'
 	/**
 	 * Whether to make windows draggable. Can be a boolean, or your own
 	 * {@link DraggableOptions}.  Set to `false` to disable dragging.
@@ -77,8 +78,9 @@ export interface WindowManagerStorageOptions {
 }
 
 export const WINDOWMANAGER_DEFAULTS = {
+	__type: 'WindowManagerOptions',
 	resizable: RESIZABLE_DEFAULTS,
-	draggable: DRAG_DEFAULTS,
+	draggable: DRAGGABLE_DEFAULTS,
 	zFloor: 10,
 	preserveZ: false,
 	bounds: undefined,
@@ -164,8 +166,10 @@ export class WindowManager {
 	}
 
 	#resolveOptions(options?: Partial<WindowManagerOptions>): WindowManagerOptions {
-		this.#log.fn('#resolveOptions').debug(options)
-		const opts = deepMerge(WINDOWMANAGER_DEFAULTS, options) as WindowManagerOptions
+		this.#log.fn('#resolveOptions').info(options)
+		const opts = deepMerge([WINDOWMANAGER_DEFAULTS, options], {
+			concatArrays: false,
+		}) as WindowManagerOptions
 
 		opts.draggable = resolveOpts(options?.draggable, WINDOWMANAGER_DEFAULTS.draggable)
 		opts.resizable = resolveOpts(options?.resizable, WINDOWMANAGER_DEFAULTS.resizable)
@@ -189,7 +193,7 @@ export class WindowManager {
 			}
 		}
 
-		this.#log.fn('#resolveOptions').debug('resolved:', options)
+		this.#log.fn('#resolveOptions').info('resolved:', options)
 
 		return opts
 	}
@@ -236,7 +240,7 @@ export class WindowInstance {
 		}
 
 		const i = this.manager.windows.length
-		const dragOpts = resolveOpts(options.draggable, DRAG_DEFAULTS)
+		const dragOpts = resolveOpts(options.draggable, DRAGGABLE_DEFAULTS)
 		const resizeOpts = resolveOpts(options.resizable, RESIZABLE_DEFAULTS)
 
 		if (dragOpts) {

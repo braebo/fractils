@@ -1,14 +1,15 @@
 import type { ElementMap, InputOptions } from './Input'
+import type { State } from '../../utils/state'
 import type { Folder } from '../Folder'
 
 import { textController } from '../controllers/text'
-import { Logger } from '../../utils/logger'
 import { create } from '../../utils/create'
-import { state, type State } from '../../utils/state'
+import { Logger } from '../../utils/logger'
+import { state } from '../../utils/state'
 import { Input } from './Input'
 
 export type TextInputOptions = InputOptions<string> & {
-	type?: 'Text'
+	readonly __type?: 'TextInputOptions'
 	/**
 	 * The maximum number of characters that can be entered.
 	 * @default 50
@@ -17,7 +18,7 @@ export type TextInputOptions = InputOptions<string> & {
 }
 
 export const TEXT_INPUT_DEFAULTS = {
-	type: 'Text' as const,
+	__type: 'TextInputOptions' as const,
 	title: '',
 	value: 'foo',
 	maxLength: 50,
@@ -34,14 +35,14 @@ export class InputText extends Input<
 	TextControllerElements,
 	'change' | 'refresh'
 > {
-	type = 'Text' as const
-	initialValue: string
-	state: State<string>
+	readonly __type = 'InputText' as const
+	readonly initialValue: string
+	readonly state: State<string>
 
 	#log: Logger
 
 	constructor(options: Partial<TextInputOptions>, folder: Folder) {
-		const opts = { ...TEXT_INPUT_DEFAULTS, ...options, type: 'Text' as const }
+		const opts = Object.assign({}, TEXT_INPUT_DEFAULTS, options)
 		super(opts, folder)
 
 		this.#log = new Logger(`InputText : ${opts.title}`, { fg: 'cyan' })

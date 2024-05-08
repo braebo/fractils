@@ -2,7 +2,7 @@ import type { StructuredVars } from '../css/custom-properties'
 import type { PrimitiveState, State } from '../utils/state'
 import type { ElementOrSelector } from '../utils/select'
 import type { InputOptions } from '../gui/inputs/Input'
-import type { GuiOptions } from '../gui/Gui'
+// import type { GuiOptions } from '../gui/Gui'
 import type { Folder } from '../gui/Folder'
 import type {
 	VariableDefinition,
@@ -24,11 +24,13 @@ import theme_default from './themes/default'
 import theme_scout from './themes/scout'
 import theme_flat from './themes/flat'
 
-import { DRAG_DEFAULTS } from '../utils/draggable'
+// import { RESIZABLE_DEFAULTS } from '$lib/utils/resizable'
+// import { DRAGGABLE_DEFAULTS } from '../utils/draggable'
 import { deepMerge } from '../utils/deepMerge'
 import { partition } from '../utils/partition'
 import { hexToRgb } from '../utils/hexToRgb'
 import { entries } from '../utils/object'
+import { isType } from '../utils/isType'
 import { Logger } from '../utils/logger'
 import { isColor } from '../color/color'
 import { select } from '../utils/select'
@@ -184,10 +186,10 @@ export class Themer {
 		node: ElementOrSelector | Document | 'document' = 'document',
 		options?: Partial<ThemerOptions>,
 	) {
-		const opts = deepMerge(THEMER_DEFAULTS, options)
+		const opts = deepMerge([THEMER_DEFAULTS, options])
 		this.#key = String(opts.localStorageKey)
 
-		this.#log.fn(g('constructor')).debug({ opts, this: this })
+		this.#log.fn(g('constructor')).info({ opts, this: this })
 
 		if (opts.wrapper) {
 			this.wrapper = opts.wrapper
@@ -225,7 +227,7 @@ export class Themer {
 		this.#persistent = opts.persistent ?? true
 
 		this.#addSub(this.theme, v => {
-			this.#log.fn(o('theme.subscribe')).debug({ v, this: this })
+			this.#log.fn(o('theme.subscribe')).info({ v, this: this })
 			if (this.#initialized) {
 				this.activeThemeTitle.set(v.title)
 				this.applyTheme()
@@ -233,7 +235,7 @@ export class Themer {
 		})
 
 		this.#addSub(this.mode, v => {
-			this.#log.fn(o('mode.subscribe')).debug('v', v, { this: this })
+			this.#log.fn(o('mode.subscribe')).info('v', v, { this: this })
 
 			if (typeof v === 'undefined') throw new Error('Mode is undefined.')
 
@@ -258,7 +260,7 @@ export class Themer {
 		const themes = this.themes.value
 		const theme = this.theme.value
 
-		this.#log.fn(c('init')).debug({ theme: this.theme, this: this })
+		this.#log.fn(c('init')).info({ theme: this.theme, this: this })
 		if (typeof document === 'undefined') return
 
 		if (this.#initialized) return this
@@ -342,7 +344,7 @@ export class Themer {
 			save?: boolean
 		},
 	) => {
-		this.#log.fn(c('addTheme')).debug({ newTheme, options, this: this })
+		this.#log.fn(c('addTheme')).info({ newTheme, options, this: this })
 
 		const theme = structuredClone(newTheme)
 
@@ -367,7 +369,7 @@ export class Themer {
 				}
 
 				if (i > 100) {
-					this.#log.fn(c('addTheme')).debug(r('Runaway loop detected.') + ' Aborting.', {
+					this.#log.fn(c('addTheme')).info(r('Runaway loop detected.') + ' Aborting.', {
 						this: this,
 					})
 					break
@@ -381,7 +383,7 @@ export class Themer {
 	}
 
 	delete(themeOrTitle: ThemeTitle | Theme) {
-		this.#log.fn(c('deleteTheme')).debug({ themeOrTitle, this: this })
+		this.#log.fn(c('deleteTheme')).info({ themeOrTitle, this: this })
 
 		const themeTitle = typeof themeOrTitle === 'string' ? themeOrTitle : themeOrTitle.title
 
@@ -425,13 +427,13 @@ export class Themer {
 	applyTheme = (targets?: HTMLElement[]) => {
 		this.#log
 			.fn(c('applyTheme'))
-			.debug({ theme: this.theme.value.title, targets: this.#targets, this: this })
+			.info({ theme: this.theme.value.title, targets: this.#targets, this: this })
 		if (!('document' in globalThis)) return
 
 		const theme = this.theme.value
 
 		if (!theme) {
-			this.#log.error('theme not found').debug({ theme, this: this })
+			this.#log.error('theme not found').info({ theme, this: this })
 			throw new Error(`Theme not found.`)
 		}
 
@@ -484,7 +486,7 @@ export class Themer {
 	 * @returns The JSON that was loaded (if found).
 	 */
 	load = () => {
-		this.#log.fn(c('load')).debug({ this: this })
+		this.#log.fn(c('load')).info({ this: this })
 
 		if (this.#persistent && 'localStorage' in globalThis) {
 			const json = localStorage.getItem(this.#key + '::themer')
@@ -502,7 +504,7 @@ export class Themer {
 	 * @returns The JSON that was saved.
 	 */
 	save() {
-		this.#log.fn(c('save')).debug({ this: this })
+		this.#log.fn(c('save')).info({ this: this })
 
 		if (!('localStorage' in globalThis)) return
 		if (!this.#persistent) return
@@ -532,7 +534,7 @@ export class Themer {
 	 * Removes the current Themer state from localStorage.
 	 */
 	clear() {
-		this.#log.fn(c('clear')).debug({ this: this })
+		this.#log.fn(c('clear')).info({ this: this })
 		if (!('localStorage' in globalThis)) return
 		localStorage.removeItem(`${this.#key}themer`)
 		this.themes.set([theme_default])
@@ -553,7 +555,7 @@ export class Themer {
 	 */
 	#applyStyleProps = (themeConfig: Theme, targets = this.#targets as any as HTMLElement[]) => {
 		const config = themeConfig
-		this.#log.fn(c('applyStyleProps')).debug({ config, this: this })
+		this.#log.fn(c('applyStyleProps')).info({ config, this: this })
 
 		const themeColors = config.vars.color[this.activeMode]
 		if (!themeColors) {
@@ -582,7 +584,6 @@ export class Themer {
 					const x: VariableDefinition = config.vars[key]
 
 					for (const [mode, vars] of entries(x)) {
-						// console.log({ key, value })
 						if (mode === 'base') {
 							for (const [k, v] of entries(vars)) {
 								allVars.set(k, v)
@@ -611,45 +612,82 @@ export class Themer {
 
 export class ThemeEditor {
 	gui: Gui
-	#unsub: () => void
+	// #unsub: () => void
 	#log: Logger
 
-	constructor(
-		public targetGui: Gui,
-		opts?: Partial<GuiOptions>,
-	) {
-		this.#log = new Logger('ThemeEditor:' + targetGui.title, {
+	get folder() {
+		return this.gui.folder
+	}
+
+	constructor(public targetGui: Gui) {
+		this.#log = new Logger('ThemeEditor:' + targetGui.folder.title, {
 			fg: 'DarkCyan',
 			deferred: false,
 		})
-		this.gui = new Gui(opts)
+		const opts = targetGui.opts
+		if (isType(opts.storage, 'GuiStorageOptions')) {
+			opts.storage.key += '::theme-editor'
+		}
+		// console.log(opts)
+		// const storageOpts = isType(opts?.storage, 'GuiStorageOptions') ? opts.storage : undefined
+		// const key = storageOpts ? storageOpts.key + '::theme-editor' : ''
 
-		this.targetGui.windowManager?.add(this.gui.wrapper, {
-			draggable: {
-				...DRAG_DEFAULTS,
-				handle: this.gui.elements.header,
-				localStorageKey:
-					typeof opts?.storage === 'object'
-						? opts?.storage?.key ?? 'fracgui::' + targetGui.title + '::theme-editor'
-						: DRAG_DEFAULTS.localStorageKey,
-			},
+		this.gui = new Gui({
+			title: 'Theme Editor',
+			themer: false, // Prevents infinite recursion.
+			windowManager: targetGui.windowManager, // Recycling!
+			// storage: { key },
+			container: targetGui.container,
+			// hidden: true,
 		})
 
-		this.targetGui.themer?.addTarget(this.gui.wrapper)
+		// const dragOpts = isType(this.targetGui.windowManager?.opts.draggable, 'object')
+		// 	? this.targetGui.windowManager.opts.draggable
+		// 	: DRAGGABLE_DEFAULTS
 
-		this.#unsub = this.targetGui.themer!.theme.subscribe(t => {
-			this.gui.title = `${opts?.title} · ${t.title}`
+		// const resizeOpts = isType(this.targetGui.windowManager?.opts.resizable, 'object')
+		// 	? this.targetGui.windowManager.opts.resizable
+		// 	: RESIZABLE_DEFAULTS
+
+		// this.targetGui.windowManager?.add(this.gui.wrapper, {
+		// 	id: this.gui.id,
+		// 	...this.targetGui.windowManager.opts,
+		// 	draggable: {
+		// 		...dragOpts,
+		// 		handle: this.gui.elements.header,
+		// 	},
+		// 	resizable: {
+		// 		...resizeOpts,
+		// 	},
+		// })
+
+		// console.log(targetGui.container)
+		// console.log(this.gui.container)
+
+		targetGui.themer?.addTarget(this.gui.wrapper)
+
+		this.gui.folder.evm.add(() => {
+			this.targetGui.themer?.theme.subscribe(t => {
+				this.gui.folder.title = `${opts?.title} · ${t.title}`
+			})
 		})
 
 		this.targetGui.themer!.applyTheme()
 
 		setTimeout(() => {
 			this.generate()
+
+			console.log(this.targetGui.folder.id, this.gui.folder.id)
+			console.log(this.targetGui.windowManager?.windows.map(w => w.id))
+			console.log(
+				this.targetGui.windowManager?.windows.find(w => w.id === this.targetGui.folder.id),
+			)
+			console.log(this.gui.windowManager?.windows.find(w => w.id === this.gui.folder.id))
 		}, 0)
 	}
 
 	dispose() {
-		this.#unsub()
+		// this.#unsub()
 		this.gui.dispose()
 	}
 
@@ -659,7 +697,7 @@ export class ThemeEditor {
 
 	generate = () => {
 		const MAX_DEPTH = 0
-		let currentFolder: Folder = this.gui
+		let currentFolder: Folder = this.gui.folder
 
 		const add = (
 			folder: Folder,
@@ -702,7 +740,12 @@ export class ThemeEditor {
 					if (isColor(v)) {
 						v = v.hex8String
 					}
-					this.#log.fn('onChange').debug({ k, v, this: this })
+					this.#log.fn('onChange').debug({
+						k,
+						v,
+						value: `--${this.targetGui.themer!.theme.value.prefix}-${k}`,
+						this: this,
+					})
 					this.targetGui.wrapper.style.setProperty(
 						`--${this.targetGui.themer!.theme.value.prefix}-${k}`,
 						v,
@@ -747,7 +790,7 @@ export class ThemeEditor {
 		const allVars = this.vars
 
 		for (const [title, def] of entries(allVars)) {
-			currentFolder = this.gui.addFolder({ title, closed: depth > MAX_DEPTH })
+			currentFolder = this.gui.folder.addFolder({ title, closed: depth > MAX_DEPTH })
 
 			if (title === 'core' && 'core' in allVars) {
 				for (const [mode, vars] of entries(allVars['core'])) {
@@ -764,7 +807,7 @@ export class ThemeEditor {
 			}
 		}
 
-		for (const folder of this.gui.allChildren) {
+		for (const folder of this.gui.folder.allChildren) {
 			// Delete all the empty folders.
 			if (!folder.inputs.size && !folder.children.length) {
 				folder.dispose()

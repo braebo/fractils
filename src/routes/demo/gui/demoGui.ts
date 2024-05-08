@@ -1,7 +1,7 @@
 import type { Params } from './+page.svelte'
 
+import { Gui } from '../../../lib/gui/Gui'
 import { writable } from 'svelte/store'
-import { Gui } from '$lib/gui/Gui'
 
 export const code = writable('')
 
@@ -9,18 +9,19 @@ export function demoGui(params: Params) {
 	const gui = new Gui({
 		title: 'Orbs',
 		position: 'top-center',
-		placementOptions: {
+		positionOptions: {
 			margin: 60,
 		},
 		storage: {
 			key: 'fracgui',
 		},
+		windowManager: true,
 		windowManagerOptions: {
 			zFloor: 0,
 		},
 	})
 
-	gui.on('toggle', v => {
+	gui.folder.on('toggle', v => {
 		console.log(v)
 	})
 	// gui.addText({

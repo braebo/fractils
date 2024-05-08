@@ -15,6 +15,7 @@ import { DEV } from 'esm-env'
  * constructor.
  */
 export interface ButtonItemOptions {
+	readonly __type?: 'ButtonItemOptions'
 	/**
 	 * Text to display on the button.
 	 */
@@ -50,7 +51,8 @@ export interface ButtonItemOptions {
  * A {@link ButtonItemOptions} object, with the `label` property coerced into a function that
  * returns a string.
  */
-export interface ButtonItem extends ButtonItemOptions {
+export interface ButtonItem extends Omit<ButtonItemOptions, '__type'> {
+	readonly __type?: 'ButtonItem'
 	/**
 	 * Text to display on the button.
 	 */
@@ -80,7 +82,7 @@ export type ButtonGrid = ButtonItemOptions[][]
 export type ButtonGridClickFunction = (payload: ButtonItem) => void
 
 export type ButtonGridInputOptions = {
-	type?: 'ButtonGrid'
+	readonly __type?: 'ButtonGridInputOptions'
 	title: string
 	value: ButtonGrid
 	styles?: CreateOptions['styles']
@@ -92,7 +94,7 @@ export type ButtonGridInputOptions = {
 } & InputOptions<ButtonGrid>
 
 export const BUTTONGRID_INPUT_DEFAULTS = {
-	type: 'ButtonGrid' as const,
+	__type: 'ButtonGridInputOptions' as const,
 	title: '',
 	value: [[{ label: '', onClick: () => {} }]],
 	styles: {
@@ -113,7 +115,7 @@ export class InputButtonGrid extends Input<
 	ButtonGridInputOptions,
 	ButtonGridControllerElements
 > {
-	readonly type = 'ButtonGrid' as const
+	readonly __type = 'InputButtonGrid' as const
 	readonly initialValue = {} as ButtonGrid
 	readonly state = state({} as ButtonItem) as State<ButtonItem>
 
@@ -124,7 +126,7 @@ export class InputButtonGrid extends Input<
 
 	constructor(options: Partial<ButtonGridInputOptions>, folder: Folder) {
 		const opts = Object.assign({}, BUTTONGRID_INPUT_DEFAULTS, options, {
-			type: 'ButtonGrid' as const,
+			__type: 'ButtonGridInputOptions' as const,
 		})
 		super(opts, folder)
 
@@ -213,6 +215,7 @@ export class InputButtonGrid extends Input<
 
 		let btn = {
 			...opts,
+			__type: 'ButtonItem' as const,
 			element: button,
 			label,
 		}

@@ -337,7 +337,7 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 		this.input.state.value.hsva = { h: hue, s, v, a }
 		this.input.set(this.input.state.value)
 
-		this.input.undoManager.commit({
+		this.input.undoManager?.commit({
 			...commit,
 			to: this.input.state.value.rgba as any as Color, // todo
 		})

@@ -23,7 +23,7 @@ export type CreateOptions<
 	variables?: Record<`--${string}`, string | number>
 	type?: string
 	attributes?: Record<string, string>
-	value?: string
+	value?: any
 	tooltip?: Partial<TooltipOptions>
 	innerHTML?: string
 	children?: HTMLElement[]
@@ -35,18 +35,17 @@ export type CreateOptions<
 
 export interface PropSetters {
 	setProp<
-		TCustomProperties extends string[] = string[],
+		TCustomProperties extends (string & {})[] = (string & {})[],
 		K extends keyof PropertiesHyphen | TCustomProperties[number] = keyof PropertiesHyphen,
 	>(
 		prop: K,
 		value: PropertiesHyphen<keyof PropertiesHyphen>,
 	): void
 	setProps<
-		TCustomProperties extends string[] = string[],
+		// TCustomProperties extends (string & {})[] = (string & {})[],
+		TCustomProperties extends (string & {})[] = [''],
 		K extends keyof PropertiesHyphen | TCustomProperties[number] = keyof PropertiesHyphen,
-		V = K extends keyof PropertiesHyphen
-			? PropertiesHyphen[K] | (string & {})
-			: string | (string & {}),
+		V = K extends keyof PropertiesHyphen ? PropertiesHyphen[K] | (string & {}) : string & {},
 	>(
 		props: Partial<Record<K, V>>,
 	): void
@@ -125,7 +124,12 @@ export function create<
 		}
 
 		if (options.children) {
-			for (const child of options.children ?? []) el.appendChild(child)
+			for (const child of options.children ?? []) {
+				if (el === null) throw new Error('This should never happen')
+				if (child) {
+					el.appendChild(child)
+				}
+			}
 		}
 
 		if (options.onclick) {

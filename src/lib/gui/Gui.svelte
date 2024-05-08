@@ -12,7 +12,7 @@
 
 		if (!gui) {
 			gui = new module.Gui({
-				element: options.container || containerEl,
+				container: options.container || containerEl,
 				// localStorageKeys: options.localStorageKeys ?? true,
 				storage: options.storage ?? {
 					key: 'fractils::fracgui-svelte',

@@ -14,6 +14,7 @@ export type LabeledOption<T> = { label: string; value: T }
 export type Option<T> = T | LabeledOption<T>
 
 export interface SelectInputOptions<T> {
+	readonly __type?: 'SelectInputOptions'
 	input: Input
 	container: HTMLDivElement
 	disabled: boolean
@@ -58,7 +59,7 @@ export type SelectElements = {
 }
 
 export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
-	// input = undefined as never
+	readonly __type = 'Select' as const
 	element: HTMLDivElement
 
 	opts: SelectInputOptions<T> & {

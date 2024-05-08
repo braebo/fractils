@@ -2,23 +2,29 @@ import './gui.scss'
 
 import type { WindowManagerOptions } from '../utils/windowManager'
 import type { Placement, PlacementOptions } from '../dom/place'
-import type { FolderElements, FolderOptions, FolderPreset } from './Folder'
+// import type { FolderElements, FolderOptions } from './Folder'
 import type { PrimitiveState, State } from '../utils/state'
 import type { ResizableOptions } from '../utils/resizable'
 import type { DraggableOptions } from '../utils/draggable'
+import type { Theme, ThemeMode } from '../themer/types'
 import type { ThemerOptions } from '../themer/Themer'
-import type { Tooltip } from '../actions/tooltip'
-import type { ThemeMode } from '../themer/types'
+// import type { Tooltip } from '../actions/tooltip'
+import type { PropertiesHyphen } from 'csstype'
+import type { FolderPreset } from './Folder'
 
 import { WindowManager, WINDOWMANAGER_DEFAULTS } from '../utils/windowManager'
 import { RESIZABLE_DEFAULTS } from '../utils/resizable'
-import { code } from '../../routes/demo/gui/demoGui'
+import { DRAGGABLE_DEFAULTS } from '../utils/draggable'
+// import { code } from '../../routes/demo/gui/demoGui'
+import { ThemeEditor, Themer } from '../themer/Themer'
+import settingsIcon from './svg/settings-icon.svg?raw'
 import { UndoManager } from '../utils/undoManager'
 import { resolveOpts } from './shared/resolveOpts'
-import { DRAG_DEFAULTS } from '../utils/draggable'
-// import { ThemeEditor } from '../themer/Themer'
+import { PresetManager } from './PresetManager'
 import { deepMerge } from '../utils/deepMerge'
-import { Themer } from '../themer/Themer'
+import { nanoid } from '../utils/nanoid'
+import { BROWSER } from '../dom/BROWSER'
+import { isType } from '../utils/isType'
 import { Logger } from '../utils/logger'
 import { create } from '../utils/create'
 import { VAR_PREFIX } from './GUI_VARS'
@@ -26,18 +32,20 @@ import { state } from '../utils/state'
 import { GUI_VARS } from './GUI_VARS'
 import { place } from '../dom/place'
 import { Folder } from './Folder'
-import { BROWSER } from 'esm-env'
 
 type GuiTheme = 'default' | 'minimal' | (string & {})
 
-export interface GuiElements extends FolderElements {
-	toolbar: {
-		container: HTMLElement
-		settingsButton: HTMLButtonElement & { tooltip?: Tooltip }
-	}
+export interface GuiElements {
+	root: HTMLElement
 }
 
-export interface GuiOptions extends Omit<FolderOptions, 'parentFolder'> {
+export interface GuiOptions {
+	__type?: 'GuiOptions'
+	/**
+	 * The title of the Gui.
+	 * @defaultValue 'gooey'
+	 */
+	title?: string
 	/**
 	 * Defines which properties to persist in localStorage, and under which
 	 * key, if any.  If `true`, the {@link GUI_STORAGE_DEFAULTS} will be used.
@@ -45,6 +53,13 @@ export interface GuiOptions extends Omit<FolderOptions, 'parentFolder'> {
 	 * @defaultValue false
 	 */
 	storage?: boolean | Partial<GuiStorageOptions>
+	// /**
+	//  * Defines which properties to persist in localStorage, and under which
+	// d * key, if any.  If `true`, the {@link GUI_STORAGE_DEFAULTS} will be used.
+	//  * If `false`, no state will be persisted.
+	//  * @defaultValue GUI_STORAGE_DEFAULTS
+	//  */
+	// storageOptions?: Partial<GuiStorageOptions>
 	/**
 	 * The container to append the gui to.
 	 * @defaultValue document.body
@@ -96,21 +111,37 @@ export interface GuiOptions extends Omit<FolderOptions, 'parentFolder'> {
 	 * instead of an explicit {x, y} object.
 	 * @defaultValue { margin: 16, bounds: 'window' } // todo - Update the defaults.
 	 */
-	placementOptions?: Partial<PlacementOptions>
+	positionOptions?: Partial<PlacementOptions>
 	/**
 	 * The initial expanded state of the gui.
-	 * @defaultValue false
+	 * @defaultValue `false`
 	 */
-	closed: boolean
+	closed?: boolean
 	/**
-	 * `parentFolder` should always be `undefined` for the root gui.
-	 * @private
-	 * @internal
+	 * Presets to make available in the gui.
+	 * @defaultValue `[]`
 	 */
-	_parentFolder: undefined
+	presets?: FolderPreset[]
+	/**
+	 * The default preset to load when the gui is created, or the initial gui state if undefined.
+	 * @defaultValue `undefined`
+	 */
+	defaultPreset?: FolderPreset
+	// /**
+	//  * `parentFolder` should always be `undefined` for the root gui.
+	//  * @private
+	//  * @internal
+	//  */
+	// _parentFolder: undefined
+	/**
+	 * A unique id for the gui's root element.
+	 * @defaultValue {@link nanoid}
+	 */
+	id?: string
 }
 
 export interface GuiStorageOptions {
+	__type?: 'GuiStorageOptions'
 	/**
 	 * Prefix to use for localStorage keys.
 	 * @defaultValue "fractils::gui"
@@ -138,15 +169,25 @@ export interface GuiStorageOptions {
 	 * /// todo - implement this!
 	 */
 	size?: boolean
+	/**
+	 * Whether to persist the gui's presets.
+	 * @defaultValue true
+	 */
+	presets?: boolean
 }
 
 export const GUI_STORAGE_DEFAULTS: GuiStorageOptions = {
+	__type: 'GuiStorageOptions',
 	key: 'fracgui',
 	closed: true,
 	theme: true,
+	position: false,
+	size: false,
+	presets: true,
 } as const
 
 export const GUI_WINDOWMANAGER_DEFAULTS: WindowManagerOptions = {
+	__type: 'WindowManagerOptions',
 	preserveZ: false,
 	zFloor: 0,
 	bounds: 'window',
@@ -164,26 +205,36 @@ export const GUI_WINDOWMANAGER_DEFAULTS: WindowManagerOptions = {
 }
 
 export const GUI_DEFAULTS: GuiOptions = {
+	__type: 'GuiOptions',
 	title: 'gui',
-	controls: new Map(),
-	children: [],
+	// controls: new Map(),
+	// children: [],
 	themer: true,
 	themerOptions: {
 		localStorageKey: 'fracgui::themer',
 	},
 	windowManager: undefined,
-	windowManagerOptions: GUI_WINDOWMANAGER_DEFAULTS,
+	windowManagerOptions: deepMerge([
+		GUI_WINDOWMANAGER_DEFAULTS,
+		{
+			resizable: {
+				sides: ['right'],
+				corners: [],
+			},
+		},
+	]),
 	storage: false,
+	// storageOptions: GUI_STORAGE_DEFAULTS,
 	closed: false,
 	position: 'top-right',
-	placementOptions: {
+	positionOptions: {
 		margin: 16,
 		bounds: 'window',
 	},
 	theme: 'default',
-	hidden: false,
-	_parentFolder: undefined,
-	depth: 0,
+	// hidden: false,
+	// _parentFolder: undefined,
+	// depth: 0,
 } as const
 
 /**
@@ -191,17 +242,23 @@ export const GUI_DEFAULTS: GuiOptions = {
  * a gui.  You can create multiple root guis, but each gui
  * can only have one root.
  */
-export class Gui extends Folder {
+export class Gui {
+	__type = 'Gui' as const
 	isRoot = true as const
+	id = nanoid()
+
+	folder: Folder
+	// element: HTMLElement
 
 	declare elements: GuiElements
 
 	opts: GuiOptions
 	closed: PrimitiveState<boolean>
 	closedMap: State<Map<string, boolean>>
-	presets: State<Map<string, FolderPreset>>
-	activePreset = state({} as FolderPreset)
-	#presetSnapshot: FolderPreset | undefined
+	// presets: State<FolderPreset[]>
+	// activePreset = state({} as FolderPreset)
+	// #presetSnapshot: FolderPreset | undefined
+	presetManager!: PresetManager
 
 	wrapper!: HTMLElement
 	container!: HTMLElement
@@ -209,7 +266,7 @@ export class Gui extends Folder {
 	static settingsFolderTitle = 'fracgui-settings-folder'
 
 	themer?: Themer
-	// themeEditor?: ThemeEditor // todo
+	themeEditor?: ThemeEditor // todo
 	windowManager?: WindowManager
 	undoManager = new UndoManager()
 
@@ -217,37 +274,62 @@ export class Gui extends Folder {
 
 	#log: Logger
 
+	on: Folder['on']
+	addFolder: Folder['addFolder']
+
 	constructor(options?: Partial<GuiOptions>) {
 		//· Setup ····························································¬
 
-		const opts = deepMerge(GUI_DEFAULTS, options ?? {}) as GuiOptions
+		const opts = deepMerge([GUI_DEFAULTS, options ?? {}], { concatArrays: false }) as GuiOptions
+
 		// Resolve storage separately since GUI_DEFAULTS.storage is `false`.
-		opts.storage = resolveOpts(opts.storage, GUI_STORAGE_DEFAULTS)
-		opts.container ??= document.body
+		// opts.storage = resolveOpts(opts.storage, GUI_STORAGE_DEFAULTS)
+		if (isType<'GuiStorageOptions'>(opts.storage as any, 'GuiStorageOptions')) {
+			opts.storage = deepMerge([GUI_STORAGE_DEFAULTS, opts.storage], {
+				concatArrays: false,
+			})
+		}
 		opts.position =
 			opts.position ??
 			// https://github.com/microsoft/TypeScript/issues/54825#issuecomment-1612948506
 			(((opts.windowManagerOptions as WindowManagerOptions)?.draggable as DraggableOptions)
 				?.position as Placement)
 		opts.windowManagerOptions
-
-		super(opts as any as FolderOptions, opts.container)
-
+		opts.container ??= document.body
 		this.opts = opts
-		this.root = this
-		this.container = opts.container
-		this.presets = state(new Map(), { key: 'fracgui::presets' })
 
-		this.#log = new Logger('Gui:' + opts.title, { fg: 'palevioletred' })
-		this.#log.fn('constructor').info({ options, opts, this: this })
+		this.container = opts.container
+		this.theme = opts.theme ?? 'default'
+
+		// const rootElement = this.#createRootElement()
 
 		this.wrapper = create('div', {
 			classes: ['fracgui-wrapper'],
 			style: {
 				display: 'contents',
 			},
-			children: [this.element],
+			parent: this.container,
+			// children: [rootElement],
 		})
+
+		// super(opts as any as FolderOptions, opts.container)
+		this.folder = new Folder(
+			{
+				...opts,
+				__type: 'FolderOptions',
+				gui: this,
+				container: this.wrapper,
+				// depth: 0,
+				// hidden: false,
+				_isRoot: true,
+			},
+			true,
+		)
+		this.on = this.folder.on.bind(this.folder)
+		this.addFolder = this.folder.addFolder.bind(this.folder)
+
+		this.#log = new Logger('Gui:' + opts.title, { fg: 'palevioletred' })
+		this.#log.fn('constructor').info({ options, opts })
 
 		const undo = (e: KeyboardEvent) => {
 			// todo - make sure the active element is within the gui first
@@ -264,55 +346,67 @@ export class Gui extends Folder {
 
 		const storageOpts = resolveOpts(opts.storage, GUI_STORAGE_DEFAULTS)
 
-		if (typeof storageOpts === 'object') {
-			storageOpts.key += `::${opts.title?.toLowerCase().replaceAll(/\s/g, '-')}::closed`
-		}
+		const closedKey =
+			storageOpts && storageOpts.closed
+				? (storageOpts.key += `::${opts.title?.toLowerCase().replaceAll(/\s/g, '-')}::closed`)
+				: ''
 
-		this.closed = state(this.opts.closed, {
-			key:
-				(storageOpts &&
-					storageOpts.key +
-						`::${opts.title?.toLowerCase().replaceAll(/\s/g, '-')}::closed`) ||
-				'',
+		const closedMapKey =
+			storageOpts && storageOpts.closed
+				? (storageOpts.key += `::${opts.title?.toLowerCase().replaceAll(/\s/g, '-')}::closed-map`)
+				: ''
+
+		this.closed = state(!!this.opts.closed, {
+			key: closedKey,
+			// (storageOpts &&
+			// 	storageOpts.key +
+			// 		`::${opts.title?.toLowerCase().replaceAll(/\s/g, '-')}::closed`) ||
+			// '',
 		})
 
 		// todo - Finish this whole "deep expanded persistence" thing with `closedMap`
 		this.closedMap = state(new Map(), {
-			key:
-				(storageOpts &&
-					storageOpts.key +
-						`::${opts.title?.toLowerCase().replaceAll(/\s/g, '-')}::closed-map`) ||
-				'',
+			key: closedMapKey,
+			// key:
+			// 	(storageOpts &&
+			// 		storageOpts.key +
+			// 			`::${opts.title?.toLowerCase().replaceAll(/\s/g, '-')}::closed-map`) ||
+			// 	'',
 		})
-		this.closedMap.setKey(this.title, this.closed.value)
+
+		// this.closedMap.setKey(this.title, this.closed.value)
 		// todo - We will need to emit a close/open event from `Folder`, and listen for it here.
-		this.closedMap.subscribe(map => {
-			this.closed.set(map.get(this.title) ?? false)
-		})
+		// this.closedMap.subscribe(map => {
+		// 	this.closed.set(!!map.get(this.title))
+		// })
 		//⌟
 
+		this.folder.elements.toolbar.settingsButton = this.#createSettingsButton(
+			this.folder.elements.toolbar.container,
+		)
 		this.settingsFolder = this.#createSettingsFolder()
 
 		this.windowManager ??= this.#createWindowManager(options, storageOpts)
 
 		//· Theme Editor ·····················································¬
 
-		// todo - Uncomment this once it has a button.
-		if (this.themer) {
-			// this.themeEditor = new ThemeEditor(this, {
-			// 	title: 'Theme Editor',
-			// 	themer: false, // Prevents infinite recursion.
-			// 	windowManager: this.windowManager, // Recycling!
-			// 	storage: {
-			// 		// This is smelly.
-			// 		key: storageOpts ? storageOpts.key : '',
-			// 	},
-			// 	// hidden: true,
-			// })
-		}
+		// if (isType(opts.storage, 'GuiStorageOptions')) {
+		// 	this.opts = {
+		// 		...opts,
+		// 		storage: {
+		// 			...opts.storage,
+		// 			...storageOpts,
+		// 		},
+		// 	}
+		// }
+
+		// // todo - Uncomment this once it has a button.
+		// if (opts.themer) {
+		// 	this.themeEditor = new ThemeEditor(this)
+		// }
 		//⌟
 
-		if (this.closed.value) this.close()
+		// if (this.closed.value) this.close()
 
 		//· Reveal Animation ·················································¬
 
@@ -335,11 +429,11 @@ export class Gui extends Folder {
 		const rect = ghost.children[0].getBoundingClientRect()
 		ghost.remove()
 
-		if (this.opts.position && this.opts.placementOptions) {
+		if (this.opts.position && this.opts.positionOptions) {
 			if (typeof this.opts.position === 'string') {
 				const placementPosition = place(rect, this.opts.position, {
-					bounds: this.opts.placementOptions.bounds ?? this.container,
-					margin: this.opts.placementOptions.margin,
+					bounds: this.opts.positionOptions.bounds ?? this.container,
+					margin: this.opts.positionOptions.margin,
 				})
 
 				this.windowManager?.windows.at(-1)?.draggableInstance?.moveTo(placementPosition, 0)
@@ -348,7 +442,7 @@ export class Gui extends Folder {
 
 		// Now that we're in position and inputs are loaded, we can animate-in.
 		this.container.appendChild(this.wrapper)
-		this.element.animate([{ opacity: 0 }, { opacity: 1 }], {
+		this.folder.element.animate([{ opacity: 0 }, { opacity: 1 }], {
 			fill: 'none',
 			duration: 400,
 		})
@@ -359,10 +453,10 @@ export class Gui extends Folder {
 
 		const dragOpts = resolveOpts<DraggableOptions>(
 			(this.opts.windowManagerOptions as WindowManagerOptions)['draggable'],
-			DRAG_DEFAULTS,
+			DRAGGABLE_DEFAULTS,
 		)
 		if (dragOpts) {
-			dragOpts.handle = this.elements.header
+			dragOpts.handle = this.folder.elements.header
 			dragOpts.bounds = this.container
 		}
 
@@ -378,9 +472,11 @@ export class Gui extends Folder {
 		if (options?.windowManager instanceof WindowManager) {
 			const windowManager = options.windowManager
 
-			windowManager.add(this.wrapper, {
-				draggable: dragOpts,
-				resizable: resizeOpts,
+			windowManager.add(this.folder.element, {
+				id: this.folder.id,
+				...this.opts.windowManagerOptions,
+				// draggable: dragOpts,
+				// resizable: resizeOpts,
 			})
 
 			return windowManager
@@ -411,7 +507,7 @@ export class Gui extends Folder {
 			resizable: resizeOpts,
 		})
 
-		windowManager.add(this.element, {
+		windowManager.add(this.folder.element, {
 			draggable: dragOpts,
 			resizable: resizeOpts,
 		})
@@ -422,15 +518,15 @@ export class Gui extends Folder {
 	set theme(theme: GuiTheme) {
 		if (!this.themer) return
 		this._theme = theme
-		this.root.element.setAttribute('theme', theme)
-		this.root.element.setAttribute('mode', this.themer.mode.value)
+		this.folder.element.setAttribute('theme', theme)
+		this.folder.element.setAttribute('mode', this.themer.mode.value)
 	}
 	get theme() {
 		return this._theme!
 	}
 
 	#createSettingsFolder() {
-		const settingsFolder = this.addFolder({
+		const folder = this.folder.addFolder({
 			title: Gui.settingsFolderTitle,
 			// closed: true,
 			closed: false,
@@ -438,172 +534,204 @@ export class Gui extends Folder {
 			hidden: false,
 		})
 
-		this.#createThemer(settingsFolder)
-		this.#createPresetsFolder(settingsFolder)
+		if (this.opts.themer) {
+			const themer = this.#createThemer.bind(this, folder)()
+			if (themer) this.themer = themer
+			// this.themeEditor = new ThemeEditor(this)
+		}
+		// this.#createPresetsFolder(settingsFolder)
 
-		this.#applyAltStyle(settingsFolder)
+		const { presets, defaultPreset, storage } = this.opts
+		let storageKey: string | undefined
+		if (isType(storage, 'GuiStorageOptions')) {
+			if (storage?.presets) {
+				storageKey = 'fracgui::presets'
+			}
+		}
+		this.presetManager = new PresetManager(folder, {
+			presets,
+			defaultPreset,
+			storageKey,
+		})
 
-		return settingsFolder
+		this.applyAltStyle(folder)
+
+		return folder
 	}
 
-	#createPresetsFolder(parentFolder: Folder) {
-		const presetsFolder = parentFolder.addFolder({
-			title: 'presets',
-			// closed: true,
-			closed: false,
-		})
-		// const presetsFolder = parentFolder
-		const presetTitle = presetsFolder.addText({
-			title: 'title',
-			value: 'preset' + (this.presets.value.size ? ` (${this.presets.value.size})` : ''),
-		})
-		presetTitle.on('change', v => {
-			console.log(v)
-			// const curr = this.presets.value.get(v)
-			// if (saveBtn) {
-			// 	if (curr) {
-			// 		console.log('preset exists', v)
-			// 		saveBtn.element.innerText = 'overwrite'
-			// 	} else {
-			// 		saveBtn.element.innerText = 'save'
-			// 	}
-			// }
-			// if (curr && this.activePresetId.value === curr.presetId) {
-			// 	renameBtn?.element.classList.add('disabled')
-			// }
-		})
+	load(preset: FolderPreset) {
+		console.groupCollapsed('load preset: ' + preset.presetId)
 
-		const btnGrid = presetsFolder.addButtonGrid({
-			title: 'manage',
-			value: [
-				[
-					{
-						label: 'save',
-						onClick: () => {
-							const preset = this.save(presetTitle.value)
-							console.log(preset)
-							code.set(`const preset = ${JSON.stringify(preset, null, 2)}`)
-							this.presets.setKey(preset.presetTitle!, preset)
-							console.log(this.presets.value)
-						},
-					},
-					{
-						label: 'rename',
-						onClick: () => {
-							this.#renamePreset(presetTitle.value)
-						},
-					},
-					{
-						label: 'delete',
-						onClick: () => {},
-					},
-				],
-			],
-		})
+		this.folder.load(preset)
+		this.presetManager.set(preset)
 
-		const saveBtn = btnGrid.buttons.get('save')
-		const renameBtn = btnGrid.buttons.get('rename')
-		const deleteBtn = btnGrid.buttons.get('delete')
-		saveBtn
-		renameBtn
-		deleteBtn
-
-		// Let the folders load before saving the default preset.
-		Promise.resolve().then(() => {
-			const defaultPreset = { label: 'default', value: this.save('default') }
-			this.presets.setKey('default', defaultPreset.value)
-			this.activePreset.set(defaultPreset.value)
-
-			const presetSelectInput = presetsFolder.addSelect({
-				title: 'presets',
-				options: Array.from(this.presets.value.entries()).map(([k, v]) => ({
-					label: k,
-					value: v,
-				})),
-				binding: {
-					target: this,
-					key: 'activePreset',
-					initial: defaultPreset,
-				},
-				onChange: v => {
-					// @ts-expect-error	// todo
-					this.load(v.value)
-				},
-			})
-
-			presetSelectInput.on('open', () => {
-				this.#presetSnapshot = this.save('snapshot')
-			})
-			presetSelectInput.on('cancel', () => {
-				if (this.#presetSnapshot) {
-					this.load(this.#presetSnapshot)
-				}
-			})
-		})
+		console.groupEnd()
 	}
 
-	#renamePreset(title: string) {
-		this.presets.update(presets => {
-			const preset = presets.get(this.activePreset.value.presetId)
-			if (!preset) throw new Error('No preset found.')
+	// #createPresetsFolder(parentFolder: Folder) {
+	// 	const presetsFolder = parentFolder.addFolder({
+	// 		title: 'presets',
+	// 		// closed: true,
+	// 		closed: false,
+	// 	})
+	// 	// const presetsFolder = parentFolder
+	// 	const presetTitle = presetsFolder.addText({
+	// 		title: 'title',
+	// 		value: 'preset' + (this.presets.value.length ? ` (${this.presets.value.length})` : ''),
+	// 	})
+	// 	presetTitle.on('change', v => {
+	// 		console.log(v)
+	// 		// const curr = this.presets.value.get(v)
+	// 		// if (saveBtn) {
+	// 		// 	if (curr) {
+	// 		// 		console.log('preset exists', v)
+	// 		// 		saveBtn.element.innerText = 'overwrite'
+	// 		// 	} else {
+	// 		// 		saveBtn.element.innerText = 'save'
+	// 		// 	}
+	// 		// }
+	// 		// if (curr && this.activePresetId.value === curr.presetId) {
+	// 		// 	renameBtn?.element.classList.add('disabled')
+	// 		// }
+	// 	})
 
-			preset.presetTitle = title
-			presets.set(this.activePreset.value.presetId, preset)
+	// 	const btnGrid = presetsFolder.addButtonGrid({
+	// 		title: 'manage',
+	// 		value: [
+	// 			[
+	// 				{
+	// 					label: 'save',
+	// 					onClick: () => {
+	// 						const preset = this.save(presetTitle.value)
+	// 						// console.log(preset)
+	// 						code.set(`const preset = ${JSON.stringify(preset, null, 2)}`)
+	// 						this.presets.push(preset)
+	// 						// console.log(this.presets.value)
+	// 					},
+	// 				},
+	// 				{
+	// 					label: 'rename',
+	// 					onClick: () => {
+	// 						this.#renamePreset(presetTitle.value)
+	// 					},
+	// 				},
+	// 				{
+	// 					label: 'delete',
+	// 					onClick: () => {},
+	// 				},
+	// 			],
+	// 		],
+	// 	})
 
-			return presets
-		})
-	}
+	// 	const saveBtn = btnGrid.buttons.get('save')
+	// 	const renameBtn = btnGrid.buttons.get('rename')
+	// 	const deleteBtn = btnGrid.buttons.get('delete')
+	// 	saveBtn
+	// 	renameBtn
+	// 	deleteBtn
+
+	// 	// Let the folders load before saving the default preset.
+	// 	Promise.resolve().then(() => {
+	// 		let defaultPreset = this.presets.value.find(p => p.presetId === 'default')
+	// 		if (!defaultPreset) {
+	// 			defaultPreset = this.save('default')
+	// 			defaultPreset.presetId = 'default'
+	// 			this.presets.push(defaultPreset)
+	// 		}
+	// 		this.activePreset.set(defaultPreset)
+	// 		this.evm.add(
+	// 			this.activePreset.subscribe(v => {
+	// 				if (v.presetId === this.activePreset.value.presetId) return
+	// 				this.load(v)
+	// 			}),
+	// 		)
+
+	// 		const presetSelectInput = presetsFolder.addSelect({
+	// 			type: 'Select',
+	// 			title: 'presets',
+	// 			options: () => this.presets.value,
+	// 			labelKey: 'presetTitle',
+	// 			value: this.activePreset.value,
+	// 			onChange: v => {
+	// 				this.load(v.value)
+	// 			},
+	// 		})
+
+	// 		// presetSelectInput.on('change', v => {
+	// 		// 	this.load(v.value)
+	// 		// })
+
+	// 		presetSelectInput.on('open', () => {
+	// 			this.#presetSnapshot = this.save('snapshot')
+	// 		})
+	// 		presetSelectInput.on('cancel', () => {
+	// 			if (this.#presetSnapshot) {
+	// 				this.load(this.#presetSnapshot)
+	// 			}
+	// 		})
+	// 	})
+	// }
+
+	// #renamePreset(title: string) {
+	// 	this.presets.update(presets => {
+	// 		const preset = presets.find(p => p.presetId === this.activePreset.value.presetId)
+	// 		if (!preset) throw new Error('No preset found.')
+
+	// 		preset.presetTitle = title
+	// 		// presets.set(this.activePreset.value.presetId, preset)
+	// 		presets = presets.map(p =>
+	// 			p.presetId === this.activePreset.value.presetId ? preset : p,
+	// 		)
+
+	// 		return presets
+	// 	})
+	// }
 
 	#createThemer(folder: Folder) {
-		// const folder = parentFolder
-		// const folder = parentFolder.addFolder({ title: 'theme',
-		// 	//! closed: false,
-		// 	closed: false,
-		// })
+		// console.warn('#createThemer')
+		// console.warn('#createThemer')
+		// console.warn('#createThemer')
+		console.warn('#createThemer')
+		let finalThemer = undefined as Themer | undefined
 		const { themer, themerOptions, storage } = this.opts
 
-		if (!BROWSER) {
-			throw new Error('Themer requires a browser environment.')
-		}
+		if (!BROWSER()) throw new Error('Themer requires a browser environment.')
 
 		if (themer) {
 			if (themerOptions) {
-				themerOptions.persistent = (storage as GuiStorageOptions)?.theme ?? true
+				themerOptions.persistent = isType(storage, 'GuiStorageOptions')
+					? storage.theme
+					: true
 
 				// Load up the default generated theme vars.
-				themerOptions.vars = deepMerge(GUI_VARS, themerOptions.vars)
+				themerOptions.vars = deepMerge([GUI_VARS, themerOptions.vars])
 			}
 
 			if (themer === true) {
 				themerOptions.wrapper = this.wrapper
-				this.themer = new Themer(this.root.element, themerOptions)
+				// this.themer = new Themer(this.folder.root.element, themerOptions)
+				finalThemer = new Themer(this.folder.element, themerOptions)
 			} else {
-				this.themer = themer
+				// this.themer = themer
+				finalThemer = themer
 			}
 
-			this.evm.add(
-				this.themer.mode.subscribe(() => {
+			this.folder.evm.add(
+				finalThemer.mode.subscribe(() => {
 					if (this.settingsFolder) {
-						this.#applyAltStyle(this.settingsFolder)
+						this.applyAltStyle(this.settingsFolder)
 					}
 				}),
 			)
 
 			if (folder) {
-				folder.add({
+				folder.addSelect<Theme>({
 					title: 'theme',
-					// todo - labelKey: 'title',
-					options: this.themer.themes.value.map(t => ({
-						label: t.title,
-						value: t,
-					})),
+					labelKey: 'title',
+					options: finalThemer.themes.value,
 					binding: {
-						target: this.themer,
+						target: finalThemer,
 						key: 'theme',
-						initial: {
-							label: this.themer.theme.value.title,
-							value: this.themer.theme,
-						},
 					},
 				})
 
@@ -619,20 +747,91 @@ export class Gui extends Folder {
 				})
 			}
 		}
+
+		return finalThemer
 	}
 
-	#applyAltStyle(folder: Folder) {
+	isGui(): this is Gui {
+		return this.__type === 'Gui'
+	}
+
+	//// @ts-expect-error - // todo - Why tf can't typescript see this is used?
+	#createRootElement(container: HTMLElement | null = null) {
+		container ??= document.body
+
+		const rootEl = create('div', {
+			id: `fracgui-root_${this.id}`,
+			classes: ['fracgui-root', 'fracgui-folder', 'closed'],
+			dataset: { theme: this.theme ?? 'default' },
+		})
+
+		return rootEl
+	}
+
+	// #createSettingsFolder() {
+	// 	const settingsFolder = this.addFolder({
+	// 		title: Gui.settingsFolderTitle,
+	// 		// closed: true,
+	// 		closed: false,
+	// 		header: false,
+	// 		hidden: false,
+	// 	})
+
+	// 	// todo - folder-level presets?
+	// 	// this.#createPresetsFolder(settingsFolder)
+	// 	// this.presetManager = new PresetManager(
+	// 	// 	this,
+	// 	// 	settingsFolder,
+	// 	// 	this.opts.presets,
+	// 	// 	this.opts.defaultPreset,
+	// 	// )
+
+	// 	settingsFolder.applyAltStyle()
+
+	// 	return settingsFolder
+	// }
+
+	//// @ts-expect-error - // todo - Why tf can't typescript see this is used?
+	#createSettingsButton(parent: HTMLElement) {
+		// if (!this.isGui()) {
+		// 	throw new Error('Settings button can only be created on the root folder.')
+		// }
+
+		const svg = new DOMParser().parseFromString(settingsIcon, 'image/svg+xml').documentElement
+
+		const button = create<'button', any, HTMLButtonElement>('button', {
+			parent,
+			classes: ['fracgui-toolbar-item', 'fracgui-settings-button'],
+			children: [svg],
+			tooltip: {
+				text: () => {
+					return this.settingsFolder?.closed.value ? 'Open Settings' : 'Close Settings'
+				},
+				placement: 'left',
+				delay: 750,
+				delayOut: 0,
+				hideOnClick: true,
+			},
+		})
+
+		button.addEventListener('click', () => {
+			this.settingsFolder.toggle()
+
+			this.folder.elements.toolbar.settingsButton?.classList.toggle(
+				'open',
+				!this.settingsFolder.closed.value,
+			)
+		})
+
+		return button
+	}
+
+	applyAltStyle(folder: Folder) {
 		this.setProp(
 			folder.elements.content,
 			`box-shadow`,
 			`0px 0px 10px 0px hsl(10deg, 0%, var(--${VAR_PREFIX}-shadow-lightness), inset`,
 		)
-
-		this.setProps(folder.element, [
-			// ['controller_background', `var(--${VAR_PREFIX}-bg-c)`],
-			// ['controller-dim_background', `var(--${VAR_PREFIX}-bg-a)`],
-			// ['folder-header_background', `var(--${VAR_PREFIX}-bg-b)`],
-		])
 
 		switch (this.themer?.activeMode) {
 			case 'light': {
@@ -659,7 +858,7 @@ export class Gui extends Folder {
 		}
 	}
 
-	setProp(el: HTMLElement, key: string, value: string) {
+	setProp(el: HTMLElement, key: keyof PropertiesHyphen | (string & {}), value: string) {
 		el.style.setProperty(`--${VAR_PREFIX}-${key}`, value)
 		Promise.resolve().then(() => {
 			if (!el.style.getPropertyValue(`--${VAR_PREFIX}-${key}`)) {
@@ -667,14 +866,14 @@ export class Gui extends Folder {
 			}
 		})
 	}
-	setProps(el: HTMLElement, props: [string, string][]) {
+	setProps(el: HTMLElement, props: [keyof PropertiesHyphen | (string & {}), string][]) {
 		for (const [key, value] of props) {
 			this.setProp(el, key, value)
 		}
 	}
 
 	dispose = () => {
-		super.dispose()
+		this.folder.dispose()
 
 		window.addEventListener
 		this.themer?.dispose()

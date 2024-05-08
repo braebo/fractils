@@ -2,6 +2,7 @@ import type { ColorComponentsElements } from '../controllers/color/ColorComponen
 import type { ColorPickerElements } from '../controllers/color/ColorPicker'
 import type { ElementMap, InputOptions, InputPreset } from './Input'
 import type { ColorFormat } from '../../color/types/colorFormat'
+import type  { State } from '../../utils/state'
 import type { Folder } from '../Folder'
 
 import { ColorComponents } from '../controllers/color/ColorComponents'
@@ -10,7 +11,7 @@ import { Color, isColor } from '../../color/color'
 import { CopyButton } from '../shared/CopyButton'
 import { create } from '../../utils/create'
 import { Logger } from '../../utils/logger'
-import { state, type State } from '../../utils/state'
+import { state } from '../../utils/state'
 import { Input } from './Input'
 
 export type ColorMode = (typeof COLOR_MODES)[number]
@@ -55,7 +56,7 @@ export interface ColorControllerElements extends ElementMap<ColorPicker> {
 }
 
 export type ColorInputOptions = {
-	type?: 'Color'
+	__type?: 'ColorInputOptions'
 	mode: ColorMode
 	expanded: boolean
 	onChange?: (value: Color) => void
@@ -63,7 +64,7 @@ export type ColorInputOptions = {
 //⌟
 
 export const COLOR_INPUT_DEFAULTS: ColorInputOptions = {
-	type: 'Color' as const,
+	__type: 'ColorInputOptions' as const,
 	title: '',
 	value: '#FF0000FF',
 	mode: 'hex',
@@ -71,7 +72,7 @@ export const COLOR_INPUT_DEFAULTS: ColorInputOptions = {
 } as const
 
 export class InputColor extends Input<Color, ColorInputOptions, ColorControllerElements> {
-	readonly type = 'Color' as const
+	readonly __type = 'InputColor' as const
 	initialValue: Color
 	state: State<Color>
 	events = ['change']
@@ -101,7 +102,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 	constructor(options: Partial<ColorInputOptions>, folder: Folder) {
 		const opts = Object.assign({}, COLOR_INPUT_DEFAULTS, options, {
-			type: 'Color' as const,
+			__type: 'ColorInputOptions' as const,
 		})
 		super(opts, folder)
 
@@ -349,6 +350,10 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 		this.#pickerContainer.style.overflow = 'hidden'
 		this.#pickerContainer.classList.remove('expanded')
+
+		console.log('this', this)
+		console.log('this.#pickerContainer', this.#pickerContainer)
+		console.log('pickerAnim', pickerAnim)
 
 		await Promise.all([pickerAnim.finished, containerAnim.finished])
 		pickerAnim.commitStyles()

@@ -52,6 +52,7 @@
 
 		return () => {
 			gui.dispose()
+			window.location.reload()
 		}
 	})
 

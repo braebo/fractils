@@ -12,7 +12,7 @@ import { DEV } from 'esm-env'
 export type ButtonClickFunction = (this: InputButton) => void
 
 export type ButtonInputOptions = InputOptions<ButtonClickFunction> & {
-	type?: 'Button'
+	readonly __type?: 'ButtonInputOptions'
 	title: string
 	text: string | (() => string)
 	/**
@@ -26,6 +26,7 @@ export type ButtonInputOptions = InputOptions<ButtonClickFunction> & {
 }
 
 export const BUTTON_INPUT_DEFAULTS: ButtonInputOptions = {
+	__type: 'ButtonInputOptions' as const,
 	title: 'Button',
 	text: () => 'click me',
 } as const
@@ -40,7 +41,7 @@ export class InputButton extends Input<
 	ButtonInputOptions,
 	ButtonControllerElements
 > {
-	readonly type = 'Button' as const
+	readonly __type = 'InputButton' as const
 	readonly initialValue = {} as ButtonClickFunction
 	readonly state = state({}) as State<ButtonClickFunction>
 	readonly events = ['change', 'click']
@@ -52,7 +53,9 @@ export class InputButton extends Input<
 	#log: Logger
 
 	constructor(options: Partial<ButtonInputOptions>, folder: Folder) {
-		const opts = Object.assign({}, BUTTON_INPUT_DEFAULTS, options, { type: 'Button' as const })
+		const opts = Object.assign({}, BUTTON_INPUT_DEFAULTS, options, {
+			__type: 'ButtonInputOptions' as const,
+		})
 		super(opts, folder)
 
 		this.#log = new Logger(`InputButton : ${opts.title}`, { fg: 'cyan' })
