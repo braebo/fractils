@@ -44,7 +44,7 @@ export class ButtonController extends Controller<void, ButtonControllerElements>
 	) {
 		const opts = Object.assign({}, BUTTON_INPUT_DEFAULTS, options)
 		super(opts)
-		this.#log.fn('constructor').info({ opts, this: this })
+		this.#log.fn('constructor').debug({ opts, this: this })
 
 		const button = create('button', {
 			classes: ['fracgui-controller', 'fracgui-controller-button'],

@@ -50,7 +50,7 @@ export class CopyButton {
 			offsetY: '6px',
 			delay: 300,
 			parent: container,
-			styles: {
+			style: {
 				minWidth: '4.25rem',
 				background: 'var(--fracgui-bg-a)',
 				color: 'var(--fracgui-fg-a)',

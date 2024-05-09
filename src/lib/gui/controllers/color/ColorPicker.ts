@@ -125,7 +125,7 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 				x: 'mouse',
 				y: hueSlider.querySelector('#thumb'),
 			},
-			styles: {
+			style: {
 				background: 'var(--fracgui-bg-a)',
 				color: 'var(--fracgui-fg-a)',
 			},
@@ -150,7 +150,7 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 				x: 'mouse',
 				y: alphaSlider.querySelector('#thumb'),
 			},
-			styles: {
+			style: {
 				background: 'var(--fracgui-bg-a)',
 				color: 'var(--fracgui-fg-a)',
 			},
