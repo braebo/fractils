@@ -1,4 +1,3 @@
-// Place your key bindings in this file to override the defaults
 [
 	{
 		"key": "shift+alt+tab",
@@ -303,6 +302,7 @@
 		"key": "alt+cmd+g",
 		"command": "git.openChange"
 	},
+	//? Wraps selection in a template string, i.e. `${selection}`
 	{
 		"key": "alt+l",
 		"command": "runCommands",

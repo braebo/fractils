@@ -1,24 +1,31 @@
 {
-	//- Editor
-	"$schema": "vscode://schemas/settings/json",
-
 	//- General
-
 	"files.associations": {
 		"*.svg": "html",
-		"*.json": "jsonc"
+		"*.json": "jsonc",
+		"*.scss": "scss",
+		"package.json": "json", // `jsonc` breaks some extensions.
 	},
-	"editor.minimap.enabled": false,
-	"explorer.confirmDragAndDrop": false,
-	"liveshare.accessibility.voiceEnabled": true,
-	"editor.accessibilitySupport": "off",
-	"explorer.confirmDelete": false,
-	"editor.stickyScroll.enabled": true,
 	"explorer.sortOrder": "foldersNestsFiles",
+	"explorer.confirmDelete": false,
+	"explorer.confirmDragAndDrop": false,
+	"liveshare.anonymousGuestApproval": "prompt",
+	"liveshare.accessibility.voiceEnabled": false,
+	//? Prevents `import { old as new } from 'module'` when using rename symbol.
+	"javascript.preferences.useAliasesForRenames": false,
+	"typescript.preferences.useAliasesForRenames": false,
+	//- Editor
+	"editor.lightbulb.enabled": "off",
+	"editor.minimap.enabled": false,
+	"editor.accessibilitySupport": "off",
 	"editor.guides.bracketPairs": true,
-
+	"editor.renderWhitespace": "none",
+	"editor.acceptSuggestionOnCommitCharacter": false,
+	"editor.multiCursorModifier": "alt",
+	"editor.stickyScroll.enabled": true,
+	"editor.stickyScroll.maxLineCount": 10,
+	"editor.foldingHighlight": false,
 	//- Git
-
 	"git.enableSmartCommit": true,
 	"git.autofetch": true,
 	"git.confirmSync": false,
@@ -26,16 +33,15 @@
 		"*": true,
 		"plaintext": false,
 		"markdown": false,
-		"scminput": false
+		"scminput": false,
+		"typescript": true,
 	},
-
 	//- Third party
-
 	"explicitFolding.rules": {
 		"*": {
 			"beginRegex": "[ \\t]*?\\/\\/\\·(?:.*)?",
-			"endRegex": "[ \\t]*?\\/\\/\\⌟(?:.*)?"
-		}
+			"endRegex": "[ \\t]*?\\/\\/\\⌟(?:.*)?",
+		},
 	},
 	"vscode-color-picker.languages": [
 		"jsonc",
@@ -46,26 +52,31 @@
 		"python",
 		"javascript",
 		"typescript",
-		"shellscript"
+		"shellscript",
+		"glsl",
 	],
-
-	//- Theming
-
-	// "workbench.colorTheme": "Mo Darker",
 	"workbench.preferredDarkColorTheme": "Mo Darker",
-	"workbench.preferredLightColorTheme": "Catppuccin Latte",
+	"workbench.preferredLightColorTheme": "Moxer Light",
 	"workbench.iconTheme": "material-icon-theme",
 	"window.autoDetectColorScheme": true,
+	"workbench.colorCustomizations": {
+		"[Mo Darker]": {
+			"tab.activeBorder": "#9e9078",
+			"tab.activeBackground": "#1e1e1e",
+		},
+	},
 	"editor.tokenColorCustomizations": {
 		"textMateRules": [
 			//? No italics.
 			{
-				"scope": [ "*" ],
+				"scope": [
+					"*"
+				],
 				"settings": {
-					"fontStyle": ""
-				}
+					"fontStyle": "",
+				},
 			},
-			//? More subtle Template Tags
+			// //? More subtle Template Tags
 			// {
 			// 	"scope": [
 			// 		"punctuation.definition.tag",
@@ -79,14 +90,15 @@
 			// },
 			//? Boilerplate supressor.
 			{
-				"scope": ["punctuation.terminator"],
+				"scope": [
+					"punctuation.terminator"
+				],
 				"settings": {
-					"foreground": "#43485a"
-				}
-			}
-		]
+					"foreground": "#43485a",
+				},
+			},
+		],
 	},
-
 	"better-comments.tags": [
 		{
 			"tag": "!",
@@ -95,7 +107,7 @@
 			"underline": false,
 			"backgroundColor": "transparent",
 			"bold": false,
-			"italic": false
+			"italic": false,
 		},
 		{
 			"tag": "-",
@@ -104,17 +116,16 @@
 			"underline": false,
 			"backgroundColor": "transparent",
 			"bold": false,
-			"italic": false
+			"italic": false,
 		},
 		{
 			"tag": "?",
-			// "color": "#4B84A5",
 			"color": "#4B6DA5",
 			"strikethrough": false,
 			"underline": false,
 			"backgroundColor": "transparent",
 			"bold": false,
-			"italic": false
+			"italic": false,
 		},
 		{
 			"tag": "//",
@@ -123,16 +134,16 @@
 			"underline": false,
 			"backgroundColor": "transparent",
 			"bold": false,
-			"italic": false
+			"italic": false,
 		},
 		{
 			"tag": "todo",
-			"color": "#ff8c00a2",
+			"color": "#FF8C00",
 			"strikethrough": false,
 			"underline": false,
 			"backgroundColor": "transparent",
 			"bold": false,
-			"italic": false
+			"italic": false,
 		},
 		{
 			"tag": "*",
@@ -141,79 +152,115 @@
 			"underline": false,
 			"backgroundColor": "transparent",
 			"bold": false,
-			"italic": false
+			"italic": false,
 		},
 		//? Custom region folding tag.
 		{
-			"tag": "··",
-			"color": "#34306e",
-			"bold": true
-		},
-		{
+			// region start
 			"tag": "·",
 			"color": "#374fa6",
-			"bold": true
+			"bold": true,
 		},
 		{
+			// region end
 			"tag": "⌟",
 			"color": "#002255",
-			"bold": true
-		}
+			"bold": true,
+		},
+		{
+			// nested region start
+			"tag": "··",
+			"color": "#34306e",
+			"bold": true,
+		},
 	],
-
 	//- Formatting
-
-	// "editor.formatOnSave": false,
+	"editor.formatOnSave": false,
 	"prettier.semi": false,
 	"prettier.singleQuote": true,
 	"prettier.trailingComma": "none",
 	"prettier.useTabs": true,
 	"prettier.tabWidth": 4,
-	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"[go]": {
+		"editor.defaultFormatter": "golang.go",
+	},
+	"[json]": {
+		"editor.defaultFormatter": "vscode.json-language-features",
+	},
 	"[jsonc]": {
-		"editor.defaultFormatter": "esbenp.prettier-vscode"
+		"editor.defaultFormatter": "vscode.json-language-features",
+	},
+	"[snippets]": {
+		"editor.defaultFormatter": "vscode.json-language-features",
 	},
 	"[yaml]": {
-		"editor.defaultFormatter": "redhat.vscode-yaml"
+		"editor.defaultFormatter": "redhat.vscode-yaml",
 	},
 	"[shellscript]": {
-		"editor.defaultFormatter": "shakram02.bash-beautify"
+		"editor.defaultFormatter": "shakram02.bash-beautify",
 	},
 	"[html]": {
-		"editor.defaultFormatter": "esbenp.prettier-vscode"
+		"editor.defaultFormatter": "esbenp.prettier-vscode",
+	},
+	"[javascript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode",
+	},
+	"[typescript]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode",
 	},
 	"[svelte]": {
-		"editor.defaultFormatter": "svelte.svelte-vscode"
+		"editor.defaultFormatter": "svelte.svelte-vscode",
 	},
+	"[markdown]": {
+		"editor.defaultFormatter": "yzhang.markdown-all-in-one",
+	},
+	"html.autoClosingTags": false,
+	"javascript.autoClosingTags": false,
+	"typescript.autoClosingTags": false,
+	"svelte.plugin.html.tagComplete.enable": false,
+	"xml.completion.autoCloseRemovesContent": false,
+	"xml.completion.autoCloseTags": false,
 	"svelte.enable-ts-plugin": true,
-
+	"typescript.preferences.renameMatchingJsxTags": false,
+	"javascript.preferences.renameMatchingJsxTags": false,
 	//- File nesting.
-
-	// "explorer.fileNesting.enabled": true,
 	"explorer.fileNesting.enabled": false,
 	"explorer.fileNesting.expand": false,
 	"explorer.fileNesting.patterns": {
 		".gitignore": ".gitattributes, .gitmodules, .gitmessage, .mailmap, .git-blame*",
 		"*.js": "$(capture).js.map, $(capture).min.js, $(capture).d.ts",
 		"*.ts": "$(capture).js, $(capture).*.ts",
-		"*.svelte": "$(capture).doc.json",
+		// "*.svelte": "$(capture).js, $(capture).ts, $(capture).*.ts",
 		"*.scss": "$(capture).css.map, $(capture).css",
 		"vite.config.js": "vite.config.js*",
 		"index.d.ts": "*.d.ts",
 		"shims.d.ts": "*.d.ts",
 		".env": "*.env, .env.*, env.d.ts",
-		"package.json": ".editorconfig, .github*, .gitignore, .gitpod*, .node-version, .npm*, .nvmrc, .pnpm*, .stylelint*, .vscode*, api-extractor.json, package-lock.json, pm2.*, pnpm*, rollup.config.*, stylelint*, tsdoc.*, tslint*, tsup.config.*, turbo*, typedoc*, vetur.config.*, vitest.config.*, workspace.json, xo.config.*",
+		"package.json": "bunfig.toml, .eslint*, .cssnanorc*, .env.*, env.d.ts, .prettier*, mdsvex.config.js, postcss.config.*, tsdoc.*, vercel*, vitest.config.*, .editorconfig, .github*, .gitignore, .gitpod*, .node-version, .npm*, .nvmrc, .pnpm*, .stylelint*, .vscode*, api-extractor.json, package-lock.json, pm2.*, pnpm*, rollup.config.*, stylelint*, tsdoc.*, tslint*, tsup.config.*, turbo*, typedoc*, vetur.config.*, vitest.config.*, workspace.json, xo.config.*",
 		"readme.*": "authors, backers.md, changelog*, citation*, code_of_conduct.md, codeowners, contributing.md, contributors, copying, credits, governance.md, history.md, license*, maintainers, readme*, security.md, sponsors.md",
 		"cargo.toml": ".clippy.toml, .rustfmt.toml, cargo.lock, clippy.toml, cross.toml, rust-toolchain.toml, rustfmt.toml",
-		"svelte.config.*": "bunfig.toml, *.env, .eslint*, .cssnanorc*, .env.*, env.d.ts, .prettier*, mdsvex.config.js, postcss.config.*, tsdoc.*, vercel*, vite.config.*, vitest.config.*",
-		"favicon.ico": "robots.txt, safari-pinned-tab.svg, browserconfig.xml, site.webmanifest, *.png"
+		"svelte.config.*": "",
+		"favicon.ico": "robots.txt, safari-pinned-tab.svg, browserconfig.xml, site.webmanifest, *.png",
 	},
+	"explorer.compactFolders": false,
+	//- Misc
 	"terminal.integrated.env.osx": {},
-	"editor.acceptSuggestionOnCommitCharacter": false,
 	"diffEditor.ignoreTrimWhitespace": false,
-	"editor.renderWhitespace": "none",
 	"workbench.panel.defaultLocation": "left",
-	"window.zoomLevel": 0,
-	"focus.highlightRange": "block",
-	"workbench.colorTheme": "Serendipity Morning V1"
+	"githubPullRequests.pullBranch": "never",
+	"terminal.integrated.shellIntegration.history": 5000,
+	"workbench.colorTheme": "Visual Studio Dark",
+	"files.exclude": {
+		"**/.DS_Store": false,
+		"**/.git": false,
+		"**/.hg": false,
+		"**/.svn": false,
+		"**/CVS": false,
+		"**/Thumbs.db": false,
+	},
+	//? 10/10 extension - worth the money.
+	"console-ninja.featureSet": "Pro",
+	"focus.highlightRange": "line",
+	"gitlens.codeLens.enabled": false,
+	"security.promptForLocalFileProtocolHandling": false,
 }
