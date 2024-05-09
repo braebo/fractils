@@ -313,23 +313,21 @@ export class Gui {
 		})
 
 		// super(opts as any as FolderOptions, opts.container)
-		this.folder = new Folder(
-			{
-				...opts,
-				__type: 'FolderOptions',
-				gui: this,
-				container: this.wrapper,
-				// depth: 0,
-				// hidden: false,
-				_isRoot: true,
-			},
-			true,
-		)
-		this.on = this.folder.on.bind(this.folder)
-		this.addFolder = this.folder.addFolder.bind(this.folder)
+		this.folder = new Folder({
+			...opts,
+			__type: 'FolderOptions',
+			// @ts-expect-error @internal
+			gui: this,
+			container: this.wrapper,
+			isRoot: true,
+		})
+		// this.on = this.folder.on.bind(this.folder)
+		this.on = this.folder.on
+		// this.addFolder = this.folder.addFolder.bind(this.folder)
+		this.addFolder = this.folder.addFolder
 
 		this.#log = new Logger('Gui:' + opts.title, { fg: 'palevioletred' })
-		this.#log.fn('constructor').info({ options, opts })
+		this.#log.fn('constructor').debug({ options, opts })
 
 		const undo = (e: KeyboardEvent) => {
 			// todo - make sure the active element is within the gui first
@@ -420,12 +418,13 @@ export class Gui {
 		// Wait until the gui is fully constructed before positioning it
 		// to make sure we can calculate the correct size and position.
 		await Promise.resolve()
+
 		// Append a non-animating, full-size clone to get the proper rect.
 		const ghost = this.wrapper.cloneNode(true) as HTMLElement
 		ghost.style.visibility = 'hidden'
 		this.container.prepend(ghost)
 
-		// This is the only to get the correct future rect afaik.
+		// This is the only way to get the correct future rect afaik.
 		const rect = ghost.children[0].getBoundingClientRect()
 		ghost.remove()
 
@@ -499,7 +498,7 @@ export class Gui {
 
 		this.#log
 			.fn('constructor')
-			.info({ options, opts: this.opts, dragOptions: dragOpts, resizeOpts })
+			.debug({ options, opts: this.opts, dragOptions: dragOpts, resizeOpts })
 
 		const windowManager = new WindowManager({
 			...windowManagerOpts,
@@ -526,16 +525,16 @@ export class Gui {
 	}
 
 	#createSettingsFolder() {
-		const folder = this.folder.addFolder({
+		const settingsFolder = this.folder.addFolder({
 			title: Gui.settingsFolderTitle,
-			// closed: true,
 			closed: false,
-			header: false,
 			hidden: false,
+			// @ts-expect-error @internal
+			headerless: true,
 		})
 
 		if (this.opts.themer) {
-			const themer = this.#createThemer.bind(this, folder)()
+			const themer = this.#createThemer(settingsFolder)
 			if (themer) this.themer = themer
 			// this.themeEditor = new ThemeEditor(this)
 		}
@@ -548,15 +547,15 @@ export class Gui {
 				storageKey = 'fracgui::presets'
 			}
 		}
-		this.presetManager = new PresetManager(folder, {
+		this.presetManager = new PresetManager(settingsFolder, {
 			presets,
 			defaultPreset,
 			storageKey,
 		})
 
-		this.applyAltStyle(folder)
+		this.applyAltStyle(settingsFolder)
 
-		return folder
+		return settingsFolder
 	}
 
 	load(preset: FolderPreset) {
@@ -568,130 +567,8 @@ export class Gui {
 		console.groupEnd()
 	}
 
-	// #createPresetsFolder(parentFolder: Folder) {
-	// 	const presetsFolder = parentFolder.addFolder({
-	// 		title: 'presets',
-	// 		// closed: true,
-	// 		closed: false,
-	// 	})
-	// 	// const presetsFolder = parentFolder
-	// 	const presetTitle = presetsFolder.addText({
-	// 		title: 'title',
-	// 		value: 'preset' + (this.presets.value.length ? ` (${this.presets.value.length})` : ''),
-	// 	})
-	// 	presetTitle.on('change', v => {
-	// 		console.log(v)
-	// 		// const curr = this.presets.value.get(v)
-	// 		// if (saveBtn) {
-	// 		// 	if (curr) {
-	// 		// 		console.log('preset exists', v)
-	// 		// 		saveBtn.element.innerText = 'overwrite'
-	// 		// 	} else {
-	// 		// 		saveBtn.element.innerText = 'save'
-	// 		// 	}
-	// 		// }
-	// 		// if (curr && this.activePresetId.value === curr.presetId) {
-	// 		// 	renameBtn?.element.classList.add('disabled')
-	// 		// }
-	// 	})
-
-	// 	const btnGrid = presetsFolder.addButtonGrid({
-	// 		title: 'manage',
-	// 		value: [
-	// 			[
-	// 				{
-	// 					label: 'save',
-	// 					onClick: () => {
-	// 						const preset = this.save(presetTitle.value)
-	// 						// console.log(preset)
-	// 						code.set(`const preset = ${JSON.stringify(preset, null, 2)}`)
-	// 						this.presets.push(preset)
-	// 						// console.log(this.presets.value)
-	// 					},
-	// 				},
-	// 				{
-	// 					label: 'rename',
-	// 					onClick: () => {
-	// 						this.#renamePreset(presetTitle.value)
-	// 					},
-	// 				},
-	// 				{
-	// 					label: 'delete',
-	// 					onClick: () => {},
-	// 				},
-	// 			],
-	// 		],
-	// 	})
-
-	// 	const saveBtn = btnGrid.buttons.get('save')
-	// 	const renameBtn = btnGrid.buttons.get('rename')
-	// 	const deleteBtn = btnGrid.buttons.get('delete')
-	// 	saveBtn
-	// 	renameBtn
-	// 	deleteBtn
-
-	// 	// Let the folders load before saving the default preset.
-	// 	Promise.resolve().then(() => {
-	// 		let defaultPreset = this.presets.value.find(p => p.presetId === 'default')
-	// 		if (!defaultPreset) {
-	// 			defaultPreset = this.save('default')
-	// 			defaultPreset.presetId = 'default'
-	// 			this.presets.push(defaultPreset)
-	// 		}
-	// 		this.activePreset.set(defaultPreset)
-	// 		this.evm.add(
-	// 			this.activePreset.subscribe(v => {
-	// 				if (v.presetId === this.activePreset.value.presetId) return
-	// 				this.load(v)
-	// 			}),
-	// 		)
-
-	// 		const presetSelectInput = presetsFolder.addSelect({
-	// 			type: 'Select',
-	// 			title: 'presets',
-	// 			options: () => this.presets.value,
-	// 			labelKey: 'presetTitle',
-	// 			value: this.activePreset.value,
-	// 			onChange: v => {
-	// 				this.load(v.value)
-	// 			},
-	// 		})
-
-	// 		// presetSelectInput.on('change', v => {
-	// 		// 	this.load(v.value)
-	// 		// })
-
-	// 		presetSelectInput.on('open', () => {
-	// 			this.#presetSnapshot = this.save('snapshot')
-	// 		})
-	// 		presetSelectInput.on('cancel', () => {
-	// 			if (this.#presetSnapshot) {
-	// 				this.load(this.#presetSnapshot)
-	// 			}
-	// 		})
-	// 	})
-	// }
-
-	// #renamePreset(title: string) {
-	// 	this.presets.update(presets => {
-	// 		const preset = presets.find(p => p.presetId === this.activePreset.value.presetId)
-	// 		if (!preset) throw new Error('No preset found.')
-
-	// 		preset.presetTitle = title
-	// 		// presets.set(this.activePreset.value.presetId, preset)
-	// 		presets = presets.map(p =>
-	// 			p.presetId === this.activePreset.value.presetId ? preset : p,
-	// 		)
-
-	// 		return presets
-	// 	})
-	// }
-
 	#createThemer(folder: Folder) {
-		// console.warn('#createThemer')
-		// console.warn('#createThemer')
-		// console.warn('#createThemer')
-		console.warn('#createThemer')
+		this.#log.fn('createThemer').debug({ folder })
 		let finalThemer = undefined as Themer | undefined
 		const { themer, themerOptions, storage } = this.opts
 
@@ -755,54 +632,18 @@ export class Gui {
 		return this.__type === 'Gui'
 	}
 
-	//// @ts-expect-error - // todo - Why tf can't typescript see this is used?
-	#createRootElement(container: HTMLElement | null = null) {
-		container ??= document.body
-
-		const rootEl = create('div', {
-			id: `fracgui-root_${this.id}`,
-			classes: ['fracgui-root', 'fracgui-folder', 'closed'],
-			dataset: { theme: this.theme ?? 'default' },
-		})
-
-		return rootEl
-	}
-
-	// #createSettingsFolder() {
-	// 	const settingsFolder = this.addFolder({
-	// 		title: Gui.settingsFolderTitle,
-	// 		// closed: true,
-	// 		closed: false,
-	// 		header: false,
-	// 		hidden: false,
-	// 	})
-
-	// 	// todo - folder-level presets?
-	// 	// this.#createPresetsFolder(settingsFolder)
-	// 	// this.presetManager = new PresetManager(
-	// 	// 	this,
-	// 	// 	settingsFolder,
-	// 	// 	this.opts.presets,
-	// 	// 	this.opts.defaultPreset,
-	// 	// )
-
-	// 	settingsFolder.applyAltStyle()
-
-	// 	return settingsFolder
-	// }
-
-	//// @ts-expect-error - // todo - Why tf can't typescript see this is used?
 	#createSettingsButton(parent: HTMLElement) {
 		// if (!this.isGui()) {
 		// 	throw new Error('Settings button can only be created on the root folder.')
 		// }
 
-		const svg = new DOMParser().parseFromString(settingsIcon, 'image/svg+xml').documentElement
+		// const svg = new DOMParser().parseFromString(settingsIcon, 'image/svg+xml').documentElement
 
 		const button = create<'button', any, HTMLButtonElement>('button', {
 			parent,
 			classes: ['fracgui-toolbar-item', 'fracgui-settings-button'],
-			children: [svg],
+			// children: [svg],
+			innerHTML: settingsIcon,
 			tooltip: {
 				text: () => {
 					return this.settingsFolder?.closed.value ? 'Open Settings' : 'Close Settings'

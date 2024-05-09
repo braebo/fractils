@@ -225,6 +225,7 @@
 	cursor: grab;
 
 	.fracgui-title {
+		position: relative;
 		width: fit-content;
 		height: var(--fracgui-root-header_height);
 
@@ -318,16 +319,17 @@
 	width: 100%;
 	padding-left: var(--fracgui-folder-header_padding-left);
 
+	outline-offset: -1px;
 	color: var(--fracgui-folder-header-dim_color);
 	background: var(--fracgui-folder-header_background);
 	outline: var(--fracgui-folder-header_outline, 1px solid rgba(var(--fracgui-bg-b-rgb), 0.5));
-	outline-offset: -1px;
 	box-shadow: var(--fracgui-folder-header_box-shadow, 0 0 0.1rem #000 inset);
 
 	transition: 0.1s;
 	cursor: pointer;
 
 	.fracgui-title {
+		position: relative;
 		width: fit-content;
 
 		// font-family: var(--fracgui-root_font-family);
@@ -599,12 +601,14 @@ $option-padding: 0.1rem 0.75rem;
 	top: 0;
 	bottom: 0;
 
+	width: 75%;
+
 	display: flex;
 	align-items: center;
 	justify-content: flex-end;
 	gap: 0.5rem;
 
-	width: 75%;
+	pointer-events: none;
 }
 
 $icon-width: 1.5rem;
@@ -635,6 +639,8 @@ $icon-height: 0.9rem;
 	cursor: pointer;
 	transition: 0.1s;
 	backface-visibility: hidden;
+
+	pointer-events: all;
 }
 
 //? Button
@@ -844,23 +850,17 @@ input.fracgui-search-input {
 	}
 
 	&.open {
-		// .dot-center {
-		// 	fill: none;
-		// 	stroke: var(--fracgui-toolbar-icon_color);
-		// }
 		.gear {
 			opacity: 1;
 			transform: scale(1) rotate(58deg);
 		}
-
-		// .dot-center {
-		// 	stroke: var(--fracgui-toolbar-icon-dim_color);
-		// }
 	}
 
 	&:active {
 		background: none;
 	}
+
+	pointer-events: all;
 }
 
 //⌟
@@ -1067,7 +1067,7 @@ input.fracgui-search-input {
 	pointer-events: none;
 
 	transition:
-		opacity 0.25s cubic-bezier(0.215, 0.610, 0.355, 1),
+		opacity 0.25s cubic-bezier(0.215, 0.61, 0.355, 1),
 		--fracgui-resetbtn-gradstart 0.25s cubic-bezier(0.215, 0.61, 0.355, 1),
 		--fracgui-resetbtn-gradend 0.25s cubic-bezier(0.215, 0.61, 0.355, 1);
 

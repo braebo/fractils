@@ -234,7 +234,7 @@ export function createFolderConnector(folder: Folder) {
 }
 
 export function animateConnector(folder: Folder, action: 'open' | 'close') {
-	if (!folder.graphics) return
+	if (!folder.graphics?.connector) return
 	const path = folder.graphics.connector.path
 	const length = `${path.getTotalLength()}`
 	path.style.strokeDasharray = `${length}`

@@ -1,3 +1,5 @@
+// The custom-regions extension is recommended for this file.
+
 import type { InputOptions, InputPreset, InputType, ValidInput } from './inputs/Input'
 import type { Option } from './controllers/Select'
 import type { Tooltip } from '../actions/tooltip'
@@ -14,13 +16,14 @@ import { animateConnector, createFolderConnector, createFolderSvg } from './svg/
 import { composedPathContains } from '../internal/cancelClassFound'
 import { isColor, isColorFormat } from '../color/color'
 import { EventManager } from '../utils/EventManager'
-import { deepMerge } from '../utils/deepMerge'
+import { TerminalSvg } from './svg/TerminalSvg'
 import { Search } from './toolbar/Search'
 import { create } from '../utils/create'
 import { Logger } from '../utils/logger'
 import { nanoid } from '../utils/nanoid'
 import { state } from '../utils/state'
 import { toFn } from './shared/toFn'
+import { DEV } from 'esm-env'
 import { Gui } from './Gui'
 
 export interface FolderElements {
@@ -34,74 +37,135 @@ export interface FolderElements {
 	}
 }
 
-/**
- * @internal
- */
 export interface FolderOptions {
 	__type?: 'FolderOptions'
+
 	/**
-	 * A preset namespace to use for saving/loading.  By default, the title is used,
-	 * so this is only necessary if you want to use the same title for multiple folders.
-	 * @default {@link title}
+	 * The element to append the folder to (usually
+	 * the parent folder's content element).
 	 */
-	presetId?: string
+	container: HTMLElement
+
 	/**
 	 * The title of the folder.
 	 * @default ''
 	 */
 	title?: string
+
+	/**
+	 * A preset namespace to use for saving/loading.  By default, the {@link title|`title`}
+	 * is used, in combiniation with the parent folder's title (and so on up the hierarchy).
+	 * Therefore, if you want to use presets, you will only need to set this if you:
+	 * - Use the same title for multiple inputs _in the same {@link Folder}_, or
+	 * - Leave all titles empty
+	 * Otherwise, this can be left as the default and presets will work as expected.
+	 * @defaultValue {@link title|`title`}
+	 */
+	presetId?: string
+
 	/**
 	 * The child folders of this folder.
 	 */
 	children?: Folder[]
-	// /**
-	//  * Any controls this folder should contain.
-	//  */
-	// controls?: Map<string, ValidInput>
-	/**
-	 * The parent folder of this folder (or a circular reference if this is the root folder).
-	 */
-	parentFolder?: Folder
+
 	/**
 	 * Whether the folder should be collapsed by default.
-	 * @default false
+	 * @defaultValue `false`
 	 */
 	closed?: boolean
+
 	/**
 	 * Whether the folder should be hidden by default.  If a function is
 	 * provided, it will be called to determine the hidden state.  Use
 	 * {@link refresh} to update the hidden state.
-	 * @default false
+	 * @defaultValue `false`
 	 */
 	hidden?: boolean | (() => boolean)
+
 	/**
-	 * The element to append the folder to (usually
-	 * the parent folder's content element).
+	 * Any controls this folder should contain.
 	 */
-	container?: HTMLElement
-	/**
-	 * The GUI instance this folder belongs to.
-	 */
-	gui?: Gui
-	/**
-	 * The depth of the folder in the hierarchy.
-	 * @default 0
-	 */
-	depth?: number
-	/**
-	 * Whether this folder is the root folder.  This is set automatically
-	 * by {@link Gui}.  Be wary of infinite loops when setting manually.
-	 */
-	_isRoot?: boolean
+	controls?: Map<string, ValidInput>
 }
 
-export const FOLDER_DEFAULTS = {
+const FOLDER_DEFAULTS = Object.freeze({
+	presetId: '',
 	title: '',
 	children: [],
 	closed: false,
 	hidden: false,
-	depth: 0,
-} as const satisfies FolderOptions
+	controls: new Map(),
+}) satisfies Omit<FolderOptions, 'container'>
+
+/**
+ * @internal
+ */
+export interface InternalFolderOptions {
+	__type?: 'InternalFolderOptions'
+
+	// title: string
+
+	/**
+	 * The parent folder of this folder (or a circular reference if this is the root folder).
+	 */
+	parentFolder?: Folder
+
+	/**
+	 * The GUI instance this folder belongs to.
+	 */
+	gui?: Gui
+
+	// /**
+	//  * The depth of the folder in the hierarchy.
+	//  * @default 0
+	//  */
+	// depth?: number
+
+	/**
+	 * Whether this folder is the root folder.  Always true when
+	 * creating a `new Folder()`. Always false inside of the
+	 * `gui.addFolder` and `folder.addFolder` methods.
+	 * Be wary of infinite loops when setting manually.
+	 * @default true
+	 * @internal
+	 */
+	isRoot: boolean
+
+	/**
+	 * Bypasses the folder open/close animations.
+	 */
+	instant: boolean
+
+	/**
+	 * Hides the folder header.
+	 * @default false
+	 */
+	headerless: boolean
+}
+
+export const INTERNAL_FOLDER_DEFAULTS = {
+	__type: 'InternalFolderOptions',
+	// parentFolder: undefined,
+	isRoot: true,
+	instant: true,
+	// gui: undefined,
+	headerless: false,
+} as const satisfies InternalFolderOptions
+
+// export const INTERNAL_FOLDER_DEFAULTS = {
+// 	depth: 0,
+// 	isRoot: true,
+// 	instant: true,
+// 	parentFolder: undefined,
+// 	container: undefined,
+// 	presetId: '',
+// 	title: '',
+// 	children: [],
+// 	closed: false,
+// 	hidden: false,
+// 	gui: undefined,
+// 	controls: new Map(),
+// } as const satisfies Omit<InternalFolderOptions, FolderOptions>
 
 export interface FolderPreset {
 	__type: 'FolderPreset'
@@ -117,36 +181,37 @@ export interface FolderPreset {
  * @internal
  */
 export class Folder {
+	//· Props ····················································································¬
 	__type = 'Folder' as const
 	// isFolder = true as const
-	isRoot = false
+	isRoot = true
 	id = nanoid()
 
 	gui?: Gui
 
 	static #i = 0
 	index = Folder.#i++
-	depth: number
+	// depth: number
+	depth = -1
 
 	root: Folder
 	search: Search
 
 	#title: string
 	presetId: string
-	children: Folder[]
+	children = [] as Folder[]
 	inputs = new Map<string, ValidInput>()
 	parentFolder: Folder
-	// parentFolder: Folder | { isRoot: boolean }
 	settingsFolder!: Folder
 
 	closed = state(false)
-	static closedMap = new Map<string, boolean>()
+	#hidden: () => boolean
 
 	element: HTMLElement
 	elements = {} as FolderElements
 	graphics?: {
 		icon: HTMLDivElement
-		connector: {
+		connector?: {
 			container: HTMLDivElement
 			svg: SVGElement
 			path: SVGPathElement
@@ -168,85 +233,59 @@ export class Folder {
 	 * Whether clicking the header to open/close the folder is disabled.
 	 */
 	#disabled = false
-	/**
-	 * Whether the folder is visible.
-	 * todo - this should always be a fn and use `toFn` and `#hiddenFunction` should die.
-	 */
-	#hidden: () => boolean
 
 	evm = new EventManager(['change', 'toggle'])
 	on = this.evm.on
+	//⌟
+	constructor(options: FolderOptions) {
+		if (!('container' in options)) {
+			throw new Error('Folder must have a container.')
+		}
 
-	constructor(
-		options: FolderOptions,
-		instant = true,
-		// rootContainer: HTMLElement | null = null,
-	) {
-		const opts = deepMerge([FOLDER_DEFAULTS, options], { concatArrays: false })
+		const opts = Object.assign(
+			{},
+			FOLDER_DEFAULTS,
+			INTERNAL_FOLDER_DEFAULTS,
+			{
+				gui: this.gui,
+				isRoot: true,
+			} as const,
+			options,
+		) as FolderOptions & InternalFolderOptions
 
-		this.#log = new Logger('Folder : ' + opts.title, {
-			fg: 'DarkSalmon',
-			deferred: false,
-			server: false,
-		})
+		this.#log = new Logger(`Folder : ${opts.title}`, { fg: 'DarkSalmon' })
 		this.#log.fn('constructor').debug({ opts, this: this })
 
-		this.isRoot = !!opts._isRoot
-		this.parentFolder = this.isRoot ? this : opts.parentFolder!
-		this.root = this.parentFolder.root
+		this.isRoot = opts.isRoot
 
-		// console.log('this.parentFolder', this.parentFolder)
-		this.gui = opts.gui ?? opts.parentFolder?.gui
-		this.depth = opts.depth
-		this.#title = opts.title
-		this.children = opts.children ?? []
+		if (this.isRoot) {
+			this.depth = 0
+			this.parentFolder = this
+			this.root = this
+		} else {
+			if (!opts.parentFolder) {
+				throw new Error('Non-root folders must have a parent folder.')
+			}
+			this.parentFolder = opts.parentFolder
+			this.depth = this.parentFolder.depth + 1
+			this.root = this.parentFolder.root
+		}
 
-		// if (rootContainer) {
-		// this.root = this as any as Gui
-		// this.parentFolder = this
+		this.gui = opts.gui
+		this.#title = opts.title ?? ''
 
-		// if (!this.isGui()) throw new Error('Root folder must be a GUI.')
-
-		// const rootEl = this.#createRootElement(rootContainer)
-		// const { element, elements } = this.#createElements(rootEl)
-		// this.element = element as HTMLElement
-
-		// const settingsButton = this.#createSettingsButton(elements.toolbar.container)
-
-		// this.elements = {
-		// 	...elements,
-		// 	toolbar: {
-		// 		...elements.toolbar,
-		// 		settingsButton,
-		// 	},
-		// }
-
-		// this.theme = opts.theme
-		// } else {
-		// this.parentFolder = this.isRoot ? this : opts.parentFolder
-		// const root = this.parentFolder.isRoot
-		// if (isType<Folder>(this.parentFolder, 'Folder')) {
-		// 	this.root = this.parentFolder.root
-		// } else {
-		// 	this.root = this
-		// 	this.isRoot = true
-		// }
+		// todo - I _really_ want to know why this blows everything up, and why FOLDER_DEFAULTS.children is mutated to contain the parent
+		// todo - as a child even though its frozen, and _nowhere_ is `children` even passed into the constructor options...??!?!?!
+		//! this.children = opts.children
 
 		this.element = this.#createElement(opts.container)
 		this.elements = this.#createElements(this.element)
-		// const settingsButton = this.#createSettingsButton(elements.toolbar.container)
-		// }
-		// if (opts.settingsFolder) {
-		// 	this.settingsFolder = this.#createSettingsFolder()
-		// }
 
 		this.presetId = this.resolvePresetId(opts)
 
 		this.search = new Search(this)
 
-		if (opts.closed) {
-			this.closed.set(opts.closed)
-		} else if (instant) {
+		if (opts.instant) {
 			// We need to bypass animations so I can get the rect.
 			this.element.classList.add('instant')
 			setTimeout(() => {
@@ -265,19 +304,14 @@ export class Folder {
 			}),
 		)
 
-		this.createGraphics()
-	}
-
-	createGraphics() {
-		Promise.resolve().then(() => {
-			if (!this.isRootFolder()) {
-				this.graphics = this.#createSvgs()
-				this.elements.header.prepend(this.graphics.icon)
-				this.element.prepend(this.graphics.connector.container)
+		this.createGraphics(opts.headerless).then(() => {
+			if (opts.closed) {
+				this.closed.set(opts.closed)
 			}
-			this.createTerminalSvg(this)
 		})
 	}
+
+	//· Getters/Setters ··········································································¬
 
 	/**
 	 * The folder's title.  Reactive to assignments.
@@ -321,6 +355,9 @@ export class Folder {
 		}
 	}
 
+	/**
+	 * Whether the folder is visible.
+	 */
 	get hidden() {
 		return this.#hidden()
 	}
@@ -352,36 +389,36 @@ export class Folder {
 	isRootFolder(): this is Folder & { isRoot: true } {
 		return this.isRoot
 	}
+	//⌟
 
-	//· Folders ···································································¬
+	//· Folders ··················································································¬
 
-	addFolder(options?: {
-		type?: InputType
-		title?: string
-		closed?: boolean
-		header?: boolean
-		hidden?: boolean
-		presetId?: string
-	}) {
-		const folder = new Folder(
-			{
-				container: this.elements.content,
-				presetId: options?.presetId ?? '',
-				title: options?.title ?? '',
-				// controls: new Map(),
-				parentFolder: this,
-				children: [],
-				closed: options?.closed ?? false,
-				hidden: options?.hidden ?? false,
-				depth: this.depth + 1,
-			},
-			false,
-		)
+	addFolder = (options?: Partial<FolderOptions>) => {
+		this.#log.fn('addFolder').debug({ options, this: this })
+		const defaults = Object.assign(Folder.getDefaults(), {
+			parentFolder: this,
+			depth: this.depth + 1,
+			gui: this.gui,
+		})
 
+		const overrides = {
+			__type: 'InternalFolderOptions',
+			container: this.elements.content,
+			isRoot: false,
+		}
+
+		const opts = Object.assign(defaults, options, overrides)
+
+		const folder = new Folder(opts)
+
+		//! how the f*** is each child getting the parent in their `children` array?!!?
 		this.children.push(folder)
+		if (folder === this) {
+			throw new Error('wtf')
+		}
 		this.#createSvgs()
 
-		if (options?.header === false) {
+		if (defaults.headerless) {
 			folder.elements.header.style.display = 'none'
 		}
 
@@ -390,6 +427,8 @@ export class Folder {
 
 	#handleClick(event: PointerEvent) {
 		if (event.button !== 0) return
+
+		this.#log.fn('#handleClick').debug({ event, this: this })
 
 		this.element.removeEventListener('pointerup', this.toggle.bind(this))
 		this.element.addEventListener('pointerup', this.toggle.bind(this), { once: true })
@@ -429,7 +468,7 @@ export class Folder {
 		this.#disabled = true
 		clearTimeout(this.#disabledTimer)
 	}
-	#reset() {
+	#resetClicks() {
 		this.#log.fn('cancel').debug('Clicks ENABLED')
 		removeEventListener('pointerup', this.toggle)
 		this.#disabled = false
@@ -441,7 +480,7 @@ export class Folder {
 		this.#log.fn('toggle').debug()
 		clearTimeout(this.#disabledTimer)
 		if (this.#disabled) {
-			this.#reset()
+			this.#resetClicks()
 			return
 		}
 
@@ -452,11 +491,8 @@ export class Folder {
 		}
 
 		const state = !this.closed.value
-		// if (this.isGui()) {
-		// 	state ? this.close(true) : this.open(true)
-		// } else {
+
 		this.closed.set(state)
-		// }
 
 		this.evm.emit('toggle', state)
 	}
@@ -511,11 +547,8 @@ export class Folder {
 	//·· Save/Load ···························································¬
 
 	resolvePresetId = (opts?: FolderOptions) => {
+		this.#log.fn('resolvePresetId').debug({ opts, this: this })
 		const getPaths = (folder: Folder): string[] => {
-			// console.log(folder.title)
-			// console.log(folder.parentFolder)
-			// console.log(folder.isRootFolder())
-
 			if (folder.isRootFolder.bind(folder) || !(folder.parentFolder === this))
 				return [folder.title]
 
@@ -537,6 +570,7 @@ export class Folder {
 	}
 
 	save(presetTitle?: string) {
+		this.#log.fn('save').debug({ presetTitle, this: this })
 		const data: FolderPreset = {
 			__type: 'FolderPreset',
 			presetId: this.presetId,
@@ -559,7 +593,7 @@ export class Folder {
 	}
 
 	load(preset: FolderPreset) {
-		this.#log.fn('load').info({ preset })
+		this.#log.fn('load').debug({ preset, this: this })
 
 		this.closed.set(preset.closed)
 		this.hidden = preset.hidden
@@ -571,14 +605,8 @@ export class Folder {
 
 		for (const input of this.inputs.values()) {
 			const data = preset.controllers.find(c => c.presetId === input.presetId)
-			// @ts-ignore
 			if (data) input.load(data)
 		}
-
-		// if (this.isGui()) {
-		// this.presetManager.set(preset)
-		// console.groupEnd()
-		// }
 	}
 	//⌟
 	//⌟
@@ -665,6 +693,7 @@ export class Folder {
 	}
 
 	#createInput(options: InputOptions) {
+		this.#log.fn('#createInput').debug(this)
 		const type = this.resolveType(options)
 
 		switch (type) {
@@ -686,6 +715,7 @@ export class Folder {
 	}
 
 	resolveType(options: any): InputType {
+		this.#log.fn('resolveType').debug({ options, this: this })
 		const value = options.value ?? options.binding!.target[options.binding!.key]
 
 		if ('onClick' in options) {
@@ -727,6 +757,7 @@ export class Folder {
 	//· Elements ·····························································¬
 
 	#createElement(el?: HTMLElement) {
+		this.#log.fn('#createElement').debug({ el, this: this })
 		if (this.isRoot) {
 			return create('div', {
 				id: `fracgui-root_${this.id}`,
@@ -739,18 +770,18 @@ export class Folder {
 		return create('div', {
 			parent: this.parentFolder.elements.content,
 			classes: ['fracgui-folder', 'closed'],
-			// metaurl: import.meta.url, // todo - there must be a solution for this
 		})
 	}
 
 	#createElements(element: HTMLElement): FolderElements {
+		this.#log.fn('#createElements').debug({ element, this: this })
 		const header = create('div', {
 			parent: element,
 			classes: ['fracgui-header'],
 		})
 		header.addEventListener('pointerdown', this.#handleClick.bind(this))
 
-		const title = create('h2', {
+		const title = create('div', {
 			parent: header,
 			classes: ['fracgui-title'],
 			textContent: this.title,
@@ -785,43 +816,30 @@ export class Folder {
 
 	//· SVG's ································································¬
 
-	#createSvgs() {
-		const icon = createFolderSvg(this)
-		const connector = createFolderConnector(this)
+	async createGraphics(headerless = false) {
+		this.#log.fn('createGraphics').debug({ this: this })
+		await Promise.resolve()
 
-		return { icon, connector }
+		if (!this.isRootFolder()) {
+			this.graphics = { icon: createFolderSvg(this) }
+			this.elements.header.prepend(this.graphics.icon)
+
+			if (!headerless) {
+				this.graphics.connector = createFolderConnector(this)
+				this.element.prepend(this.graphics.connector.container)
+			}
+		}
+
+		if (DEV) new TerminalSvg(this)
 	}
 
-	createTerminalSvg(folder: Folder) {
-		const container = create('div', {
-			classes: ['fracgui-terminal-icon'],
-			style: {
-				width: '16px',
-				height: '16px',
-			},
-			onclick: e => {
-				e.stopPropagation()
-				// console.log(this)
-			},
-		})
-		container.setProps({
-			width: '16px',
-			height: '16px',
-		})
-		container.innerHTML = /*html*/ `
-			<svg class="icon terminal" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-				<polyline points="4 17 10 11 4 5"></polyline>
-				<line x1="12" x2="20" y1="19" y2="19"></line>
-			</svg>
-		`.trim()
-
-		folder.elements.header.prepend(container)
+	#createSvgs() {
+		this.#log.fn('#createSvgs').debug({ this: this })
 	}
 
 	get hue() {
 		const localIndex = this.parentFolder.children.indexOf(this)
-
-		// todo - This will break if we ever add built-in folders other than "Settings Folder".
+		//-note: Color will be off if we ever add built-in folders other than "Settings Folder".
 		const i = this.parentFolder.isRootFolder() ? localIndex - 1 : localIndex
 		// Don't count the root folder.
 		const depth = this.depth - 1
@@ -830,11 +848,25 @@ export class Folder {
 	}
 
 	#refreshIcon() {
+		this.#log.fn('#refreshIcon').debug(this)
+
 		if (this.graphics) {
-			this.graphics.icon.replaceWith(createFolderSvg(this))
+			this.graphics.icon.replaceWith(createFolderSvg(this)) // ...
 		}
 	}
 	//⌟
+
+	static getDefaults(): InternalFolderOptions {
+		const opts: Omit<InternalFolderOptions, keyof FolderOptions> = {
+			parentFolder: undefined,
+			isRoot: true,
+			instant: true,
+			gui: undefined,
+			headerless: false,
+		}
+
+		return Object.assign({}, FOLDER_DEFAULTS, opts)
+	}
 
 	dispose() {
 		this.#subs.forEach(unsub => unsub())

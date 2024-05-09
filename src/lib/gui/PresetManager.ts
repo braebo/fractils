@@ -1,34 +1,33 @@
-// import type { State, StateOptions } from '../utils/state'
 import type { Folder, FolderPreset } from './Folder'
 import type { State } from '../utils/state'
-// import type { Gui } from './Gui'
 
 import { code } from '../../routes/demo/gui/demoGui'
-// import { isType } from '../utils/isType'
+import { Logger } from '../utils/logger'
 import { state } from '../utils/state'
 
 export class PresetManager {
 	#presetSnapshot?: FolderPreset
 	activePreset = state({} as FolderPreset)
 	presets: State<FolderPreset[]>
+	parentFolder: Folder
+	folder: Folder
+	#log: Logger
 
-	// gui: Gui
-	// parentFolder: Folder
 	constructor(
-		public folder: Folder,
+		parentFolder: Folder,
 		options: {
-			// gui: Gui,
-			// parentFolder: Folder,
 			/**
 			 * Optionsal existing presets.
 			 * @default []
 			 */
 			presets?: FolderPreset[]
+
 			/**
 			 * The default preset to use.
 			 * @default undefined
 			 */
 			defaultPreset?: FolderPreset
+
 			/**
 			 * The key to use for storage.  If not provided, storage is disabled.
 			 * @default undefined
@@ -36,14 +35,15 @@ export class PresetManager {
 			storageKey?: string
 		},
 	) {
-		// const storageOpts: StateOptions<FolderPreset[]> = {}
-		// const { presets = [], defaultPreset = undefined, storageKey = undefined } = options
+		this.parentFolder = parentFolder
+		this.#log = new Logger(`PresetManager : ${parentFolder.title}`, { fg: 'darkgreen' })
+		this.#log.fn('constructor').debug({ options, this: this })
 
 		this.presets = state(options.presets ?? [], {
 			key: options.storageKey,
 		})
 
-		this.#createPresetsFolder(folder, options.defaultPreset)
+		this.folder = this.#createPresetsFolder(parentFolder, options.defaultPreset)
 	}
 
 	set(value: FolderPreset) {
@@ -51,6 +51,7 @@ export class PresetManager {
 	}
 
 	#renamePreset(title: string) {
+		this.#log.fn('#renamePreset').debug({ this: this, title })
 		this.presets.update(presets => {
 			const preset = presets.find(p => p.presetId === this.activePreset.value.presetId)
 			if (!preset) throw new Error('No preset found.')
@@ -66,12 +67,14 @@ export class PresetManager {
 	}
 
 	#createPresetsFolder(parentFolder: Folder, defaultPreset?: FolderPreset) {
+		this.#log.fn('#createPresetsFolder').debug({ this: this, parentFolder, defaultPreset })
 		const presetsFolder = parentFolder.addFolder({
 			title: 'presets',
-			// closed: true,
-			closed: false,
+			//! closed: true,
+			closed: true,
+			hidden: true,
+			children: [],
 		})
-		// const presetsFolder = parentFolder
 		const presetTitle = presetsFolder.addText({
 			title: 'title',
 			value: 'preset' + (this.presets.value.length ? ` (${this.presets.value.length})` : ''),
@@ -99,7 +102,7 @@ export class PresetManager {
 					{
 						label: 'save',
 						onClick: () => {
-							const preset = this.folder.save(presetTitle.value)
+							const preset = this.parentFolder.save(presetTitle.value)
 							// console.log(preset)
 							code.set(`const preset = ${JSON.stringify(preset, null, 2)}`)
 							this.presets.push(preset)
@@ -131,38 +134,40 @@ export class PresetManager {
 		Promise.resolve().then(() => {
 			defaultPreset ??= this.presets.value.find(p => p.presetId === 'default')
 			if (!defaultPreset) {
-				defaultPreset = this.folder.save('default') as FolderPreset //...
+				defaultPreset = this.parentFolder.save('default') as FolderPreset //...
 				defaultPreset.presetId = 'default'
 				this.presets.push(defaultPreset)
 			}
 
 			this.activePreset.set(defaultPreset)
-			this.folder.evm.add(
+			this.parentFolder.evm.add(
 				this.activePreset.subscribe(v => {
 					if (v.presetId === this.activePreset.value.presetId) return
-					this.folder.load(v)
+					this.parentFolder.load(v)
 				}),
 			)
 
 			const presetSelectInput = presetsFolder.addSelect({
-				__type: 'Select',
+				__type: 'SelectInputOptions',
 				title: 'presets',
 				options: () => this.presets.value,
 				labelKey: 'presetTitle',
 				value: this.activePreset.value,
 				onChange: v => {
-					this.folder.load(v.value)
+					this.parentFolder.load(v.value)
 				},
 			})
 
 			presetSelectInput.on('open', () => {
-				this.#presetSnapshot = this.folder.save('snapshot')
+				this.#presetSnapshot = this.parentFolder.save('snapshot')
 			})
 			presetSelectInput.on('cancel', () => {
 				if (this.#presetSnapshot) {
-					this.folder.load(this.#presetSnapshot)
+					this.parentFolder.load(this.#presetSnapshot)
 				}
 			})
 		})
+
+		return presetsFolder
 	}
 }

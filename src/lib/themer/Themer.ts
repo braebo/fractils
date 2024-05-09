@@ -189,7 +189,7 @@ export class Themer {
 		const opts = deepMerge([THEMER_DEFAULTS, options])
 		this.#key = String(opts.localStorageKey)
 
-		this.#log.fn(g('constructor')).debug({ opts, this: this })
+		this.#log.fn(g('constructor')).info({ node, opts, this: this })
 
 		if (opts.wrapper) {
 			this.wrapper = opts.wrapper
