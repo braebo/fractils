@@ -62,7 +62,7 @@ export interface TooltipOptions {
 	 * i.e. { padding: '4px 8px', color: 'var(--fg-a, #fff)' }
 	 * @defaultValue undefined
 	 */
-	styles?: Partial<Record<JavascriptStyleProperty, string>>
+	style?: Partial<Record<JavascriptStyleProperty, string>>
 	/**
 	 * Animation in/out duration times / easing.
 	 */
@@ -103,7 +103,7 @@ export const TOOLTIP_DEFAULTS: TooltipOptions = {
 	delayOut: 0,
 	offsetX: '0%',
 	offsetY: '0%',
-	styles: {},
+	style: {},
 	animation: {
 		duration: 300,
 		durationOut: 150,
@@ -153,10 +153,10 @@ export class Tooltip {
 			classes: ['fractils-tooltip'],
 			innerHTML: String(this.getText()),
 			// styles: this.opts.styles,
-			styles: options?.styles,
+			style: options?.style,
 		})
 
-		for (const [key, value] of entries(opts.styles!)) {
+		for (const [key, value] of entries(opts.style!)) {
 			if (key && value) {
 				this.element.style.setProperty(key, value)
 			}
