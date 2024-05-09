@@ -14,8 +14,7 @@ const ENABLED =
 	import.meta.env.FRACTILS_LOG_LEVEL !== 'off' &&
 	!(import.meta.env.VITEST && !import.meta.env.FRACTILS_LOG_VITEST)
 const bypassStyles = false
-// const bypassDefer = false
-const bypassDefer = true
+const bypassDefer = false
 
 export type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
 

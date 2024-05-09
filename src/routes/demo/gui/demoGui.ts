@@ -24,13 +24,6 @@ export function demoGui(params: Params) {
 	gui.folder.on('toggle', v => {
 		console.log(v)
 	})
-	// gui.addText({
-	// 	title: 'title',
-	// 	binding: {
-	// 		target: gui,
-	// 		key: 'title',
-	// 	},
-	// })
 
 	const f1 = gui.addFolder({ title: 'base' })
 

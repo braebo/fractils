@@ -166,7 +166,7 @@ export class WindowManager {
 	}
 
 	#resolveOptions(options?: Partial<WindowManagerOptions>): WindowManagerOptions {
-		this.#log.fn('#resolveOptions').info(options)
+		this.#log.fn('#resolveOptions').debug(options)
 		const opts = deepMerge([WINDOWMANAGER_DEFAULTS, options], {
 			concatArrays: false,
 		}) as WindowManagerOptions
@@ -193,7 +193,7 @@ export class WindowManager {
 			}
 		}
 
-		this.#log.fn('#resolveOptions').info('resolved:', options)
+		this.#log.fn('#resolveOptions').debug('resolved:', options)
 
 		return opts
 	}
