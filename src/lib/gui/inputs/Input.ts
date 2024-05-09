@@ -81,7 +81,7 @@ export type InputOptions<
 	/**
 	 * The title displayed to the left of the input.
 	 */
-	title: string
+	title?: string
 	/**
 	 * If provided, will be used as the key for the input's value in a preset.
 	 * @defaultValue `<folder_title>:<input_type>:<input_title>`
@@ -203,7 +203,7 @@ export abstract class Input<
 
 		this.log = new Logger('Input:' + options.title, { fg: 'skyblue' })
 
-		this.#title = options.title
+		this.#title = options.title ?? ''
 		this.#disabled = toFn(options.disabled ?? false)
 		this.#hidden = toFn(options.hidden ?? false)
 

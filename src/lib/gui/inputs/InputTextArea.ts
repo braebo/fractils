@@ -18,7 +18,6 @@ export type TextAreaInputOptions = {
 
 export const TEXTAREA_INPUT_DEFAULTS: TextAreaInputOptions = {
 	__type: 'TextAreaInputOptions' as const,
-	title: '',
 	value: 'foo',
 	maxLength: 50,
 } as const
@@ -47,7 +46,7 @@ export class InputTextArea extends Input<
 		super(opts, folder)
 
 		this.#log = new Logger(`InputTextArea : ${opts.title}`, { fg: 'cyan' })
-		this.#log.fn('constructor').info({ opts, this: this })
+		this.#log.fn('constructor').debug({ opts, this: this })
 
 		this.initialValue = this.resolveInitialValue(opts)
 		this.state = this.resolveState(opts)

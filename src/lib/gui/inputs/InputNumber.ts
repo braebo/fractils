@@ -29,7 +29,6 @@ export type NumberInputOptions = {
 
 export const NUMBER_INPUT_DEFAULTS: NumberInputOptions = {
 	__type: 'NumberInputOptions' as const,
-	title: '',
 	value: 0.5,
 	min: 0,
 	max: 1,

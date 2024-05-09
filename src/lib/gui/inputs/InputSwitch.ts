@@ -10,7 +10,6 @@ import { Input } from './Input'
 
 export type SwitchInputOptions = InputOptions<boolean> & {
 	readonly __type?: 'SwitchInputOptions'
-	title: string
 	/** Text to display in various parts of the switch. */
 	labels?: {
 		/** Text to display when the state is `true` */
@@ -46,7 +45,6 @@ export type SwitchInputOptions = InputOptions<boolean> & {
 
 export const SWITCH_INPUT_DEFAULTS = {
 	__type: 'SwitchInputOptions' as const,
-	title: '',
 	value: true,
 	labels: {
 		true: {

@@ -19,7 +19,6 @@ export type TextInputOptions = InputOptions<string> & {
 
 export const TEXT_INPUT_DEFAULTS = {
 	__type: 'TextInputOptions' as const,
-	title: '',
 	value: 'foo',
 	maxLength: 50,
 } as const satisfies TextInputOptions

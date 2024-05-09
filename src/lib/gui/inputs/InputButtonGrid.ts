@@ -44,7 +44,7 @@ export interface ButtonItemOptions {
 	 * }
 	 * ```
 	 */
-	style?: CreateOptions['styles']
+	style?: CreateOptions['style']
 }
 
 /**
@@ -83,9 +83,8 @@ export type ButtonGridClickFunction = (payload: ButtonItem) => void
 
 export type ButtonGridInputOptions = {
 	readonly __type?: 'ButtonGridInputOptions'
-	title: string
 	value: ButtonGrid
-	styles?: CreateOptions['styles']
+	styles?: CreateOptions['style']
 	/**
 	 * If `true`, the last clicked button will have the `active` class added to it.
 	 * @default true
@@ -95,7 +94,6 @@ export type ButtonGridInputOptions = {
 
 export const BUTTONGRID_INPUT_DEFAULTS = {
 	__type: 'ButtonGridInputOptions' as const,
-	title: '',
 	value: [[{ label: '', onClick: () => {} }]],
 	styles: {
 		gap: '0.5em',
@@ -280,7 +278,7 @@ export class InputButtonGrid extends Input<
 			element.disabled = false
 			element.classList.remove('disabled')
 		}
-		this.disabled = false
+		super.enable()
 		return this
 	}
 	disable() {
@@ -288,7 +286,7 @@ export class InputButtonGrid extends Input<
 			element.disabled = true
 			element.classList.add('disabled')
 		}
-		this.disabled = true
+		super.disable()
 		return this
 	}
 

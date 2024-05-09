@@ -13,7 +13,6 @@ export type ButtonClickFunction = (this: InputButton) => void
 
 export type ButtonInputOptions = InputOptions<ButtonClickFunction> & {
 	readonly __type?: 'ButtonInputOptions'
-	title: string
 	text: string | (() => string)
 	/**
 	 * The function to call when the button is clicked.
@@ -27,7 +26,6 @@ export type ButtonInputOptions = InputOptions<ButtonClickFunction> & {
 
 export const BUTTON_INPUT_DEFAULTS: ButtonInputOptions = {
 	__type: 'ButtonInputOptions' as const,
-	title: 'Button',
 	text: () => 'click me',
 } as const
 

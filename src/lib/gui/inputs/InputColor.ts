@@ -2,7 +2,7 @@ import type { ColorComponentsElements } from '../controllers/color/ColorComponen
 import type { ColorPickerElements } from '../controllers/color/ColorPicker'
 import type { ElementMap, InputOptions, InputPreset } from './Input'
 import type { ColorFormat } from '../../color/types/colorFormat'
-import type  { State } from '../../utils/state'
+import type { State } from '../../utils/state'
 import type { Folder } from '../Folder'
 
 import { ColorComponents } from '../controllers/color/ColorComponents'
@@ -63,13 +63,12 @@ export type ColorInputOptions = {
 } & InputOptions<ColorFormat | Color>
 //⌟
 
-export const COLOR_INPUT_DEFAULTS: ColorInputOptions = {
+export const COLOR_INPUT_DEFAULTS = {
 	__type: 'ColorInputOptions' as const,
-	title: '',
 	value: '#FF0000FF',
 	mode: 'hex',
 	expanded: false,
-} as const
+} as const satisfies ColorInputOptions
 
 export class InputColor extends Input<Color, ColorInputOptions, ColorControllerElements> {
 	readonly __type = 'InputColor' as const
@@ -350,10 +349,6 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 		this.#pickerContainer.style.overflow = 'hidden'
 		this.#pickerContainer.classList.remove('expanded')
-
-		console.log('this', this)
-		console.log('this.#pickerContainer', this.#pickerContainer)
-		console.log('pickerAnim', pickerAnim)
 
 		await Promise.all([pickerAnim.finished, containerAnim.finished])
 		pickerAnim.commitStyles()

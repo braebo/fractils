@@ -33,7 +33,6 @@ export type SelectInputOptions<T = unknown> = Omit<
 
 export const SELECT_INPUT_DEFAULTS: SelectInputOptions = {
 	__type: 'SelectInputOptions' as const,
-	title: '',
 	options: [],
 } as const
 
