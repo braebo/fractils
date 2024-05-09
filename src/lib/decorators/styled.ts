@@ -27,6 +27,8 @@ function createStyledDecorator() {
 						parent: document.head,
 						innerHTML: dis.style,
 					})
+				} else {
+					throw new Error('@styled components can only be used in the browser')
 				}
 			}
 		}
