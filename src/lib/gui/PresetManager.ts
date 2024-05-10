@@ -36,8 +36,8 @@ export class PresetManager {
 		},
 	) {
 		this.parentFolder = parentFolder
-		this.#log = new Logger(`PresetManager : ${parentFolder.title}`, { fg: 'darkgreen' })
-		this.#log.fn('constructor').debug({ options, this: this })
+		this.#log = new Logger(`PresetManager ${parentFolder.title}`, { fg: 'slateblue' })
+		this.#log.fn('constructor').info({ options, this: this })
 
 		this.presets = state(options.presets ?? [], {
 			key: options.storageKey,
@@ -51,7 +51,7 @@ export class PresetManager {
 	}
 
 	#renamePreset(title: string) {
-		this.#log.fn('#renamePreset').debug({ this: this, title })
+		this.#log.fn('#renamePreset').info({ this: this, title })
 		this.presets.update(presets => {
 			const preset = presets.find(p => p.presetId === this.activePreset.value.presetId)
 			if (!preset) throw new Error('No preset found.')
@@ -67,14 +67,15 @@ export class PresetManager {
 	}
 
 	#createPresetsFolder(parentFolder: Folder, defaultPreset?: FolderPreset) {
-		this.#log.fn('#createPresetsFolder').debug({ this: this, parentFolder, defaultPreset })
+		this.#log.fn('#createPresetsFolder').info({ this: this, parentFolder, defaultPreset })
 		const presetsFolder = parentFolder.addFolder({
 			title: 'presets',
 			//! closed: true,
-			closed: true,
+			closed: false,
 			hidden: true,
 			children: [],
 		})
+		const root = parentFolder.root
 		const presetTitle = presetsFolder.addText({
 			title: 'title',
 			value: 'preset' + (this.presets.value.length ? ` (${this.presets.value.length})` : ''),
@@ -102,7 +103,7 @@ export class PresetManager {
 					{
 						label: 'save',
 						onClick: () => {
-							const preset = this.parentFolder.save(presetTitle.value)
+							const preset = root.save(presetTitle.value)
 							// console.log(preset)
 							code.set(`const preset = ${JSON.stringify(preset, null, 2)}`)
 							this.presets.push(preset)
@@ -134,16 +135,16 @@ export class PresetManager {
 		Promise.resolve().then(() => {
 			defaultPreset ??= this.presets.value.find(p => p.presetId === 'default')
 			if (!defaultPreset) {
-				defaultPreset = this.parentFolder.save('default') as FolderPreset //...
+				defaultPreset = root.save('default') as FolderPreset //...
 				defaultPreset.presetId = 'default'
 				this.presets.push(defaultPreset)
 			}
 
 			this.activePreset.set(defaultPreset)
-			this.parentFolder.evm.add(
+			root.evm.add(
 				this.activePreset.subscribe(v => {
 					if (v.presetId === this.activePreset.value.presetId) return
-					this.parentFolder.load(v)
+					root.root.load(v)
 				}),
 			)
 
@@ -153,17 +154,25 @@ export class PresetManager {
 				options: () => this.presets.value,
 				labelKey: 'presetTitle',
 				value: this.activePreset.value,
-				onChange: v => {
-					this.parentFolder.load(v.value)
-				},
+				// onChange: v => {
+				// console.log(v)
+				// this.parentFolder.load(v.value)
+				// },
 			})
 
+			presetSelectInput.on('change', v => {
+				// console.log('presetSelectInput.on(change)')
+				root.load(v.value)
+				// console.log(v)
+			})
 			presetSelectInput.on('open', () => {
-				this.#presetSnapshot = this.parentFolder.save('snapshot')
+				// console.log('presetSelectInput.on(open)')
+				this.#presetSnapshot = this.parentFolder.root.save('snapshot')
 			})
 			presetSelectInput.on('cancel', () => {
+				// console.log('presetSelectInput.on(cancel)')
 				if (this.#presetSnapshot) {
-					this.parentFolder.load(this.#presetSnapshot)
+					this.parentFolder.root.load(this.#presetSnapshot)
 				}
 			})
 		})
