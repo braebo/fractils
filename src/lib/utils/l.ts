@@ -1,8 +1,15 @@
 import { stringify } from './stringify'
 import ch from 'chalk'
+// import ch from '../color/ansi'
 
 // Ridiculously short color logging functions that
 // nobody should ever use. I just like them sometimes.
+
+/** color reset */
+export const reset = ch.reset
+
+/** fn from hex string */
+export const hex = (str: string) => ch.hex(str)
 
 /** console.log */
 export function l(...args: unknown[]) {
