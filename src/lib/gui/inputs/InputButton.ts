@@ -56,7 +56,7 @@ export class InputButton extends Input<
 		})
 		super(opts, folder)
 
-		this.#log = new Logger(`InputButton : ${opts.title}`, { fg: 'cyan' })
+		this.#log = new Logger(`InputButton ${opts.title}`, { fg: 'cyan' })
 		this.#log.fn('constructor').debug({ opts, this: this })
 
 		if (opts.value) this.onClick = opts.value

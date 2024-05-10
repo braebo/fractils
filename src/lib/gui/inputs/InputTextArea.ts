@@ -45,7 +45,7 @@ export class InputTextArea extends Input<
 		})
 		super(opts, folder)
 
-		this.#log = new Logger(`InputTextArea : ${opts.title}`, { fg: 'cyan' })
+		this.#log = new Logger(`InputTextArea ${opts.title}`, { fg: 'cyan' })
 		this.#log.fn('constructor').debug({ opts, this: this })
 
 		this.initialValue = this.resolveInitialValue(opts)

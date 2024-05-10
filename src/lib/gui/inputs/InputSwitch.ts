@@ -76,7 +76,7 @@ export class InputSwitch extends Input<boolean, SwitchInputOptions, SwitchInputE
 		const opts = Object.assign({}, SWITCH_INPUT_DEFAULTS, options)
 		super(opts, folder)
 
-		this.#log = new Logger(`InputSwitch : ${opts.title}`, { fg: 'cyan' })
+		this.#log = new Logger(`InputSwitch ${opts.title}`, { fg: 'cyan' })
 		this.#log.fn('constructor').debug({ opts, this: this })
 
 		if (opts.binding) {

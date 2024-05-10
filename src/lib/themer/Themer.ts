@@ -174,7 +174,7 @@ export class Themer {
 	#unsubs: Array<() => void> = []
 	#targets = new Set<HTMLElement>()
 
-	#log = new Logger('themer', { fg: 'DarkCyan' })
+	#log: Logger
 
 	constructor(
 		/**
@@ -189,8 +189,6 @@ export class Themer {
 		const opts = deepMerge([THEMER_DEFAULTS, options])
 		this.#key = String(opts.localStorageKey)
 
-		this.#log.fn(g('constructor')).info({ node, opts, this: this })
-
 		if (opts.wrapper) {
 			this.wrapper = opts.wrapper
 		}
@@ -201,6 +199,10 @@ export class Themer {
 				: typeof node === 'string'
 					? select(node)[0] ?? document.documentElement
 					: (node as HTMLElement)
+
+		this.#log = new Logger(`themer ${this.node.classList[0]}`, { fg: 'DarkCyan' })
+
+		this.#log.fn(g('constructor')).info({ node, opts, this: this })
 
 		this.theme = state(resolveTheme(opts.theme, opts.vars))
 
@@ -620,7 +622,7 @@ export class ThemeEditor {
 	}
 
 	constructor(public targetGui: Gui) {
-		this.#log = new Logger('ThemeEditor:' + targetGui.folder.title, {
+		this.#log = new Logger(`ThemeEditor ${targetGui.folder.title}`, {
 			fg: 'DarkCyan',
 			deferred: false,
 		})

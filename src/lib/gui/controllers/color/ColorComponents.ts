@@ -43,7 +43,7 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 	 */
 	#locked = false
 
-	#log = new Logger('ColorComponents', { fg: 'wheat' })
+	#log: Logger
 
 	constructor(
 		public input: InputColor,
@@ -51,6 +51,7 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 	) {
 		const opts = { ...COLOR_PICKER_DEFAULTS, ...options }
 		super(opts)
+		this.#log = new Logger(`ColorComponents ${input.title}`, { fg: 'wheat' })
 
 		this.opts = opts
 		this.#mode = input.mode

@@ -210,7 +210,7 @@ export class Resizable {
 		this.opts = deepMerge([RESIZABLE_DEFAULTS, options], { concatArrays: false })
 
 		const label = this.localStorageKey ? gr(':' + this.localStorageKey) : ''
-		this.#log = new Logger('resizable:' + label, {
+		this.#log = new Logger('resizable', {
 			fg: 'GreenYellow',
 			deferred: false,
 		})

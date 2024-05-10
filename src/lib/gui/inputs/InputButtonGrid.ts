@@ -129,7 +129,7 @@ export class InputButtonGrid extends Input<
 		super(opts, folder)
 
 		this.buttonGrid = this.initialValue = opts.value
-		this.#log = new Logger(`InputButtonGrid : ${opts.title}`, { fg: 'cyan' })
+		this.#log = new Logger(`InputButtonGrid ${opts.title}`, { fg: 'cyan' })
 		this.#log.fn('constructor').debug({ opts, this: this })
 
 		const container = create('div', {

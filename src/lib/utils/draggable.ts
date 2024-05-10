@@ -395,7 +395,7 @@ export class Draggable {
 	) {
 		this.opts = deepMerge([DRAGGABLE_DEFAULTS, options])
 
-		this.#log = new Logger('draggable:' + this.node.classList[0], {
+		this.#log = new Logger('draggable ' + this.node.classList[0], {
 			fg: 'SkyBlue',
 			deferred: false,
 		})
