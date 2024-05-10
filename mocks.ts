@@ -3,6 +3,6 @@ import { mockResizeObserver, mockAnimationsApi, mockViewport } from 'jsdom-testi
 mockResizeObserver()
 mockAnimationsApi()
 mockViewport({
-    width: 1024,
-    height: 768,
+	width: 1024,
+	height: 768,
 })

@@ -9,7 +9,7 @@ import { stringify } from '../../utils/stringify'
 import { Logger } from '../../utils/logger'
 import { create } from '../../utils/create'
 import { toFn } from '../shared/toFn'
-import { b } from '../../utils/l'
+// import { b } from '../../utils/l'
 import { Input } from './Input'
 
 export type SelectInputOptions<T = unknown> = Omit<
@@ -53,6 +53,7 @@ export class InputSelect<T = unknown> extends Input<
 	#options: SelectInputOptions['options']
 	set options(v: SelectInputOptions['options']) {
 		this.#options = toFn(v)
+		this.select.options = this.#options() as LabeledOption<T>[]
 	}
 	get options(): LabeledOption<T>[] {
 		return this.resolveOptions(this.#options)
@@ -77,28 +78,28 @@ export class InputSelect<T = unknown> extends Input<
 			__type: 'SelectInputOptions' as const,
 		})
 
-		const YEET = (str: string, ...args: any[]) => {
-			if (this.title === 'theme') this.#log.debug(b(str), ...args)
-		}
+		// const YEET = (str: string, ...args: any[]) => {
+		// 	this.#log.info(b(str), ...args)
+		// }
 
 		super(opts, folder)
 
-		this.#log = new Logger(`InputSelect : ${opts.title}`, { fg: 'cyan' })
+		this.#log = new Logger(`InputSelect ${opts.title}`, { fg: 'slategrey' })
 		this.#log.fn('constructor').debug({ opts, this: this })
 
 		this.evm.registerEvents(['change', 'preview', 'open', 'close', 'cancel'])
 
 		opts.value ??= opts.binding?.initial ?? fromState(this.targetValue)
 		this.initialValue = this.resolveInitialValue(opts)
-		YEET('this.initialValue', this.initialValue)
-		YEET('opts.value', opts.value)
+		// YEET('this.initialValue', this.initialValue)
+		// YEET('opts.value', opts.value)
 
 		this.labeledSelection = {
 			value: fromLabeledOption(this.initialValue),
 			label: this.resolveInitialLabel(this.initialValue, opts),
 		}
-		YEET('this.labeledSelection', this.labeledSelection)
-		YEET('opts.options', opts.options)
+		// YEET('this.labeledSelection', this.labeledSelection)
+		// YEET('opts.options', opts.options)
 
 		this.#options = this.opts.options
 
@@ -158,11 +159,21 @@ export class InputSelect<T = unknown> extends Input<
 
 		// Bind our state to the select controller.
 		this.select.onChange(v => {
-			this.#log.fn('select.onChange').debug(v)
+			this.#log.fn('select.onChange').info(v)
 			// Make sure the select controller doesn't react to its own changes.
 			this.#stopPropagation = true
 			this.set(v)
 		})
+
+		// if (isState(options.options)) {
+		// 	this.evm.add(
+		// 		options.options.subscribe(v => {
+		// 			if (isState(v)) {
+		// 				this.options = v.value as T[]
+		// 			}
+		// 		}),
+		// 	)
+		// }
 
 		this.listen(this.select.element, 'preview', () => {
 			this._emit('preview')
@@ -276,6 +287,7 @@ export class InputSelect<T = unknown> extends Input<
 		this.select.select(value, false)
 		this.state.set(value)
 		this._emit('change', value)
+
 		return this
 	}
 

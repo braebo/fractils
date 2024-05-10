@@ -69,7 +69,7 @@ export function demoGui(params: Params) {
 			key: 'speed',
 		},
 		min: 0.0001,
-		max: 2,
+		max: 1,
 		step: 0.0001,
 	})
 
@@ -101,8 +101,8 @@ export function demoGui(params: Params) {
 			target: params,
 			key: 'drift',
 		},
-		min: -5,
-		max: 5,
+		min: -1,
+		max: 1,
 		step: 0.001,
 	})
 

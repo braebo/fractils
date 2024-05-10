@@ -44,6 +44,8 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 
 	// todo - Move this into the number controller?
 	dragEnabled = false
+	numberController: NumberController
+	numberButtonsController: NumberButtonsController
 
 	constructor(options: Partial<NumberInputOptions>, folder: Folder) {
 		const opts = Object.assign({}, NUMBER_INPUT_DEFAULTS, options, {
@@ -51,7 +53,7 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 		})
 		super(opts, folder)
 
-		this.#log = new Logger(`InputNumber : ${opts.title}`, { fg: 'cyan' })
+		this.#log = new Logger(`InputNumber ${opts.title}`, { fg: 'cyan' })
 		this.#log.fn('constructor').debug({ opts, this: this })
 
 		this.initialValue = this.resolveInitialValue(opts)
@@ -62,29 +64,37 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 			parent: this.elements.content,
 		})
 
+		this.numberController = new NumberController(this, opts, container)
+		this.numberButtonsController = new NumberButtonsController(this, opts, container)
+
 		this.elements.controllers = {
 			container,
-			input: new NumberController(this, opts, container).element,
-			buttons: new NumberButtonsController(this, opts, container).elements,
+			input: this.numberController.element,
+			buttons: this.numberButtonsController.elements,
 			range: rangeController(this, opts, container),
 		} as const satisfies NumberControllerElements
 
-		this.evm.add(this.state.subscribe(this.refresh.bind(this)))
+		this.evm.add(this.state.subscribe(this.refresh))
 
-		this.evm.listen(this.elements.controllers.range, 'pointerdown', this.#lock.bind(this))
-		this.evm.listen(this.elements.controllers.range, 'pointerup', this.#unlock.bind(this))
+		this.evm.listen(this.elements.controllers.range, 'pointerdown', this._lock)
+		this.evm.listen(this.elements.controllers.range, 'pointerup', this._unlock)
 
-		this.evm.listen(this.elements.controllers.input, 'change', this.set.bind(this))
+		this.evm.listen(this.elements.controllers.input, 'input', this.set)
+
+		this.evm.listen(this.elements.controllers.input, 'dragStart', this._lock)
+		this.evm.listen(this.elements.controllers.input, 'dragEnd', this._unlock)
 	}
 
-	#lock() {
+	private _lock = () => {
 		this.lock()
 	}
-	#unlock() {
+	private _unlock = () => {
 		this.unlock()
 	}
 
-	set(v?: number | Event) {
+	set = (v?: number | Event) => {
+		this.#log.fn('set').debug(v)
+
 		if (typeof v === 'undefined') return
 
 		let newValue = v as number
@@ -114,7 +124,7 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 		return this
 	}
 
-	refresh() {
+	refresh = () => {
 		const v = this.state.value
 		this.#log.fn('refresh').debug(v)
 		this.elements.controllers.range.value = String(v)
