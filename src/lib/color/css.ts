@@ -16,7 +16,7 @@ export type CSSColorName = keyof typeof CSS_COLORS
 /**
  * All valid CSS color names and their hex values.
  */
-export const CSS_COLORS = {
+export const CSS_COLORS = Object.freeze({
 	aliceblue: '#f0f8ff',
 	antiquewhite: '#faebd7',
 	aqua: '#00ffff',
@@ -165,7 +165,7 @@ export const CSS_COLORS = {
 	whitesmoke: '#f5f5f5',
 	yellow: '#ffff00',
 	yellowgreen: '#9acd32',
-} as const
+})
 
 /**
  * All valid CSS color names.

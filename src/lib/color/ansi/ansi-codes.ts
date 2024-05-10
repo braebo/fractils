@@ -1,15 +1,11 @@
+import type { StyleCodes } from './types'
+
 import { hexToRgb, rgbToAnsi256, rgbToAnsi16, ansi256To16 } from './utils'
 import { getColorSpace } from './color-support'
 
-type StyleObject = {
-	[key: string]: string
-	open: string
-	close: string
-}
-
 const colorSpace = getColorSpace()
 export const isSupported = colorSpace > 0
-const mono: StyleObject = { open: '', close: '' }
+const mono: StyleCodes = { open: '', close: '' }
 const monoFn = () => mono
 const esc = isSupported
 	? (open: number | string, close: number | string) => ({
@@ -26,10 +22,10 @@ let fnBgAnsi256 = (code: number) => esc(`48;5;${code}`, bgCloseCode)
 let fnRgb = (r: number, g: number, b: number) => esc(`38;2;${r};${g};${b}`, closeCode)
 let fnBgRgb = (r: number, g: number, b: number) => esc(`48;2;${r};${g};${b}`, bgCloseCode)
 
-const createRgbFn = (fn: (code: number) => StyleObject) => (r: number, g: number, b: number) =>
+const createRgbFn = (fn: (code: number) => StyleCodes) => (r: number, g: number, b: number) =>
 	fn(rgbToAnsi256(r, g, b))
 
-const createHexFn = (fn: (r: number, g: number, b: number) => StyleObject) => (hex: string) => {
+const createHexFn = (fn: (r: number, g: number, b: number) => StyleCodes) => (hex: string) => {
 	let [r, g, b] = hexToRgb(hex)
 	return fn(r, g, b)
 }
@@ -46,7 +42,7 @@ if (colorSpace === 1) {
 	fnBgRgb = createRgbFn(fnBgAnsi256)
 }
 
-export const baseStyles: Record<string, StyleObject> = {
+export const baseStyles: Record<string, StyleCodes> = {
 	// misc
 	visible: mono,
 	reset: esc(0, 0),
@@ -101,6 +97,6 @@ export const styleMethods = {
 	// link: hasColor
 	//   ? (url) => ({ open: ESC + ']8;;' + url + BEL, close: ESC + ']8;;' + BEL })
 	//   : (url) => ({ open: '', close: `(${ZWSP}${url}${ZWSP})` }),
-}
+} as const
 
 export const rgb = fnRgb
