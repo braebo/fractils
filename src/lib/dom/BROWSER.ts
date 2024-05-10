@@ -1,1 +1,0 @@
-export const BROWSER = () => typeof globalThis.window !== 'undefined'
