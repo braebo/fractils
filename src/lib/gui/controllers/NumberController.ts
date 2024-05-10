@@ -2,6 +2,7 @@ import type { InputOptions, ValidInput } from '../inputs/Input'
 import type { Tooltip } from '../../actions/tooltip'
 
 import { create } from '../../utils/create'
+import { Logger } from '$lib/utils/logger'
 
 export class NumberController<
 	TInput extends ValidInput = ValidInput,
@@ -14,11 +15,15 @@ export class NumberController<
 	hovering = false
 	delta = 0
 
+	#log: Logger
+
 	constructor(
 		public input: TInput,
 		public opts: TOptions,
 		public parent?: HTMLElement,
 	) {
+		this.#log = new Logger(`NumberController ${this.input.title}`, { fg: 'darkgoldenrod' })
+
 		this.element = create('input', {
 			type: 'number',
 			classes: ['fracgui-controller', 'fracgui-controller-number'],
@@ -42,41 +47,46 @@ export class NumberController<
 			this.element.step = String(opts.step)
 		}
 
-		input.listen(this.element, 'pointerenter', this.hoverStart.bind(this))
+		input.listen(this.element, 'pointerenter', this.hoverStart)
 	}
 
-	hoverStart(e: PointerEvent) {
+	hoverStart = (e: PointerEvent) => {
+		this.#log.fn('hoverStart').info(e)
 		this.hovering = true
 		this.element.classList.add('hovering')
 
 		this.maybeEnableDrag(e)
 
-		this.element.addEventListener('pointerleave', this.hoverEnd.bind(this))
-		globalThis.document.addEventListener('keydown', this.maybeEnableDrag.bind(this))
+		this.element.removeEventListener('pointerleave', this.hoverEnd)
+		this.element.addEventListener('pointerleave', this.hoverEnd)
+		document.removeEventListener('keydown', this.maybeEnableDrag)
+		document.addEventListener('keydown', this.maybeEnableDrag)
 	}
 
-	hoverEnd(e: PointerEvent) {
+	hoverEnd = (e: PointerEvent) => {
+		this.#log.fn('hoverEnd').info(e)
 		this.hovering = false
 		this.element.classList.remove('hovering')
 
 		this.cancelDrag(e)
 
-		this.element.removeEventListener('pointerleave', this.hoverEnd.bind(this))
-		globalThis.document.removeEventListener('keydown', this.maybeEnableDrag.bind(this))
+		this.element.removeEventListener('pointerleave', this.hoverEnd)
+		document.removeEventListener('keydown', this.maybeEnableDrag)
 	}
 
-	dragKeyHeld(e: KeyboardEvent | PointerEvent) {
+	dragKeyHeld = (e: KeyboardEvent | PointerEvent) => {
 		return navigator.platform.toUpperCase().includes('MAC') ? e.metaKey : e.ctrlKey
 	}
 
-	cancelDrag(e: KeyboardEvent | PointerEvent) {
+	cancelDrag = (e: KeyboardEvent | PointerEvent) => {
+		this.#log.fn('cancelDrag').info(e)
 		this.dragEnabled = e.type === 'keyup' ? this.dragKeyHeld(e) : false
 
-		if (!this.dragEnabled) {
-			globalThis.document.removeEventListener('keyup', this.cancelDrag.bind(this))
-			this.element.removeEventListener('pointerleave', this.cancelDrag.bind(this))
-			this.element.removeEventListener('pointerdown', this.maybeDragStart.bind(this))
+		document.removeEventListener('keyup', this.cancelDrag)
+		this.element.removeEventListener('pointerleave', this.cancelDrag)
+		this.element.removeEventListener('pointerdown', this.maybeDragStart)
 
+		if (!this.dragEnabled) {
 			this.element.style.cursor = this.element.dataset['cursor'] ?? 'text'
 
 			if (this.dragging) {
@@ -85,33 +95,42 @@ export class NumberController<
 		}
 	}
 
-	maybeEnableDrag(e: KeyboardEvent | PointerEvent) {
+	maybeEnableDrag = (e: KeyboardEvent | PointerEvent) => {
+		this.#log.fn('maybeEnableDrag').info(e)
 		if (this.dragKeyHeld(e)) {
 			this.dragEnabled = true
 
-			document.addEventListener('keyup', this.cancelDrag.bind(this))
-			this.element.addEventListener('pointerleave', this.cancelDrag.bind(this))
-			this.element.addEventListener('pointerdown', this.maybeDragStart.bind(this))
+			document.removeEventListener('keyup', this.cancelDrag)
+			document.addEventListener('keyup', this.cancelDrag)
+
+			this.element.removeEventListener('pointerleave', this.cancelDrag)
+			this.element.addEventListener('pointerleave', this.cancelDrag)
+
+			this.element.removeEventListener('pointerdown', this.maybeDragStart)
+			this.element.addEventListener('pointerdown', this.maybeDragStart)
 
 			this.element.dataset['cursor'] = getComputedStyle(this.element).cursor
 			this.element.style.cursor = 'ns-resize'
 		}
 	}
 
-	maybeDragStart() {
+	maybeDragStart = () => {
 		if (this.hovering && this.dragEnabled) {
 			this.dragStart()
 		}
 	}
 
-	async dragStart() {
+	dragStart = async () => {
 		this.dragging = true
-		this.element.dispatchEvent(new Event('dragstart'))
+		this.element.dispatchEvent(new Event('dragStart'))
 
 		this.element.tooltip.hide()
 
-		this.element.addEventListener('pointermove', this.drag.bind(this))
-		globalThis.document.addEventListener('pointerup', this.dragEnd.bind(this))
+		this.element.removeEventListener('pointermove', this.drag)
+		this.element.addEventListener('pointermove', this.drag)
+
+		document.removeEventListener('pointerup', this.dragEnd)
+		document.addEventListener('pointerup', this.dragEnd)
 
 		this.element.classList.add('dragging')
 		// https://developer.mozilla.org/en-US/docs/Web/API/Element/requestPointerLock#browser_compatibility
@@ -119,19 +138,21 @@ export class NumberController<
 		this.element.blur()
 	}
 
-	dragEnd() {
+	dragEnd = () => {
+		this.#log.fn('dragEnd').info()
 		this.dragging = false
-		this.element.dispatchEvent(new Event('dragEnd'))
 
 		this.element.classList.remove('dragging')
 
-		this.element.removeEventListener('pointermove', this.drag.bind(this))
-		globalThis.document.removeEventListener('pointerup', this.dragEnd.bind(this))
+		this.element.removeEventListener('pointermove', this.drag)
+		document.removeEventListener('pointerup', this.dragEnd)
 
 		document.exitPointerLock()
+
+		this.element.dispatchEvent(new Event('dragEnd'))
 	}
 
-	drag(e: PointerEvent) {
+	drag = (e: PointerEvent) => {
 		if (!this.dragging) return
 
 		const multiplier = e.shiftKey ? 0.1 : e.altKey ? 4 : 1
@@ -144,5 +165,18 @@ export class NumberController<
 			this.delta = 0
 			this.element.dispatchEvent(new Event('input'))
 		}
+	}
+
+	dispose() {
+		this.element.removeEventListener('pointerenter', this.hoverStart)
+		this.element.removeEventListener('pointerleave', this.hoverEnd)
+		this.element.removeEventListener('pointermove', this.drag)
+		document.removeEventListener('keydown', this.maybeEnableDrag)
+		document.removeEventListener('keyup', this.cancelDrag)
+		this.element.removeEventListener('pointerleave', this.cancelDrag)
+		this.element.removeEventListener('pointerdown', this.maybeDragStart)
+		document.removeEventListener('pointerup', this.dragEnd)
+		this.element.tooltip.dispose()
+		this.element.remove()
 	}
 }

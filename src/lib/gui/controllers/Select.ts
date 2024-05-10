@@ -127,7 +127,7 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 		this.opts = opts
 
 		if (options?.title) {
-			this.#log = new Logger(`Select : ${options.title}`, { fg: 'burlywood' })
+			this.#log = new Logger(`Select ${options.title}`, { fg: 'burlywood' })
 		} else {
 			this.#log = new Logger('Select', { fg: 'blueviolet' })
 		}
@@ -303,6 +303,19 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 		this.#log.fn('refresh').debug({ this: this })
 		// Make sure the selected value text is in the selected div.
 		this.elements.selected.textContent = this.selected.label
+
+		// for (const [id, { option }] of this.optionMap) {
+		// 	if (!this.options.map(o => o.label).includes(option.label)) {
+		// 		this.remove(id)
+		// 	}
+		// }
+		// for (const option of this.options) {
+		// 	const found = this.optionMap.get(option.label)
+		// 	if (!found) {
+		// 		this.add(option)
+		// 	}
+		// }
+
 		return this
 	}
 
@@ -337,13 +350,10 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 		addEventListener('keydown', this.#closeOnEscape)
 		removeEventListener('click', this.#clickOutside)
 		addEventListener('click', this.#clickOutside)
-		setTimeout(() => {
-			this.elements.dropdown.style.pointerEvents = 'all'
-		}, 200)
-
+		
 		if (this.opts.selectOnHover) {
 			this.#currentSelection = this.selected
-
+			
 			for (const [, { option, element }] of this.optionMap) {
 				element.removeEventListener('mouseenter', () => {
 					this.select(option)
@@ -353,8 +363,12 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 				})
 			}
 		}
-
+		
 		this.element.dispatchEvent(new Event('open'))
+		
+		setTimeout(() => {
+			this.elements.dropdown.style.pointerEvents = 'all'
+		}, 200)
 	}
 
 	/**
@@ -393,9 +407,6 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 		removeEventListener('keydown', this.#closeOnEscape)
 		removeEventListener('click', this.#clickOutside)
 		this.#scrollParent?.removeEventListener('scroll', this.updatePosition.bind(this))
-		setTimeout(() => {
-			this.elements.dropdown.remove()
-		}, 200)
 
 		if (this.opts.selectOnHover) {
 			for (const [_, { option, element }] of this.optionMap) {
@@ -406,6 +417,10 @@ export class Select<T> extends Controller<LabeledOption<T>, SelectElements> {
 		}
 
 		this.element.dispatchEvent(new Event('close'))
+
+		setTimeout(() => {
+			this.elements.dropdown.remove()
+		}, 200)
 	}
 
 	#closeOnEscape = (e: KeyboardEvent) => {
