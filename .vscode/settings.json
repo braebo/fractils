@@ -3,6 +3,7 @@
 	"files.associations": {
 		"*.svg": "html",
 		"*.json": "jsonc",
+		"*.jsonc": "jsonc",
 		"*.scss": "scss",
 		"package.json": "json", // `jsonc` breaks some extensions.
 	},
@@ -15,7 +16,7 @@
 	"javascript.preferences.useAliasesForRenames": false,
 	"typescript.preferences.useAliasesForRenames": false,
 	//- Editor
-	"editor.lightbulb.enabled": "off",
+	"editor.lightbulb.enabled": "off", // Bad for adhd...
 	"editor.minimap.enabled": false,
 	"editor.accessibilitySupport": "off",
 	"editor.guides.bracketPairs": true,
@@ -31,10 +32,6 @@
 	"git.confirmSync": false,
 	"github.copilot.enable": {
 		"*": true,
-		"plaintext": false,
-		"markdown": false,
-		"scminput": false,
-		"typescript": true,
 	},
 	//- Third party
 	"explicitFolding.rules": {
@@ -55,7 +52,7 @@
 		"shellscript",
 		"glsl",
 	],
-	"workbench.preferredDarkColorTheme": "Mo Darker",
+	"workbench.preferredDarkColorTheme": "One Dark Pro Monokai Darker",
 	"workbench.preferredLightColorTheme": "Moxer Light",
 	"workbench.iconTheme": "material-icon-theme",
 	"window.autoDetectColorScheme": true,
