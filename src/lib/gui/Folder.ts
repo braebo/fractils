@@ -253,7 +253,7 @@ export class Folder {
 			options,
 		) as FolderOptions & InternalFolderOptions
 
-		this.#log = new Logger(`Folder : ${opts.title}`, { fg: 'DarkSalmon' })
+		this.#log = new Logger(`Folder ${opts.title}`, { fg: 'DarkSalmon' })
 		this.#log.fn('constructor').debug({ opts, this: this })
 
 		this.isRoot = opts.isRoot
@@ -430,8 +430,8 @@ export class Folder {
 
 		this.#log.fn('#handleClick').debug({ event, this: this })
 
-		this.element.removeEventListener('pointerup', this.toggle.bind(this))
-		this.element.addEventListener('pointerup', this.toggle.bind(this), { once: true })
+		this.element.removeEventListener('pointerup', this.toggle)
+		this.element.addEventListener('pointerup', this.toggle, { once: true })
 
 		// todo - with the addition of the dataset `dragged` attribute from draggable, this might not be necessary.
 		// todo - Figure out why `stopPropagation` doesn't work so we don't need this.
@@ -442,25 +442,22 @@ export class Folder {
 		clearTimeout(this.#disabledTimer)
 		// First we delay the drag check to allow for messy clicks.
 		this.#disabledTimer = setTimeout(() => {
-			this.elements.header.removeEventListener('pointermove', this.#disableClicks.bind(this))
-			this.elements.header.addEventListener('pointermove', this.#disableClicks.bind(this), {
+			this.elements.header.removeEventListener('pointermove', this.#disableClicks)
+			this.elements.header.addEventListener('pointermove', this.#disableClicks, {
 				once: true,
 			})
 
 			// Then we set a timer to disable the drag check.
 			this.#disabledTimer = setTimeout(() => {
-				this.elements.header.removeEventListener(
-					'pointermove',
-					this.#disableClicks.bind(this),
-				)
-				this.element.removeEventListener('pointerup', this.toggle.bind(this))
+				this.elements.header.removeEventListener('pointermove', this.#disableClicks)
+				this.element.removeEventListener('pointerup', this.toggle)
 				this.#disabled = false
 			}, this.#clickTime)
 		}, 150)
 
 		if (this.#disabled) return
 	}
-	#disableClicks() {
+	#disableClicks = () => {
 		if (!this.#disabled) {
 			this.#disabled = true
 			this.#log.fn('disable').debug('Clicks DISABLED')
@@ -476,7 +473,7 @@ export class Folder {
 
 	//·· Open/Close ···························································¬
 
-	toggle() {
+	toggle = () => {
 		this.#log.fn('toggle').debug()
 		clearTimeout(this.#disabledTimer)
 		if (this.#disabled) {
@@ -569,27 +566,19 @@ export class Folder {
 		return presetId
 	}
 
-	save(presetTitle?: string) {
+	save(presetTitle?: string): FolderPreset {
 		this.#log.fn('save').debug({ presetTitle, this: this })
-		const data: FolderPreset = {
+		return {
 			__type: 'FolderPreset',
 			presetId: this.presetId,
+			presetTitle: presetTitle,
 			closed: this.closed.value,
 			hidden: toFn(this.#hidden)(),
 			children: this.children
 				.filter(c => c.title !== Gui.settingsFolderTitle)
 				.map(child => child.save()),
 			controllers: Array.from(this.inputs.values()).map(input => input.save()),
-		}
-
-		if (this.isRootFolder()) {
-			if (!presetTitle) {
-				throw new Error('Root folder must have a preset title.')
-			}
-			data.presetTitle = presetTitle
-		}
-
-		return data
+		} satisfies FolderPreset
 	}
 
 	load(preset: FolderPreset) {

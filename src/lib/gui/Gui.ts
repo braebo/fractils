@@ -2,20 +2,17 @@ import './gui.scss'
 
 import type { WindowManagerOptions } from '../utils/windowManager'
 import type { Placement, PlacementOptions } from '../dom/place'
-// import type { FolderElements, FolderOptions } from './Folder'
 import type { PrimitiveState, State } from '../utils/state'
 import type { ResizableOptions } from '../utils/resizable'
 import type { DraggableOptions } from '../utils/draggable'
 import type { Theme, ThemeMode } from '../themer/types'
 import type { ThemerOptions } from '../themer/Themer'
-// import type { Tooltip } from '../actions/tooltip'
 import type { PropertiesHyphen } from 'csstype'
 import type { FolderPreset } from './Folder'
 
 import { WindowManager, WINDOWMANAGER_DEFAULTS } from '../utils/windowManager'
 import { RESIZABLE_DEFAULTS } from '../utils/resizable'
 import { DRAGGABLE_DEFAULTS } from '../utils/draggable'
-// import { code } from '../../routes/demo/gui/demoGui'
 import { ThemeEditor, Themer } from '../themer/Themer'
 import settingsIcon from './svg/settings-icon.svg?raw'
 import { UndoManager } from '../utils/undoManager'
@@ -23,7 +20,7 @@ import { resolveOpts } from './shared/resolveOpts'
 import { PresetManager } from './PresetManager'
 import { deepMerge } from '../utils/deepMerge'
 import { nanoid } from '../utils/nanoid'
-import { BROWSER } from '../dom/BROWSER'
+import { BROWSER } from '../utils/env'
 import { isType } from '../utils/isType'
 import { Logger } from '../utils/logger'
 import { create } from '../utils/create'
@@ -53,13 +50,6 @@ export interface GuiOptions {
 	 * @defaultValue false
 	 */
 	storage?: boolean | Partial<GuiStorageOptions>
-	// /**
-	//  * Defines which properties to persist in localStorage, and under which
-	// d * key, if any.  If `true`, the {@link GUI_STORAGE_DEFAULTS} will be used.
-	//  * If `false`, no state will be persisted.
-	//  * @defaultValue GUI_STORAGE_DEFAULTS
-	//  */
-	// storageOptions?: Partial<GuiStorageOptions>
 	/**
 	 * The container to append the gui to.
 	 * @defaultValue document.body
@@ -181,9 +171,9 @@ export const GUI_STORAGE_DEFAULTS: GuiStorageOptions = {
 	key: 'fracgui',
 	closed: true,
 	theme: true,
+	presets: true,
 	position: false,
 	size: false,
-	presets: true,
 } as const
 
 export const GUI_WINDOWMANAGER_DEFAULTS: WindowManagerOptions = {
@@ -284,10 +274,8 @@ export class Gui {
 
 		// Resolve storage separately since GUI_DEFAULTS.storage is `false`.
 		// opts.storage = resolveOpts(opts.storage, GUI_STORAGE_DEFAULTS)
-		if (isType<'GuiStorageOptions'>(opts.storage as any, 'GuiStorageOptions')) {
-			opts.storage = deepMerge([GUI_STORAGE_DEFAULTS, opts.storage], {
-				concatArrays: false,
-			})
+		if (typeof opts.storage === 'object') {
+			opts.storage = Object.assign({}, GUI_STORAGE_DEFAULTS, opts.storage)
 		}
 		opts.position =
 			opts.position ??
@@ -326,8 +314,8 @@ export class Gui {
 		// this.addFolder = this.folder.addFolder.bind(this.folder)
 		this.addFolder = this.folder.addFolder
 
-		this.#log = new Logger('Gui:' + opts.title, { fg: 'palevioletred' })
-		this.#log.fn('constructor').debug({ options, opts })
+		this.#log = new Logger(`Gui ${opts.title}`, { fg: 'palevioletred' })
+		this.#log.fn('constructor').info({ options, opts })
 
 		const undo = (e: KeyboardEvent) => {
 			// todo - make sure the active element is within the gui first
@@ -547,6 +535,7 @@ export class Gui {
 				storageKey = 'fracgui::presets'
 			}
 		}
+
 		this.presetManager = new PresetManager(settingsFolder, {
 			presets,
 			defaultPreset,
@@ -572,7 +561,7 @@ export class Gui {
 		let finalThemer = undefined as Themer | undefined
 		const { themer, themerOptions, storage } = this.opts
 
-		if (!BROWSER()) throw new Error('Themer requires a browser environment.')
+		if (!BROWSER) throw new Error('Themer requires a browser environment.')
 
 		if (themer) {
 			if (themerOptions) {
