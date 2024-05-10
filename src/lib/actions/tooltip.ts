@@ -162,9 +162,9 @@ export class Tooltip {
 			}
 		}
 
-		this.#evm.listen(node, 'pointerenter', this.show.bind(this))
-		this.#evm.listen(node, 'pointerleave', this.hide.bind(this))
-		this.#evm.listen(node, 'pointermove', this.updatePosition.bind(this))
+		this.#evm.listen(node, 'pointerenter', this.show)
+		this.#evm.listen(node, 'pointerleave', this.hide)
+		this.#evm.listen(node, 'pointermove', this.updatePosition)
 		this.#evm.listen(node, 'click', () => {
 			if (opts.hideOnClick) this.hide()
 			else this.refresh()
@@ -226,7 +226,7 @@ export class Tooltip {
 		this.updatePosition()
 	}
 
-	show() {
+	show = () => {
 		if (this.showing) return
 		clearTimeout(this.#delayInTimer)
 		clearTimeout(this.#delayOutTimer)
@@ -250,7 +250,7 @@ export class Tooltip {
 		}, this.opts.delay)
 	}
 
-	hide() {
+	hide = () => {
 		clearTimeout(this.#delayInTimer)
 		clearTimeout(this.#delayOutTimer)
 
@@ -285,7 +285,7 @@ export class Tooltip {
 		this.parent.removeChild(this.element)
 	}
 
-	updatePosition(e?: PointerEvent) {
+	updatePosition = (e?: PointerEvent) => {
 		const tooltipRect = this.element.getBoundingClientRect()
 
 		this.text = this.text
