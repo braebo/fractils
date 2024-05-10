@@ -1,7 +1,9 @@
-import { randomCSSColorName, type CSSColorName } from '../color/css'
+import type { CSSColorName } from '../color/css'
+import type { ChalkInstance } from 'chalk'
 
+import { CSS_COLORS, randomCSSColorName } from '../color/css'
+import { r, y, gr, dim, hex } from './l'
 import { stringify } from './stringify'
-import { b, r, y, gr, dim } from './l'
 import { DEV, BROWSER } from './env'
 import { isSafari } from './safari'
 import { debrief } from './debrief'
@@ -64,14 +66,16 @@ const ENABLED =
 	DEV &&
 	import.meta.env.FRACTILS_LOG_LEVEL !== 'off' &&
 	!(import.meta.env.VITEST && !import.meta.env.FRACTILS_LOG_VITEST)
-const bypassStyles = false
-const bypassDefer = false
 
 export type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
 
 export class Logger {
+	static #BYPASS_STYLES = false
+	static #BYPASS_DEFER = false
+
 	title = ''
 	options: LoggerOptions
+	color: ChalkInstance
 
 	#logger: (...args: any[]) => void
 
@@ -85,12 +89,18 @@ export class Logger {
 			this.options = titleOrOptions
 			this.title = titleOrOptions.title ?? ''
 		}
+
+		const colorname = options?.fg?.toLowerCase() ?? randomCSSColorName()
+		const fg = colorname in CSS_COLORS ? CSS_COLORS[colorname as CSSColorName] : colorname
+
+		this.color = hex(fg)
 		this.#logger = Logger.createLogger(this.title, this.options)
+
 		return this
 	}
 
 	get deferred() {
-		return !bypassDefer && this.options?.deferred
+		return !Logger.#BYPASS_DEFER && this.options?.deferred
 	}
 
 	/**
@@ -110,6 +120,7 @@ export class Logger {
 			if (args[0].match(/ⓘ|⚠|⛔|💀/)) {
 				this.buffer.unshift(args.shift())
 			}
+			this.consolidateBuffer()
 			this.#logger(...this.buffer, ...args)
 		} else {
 			this.#logger(...args)
@@ -123,23 +134,24 @@ export class Logger {
 		return this
 	}
 
+	i = hex('#426685')('ⓘ')
 	info(...args: any[]) {
-		this.dump(b('\nⓘ'), ...args)
+		this.dump(this.i, ...args)
 		return this
 	}
 
 	warn(...args: any[]) {
-		this.dump(y('\n⚠'), ...args)
+		this.dump(y('⚠'), ...args)
 		return this
 	}
 
 	error(...args: any[]) {
-		this.dump(r('\n⛔'), ...args)
+		this.dump(r('⛔'), ...args)
 		return this
 	}
 
 	fatal(...args: any[]) {
-		this.dump(r('\n💀'), ...args)
+		this.dump(r('💀'), ...args)
 		return this
 	}
 
@@ -173,6 +185,21 @@ export class Logger {
 	}
 
 	buffer = [] as any[]
+
+	/**
+	 * Replaces any sequentially repeating strings in the buffer with a single instance and a count.
+	 */
+	consolidateBuffer() {
+		const buff = new Map<string, number>()
+
+		for (const item of this.buffer) {
+			buff.set(item, (buff.get(item) ?? 0) + 1)
+		}
+
+		this.buffer = Array.from(buff).map(([item, count]) =>
+			count > 1 ? `${item}x${dim(count)}` : item,
+		)
+	}
 
 	/**
 	 * Used to display the name of a method being called and the arguments it's being called with.
@@ -212,49 +239,70 @@ export class Logger {
 		const css = options.css ?? ''
 
 		options.styled ??= true
-		const styled = options.styled && !bypassStyles
+		const styled = options.styled && !Logger.#BYPASS_STYLES
 
 		options.deferred ??= true
-		const deferred = options.deferred && !bypassDefer && !isSafari()
+		const deferred = options.deferred && !Logger.#BYPASS_DEFER && !isSafari()
 
 		if (!ENABLED) return () => void 0
 
 		let callsite: URL | undefined = undefined
+
+		let messageConfigBase = '%c%s%c'
+
+		// This is my debatably desirable attempt to dim trailing
+		// title parts and separate the rest onto a newline.
+		const [t, ...rest] = title.split(' ')
+		let restParts = [] as string[]
+		if (rest.length) {
+			for (const part of rest) {
+				restParts.push(
+					`color:#666;background:${bg};padding:0.1rem;filter:saturate(0.25);${css}`,
+					` ${part}`,
+				)
+			}
+			const i = restParts.indexOf(restParts.at(-1) ?? '')
+			if (i >= 0) {
+				restParts[i] = `${restParts[i]}\n`
+			}
+			messageConfigBase = '%c%s'.repeat(rest.length) + `${messageConfigBase}`
+			title = t
+		} else {
+			title = `${title}\n`
+		}
 
 		const log = !styled
 			? (...args: any[]) => {
 					console.log(`| ${callsite} |\n| ${title} |`, ...args)
 				}
 			: (...args: any[]) => {
-					let messageConfig = '%c%s%c '
+					let messageConfig = messageConfigBase
 
 					args.forEach(argument => {
 						const type = typeof argument
 						switch (type) {
 							case 'bigint':
 							case 'number':
-								messageConfig += '%d   '
+								messageConfig += '%d '
 								break
 
 							case 'string':
-								messageConfig += '%s   '
+								messageConfig += '%s '
 								break
 
 							case 'object':
 							case 'boolean':
 							case 'undefined':
 							default:
-								messageConfig += '%o   '
+								messageConfig += '%o '
 						}
 					})
 
-					messageConfig += '%c%s'
-
 					console.log(
-						messageConfig,
+						messageConfig + '%c%s',
 						`color:${fg};background:${bg};padding:0.1rem;${css}`,
-						// `${title.padEnd(10, ' ')} |`,
-						`${title.padEnd(10, ' ')}`,
+						`${title}`,
+						...restParts,
 						`color:initial;background:${bg};padding:0.1rem;${css}`,
 						...args.map(a =>
 							// Testing console goes nuts with large objects, so we debrief them.
