@@ -174,23 +174,24 @@ export abstract class Input<
 		resetBtn: HTMLElement
 	}
 
-	#title = ''
-	#dirty = false
 	// #firstUpdate = true
-	#disabled: () => boolean
-	#hidden: () => boolean
+	private _disabled: () => boolean
+	private _hidden: () => boolean
 	/**
 	 * Prevents the input from registering commits to undo history until
 	 * {@link unlock} is called.
 	 */
-	protected undoLock = false
+	private undoLock = false
 	/**
 	 * The commit object used to store the initial value of the input when
 	 * {@link lock} is called.
 	 */
-	protected lockCommit = {} as Commit
-	protected log: Logger
+	private lockCommit = {} as Commit
 	protected evm = new EventManager<InputEvents | TEvents>(['change', 'refresh'])
+
+	private _title = ''
+	private _dirty = false
+	private log: Logger
 
 	constructor(
 		options: TOptions & { __type: T__TYPE },
@@ -201,11 +202,11 @@ export abstract class Input<
 		this.presetId =
 			options.presetId ?? `${folder.resolvePresetId()}_${options.__type}:${options.title}`
 
-		this.log = new Logger('Input:' + options.title, { fg: 'skyblue' })
+		this.log = new Logger(`Input ${options.title}`, { fg: 'skyblue' })
 
-		this.#title = options.title ?? ''
-		this.#disabled = toFn(options.disabled ?? false)
-		this.#hidden = toFn(options.hidden ?? false)
+		this._title = options.title ?? ''
+		this._disabled = toFn(options.disabled ?? false)
+		this._hidden = toFn(options.hidden ?? false)
 
 		this.elements.container = create('div', {
 			classes: ['fracgui-input-container'],
@@ -264,10 +265,10 @@ export abstract class Input<
 	}
 
 	get title() {
-		return this.#title
+		return this._title
 	}
 	set title(v: string) {
-		this.#title = v
+		this._title = v
 		this.elements.title.textContent = v
 	}
 
@@ -276,26 +277,26 @@ export abstract class Input<
 	 * dynamically determine the disabled state.
 	 */
 	get disabled(): boolean {
-		return this.#disabled()
+		return this._disabled()
 	}
 	set disabled(v: boolean | (() => boolean)) {
-		this.#disabled = toFn(v)
-		this.#disabled() ? this.disable() : this.enable()
+		this._disabled = toFn(v)
+		this._disabled() ? this.disable() : this.enable()
 	}
 
 	get hidden(): boolean {
 		return this.elements.container.classList.contains('hidden')
 	}
 	set hidden(v: boolean | (() => boolean)) {
-		this.#hidden = toFn(v)
-		this.elements.container.classList.toggle('hidden', this.#hidden())
+		this._hidden = toFn(v)
+		this.elements.container.classList.toggle('hidden', this._hidden())
 	}
 
 	get dirty() {
-		return this.#dirty
+		return this._dirty
 	}
 	set dirty(v: boolean) {
-		this.#dirty = v
+		this._dirty = v
 		this.elements.resetBtn.classList.toggle('dirty', v)
 	}
 	protected dirtyCheck() {
@@ -339,14 +340,16 @@ export abstract class Input<
 	 * Prevents the input from registering undo history, storing the initial
 	 * for the eventual commit in {@link unlock}.
 	 */
-	protected lock(from = this.state.value) {
+	protected lock = (from = this.state.value) => {
 		this.undoLock = true
 		this.lockCommit.from = from
+		this.log.fn('lock').info('lockCommit:', this.lockCommit)
 	}
 	/**
 	 * Unlocks commits and saves the current commit stored in lock.
 	 */
-	protected unlock(commit?: Partial<Commit>) {
+	protected unlock = (commit?: Partial<Commit>) => {
+		this.log.fn('unlock').debug('commit', { commit, lockCommit: this.lockCommit })
 		commit ??= {}
 		commit.input ??= this as unknown as ValidInput
 		commit.to ??= this.state.value as TValueType
@@ -359,8 +362,12 @@ export abstract class Input<
 	 * Commits a change to the input's value to the undo manager.
 	 */
 	commit(commit: Partial<Commit>) {
-		commit.from = this.state.value
-		if (this.undoLock) return
+		commit.from ??= this.state.value
+		if (this.undoLock) {
+			this.log.fn('commit').debug('prevented commit while locked')
+			return
+		}
+		this.log.fn('commit').debug('commited', commit)
 		this.undoManager?.commit<TValueType>({
 			input: this,
 			...commit,
@@ -371,7 +378,7 @@ export abstract class Input<
 	 * Enables the input and any associated controllers.
 	 */
 	enable() {
-		this.#disabled = toFn(false)
+		this._disabled = toFn(false)
 		return this
 	}
 	/**
@@ -379,7 +386,7 @@ export abstract class Input<
 	 * changed or interacted with.
 	 */
 	disable() {
-		this.#disabled = toFn(true)
+		this._disabled = toFn(true)
 		return this
 	}
 
