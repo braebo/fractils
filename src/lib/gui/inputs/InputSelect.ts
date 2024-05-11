@@ -85,7 +85,7 @@ export class InputSelect<T = unknown> extends Input<
 		super(opts, folder)
 
 		this.#log = new Logger(`InputSelect ${opts.title}`, { fg: 'slategrey' })
-		this.#log.fn('constructor').debug({ opts, this: this })
+		this.#log.fn('constructor').info({ opts, this: this })
 
 		this.evm.registerEvents(['change', 'preview', 'open', 'close', 'cancel'])
 
@@ -132,7 +132,7 @@ export class InputSelect<T = unknown> extends Input<
 					if (isState(this.targetValue)) {
 						this.#log
 							.fn('updating binding')
-							.debug({ from: this.targetValue.value, to: v.value })
+							.info({ from: this.targetValue.value, to: v.value })
 						this.targetValue.set(v.value)
 					} else {
 						this.targetValue = v.value
@@ -143,7 +143,7 @@ export class InputSelect<T = unknown> extends Input<
 					this.#stopPropagation = false
 					this.#log
 						.fn('state.subscribe')
-						.debug('Stopped propagation.  Subscribers will not be notified.')
+						.info('Stopped propagation.  Subscribers will not be notified.')
 					return
 				}
 
@@ -160,6 +160,7 @@ export class InputSelect<T = unknown> extends Input<
 		// Bind our state to the select controller.
 		this.select.onChange(v => {
 			this.#log.fn('select.onChange').info(v)
+			if (this.#stopPropagation) return
 			// Make sure the select controller doesn't react to its own changes.
 			this.#stopPropagation = true
 			this.set(v)
@@ -188,7 +189,7 @@ export class InputSelect<T = unknown> extends Input<
 			this._emit('cancel')
 		})
 
-		this.#log.fn('constructor').debug({ this: this })
+		this.#log.fn('constructor').info({ this: this })
 	}
 
 	resolveOptions(providedOptions: SelectInputOptions['options']): LabeledOption<T>[] {
@@ -258,7 +259,7 @@ export class InputSelect<T = unknown> extends Input<
 	}
 	set targetValue(v: T) {
 		if (isLabeledOption(v)) v = fromLabeledOption(v) as T
-		this.#log.fn('set targetValue').debug(v)
+		this.#log.fn('set targetValue').info(v)
 
 		if (typeof v === 'undefined') {
 			console.error('Cannot set target value to undefined')
@@ -282,8 +283,9 @@ export class InputSelect<T = unknown> extends Input<
 	 * Selects the option with the given value.
 	 */
 	set(value: LabeledOption<T>) {
-		this.#log.fn('set').debug(value)
+		this.#log.fn('set').info(value)
 
+		this.#stopPropagation = true
 		this.select.select(value, false)
 		this.state.set(value)
 		this._emit('change', value)
@@ -292,14 +294,14 @@ export class InputSelect<T = unknown> extends Input<
 	}
 
 	enable() {
-		this.#log.fn('enable').debug()
+		this.#log.fn('enable').info()
 		this.select.enable()
 		super.enable()
 		return this
 	}
 
 	disable() {
-		this.#log.fn('disable').debug()
+		this.#log.fn('disable').info()
 		this.select.disable()
 		super.disable()
 		return this
@@ -307,7 +309,7 @@ export class InputSelect<T = unknown> extends Input<
 
 	refresh = () => {
 		const v = this.state.value
-		this.#log.fn('refresh').debug({ v, this: this })
+		this.#log.fn('refresh').info({ v, this: this })
 
 		if (!this.labeledSelection) {
 			throw new Error('Failed to find labeled selection.')

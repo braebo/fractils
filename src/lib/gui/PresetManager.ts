@@ -161,16 +161,15 @@ export class PresetManager {
 			})
 
 			presetSelectInput.on('change', v => {
-				// console.log('presetSelectInput.on(change)')
+				this.#log.fn('on(change)').info(v)
 				root.load(v.value)
-				// console.log(v)
 			})
 			presetSelectInput.on('open', () => {
-				// console.log('presetSelectInput.on(open)')
+				this.#log.fn('on(open)').info()
 				this.#presetSnapshot = this.parentFolder.root.save('snapshot')
 			})
 			presetSelectInput.on('cancel', () => {
-				// console.log('presetSelectInput.on(cancel)')
+				this.#log.fn('on(cancel)').info()
 				if (this.#presetSnapshot) {
 					this.parentFolder.root.load(this.#presetSnapshot)
 				}
