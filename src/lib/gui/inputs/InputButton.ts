@@ -1,4 +1,4 @@
-import type { ElementMap, InputOptions } from './Input'
+import type { ElementMap, InputEvents, InputOptions } from './Input'
 import type { State } from '../../utils/state'
 import type { Folder } from '../Folder'
 
@@ -34,15 +34,19 @@ export interface ButtonControllerElements extends ElementMap {
 	button: HTMLButtonElement
 }
 
+interface ButtonInputEvents extends InputEvents<InputButton> {
+	click: void
+}
+
 export class InputButton extends Input<
 	ButtonClickFunction,
 	ButtonInputOptions,
-	ButtonControllerElements
+	ButtonControllerElements,
+	ButtonInputEvents
 > {
 	readonly __type = 'InputButton' as const
 	readonly initialValue = {} as ButtonClickFunction
 	readonly state = state({}) as State<ButtonClickFunction>
-	readonly events = ['change', 'click']
 
 	onClick: ButtonClickFunction = () => {}
 
@@ -55,6 +59,7 @@ export class InputButton extends Input<
 			__type: 'ButtonInputOptions' as const,
 		})
 		super(opts, folder)
+		this.evm.registerEvents(['change', 'refresh', 'click'])
 
 		this.#log = new Logger(`InputButton ${opts.title}`, { fg: 'cyan' })
 		this.#log.fn('constructor').debug({ opts, this: this })

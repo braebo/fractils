@@ -74,7 +74,6 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 	readonly __type = 'InputColor' as const
 	initialValue: Color
 	state: State<Color>
-	events = ['change']
 	/**
 	 * The color picker instance.
 	 */

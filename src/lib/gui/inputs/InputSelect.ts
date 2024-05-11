@@ -1,5 +1,5 @@
 import type { LabeledOption } from '../controllers/Select'
-import type { ElementMap, InputOptions } from './Input'
+import type { ElementMap, InputEvents, InputOptions, ValidInputValue } from './Input'
 import type { State } from '../../utils/state'
 import type { Folder } from '../Folder'
 
@@ -11,8 +11,9 @@ import { create } from '../../utils/create'
 import { toFn } from '../shared/toFn'
 // import { b } from '../../utils/l'
 import { Input } from './Input'
+import { EventManager } from '$lib/utils/EventManager'
 
-export type SelectInputOptions<T = unknown> = Omit<
+export type SelectInputOptions<T = ValidInputValue> = Omit<
 	InputOptions<T | { label: string; value: T }>,
 	'onChange' | 'value'
 > & {
@@ -41,11 +42,18 @@ export interface SelectControllerElements<T> extends ElementMap {
 	select: Select<T>['elements']
 }
 
+export interface SelectInputEvents<T> extends InputEvents<LabeledOption<T>> {
+	preview: LabeledOption<T>
+	open: void
+	close: void
+	cancel: void
+}
+
 export class InputSelect<T = unknown> extends Input<
 	LabeledOption<T>,
 	SelectInputOptions<T>,
 	SelectControllerElements<T>,
-	'change' | 'preview' | 'open' | 'close' | 'cancel'
+	SelectInputEvents<T>
 > {
 	readonly __type = 'InputSelect' as const
 	readonly initialValue: LabeledOption<T>
@@ -73,6 +81,8 @@ export class InputSelect<T = unknown> extends Input<
 	labeledSelection: LabeledOption<T>
 	#log: Logger
 
+	evm = new EventManager(['change', 'refresh', 'preview', 'open', 'close', 'cancel'])
+
 	constructor(options: Partial<SelectInputOptions<T>>, folder: Folder) {
 		const opts = Object.assign({}, SELECT_INPUT_DEFAULTS as SelectInputOptions<T>, options, {
 			__type: 'SelectInputOptions' as const,
@@ -86,8 +96,6 @@ export class InputSelect<T = unknown> extends Input<
 
 		this.#log = new Logger(`InputSelect ${opts.title}`, { fg: 'slategrey' })
 		this.#log.fn('constructor').info({ opts, this: this })
-
-		this.evm.registerEvents(['change', 'preview', 'open', 'close', 'cancel'])
 
 		opts.value ??= opts.binding?.initial ?? fromState(this.targetValue)
 		this.initialValue = this.resolveInitialValue(opts)
@@ -111,6 +119,7 @@ export class InputSelect<T = unknown> extends Input<
 		})
 
 		this.select = new Select({
+			// @ts-expect-error - idfk
 			input: this,
 			container,
 			options: this.options,
@@ -152,8 +161,8 @@ export class InputSelect<T = unknown> extends Input<
 		)
 
 		if (options.onChange) {
-			this.evm.on('change', () => {
-				options.onChange?.(toLabeledOption(this.state.value))
+			this.evm.on('change', v => {
+				options.onChange?.(toLabeledOption(v))
 			})
 		}
 

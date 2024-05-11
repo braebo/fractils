@@ -31,8 +31,7 @@ export interface TextControllerElements extends ElementMap {
 export class InputText extends Input<
 	string,
 	TextInputOptions,
-	TextControllerElements,
-	'change' | 'refresh'
+	TextControllerElements
 > {
 	readonly __type = 'InputText' as const
 	readonly initialValue: string
@@ -71,7 +70,7 @@ export class InputText extends Input<
 			input: textController(this, opts, container),
 		} as const satisfies TextControllerElements
 
-		this.evm.listen(this.elements.controllers.input, 'input', this.set.bind(this))
+		this.evm.listen(this.elements.controllers.input, 'input', this.set)
 
 		this.evm.add(this.state.subscribe(this.refresh))
 	}
@@ -87,7 +86,7 @@ export class InputText extends Input<
 		return this
 	}
 
-	set(v?: string | Event) {
+	set = (v?: string | Event) => {
 		if (typeof v === 'undefined') return
 
 		if (typeof v !== 'string') {

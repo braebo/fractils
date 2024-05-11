@@ -1,41 +1,54 @@
 import { nanoid } from './nanoid'
 
-export type EventCallback = (...args: any[]) => void
+export type EventCallback<T = any> = (...args: T[]) => void
 
 /**
  * Represents an event manager that provides methods for adding and removing event listeners.
  */
-export class EventManager<const TEvent extends string> {
-	listeners = new Map<string, EventCallback>()
-	handlers = new Map<TEvent, Map<string, EventCallback>>()
 
-	constructor(events?: TEvent[]) {
-		if (events) this.registerEvents(['change', ...events] as TEvent[])
-	}
+export class EventManager<EventMap extends Record<string, any>> {
+	private listeners = new Map<string, EventCallback>()
+	private handlers = new Map<
+		keyof EventMap,
+		Map<string, EventCallback<EventMap[keyof EventMap]>>
+	>()
 
-	registerEvents(events: TEvent[]) {
-		for (const event of events) {
-			this.handlers.set(event as TEvent, new Map())
+	constructor(events?: Array<keyof EventMap>) {
+		if (events) {
+			this.registerEvents([...events])
 		}
 	}
 
-	on = (event: TEvent, callback: EventCallback): string => {
-		const id = nanoid()
-		const listeners = this.handlers.get(event)
-
-		if (!listeners) {
-			console.warn(`Event "${event}" is not registered.`)
+	registerEvents(events: Array<keyof EventMap>) {
+		for (const event of events) {
 			this.handlers.set(event, new Map())
 		}
+	}
 
-		this.handlers.get(event)?.set(id, callback)
+	on<K extends keyof EventMap>(event: K, callback: EventCallback<EventMap[K]>): string {
+		const id = nanoid()
+		const listeners = this.handlers.get(event) as Map<string, EventCallback<EventMap[K]>>
 
+		if (!this.handlers.has(event)) {
+			console.warn(`Event "${String(event)}" is not registered.`)
+			return ''
+		}
+
+		listeners.set(id, callback)
 		return id
 	}
 
-	emit(event: TEvent, ...args: Parameters<EventCallback>) {
-		for (const cb of this.handlers.get(event)?.values() ?? []) {
-			cb(...args)
+	// emit(event: keyof EventMap, ...args: Parameters<EventCallback>) {
+	// 	for (const cb of this.handlers.get(event)?.values() ?? []) {
+	// 		cb(...args)
+	// 	}
+	// }
+	emit<K extends keyof EventMap>(event: K, ...args: EventMap[K][]) {
+		const callbacks = this.handlers.get(event)
+		if (callbacks) {
+			for (const cb of callbacks.values()) {
+				cb(...args)
+			}
 		}
 	}
 

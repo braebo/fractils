@@ -14,7 +14,7 @@ import type { State } from '../../utils/state'
 import type { Color } from '../../color/color'
 import type { Folder } from '../Folder'
 
-import { EventManager } from '../../utils/EventManager'
+import { EventManager, type EventCallback } from '../../utils/EventManager'
 import { isState, state } from '../../utils/state'
 import { keys, values } from '../../utils/object'
 import { create } from '../../utils/create'
@@ -135,7 +135,16 @@ export type ValidInput =
 	| InputButtonGrid
 	| InputSwitch
 
-export type InputEvents = 'change' | 'refresh' | string
+export type InputEvents<T extends ValidInputValue = ValidInputValue> = {
+	/**
+	 * Called when the input's value changes, providing the new value.
+	 */
+	readonly change: T
+	/**
+	 * Called when a input's controllers are refreshed, providing the current value of the input.
+	 */
+	readonly refresh: T
+}
 //⌟
 
 export type MapInputToOptions<T extends InputType = InputType> = (typeof INPUT_TYPE_MAP)[T]
@@ -147,7 +156,7 @@ export abstract class Input<
 	TValueType extends ValidInputValue = ValidInputValue,
 	TOptions extends ValidInputOptions = InputOptions,
 	TElements extends ElementMap = ElementMap,
-	TEvents extends InputEvents = InputEvents,
+	TEvents extends InputEvents = InputEvents<TValueType>,
 	TType extends InputType = InputType,
 	T__TYPE = (typeof INPUT_TYPE_MAP)[TType],
 > {
@@ -187,7 +196,7 @@ export abstract class Input<
 	 * {@link lock} is called.
 	 */
 	private lockCommit = {} as Commit
-	protected evm = new EventManager<InputEvents | TEvents>(['change', 'refresh'])
+	protected evm = new EventManager<TEvents>(['change', 'refresh'])
 
 	private _title = ''
 	private _dirty = false
@@ -253,7 +262,7 @@ export abstract class Input<
 		})
 
 		if ('onChange' in options) {
-			this.evm.on('change', options.onChange as (value: TValueType) => void)
+			this.evm.on('change', options.onChange as EventCallback<TEvents['change']>)
 		}
 	}
 
@@ -331,10 +340,12 @@ export abstract class Input<
 	/**
 	 * Called from subclasses at the end of their `set` method to emit the `change` event.
 	 */
-	_emit(event: TEvents, v = this.state.value as TValueType) {
+	_emit(event: keyof TEvents, v = this.state.value as TValueType) {
 		this.dirty = this.dirtyCheck()
+		// @ts-expect-error
 		this.evm.emit(event, v)
-		if (event === 'change') this.folder.evm.emit('change', v)
+		// @ts-expect-error
+		if (event === 'change') this.folder.evm.emit('change', this)
 	}
 
 	/**
@@ -352,7 +363,7 @@ export abstract class Input<
 	protected unlock = (commit?: Partial<Commit>) => {
 		this._log.fn('unlock').debug('commit', { commit, lockCommit: this.lockCommit })
 		commit ??= {}
-		commit.input ??= this as unknown as ValidInput
+		commit.input ??= this as unknown as Input<TValueType>
 		commit.to ??= this.state.value as TValueType
 		commit.from ??= this.lockCommit.from
 		this.undoLock = false
@@ -395,7 +406,7 @@ export abstract class Input<
 	 * Refreshes the value of any controllers to match the current input state.
 	 */
 	refresh(v = this.state.value as TValueType) {
-		this.evm.emit('refresh', v)
+		this.evm.emit('refresh', v as TValueType)
 
 		return this
 	}

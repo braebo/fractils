@@ -177,6 +177,18 @@ export interface FolderPreset {
 	controllers: InputPreset<any>[]
 }
 
+export interface FolderEvents {
+	/**
+	 * When any input in the folder changes, this event emits the input that changed.
+	 */
+	change: ValidInput
+	/**
+	 * When the folder is opened or closed, this event emits the new
+	 * {@link Folder.closed | `closed`} state.
+	 */
+	toggle: Folder['closed']['value']
+}
+
 /**
  * @internal
  */
@@ -234,7 +246,8 @@ export class Folder {
 	 */
 	#disabled = false
 
-	evm = new EventManager(['change', 'toggle'])
+	// evm = new EventManager(['change', 'toggle'])
+	evm = new EventManager<FolderEvents>(['change', 'toggle'])
 	on = this.evm.on
 	//⌟
 	constructor(options: FolderOptions) {

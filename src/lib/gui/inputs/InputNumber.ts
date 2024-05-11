@@ -39,7 +39,6 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 	readonly __type = 'InputNumber' as const
 	initialValue: number
 	state: State<number>
-	events = ['change']
 	#log: Logger
 
 	// todo - Move this into the number controller?

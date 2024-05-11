@@ -1,4 +1,4 @@
-import type { ElementMap, InputOptions } from './Input'
+import type { ElementMap, InputEvents, InputOptions } from './Input'
 import type { State } from '../../utils/state'
 import type { Folder } from '../Folder'
 
@@ -8,10 +8,11 @@ import { state } from '../../utils/state'
 import { toFn } from '../shared/toFn'
 import { Input } from './Input'
 import { DEV } from 'esm-env'
+import { EventManager } from '$lib/utils/EventManager'
 
 /**
  * A button item to be added to the grid.  This is used in the
- * {@link ButtonGrid} generated in the {@link InputButtonGrid}
+ * {@link ButtonGridArrays} generated in the {@link InputButtonGrid}
  * constructor.
  */
 export interface ButtonItemOptions {
@@ -22,10 +23,10 @@ export interface ButtonItemOptions {
 	label: string | (() => string)
 	/**
 	 * Function to run when the button is clicked.  It is passed a {@link ButtonItem}
-	 * object containing both the {@link InputButtonGrid|`input`} and the individual
-	 * {@link ButtonItem|`button`} in the {@link ButtonGrid|`buttongrid`} that was clicked.
+	 * object containing the individual {@link ButtonGridItem|`button item`} in the
+	 * {@link ButtonGridArrays|`buttongrid`} that was clicked.
 	 */
-	onClick: (payload: ButtonItem) => void
+	onClick?: (payload: ButtonItem) => void
 	/**
 	 * Optional function to determine if the button is active.  If the function returns `true`,
 	 * the button will have the `active` class added to it, and removed if `false`.  This updates
@@ -51,13 +52,19 @@ export interface ButtonItemOptions {
  * A {@link ButtonItemOptions} object, with the `label` property coerced into a function that
  * returns a string.
  */
-export interface ButtonItem extends Omit<ButtonItemOptions, '__type'> {
+export interface ButtonItem extends Omit<ButtonItemOptions, '__type' | 'onClick'> {
 	readonly __type?: 'ButtonItem'
 	/**
 	 * Text to display on the button.
 	 */
 	label: () => string
 	element: HTMLButtonElement
+	on: EventManager<ButtonGridItemEvents>['on']
+}
+
+// export type ButtonGridClickCallback = (payload: ButtonItem) => void
+export interface ButtonGridItemEvents extends InputEvents<InputButtonGrid> {
+	readonly click: ButtonGridItem
 }
 
 /**
@@ -77,20 +84,24 @@ export interface ButtonGridItem extends ButtonItem {
 /**
  * A 2D array of {@link ButtonItemOptions} objects, representing a grid of buttons.
  */
-export type ButtonGrid = ButtonItemOptions[][]
+export type ButtonGridArrays = ButtonItemOptions[][]
 
-export type ButtonGridClickFunction = (payload: ButtonItem) => void
+/**
+ * A fully processed {@link ButtonGridArrays} entry with the generated
+ * {@link ButtonGridItem}s stored in the {@link InputButtonGrid.buttonGrid}.
+ */
+export type ButtonGrid = ButtonGridItem[][]
 
 export type ButtonGridInputOptions = {
 	readonly __type?: 'ButtonGridInputOptions'
-	value: ButtonGrid
+	value: ButtonGridArrays
 	styles?: CreateOptions['style']
 	/**
 	 * If `true`, the last clicked button will have the `active` class added to it.
 	 * @default true
 	 */
 	activeOnClick?: boolean
-} & InputOptions<ButtonGrid>
+} & InputOptions<ButtonGridArrays>
 
 export const BUTTONGRID_INPUT_DEFAULTS = {
 	__type: 'ButtonGridInputOptions' as const,
@@ -111,14 +122,15 @@ export type ButtonId = string
 export class InputButtonGrid extends Input<
 	ButtonItem,
 	ButtonGridInputOptions,
-	ButtonGridControllerElements
+	ButtonGridControllerElements,
+	ButtonGridItemEvents
 > {
 	readonly __type = 'InputButtonGrid' as const
-	readonly initialValue = {} as ButtonGrid
-	readonly state = state({} as ButtonItem) as State<ButtonItem>
+	readonly initialValue = {} as ButtonGridArrays
+	readonly state = state({} as ButtonGridItem) as State<ButtonGridItem>
 
 	buttons: Map<ButtonId, ButtonGridItem> = new Map()
-	buttonGrid: ButtonGrid
+	buttonGrid: ButtonGridArrays
 
 	#log: Logger
 
@@ -127,6 +139,8 @@ export class InputButtonGrid extends Input<
 			__type: 'ButtonGridInputOptions' as const,
 		})
 		super(opts, folder)
+
+		this.evm.registerEvents(['change', 'refresh', 'click'])
 
 		this.buttonGrid = this.initialValue = opts.value
 		this.#log = new Logger(`InputButtonGrid ${opts.title}`, { fg: 'cyan' })
@@ -147,18 +161,19 @@ export class InputButtonGrid extends Input<
 		this.refresh()
 	}
 
-	onClick(callback: ButtonGridClickFunction) {
-		this.#log.fn('onClick').debug({ payload: this.state.value, this: this })
+	onClick(callback: (payload: ButtonGridItem) => void) {
 		this.evm.on('click', () => callback(this.state.value))
+		// this.#log.fn('onClick').debug({ payload: this.state.value, this: this })
+		// this.evm.on('click', () => callback(this.state.value))
 	}
 
 	/**
-	 * Converts a {@link ButtonGrid} into a a grid of {@link HTMLButtonElement}
+	 * Converts a {@link ButtonGridArrays} into a a grid of {@link HTMLButtonElement}
 	 * elements, and
 	 *
 	 * - appends them to the {@link InputButtonGrid.elements.controllers.container}
 	 */
-	toGrid(grid: ButtonGrid) {
+	toGrid(grid: ButtonGridArrays) {
 		const rows = grid.length
 		const cols = Math.max(...grid.map(row => row.length))
 
@@ -179,7 +194,7 @@ export class InputButtonGrid extends Input<
 				const btn = grid[i]?.[j]
 				if (btn) {
 					const button = this.addButton(btn, toFn(btn.label)(), i, j)
-					row.appendChild(button)
+					row.appendChild(button.element)
 				}
 			}
 		}
@@ -211,12 +226,14 @@ export class InputButtonGrid extends Input<
 			},
 		})
 
-		let btn = {
+		const _evm = new EventManager(['click'])
+		const btn = {
 			...opts,
 			__type: 'ButtonItem' as const,
 			element: button,
 			label,
-		}
+			on: _evm.on.bind(_evm),
+		} satisfies ButtonGridItem
 
 		if (typeof opts.isActive !== 'function') {
 			if (this.opts.activeOnClick) {
@@ -226,9 +243,13 @@ export class InputButtonGrid extends Input<
 			}
 		}
 
-		this.buttons.set(id, btn)
+		if (opts.onClick) {
+			btn.on('click', () => {
+				opts.onClick?.(btn)
+			})
+		}
 
-		this.evm.listen(button, 'click', e => {
+		_evm.listen(button, 'click', e => {
 			const id = (e.target as HTMLButtonElement).dataset['id']
 
 			if (!id) {
@@ -243,14 +264,17 @@ export class InputButtonGrid extends Input<
 				return
 			}
 
-			button.onClick(button)
-			this.set(button)
+			this.set(btn)
+
+			_evm.emit('click', btn)
 		})
 
-		return button
+		this.buttons.set(id, btn)
+
+		return btn
 	}
 
-	set(button: ButtonItem) {
+	set(button: ButtonGridItem) {
 		this.state.set(button)
 
 		this._emit('click', button)

@@ -27,12 +27,7 @@ export interface TextAreaControllerElements extends ElementMap {
 	input: HTMLInputElement
 }
 
-export class InputTextArea extends Input<
-	string,
-	TextAreaInputOptions,
-	TextAreaControllerElements,
-	'change' | 'refresh'
-> {
+export class InputTextArea extends Input<string, TextAreaInputOptions, TextAreaControllerElements> {
 	readonly __type = 'InputTextArea' as const
 	readonly initialValue: string
 	readonly state: State<string>
