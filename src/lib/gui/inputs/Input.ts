@@ -191,7 +191,7 @@ export abstract class Input<
 
 	private _title = ''
 	private _dirty = false
-	private log: Logger
+	private _log: Logger
 
 	constructor(
 		options: TOptions & { __type: T__TYPE },
@@ -202,7 +202,7 @@ export abstract class Input<
 		this.presetId =
 			options.presetId ?? `${folder.resolvePresetId()}_${options.__type}:${options.title}`
 
-		this.log = new Logger(`Input ${options.title}`, { fg: 'skyblue' })
+		this._log = new Logger(`Input ${options.title}`, { fg: 'skyblue' })
 
 		this._title = options.title ?? ''
 		this._disabled = toFn(options.disabled ?? false)
@@ -238,6 +238,7 @@ export abstract class Input<
 				delay: 1000,
 			},
 			onclick: () => {
+				this._log.fn('reset').info('resetting to initial value', this.initialValue)
 				this.set(this.initialValue as TValueType)
 			},
 		})
@@ -343,13 +344,13 @@ export abstract class Input<
 	protected lock = (from = this.state.value) => {
 		this.undoLock = true
 		this.lockCommit.from = from
-		this.log.fn('lock').info('lockCommit:', this.lockCommit)
+		this._log.fn('lock').info('lockCommit:', this.lockCommit)
 	}
 	/**
 	 * Unlocks commits and saves the current commit stored in lock.
 	 */
 	protected unlock = (commit?: Partial<Commit>) => {
-		this.log.fn('unlock').debug('commit', { commit, lockCommit: this.lockCommit })
+		this._log.fn('unlock').debug('commit', { commit, lockCommit: this.lockCommit })
 		commit ??= {}
 		commit.input ??= this as unknown as ValidInput
 		commit.to ??= this.state.value as TValueType
@@ -364,10 +365,10 @@ export abstract class Input<
 	commit(commit: Partial<Commit>) {
 		commit.from ??= this.state.value
 		if (this.undoLock) {
-			this.log.fn('commit').debug('prevented commit while locked')
+			this._log.fn('commit').debug('prevented commit while locked')
 			return
 		}
-		this.log.fn('commit').debug('commited', commit)
+		this._log.fn('commit').debug('commited', commit)
 		this.undoManager?.commit<TValueType>({
 			input: this,
 			...commit,
@@ -411,7 +412,7 @@ export abstract class Input<
 			hidden: this.hidden,
 		}
 
-		this.log.fn('save').debug(preset)
+		this._log.fn('save').debug(preset)
 
 		return Object.assign(preset, overrides)
 	}
@@ -425,7 +426,7 @@ export abstract class Input<
 	}
 
 	dispose() {
-		this.log.fn('dispose').debug(this)
+		this._log.fn('dispose').debug(this)
 		this.evm.dispose()
 
 		const rm = (elOrObj: any) => {

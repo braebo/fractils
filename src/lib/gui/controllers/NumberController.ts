@@ -51,7 +51,7 @@ export class NumberController<
 	}
 
 	hoverStart = (e: PointerEvent) => {
-		this.#log.fn('hoverStart').info(e)
+		this.#log.fn('hoverStart').debug(e)
 		this.hovering = true
 		this.element.classList.add('hovering')
 
@@ -64,7 +64,7 @@ export class NumberController<
 	}
 
 	hoverEnd = (e: PointerEvent) => {
-		this.#log.fn('hoverEnd').info(e)
+		this.#log.fn('hoverEnd').debug(e)
 		this.hovering = false
 		this.element.classList.remove('hovering')
 
@@ -79,7 +79,7 @@ export class NumberController<
 	}
 
 	cancelDrag = (e: KeyboardEvent | PointerEvent) => {
-		this.#log.fn('cancelDrag').info(e)
+		this.#log.fn('cancelDrag').debug(e)
 		this.dragEnabled = e.type === 'keyup' ? this.dragKeyHeld(e) : false
 
 		document.removeEventListener('keyup', this.cancelDrag)
@@ -96,7 +96,7 @@ export class NumberController<
 	}
 
 	maybeEnableDrag = (e: KeyboardEvent | PointerEvent) => {
-		this.#log.fn('maybeEnableDrag').info(e)
+		this.#log.fn('maybeEnableDrag').debug(e)
 		if (this.dragKeyHeld(e)) {
 			this.dragEnabled = true
 
@@ -121,6 +121,7 @@ export class NumberController<
 	}
 
 	dragStart = async () => {
+		this.#log.fn('dragStart').debug()
 		this.dragging = true
 		this.element.dispatchEvent(new Event('dragStart'))
 
@@ -139,7 +140,7 @@ export class NumberController<
 	}
 
 	dragEnd = () => {
-		this.#log.fn('dragEnd').info()
+		this.#log.fn('dragEnd').debug()
 		this.dragging = false
 
 		this.element.classList.remove('dragging')

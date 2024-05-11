@@ -10,7 +10,6 @@ import { Logger } from './logger'
 import { select } from './select'
 import { state } from './state'
 import { clamp } from './clamp'
-import { gr } from './l'
 
 /**
  * Represents a dom element's bounding rectangle.
@@ -209,12 +208,11 @@ export class Resizable {
 	) {
 		this.opts = deepMerge([RESIZABLE_DEFAULTS, options], { concatArrays: false })
 
-		const label = this.localStorageKey ? gr(':' + this.localStorageKey) : ''
 		this.#log = new Logger('resizable', {
 			fg: 'GreenYellow',
 			deferred: false,
 		})
-		this.#log.fn('constructor').info({ opts: this.opts, this: this })
+		this.#log.fn('constructor').debug({ opts: this.opts, this: this })
 
 		this.node.classList.add('fractils-resizable')
 
@@ -461,7 +459,7 @@ export class Resizable {
 		const y = e.clientY - this.clickOffset.y
 
 		const { side } = this.#activeGrabber.dataset
-		this.#log.fn('onMove').info(side)
+		this.#log.fn('onMove').debug(side)
 
 		switch (side) {
 			case 'top-left':
