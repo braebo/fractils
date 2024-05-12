@@ -99,6 +99,11 @@ export type InputOptions<
 	 * @default 0
 	 */
 	order?: number
+	/**
+	 * If true, the `reset to default` button will appear when the input's value is marked dirty.
+	 * @default true
+	 */
+	resettable?: boolean
 	onChange?: (value: TValue) => void
 } & ValueOrBinding<TValue, TBindTarget>
 
@@ -109,6 +114,7 @@ export type InputPreset<T extends ValidInputOptions> = Omit<InputOptions<T>, 'ti
 	disabled: boolean
 	hidden: boolean
 	order: number
+	resettable: boolean
 }
 
 export interface ElementMap<T = unknown> {
@@ -316,9 +322,7 @@ export abstract class Input<
 	get dirty() {
 		return this._dirty
 	}
-	set dirty(v: boolean) {
-		this._dirty = v
-		this.elements.resetBtn.classList.toggle('dirty', v)
+		if (this.opts.resettable === false) return
 	}
 	protected dirtyCheck() {
 		return this.state.value !== this.initialValue
@@ -433,6 +437,7 @@ export abstract class Input<
 			presetId: this.presetId,
 			hidden: this.hidden,
 			order: this.index,
+			resettable: this.opts.resettable ?? true,
 		}
 
 		this._log.fn('save').debug(preset)
