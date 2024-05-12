@@ -1,14 +1,15 @@
-import type { ElementMap, InputEvents, InputOptions } from './Input'
+import type { CreateOptions } from '../../utils/create'
+import type { ElementMap, InputOptions } from './Input'
 import type { State } from '../../utils/state'
 import type { Folder } from '../Folder'
 
-import { create, type CreateOptions } from '../../utils/create'
+import { EventManager } from '../../utils/EventManager'
 import { Logger } from '../../utils/logger'
+import { create } from '../../utils/create'
 import { state } from '../../utils/state'
 import { toFn } from '../shared/toFn'
 import { Input } from './Input'
 import { DEV } from 'esm-env'
-import { EventManager } from '$lib/utils/EventManager'
 
 /**
  * A button item to be added to the grid.  This is used in the
@@ -22,8 +23,8 @@ export interface ButtonItemOptions {
 	 */
 	label: string | (() => string)
 	/**
-	 * Function to run when the button is clicked.  It is passed a {@link ButtonItem}
-	 * object containing the individual {@link ButtonGridItem|`button item`} in the
+	 * Function to run when the button is clicked.  It is passed a {@link ButtonItem} object
+	 * containing the individual {@link ButtonItem|`button item`} in the
 	 * {@link ButtonGridArrays|`buttongrid`} that was clicked.
 	 */
 	onClick?: (payload: ButtonItem) => void
@@ -35,7 +36,7 @@ export interface ButtonItemOptions {
 	 */
 	isActive?: () => boolean
 	/**
-	 * Optional css styles.
+	 * Optional css styles object.
 	 * @example
 	 * ```ts
 	 * {
@@ -46,32 +47,27 @@ export interface ButtonItemOptions {
 	 * ```
 	 */
 	style?: CreateOptions['style']
+	/**
+	 * Optional tooltip text.
+	 */
+	tooltip?: string
 }
 
 /**
- * A {@link ButtonItemOptions} object, with the `label` property coerced into a function that
- * returns a string.
+ * A {@link ButtonItemOptions} added to the grid is stored internally as a `ButtonItem`,
+ * accessible via the {@link InputButtonGrid.buttonGrid | buttonGrid} map.
  */
 export interface ButtonItem extends Omit<ButtonItemOptions, '__type' | 'onClick'> {
 	readonly __type?: 'ButtonItem'
 	/**
-	 * Text to display on the button.
+	 * Text to display on the button.  If a function is provided, it will be called whenever the
+	 * button is refreshed (useful for dynamic text based on some external state).
+	 * @remarks If a string is provided, it will be coerced to a function that returns the string.
 	 */
 	label: () => string
-	element: HTMLButtonElement
-	on: EventManager<ButtonGridItemEvents>['on']
-}
-
-// export type ButtonGridClickCallback = (payload: ButtonItem) => void
-export interface ButtonGridItemEvents extends InputEvents<InputButtonGrid> {
-	readonly click: ButtonGridItem
-}
-
-/**
- * A {@link ButtonItemOptions} added to the grid is stored internally as a `ButtonGridItem`,
- * accessible via the {@link InputButtonGrid.buttonGrid | buttonGrid} map.
- */
-export interface ButtonGridItem extends ButtonItem {
+	/**
+	 * The HTMLButtonElement element with its grid position stored in the `dataset` property.
+	 */
 	element: HTMLButtonElement & {
 		dataset: {
 			id: string
@@ -79,18 +75,48 @@ export interface ButtonGridItem extends ButtonItem {
 			col: string
 		}
 	}
+	/**
+	 * The button's `onClick` event handler.
+	 */
+	on: EventManager<ButtonItemEvents>['on']
+	/**
+	 * Disposes of the button element and its event listeners.
+	 */
+	dispose: () => void
+}
+
+export interface ButtonItemEvents {
+	readonly click: ButtonItem
+	readonly change: ButtonItem
+	readonly refresh: ButtonItem
 }
 
 /**
- * A 2D array of {@link ButtonItemOptions} objects, representing a grid of buttons.
+ * A 2D array of {@link ButtonItemOptions} objects, representing a grid of buttons. The inner
+ * arrays represent rows, and the outer array represents columns.
+ * @example
+ * ```ts
+ * [
+ *   // First row columns
+ *   [
+ *     { label: 'top-left', onClick: () => {} },
+ *     { label: 'top-right', onClick: () => {} }
+ *   ],
+ *   // Second row columns
+ *   [
+ *     { label: 'bottom-left', onClick: () => {} },
+ *     { label: 'bottom-right', onClick: () => {} }
+ *   ]
+ * ]
+ * ```
  */
 export type ButtonGridArrays = ButtonItemOptions[][]
 
 /**
- * A fully processed {@link ButtonGridArrays} entry with the generated
- * {@link ButtonGridItem}s stored in the {@link InputButtonGrid.buttonGrid}.
+ * A fully processed {@link ButtonGridArrays} entry with the generated {@link ButtonItem}s stored
+ * in the input's {@link InputButtonGrid.buttonGrid|`buttonGrid`}.
  */
-export type ButtonGrid = ButtonGridItem[][]
+export type ButtonGrid = ButtonItem[][]
 
 export type ButtonGridInputOptions = {
 	readonly __type?: 'ButtonGridInputOptions'
@@ -123,13 +149,13 @@ export class InputButtonGrid extends Input<
 	ButtonItem,
 	ButtonGridInputOptions,
 	ButtonGridControllerElements,
-	ButtonGridItemEvents
+	ButtonItemEvents
 > {
 	readonly __type = 'InputButtonGrid' as const
 	readonly initialValue = {} as ButtonGridArrays
-	readonly state = state({} as ButtonGridItem) as State<ButtonGridItem>
+	readonly state = state({} as ButtonItem) as State<ButtonItem>
 
-	buttons: Map<ButtonId, ButtonGridItem> = new Map()
+	buttons: Map<ButtonId, ButtonItem> = new Map()
 	buttonGrid: ButtonGridArrays
 
 	#log: Logger
@@ -140,7 +166,7 @@ export class InputButtonGrid extends Input<
 		})
 		super(opts, folder)
 
-		this.evm.registerEvents(['change', 'refresh', 'click'])
+		this.evm.registerEvents(['click'])
 
 		this.buttonGrid = this.initialValue = opts.value
 		this.#log = new Logger(`InputButtonGrid ${opts.title}`, { fg: 'cyan' })
@@ -161,10 +187,8 @@ export class InputButtonGrid extends Input<
 		this.refresh()
 	}
 
-	onClick(callback: (payload: ButtonGridItem) => void) {
+	onClick(callback: (payload: ButtonItem) => void) {
 		this.evm.on('click', () => callback(this.state.value))
-		// this.#log.fn('onClick').debug({ payload: this.state.value, this: this })
-		// this.evm.on('click', () => callback(this.state.value))
 	}
 
 	/**
@@ -233,7 +257,11 @@ export class InputButtonGrid extends Input<
 			element: button,
 			label,
 			on: _evm.on.bind(_evm),
-		} satisfies ButtonGridItem
+			dispose: () => {
+				_evm.dispose()
+				button.remove()
+			},
+		} satisfies ButtonItem
 
 		if (typeof opts.isActive !== 'function') {
 			if (this.opts.activeOnClick) {
@@ -274,7 +302,7 @@ export class InputButtonGrid extends Input<
 		return btn
 	}
 
-	set(button: ButtonGridItem) {
+	set(button: ButtonItem) {
 		this.state.set(button)
 
 		this._emit('click', button)
@@ -305,6 +333,7 @@ export class InputButtonGrid extends Input<
 		super.enable()
 		return this
 	}
+
 	disable() {
 		for (const { element } of this.buttons.values()) {
 			element.disabled = true
@@ -315,6 +344,10 @@ export class InputButtonGrid extends Input<
 	}
 
 	dispose() {
+		for (const { element } of this.buttons.values()) {
+			element.remove()
+		}
+		this.buttons.clear()
 		super.dispose()
 	}
 }
