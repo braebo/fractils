@@ -58,6 +58,7 @@ export class InputSelect<T = unknown> extends Input<
 	readonly __type = 'InputSelect' as const
 	readonly initialValue: LabeledOption<T>
 	state: State<LabeledOption<T>>
+
 	#options: SelectInputOptions['options']
 	set options(v: SelectInputOptions['options']) {
 		this.#options = toFn(v)
@@ -66,6 +67,7 @@ export class InputSelect<T = unknown> extends Input<
 	get options(): LabeledOption<T>[] {
 		return this.resolveOptions(this.#options)
 	}
+
 	/**
 	 * The select controller instance.
 	 */
@@ -75,13 +77,13 @@ export class InputSelect<T = unknown> extends Input<
 	 * A latch for event propagation. Toggled off everytime an event aborted.
 	 */
 	#stopPropagation = true
+
 	/**
 	 * The currently selected option as a labeled option.
 	 */
 	labeledSelection: LabeledOption<T>
-	#log: Logger
 
-	evm = new EventManager(['change', 'refresh', 'preview', 'open', 'close', 'cancel'])
+	#log: Logger
 
 	constructor(options: Partial<SelectInputOptions<T>>, folder: Folder) {
 		const opts = Object.assign({}, SELECT_INPUT_DEFAULTS as SelectInputOptions<T>, options, {
@@ -93,6 +95,8 @@ export class InputSelect<T = unknown> extends Input<
 		// }
 
 		super(opts, folder)
+
+		this.evm.registerEvents(['preview', 'open', 'close', 'cancel'])
 
 		this.#log = new Logger(`InputSelect ${opts.title}`, { fg: 'slategrey' })
 		this.#log.fn('constructor').info({ opts, this: this })
