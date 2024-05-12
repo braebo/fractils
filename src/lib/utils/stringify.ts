@@ -8,8 +8,9 @@
  * @param obj - The object to stringify.
  * @param indentation - Number of spaces for indentation. Optional.
  */
-export const stringify = (input: unknown, indentation = 0) =>
-	JSON.stringify(input, serialize(), indentation);
+export const stringify = (input: unknown, indentation = 0) => {
+	return JSON.stringify(input, serialize(), indentation)
+}
 
 /**
  * Replaces circular references, undefined values, and functions with strings.
@@ -23,31 +24,31 @@ export const stringify = (input: unknown, indentation = 0) =>
  */
 export function serialize() {
 	const stack: unknown[] = [],
-		keys: string[] = [];
+		keys: string[] = []
 
 	return function (this: unknown, key: string, value: unknown): unknown {
-		if (typeof value === 'undefined') return 'undefined';
-		if (typeof value === 'function') return 'function';
+		if (typeof value === 'undefined') return 'undefined'
+		if (typeof value === 'function') return 'function'
 
-		let thisPos = stack.indexOf(this);
+		let thisPos = stack.indexOf(this)
 		if (thisPos !== -1) {
-			stack.length = thisPos + 1;
-			keys.length = thisPos;
-			keys[thisPos] = key;
+			stack.length = thisPos + 1
+			keys.length = thisPos
+			keys[thisPos] = key
 		} else {
-			stack.push(this);
-			keys.push(key);
+			stack.push(this)
+			keys.push(key)
 		}
 
-		let valuePos = stack.indexOf(value);
+		let valuePos = stack.indexOf(value)
 		if (valuePos !== -1) {
-			return '[Circular ~' + keys.slice(0, valuePos).join('.') + ']';
+			return '[Circular ~' + keys.slice(0, valuePos).join('.') + ']'
 		}
 
 		if (stack.length > 0) {
-			stack.push(value);
+			stack.push(value)
 		}
 
-		return value;
-	};
+		return value
+	}
 }
