@@ -102,13 +102,13 @@ export class PresetManager {
 				[
 					{
 						label: 'save',
-						onClick: () => {
-							const preset = root.save(presetTitle.value)
-							// console.log(preset)
-							code.set(`const preset = ${JSON.stringify(preset, null, 2)}`)
-							this.presets.push(preset)
-							// console.log(this.presets.value)
-						},
+						// onClick: () => {
+						// 	const preset = root.save(presetTitle.value)
+						// 	// console.log(preset)
+						// 	code.set(`const preset = ${JSON.stringify(preset, null, 2)}`)
+						// 	this.presets.push(preset)
+						// 	// console.log(this.presets.value)
+						// },
 					},
 					{
 						label: 'rename',
@@ -125,26 +125,27 @@ export class PresetManager {
 		})
 
 		const saveBtn = btnGrid.buttons.get('save')
-		const renameBtn = btnGrid.buttons.get('rename')
-		const deleteBtn = btnGrid.buttons.get('delete')
-		saveBtn
-		renameBtn
-		deleteBtn
+		// const renameBtn = btnGrid.buttons.get('rename')
+		// const deleteBtn = btnGrid.buttons.get('delete')
 
 		// Let the folders load before saving the default preset.
 		Promise.resolve().then(() => {
-			defaultPreset ??= this.presets.value.find(p => p.presetId === 'default')
+			defaultPreset ??= this.presets.value.find(p => p.presetId === 'fracgui-default-preset')
+
 			if (!defaultPreset) {
 				defaultPreset = root.save('default') as FolderPreset //...
-				defaultPreset.presetId = 'default'
+				defaultPreset.presetId = 'fracgui-default-preset'
 				this.presets.push(defaultPreset)
 			}
 
-			this.activePreset.set(defaultPreset)
+			if (!Object.keys(this.activePreset.value).length) {
+				this.activePreset.set(defaultPreset)
+			}
+
 			root.evm.add(
 				this.activePreset.subscribe(v => {
 					if (v.presetId === this.activePreset.value.presetId) return
-					root.root.load(v)
+					root.load(v)
 				}),
 			)
 
@@ -158,6 +159,34 @@ export class PresetManager {
 				// console.log(v)
 				// this.parentFolder.load(v.value)
 				// },
+			})
+
+			saveBtn?.on('click', payload => {
+				payload //=>
+				console.log(payload)
+				const preset = root.save(presetTitle.value)
+				// console.log(preset)
+				code.set(`const preset = ${JSON.stringify(preset, null, 2)}`)
+
+				const existing = this.presets.value.find(p => p.presetId === preset.presetId)
+				if (!existing) {
+					this.presets.push(preset)
+				} else {
+					console.log('preset exists. replacing.', preset.presetId)
+					this.presets.update(presets => {
+						const index = presets.findIndex(p => p.presetId === preset.presetId)
+						presets[index] = preset
+						return presets
+					})
+				}
+
+				// console.log('presetSelectInput.options', presetSelectInput.options)
+
+				// presetSelectInput.options = this.presets.value
+
+				presetSelectInput.refresh()
+
+				// console.log('presetSelectInput.options', presetSelectInput.options)
 			})
 
 			presetSelectInput.on('change', v => {
