@@ -7,6 +7,7 @@ import { styled } from '../decorators/styled'
 import { tickLoop } from '../utils/loopTick'
 import { entries } from '../utils/object'
 import { create } from '../utils/create'
+import { toFn } from '../utils/toFn'
 import { DEV } from 'esm-env'
 
 type Selector = `#${string}` | `.${string}`
@@ -126,14 +127,15 @@ export class Tooltip {
 
 	opts: TooltipOptions
 
-	#animPositions!: { from: string; to: string }
+	private _text: () => string
+	private _animPositions!: { from: string; to: string }
 
-	#delayInTimer!: ReturnType<typeof setTimeout>
-	#delayOutTimer!: ReturnType<typeof setTimeout>
+	private _delayInTimer!: ReturnType<typeof setTimeout>
+	private _delayOutTimer!: ReturnType<typeof setTimeout>
 
-	#evm = new EventManager()
+	private _evm = new EventManager()
 	/** removeEventListener callbacks for listeners with particularly short lifecycles. */
-	#tempListeners = new Set<() => void>()
+	private _tempListeners = new Set<() => void>()
 
 	constructor(
 		/** The node that the tooltip is attached to. */
@@ -145,17 +147,13 @@ export class Tooltip {
 
 		this.placement = opts.placement
 
-		this.getText =
-			typeof this.opts.text === 'function'
-				? (this.opts.text as () => string)
-				: ((() => this.opts.text) as () => string)
+		this._text = toFn(opts.text)
 
 		this.parent = options?.parent ?? document.getElementById('svelte') ?? document.body
 
 		this.element = create('div', {
 			classes: ['fractils-tooltip'],
-			innerHTML: String(this.getText()),
-			// styles: this.opts.styles,
+			innerHTML: String(this._text()),
 			style: options?.style,
 		})
 
@@ -165,32 +163,32 @@ export class Tooltip {
 			}
 		}
 
-		this.#evm.listen(node, 'pointerenter', this.show)
-		this.#evm.listen(node, 'pointerleave', this.hide)
-		this.#evm.listen(node, 'pointermove', this.updatePosition)
-		this.#evm.listen(node, 'click', () => {
+		this._evm.listen(node, 'pointerenter', this.show)
+		this._evm.listen(node, 'pointerleave', this.hide)
+		this._evm.listen(node, 'pointermove', this.updatePosition)
+		this._evm.listen(node, 'click', () => {
 			if (opts.hideOnClick) this.hide()
 			else this.refresh()
 		})
 	}
 
 	refresh() {
-		this.text = this.text
+		this.text = this._text()
 		setTimeout(() => this.updatePosition(), 0)
-		this.#maybeWatchAnchor()
-		clearTimeout(this.#delayInTimer)
-		clearTimeout(this.#delayOutTimer)
+		this._maybeWatchAnchor()
+		clearTimeout(this._delayInTimer)
+		clearTimeout(this._delayOutTimer)
 	}
 
-	getText: () => string
 	/**
 	 * The text to display in the tooltip.  Assigning a new value will update the tooltip text.
 	 */
 	get text() {
-		return this.getText()
+		return this._text()
 	}
-	set text(text: string) {
-		this.element.innerHTML = String(text)
+	set text(text: string | (() => string)) {
+		this._text = toFn(text)
+		this.element.innerHTML = String(this._text())
 	}
 
 	get placement() {
@@ -200,16 +198,16 @@ export class Tooltip {
 		this.opts.placement = v
 		switch (v) {
 			case 'top':
-				this.#animPositions = { from: 'translateY(4px)', to: 'translateY(0)' }
+				this._animPositions = { from: 'translateY(4px)', to: 'translateY(0)' }
 				break
 			case 'bottom':
-				this.#animPositions = { from: 'translateY(-4px)', to: 'translateY(0)' }
+				this._animPositions = { from: 'translateY(-4px)', to: 'translateY(0)' }
 				break
 			case 'left':
-				this.#animPositions = { from: 'translateX(4px)', to: 'translateX(0)' }
+				this._animPositions = { from: 'translateX(4px)', to: 'translateX(0)' }
 				break
 			case 'right':
-				this.#animPositions = { from: 'translateX(-4px)', to: 'translateX(0)' }
+				this._animPositions = { from: 'translateX(-4px)', to: 'translateX(0)' }
 		}
 	}
 
@@ -231,16 +229,16 @@ export class Tooltip {
 
 	show = () => {
 		if (this.showing) return
-		clearTimeout(this.#delayInTimer)
-		clearTimeout(this.#delayOutTimer)
+		clearTimeout(this._delayInTimer)
+		clearTimeout(this._delayOutTimer)
 
-		this.#delayInTimer = setTimeout(async () => {
+		this._delayInTimer = setTimeout(async () => {
 			this.parent.appendChild(this.element)
 			this.showing = true
 			this.element.animate(
 				[
-					{ opacity: '0', transform: this.#animPositions.from },
-					{ opacity: '1', transform: this.#animPositions.to },
+					{ opacity: '0', transform: this._animPositions.from },
+					{ opacity: '1', transform: this._animPositions.to },
 				],
 				{
 					duration: this.opts.animation!.duration,
@@ -249,21 +247,21 @@ export class Tooltip {
 				},
 			)
 			this.updatePosition()
-			this.#maybeWatchAnchor()
+			this._maybeWatchAnchor()
 		}, this.opts.delay)
 	}
 
 	hide = () => {
-		clearTimeout(this.#delayInTimer)
-		clearTimeout(this.#delayOutTimer)
+		clearTimeout(this._delayInTimer)
+		clearTimeout(this._delayOutTimer)
 
-		this.#delayOutTimer = setTimeout(async () => {
+		this._delayOutTimer = setTimeout(async () => {
 			if (this.showing) {
 				this.showing = false
 				await this.element.animate(
 					[
-						{ opacity: '1', transform: this.#animPositions.to },
-						{ opacity: '0', transform: this.#animPositions.from },
+						{ opacity: '1', transform: this._animPositions.to },
+						{ opacity: '0', transform: this._animPositions.from },
 					],
 					{
 						duration: this.opts.animation!.durationOut,
@@ -294,14 +292,14 @@ export class Tooltip {
 		this.text = this.text
 
 		if (e?.type === 'pointermove') {
-			this.#mouse = {
+			this._mouse = {
 				x: e.clientX,
 				y: e.clientY,
 			}
 		}
 
 		// todo - can we safely "cache" the anchor?
-		const anchor = this.#getAnchorRects()
+		const anchor = this._getAnchorRects()
 
 		let left = 0
 		let top = 0
@@ -336,9 +334,9 @@ export class Tooltip {
 	}
 
 	// todo - mobile touch events support?
-	#mouse = { x: 0, y: 0 }
+	private _mouse = { x: 0, y: 0 }
 
-	#getAnchorRects(): {
+	private _getAnchorRects(): {
 		x: AnchorRect
 		y: AnchorRect
 	} {
@@ -355,8 +353,8 @@ export class Tooltip {
 						}
 						case 'mouse': {
 							return {
-								left: this.#mouse.x + window.scrollX,
-								top: this.#mouse.y + window.scrollY,
+								left: this._mouse.x + window.scrollX,
+								top: this._mouse.y + window.scrollY,
 								width: 0,
 								height: 0,
 							}
@@ -406,7 +404,7 @@ export class Tooltip {
 	/**
 	 * Determines if the tooltip should watch any anchors for movement.
 	 */
-	#maybeWatchAnchor() {
+	private _maybeWatchAnchor() {
 		const maybeWatch = (el: ElementOrSelector | null) => {
 			if (!el) return
 
@@ -417,14 +415,14 @@ export class Tooltip {
 
 			const watchAnchor = () => {
 				if (anchor) {
-					this.#watch(anchor as HTMLElement)
+					this._watch(anchor as HTMLElement)
 				}
 			}
 
 			if (anchor) {
 				anchor.removeEventListener('transitionrun', watchAnchor)
 				anchor.addEventListener('transitionrun', watchAnchor, { once: true })
-				this.#tempListeners.add(() =>
+				this._tempListeners.add(() =>
 					anchor.removeEventListener('transitionrun', watchAnchor),
 				)
 			}
@@ -459,30 +457,30 @@ export class Tooltip {
 		}
 	}
 
-	#watchingAnchor = false
-	#watchingFinished = false
-	#watchTimeout: ReturnType<typeof setTimeout> | undefined = undefined
+	private _watchingAnchor = false
+	private _watchingFinished = false
+	private _watchTimeout: ReturnType<typeof setTimeout> | undefined = undefined
 	/**
 	 * Keeps the tooltip position in sync with the anchor when an anchor's
 	 * transform is in transition while the tooltip is showing.
 	 * @todo - watch animation events too?
 	 */
-	#watch(el: HTMLElement) {
-		if (this.#watchingAnchor) {
+	private _watch(el: HTMLElement) {
+		if (this._watchingAnchor) {
 			return
 		}
-		this.#watchingFinished = false
-		this.#watchingAnchor = true
+		this._watchingFinished = false
+		this._watchingAnchor = true
 
 		const complete = () => {
-			this.#watchingFinished = true
-			this.#watchingAnchor = false
+			this._watchingFinished = true
+			this._watchingAnchor = false
 			this.element.style.transitionDuration = '0.1s'
 			if (timeout) el.removeEventListener('transitionend', timeout)
 		}
 
 		const timeout = () => {
-			if (this.#watchingFinished) return
+			if (this._watchingFinished) return
 			complete()
 		}
 
@@ -491,9 +489,9 @@ export class Tooltip {
 			return
 		}
 
-		clearTimeout(this.#watchTimeout)
-		this.#watchTimeout = setTimeout(() => {
-			if (!this.#watchingFinished) {
+		clearTimeout(this._watchTimeout)
+		this._watchTimeout = setTimeout(() => {
+			if (!this._watchingFinished) {
 				complete()
 			}
 		}, 500)
@@ -501,11 +499,11 @@ export class Tooltip {
 		el.removeEventListener('transitionend', timeout)
 		el.addEventListener('transitionend', timeout)
 
-		if (!this.#watchingFinished) {
+		if (!this._watchingFinished) {
 			this.node.style.transitionDuration = '0s'
 
 			tickLoop(() => {
-				if (!this.#watchingFinished) {
+				if (!this._watchingFinished) {
 					this.updatePosition()
 				} else {
 					return true
@@ -515,16 +513,16 @@ export class Tooltip {
 	}
 
 	dispose() {
-		if (this.#watchTimeout) {
-			clearTimeout(this.#watchTimeout)
+		if (this._watchTimeout) {
+			clearTimeout(this._watchTimeout)
 		}
 
-		for (const listener of this.#tempListeners) {
+		for (const listener of this._tempListeners) {
 			listener()
 		}
-		this.#tempListeners.clear()
+		this._tempListeners.clear()
 
-		this.#evm.dispose()
+		this._evm.dispose()
 		this.element.remove()
 	}
 
@@ -534,24 +532,24 @@ export class Tooltip {
 	static style = /*css*/ `
 		.fractils-tooltip {
 			position: absolute;
-			
+
 			min-width: 3rem;
 			max-width: auto;
 			min-height: auto;
 			max-height: auto;
 			padding: 4px 8px;
-			
+
 			opacity: 0;
 			color: var(--fg-a, #fff);
 			background-color: var(--bg-a, #000);
 			border-radius: var(--radius-sm, 4px);
 			box-shadow: var(--shadow, 0rem 0.0313rem 0.0469rem hsl(var(--shadow-color) / 0.02),
-			0rem 0.125rem 0.0938rem hsl(var(--shadow-color) / 0.02),
-			0rem 0.1563rem 0.125rem hsl(var(--shadow-color) / 0.025),
-			0rem 0.1875rem 0.1875rem hsl(var(--shadow-color) / 0.05),
-			0rem 0.3125rem 0.3125rem hsl(var(--shadow-color) / 0.05),
-			0rem 0.4375rem 0.625rem hsl(var(--shadow-color) / 0.075));
-			
+				0rem 0.125rem 0.0938rem hsl(var(--shadow-color) / 0.02),
+				0rem 0.1563rem 0.125rem hsl(var(--shadow-color) / 0.025),
+				0rem 0.1875rem 0.1875rem hsl(var(--shadow-color) / 0.05),
+				0rem 0.3125rem 0.3125rem hsl(var(--shadow-color) / 0.05),
+				0rem 0.4375rem 0.625rem hsl(var(--shadow-color) / 0.075));
+
 			text-align: center;
 			font-size: var(--font-size-sm, 12px);
 
@@ -559,7 +557,7 @@ export class Tooltip {
 			pointer-events: none;
 			transition: opacity 0.1s;
 		}
-		
+
 		.fractils-tooltip .fractils-hotkey {
 			filter: contrast(1.1);
 			background: var(--fractils-hotkey_background, #1118);
