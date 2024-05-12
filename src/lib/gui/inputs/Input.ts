@@ -4,17 +4,18 @@ import type { InputButton, ButtonInputOptions } from './InputButton'
 import type { InputSwitch, SwitchInputOptions } from './InputSwitch'
 import type { InputSelect, SelectInputOptions } from './InputSelect'
 import type { InputNumber, NumberInputOptions } from './InputNumber'
-import type { ColorInputOptions, InputColor } from './InputColor'
+import type { InputColor, ColorInputOptions } from './InputColor'
 import type { InputText, TextInputOptions } from './InputText'
-import type { Commit } from '../../utils/undoManager'
 
 import type { ColorFormat } from '../../color/types/colorFormat'
+import type { EventCallback } from '../../utils/EventManager'
+import type { Commit } from '../../utils/undoManager'
 import type { Option } from '../controllers/Select'
 import type { State } from '../../utils/state'
 import type { Color } from '../../color/color'
 import type { Folder } from '../Folder'
 
-import { EventManager, type EventCallback } from '../../utils/EventManager'
+import { EventManager } from '../../utils/EventManager'
 import { isState, state } from '../../utils/state'
 import { keys, values } from '../../utils/object'
 import { create } from '../../utils/create'
@@ -67,12 +68,6 @@ export type ValueOrBinding<TValue = ValidInputValue, TBindTarget extends BindTar
 			value: TValue
 			binding?: { target: TBindTarget; key: keyof TBindTarget; initial?: TValue }
 	  }
-// | {
-// 		type?: 'Select'
-// 		value: TValue | {label: string, value: TValue }
-// 		binding?: { target: TBindTarget; key: keyof TBindTarget; initial?: TValue }
-// 		options: (TValue | LabeledOption<TValue>)[]
-//   }
 
 export type InputOptions<
 	TValue = ValidInputValue,

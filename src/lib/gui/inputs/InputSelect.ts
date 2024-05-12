@@ -1,5 +1,5 @@
-import type { LabeledOption } from '../controllers/Select'
 import type { ElementMap, InputEvents, InputOptions, ValidInputValue } from './Input'
+import type { LabeledOption } from '../controllers/Select'
 import type { State } from '../../utils/state'
 import type { Folder } from '../Folder'
 
@@ -9,9 +9,7 @@ import { stringify } from '../../utils/stringify'
 import { Logger } from '../../utils/logger'
 import { create } from '../../utils/create'
 import { toFn } from '../shared/toFn'
-// import { b } from '../../utils/l'
 import { Input } from './Input'
-import { EventManager } from '$lib/utils/EventManager'
 
 export type SelectInputOptions<T = ValidInputValue> = Omit<
 	InputOptions<T | { label: string; value: T }>,
