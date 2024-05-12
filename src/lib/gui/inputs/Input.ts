@@ -94,6 +94,11 @@ export type InputOptions<
 	 * @default false
 	 */
 	hidden?: boolean
+	/**
+	 * The order in which this input should appear in its folder relative to the other inputs.
+	 * @default 0
+	 */
+	order?: number
 	onChange?: (value: TValue) => void
 } & ValueOrBinding<TValue, TBindTarget>
 
@@ -103,6 +108,7 @@ export type InputPreset<T extends ValidInputOptions> = Omit<InputOptions<T>, 'ti
 	value: ValidInputValue
 	disabled: boolean
 	hidden: boolean
+	order: number
 }
 
 export interface ElementMap<T = unknown> {
@@ -194,7 +200,7 @@ export abstract class Input<
 	protected evm = new EventManager<TEvents>(['change', 'refresh'])
 
 	private _title = ''
-	private _dirty = false
+	private _index: number
 	private _log: Logger
 
 	constructor(
@@ -208,9 +214,7 @@ export abstract class Input<
 
 		this._log = new Logger(`Input ${options.title}`, { fg: 'skyblue' })
 
-		this._title = options.title ?? ''
-		this._disabled = toFn(options.disabled ?? false)
-		this._hidden = toFn(options.hidden ?? false)
+		this._index = this.opts.order ?? 0
 
 		this.elements.container = create('div', {
 			classes: ['fracgui-input-container'],
@@ -259,6 +263,10 @@ export abstract class Input<
 		if ('onChange' in options) {
 			this.evm.on('change', options.onChange as EventCallback<TEvents['change']>)
 		}
+
+		Promise.resolve().then(() => {
+			this.index = this.index
+		})
 	}
 
 	get value() {
@@ -275,6 +283,14 @@ export abstract class Input<
 	set title(v: string) {
 		this._title = v
 		this.elements.title.textContent = v
+	}
+
+	get index() {
+		return this._index
+	}
+	set index(v: number) {
+		this._index = v
+		this.elements.container.style.order = v.toString()
 	}
 
 	/**
@@ -416,6 +432,7 @@ export abstract class Input<
 			disabled: this.disabled,
 			presetId: this.presetId,
 			hidden: this.hidden,
+			order: this.index,
 		}
 
 		this._log.fn('save').debug(preset)

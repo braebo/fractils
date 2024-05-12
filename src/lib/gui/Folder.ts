@@ -694,8 +694,23 @@ export class Folder {
 		return input
 	}
 
-	#createInput(options: InputOptions) {
-		this.#log.fn('#createInput').debug(this)
+	updateInputOrder() {
+		const [negativeOnes, explicits] = Array.from(this.inputs.values()).reduce(
+			(acc, input) => {
+				if (input.index === -1) {
+					acc[0].push(input)
+				} else {
+					acc[1].push(input)
+				}
+				return acc
+			},
+			[[], []] as [ValidInput[], ValidInput[]],
+		)
+		const inputs = explicits.sort((a, b) => a.index - b.index).concat(negativeOnes)
+		for (const [i, input] of inputs.entries()) {
+			input.folder.element.style.setProperty('order', i.toString())
+		}
+	}
 		const type = this.resolveType(options)
 
 		switch (type) {
