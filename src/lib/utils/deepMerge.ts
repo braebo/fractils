@@ -42,7 +42,14 @@ export function deepMerge<T, U>(
 				} else if (v && typeof v === 'object') {
 					if (newV !== true) {
 						if (newV && typeof newV === 'object') {
-							acc[k] = deepMerge([{ ...v }, newV], options)
+							if (
+								typeof globalThis.window !== 'undefined' &&
+								newV instanceof Element
+							) {
+								acc[k] = newV
+							} else {
+								acc[k] = deepMerge([{ ...v }, newV], options)
+							}
 						} else if (newV || newV === false) {
 							acc[k] = newV
 						}
