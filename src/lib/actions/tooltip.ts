@@ -18,6 +18,7 @@ type AnchorRect = DOMRect | { left: number; top: number; width: number; height: 
  * Options for the tooltip.
  */
 export interface TooltipOptions {
+	readonly __type?: 'TooltipOptions'
 	/**
 	 * The text to display in the tooltip.  Can be a string, number, or a function that returns a string or number.
 	 */
@@ -96,6 +97,7 @@ export interface TooltipOptions {
 }
 
 export const TOOLTIP_DEFAULTS: TooltipOptions = {
+	__type: 'TooltipOptions' as const,
 	text: '',
 	placement: 'top',
 	anchor: 'node',
@@ -114,6 +116,7 @@ export const TOOLTIP_DEFAULTS: TooltipOptions = {
 
 @styled
 export class Tooltip {
+	readonly __type = 'Tooltip' as const
 	/** The tooltip element itself. */
 	element: HTMLDivElement
 	/** The parent element of the tooltip. */
