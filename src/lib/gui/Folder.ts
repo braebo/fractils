@@ -248,7 +248,7 @@ export class Folder {
 
 	// evm = new EventManager(['change', 'toggle'])
 	evm = new EventManager<FolderEvents>(['change', 'toggle'])
-	on = this.evm.on
+	on = this.evm.on.bind(this.evm)
 	//⌟
 	constructor(options: FolderOptions) {
 		if (!('container' in options)) {

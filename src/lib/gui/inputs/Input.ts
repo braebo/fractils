@@ -411,8 +411,8 @@ export abstract class Input<
 		return this
 	}
 
-	listen = this.evm.listen
-	on = this.evm.on
+	listen = this.evm.listen.bind(this.evm)
+	on = this.evm.on.bind(this.evm)
 
 	save(overrides: Partial<InputPreset<TOptions>> = {}) {
 		const preset: InputPreset<any> = {

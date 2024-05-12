@@ -1,3 +1,4 @@
+import { Logger } from './logger'
 import { nanoid } from './nanoid'
 
 export type EventCallback<T = any> = (...args: T[]) => void
@@ -7,11 +8,12 @@ export type EventCallback<T = any> = (...args: T[]) => void
  */
 
 export class EventManager<EventMap extends Record<string, any>> {
-	private listeners = new Map<string, EventCallback>()
-	private handlers = new Map<
+	private _listeners = new Map<string, EventCallback>()
+	private _handlers = new Map<
 		keyof EventMap,
 		Map<string, EventCallback<EventMap[keyof EventMap]>>
 	>()
+	private _log = new Logger('EventManager', { fg: 'beige' })
 
 	constructor(events?: Array<keyof EventMap>) {
 		if (events) {
@@ -21,15 +23,17 @@ export class EventManager<EventMap extends Record<string, any>> {
 
 	registerEvents(events: Array<keyof EventMap>) {
 		for (const event of events) {
-			this.handlers.set(event, new Map())
+			this._handlers.set(event, new Map())
 		}
 	}
 
 	on<K extends keyof EventMap>(event: K, callback: EventCallback<EventMap[K]>): string {
-		const id = nanoid()
-		const listeners = this.handlers.get(event) as Map<string, EventCallback<EventMap[K]>>
+		this._log.fn('on').debug('new listener:', { event, callback })
 
-		if (!this.handlers.has(event)) {
+		const id = nanoid()
+		const listeners = this._handlers.get(event) as Map<string, EventCallback<EventMap[K]>>
+
+		if (!this._handlers.has(event)) {
 			console.warn(`Event "${String(event)}" is not registered.`)
 			return ''
 		}
@@ -44,7 +48,7 @@ export class EventManager<EventMap extends Record<string, any>> {
 	// 	}
 	// }
 	emit<K extends keyof EventMap>(event: K, ...args: EventMap[K][]) {
-		const callbacks = this.handlers.get(event)
+		const callbacks = this._handlers.get(event)
 		if (callbacks) {
 			for (const cb of callbacks.values()) {
 				cb(...args)
@@ -53,8 +57,8 @@ export class EventManager<EventMap extends Record<string, any>> {
 	}
 
 	clearAll() {
-		for (const listeners of this.handlers.values()) listeners.clear()
-		this.handlers.clear()
+		for (const listeners of this._handlers.values()) listeners.clear()
+		this._handlers.clear()
 	}
 
 	/**
@@ -78,7 +82,7 @@ export class EventManager<EventMap extends Record<string, any>> {
 	) => {
 		const id = nanoid()
 		element.addEventListener(event, callback as EventCallback, options)
-		this.listeners.set(id, () => {
+		this._listeners.set(id, () => {
 			element.removeEventListener(event, callback as EventCallback, options)
 		})
 		return id
@@ -90,7 +94,7 @@ export class EventManager<EventMap extends Record<string, any>> {
 	 */
 	add = (cb: () => void) => {
 		const id = nanoid()
-		this.listeners.set(id, cb)
+		this._listeners.set(id, cb)
 		return id
 	}
 
@@ -98,15 +102,15 @@ export class EventManager<EventMap extends Record<string, any>> {
 	 * Removes a listener from the event manager without removing the listener from the element.
 	 */
 	unlisten(id: string): boolean {
-		return this.listeners.delete(id)
+		return this._listeners.delete(id)
 	}
 
 	/**
 	 * Removes all registered listeners from the element and clears the event manager.
 	 */
 	clear(): void {
-		for (const cb of this.listeners.values()) cb()
-		this.listeners.clear()
+		for (const cb of this._listeners.values()) cb()
+		this._listeners.clear()
 	}
 
 	/**

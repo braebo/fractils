@@ -44,7 +44,7 @@ export class InputText extends Input<
 		super(opts, folder)
 
 		this.#log = new Logger(`InputText ${opts.title}`, { fg: 'cyan' })
-		this.#log.fn('constructor').debug({ opts, this: this })
+		this.#log.fn('constructor').info({ opts, this: this })
 
 		if (opts.binding) {
 			this.initialValue = opts.binding.target[opts.binding.key]

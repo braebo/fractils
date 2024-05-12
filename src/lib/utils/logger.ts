@@ -71,7 +71,7 @@ export type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' |
 
 export class Logger {
 	static #BYPASS_STYLES = false
-	static #BYPASS_DEFER = false
+	static #BYPASS_DEFER = true
 
 	title = ''
 	options: LoggerOptions
