@@ -7,7 +7,6 @@ import { isDefined, isHTMLElement, isString } from './is'
 import { EventManager } from './EventManager'
 import { cubicOut } from 'svelte/easing'
 import { tweened } from 'svelte/motion'
-import { deepMerge } from './deepMerge'
 import { place } from '../dom/place'
 import { persist } from './persist'
 import { select } from './select'
@@ -295,7 +294,7 @@ export class Draggable {
 	disabled = false
 
 	/**
-	 * Used in  {@link updatePosition} to account for the difference between
+	 * Used in  {@link update} to account for the difference between
 	 * the node's position and the user's exact click position on the node.
 	 */
 	clickOffset = { x: 0, y: 0 }
@@ -385,7 +384,7 @@ export class Draggable {
 	#releaseCapture = () => {}
 
 	/**
-	 * Internal logger for debugging. Automatically bypassed in non-dev environments.
+	 * Internal logger for infoging. Automatically bypassed in non-dev environments.
 	 */
 	#log: Logger
 
@@ -393,7 +392,7 @@ export class Draggable {
 		public node: HTMLElement,
 		options?: Partial<DraggableOptions>,
 	) {
-		this.opts = deepMerge([DRAGGABLE_DEFAULTS, options])
+		this.opts = Object.assign(DRAGGABLE_DEFAULTS, options)
 
 		this.#log = new Logger('draggable ' + this.node.classList[0], {
 			fg: 'SkyBlue',
@@ -566,7 +565,7 @@ export class Draggable {
 			return
 		}
 
-		this.#log.fn('dragStart').debug('Dragging initiated.')
+		this.#log.fn('dragStart').info('Dragging initiated.')
 		e.stopPropagation()
 
 		// Resolve the event target.
@@ -777,6 +776,10 @@ export class Draggable {
 		}
 	}
 
+	update(v = this.position) {
+		this.#log.info('Updating position:', v, this)
+	}
+
 	/**
 	 * Updates the {@link position} property in local storage.
 	 */
@@ -785,7 +788,7 @@ export class Draggable {
 
 		this.#log
 			.fn('updateLocalStorage')
-			.debug(
+			.info(
 				'Updating position in localStorage:',
 				`{ x: ${this._position.x}, y: ${this._position.y} }`,
 				this,
@@ -797,77 +800,10 @@ export class Draggable {
 	}
 
 	clearLocalStorage = () => {
-		if (this._storage) {
-			this.opts.localStorageKey
+		if (this._storage && this.opts.localStorageKey) {
+			localStorage.removeItem(this.opts.localStorageKey)
 		}
 	}
-
-	// /**
-	//  * Checks for collision with {@link obstacleEls obstacles} to determine the maximum distance
-	//  * the draggable can move in the x direction.
-	//  *
-	//  * @returns The maximum distance the draggable can move in the x direction (`deltaX`) before
-	//  * colliding with an obstacle.  If no collision is detected, the full distance (`targetX`)
-	//  * is returned.  If the draggable is already colliding with an obstacle, `0` is returned.
-	//  */
-	// #collisionClampX(deltaX: number) {
-	// 	const { top, bottom, left, right } = this.rect
-
-	// 	if (deltaX === 0) return 0
-
-	// 	// moving right > 0
-	// 	if (deltaX > 0) {
-	// 		for (const obstacle of this.obstacleEls) {
-	// 			const o = obstacle.getBoundingClientRect()
-	// 			// too high || too low || already passed || unreachable with delta
-	// 			if (top > o.bottom || bottom < o.top || right > o.left || right + deltaX <= o.left)
-	// 				continue
-	// 			deltaX = Math.min(deltaX, o.left - right)
-	// 		}
-	// 	} else {
-	// 		for (const obstacle of this.obstacleEls) {
-	// 			const o = obstacle.getBoundingClientRect()
-	// 			// too high || too low || already passed || unreachable with delta
-	// 			if (top > o.bottom || bottom < o.top || left < o.right || left + deltaX >= o.right)
-	// 				continue
-	// 			deltaX = Math.max(deltaX, o.right - left)
-	// 		}
-	// 	}
-	// 	return deltaX
-	// }
-
-	// /**
-	//  * Checks for collision with {@link obstacleEls obstacles} to determine the maximum distance
-	//  * the draggable can move in the y direction.
-	//  *
-	//  * @returns The maximum distance the draggable can move in the x direction (`deltaY`) before
-	//  * colliding with an obstacle.  If no collision is detected, the full distance (`targetY`)
-	//  * is returned.  If the draggable is already colliding with an obstacle, `0` is returned.
-	//  */
-	// #collisionClampY(deltaY: number) {
-	// 	const { top, bottom, left, right } = this.rect
-
-	// 	if (deltaY > 0) {
-	// 		// Moving down.
-	// 		for (const obstacle of this.obstacleEls) {
-	// 			const o = obstacle.getBoundingClientRect()
-	// 			// too far left || too far right || already passed || unreachable with delta
-	// 			if (left > o.right || right < o.left || bottom > o.top || bottom + deltaY <= o.top)
-	// 				continue
-	// 			deltaY = Math.min(deltaY, o.top - bottom)
-	// 		}
-	// 	} else {
-	// 		// Moving up.
-	// 		for (const obstacle of this.obstacleEls) {
-	// 			const o = obstacle.getBoundingClientRect()
-	// 			// too far left || too far right || already passed || unreachable with delta
-	// 			if (left > o.right || right < o.left || top < o.bottom || top + deltaY >= o.bottom)
-	// 				continue
-	// 			deltaY = Math.max(deltaY, o.bottom - top)
-	// 		}
-	// 	}
-	// 	return deltaY
-	// }
 
 	/**
 	 * Resolves the {@link DraggableOptions.bounds|bounds} and returns a
@@ -1029,7 +965,8 @@ export const draggable: Action<HTMLElement, Partial<DraggableOptions> | undefine
 			// Update all the values that need to be changed
 			d.opts.axis = options.axis || DRAGGABLE_DEFAULTS.axis
 			d.disabled = options.disabled ?? DRAGGABLE_DEFAULTS.disabled
-			d.opts.ignoreMultitouch = options.ignoreMultitouch ?? DRAGGABLE_DEFAULTS.ignoreMultitouch
+			d.opts.ignoreMultitouch =
+				options.ignoreMultitouch ?? DRAGGABLE_DEFAULTS.ignoreMultitouch
 			d.opts.handle = options.handle
 			d.opts.bounds = options.bounds!
 			d.opts.cancel = options.cancel
