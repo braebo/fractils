@@ -30,6 +30,8 @@ import { GUI_VARS } from './GUI_VARS'
 import { place } from '../dom/place'
 import { Folder } from './Folder'
 
+//#region Types
+
 type GuiTheme = 'default' | 'minimal' | (string & {})
 
 export interface GuiElements {
@@ -111,12 +113,12 @@ export interface GuiOptions {
 	 * Presets to make available in the gui.
 	 * @defaultValue `[]`
 	 */
-	presets?: FolderPreset[]
+	presets?: GuiPreset[]
 	/**
 	 * The default preset to load when the gui is created, or the initial gui state if undefined.
 	 * @defaultValue `undefined`
 	 */
-	defaultPreset?: FolderPreset
+	defaultPreset?: GuiPreset
 	// /**
 	//  * `parentFolder` should always be `undefined` for the root gui.
 	//  * @private
@@ -166,6 +168,16 @@ export interface GuiStorageOptions {
 	presets?: boolean
 }
 
+export interface GuiPreset {
+	__type: 'GuiPreset'
+	__version: number
+	id: string
+	title: string
+	data: FolderPreset
+}
+
+//#endregion
+
 export const GUI_STORAGE_DEFAULTS: GuiStorageOptions = {
 	__type: 'GuiStorageOptions',
 	key: 'fracgui',
@@ -176,11 +188,11 @@ export const GUI_STORAGE_DEFAULTS: GuiStorageOptions = {
 	size: false,
 } as const
 
-export const GUI_WINDOWMANAGER_DEFAULTS: WindowManagerOptions = {
+export const GUI_WINDOWMANAGER_DEFAULTS = {
 	__type: 'WindowManagerOptions',
 	preserveZ: false,
 	zFloor: 0,
-	bounds: 'window',
+	bounds: undefined,
 	obstacles: undefined,
 	resizable: {
 		localStorageKey: 'fracgui::resizable',
@@ -191,8 +203,9 @@ export const GUI_WINDOWMANAGER_DEFAULTS: WindowManagerOptions = {
 	},
 	draggable: {
 		localStorageKey: 'fracgui::draggable',
+		bounds: undefined,
 	},
-}
+} as const satisfies WindowManagerOptions
 
 export const GUI_DEFAULTS: GuiOptions = {
 	__type: 'GuiOptions',
@@ -204,22 +217,21 @@ export const GUI_DEFAULTS: GuiOptions = {
 		localStorageKey: 'fracgui::themer',
 	},
 	windowManager: undefined,
-	windowManagerOptions: deepMerge([
-		GUI_WINDOWMANAGER_DEFAULTS,
-		{
-			resizable: {
-				sides: ['right'],
-				corners: [],
-			},
+	windowManagerOptions: {
+		...GUI_WINDOWMANAGER_DEFAULTS,
+		resizable: {
+			...GUI_WINDOWMANAGER_DEFAULTS.resizable,
+			sides: ['right'],
+			corners: [],
 		},
-	]),
+	},
 	storage: false,
 	// storageOptions: GUI_STORAGE_DEFAULTS,
 	closed: false,
 	position: 'top-right',
 	positionOptions: {
 		margin: 16,
-		bounds: 'window',
+		bounds: 'body',
 	},
 	theme: 'default',
 	// hidden: false,
@@ -234,20 +246,15 @@ export const GUI_DEFAULTS: GuiOptions = {
  */
 export class Gui {
 	__type = 'Gui' as const
-	isRoot = true as const
-	id = nanoid()
 
+	id = nanoid()
 	folder: Folder
-	// element: HTMLElement
 
 	declare elements: GuiElements
 
 	opts: GuiOptions
 	closed: PrimitiveState<boolean>
 	closedMap: State<Map<string, boolean>>
-	// presets: State<FolderPreset[]>
-	// activePreset = state({} as FolderPreset)
-	// #presetSnapshot: FolderPreset | undefined
 	presetManager!: PresetManager
 
 	wrapper!: HTMLElement
@@ -255,17 +262,25 @@ export class Gui {
 	settingsFolder: Folder
 	static settingsFolderTitle = 'fracgui-settings-folder'
 
+	private _theme: GuiOptions['theme']
 	themer?: Themer
-	themeEditor?: ThemeEditor // todo
+	themeEditor?: ThemeEditor
 	windowManager?: WindowManager
 	undoManager = new UndoManager()
 
-	private _theme: GuiOptions['theme']
+	private _log: Logger
 
-	#log: Logger
-
+	// fwd Folder API
 	on: Folder['on']
 	addFolder: Folder['addFolder']
+	add: Folder['add']
+	addButtonGrid: Folder['addButtonGrid']
+	addSelect: Folder['addSelect']
+	addButton: Folder['addButton']
+	addText: Folder['addText']
+	addNumber: Folder['addNumber']
+	addSwitch: Folder['addSwitch']
+	addColor: Folder['addColor']
 
 	constructor(options?: Partial<GuiOptions>) {
 		//· Setup ····························································¬
@@ -300,7 +315,6 @@ export class Gui {
 			// children: [rootElement],
 		})
 
-		// super(opts as any as FolderOptions, opts.container)
 		this.folder = new Folder({
 			...opts,
 			__type: 'FolderOptions',
@@ -309,13 +323,20 @@ export class Gui {
 			container: this.wrapper,
 			isRoot: true,
 		})
-		// this.on = this.folder.on.bind(this.folder)
-		this.on = this.folder.on
-		// this.addFolder = this.folder.addFolder.bind(this.folder)
-		this.addFolder = this.folder.addFolder
 
-		this.#log = new Logger(`Gui ${opts.title}`, { fg: 'palevioletred' })
-		this.#log.fn('constructor').info({ options, opts })
+		this.on = this.folder.on
+		this.addFolder = this.folder.addFolder
+		this.add = this.folder.add
+		this.addButtonGrid = this.folder.addButtonGrid
+		this.addSelect = this.folder.addSelect
+		this.addButton = this.folder.addButton
+		this.addText = this.folder.addText
+		this.addNumber = this.folder.addNumber
+		this.addSwitch = this.folder.addSwitch
+		this.addColor = this.folder.addColor
+
+		this._log = new Logger(`Gui ${opts.title}`, { fg: 'palevioletred' })
+		this._log.fn('constructor').info({ options, opts })
 
 		const undo = (e: KeyboardEvent) => {
 			// todo - make sure the active element is within the gui first
@@ -484,7 +505,7 @@ export class Gui {
 			}
 		}
 
-		this.#log
+		this._log
 			.fn('constructor')
 			.debug({ options, opts: this.opts, dragOptions: dragOpts, resizeOpts })
 
@@ -526,7 +547,6 @@ export class Gui {
 			if (themer) this.themer = themer
 			// this.themeEditor = new ThemeEditor(this)
 		}
-		// this.#createPresetsFolder(settingsFolder)
 
 		const { presets, defaultPreset, storage } = this.opts
 		let storageKey: string | undefined
@@ -536,7 +556,7 @@ export class Gui {
 			}
 		}
 
-		this.presetManager = new PresetManager(settingsFolder, {
+		this.presetManager = new PresetManager(this, settingsFolder, {
 			presets,
 			defaultPreset,
 			storageKey,
@@ -547,17 +567,45 @@ export class Gui {
 		return settingsFolder
 	}
 
-	load(preset: FolderPreset) {
-		console.groupCollapsed('load preset: ' + preset.presetId)
+	/**
+	 * Saves the current gui state as a preset.
+	 */
+	save(
+		/**
+		 * The title of the preset.
+		 */
+		title: string,
+		/**
+		 * A unique id for the preset.
+		 * @defaultValue {@link nanoid|nanoid(10)}
+		 */
+		id = nanoid(10),
+	) {
+		const preset: GuiPreset = {
+			__type: 'GuiPreset',
+			__version: 0,
+			id,
+			title,
+			data: this.folder.toJSON(),
+		} as const
 
-		this.folder.load(preset)
-		this.presetManager.set(preset)
+		// this.presetManager.save(preset)
+		return preset
+	}
 
-		console.groupEnd()
+	/**
+	 * Loads a given preset into the gui, updating all inputs.
+	 */
+	load(preset: GuiPreset) {
+		this._log.fn('load').debug({ preset })
+
+		this.folder.load(preset.data)
+		// this.presetManager.set(preset)
+		// this.presetManager.afterLoad(preset)
 	}
 
 	#createThemer(folder: Folder) {
-		this.#log.fn('createThemer').debug({ folder })
+		this._log.fn('createThemer').debug({ folder })
 		let finalThemer = undefined as Themer | undefined
 		const { themer, themerOptions, storage } = this.opts
 
