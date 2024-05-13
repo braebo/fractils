@@ -85,7 +85,8 @@ export function debrief<T>(
 				const depthReached = d > depth
 
 				if (Array.isArray(o)) {
-					if (depthReached) return `[...${o.length} ${o.length === 1 ? 'item' : 'items'}]`
+					// if (depthReached) return `[...${o.length} ${o.length === 1 ? 'item' : 'items'}]`
+					if (depthReached) return `[ ...${o.length} ]`
 					if (o.length <= siblings || d === 0) return o.map(s => parse(s, d + 1))
 
 					return [
