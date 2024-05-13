@@ -1,11 +1,9 @@
-import type { TooltipOptions, Tooltip } from '../actions/tooltip'
+import type { TooltipOptions } from '../actions/tooltip'
 import type { JavascriptStyleProperty } from '$lib/css/types'
 
-import type { PropertiesHyphen } from 'csstype'
+import { Tooltip } from '../actions/tooltip'
 import { entries } from './object'
 import { DEV } from 'esm-env'
-
-let tooltip: typeof Tooltip
 
 export type CreateOptions<
 	T extends HTMLElement | HTMLInputElement = HTMLElement,
@@ -30,26 +28,9 @@ export type CreateOptions<
 	min?: number
 	max?: number
 	step?: number
+	tooltipInstance?: Tooltip
 	onclick?: (e: MouseEvent) => void
 } & Partial<Record<K, TK | unknown>>
-
-export interface PropSetters {
-	setProp<
-		TCustomProperties extends (string & {})[] = (string & {})[],
-		K extends keyof PropertiesHyphen | TCustomProperties[number] = keyof PropertiesHyphen,
-	>(
-		prop: K,
-		value: PropertiesHyphen<keyof PropertiesHyphen>,
-	): void
-	setProps<
-		// TCustomProperties extends (string & {})[] = (string & {})[],
-		TCustomProperties extends (string & {})[] = [''],
-		K extends keyof PropertiesHyphen | TCustomProperties[number] = keyof PropertiesHyphen,
-		V = K extends keyof PropertiesHyphen ? PropertiesHyphen[K] | (string & {}) : string & {},
-	>(
-		props: Partial<Record<K, V>>,
-	): void
-}
 
 export function create<
 	const K extends keyof HTMLElementTagNameMap,
@@ -59,20 +40,9 @@ export function create<
 	tagname: K,
 	options?: TOptions,
 ): TOptions extends { tooltip: Partial<TooltipOptions> }
-	? TElement & { tooltip: Tooltip } & PropSetters
-	: TElement & PropSetters {
+	? TElement & { tooltip: Tooltip }
+	: TElement {
 	const el = globalThis?.document?.createElement(tagname)
-
-	if ('style' in el) {
-		;(el as TElement & PropSetters).setProp = (prop, value) => {
-			el.style.setProperty(prop, `${value}`)
-		}
-		;(el as TElement & PropSetters).setProps = props => {
-			for (const [key, value] of entries(props)) {
-				el.style.setProperty(key, `${value}`)
-			}
-		}
-	}
 
 	if (options) {
 		if (options.classes) el.classList.add(...options.classes)
@@ -109,17 +79,15 @@ export function create<
 		if (options.parent) options.parent.appendChild(el)
 
 		if (options.tooltip) {
-			if (!tooltip) {
-				import('../actions/tooltip').then(({ Tooltip }) => {
-					tooltip = Tooltip
-					const tip = new tooltip(el, options.tooltip)
-					// @ts-expect-error
-					el.tooltip = tip
-				})
-			} else {
-				const tip = new tooltip(el, options.tooltip)
+			// @ts-expect-error
+			el.tooltip = {}
+
+			if (options.tooltipInstance) {
 				// @ts-expect-error
-				el.tooltip = tip
+				el.tooltip = options.tooltipInstance
+			} else {
+				// @ts-expect-error
+				el.tooltip = new Tooltip(el, options.tooltip)
 			}
 		}
 
@@ -143,8 +111,8 @@ export function create<
 	}
 
 	return el as TOptions extends { tooltip: Partial<TooltipOptions> }
-		? TElement & { tooltip: Tooltip } & PropSetters
-		: TElement & PropSetters
+		? TElement & { tooltip: Tooltip }
+		: TElement
 }
 
 /**
@@ -201,68 +169,3 @@ function parseFileFromStack(stack?: string) {
 		}
 	}
 }
-
-// /**
-//  * A decorator factory for the {@link create} function.
-//  * @param tag - The element's tagname, i.e. `'button' | 'input' | 'div'` etc.
-//  */
-// function el<TagName extends keyof HTMLElementTagNameMap, Options extends CreateOptions>(
-// 	tag: TagName,
-// 	options?: Options,
-// ) {
-// 	return function (target: any, propertyKey: string) {
-// 		const element = create(tag, options)
-// 		Object.defineProperty(target, propertyKey, {
-// 			configurable: false,
-// 			enumerable: true,
-// 			value: element,
-// 		})
-// 	}
-// }
-
-//-------------------------------------------------------------------------
-//-------------------------------------------------------------------------
-
-// interface ElMeta {
-// 	tag: keyof HTMLElementTagNameMap
-// 	options: CreateOptions
-// }
-
-// const __el = Symbol('__el')
-
-// /**
-//  * A decorator factory for the {@link create} function.
-//  * @param tag - The element's tagname, i.e. `'button' | 'input' | 'div'` etc.
-//  */
-// function el<K extends ElMeta['tag'], TOptions extends ElMeta['options']>(
-// 	tag: K,
-// 	options?: TOptions,
-// ) {
-// 	return function (target: any, propertyKey: string) {
-// 		if (!target.__el) {
-// 			target.__el = {}
-// 		}
-// 		target.__el[propertyKey] = { tag, options }
-// 	}
-// }
-
-// function initEl<
-// 	T,
-// 	K extends keyof T,
-// 	TK extends T[K] extends Record<string, ElMeta> ? T[K] : never,
-// >(instance: T, key: K) {
-// 	const el = instance[key] as TK
-// 	for (const k in el) {
-// 		const { tag, options } = el[k]
-// 		instance[key] = create(tag, options)
-// 	}
-// }
-
-// class Test {
-// 	@el('button', { classes: ['button'], textContent: 'click me' })
-// 	button: HTMLButtonElement //! Property 'button' has no initializer and is not definitely assigned in the constructor.ts(2564)
-
-// 	constructor() {
-// 		initEl(this, __el) //! Argument of type 'typeof __el' is not assignable to parameter of type 'keyof this'. Type 'unique symbol' is not assignable to type '"button"'.ts(2345)
-// 	}
-// }
