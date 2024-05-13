@@ -30,7 +30,7 @@ import { GUI_VARS } from './GUI_VARS'
 import { place } from '../dom/place'
 import { Folder } from './Folder'
 
-//#region Types
+//· Types ···································································¬
 
 type GuiTheme = 'default' | 'minimal' | (string & {})
 
@@ -175,8 +175,7 @@ export interface GuiPreset {
 	title: string
 	data: FolderPreset
 }
-
-//#endregion
+//⌟
 
 export const GUI_STORAGE_DEFAULTS: GuiStorageOptions = {
 	__type: 'GuiStorageOptions',
