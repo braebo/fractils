@@ -1,15 +1,21 @@
 <script lang="ts">
-	import { Color } from '$lib/color/color'
+	import type { State } from '../../utils/state'
+
+	import { Color } from '../../color/color'
+	import { tweened } from 'svelte/motion'
 	import { onMount } from 'svelte'
 
-	import { tweened } from 'svelte/motion'
+	export let params: State<typeof defaults>
+
 	let count = 10
-	export let params = {
+	const defaults = {
 		orbs: 50,
 		size: 5,
-		a1: 0.1,
-		a2: 0.5,
-		drift: 1,
+		floop: 0.01,
+		a1: 1,
+		// a2: 0.5,
+		a2: 1,
+		drift: 0,
 		modulate: true,
 		width: count * 10,
 		height: count * 10,
@@ -21,27 +27,27 @@
 		glowR: 10,
 		glowG: 10,
 		glowB: 50,
-		floop: 1,
 	}
-	const a1t = tweened(params.a1, { duration: 500 })
-	const a2t = tweened(params.a2, { duration: 500 })
-	const floop = tweened(params.floop, { duration: 300 })
 
-	$: time = 0
+	let p = params?.value ?? defaults
+
+	const sinX = tweened(p.a1, { duration: 500 })
+	const sinY = tweened(p.a2, { duration: 500 })
+	const floop = tweened(p.floop, { duration: 300 })
+
+	let time = 0
 	// $: snake = circle()
 	let snake = circle()
 	function circle() {
 		let arr: number[][] = []
-		for (let i = 0; i < params.orbs; i++) {
+		for (let i = 0; i < p.orbs; i++) {
 			arr[i] = [
-				(Math.sin((i / Math.PI + (params.orbs - i) * params.drift) * $a1t - time) /
-					Math.PI) *
-					params.width +
-					params.mid,
-				(Math.cos((i / Math.PI + (params.orbs - i) * params.drift) * $a2t - time) /
-					Math.PI) *
-					params.height +
-					params.mid,
+				(Math.sin((i / Math.PI + (p.orbs - i) * p.drift) * $sinX - time) / Math.PI) *
+					p.width +
+					p.mid,
+				(Math.cos((i / Math.PI + (p.orbs - i) * p.drift) * $sinY - time) / Math.PI) *
+					p.height +
+					p.mid,
 			]
 		}
 		return arr
@@ -49,11 +55,11 @@
 
 	function animate() {
 		requestAnimationFrame(() => {
-			$a1t = params.a1 * (!params.modulate ? 1 : 0.25 + Math.sin(time) / 2)
-			$a2t = params.a2 * (!params.modulate ? 1 : 0.75 + Math.cos(time) / 2)
-			$floop = params.floop
+			$sinX = p.a1 * (!p.modulate ? 1 : 0.25 + Math.sin(time) / 2)
+			$sinY = p.a2 * (!p.modulate ? 1 : 0.75 + Math.cos(time) / 2)
+			$floop = p.floop
 			requestAnimationFrame(() => {
-				time += params.speed / 10
+				time += p.speed / 10
 				snake = circle()
 				animate()
 			})
@@ -77,7 +83,7 @@
 								cy={y}
 								r="{Math.max(
 									0,
-									params.size * Math.sin($floop * time * (params.orbs + 1 - i)),
+									p.size * Math.sin($floop * time * (p.orbs + 1 - i)),
 								)}px"
 							/>
 
@@ -93,24 +99,21 @@
 									<stop
 										offset="0%"
 										style="stop-color:rgb({[
-											params.color.rgba.r *
-												(((i + 1) * params.brightness) / params.orbs + 0.5),
-											params.color.rgba.g *
-												(((i + 1) * params.brightness) / params.orbs + 0.5),
-											params.color.rgba.b *
-												(((i + 1) * params.brightness) / params.orbs + 0.5),
-										]});stop-opacity:{params.color.rgba.a}"
+											p.color.rgba.r *
+												(((i + 1) * p.brightness) / p.orbs + 0.5),
+											p.color.rgba.g *
+												(((i + 1) * p.brightness) / p.orbs + 0.5),
+											p.color.rgba.b *
+												(((i + 1) * p.brightness) / p.orbs + 0.5),
+										]});stop-opacity:{p.color.rgba.a}"
 									/>
 									<stop
 										offset="100%"
 										style="stop-color:rgb({[
-											params.accent.rgba.r +
-												(i + 1) * params.brightness * params.glowR,
-											params.accent.rgba.g +
-												(i + 1) * params.brightness * params.glowG,
-											params.accent.rgba.b +
-												(i + 1) * params.brightness * params.glowB,
-										]});stop-opacity:{params.accent.rgba.a}"
+											p.accent.rgba.r + (i + 1) * p.brightness * p.glowR,
+											p.accent.rgba.g + (i + 1) * p.brightness * p.glowG,
+											p.accent.rgba.b + (i + 1) * p.brightness * p.glowB,
+										]});stop-opacity:{p.accent.rgba.a}"
 									/>
 								</radialGradient>
 							</defs>

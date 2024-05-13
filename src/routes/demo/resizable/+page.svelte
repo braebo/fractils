@@ -1,8 +1,9 @@
 <script lang="ts">
 	import type { ResizableOptions, Corner, Side } from '$lib/utils/resizable'
-	import { resizable } from '$lib/actions/resizable'
-	import { draggable } from '$lib/utils/draggable'
-	import Orbs from './Orbs.svelte'
+
+	import { params } from '$lib/components/orbs/params'
+	import Orbs from '$lib/components/orbs/Orbs.svelte'
+	import { draggable, resizable } from '$lib'
 
 	const W = globalThis.window?.innerWidth ?? 100
 	const H = globalThis.window?.innerHeight ?? 100
@@ -73,7 +74,7 @@
 		position: { x: W / 2 - 100, y: H / 2 - 100 },
 	}}
 >
-	<Orbs />
+	<Orbs {params} />
 </div>
 
 <div

@@ -1,11 +1,11 @@
-import type { Params } from './+page.svelte'
+import type { Params } from '$lib/components/orbs/params'
 
 import { Gui } from '../../../lib/gui/Gui'
 import { writable } from 'svelte/store'
 
 export const code = writable('')
 
-export function demoGui(params: Params) {
+export async function demoGui(params: Params) {
 	const gui = new Gui({
 		title: 'Orbs',
 		position: 'top-center',
@@ -201,6 +201,68 @@ export function demoGui(params: Params) {
 		max: 20,
 		step: 0.01,
 	})
+
+	// const presetDebugGui = new Gui({
+	// 	title: 'presets',
+	// 	position: 'bottom-center',
+	// 	positionOptions: {
+	// 		margin: { x: 16, y: 16 * 4.5 },
+	// 	},
+	// 	storage: {
+	// 		key: 'fracgui-preset-debug-gui',
+	// 	},
+	// })
+
+	// await gui.presetManager.init()
+
+	await Promise.resolve()
+	await Promise.resolve()
+
+	// if (!gui.presetManager.isInitialized()) {
+	// 	throw new Error('PresetManager not initialized.')
+	// }
+
+	// presetDebugGui.settingsFolder.close()
+
+	// const build = async () => {
+	// 	await Promise.resolve()
+	// 	for (const preset of gui.presetManager.presets?.value ?? []) {
+	// 		presetDebugGui.folder.addText({
+	// 			title: 'activePreset',
+	// 			value: gui.presetManager.activePresetId.value,
+	// 		})
+	// 		const pf = presetDebugGui.addFolder({
+	// 			title: preset.title,
+	// 		})
+	// 		pf.addText({
+	// 			title: 'presetTitle',
+	// 			value: preset.title,
+	// 		})
+	// 		pf.addText({
+	// 			title: 'presetId',
+	// 			value: preset.id,
+	// 		})
+	// 	}
+	// }
+
+	// presetDebugGui.windowManager?.update()
+
+	// const destroy = () => {
+	// 	for (const child of presetDebugGui.folder.children) {
+	// 		child.dispose()
+	// 	}
+	// }
+
+	// let i = 0
+	// gui.presetManager.presets.subscribe(v => {
+	// 	i++
+	// 	if (i < 2) return
+	// 	console.error(v)
+	// 	destroy()
+	// 	build()
+	// })
+
+	// build()
 
 	return gui
 }

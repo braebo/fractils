@@ -1,73 +1,46 @@
 <!-- @hmr:reset -->
 
-<script lang="ts" context="module">
-	let count = 10
-
-	let params = {
-		orbs: 50,
-		size: 5,
-		floop: 0.01,
-		// a1: 0.1,
-		// a2: 0.5,
-		a1: 1,
-		a2: 1,
-		drift: 0,
-		modulate: true,
-		width: count * 10,
-		height: count * 10,
-		speed: 0.02,
-		mid: count * 5,
-		brightness: 0.4,
-		color: new Color({ r: 10, g: 200, b: 250, a: 1 }),
-		accent: new Color({ r: 0, g: 50, b: 100, a: 1 }),
-		glowR: 10,
-		glowG: 10,
-		glowB: 50,
-	}
-
-	export type Params = typeof params
-</script>
-
 <script lang="ts">
-	import Orbs from '../resizable/Orbs.svelte'
-	import { demoGui, code } from './demoGui'
-	import { Color } from '$lib/color/color'
-	import { fly } from 'svelte/transition'
+	import { params } from '$lib/components/orbs/params'
+	import Orbs from '$lib/components/orbs/Orbs.svelte'
 	import { Gui } from '$lib/gui/Gui'
-	import { onMount } from 'svelte'
 	import { Code } from '$lib'
+
+	import { demoGui, code } from './demoGui'
+
+	import { onDestroy, onMount } from 'svelte'
+	import { fly } from 'svelte/transition'
 
 	let gui: Gui
 	let ready = false
-	// let container: HTMLElement
 
-	onMount(() => {
-		// const min = Math.min(window.innerHeight, window.innerWidth)
-		// params.height = min / 10
-		// params.width = params.height * 2
-		params.height = Math.round(window.innerHeight / 10)
-		params.width = Math.round(window.innerWidth / 7)
-		gui = demoGui(params)
+	onMount(async () => {
+		params.update(p => {
+			p.height = Math.round(window.innerHeight / 10)
+			p.width = Math.round(window.innerWidth / 7)
+			return p
+		})
+		gui = await demoGui(params.value)
 		ready = true
+	})
 
-		return () => {
-			gui.dispose()
-			window.location.reload()
-		}
+	onDestroy(() => {
+		gui?.dispose()
+		globalThis.window?.location.reload()
 	})
 
 	function onResize() {
-		params.height = window.innerHeight / 10
-		params.width = window.innerWidth / 7
-		// gui.refresh()
+		params.update(p => {
+			p.height = Math.round(window.innerHeight / 10)
+			p.width = Math.round(window.innerWidth / 7)
+			return p
+		})
 	}
 </script>
 
 <svelte:window on:resize={onResize} />
 
 <div class="page">
-	<!-- <div bind:this={container} /> -->
-
 	{#if $code}
 		<div class="debug" in:fly={{ y: 10 }}>
 			{#key $code}
@@ -81,7 +54,7 @@
 
 	{#if ready}
 		<div class="orbs">
-			<Orbs bind:params />
+			<Orbs {params} />
 		</div>
 	{/if}
 </div>
