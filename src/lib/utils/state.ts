@@ -170,6 +170,7 @@ export function state<T>(defaultValue: T, options?: StateOptions<T>): State<T> {
 }
 
 export function isState<T>(v: any): v is State<T> {
+	// if (typeof v === 'undefined') return false
 	return v.isState === true
 }
 

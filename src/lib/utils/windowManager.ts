@@ -124,6 +124,13 @@ export class WindowManager {
 		}
 	}
 
+	update() {
+		this.windows.forEach(({ resizableInstance, draggableInstance }) => {
+			if (draggableInstance) draggableInstance.update()
+			if (resizableInstance) resizableInstance.size = resizableInstance.size
+		})
+	}
+
 	applyZ() {
 		for (let i = 1; i < this.windows.length; i++) {
 			this.windows[i].node.style.setProperty('z-index', String(this.opts.zFloor + i))
@@ -166,13 +173,17 @@ export class WindowManager {
 	}
 
 	#resolveOptions(options?: Partial<WindowManagerOptions>): WindowManagerOptions {
-		this.#log.fn('#resolveOptions').debug(options)
 		const opts = deepMerge([WINDOWMANAGER_DEFAULTS, options], {
 			concatArrays: false,
 		}) as WindowManagerOptions
 
+		this.#log.fn('#resolveOptions').debug('incoming options:', { options, opts })
+
 		opts.draggable = resolveOpts(options?.draggable, WINDOWMANAGER_DEFAULTS.draggable)
 		opts.resizable = resolveOpts(options?.resizable, WINDOWMANAGER_DEFAULTS.resizable)
+		this.#log
+			.fn('#resolveOptions')
+			.debug('resolved options:', { draggable: opts.draggable, resizable: opts.resizable })
 
 		// Add any obstacles to both the draggable and resizable options.
 		if (opts.obstacles) {
