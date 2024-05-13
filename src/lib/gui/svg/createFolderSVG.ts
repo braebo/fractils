@@ -1,5 +1,6 @@
-import { create } from '../../utils/create'
 import type { Folder } from '../Folder'
+
+import { create } from '../../utils/create'
 
 export function createFolderSvg(folder: Folder) {
 	const strokeWidth = 1
