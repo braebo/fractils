@@ -12,7 +12,7 @@ import { InputNumber, type NumberInputOptions } from './inputs/InputNumber'
 import { InputColor, type ColorInputOptions } from './inputs/InputColor'
 import { InputText, type TextInputOptions } from './inputs/InputText'
 
-import { animateConnector, createFolderConnector, createFolderSvg } from './svg/folderSvgs'
+import { animateConnector, createFolderConnector, createFolderSvg } from './svg/createFolderSVG'
 import { composedPathContains } from '../internal/cancelClassFound'
 import { isColor, isColorFormat } from '../color/color'
 import { EventManager } from '../utils/EventManager'
@@ -22,7 +22,7 @@ import { create } from '../utils/create'
 import { Logger } from '../utils/logger'
 import { nanoid } from '../utils/nanoid'
 import { state } from '../utils/state'
-import { toFn } from './shared/toFn'
+import { toFn } from '../utils/toFn'
 import { DEV } from 'esm-env'
 import { Gui } from './Gui'
 
@@ -115,12 +115,6 @@ export interface InternalFolderOptions {
 	 */
 	gui?: Gui
 
-	// /**
-	//  * The depth of the folder in the hierarchy.
-	//  * @default 0
-	//  */
-	// depth?: number
-
 	/**
 	 * Whether this folder is the root folder.  Always true when
 	 * creating a `new Folder()`. Always false inside of the
@@ -145,36 +139,19 @@ export interface InternalFolderOptions {
 
 export const INTERNAL_FOLDER_DEFAULTS = {
 	__type: 'InternalFolderOptions',
-	// parentFolder: undefined,
 	isRoot: true,
 	instant: true,
-	// gui: undefined,
 	headerless: false,
 } as const satisfies InternalFolderOptions
 
-// export const INTERNAL_FOLDER_DEFAULTS = {
-// 	depth: 0,
-// 	isRoot: true,
-// 	instant: true,
-// 	parentFolder: undefined,
-// 	container: undefined,
-// 	presetId: '',
-// 	title: '',
-// 	children: [],
-// 	closed: false,
-// 	hidden: false,
-// 	gui: undefined,
-// 	controls: new Map(),
-// } as const satisfies Omit<InternalFolderOptions, FolderOptions>
-
 export interface FolderPreset {
 	__type: 'FolderPreset'
-	presetTitle?: string
-	presetId: string
+	id: string
+	title: string
 	closed: boolean
 	hidden: boolean
 	children: FolderPreset[]
-	controllers: InputPreset<any>[]
+	inputs: InputPreset<any>[]
 }
 
 export interface FolderEvents {
@@ -187,6 +164,10 @@ export interface FolderEvents {
 	 * {@link Folder.closed | `closed`} state.
 	 */
 	toggle: Folder['closed']['value']
+	/**
+	 * When the folder is refreshed, this event emits the folder.
+	 */
+	refresh: Folder
 }
 
 /**
@@ -196,23 +177,18 @@ export class Folder {
 	//· Props ····················································································¬
 	__type = 'Folder' as const
 	// isFolder = true as const
+
 	isRoot = true
 	id = nanoid()
-
 	gui?: Gui
 
-	static #i = 0
-	index = Folder.#i++
-	// depth: number
-	depth = -1
-
-	root: Folder
-	search: Search
-
-	#title: string
+	private _title: string
 	presetId: string
 	children = [] as Folder[]
 	inputs = new Map<string, ValidInput>()
+
+	root: Folder
+	search: Search
 	parentFolder: Folder
 	settingsFolder!: Folder
 
@@ -230,25 +206,28 @@ export class Folder {
 		}
 	}
 
-	#subs: Array<() => void> = []
-	#log: Logger
+	evm = new EventManager<FolderEvents>(['change', 'refresh', 'toggle'])
+	on = this.evm.on.bind(this.evm)
+
+	/**
+	 * Subscriptions to be disposed of when the folder is destroyed.
+	 */
+	private _subs: Array<() => void> = []
+	private _log: Logger
 	/**
 	 * Used to disable clicking the header to open/close the folder.
 	 */
-	#disabledTimer?: ReturnType<typeof setTimeout>
+	private _disabledTimer?: ReturnType<typeof setTimeout>
 	/**
 	 * The time in ms to wait after mousedown before
 	 * disabling toggle for a potential drag.
 	 */
-	#clickTime = 200
+	private _clickTime = 200
 	/**
 	 * Whether clicking the header to open/close the folder is disabled.
 	 */
-	#disabled = false
-
-	// evm = new EventManager(['change', 'toggle'])
-	evm = new EventManager<FolderEvents>(['change', 'toggle'])
-	on = this.evm.on.bind(this.evm)
+	private _clicksDisabled = false
+	private _depth = -1
 	//⌟
 	constructor(options: FolderOptions) {
 		if (!('container' in options)) {
@@ -266,13 +245,13 @@ export class Folder {
 			options,
 		) as FolderOptions & InternalFolderOptions
 
-		this.#log = new Logger(`Folder ${opts.title}`, { fg: 'DarkSalmon' })
-		this.#log.fn('constructor').debug({ opts, this: this })
+		this._log = new Logger(`Folder ${opts.title}`, { fg: 'DarkSalmon' })
+		this._log.fn('constructor').debug({ opts, this: this })
 
 		this.isRoot = opts.isRoot
 
 		if (this.isRoot) {
-			this.depth = 0
+			this._depth = 0
 			this.parentFolder = this
 			this.root = this
 		} else {
@@ -280,19 +259,19 @@ export class Folder {
 				throw new Error('Non-root folders must have a parent folder.')
 			}
 			this.parentFolder = opts.parentFolder
-			this.depth = this.parentFolder.depth + 1
+			this._depth = this.parentFolder._depth + 1
 			this.root = this.parentFolder.root
 		}
 
 		this.gui = opts.gui
-		this.#title = opts.title ?? ''
+		this._title = opts.title ?? ''
 
 		// todo - I _really_ want to know why this blows everything up, and why FOLDER_DEFAULTS.children is mutated to contain the parent
 		// todo - as a child even though its frozen, and _nowhere_ is `children` even passed into the constructor options...??!?!?!
 		//! this.children = opts.children
 
-		this.element = this.#createElement(opts.container)
-		this.elements = this.#createElements(this.element)
+		this.element = this._createElement(opts.container)
+		this.elements = this._createElements(this.element)
 
 		this.presetId = this.resolvePresetId(opts)
 
@@ -309,7 +288,7 @@ export class Folder {
 		this.#hidden = opts.hidden ? toFn(opts.hidden) : toFn(false)
 
 		// Open/close the folder when the closed state changes.
-		this.#subs.push(
+		this.evm.add(
 			this.closed.subscribe(v => {
 				v ? this.close() : this.open()
 				this.evm.emit('toggle', v)
@@ -317,7 +296,7 @@ export class Folder {
 			}),
 		)
 
-		this.createGraphics(opts.headerless).then(() => {
+		this._createGraphics(opts.headerless).then(() => {
 			if (opts.closed) {
 				this.closed.set(opts.closed)
 			}
@@ -330,11 +309,11 @@ export class Folder {
 	 * The folder's title.  Reactive to assignments.
 	 */
 	get title() {
-		return this.#title
+		return this._title
 	}
 	set title(v: string) {
-		if (v === this.#title) return
-		this.#title = v
+		if (v === this._title) return
+		this._title = v
 		this.elements.title.animate(
 			{
 				opacity: 0,
@@ -386,7 +365,7 @@ export class Folder {
 	}
 
 	/**
-	 * A flat array of all controls of all child folders of this folder (and their children, etc).
+	 * A flat array of all inputs in all child folders of this folder (and their children, etc).
 	 * See Input Generators region.
 	 */
 	get allInputs(): Map<string, ValidInput> {
@@ -407,10 +386,10 @@ export class Folder {
 	//· Folders ··················································································¬
 
 	addFolder = (options?: Partial<FolderOptions>) => {
-		this.#log.fn('addFolder').debug({ options, this: this })
-		const defaults = Object.assign(Folder.getDefaults(), {
+		this._log.fn('addFolder').debug({ options, this: this })
+		const defaults = Object.assign(Folder._getDefaults(), {
 			parentFolder: this,
-			depth: this.depth + 1,
+			depth: this._depth + 1,
 			gui: this.gui,
 		})
 
@@ -429,7 +408,7 @@ export class Folder {
 		if (folder === this) {
 			throw new Error('wtf')
 		}
-		this.#createSvgs()
+		this._createSvgs()
 
 		if (defaults.headerless) {
 			folder.elements.header.style.display = 'none'
@@ -441,7 +420,7 @@ export class Folder {
 	#handleClick(event: PointerEvent) {
 		if (event.button !== 0) return
 
-		this.#log.fn('#handleClick').debug({ event, this: this })
+		this._log.fn('#handleClick').debug({ event, this: this })
 
 		this.element.removeEventListener('pointerup', this.toggle)
 		this.element.addEventListener('pointerup', this.toggle, { once: true })
@@ -452,44 +431,44 @@ export class Folder {
 
 		// We need to watch for the mouseup event within a certain timeframe
 		// to make sure we don't accidentally trigger a click after dragging.
-		clearTimeout(this.#disabledTimer)
+		clearTimeout(this._disabledTimer)
 		// First we delay the drag check to allow for messy clicks.
-		this.#disabledTimer = setTimeout(() => {
+		this._disabledTimer = setTimeout(() => {
 			this.elements.header.removeEventListener('pointermove', this.#disableClicks)
 			this.elements.header.addEventListener('pointermove', this.#disableClicks, {
 				once: true,
 			})
 
 			// Then we set a timer to disable the drag check.
-			this.#disabledTimer = setTimeout(() => {
+			this._disabledTimer = setTimeout(() => {
 				this.elements.header.removeEventListener('pointermove', this.#disableClicks)
 				this.element.removeEventListener('pointerup', this.toggle)
-				this.#disabled = false
-			}, this.#clickTime)
+				this._clicksDisabled = false
+			}, this._clickTime)
 		}, 150)
 
-		if (this.#disabled) return
+		if (this._clicksDisabled) return
 	}
 	#disableClicks = () => {
-		if (!this.#disabled) {
-			this.#disabled = true
-			this.#log.fn('disable').debug('Clicks DISABLED')
+		if (!this._clicksDisabled) {
+			this._clicksDisabled = true
+			this._log.fn('disable').debug('Clicks DISABLED')
 		}
-		this.#disabled = true
-		clearTimeout(this.#disabledTimer)
+		this._clicksDisabled = true
+		clearTimeout(this._disabledTimer)
 	}
 	#resetClicks() {
-		this.#log.fn('cancel').debug('Clicks ENABLED')
+		this._log.fn('cancel').debug('Clicks ENABLED')
 		removeEventListener('pointerup', this.toggle)
-		this.#disabled = false
+		this._clicksDisabled = false
 	}
 
 	//·· Open/Close ···························································¬
 
 	toggle = () => {
-		this.#log.fn('toggle').debug()
-		clearTimeout(this.#disabledTimer)
-		if (this.#disabled) {
+		this._log.fn('toggle').debug()
+		clearTimeout(this._disabledTimer)
+		if (this._clicksDisabled) {
 			this.#resetClicks()
 			return
 		}
@@ -508,38 +487,38 @@ export class Folder {
 	}
 
 	open(updateState = false) {
-		this.#log.fn('open').debug()
+		this._log.fn('open').debug()
 		this.element.classList.remove('closed')
 		if (updateState) this.closed.set(false)
-		this.#disabled = false
+		this._clicksDisabled = false
 
 		this.#toggleAnimClass()
 		animateConnector(this, 'open')
 	}
 
 	close(updateState = false) {
-		this.#log.fn('close').debug()
+		this._log.fn('close').debug()
 
 		this.element.classList.add('closed')
 		if (updateState) this.closed.set(true)
-		this.#disabled = false
+		this._clicksDisabled = false
 
 		this.#toggleAnimClass()
 		animateConnector(this, 'close')
 	}
 
 	toggleHidden() {
-		this.#log.fn('toggleHidden').debug()
+		this._log.fn('toggleHidden').debug()
 		this.element.classList.toggle('hidden')
 	}
 
 	hide() {
-		this.#log.fn('hide').debug()
+		this._log.fn('hide').debug()
 		this.element.classList.add('hidden')
 	}
 
 	show() {
-		this.#log.fn('show').debug()
+		this._log.fn('show').debug()
 		this.element.classList.remove('hidden')
 	}
 
@@ -557,7 +536,7 @@ export class Folder {
 	//·· Save/Load ···························································¬
 
 	resolvePresetId = (opts?: FolderOptions) => {
-		this.#log.fn('resolvePresetId').debug({ opts, this: this })
+		this._log.fn('resolvePresetId').debug({ opts, this: this })
 		const getPaths = (folder: Folder): string[] => {
 			if (folder.isRootFolder.bind(folder) || !(folder.parentFolder === this))
 				return [folder.title]
@@ -566,7 +545,7 @@ export class Folder {
 		}
 		const paths = getPaths(this)
 
-		let presetId = opts?.presetId || paths.join(':')
+		let presetId = opts?.presetId || paths.join('__')
 
 		if (!presetId) {
 			let i = 0
@@ -579,34 +558,37 @@ export class Folder {
 		return presetId
 	}
 
-	save(presetTitle?: string): FolderPreset {
-		this.#log.fn('save').debug({ presetTitle, this: this })
-		return {
+	toJSON(): FolderPreset {
+		this._log.fn('save').debug({ this: this })
+
+		const preset: FolderPreset = {
 			__type: 'FolderPreset',
-			presetId: this.presetId,
-			presetTitle: presetTitle,
+			id: this.presetId,
+			title: this.title,
 			closed: this.closed.value,
 			hidden: toFn(this.#hidden)(),
 			children: this.children
 				.filter(c => c.title !== Gui.settingsFolderTitle)
-				.map(child => child.save()),
-			controllers: Array.from(this.inputs.values()).map(input => input.save()),
-		} satisfies FolderPreset
+				.map(child => child.toJSON()),
+			inputs: Array.from(this.inputs.values()).map(input => input.save()),
+		}
+
+		return preset
 	}
 
 	load(preset: FolderPreset) {
-		this.#log.fn('load').debug({ preset, this: this })
+		this._log.fn('load').debug({ preset, this: this })
 
 		this.closed.set(preset.closed)
 		this.hidden = preset.hidden
 
 		for (const child of this.children) {
-			const data = preset.children?.find(f => f.presetId === child.presetId)
+			const data = preset.children?.find(f => f.id === child.presetId)
 			if (data) child.load(data)
 		}
 
 		for (const input of this.inputs.values()) {
-			const data = preset.controllers.find(c => c.presetId === input.presetId)
+			const data = preset.inputs.find(c => c.presetId === input.id)
 			if (data) input.load(data)
 		}
 	}
@@ -636,9 +618,9 @@ export class Folder {
 		const options = twoArgs ? maybeOptions! : (titleOrOptions as InputOptions)
 		if (!twoArgs && options) options.title ??= title
 
-		const input = this.#createInput(options)
-		this.inputs.set(input.presetId, input)
-		this.#refreshIcon()
+		const input = this._createInput(options)
+		this.inputs.set(input.id, input)
+		this._refreshIcon()
 		return input
 	}
 
@@ -648,49 +630,49 @@ export class Folder {
 	addNumber(options: Partial<NumberInputOptions>) {
 		const input = new InputNumber(options, this)
 		this.inputs.set(input.title, input)
-		this.#refreshIcon()
+		this._refreshIcon()
 		return input
 	}
 
 	addText(options: Partial<TextInputOptions>) {
 		const input = new InputText(options, this)
 		this.inputs.set(input.title, input)
-		this.#refreshIcon()
+		this._refreshIcon()
 		return input
 	}
 
 	addColor(options: Partial<ColorInputOptions>) {
 		const input = new InputColor(options, this)
 		this.inputs.set(input.title, input)
-		this.#refreshIcon()
+		this._refreshIcon()
 		return input
 	}
 
 	addButton(options: Partial<ButtonInputOptions>) {
 		const input = new InputButton(options, this)
 		this.inputs.set(input.title, input)
-		this.#refreshIcon()
+		this._refreshIcon()
 		return input
 	}
 
 	addButtonGrid(options: Partial<ButtonGridInputOptions>) {
 		const input = new InputButtonGrid(options, this)
 		this.inputs.set(input.title, input)
-		this.#refreshIcon()
+		this._refreshIcon()
 		return input
 	}
 
 	addSelect<T>(options: Partial<SelectInputOptions<T>>) {
 		const input = new InputSelect(options, this)
 		this.inputs.set(input.title, input)
-		this.#refreshIcon()
+		this._refreshIcon()
 		return input
 	}
 
 	addSwitch(options: Partial<SwitchInputOptions>) {
 		const input = new InputSwitch(options, this)
 		this.inputs.set(input.title, input)
-		this.#refreshIcon()
+		this._refreshIcon()
 		return input
 	}
 
@@ -711,6 +693,9 @@ export class Folder {
 			input.folder.element.style.setProperty('order', i.toString())
 		}
 	}
+
+	private _createInput(options: InputOptions) {
+		this._log.fn('#createInput').debug(this)
 		const type = this.resolveType(options)
 
 		switch (type) {
@@ -728,11 +713,11 @@ export class Folder {
 				return new InputSwitch(options as SwitchInputOptions, this)
 		}
 
-		throw new Error('Invalid input view: ' + options)
+		throw new Error('Invalid input type: ' + type + ' for options: ' + options)
 	}
 
 	resolveType(options: any): InputType {
-		this.#log.fn('resolveType').debug({ options, this: this })
+		this._log.fn('resolveType').debug({ options, this: this })
 		const value = options.value ?? options.binding!.target[options.binding!.key]
 
 		if ('onClick' in options) {
@@ -773,8 +758,8 @@ export class Folder {
 
 	//· Elements ·····························································¬
 
-	#createElement(el?: HTMLElement) {
-		this.#log.fn('#createElement').debug({ el, this: this })
+	private _createElement(el?: HTMLElement) {
+		this._log.fn('#createElement').debug({ el, this: this })
 		if (this.isRoot) {
 			return create('div', {
 				id: `fracgui-root_${this.id}`,
@@ -790,8 +775,8 @@ export class Folder {
 		})
 	}
 
-	#createElements(element: HTMLElement): FolderElements {
-		this.#log.fn('#createElements').debug({ element, this: this })
+	private _createElements(element: HTMLElement): FolderElements {
+		this._log.fn('#createElements').debug({ element, this: this })
 		const header = create('div', {
 			parent: element,
 			classes: ['fracgui-header'],
@@ -833,8 +818,8 @@ export class Folder {
 
 	//· SVG's ································································¬
 
-	async createGraphics(headerless = false) {
-		this.#log.fn('createGraphics').debug({ this: this })
+	private async _createGraphics(headerless = false) {
+		this._log.fn('createGraphics').debug({ this: this })
 		await Promise.resolve()
 
 		if (!this.isRootFolder()) {
@@ -850,8 +835,8 @@ export class Folder {
 		if (DEV) new TerminalSvg(this)
 	}
 
-	#createSvgs() {
-		this.#log.fn('#createSvgs').debug({ this: this })
+	private _createSvgs() {
+		this._log.fn('#createSvgs').debug({ this: this })
 	}
 
 	get hue() {
@@ -859,13 +844,13 @@ export class Folder {
 		//-note: Color will be off if we ever add built-in folders other than "Settings Folder".
 		const i = this.parentFolder.isRootFolder() ? localIndex - 1 : localIndex
 		// Don't count the root folder.
-		const depth = this.depth - 1
+		const depth = this._depth - 1
 
 		return i * 20 + depth * 80
 	}
 
-	#refreshIcon() {
-		this.#log.fn('#refreshIcon').debug(this)
+	private _refreshIcon() {
+		this._log.fn('#refreshIcon').debug(this)
 
 		if (this.graphics) {
 			this.graphics.icon.replaceWith(createFolderSvg(this)) // ...
@@ -873,7 +858,7 @@ export class Folder {
 	}
 	//⌟
 
-	static getDefaults(): InternalFolderOptions {
+	private static _getDefaults(): InternalFolderOptions {
 		const opts: Omit<InternalFolderOptions, keyof FolderOptions> = {
 			parentFolder: undefined,
 			isRoot: true,
@@ -886,17 +871,25 @@ export class Folder {
 	}
 
 	dispose() {
-		this.#subs.forEach(unsub => unsub())
+		this._subs.forEach(unsub => unsub())
 
 		this.elements.header.removeEventListener('click', this.toggle)
 		this.elements.header.addEventListener('pointerdown', this.#handleClick)
 
 		this.element.remove()
 
+		for (const input of this.inputs.values()) {
+			input.dispose()
+		}
+
+		for (const child of this.children) {
+			child.dispose()
+		}
+
 		try {
 			this.parentFolder.children.splice(this.parentFolder.children.indexOf(this), 1)
 		} catch (err) {
-			this.#log.fn('dispose').error('Error removing folder from parent', { err })
+			this._log.fn('dispose').error('Error removing folder from parent', { err })
 		}
 	}
 }
