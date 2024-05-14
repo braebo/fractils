@@ -487,6 +487,13 @@ $option-padding: 0.1rem 0.75rem;
 
 .fracgui-controller-select-container {
 	position: relative;
+	outline: none;
+	border: none;
+
+	&[contenteditable='true'] .fracgui-controller-select-selected {
+		cursor: text;
+		outline: 1px solid var(--fracgui-theme-a);
+	}
 }
 
 .fracgui-controller-select-selected {
@@ -505,12 +512,6 @@ $option-padding: 0.1rem 0.75rem;
 	&:focus-visible,
 	&:active {
 		filter: contrast(1.1) brightness(1.25);
-		outline-offset: 0.25rem;
-		outline: 1px solid rgba(var(--fracgui-bg-d-rgb), 0.5);
-	}
-
-	&.active {
-		outline: var(--fracgui-controller_outline);
 	}
 }
 
@@ -2161,7 +2162,10 @@ input.fracgui-search-input {
 
 				background: var(--fracgui-controller-dim_background);
 				border-radius: var(--fracgui-radius-xs);
-				outline: var(--fracgui-controller_outline);
+
+				outline-width: 1px;
+				outline-style: solid;
+				outline-color: transparent;
 
 				//? chevron icon
 				&::before {
@@ -2184,17 +2188,24 @@ input.fracgui-search-input {
 				&:focus-visible,
 				&:active {
 					background: var(--fracgui-controller_background);
-					outline-offset: 0rem;
+					&[contenteditable='true'] {
+						outline-color: var(--fracgui-controller-dim_color);
+					}
 					&::before {
 						color: var(--fracgui-bg-e);
 					}
 				}
 				&.active {
-					outline: var(--fracgui-controller_outline);
-
 					&::before {
 						color: var(--fracgui-fg-d);
 						transform: rotate(90deg) translateX(2px);
+					}
+				}
+				&[contenteditable='true'] {
+					cursor: text;
+					&:focus-visible,
+					&:active {
+						outline-color: var(--fracgui-theme-a);
 					}
 				}
 			}
