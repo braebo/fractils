@@ -16,8 +16,19 @@
 	"javascript.preferences.useAliasesForRenames": false,
 	"typescript.preferences.useAliasesForRenames": false,
 	//- Editor
-	"editor.lightbulb.enabled": "off", // Bad for adhd...
+	"editor.fontFamily": "'Monaspace Neon', 'JetbrainsMono Nerd Font', 'FiraCode Nerd Font', 'Hack Nerd Font', 'monospace'",
+	"editor.smoothScrolling": true,
+	"terminal.integrated.fontFamily": "'Monaspace Neon', 'JetbrainsMono Nerd Font', 'FiraCode Nerd Font', 'Hack Nerd Font', 'monospace'",
+	"terminal.integrated.lineHeight": 1,
+	"editor.fontLigatures": true,
+	"editor.lineHeight": 1.5,
 	"editor.minimap.enabled": false,
+	"editor.tabSize": 4,
+	"editor.semanticTokenColorCustomizations": {
+		"enabled": true
+	},
+	"editor.semanticHighlighting.enabled": true,
+	"editor.lightbulb.enabled": "off", // Bad for adhd...
 	"editor.accessibilitySupport": "off",
 	"editor.guides.bracketPairs": true,
 	"editor.renderWhitespace": "none",
@@ -52,8 +63,8 @@
 		"shellscript",
 		"glsl",
 	],
-	"workbench.preferredDarkColorTheme": "One Dark Pro Monokai Darker",
-	"workbench.preferredLightColorTheme": "Moxer Light",
+	"workbench.preferredDarkColorTheme": "Moxer Borderline",
+	"workbench.preferredLightColorTheme": "Best Themes - Ethereal Quest",
 	"workbench.iconTheme": "material-icon-theme",
 	"window.autoDetectColorScheme": true,
 	"workbench.colorCustomizations": {
@@ -150,6 +161,19 @@
 			"backgroundColor": "transparent",
 			"bold": false,
 			"italic": false,
+		},
+		//? Regions
+		{
+			// region start
+			"tag": "#region",
+			"color": "#374fa6",
+			"bold": true,
+		},
+		{
+			// region end
+			"tag": "#endregion",
+			"color": "#002255",
+			"bold": true,
 		},
 		//? Custom region folding tag.
 		{
