@@ -1,10 +1,14 @@
 import type { ElementMap } from '../inputs/Input'
 
 import { EventManager } from '../../utils/EventManager'
-import { toFn } from '../shared/toFn'
+import { toFn } from '../../utils/toFn'
 
-export abstract class Controller<TValue, TElements extends ElementMap = ElementMap> {
-	#evm = new EventManager()
+export abstract class Controller<
+	TValue,
+	TElements extends ElementMap = ElementMap,
+	TEvents extends Record<string, any> = { change: TValue; refresh: void },
+> {
+	abstract _evm: EventManager<TEvents>
 
 	/**
 	 * All elements created by the controller.
@@ -17,63 +21,52 @@ export abstract class Controller<TValue, TElements extends ElementMap = ElementM
 	abstract element: Element
 
 	/**
+	 * Whether the controller has been disposed.
+	 */
+	disposed = false
+
+	private _disabled: () => boolean
+	/**
 	 * Whether the controller is disabled.  A function can be used to
 	 * dynamically determine the disabled state.
 	 */
-	#disabled: () => boolean
-
-	/**
-	 * Whether the controller has been disposed.
-	 */
-	#disposed = false
+	get disabled(): boolean {
+		return this._disabled()
+	}
+	set disabled(v: boolean | (() => boolean)) {
+		this._disabled = typeof v === 'function' ? v : () => v
+		this._disabled() ? this.disable() : this.enable()
+	}
 
 	constructor(
 		opts: Record<string, any> & {
 			disabled: boolean | (() => boolean)
 		},
 	) {
-		this.#disabled = toFn(opts.disabled)
+		this._disabled = toFn(opts.disabled)
 	}
 
-	get disabled(): boolean {
-		return this.#disabled()
+	get on() {
+		return this._evm.on
 	}
-	set disabled(v: boolean | (() => boolean)) {
-		this.#disabled = toFn(v)
-		this.#disabled() ? this.disable() : this.enable()
+	get listen() {
+		return this._evm.on
+	}
+	get emit() {
+		return this._evm.emit
 	}
 
-	get disposed() {
-		return this.#disposed
+	enable() {
+		this.disabled = false
+	}
+	disable() {
+		this.disabled = false
 	}
 
 	abstract refresh: () => this
 
-	listen = this.#evm.listen.bind(this.#evm)
-
-	enable() {
-		this.#disabled = toFn(false)
-	}
-	disable() {
-		this.#disabled = toFn(true)
-	}
-
-	#onChangeListeners = new Set<(...args: any[]) => void>()
-	onChange(cb: (value: TValue) => void) {
-		this.#onChangeListeners.add(cb)
-		return this
-	}
-	callOnChange = (value: TValue) => {
-		this.element.dispatchEvent(new CustomEvent('change', { detail: value }))
-		for (const cb of this.#onChangeListeners) {
-			cb(value)
-		}
-		return this
-	}
-
 	dispose() {
-		this.#disposed = true
-		this.#onChangeListeners.clear()
-		this.#evm.dispose()
+		this.disposed = true
+		this._evm.dispose()
 	}
 }

@@ -7,9 +7,10 @@ import { EventManager } from '../../utils/EventManager'
 import { Logger } from '../../utils/logger'
 import { create } from '../../utils/create'
 import { state } from '../../utils/state'
-import { toFn } from '../shared/toFn'
+import { toFn } from '../../utils/toFn'
 import { Input } from './Input'
 import { DEV } from 'esm-env'
+import type { TooltipOptions } from '$lib/actions/tooltip'
 
 /**
  * A button item to be added to the grid.  This is used in the
@@ -50,7 +51,7 @@ export interface ButtonItemOptions {
 	/**
 	 * Optional tooltip text.
 	 */
-	tooltip?: string
+	tooltip?: Partial<TooltipOptions>
 }
 
 /**
@@ -232,22 +233,33 @@ export class InputButtonGrid extends Input<
 	addButton(opts: ButtonItemOptions, id: string, i: number, j: number) {
 		const label = toFn(opts.label)
 
+		const tooltip: Partial<TooltipOptions> | undefined = opts.tooltip
+			? Object.assign(
+					{
+						placement: 'top',
+						delay: 1000,
+					},
+					opts.tooltip,
+				)
+			: undefined
+
 		const button = create('button', {
 			classes: [
 				'fracgui-controller',
 				'fracgui-controller-button',
 				'fracgui-controller-buttongrid-button',
 			],
-			textContent: label(),
+			innerHTML: label(),
 			dataset: {
 				id,
 				row: String(i),
 				col: String(j),
 			},
-			styles: {
+			style: {
 				width: '100%',
 				...opts.style,
 			},
+			tooltip,
 		})
 
 		const _evm = new EventManager(['click'])
@@ -317,7 +329,7 @@ export class InputButtonGrid extends Input<
 				element.classList.toggle('active', !!isActive())
 			}
 			if (typeof label === 'function') {
-				element.textContent = label()
+				element.innerHTML = label()
 			}
 		}
 

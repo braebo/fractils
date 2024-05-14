@@ -2,16 +2,18 @@ import type { ColorMode, InputColor } from '../../inputs/InputColor'
 
 import { parseColorFormat } from '../../../color/color'
 import { NumberController } from '../NumberController'
-import { Controller } from '../Controller'
+// import { Controller } from '../Controller'
 import { Select } from '../Select'
 
+import { disableable, type Disableable } from '../../../decorators/disableable-class-decorator'
 import { entries } from '../../../utils/object'
 import { create } from '../../../utils/create'
 import { Logger } from '../../../utils/logger'
+import { EventManager } from '$lib/utils/EventManager'
 
 export interface ColorComponentsOptions {
 	container?: HTMLDivElement
-	disabled: boolean
+	disabled: boolean | (() => boolean)
 }
 
 export const COLOR_PICKER_DEFAULTS = {
@@ -31,30 +33,34 @@ export type ColorComponentsElements = {
 	text: HTMLInputElement
 }
 
-export class ColorComponents extends Controller<ColorMode, ColorComponentsElements> {
+// export class ColorComponents extends Controller<ColorMode, ColorComponentsElements> {
+
+export interface ColorComponents extends Disableable {}
+
+@disableable
+export class ColorComponents {
 	opts: ColorComponentsOptions
 	element: HTMLDivElement
 	elements: ColorComponentsElements
 	select: Select<ColorMode>
 
-	#mode: ColorMode
+	private _evm = new EventManager()
+	private _mode: ColorMode
 	/**
 	 * Used to prevent inputs from being refreshed externally after they're updated internally.
 	 */
-	#locked = false
-
-	#log: Logger
+	private _locked = false
+	private _log: Logger
 
 	constructor(
 		public input: InputColor,
 		options?: Partial<ColorComponentsOptions>,
 	) {
 		const opts = { ...COLOR_PICKER_DEFAULTS, ...options }
-		super(opts)
-		this.#log = new Logger(`ColorComponents ${input.title}`, { fg: 'wheat' })
+		this._log = new Logger(`ColorComponents ${input.title}`, { fg: 'wheat' })
 
 		this.opts = opts
-		this.#mode = input.mode
+		this._mode = input.mode
 
 		const parent = opts.container ?? input.elements.controllers.container
 
@@ -71,11 +77,12 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 
 		this.select = new Select<ColorMode>({
 			input: this.input,
+			// disabled: this.opts.disabled,
 			disabled: this.disabled,
 			container: selectContainer,
 			options: ['hex', 'hex8', 'rgba', 'hsla', 'hsva'],
 		})
-		this.select.onChange(v => {
+		this.select.on('change', v => {
 			this.updateMode(v.value)
 		})
 
@@ -106,7 +113,7 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 				v.classList.add('visible')
 			}
 
-			this.listen(v, 'input', update)
+			this._evm.listen(v, 'input', update)
 		}
 
 		const text = create('input', {
@@ -117,7 +124,7 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 			],
 			parent: componentsContainer,
 		})
-		this.listen(text, 'change', (e: Event) => {
+		this._evm.listen(text, 'change', (e: Event) => {
 			const target = e.target as HTMLInputElement
 			let format = parseColorFormat(target.value)
 			if (!format) return
@@ -140,7 +147,11 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 			text,
 		}
 
-		this.mode = this.#mode
+		this.mode = this._mode
+
+		if (typeof options?.disabled !== 'undefined') {
+			this.disabled = options.disabled
+		}
 	}
 
 	get color() {
@@ -148,18 +159,18 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 	}
 
 	get mode() {
-		return this.#mode
+		return this._mode
 	}
 	set mode(v: ColorMode) {
-		this.#log.fn(`set mode`, v).debug()
-		this.#mode = v
+		this._log.fn(`set mode`, v).debug()
+		this._mode = v
 
 		this.select.selected = v
 	}
 
 	updateMode = (v = this.mode) => {
-		this.#log.fn(`updateMode`, v).debug()
-		this.#mode = v
+		this._log.fn(`updateMode`, v).debug()
+		this._mode = v
 		if (this.#modeType() === 'text') {
 			this.elements.text.classList.add('visible')
 			for (const [, v] of entries(this.elements.numbers)) {
@@ -195,7 +206,7 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 	}
 
 	#setProps = (el: HTMLInputElement, props: { min: number; max: number; step: number }) => {
-		this.#log.fn(`#setProps`, el, props).debug()
+		this._log.fn(`#setProps`, el, props).debug()
 		for (const [k, v] of entries(props)) {
 			el[k] = String(v)
 		}
@@ -210,7 +221,7 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 		} else {
 			this.color.hue = v
 		}
-		this.#locked = true
+		this._locked = true
 		this.input.refresh()
 	}
 
@@ -223,7 +234,7 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 		} else {
 			this.color.saturation = v
 		}
-		this.#locked = true
+		this._locked = true
 		this.input.refresh()
 	}
 
@@ -246,7 +257,7 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 		} else if (this.mode === 'hsva') {
 			this.color.value = v
 		}
-		this.#locked = true
+		this._locked = true
 		this.input.refresh()
 	}
 
@@ -255,7 +266,7 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 	}
 	set d(v: number) {
 		this.color.alpha = v
-		this.#locked = true
+		this._locked = true
 		this.input.refresh()
 	}
 
@@ -280,7 +291,7 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 	 * Updates the UI to reflect the current state of the source color.
 	 */
 	refresh = () => {
-		this.#log.fn('refresh').debug()
+		this._log.fn('refresh').debug()
 		const color = this.input.state.value.hex8String
 		const mode = this.mode
 		if (this.#lastColor === color && mode === this.#lastMode) {
@@ -290,8 +301,8 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 		this.#lastColor = color
 		this.#lastMode = mode
 
-		if (this.#locked) {
-			this.#locked = false
+		if (this._locked) {
+			this._locked = false
 			return this
 		}
 
@@ -308,7 +319,7 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 	}
 
 	disable() {
-		super.disable()
+		if (!this.disabled) this.disabled = true
 		this.select.disable()
 		this.elements.text.disabled = true
 		for (const [, v] of entries(this.elements.numbers)) {
@@ -318,7 +329,7 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 	}
 
 	enable() {
-		super.enable()
+		if (this.disabled) this.disabled = false
 		this.select.enable()
 		this.elements.text.disabled = false
 		for (const [, v] of entries(this.elements.numbers)) {
@@ -335,6 +346,6 @@ export class ColorComponents extends Controller<ColorMode, ColorComponentsElemen
 		this.elements.container.remove()
 		this.elements.text.remove()
 		this.select.dispose()
-		super.dispose()
+		this._evm.dispose()
 	}
 }

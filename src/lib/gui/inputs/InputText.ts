@@ -28,14 +28,14 @@ export interface TextControllerElements extends ElementMap {
 	input: HTMLInputElement
 }
 
-export class InputText extends Input<
-	string,
-	TextInputOptions,
-	TextControllerElements
-> {
+export class InputText extends Input<string, TextInputOptions, TextControllerElements> {
 	readonly __type = 'InputText' as const
 	readonly initialValue: string
 	readonly state: State<string>
+
+	// get element() {
+	// 	return this.elements.controllers.input
+	// }
 
 	#log: Logger
 
@@ -72,7 +72,11 @@ export class InputText extends Input<
 
 		this.evm.listen(this.elements.controllers.input, 'input', this.set)
 
-		this.evm.add(this.state.subscribe(this.refresh))
+		this.evm.add(
+			this.state.subscribe(() => {
+				this.refresh()
+			}),
+		)
 	}
 
 	enable() {

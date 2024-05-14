@@ -2,13 +2,14 @@
 
 import type { InputColor } from '../../inputs/InputColor'
 
+import { disableable, type Disableable } from '../../../decorators/disableable-class-decorator'
 import { Color, type ColorValue } from '../../../color/color'
 import { tooltip } from '../../../actions/tooltip'
 import { mapRange } from '../../../utils/mapRange'
 import { debounce } from '../../../utils/debounce'
 import { create } from '../../../utils/create'
 import { clamp } from '../../../utils/clamp'
-import { Controller } from '../Controller'
+import { EventManager } from '$lib/utils/EventManager'
 
 export type LayoutDirection = 'vertical' | 'horizontal' | ''
 
@@ -34,7 +35,7 @@ export interface ColorPickerOptions {
 	 * @default 10
 	 */
 	handleSize: number
-	disabled: boolean
+	disabled: boolean | (() => boolean)
 }
 
 export const COLOR_PICKER_DEFAULTS: ColorPickerOptions = {
@@ -53,29 +54,34 @@ export type ColorPickerElements = {
 	alphaSlider: HTMLInputElement
 }
 
-export class ColorPicker extends Controller<ColorPickerElements> {
+// export class ColorPicker extends Controller<ColorPickerElements> {
+
+export interface ColorPicker extends Disableable {}
+
+@disableable
+export class ColorPicker {
 	opts: ColorPickerOptions
 	elements: ColorPickerElements
 	element: HTMLDivElement
 
-	#ctx: CanvasRenderingContext2D
-	#height = 16 * 3
-	#width = 256
-	#resizeObserver: ResizeObserver
+	private _ctx: CanvasRenderingContext2D
+	private _height = 16 * 3
+	private _width = 256
+	private _resizeObserver: ResizeObserver
 
-	#gradientWhite!: CanvasGradient
-	#gradientBlack!: CanvasGradient
+	private _gradientWhite!: CanvasGradient
+	private _gradientBlack!: CanvasGradient
 
-	#dragging = false
+	private _dragging = false
+	private _lockCursorPosition = false
 
-	#lockCursorPosition = false
+	private _evm = new EventManager()
 
 	constructor(
 		public input: InputColor,
 		options?: Partial<ColorPickerOptions>,
 	) {
 		const opts = { ...COLOR_PICKER_DEFAULTS, ...options }
-		super(opts)
 
 		this.opts = opts
 
@@ -91,13 +97,12 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 		const canvas = create('canvas', {
 			classes: ['fracgui-input-color-picker-canvas'],
 			parent: container,
-			height: this.#height,
+			height: this._height,
 		})
 		// Reposition the handle when the canvas is resized.
-		const debouncedUpdateHandle = debounce(this.#updateHandle, 100)
-		this.#resizeObserver = new ResizeObserver(() => debouncedUpdateHandle())
-		this.#resizeObserver.observe(canvas)
-
+		const debouncedUpdateHandle = debounce(this._updateHandle, 100)
+		this._resizeObserver = new ResizeObserver(() => debouncedUpdateHandle())
+		this._resizeObserver.observe(canvas)
 
 		const handle = create('div', {
 			classes: ['fracgui-input-color-picker-handle'],
@@ -114,7 +119,7 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 			min: 0,
 			max: 359,
 		})
-		this.listen(hueSlider, 'input', this.#updateStateFromHue as EventListener)
+		this._evm.listen(hueSlider, 'input', this._updateStateFromHue as EventListener)
 
 		tooltip(hueSlider, {
 			parent: container,
@@ -139,7 +144,7 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 			max: 1,
 			step: 0.01,
 		})
-		this.listen(alphaSlider, 'input', this.setAlpha as EventListener)
+		this._evm.listen(alphaSlider, 'input', this.setAlpha as EventListener)
 
 		tooltip(alphaSlider, {
 			parent: container,
@@ -164,19 +169,19 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 			alphaSlider,
 		}
 
-		this.disabled = opts.disabled
+		this.disabled = this.opts.disabled
 
-		this.#ctx = canvas.getContext('2d')!
-		this.canvas.width = this.#width
+		this._ctx = canvas.getContext('2d')!
+		this.canvas.width = this._width
 		this.refresh()
 
-		this.listen(this.canvas, 'click', this.#onClick as EventListener)
-		this.listen(this.canvas, 'pointerdown', this.#onPointerDown)
-		this.listen(window, 'pointermove', this.#onPointerMove, { passive: true })
+		this._evm.listen(this.canvas, 'click', this.#onClick as EventListener)
+		this._evm.listen(this.canvas, 'pointerdown', this.#onPointerDown)
+		this._evm.listen(window, 'pointermove', this.#onPointerMove, { passive: true })
 
 		this.#updateGradients()
 		setTimeout(this.draw, 10)
-		setTimeout(this.#updateHandle, 20)
+		setTimeout(this._updateHandle, 20)
 	}
 
 	get canvas() {
@@ -192,7 +197,7 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 	}
 
 	enable = () => {
-		super.enable()
+		if (this.disabled) this.disabled = false
 		this.elements.container.classList.remove('fracgui-disabled')
 		this.elements.alphaSlider.disabled = false
 		this.elements.hueSlider.disabled = false
@@ -201,7 +206,7 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 	}
 
 	disable = () => {
-		super.disable()
+		if (!this.disabled) this.disabled = true
 		this.elements.container.classList.add('fracgui-disabled')
 		this.elements.alphaSlider.disabled = true
 		this.elements.hueSlider.disabled = true
@@ -237,12 +242,12 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 
 		this.draw()
 
-		if (this.#lockCursorPosition) {
+		if (this._lockCursorPosition) {
 			// Update the color only.
 			this.elements.handle.style.background = color.hexString
-			this.#lockCursorPosition = false
+			this._lockCursorPosition = false
 		} else {
-			this.#updateHandle()
+			this._updateHandle()
 		}
 
 		return this
@@ -250,71 +255,71 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 
 	draw = () => {
 		this.#fill(`hsl(${this.hue}, 100%, 50%)`)
-		this.#fill(this.#gradientWhite)
-		this.#fill(this.#gradientBlack)
+		this.#fill(this._gradientWhite)
+		this.#fill(this._gradientBlack)
 	}
 
 	#fill(style: string | CanvasGradient) {
-		this.#ctx.fillStyle = style
-		this.#ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
+		this._ctx.fillStyle = style
+		this._ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
 	}
 
 	#updateGradients() {
-		this.#gradientWhite = this.#ctx.createLinearGradient(0, 0, this.canvas.width, 0)
-		this.#gradientWhite.addColorStop(0, 'rgba(255,255,255,1)')
-		this.#gradientWhite.addColorStop(1, 'rgba(255,255,255,0)')
+		this._gradientWhite = this._ctx.createLinearGradient(0, 0, this.canvas.width, 0)
+		this._gradientWhite.addColorStop(0, 'rgba(255,255,255,1)')
+		this._gradientWhite.addColorStop(1, 'rgba(255,255,255,0)')
 
-		this.#gradientBlack = this.#ctx.createLinearGradient(0, 0, 0, this.canvas.height)
-		this.#gradientBlack.addColorStop(0, 'rgba(0,0,0,0)')
-		this.#gradientBlack.addColorStop(1, 'rgba(0,0,0,1)')
+		this._gradientBlack = this._ctx.createLinearGradient(0, 0, 0, this.canvas.height)
+		this._gradientBlack.addColorStop(0, 'rgba(0,0,0,0)')
+		this._gradientBlack.addColorStop(1, 'rgba(0,0,0,1)')
 	}
 
 	//· Pointer Events ···································································¬
 
 	#onPointerDown = (e: PointerEvent) => {
 		this.element.dispatchEvent(new CustomEvent('onPointerDown'))
-		this.#dragging = true
-		this.#updateFromMousePosition(e)
+		this._dragging = true
+		this._updateFromMousePosition(e)
 
 		addEventListener('pointerup', this.#onPointerUp, { once: true })
 	}
 
 	#onPointerMove = (e: PointerEvent) => {
-		if (this.#dragging) {
-			this.#updateFromMousePosition(e)
+		if (this._dragging) {
+			this._updateFromMousePosition(e)
 		}
 	}
 
 	#onPointerUp = () => {
 		this.element.dispatchEvent(new CustomEvent('onPointerUp'))
-		this.#dragging = false
+		this._dragging = false
 	}
 
 	#onClick = (e: PointerEvent) => {
-		this.#updateFromMousePosition(e)
-		this.#dragging = false
+		this._updateFromMousePosition(e)
+		this._dragging = false
 	}
 
 	/**
 	 * Updates the color picker's state based on the current mouse position.
 	 */
-	#updateFromMousePosition(e: PointerEvent) {
+	private _updateFromMousePosition(e: PointerEvent) {
 		const { left, top, width, height } = this.canvas.getBoundingClientRect()
 		const x = clamp(e.clientX - left, 0, width)
 		const y = clamp(e.clientY - top, 0, height)
 
-		const { s, v } = this.#getColorAtPosition(x, y)
+		const { s, v } = this._getColorAtPosition(x, y)
 		this.input.state.value.hsv = { h: this.hue, s, v }
 		this.input.set(this.input.state.value)
 
-		this.#drawHandle(this.#getHandlePosition(this.input.state.value))
+		this._drawHandle(this._getHandlePosition(this.input.state.value))
 	}
 	//⌟
 
 	/**
 	 * Maps canvas `x` and `y` coordinates to their respective `s` and `v` color values.
 	 */
-	#getColorAtPosition = (x: number, y: number) => {
+	private _getColorAtPosition = (x: number, y: number) => {
 		const { width, height } = this.canvas.getBoundingClientRect()
 		const r = this.opts.handleSize / 3
 
@@ -324,8 +329,8 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 		}
 	}
 
-	#updateStateFromHue = (e: InputEvent) => {
-		this.#lockCursorPosition = true
+	private _updateStateFromHue = (e: InputEvent) => {
+		this._lockCursorPosition = true
 		const commit = {
 			input: this.input,
 			from: this.input.state.value.rgba as any as Color, // todo
@@ -346,14 +351,14 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 		this.draw()
 	}
 
-	#updateHandle = (color = this.input.state.value) => {
-		this.#drawHandle(this.#getHandlePosition(color))
+	private _updateHandle = (color = this.input.state.value) => {
+		this._drawHandle(this._getHandlePosition(color))
 	}
 
 	/**
 	 * Get the current handle position for a given color.
 	 */
-	#getHandlePosition = (color: Color) => {
+	private _getHandlePosition = (color: Color) => {
 		const { width, height } = this.canvas.getBoundingClientRect()
 		const r = this.opts.handleSize / 2
 
@@ -363,13 +368,13 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 		}
 	}
 
-	#drawHandle = (coords: { x: number; y: number }) => {
+	private _drawHandle = (coords: { x: number; y: number }) => {
 		this.elements.handle.style.transform = `translate(${coords.x}px, ${coords.y}px)`
 		this.elements.handle.style.background = this.input.state.value.hexString
 	}
 
 	dispose() {
-		this.#ctx = null!
+		this._ctx = null!
 
 		this.elements.alphaSlider.remove()
 		this.elements.hueSlider.remove()
@@ -377,6 +382,8 @@ export class ColorPicker extends Controller<ColorPickerElements> {
 		this.elements.canvas.remove()
 		this.elements.container.remove()
 
-		this.#resizeObserver.disconnect()
+		this._resizeObserver.disconnect()
+
+		this._evm.dispose()
 	}
 }

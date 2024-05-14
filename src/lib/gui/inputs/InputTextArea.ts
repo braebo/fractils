@@ -32,6 +32,10 @@ export class InputTextArea extends Input<string, TextAreaInputOptions, TextAreaC
 	readonly initialValue: string
 	readonly state: State<string>
 
+	// get element() {
+	// 	return this.elements.controllers.input
+	// }
+
 	#log: Logger
 
 	constructor(options: Partial<TextAreaInputOptions>, folder: Folder) {

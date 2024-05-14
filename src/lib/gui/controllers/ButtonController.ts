@@ -1,9 +1,11 @@
 import type { ElementMap } from '../inputs/Input'
 
+import { disableable, type Disableable } from '../../decorators/disableable-class-decorator'
+import { EventManager } from '../../utils/EventManager'
+// import { Controller } from './Controller'
 import { create } from '../../utils/create'
 import { Logger } from '../../utils/logger'
-import { Controller } from './Controller'
-import { toFn } from '../shared/toFn'
+import { toFn } from '../../utils/toFn'
 
 export type ButtonClickFunction = () => void
 
@@ -28,13 +30,21 @@ export interface ButtonControllerElements extends ElementMap {
 	button: HTMLButtonElement
 }
 
-export class ButtonController extends Controller<void, ButtonControllerElements> {
-	#text!: () => string
+export interface ButtonController extends Disableable {}
 
-	onClick: ButtonClickFunction
+@disableable
+export class ButtonController {
+	private _text!: () => string
+
+	// onClick: ButtonClickFunction
 	element: HTMLButtonElement
 	elements = {} as ButtonControllerElements
 	events = ['click'] as const
+	private _evm = new EventManager<{ change: void; refresh: void; click: void }>([
+		'change',
+		'refresh',
+		'click',
+	])
 
 	#log = new Logger('ButtonController', { fg: 'coral' })
 
@@ -43,7 +53,7 @@ export class ButtonController extends Controller<void, ButtonControllerElements>
 		options: Partial<InputButtonOptions>,
 	) {
 		const opts = Object.assign({}, BUTTON_INPUT_DEFAULTS, options)
-		super(opts)
+		// super(opts)
 		this.#log.fn('constructor').debug({ opts, this: this })
 
 		const button = create('button', {
@@ -53,31 +63,34 @@ export class ButtonController extends Controller<void, ButtonControllerElements>
 		this.element = this.elements.button = button
 
 		this.text = toFn(opts.text)
-		this.onClick = opts.onClick
+		if (opts.onClick) {
+			this._evm.on('click', opts.onClick)
+		}
+
+		this.disabled = opts.disabled
 	}
 
 	get text(): string {
-		return this.#text()
+		return this._text()
 	}
 	set text(v: string | (() => string)) {
-		this.#text = toFn(v)
-		this.elements.button.innerText = this.#text()
+		this._text = toFn(v)
+		this.elements.button.innerText = this._text()
 	}
 
 	click = () => {
-		this.onClick()
 		this.refresh()
-		this.callOnChange()
+		this._evm.emit('click')
 	}
 
 	enable = () => {
-		super.enable()
+		if (this.disabled) this.disabled = false
 		this.elements.button.disabled = false
 		return this
 	}
 
 	disable = () => {
-		super.disable()
+		if (!this.disabled) this.disabled = true
 		this.elements.button.disabled = true
 		return this
 	}
@@ -85,11 +98,12 @@ export class ButtonController extends Controller<void, ButtonControllerElements>
 	refresh = () => {
 		this.elements.button.disabled = this.disabled
 		this.elements.button.innerText = this.text
+		this._evm.emit('refresh')
 		return this
 	}
 
 	dispose() {
 		this.elements.button.remove()
-		super.dispose()
+		this._evm.dispose()
 	}
 }

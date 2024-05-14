@@ -20,7 +20,7 @@ import { isState, state } from '../../utils/state'
 import { keys, values } from '../../utils/object'
 import { create } from '../../utils/create'
 import { Logger } from '../../utils/logger'
-import { toFn } from '../shared/toFn'
+import { toFn } from '../../utils/toFn'
 
 //· Types ··············································································¬
 export type InputType = (typeof INPUT_TYPES)[number]
@@ -110,6 +110,7 @@ export type InputOptions<
 export type InputPreset<T extends ValidInputOptions> = Omit<InputOptions<T>, 'title'> & {
 	__type: InputOptionType
 	presetId: string
+	title: string
 	value: ValidInputValue
 	disabled: boolean
 	hidden: boolean
@@ -154,11 +155,6 @@ export type InputEvents<T extends ValidInputValue = ValidInputValue> = {
 }
 //⌟
 
-export type MapInputToOptions<T extends InputType = InputType> = (typeof INPUT_TYPE_MAP)[T]
-export type MapOptionsToInput<T extends InputOptionType = InputOptionType> = {
-	[K in keyof typeof INPUT_TYPE_MAP]: (typeof INPUT_TYPE_MAP)[K] extends T ? K : never
-}[keyof typeof INPUT_TYPE_MAP]
-
 export abstract class Input<
 	TValueType extends ValidInputValue = ValidInputValue,
 	TOptions extends ValidInputOptions = InputOptions,
@@ -169,10 +165,14 @@ export abstract class Input<
 > {
 	abstract readonly __type: TType
 	abstract state: State<TValueType>
-	abstract readonly initialValue: ValidInputValue
+	abstract initialValue: ValidInputValue
 
 	opts: TOptions & { __type: T__TYPE }
-	presetId: string
+	/**
+	 * Unique identifier for the input. Also used for saving and loading presets.
+	 * @default `<folder_title>:<input_type>:<input_title>`
+	 */
+	id: string
 	/**
 	 * Whether the input was initialized with a bind target/key.
 	 * @default false
@@ -190,9 +190,16 @@ export abstract class Input<
 		resetBtn: HTMLElement
 	}
 
+	/**
+	 * Whether the controllers should bubble their events up to the input and it's listeners.
+	 * If false, the next update will be silent, after which the flag will be reset to true.
+	 */
+	bubble = false
+
 	// #firstUpdate = true
 	private _disabled: () => boolean
 	private _hidden: () => boolean
+	private _dirty: () => boolean
 	/**
 	 * Prevents the input from registering commits to undo history until
 	 * {@link unlock} is called.
@@ -207,7 +214,7 @@ export abstract class Input<
 
 	private _title = ''
 	private _index: number
-	private _log: Logger
+	private __log: Logger
 
 	constructor(
 		options: TOptions & { __type: T__TYPE },
@@ -215,12 +222,21 @@ export abstract class Input<
 	) {
 		this.opts = options
 		// this.__type = options.__type
-		this.presetId =
-			options.presetId ?? `${folder.resolvePresetId()}_${options.__type}:${options.title}`
+		this.id =
+			this.opts.presetId ??
+			`${folder.resolvePresetId()}_${this.opts.title}__${this.opts.__type}`
 
-		this._log = new Logger(`Input ${options.title}`, { fg: 'skyblue' })
+		this.__log = new Logger(
+			`Input${this.opts.__type!.replaceAll(/Options|Input/g, '')} ${this.opts.title}`,
+			{ fg: 'skyblue' },
+		)
+		this.__log.fn('super constructor').info({ options, this: this })
 
+		this._title = this.opts.title ?? ''
+		this._disabled = toFn(this.opts.disabled ?? false)
+		this._hidden = toFn(this.opts.hidden ?? false)
 		this._index = this.opts.order ?? 0
+		this._dirty = () => this.value !== this.initialValue
 
 		this.elements.container = create('div', {
 			classes: ['fracgui-input-container'],
@@ -252,7 +268,7 @@ export abstract class Input<
 				delay: 1000,
 			},
 			onclick: () => {
-				this._log.fn('reset').info('resetting to initial value', this.initialValue)
+				this.__log.fn('reset').info('resetting to initial value', this.initialValue)
 				this.set(this.initialValue as TValueType)
 			},
 		})
@@ -320,9 +336,13 @@ export abstract class Input<
 	}
 
 	get dirty() {
-		return this._dirty
+		return this._dirty()
 	}
+	set dirty(v: boolean | (() => boolean)) {
 		if (this.opts.resettable === false) return
+
+		this._dirty = toFn(v)
+		this.elements.resetBtn.classList.toggle('dirty', this._dirty())
 	}
 	protected dirtyCheck() {
 		return this.state.value !== this.initialValue
@@ -357,10 +377,23 @@ export abstract class Input<
 	 */
 	_emit(event: keyof TEvents, v = this.state.value as TValueType) {
 		this.dirty = this.dirtyCheck()
+
+		// if (this.bubble === false) {
+		// 	this._log
+		// 		.fn('_emit')
+		// 		.info('Bubbling disabled.  Events will be silent until next update.')
+
+		// 	this.bubble = true
+
+		// 	return this
+		// }
+
 		// @ts-expect-error
 		this.evm.emit(event, v)
 		// @ts-expect-error
 		if (event === 'change') this.folder.evm.emit('change', this)
+
+		return this
 	}
 
 	/**
@@ -370,13 +403,13 @@ export abstract class Input<
 	protected lock = (from = this.state.value) => {
 		this.undoLock = true
 		this.lockCommit.from = from
-		this._log.fn('lock').info('lockCommit:', this.lockCommit)
+		this.__log.fn('lock').info('lockCommit:', this.lockCommit)
 	}
 	/**
 	 * Unlocks commits and saves the current commit stored in lock.
 	 */
 	protected unlock = (commit?: Partial<Commit>) => {
-		this._log.fn('unlock').debug('commit', { commit, lockCommit: this.lockCommit })
+		this.__log.fn('unlock').debug('commit', { commit, lockCommit: this.lockCommit })
 		commit ??= {}
 		commit.input ??= this as unknown as Input<TValueType>
 		commit.to ??= this.state.value as TValueType
@@ -391,10 +424,10 @@ export abstract class Input<
 	commit(commit: Partial<Commit>) {
 		commit.from ??= this.state.value
 		if (this.undoLock) {
-			this._log.fn('commit').debug('prevented commit while locked')
+			this.__log.fn('commit').debug('prevented commit while locked')
 			return
 		}
-		this._log.fn('commit').debug('commited', commit)
+		this.__log.fn('commit').debug('commited', commit)
 		this.undoManager?.commit<TValueType>({
 			input: this,
 			...commit,
@@ -432,29 +465,31 @@ export abstract class Input<
 	save(overrides: Partial<InputPreset<TOptions>> = {}) {
 		const preset: InputPreset<any> = {
 			__type: INPUT_TYPE_MAP[this.__type],
+			title: this.title,
 			value: this.state.value,
 			disabled: this.disabled,
-			presetId: this.presetId,
+			presetId: this.id,
 			hidden: this.hidden,
 			order: this.index,
 			resettable: this.opts.resettable ?? true,
 		}
 
-		this._log.fn('save').debug(preset)
+		this.__log.fn('save').debug(preset)
 
 		return Object.assign(preset, overrides)
 	}
 
 	load(json: InputPreset<TOptions> | string) {
 		const data = typeof json === 'string' ? (JSON.parse(json) as InputPreset<TOptions>) : json
-		this.presetId = data.presetId
+		this.id = data.presetId
 		this.disabled = data.disabled
 		this.hidden = data.hidden
+		this.initialValue = data.value
 		this.set(data.value as TValueType)
 	}
 
 	dispose() {
-		this._log.fn('dispose').debug(this)
+		this.__log.fn('dispose').debug(this)
 		this.evm.dispose()
 
 		const rm = (elOrObj: any) => {
