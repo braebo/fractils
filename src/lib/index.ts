@@ -43,9 +43,6 @@ export { default as Copy } from './icons/Copy.svelte'
 
 // Utils
 
-export type { CSSColorName, HexColor } from './color/css'
-export { CSS_COLORS, CSS_COLOR_NAMES, randomCSSColorName } from './color/css'
-
 export { highlight, HIGHLIGHT_DEFAULTS, type HighlightOptions } from './utils/highlight'
 export { isTouchEvent, isMouseEvent, isDefined, isString } from './utils/is'
 export { l, n, r, g, lg, b, y, c, o, m, p, dim, bd, i, j } from './utils/l'
@@ -67,12 +64,21 @@ export { hexToRgb } from './utils/hexToRgb'
 export { truncate } from './utils/truncate'
 export { fontSize } from './utils/fontSize'
 export { mapRange } from './utils/mapRange'
+export { nanoid } from './utils/nanoid'
 export { create } from './utils/create'
 export { defer } from './utils/defer'
 export { clamp } from './utils/clamp'
 export { getPx } from './utils/getPx'
 export { wait } from './utils/wait'
 export { log } from './utils/log'
+
+// Color
+
+export { Color, isColor, isColorFormat, parseColorFormat } from './color/color'
+export type { ColorMode, ColorValue } from './color/color'
+
+export { CSS_COLORS, CSS_COLOR_NAMES, randomCSSColorName } from './color/css'
+export type { CSSColorName, HexColor } from './color/css'
 
 // Actions
 
@@ -105,3 +111,13 @@ export type { HighlightEventDetail, HighlightEvent, HighlightAttr } from './acti
 export { resizable } from './actions/resizable'
 export type { ResizableEvents } from './actions/resizable'
 export type { ResizableOptions, Side } from './utils/resizable'
+
+export { draggable, Draggable, DRAGGABLE_DEFAULTS } from './utils/draggable'
+export type {
+	DraggableOptions,
+	DragBounds,
+	DragEventData,
+	DragEvents,
+	DraggablePlacementOptions,
+	VirtualRect,
+} from './utils/draggable'
