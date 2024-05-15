@@ -10,18 +10,12 @@ export class CopySVG {
 		s.setAttribute('width', '100%')
 		s.setAttribute('height', '100%')
 		s.setAttribute('viewBox', '0 0 24 24')
-		// s.setAttribute('fill', 'currentColor')
-		// s.setAttribute('stroke', 'none')
+
 		s.setAttribute('fill', 'none')
 		s.setAttribute('stroke', 'currentColor')
 		s.setAttribute('stroke-width', '2')
 		s.setAttribute('stroke-linecap', 'round')
 		s.setAttribute('stroke-linejoin', 'round')
-
-		// const back = document.createElementNS('http://www.w3.org/2000/svg', 'path')
-		// back.classList.add('back')
-		// back.setAttribute('d', 'M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1')
-		// s.appendChild(back)
 
 		const front = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
 		front.classList.add('front')

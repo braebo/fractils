@@ -27,14 +27,22 @@ export class RenameSVG {
             width: 1.5rem;
             height: 1.5rem;
 
-            color: var(--fracgui-controller-dim_color);
             margin-right: 0.5rem;
             padding: 0.125rem;
+
+            color: var(--fracgui-controller-dim_color);
+            opacity: 0.5;
+
+            transition: opacity 0.15s;
 
             z-index: 1;
             cursor: pointer;
 
             pointer-events: all;
+        }
+
+        .fracgui-icon-rename:hover {
+            opacity: 1;
         }
 
         .fracgui-icon-rename.disabled {
@@ -46,7 +54,7 @@ export class RenameSVG {
         .fracgui-icon-rename svg {
             width: 100%;
             height: 100%;
-            
+
             pointer-events: none;
         }
 
@@ -56,7 +64,7 @@ export class RenameSVG {
         }
         .fracgui-icon-rename .cursor {
             transform: translate(2px, 0) scale(1, 0.9);
-            
+
             transition: 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             transition-delay: 0s;
             transition-property: opacity, transform;
@@ -83,10 +91,10 @@ export class RenameSVG {
 
         .fracgui-icon-rename .box {
             color: var(--fracgui-folder-dim_color);
-            
+
             opacity: 0;
             transform: scale(0);
-            
+
             transition: 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             transition-property: opacity, transform;
             transform-origin: center;

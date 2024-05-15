@@ -39,11 +39,18 @@ export class SaveSVG {
             width: 1.5rem;
             height: 1.5rem;
 
-            color: var(--fracgui-controller-dim_color);;
+            color: var(--fracgui-controller-dim_color);
             margin-right: 0.25rem;
+            opacity: 0.5;
+
+            transition: opacity 0.15s;
 
             z-index: 1;
             cursor: pointer;
+        }
+
+        .fracgui-icon-save:hover {
+            opacity: 1;
         }
 
         .fracgui-icon-save .back-group {
