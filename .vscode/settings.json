@@ -63,8 +63,8 @@
 		"shellscript",
 		"glsl",
 	],
-	"workbench.preferredDarkColorTheme": "Moxer Borderline",
-	"workbench.preferredLightColorTheme": "Best Themes - Ethereal Quest",
+	"workbench.preferredDarkColorTheme": "Best Themes - Ethereal Quest",
+	"workbench.preferredLightColorTheme": "Catppuccin Latte",
 	"workbench.iconTheme": "material-icon-theme",
 	"window.autoDetectColorScheme": true,
 	"workbench.colorCustomizations": {
