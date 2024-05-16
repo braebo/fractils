@@ -153,6 +153,8 @@ export function state<T>(defaultValue: T, options?: StateOptions<T>): State<T> {
 		}
 	})
 
+	// if (options?.set) store.set = options.set
+
 	return {
 		...store,
 		isState: true as const,
