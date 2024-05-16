@@ -45,12 +45,6 @@ export class RenameSVG {
             opacity: 1;
         }
 
-        .fracgui-icon-rename.disabled {
-            /* pointer-events: none; */
-            opacity: 0.5;
-            cursor: default;
-        }
-
         .fracgui-icon-rename svg {
             width: 100%;
             height: 100%;
@@ -78,9 +72,6 @@ export class RenameSVG {
             color: var(--fracgui-theme-a);
             animation: blink 1.5s infinite;
             animation-delay: 0.5s;
-        }
-        .fracgui-icon-rename.disabled .cursor {
-            transform: translate(2px, 0) scale(1, 0.9);
         }
 
         @keyframes blink {
@@ -110,9 +101,11 @@ export class RenameSVG {
         .fracgui-icon-rename:hover .box {
             transform: scale(1);
         }
-        .fracgui-icon-rename.disabled .box {
+        
+        .fracgui-icon-rename.disabled {
             opacity: 0;
-            transform: scale(0);
+            pointer-events: none;
+            cursor: default;
         }
     `
 }
