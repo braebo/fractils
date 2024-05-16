@@ -2273,18 +2273,18 @@ input.fracgui-search-input {
 				}
 			}
 
-			&:has([disabled]) {
-				pointer-events: none;
-				opacity: 0.75;
-				filter: brightness(0.75);
-				.fracgui-controller-select-selected {
-					background: var(--fracgui-controller-dim_background);
-					color: var(--fracgui-fg-e);
-					&::before {
-						color: var(--fracgui-controller-dim_color);
-					}
-				}
-			}
+			// &:has([disabled]) {
+			// 	pointer-events: none;
+			// 	opacity: 0.75;
+			// 	filter: brightness(0.75);
+			// 	.fracgui-controller-select-selected {
+			// 		background: var(--fracgui-controller-dim_background);
+			// 		color: var(--fracgui-fg-e);
+			// 		&::before {
+			// 			color: var(--fracgui-controller-dim_color);
+			// 		}
+			// 	}
+			// }
 		}
 	}
 }
