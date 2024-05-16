@@ -153,7 +153,7 @@ export class PresetManager {
 
 		defaultPreset ??= this.presets.value.find(p => p.id === this._defaultPresetId)
 		if (!defaultPreset) {
-			defaultPreset = this.gui.save(this._defaultPresetTitle, this._defaultPresetId)
+			defaultPreset = this.gui.toJSON(this._defaultPresetTitle, this._defaultPresetId)
 			this.presets.push(defaultPreset)
 		}
 
@@ -225,11 +225,17 @@ export class PresetManager {
 			value: [
 				[
 					{
-						label: 'update',
+						text: 'update',
 						tooltip: { text: 'Overwrite active preset' },
+						onClick: () => {
+							const { id, title } = this.activePreset.value
+							const current = this.gui.toJSON(title, id)
+							this.add(current)
+						},
+						disabled: this.defaultPresetIsActive,
 					},
 					{
-						label: 'delete',
+						text: 'delete',
 						tooltip: { text: 'Delete active preset' },
 						onClick: () => {
 							let index = undefined as number | undefined
@@ -244,7 +250,7 @@ export class PresetManager {
 						},
 					},
 					{
-						label: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>',
+						text: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>',
 						tooltip: { text: 'Download preset', delay: 250 },
 						style: { maxWidth: '1.5rem', padding: '0.3rem' },
 						onClick: () => {
@@ -254,6 +260,7 @@ export class PresetManager {
 				],
 			],
 			order: 1,
+			resettable: false
 		})
 
 		//? Presets Select Input
@@ -274,7 +281,7 @@ export class PresetManager {
 		})
 		this._presetsInput.on('open', () => {
 			this._log.fn('_presetsInput.on(open)').info()
-			this._presetSnapshot = this.gui.save('__snapshot__')
+			this._presetSnapshot = this.gui.toJSON('__snapshot__')
 		})
 		this._presetsInput.on('cancel', () => {
 			this._log.fn('_presetsInput.on(cancel)').info()
@@ -314,8 +321,6 @@ export class PresetManager {
 		// Refresh the disabled state.
 		this._refreshRename()
 
-		//#endregion
-
 		return presetsFolder
 	}
 
@@ -349,11 +354,12 @@ export class PresetManager {
 	}
 
 	/**
-	 * Add a new preset, or create a new one from the current state and add it.
+	 * Updates a preset if it exists, adds a new preset if not, or creates a new one from the
+	 * current state and adds it if none is provided.
 	 */
 	add(
 		/**
-		 * The preset to add.  If not provided, a new preset is created from the current state.
+		 * The preset to update or add.  If not provided, a new preset is created from the current state.
 		 */
 		preset?: GuiPreset,
 	) {
@@ -367,11 +373,7 @@ export class PresetManager {
 			throw new Error('No select input.')
 		}
 
-		// if (!this._titleInput) {
-		// 	throw new Error('No title input.')
-		// }
-
-		preset ??= this.gui.save(this._resolveUnusedTitle('preset'), nanoid())
+		preset ??= this.gui.toJSON(this._resolveUnusedTitle('preset'), nanoid())
 
 		const existing = this.presets.value.find(p => p.id === preset.id)
 		if (!existing) {
@@ -389,18 +391,6 @@ export class PresetManager {
 
 		this.set(preset)
 		this._refresh()
-
-		// this._titleInput.bubble = false
-		// this._titleInput.set(preset.title)
-		// console.error('bubble:', this._titleInput.bubble)
-
-		// this.selectInput.options = this.presets.value
-		// this.selectInput.refresh()
-		// this.selectInput.set({ label: preset.title!, value: preset })
-
-		// this.activePresetId = state(preset.id)
-
-		// this.titleInput.set(preset.title)
 	}
 
 	isInitialized(): this is { presets: State<GuiPreset[]>; folder: Folder } {
