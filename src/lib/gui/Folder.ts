@@ -204,9 +204,8 @@ export class Folder {
 		}
 	}
 
-	private _evm = new EventManager<FolderEvents>(['change', 'refresh', 'toggle'])
-	on = this._evm.on.bind(this._evm)
-	listen = this._evm.listen.bind(this._evm)
+	evm = new EventManager<FolderEvents>(['change', 'refresh', 'toggle'])
+	on = this.evm.on.bind(this.evm)
 
 	/**
 	 * Subscriptions to be disposed of when the folder is destroyed.
@@ -287,10 +286,10 @@ export class Folder {
 		this._hidden = opts.hidden ? toFn(opts.hidden) : toFn(false)
 
 		// Open/close the folder when the closed state changes.
-		this._evm.add(
+		this.evm.add(
 			this.closed.subscribe(v => {
 				v ? this.close() : this.open()
-				this._evm.emit('toggle', v)
+				this.evm.emit('toggle', v)
 				// this.root.closedMap?.setKey(this.presetId, v)
 			}),
 		)
@@ -482,7 +481,7 @@ export class Folder {
 
 		this.closed.set(state)
 
-		this._evm.emit('toggle', state)
+		this.evm.emit('toggle', state)
 	}
 
 	open(updateState = false) {

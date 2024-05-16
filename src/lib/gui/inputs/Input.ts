@@ -214,7 +214,7 @@ export abstract class Input<
 
 	private _title = ''
 	private _index: number
-	private __log: Logger
+	private _log: Logger
 
 	constructor(
 		options: TOptions & { __type: T__TYPE },
@@ -226,11 +226,11 @@ export abstract class Input<
 			this.opts.presetId ??
 			`${folder.resolvePresetId()}_${this.opts.title}__${this.opts.__type}`
 
-		this.__log = new Logger(
+		this._log = new Logger(
 			`Input${this.opts.__type!.replaceAll(/Options|Input/g, '')} ${this.opts.title}`,
 			{ fg: 'skyblue' },
 		)
-		this.__log.fn('super constructor').info({ options, this: this })
+		this._log.fn('super constructor').info({ options, this: this })
 
 		this._title = this.opts.title ?? ''
 		this._disabled = toFn(this.opts.disabled ?? false)
@@ -268,7 +268,7 @@ export abstract class Input<
 				delay: 1000,
 			},
 			onclick: () => {
-				this.__log.fn('reset').info('resetting to initial value', this.initialValue)
+				this._log.fn('reset').info('resetting to initial value', this.initialValue)
 				this.set(this.initialValue as TValueType)
 			},
 		})
@@ -390,8 +390,7 @@ export abstract class Input<
 
 		// @ts-expect-error
 		this.evm.emit(event, v)
-		// @ts-expect-error
-		if (event === 'change') this.folder.evm.emit('change', this)
+		if (event === 'change') this.folder.evm.emit('change', this as any as ValidInput)
 
 		return this
 	}
@@ -403,13 +402,13 @@ export abstract class Input<
 	protected lock = (from = this.state.value) => {
 		this.undoLock = true
 		this.lockCommit.from = from
-		this.__log.fn('lock').info('lockCommit:', this.lockCommit)
+		this._log.fn('lock').info('lockCommit:', this.lockCommit)
 	}
 	/**
 	 * Unlocks commits and saves the current commit stored in lock.
 	 */
 	protected unlock = (commit?: Partial<Commit>) => {
-		this.__log.fn('unlock').debug('commit', { commit, lockCommit: this.lockCommit })
+		this._log.fn('unlock').debug('commit', { commit, lockCommit: this.lockCommit })
 		commit ??= {}
 		commit.input ??= this as unknown as Input<TValueType>
 		commit.to ??= this.state.value as TValueType
@@ -424,10 +423,10 @@ export abstract class Input<
 	commit(commit: Partial<Commit>) {
 		commit.from ??= this.state.value
 		if (this.undoLock) {
-			this.__log.fn('commit').debug('prevented commit while locked')
+			this._log.fn('commit').debug('prevented commit while locked')
 			return
 		}
-		this.__log.fn('commit').debug('commited', commit)
+		this._log.fn('commit').debug('commited', commit)
 		this.undoManager?.commit<TValueType>({
 			input: this,
 			...commit,
@@ -474,7 +473,7 @@ export abstract class Input<
 			resettable: this.opts.resettable ?? true,
 		}
 
-		this.__log.fn('save').debug(preset)
+		this._log.fn('save').debug(preset)
 
 		return Object.assign(preset, overrides)
 	}
@@ -489,7 +488,7 @@ export abstract class Input<
 	}
 
 	dispose() {
-		this.__log.fn('dispose').debug(this)
+		this._log.fn('dispose').debug(this)
 		this.evm.dispose()
 
 		const rm = (elOrObj: any) => {

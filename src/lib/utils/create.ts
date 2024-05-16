@@ -1,5 +1,5 @@
+import type { JavascriptStyleProperty } from '../css/types'
 import type { TooltipOptions } from '../actions/tooltip'
-import type { JavascriptStyleProperty } from '$lib/css/types'
 
 import { Tooltip } from '../actions/tooltip'
 import { entries } from './object'
