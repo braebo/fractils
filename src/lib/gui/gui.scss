@@ -588,6 +588,11 @@ $option-padding: 0.1rem 0.75rem;
 		border-bottom-left-radius: var(--fracgui-radius-sm);
 		border-bottom-right-radius: var(--fracgui-radius-sm);
 	}
+
+	&.selected {
+		// background: var(--fracgui-bg-c);
+		color: var(--fracgui-fg-a);
+	}
 }
 //⌟
 //⌟
