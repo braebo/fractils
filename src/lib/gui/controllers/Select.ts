@@ -8,7 +8,6 @@ import { isState } from '../../utils/state'
 import { values } from '../../utils/object'
 import { create } from '../../utils/create'
 import { Logger } from '../../utils/logger'
-import { nanoid } from '../../utils/nanoid'
 
 export type LabeledOption<T> = { label: string; value: T }
 export type Option<T> = T | LabeledOption<T>
@@ -73,7 +72,7 @@ export class Select<T> {
 	readonly __type = 'Select' as const
 	element: HTMLDivElement
 
-	opts: SelectInputOptions<T> & {
+	private _opts: SelectInputOptions<T> & {
 		selected: LabeledOption<T>
 		options: LabeledOption<T>[]
 		selectOnHover: boolean
@@ -158,7 +157,7 @@ export class Select<T> {
 			options: options.options.map(o => toLabeledOption(o)),
 			selectOnHover: options.selectOnHover ?? true,
 		}
-		this.opts = opts
+		this._opts = opts
 
 		if (options?.title) {
 			this._log = new Logger(`Select ${options.title}`, { fg: 'burlywood' })
@@ -166,8 +165,8 @@ export class Select<T> {
 			this._log = new Logger('Select', { fg: 'blueviolet' })
 		}
 
-		this._selected = this._currentSelection = this.initialValue = this.opts.selected
-		this.options = this.initialOptions = this.opts.options
+		this._selected = this._currentSelection = this.initialValue = this._opts.selected
+		this.options = this.initialOptions = this._opts.options
 
 		const container = create('div', {
 			classes: ['fracgui-controller-select-container'],
@@ -202,9 +201,9 @@ export class Select<T> {
 			this.add(option)
 		}
 
-		this.disabled = this.opts.disabled
+		this.disabled = this._opts.disabled
 
-		this._log.fn('constructor').info({ opts: this.opts, this: this })
+		this._log.fn('constructor').info({ opts: this._opts, this: this })
 	}
 
 	/**
@@ -226,7 +225,6 @@ export class Select<T> {
 			return
 		}
 
-		// this.callOnChange(this._selected)
 		this._evm.emit('change', this.selected)
 	}
 
@@ -357,6 +355,10 @@ export class Select<T> {
 				throw new Error('No option found in map')
 			}
 
+			for (const [, { element }] of this.optionMap) {
+				element.classList.toggle('selected', element === option.element)
+			}
+
 			this.close()
 			this.selected = option.option
 		} else {
@@ -393,21 +395,20 @@ export class Select<T> {
 		this._log.fn('toggle').info({ this: this })
 		if (this.expanded) {
 			this._evm.emit('cancel')
-			// this.element.dispatchEvent(new Event('cancel'))
 			this.close()
 		} else {
 			this.open()
 		}
 	}
 
-	private _groupId = nanoid()
+	// private _groupId = nanoid()
 
 	/**
 	 * Shows the dropdown.
 	 */
 	open = () => {
 		this.expanded = true
-		this.opts.input.folder.gui!.wrapper.appendChild(this.elements.dropdown)
+		this._opts.input.folder.gui!.wrapper.appendChild(this.elements.dropdown)
 		this.elements.dropdown.classList.add('expanded')
 		this.elements.selected.classList.add('active')
 		this.updatePosition()
@@ -416,41 +417,27 @@ export class Select<T> {
 		this._scrollParent ??= getScrollParent(this.elements.selected)
 		this._scrollParent?.addEventListener('scroll', this.updatePosition)
 
-		this._evm.listen(window, 'keydown', this._closeOnEscape, {}, this._groupId)
-		this._evm.listen(window, 'click', this._clickOutside, {}, this._groupId)
+		this._evm.listen(window, 'keydown', this._closeOnEscape, {}, 'dropdown')
+		this._evm.listen(window, 'click', this._clickOutside, {}, 'dropdown')
 
-		// removeEventListener('keydown', this._closeOnEscape)
-		// addEventListener('keydown', this._closeOnEscape)
-		// this._evm.add(() => removeEventListener('keydown', this._closeOnEscape), this._groupId)
-
-		// removeEventListener('click', this._clickOutside)
-		// addEventListener('click', this._clickOutside)
-		// this._evm.add(() => removeEventListener('click', this._clickOutside), this._groupId)
-
-		if (this.opts.selectOnHover) {
+		if (this._opts.selectOnHover) {
 			this._currentSelection = this.selected
 
-			// todo - these listeners could be one listener on the dropdown that gets the option id from the target's dataset.
 			for (const [, { option, element }] of this.optionMap) {
+				element.classList.toggle('selected', option.label === this.selected.label)
+
+				// todo - these listeners could be one listener on the dropdown that gets the option id from the target's dataset.
 				const select = () => {
 					this._log
 						.fn('on(mouseenter)')
 						.info('currentSelection', { option, element, this: this })
 					this.select(option)
 				}
-				this._evm.listen(element, 'mouseenter', select, {}, this._groupId)
-
-				// element.removeEventListener('mouseenter', select)
-				// element.addEventListener('mouseenter', select)
-				// this._evm.add(
-				// 	() => element.removeEventListener('mouseenter', select),
-				// 	this._groupId,
-				// )
+				this._evm.listen(element, 'mouseenter', select, {}, 'dropdown')
 			}
 		}
 
 		this._evm.emit('open')
-		// this.element.dispatchEvent(new Event('open'))
 
 		setTimeout(() => {
 			this.elements.dropdown.style.pointerEvents = 'all'
@@ -467,7 +454,7 @@ export class Select<T> {
 		this.elements.dropdown.style.setProperty('top', 'unset')
 
 		const { dropdown, selected } = this.elements
-		const guiScrollTop = this.opts.input.folder.root.elements.content.scrollTop
+		const guiScrollTop = this._opts.input.folder.root.elements.content.scrollTop
 		const { top, left } = selected.getBoundingClientRect()
 
 		this.elements.dropdown.style.setProperty(
@@ -493,42 +480,39 @@ export class Select<T> {
 		this.elements.selected.classList.remove('active')
 		this.elements.dropdown.style.pointerEvents = 'none'
 
-		this._evm.clearGroup(this._groupId)
-		// for (const rm of this._openListeners) {
-		// 	rm()
-		// }
+		this._evm.clearGroup('dropdown')
 
 		this._evm.emit('close')
-		// this.element.dispatchEvent(new Event('close'))
 
 		setTimeout(() => {
 			this.elements.dropdown.remove()
 		}, 200)
 	}
 
+	/**
+	 * Closes the dropdown if the escape key was pressed.  If {@link selectOnHover}
+	 * is enabled, the current selection will be re-selected to restore the original
+	 * value.
+	 */
 	private _closeOnEscape = (e: KeyboardEvent) => {
 		if (e.key === 'Escape') {
-			this.close()
-			if (this.opts.selectOnHover) {
-				this.select(this._currentSelection)
-			}
+			this._cancel()
 		}
-
-		this._evm.emit('cancel')
-		// this.element.dispatchEvent(new Event('cancel'))
 	}
 
 	private _clickOutside = (e: MouseEvent) => {
 		const path = e.composedPath()
-		if (path.includes(this.elements.selected) || path.includes(this.elements.dropdown)) return
+		if (!path.includes(this.elements.selected) && !path.includes(this.elements.dropdown)) {
+			this._cancel()
+		}
+	}
 
+	private _cancel() {
 		this.close()
-		if (this.opts.selectOnHover) {
+		if (this._opts.selectOnHover) {
 			this.select(this._currentSelection)
 		}
-
 		this._evm.emit('cancel')
-		// this.element.dispatchEvent(new Event('cancel'))
 	}
 
 	enable() {
