@@ -1,13 +1,11 @@
+import type { InputButtonGrid } from './inputs/InputButtonGrid'
 import type { InputSelect } from './inputs/InputSelect'
 import type { Gui, GuiPreset } from './Gui'
 import type { State } from '../utils/state'
 import type { Folder } from './Folder'
 
-import { code } from '../../routes/demo/gui/demoGui'
-import { stringify } from '../utils/stringify'
 import { Tooltip } from '../actions/tooltip'
 import { RenameSVG } from './svg/RenameSVG'
-import { debrief } from '../utils/debrief'
 import { Logger } from '../utils/logger'
 import { nanoid } from '../utils/nanoid'
 import { SaveSVG } from './svg/SaveSVG'
@@ -15,7 +13,7 @@ import { state } from '../utils/state'
 import { r } from '../utils/l'
 
 export interface PresetManagerOptions {
-	disable?: boolean
+	disabled?: boolean
 	/**
 	 * Optionsal existing presets.
 	 * @default []
@@ -48,6 +46,7 @@ export class PresetManager {
 	private _presetSnapshot?: GuiPreset
 
 	private _presetsInput!: InputSelect<GuiPreset>
+	private _manageInput!: InputButtonGrid
 	private _renamePresetButton!: RenameSVG
 
 	private _initialized = false
@@ -84,7 +83,7 @@ export class PresetManager {
 	opts: PresetManagerOptions
 
 	async init() {
-		if (this.opts.disable) {
+		if (this.opts.disabled) {
 			this._log.debug('Aborting initialization: disabled by options.')
 			return
 		}
@@ -189,22 +188,6 @@ export class PresetManager {
 			throw new Error('No active preset id.')
 		}
 
-		//! remove me
-		this.activePreset.subscribe(v => {
-			code.set(
-				stringify(
-					{
-						presets: this.presets.value.length,
-						activePreset: {
-							...v,
-							data: debrief(v.data, { siblings: 7, depth: 4 }),
-						},
-					},
-					2,
-				).replaceAll('"', ''),
-			)
-		})
-
 		/**
 		 * Download the active preset as a JSON file.
 		 */
@@ -221,19 +204,22 @@ export class PresetManager {
 			URL.revokeObjectURL(url)
 		}
 
-		presetsFolder.addButtonGrid({
+		console.log()
+
+		this._manageInput = presetsFolder.addButtonGrid({
 			title: 'manage',
 			value: [
 				[
 					{
 						text: 'update',
+						id: 'update',
 						tooltip: { text: 'Overwrite active preset' },
 						onClick: () => {
 							const { id, title } = this.activePreset.value
 							const current = this.gui.toJSON(title, id)
 							this.add(current)
 						},
-						disabled: this.defaultPresetIsActive,
+						disabled: () => !this.gui.dirty || this.defaultPresetIsActive,
 					},
 					{
 						text: 'delete',
@@ -250,6 +236,7 @@ export class PresetManager {
 							)
 							this._refresh()
 						},
+						disabled: () => this.defaultPresetIsActive,
 					},
 					{
 						text: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>',
@@ -258,11 +245,13 @@ export class PresetManager {
 						onClick: () => {
 							downloadActivePreset()
 						},
+						disabled: () => this.defaultPresetIsActive,
 					},
 				],
 			],
 			order: 1,
 			resettable: false,
+			disabled: () => this.defaultPresetIsActive && this.presets.value.length === 1,
 		})
 
 		//? Presets Select Input
@@ -274,13 +263,14 @@ export class PresetManager {
 			order: -1,
 			value: this.activePreset.value,
 			resettable: false,
+			disabled: () => this.defaultPresetIsActive && this.presets.value.length === 1,
 		})
 
 		this._presetsInput.on('change', ({ value }) => {
 			this._log.fn('_presetsInput.on(change)').info({ value, this: this })
 			this.gui.load(value)
 			this.activePreset.set(value)
-			this._refreshRename()
+			this._refreshInputs()
 		})
 
 		this._presetsInput.on('open', () => {
@@ -292,7 +282,7 @@ export class PresetManager {
 			this._log.fn('_presetsInput.on(cancel)').info()
 			if (this._presetSnapshot) {
 				this.gui.load(this._presetSnapshot)
-				this._refreshRename()
+				this._refreshInputs()
 			}
 		})
 
@@ -310,7 +300,7 @@ export class PresetManager {
 			placement: 'left',
 			text: () => {
 				if (this._renamePresetButton.element.classList.contains('active')) {
-					return `Disable renaming`
+					return `Cancel`
 				} else {
 					return this.defaultPresetIsActive
 						? `Can't rename default preset`
@@ -324,7 +314,7 @@ export class PresetManager {
 		this._presetsInput.elements.content.prepend(newPresetButton.element)
 
 		// Refresh the disabled state.
-		this._refreshRename()
+		this._refreshInputs()
 
 		return presetsFolder
 	}
@@ -384,7 +374,6 @@ export class PresetManager {
 		if (!existing) {
 			this._log.info('pushing preset:', { preset, existing })
 			this.presets.push(preset)
-			// console
 		} else {
 			this._log.info('preset exists. replacing with:', { preset, existing })
 			this.presets.update(presets => {
@@ -454,9 +443,7 @@ export class PresetManager {
 
 		// Handle rename / cancel.
 		this.folder.evm.listen(el, 'blur', this._handleRename, {}, 'preset-manager-rename')
-		this.folder.evm.listen(window, 'keydown', this._cancelOnEscape, {}, 'preset-manager-rename')
-		// el.addEventListener('blur', this._disableRename)
-		// addEventListener('keydown', this._cancelOnEscape)
+		this.folder.evm.listen(window, 'keydown', this._handleKeydown, {}, 'preset-manager-rename')
 	}
 
 	private _handleRename = (e?: Event) => {
@@ -467,8 +454,6 @@ export class PresetManager {
 		this._renamePresetButton.element.classList.remove('active')
 
 		this.folder.evm.clearGroup('preset-manager-rename')
-		// el.removeEventListener('blur', this._disableRename)
-		// removeEventListener('keydown', this._cancelOnEscape)
 
 		if (e?.type === 'blur') {
 			// If this is a click event targetting the rename button, trigger the latch.
@@ -486,19 +471,27 @@ export class PresetManager {
 		}
 	}
 
-	private _cancelOnEscape = (e: KeyboardEvent) => {
-		this._log.fn('_cancelOnEscape').info({ key: e.key, e, this: this })
+	private _handleKeydown = (e: KeyboardEvent) => {
+		this._log.fn('_handleKeydown').info({ key: e.key, e, this: this })
+
+		if (e.key === 'Enter') {
+			e.preventDefault()
+			this._handleRename()
+		}
+
 		if (e.key === 'Escape') {
 			this._handleRename()
 		}
 	}
 
-	private _refreshRename() {
-		const disable = this.defaultPresetIsActive
-		this._renamePresetButton.element.classList.toggle('disabled', disable)
-		disable ? this._presetsInput.select.disable() : this._presetsInput.select.enable()
+	private _refreshInputs() {
+		const disableRename = this.defaultPresetIsActive
+		this._renamePresetButton.element.classList.toggle('disabled', disableRename)
+		this._renamePresetButton.element.toggleAttribute('disabled', disableRename)
 
-		this._log.fn('_refreshRename').info({ disable, this: this })
+		this._manageInput.refresh()
+
+		this._log.fn('_refreshInputs').info({ disableRename, this: this })
 	}
 
 	/**
@@ -511,13 +504,12 @@ export class PresetManager {
 		const activePreset = this.activePreset.value
 		this._presetsInput.set({ label: activePreset.title, value: activePreset })
 
-		this._refreshRename()
+		this._refreshInputs()
 	}
 
 	dispose() {
 		this._initialized = false
 		this._presetsInput.dispose()
-		// this._titleInput.dispose()
 		this._renamePresetButton.element.tooltip.dispose()
 		this._renamePresetButton.element.remove
 	}
