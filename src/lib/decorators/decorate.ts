@@ -6,12 +6,12 @@
 // Convoluted type-nastics workaround for typescript's broken decorator implementation.
 //
 
-export type Constructor<T = any> = new (...args: any[]) => T
+type Constructor<T = any> = new (...args: any[]) => T
 
-export type ClassDecorator<T = any> = (constructor: Constructor<T>) => Constructor<T>
+type ClassDecorator<T = any> = (constructor: Constructor<T>) => Constructor<T>
 
 // Helper type to convert a tuple of decorators into an intersection of their types
-export type IntersectionOfDecoratorTypes<D extends ClassDecorator[]> = D extends [
+type IntersectionOfDecoratorTypes<D extends ClassDecorator[]> = D extends [
 	(constructor: Constructor) => infer R,
 	...infer Rest,
 ]
@@ -19,7 +19,7 @@ export type IntersectionOfDecoratorTypes<D extends ClassDecorator[]> = D extends
 			IntersectionOfDecoratorTypes<Rest extends ClassDecorator[] ? Rest : []>
 	: {}
 
-export function decorate<T extends Constructor, D extends ClassDecorator[]>(
+function decorate<T extends Constructor, D extends ClassDecorator[]>(
 	BaseClass: T,
 	...decorators: D
 ) {
@@ -34,7 +34,7 @@ export function decorate<T extends Constructor, D extends ClassDecorator[]>(
 	}
 }
 
-export class FooFactory {
+class FooFactory {
 	constructor(public count: number) {}
 	enable() {}
 	disable() {}
@@ -78,9 +78,8 @@ log('Hello, world!') // BadFooFactory: Hello, world!
 //
 
 // This line makes it all work.
-export interface FooMerging extends Disableable, Loggable {}
+interface FooMerging extends Disableable, Loggable {}
 
-export
 @disableable
 @loggable
 class FooMerging {
@@ -106,9 +105,10 @@ log2('Hello, world!') // FooMerging: Hello, world!
 // @ts-expect-error ✅
 @disableable
 @loggable
-export class MissingMethods {
+class MissingMethods {
 	constructor(public count: number) {}
 }
+MissingMethods
 
 //
 //
@@ -119,7 +119,7 @@ export class MissingMethods {
 /**
  * Coerces a value to a function.
  */
-export function toFn<T>(v: T | (() => T)): () => T {
+function toFn<T>(v: T | (() => T)): () => T {
 	if (typeof v === 'function') {
 		return v as () => T
 	}
@@ -127,7 +127,7 @@ export function toFn<T>(v: T | (() => T)): () => T {
 	return () => v as unknown as T
 }
 
-export interface Disableable {
+interface Disableable {
 	/**
 	 * Whether the controller is disabled.  A function can be used to
 	 * dynamically determine the disabled state.
@@ -147,7 +147,7 @@ export interface Disableable {
  * - `set disabled(boolean | (() => boolean))` - Set the disabled state to either a static boolean or a
  *  function that returns a boolean.
  */
-export function disableable<
+function disableable<
 	T extends {
 		new (...args: any[]): {
 			enable(): void
@@ -172,14 +172,14 @@ export function disableable<
 	}
 }
 
-export interface Loggable {
+interface Loggable {
 	log(message: string): void
 }
 
 /**
  * Test logger decorator.
  */
-export function loggable<T extends new (...args: any[]) => {}>(constructor: T) {
+function loggable<T extends new (...args: any[]) => {}>(constructor: T) {
 	return class extends constructor {
 		log(message: string) {
 			console.log(`${(constructor as any).name}: ${message}`)
