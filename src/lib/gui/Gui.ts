@@ -266,7 +266,6 @@ export class Gui {
 	windowManager?: WindowManager
 	undoManager = new UndoManager()
 	private _theme: GuiOptions['theme']
-	private _subs = new Set<() => void>()
 	private _log: Logger
 
 	// Forwarding the Folder API...
@@ -626,7 +625,7 @@ export class Gui {
 				finalThemer = themer
 			}
 
-			this._subs.add(
+			this.folder.evm.add(
 				finalThemer.mode.subscribe(() => {
 					if (this.settingsFolder) {
 						this.applyAltStyle(this.settingsFolder)
@@ -753,9 +752,5 @@ export class Gui {
 		this.settingsFolder.dispose()
 		this.folder.dispose()
 		this.container.remove()
-
-		for (const unsub of this._subs) {
-			unsub()
-		}
 	}
 }

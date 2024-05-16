@@ -206,11 +206,6 @@ export class Folder {
 
 	evm = new EventManager<FolderEvents>(['change', 'refresh', 'toggle'])
 	on = this.evm.on.bind(this.evm)
-
-	/**
-	 * Subscriptions to be disposed of when the folder is destroyed.
-	 */
-	private _subs: Array<() => void> = []
 	private _log: Logger
 	/**
 	 * Used to disable clicking the header to open/close the folder.
@@ -869,8 +864,6 @@ export class Folder {
 	}
 
 	dispose() {
-		this._subs.forEach(unsub => unsub())
-
 		this.elements.header.removeEventListener('click', this.toggle)
 		this.elements.header.addEventListener('pointerdown', this.#handleClick)
 

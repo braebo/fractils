@@ -616,12 +616,6 @@ export class ThemeEditor {
 	gui: Gui
 	private _log: Logger
 
-	/**
-	 * Unsubscribes the theme editor from the theme.  Called on dispose.
-	 * @internal
-	 */
-	private _unsubscribe?: () => void
-
 	get folder() {
 		return this.gui.folder
 	}
@@ -671,11 +665,17 @@ export class ThemeEditor {
 		// console.log(targetGui.container)
 		// console.log(this.gui.container)
 
-		targetGui.themer?.addTarget(this.gui.wrapper)
+		if (!this.targetGui.themer) {
+			throw new Error('Themer not found.')
+		}
 
-		this._unsubscribe = this.targetGui.themer?.theme.subscribe(t => {
-			this.gui.folder.title = `${opts?.title} · ${t.title}`
-		})
+		this.targetGui.themer.addTarget(this.gui.wrapper)
+
+		this.folder.evm.add(
+			this.targetGui.themer.theme.subscribe(t => {
+				this.gui.folder.title = `${opts?.title} · ${t.title}`
+			}),
+		)
 
 		this.targetGui.themer!.applyTheme()
 
@@ -692,7 +692,6 @@ export class ThemeEditor {
 	}
 
 	dispose() {
-		this._unsubscribe?.()
 		this.gui.dispose()
 	}
 
