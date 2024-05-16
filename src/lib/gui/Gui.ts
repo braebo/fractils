@@ -665,11 +665,12 @@ export class Gui {
 
 				folder.addButtonGrid({
 					title: 'mode',
+					activeOnClick: true,
 					value: [
 						['light', 'dark', 'system'].map(m => ({
 							text: m,
-							onClick: () => this.themer?.mode.set(m as ThemeMode),
-							active: () => this.themer?.mode.value === m,
+							onClick: () => finalThemer?.mode.set(m as ThemeMode),
+							active: () => finalThemer?.mode.value === m,
 						})),
 					],
 				})
