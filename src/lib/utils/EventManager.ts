@@ -185,8 +185,3 @@ export class EventManager<EventMap extends Record<string, any>> {
 		this.clearHandlers()
 	}
 }
-
-// const test = new EventManager(['change', 'click', 'foo'])
-// test.on('click', () => {})
-// test.emit('click')
-// test.registerEvents(['change'])
