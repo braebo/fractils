@@ -20,8 +20,8 @@ export type ButtonControllerOptions = {
 	readonly __type?: 'ButtonControllerOptions'
 
 	/**
-	 * The text to display on the button.  A function can be passed for dynamic text, as it will be
-	 * called whenever the button is refreshed.
+	 * The text or HTML to display on the button.  If a function is passed, it will be called
+	 * on {@link ButtonController.refresh|`refresh`}.
 	 * @defaultValue `'click me'`
 	 */
 	text: string | (() => string)
@@ -154,8 +154,8 @@ export class ButtonController {
 				})
 
 		this.text = opts.text
-		this.disabled = !!opts.disabled
 		this.active = opts.active
+		if (typeof opts.disabled !== 'undefined') this.disabled = opts.disabled
 
 		this._evm.listen(this.element, 'click', this.click)
 
@@ -194,25 +194,20 @@ export class ButtonController {
 	}
 
 	enable = () => {
-		if (this.disabled) {
-			this.disabled = false
-			return
-		}
-		this.element.disabled = false
+		this.element.classList.remove('disabled')
+		this.element.removeAttribute('disabled')
 		return this
 	}
 
 	disable = () => {
-		if (!this.disabled) {
-			this.disabled = true
-			return
-		}
-		this.element.disabled = true
+		this.element.classList.add('disabled')
+		this.element.setAttribute('disabled', 'true')
 		return this
 	}
 
 	refresh = () => {
-		this.element.disabled = this.disabled
+		this.element.toggleAttribute('disabled', this.disabled)
+		this.element.classList.toggle('disabled', this.disabled)
 		this.element.innerHTML = this.text
 		this.element.classList.toggle('active', this.active)
 		this._evm.emit('refresh')
