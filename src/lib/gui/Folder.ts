@@ -395,12 +395,9 @@ export class Folder {
 		const opts = Object.assign(defaults, options, overrides)
 
 		const folder = new Folder(opts)
+		folder.on('change', v => this.evm.emit('change', v))
 
-		//! how the f*** is each child getting the parent in their `children` array?!!?
 		this.children.push(folder)
-		if (folder === this) {
-			throw new Error('wtf')
-		}
 		this._createSvgs()
 
 		if (defaults.headerless) {
