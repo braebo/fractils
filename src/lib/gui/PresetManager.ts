@@ -11,8 +11,10 @@ import { nanoid } from '../utils/nanoid'
 import { SaveSVG } from './svg/SaveSVG'
 import { state } from '../utils/state'
 import { r } from '../utils/l'
+import { isType } from '$lib/utils/isType'
 
 export interface PresetManagerOptions {
+	__type?: 'PresetManagerOptions'
 	disabled?: boolean
 	/**
 	 * Optionsal existing presets.
@@ -35,6 +37,9 @@ export interface PresetManagerOptions {
 }
 
 export class PresetManager {
+	readonly __type = Object.freeze('PresetManager')
+	readonly __version = Object.freeze('1.0.0')
+
 	defaultPreset!: GuiPreset
 	activePreset: State<GuiPreset>
 	presets!: State<GuiPreset[]>
@@ -205,7 +210,39 @@ export class PresetManager {
 			URL.revokeObjectURL(url)
 		}
 
-		console.log()
+		const upload = () => {
+			const input = document.createElement('input')
+			input.type = 'file'
+			input.accept = '.json'
+			input.onchange = async e => {
+				const file = (e.target as HTMLInputElement).files?.[0]
+				if (!file) return
+
+				const reader = new FileReader()
+				reader.onload = async e => {
+					const text = e.target?.result as string
+					const data = JSON.parse(text)
+					if (Array.isArray(data)) {
+						for (const preset of data) {
+							if (isType<GuiPreset, 'GuiPreset'>(preset, 'GuiPreset')) {
+								this.add(preset)
+							} else {
+								console.warn('Invalid preset:', preset)
+							}
+						}
+					} else {
+						if (isType<GuiPreset>(data, 'GuiPreset')) {
+							this.add(data)
+						} else {
+							console.warn('Invalid preset:', data)
+						}
+					}
+					this._refresh()
+				}
+				reader.readAsText(file)
+			}
+			input.click()
+		}
 
 		this._manageInput = presetsFolder.addButtonGrid({
 			title: 'manage',
@@ -214,7 +251,11 @@ export class PresetManager {
 					{
 						text: 'update',
 						id: 'update',
-						tooltip: { text: 'Overwrite active preset', placement: 'top' },
+						tooltip: {
+							text: 'Overwrite active preset',
+							placement: 'top',
+							hideOnClick: true,
+						},
 						onClick: () => {
 							const { id, title } = this.activePreset.value
 							const current = this.gui.toJSON(title, id)
@@ -224,7 +265,11 @@ export class PresetManager {
 					},
 					{
 						text: 'delete',
-						tooltip: { text: 'Delete active preset', placement: 'top' },
+						tooltip: {
+							text: 'Delete active preset',
+							placement: 'top',
+							hideOnClick: true,
+						},
 						onClick: () => {
 							let index = undefined as number | undefined
 							this.presets.update(presets => {
@@ -242,7 +287,12 @@ export class PresetManager {
 					{
 						text: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fracgui-icon fracgui-icon-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>',
 						id: 'download',
-						tooltip: { text: 'Download', delay: 250, placement: 'left' },
+						tooltip: {
+							text: 'Download',
+							delay: 250,
+							placement: 'left',
+							hideOnClick: true,
+						},
 						style: { maxWidth: '1.5rem', padding: '0.3rem' },
 						onClick: () => {
 							download(this.activePreset.value)
@@ -252,12 +302,31 @@ export class PresetManager {
 					{
 						text: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="fracgui-icon fracgui-icon-download-all"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 14v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 11v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 17v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m7 8 5 5 5-5" /><path  stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 13V1" /></svg>`,
 						id: 'download-all',
-						tooltip: { text: 'Download All', delay: 250, placement: 'left' },
+						tooltip: {
+							text: 'Download All',
+							delay: 250,
+							placement: 'left',
+							hideOnClick: true,
+						},
 						style: { maxWidth: '1.5rem', padding: '0.3rem' },
 						onClick: () => {
 							download(this.presets.value)
 						},
 						disabled: () => this.presets.value.length <= 1,
+					},
+					{
+						text: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="fracgui-icon fracgui-icon-upload"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m17 8-5-5-5 5" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v12" /></svg>`,
+						id: 'upload',
+						tooltip: {
+							text: 'Upload',
+							delay: 250,
+							placement: 'left',
+							hideOnClick: true,
+						},
+						style: { maxWidth: '1.5rem', padding: '0.3rem' },
+						onClick: () => {
+							upload()
+						},
 					},
 				],
 			],
