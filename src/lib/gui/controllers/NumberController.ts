@@ -156,13 +156,20 @@ export class NumberController<
 	drag = (e: PointerEvent) => {
 		if (!this.dragging) return
 
-		const multiplier = e.shiftKey ? 0.1 : e.altKey ? 4 : 1
+		const multiplier = e.shiftKey ? 4 : e.altKey ? 0.1 : 1
 
 		const direction = Math.sign(e.movementY)
-		this.delta += Math.abs(e.movementY) * multiplier
+		this.delta += Math.abs(e.movementY)
 
 		if (this.delta > +this.element.step) {
-			direction === -1 ? this.element.stepUp() : this.element.stepDown()
+			const amount = +this.element.step * multiplier * -direction
+
+			this.element.value = String(this.element.valueAsNumber + amount)
+
+			direction === -1
+				? this.element.stepUp(+this.element.step * multiplier)
+				: this.element.stepDown(+this.element.step * multiplier)
+
 			this.delta = 0
 			this.element.dispatchEvent(new Event('input'))
 		}
