@@ -30,7 +30,7 @@ import { GUI_VARS } from './GUI_VARS'
 import { place } from '../dom/place'
 import { Folder } from './Folder'
 
-//· Types ···································································¬
+//· Types ························································································¬
 
 type GuiTheme = 'default' | 'minimal' | (string & {})
 
@@ -177,6 +177,8 @@ export interface GuiPreset {
 }
 //⌟
 
+//· Constants ····················································································¬
+
 export const GUI_STORAGE_DEFAULTS: GuiStorageOptions = {
 	__type: 'GuiStorageOptions',
 	key: 'fracgui',
@@ -237,6 +239,7 @@ export const GUI_DEFAULTS: GuiOptions = {
 	// _parentFolder: undefined,
 	// depth: 0,
 } as const
+//⌟
 
 /**
  * The root Gui instance.  This is the entry point for creating
