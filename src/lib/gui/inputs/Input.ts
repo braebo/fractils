@@ -87,7 +87,7 @@ export type InputOptions<
 	 * used to dynamically determine the disabled state.
 	 * @default false
 	 */
-	disabled?: boolean
+	disabled?: boolean | (() => boolean)
 	/**
 	 * Whether the input is hidden. A function can be
 	 * used to dynamically determine the hidden state.

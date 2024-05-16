@@ -4,6 +4,7 @@ import type { State } from '../../utils/state'
 import type { Folder } from '../Folder'
 
 import { isLabeledOption, Select, toLabeledOption, fromLabeledOption } from '../controllers/Select'
+import { disableable, type Disableable } from '../../decorators/disableable-class-decorator'
 import { fromState, isState, state } from '../../utils/state'
 import { stringify } from '../../utils/stringify'
 import { Logger } from '../../utils/logger'
@@ -16,11 +17,6 @@ export type SelectInputOptions<T = ValidInputValue> = Omit<
 	'onChange' | 'value'
 > & {
 	__type?: 'SelectInputOptions'
-	// /**
-	//  * If true, the select input label will be editable.
-	//  * @defaultValue false
-	//  */
-	// contentEditable?: boolean
 	onChange?: (value: LabeledOption<T>) => void
 } & (
 		| {
@@ -54,6 +50,9 @@ export interface SelectInputEvents<T> extends InputEvents<LabeledOption<T>> {
 	cancel: void
 }
 
+export interface InputSelect extends Disableable {}
+
+@disableable
 export class InputSelect<T = unknown> extends Input<
 	LabeledOption<T>,
 	SelectInputOptions<T>,
@@ -132,13 +131,14 @@ export class InputSelect<T = unknown> extends Input<
 			options: this.options,
 			selected: this.labeledSelection,
 			title: this.title,
-			disabled: this.disabled,
 		})
 
 		this.elements.controllers = {
 			container,
 			select: this.select.elements,
 		} as const satisfies SelectControllerElements<T>
+
+		this.disabled = opts.disabled ?? false
 
 		this.evm.add(
 			this.state.subscribe(v => {

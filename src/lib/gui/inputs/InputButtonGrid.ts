@@ -147,9 +147,9 @@ export class InputButtonGrid extends Input<
 			instanceGrid[i] = []
 
 			for (let j = 0; j < cols; j++) {
-				const btn = grid[i]?.[j]
-				if (btn) {
-					const button = this.addButton(btn, btn.id ?? nanoid(8), i, j)
+				const opts = grid[i]?.[j]
+				if (opts) {
+					const button = this.addButton(opts, opts.id ?? nanoid(8), i, j)
 					row.appendChild(button.element)
 					instanceGrid[i][j] = button
 				}
