@@ -66,6 +66,7 @@ export const BUTTONGRID_INPUT_DEFAULTS = {
 		gap: '0.5em',
 	},
 	activeOnClick: false,
+	resettable: false,
 } as const satisfies ButtonGridInputOptions
 
 export interface ButtonGridControllerElements extends ElementMap {
@@ -168,10 +169,13 @@ export class InputButtonGrid extends Input<
 		const text = toFn(opts.text)
 
 		const tooltip: Partial<TooltipOptions> | undefined = opts.tooltip
-			? Object.assign(opts.tooltip, {
-					placement: 'top',
-					delay: 1000,
-				})
+			? Object.assign(
+					{
+						placement: 'top',
+						delay: 1000,
+					},
+					opts.tooltip,
+				)
 			: undefined
 
 		opts.element = create('button', {
