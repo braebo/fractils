@@ -1,9 +1,12 @@
-import type { Params } from '$lib/components/orbs/params'
+import type { Params } from '../../../lib/components/orbs/params'
 
-import { Gui } from '../../../lib/gui/Gui'
-import { writable } from 'svelte/store'
+import { Gui, type GuiPreset } from '../../../lib/gui/Gui'
+import { stringify } from '../../../lib/utils/stringify'
+import { debrief } from '../../../lib/utils/debrief'
+import { state } from '../../../lib/utils/state'
 
-export const code = writable('')
+export const showCode = state(false)
+export const code = state('')
 
 export async function demoGui(params: Params) {
 	const gui = new Gui({
@@ -202,67 +205,35 @@ export async function demoGui(params: Params) {
 		step: 0.01,
 	})
 
-	// const presetDebugGui = new Gui({
-	// 	title: 'presets',
-	// 	position: 'bottom-center',
-	// 	positionOptions: {
-	// 		margin: { x: 16, y: 16 * 4.5 },
-	// 	},
-	// 	storage: {
-	// 		key: 'fracgui-preset-debug-gui',
-	// 	},
-	// })
+	function showActivePreset(v: GuiPreset) {
+		code.set(
+			stringify(
+				{
+					presets: gui.presetManager.presets.value.length,
+					activePreset: {
+						...v,
+						data: debrief(v.data, { siblings: 7, depth: 4 }),
+					},
+				},
+				2,
+			).replaceAll('"', ''),
+		)
+	}
 
-	// await gui.presetManager.init()
+	gui.folder.evm.add(
+		showCode.subscribe(v => {
+			if (v) showActivePreset(gui.presetManager.activePreset.value)
+		}),
+	)
+
+	gui.folder.evm.add(
+		gui.presetManager.activePreset.subscribe(v => {
+			if (showCode.value) showActivePreset(v)
+		}),
+	)
 
 	await Promise.resolve()
 	await Promise.resolve()
-
-	// if (!gui.presetManager.isInitialized()) {
-	// 	throw new Error('PresetManager not initialized.')
-	// }
-
-	// presetDebugGui.settingsFolder.close()
-
-	// const build = async () => {
-	// 	await Promise.resolve()
-	// 	for (const preset of gui.presetManager.presets?.value ?? []) {
-	// 		presetDebugGui.folder.addText({
-	// 			title: 'activePreset',
-	// 			value: gui.presetManager.activePresetId.value,
-	// 		})
-	// 		const pf = presetDebugGui.addFolder({
-	// 			title: preset.title,
-	// 		})
-	// 		pf.addText({
-	// 			title: 'presetTitle',
-	// 			value: preset.title,
-	// 		})
-	// 		pf.addText({
-	// 			title: 'presetId',
-	// 			value: preset.id,
-	// 		})
-	// 	}
-	// }
-
-	// presetDebugGui.windowManager?.update()
-
-	// const destroy = () => {
-	// 	for (const child of presetDebugGui.folder.children) {
-	// 		child.dispose()
-	// 	}
-	// }
-
-	// let i = 0
-	// gui.presetManager.presets.subscribe(v => {
-	// 	i++
-	// 	if (i < 2) return
-	// 	console.error(v)
-	// 	destroy()
-	// 	build()
-	// })
-
-	// build()
 
 	return gui
 }

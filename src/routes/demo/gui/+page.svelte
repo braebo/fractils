@@ -6,7 +6,7 @@
 	import { Gui } from '$lib/gui/Gui'
 	import { Code } from '$lib'
 
-	import { demoGui, code } from './demoGui'
+	import { demoGui, code, showCode } from './demoGui'
 
 	import { onDestroy, onMount } from 'svelte'
 	import { fly } from 'svelte/transition'
@@ -41,14 +41,23 @@
 <svelte:window on:resize={onResize} />
 
 <div class="page">
-	{#if $code}
-		<div class="debug" in:fly={{ y: 10 }}>
+	{#if $showCode}
+		<div class="debug" transition:fly={{ y: 10 }}>
 			{#key $code}
-				<Code --max-height="90vh" lang="ts" text={$code} on:close={() => ($code = '')} />
+				<Code
+					--max-height="90vh"
+					title="active preset"
+					lang="ts"
+					text={$code}
+					on:close={() => ($code = '')}
+				/>
 			{/key}
 		</div>
 	{/if}
 
+	<button class:active={$showCode} on:click={() => ($showCode = !$showCode)}>
+		Show Active Preset
+	</button>
 	<button on:click={() => console.log(gui)}>Log Gui</button>
 	<button on:click={() => localStorage.clear()}>Clear localStorage</button>
 
@@ -67,17 +76,17 @@
 		padding: 1rem;
 
 		background: color-mix(in lch, var(--bg-a), var(--bg-b));
-		outline: 1px solid red;
 
 		overflow: hidden;
 	}
 
 	.orbs {
 		position: relative;
+
 		width: 50vmin;
 		height: 100%;
-		// margin: 45% auto 0 auto;
 		margin: 20vh auto 0 auto;
+
 		z-index: 20;
 		pointer-events: none;
 	}
@@ -86,6 +95,25 @@
 		position: absolute;
 		top: 5rem;
 		left: 1rem;
+
 		z-index: 0;
+	}
+
+	button {
+		background: var(--bg-a);
+		color: var(--fg-c);
+		outline: 1px solid var(--bg-c);
+		border: none;
+		&:hover {
+			color: var(--fg-a);
+		}
+		&:active {
+			color: var(--theme-a);
+		}
+	}
+
+	button.active {
+		background: var(--bg-a);
+		color: var(--theme-a);
 	}
 </style>
