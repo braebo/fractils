@@ -517,11 +517,13 @@ export class Select<T> {
 
 	enable() {
 		this.elements.selected.classList.remove('disabled')
+		this.elements.selected.removeAttribute('disabled')
 		return this
 	}
 
 	disable() {
 		this.elements.selected.classList.add('disabled')
+		this.elements.selected.setAttribute('disabled', 'true')
 		return this
 	}
 
