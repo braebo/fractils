@@ -7,7 +7,10 @@ export type EventCallback<T = any> = (...args: T[]) => void
  * Represents an event manager that provides methods for adding and removing event listeners.
  */
 export class EventManager<EventMap extends Record<string, any>> {
-	private _listeners = new Map<string, EventCallback>()
+	private _unlisteners = new Map<string, EventCallback>()
+	/**
+	 * The event handlers for each registered custom event type, and their respective callbacks.
+	 */
 	private _handlers = new Map<
 		keyof EventMap,
 		Map<string, EventCallback<EventMap[keyof EventMap]>>
@@ -92,7 +95,7 @@ export class EventManager<EventMap extends Record<string, any>> {
 		const id = nanoid()
 		element.removeEventListener(event, callback as EventCallback, options)
 		element.addEventListener(event, callback as EventCallback, options)
-		this._listeners.set(id, () => {
+		this._unlisteners.set(id, () => {
 			element.removeEventListener(event, callback as EventCallback, options)
 		})
 
@@ -110,7 +113,7 @@ export class EventManager<EventMap extends Record<string, any>> {
 	 */
 	add = (cb: () => void, groupId?: string) => {
 		const id = nanoid()
-		this._listeners.set(id, cb)
+		this._unlisteners.set(id, cb)
 
 		if (groupId) this.group(groupId, id)
 
@@ -136,16 +139,16 @@ export class EventManager<EventMap extends Record<string, any>> {
 	 * @returns `true` if the listener was removed, `false` if it was not found.
 	 */
 	unlisten(id: string): boolean {
-		this._listeners.get(id)?.()
-		return this._listeners.delete(id)
+		this._unlisteners.get(id)?.()
+		return this._unlisteners.delete(id)
 	}
 
 	/**
-	 * Remove all registered listeners and clears the event manager.
+	 * Calls all cleanup callbacks and clears the event manager.
 	 */
 	clear() {
-		for (const cb of this._listeners.values()) cb()
-		this._listeners.clear()
+		for (const cb of this._unlisteners.values()) cb()
+		this._unlisteners.clear()
 		this._listenerGroups.clear()
 		this.clearHandlers()
 		return this
@@ -168,9 +171,9 @@ export class EventManager<EventMap extends Record<string, any>> {
 		const group = this._listenerGroups.get(groupId)
 		if (group) {
 			for (const id of group) {
-				const cb = this._listeners.get(id)
+				const cb = this._unlisteners.get(id)
 				if (cb) cb()
-				this._listeners.delete(id)
+				this._unlisteners.delete(id)
 			}
 			this._listenerGroups.delete(groupId)
 		}
