@@ -2,7 +2,6 @@ import type { InputButtonGrid } from '../inputs/InputButtonGrid'
 import type { JavascriptStyleProperty } from '../../css/types'
 import type { TooltipOptions } from '$lib/actions/tooltip'
 
-import { disableable, type Disableable } from '../../decorators/disableable-class-decorator'
 import { create, type CreateOptions } from '../../utils/create'
 import { EventManager } from '../../utils/EventManager'
 import { Logger } from '../../utils/logger'
@@ -121,9 +120,6 @@ export const BUTTON_INPUT_DEFAULTS: ButtonControllerOptions = {
 	parent: undefined,
 } as const
 
-export interface ButtonController extends Disableable {}
-
-@disableable
 export class ButtonController {
 	readonly __type = 'ButtonController' as const
 	static is(v: any): v is ButtonController {
@@ -131,7 +127,8 @@ export class ButtonController {
 	}
 
 	private _text!: () => string
-	private _active!: () => boolean
+	private _active = () => false
+	private _disabled = () => false
 
 	element: HTMLButtonElement
 
@@ -167,18 +164,27 @@ export class ButtonController {
 	get text(): string {
 		return this._text()
 	}
-	set text(v: string | (() => string)) {
-		this._text = toFn(v)
+	set text(value: string | (() => string)) {
+		this._text = toFn(value)
 		this.element.innerHTML = this._text()
 	}
 
 	get active(): boolean {
 		return this._active()
 	}
-	set active(v: boolean | (() => boolean) | undefined) {
-		if (typeof v === 'undefined') return
-		this._active = toFn(v)
+	set active(value: boolean | (() => boolean) | undefined) {
+		if (typeof value === 'undefined') return
+		this._active = toFn(value)
 		this.element.classList.toggle('active', this._active())
+	}
+
+	get disabled(): boolean {
+		return this._disabled()
+	}
+	set disabled(value: boolean | (() => boolean) | undefined) {
+		if (typeof value === 'undefined') return
+		this._disabled = toFn(value)
+		this._disabled() ? this.disable() : this.enable()
 	}
 
 	set(options: Partial<ButtonControllerOptions>) {
