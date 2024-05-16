@@ -165,7 +165,7 @@ export class Tooltip {
 
 		this._evm.listen(node, 'pointerenter', this.show)
 		this._evm.listen(node, 'pointerleave', this.hide)
-		this._evm.listen(node, 'pointermove', this.updatePosition)
+		this._evm.listen(node, 'pointermove', this._updatePosition)
 		this._evm.listen(node, 'click', () => {
 			if (opts.hideOnClick) this.hide()
 			else this.refresh()
@@ -173,8 +173,8 @@ export class Tooltip {
 	}
 
 	refresh() {
-		this.text = this._text()
-		setTimeout(() => this.updatePosition(), 0)
+		this.element.innerHTML = String(this.text)
+		setTimeout(() => this._updatePosition(), 0)
 		this._maybeWatchAnchor()
 		clearTimeout(this._delayInTimer)
 		clearTimeout(this._delayOutTimer)
@@ -216,7 +216,7 @@ export class Tooltip {
 	}
 	set offsetX(v) {
 		this.opts.offsetX = v
-		this.updatePosition()
+		this._updatePosition()
 	}
 
 	get offsetY() {
@@ -224,7 +224,7 @@ export class Tooltip {
 	}
 	set offsetY(v) {
 		this.opts.offsetY = v
-		this.updatePosition()
+		this._updatePosition()
 	}
 
 	show = () => {
@@ -246,7 +246,7 @@ export class Tooltip {
 					fill: 'forwards',
 				},
 			)
-			this.updatePosition()
+			this._updatePosition()
 			this._maybeWatchAnchor()
 		}, this.opts.delay)
 	}
@@ -269,27 +269,33 @@ export class Tooltip {
 						fill: 'forwards',
 					},
 				).finished
-				this.remove()
+				this.unmount()
 			}
 		}, this.opts.delayOut)
 	}
 
-	mounted = false
-	appent() {
-		if (this.mounted) return
-		this.mounted = true
+	/**
+	 * Whether the tooltip is currently mounted to the DOM.
+	 * @internal
+	 */
+	private _mounted = false
+	mount() {
+		if (this._mounted) return
+		this._mounted = true
 		this.parent.appendChild(this.element)
 	}
-	remove() {
-		if (!this.mounted) return
-		this.mounted = false
+	unmount() {
+		if (!this._mounted) return
+		this._mounted = false
 		this.parent.removeChild(this.element)
 	}
 
-	updatePosition = (e?: PointerEvent) => {
+	private _updatePosition = (e?: PointerEvent) => {
 		const tooltipRect = this.element.getBoundingClientRect()
 
-		this.text = this.text
+		if (this.element.innerHTML !== this.text) {
+			this.element.innerHTML = String(this.text)
+		}
 
 		if (e?.type === 'pointermove') {
 			this._mouse = {
@@ -504,7 +510,7 @@ export class Tooltip {
 
 			tickLoop(() => {
 				if (!this._watchingFinished) {
-					this.updatePosition()
+					this._updatePosition()
 				} else {
 					return true
 				}
