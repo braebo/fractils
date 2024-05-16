@@ -248,6 +248,7 @@ export class PresetManager {
 							this.activePreset.set(
 								this.presets.value[index ?? 0] ?? this.defaultPreset,
 							)
+							this._refresh()
 						},
 					},
 					{
@@ -279,6 +280,7 @@ export class PresetManager {
 			this._log.fn('_presetsInput.on(change)').info({ value, this: this })
 			this.gui.load(value)
 			this.activePreset.set(value)
+			this._refreshRename()
 		})
 
 		this._presetsInput.on('open', () => {
