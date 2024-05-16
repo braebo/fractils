@@ -551,7 +551,7 @@ export class Folder {
 		return presetId
 	}
 
-	toJSON(): FolderPreset {
+	save(): FolderPreset {
 		this._log.fn('save').debug({ this: this })
 
 		const preset: FolderPreset = {
@@ -562,7 +562,7 @@ export class Folder {
 			hidden: toFn(this._hidden)(),
 			children: this.children
 				.filter(c => c.title !== Gui.settingsFolderTitle)
-				.map(child => child.toJSON()),
+				.map(child => child.save()),
 			inputs: Array.from(this.inputs.values()).map(input => input.save()),
 		}
 

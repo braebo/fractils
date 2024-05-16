@@ -584,7 +584,7 @@ export class Gui {
 			__version: 0,
 			id,
 			title,
-			data: this.folder.toJSON(),
+			data: this.folder.save(),
 		} as const
 
 		// this.presetManager.save(preset)
