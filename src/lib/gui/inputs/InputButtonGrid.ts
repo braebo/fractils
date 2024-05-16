@@ -1,139 +1,68 @@
+import type { JavascriptStyleProperty } from '../../css/types'
+import type { TooltipOptions } from '../../actions/tooltip'
 import type { CreateOptions } from '../../utils/create'
 import type { ElementMap, InputOptions } from './Input'
-import type { State } from '../../utils/state'
 import type { Folder } from '../Folder'
+import type {
+	ButtonControllerEvents,
+	ButtonControllerOptions,
+} from '../controllers/ButtonController'
 
-import { EventManager } from '../../utils/EventManager'
+import { ButtonController } from '../controllers/ButtonController'
 import { Logger } from '../../utils/logger'
 import { create } from '../../utils/create'
 import { state } from '../../utils/state'
 import { toFn } from '../../utils/toFn'
 import { Input } from './Input'
-import { DEV } from 'esm-env'
-import type { TooltipOptions } from '$lib/actions/tooltip'
+import { nanoid } from '$lib/utils/nanoid'
 
 /**
- * A button item to be added to the grid.  This is used in the
- * {@link ButtonGridArrays} generated in the {@link InputButtonGrid}
- * constructor.
- */
-export interface ButtonItemOptions {
-	readonly __type?: 'ButtonItemOptions'
-	/**
-	 * Text to display on the button.
-	 */
-	label: string | (() => string)
-	/**
-	 * Function to run when the button is clicked.  It is passed a {@link ButtonItem} object
-	 * containing the individual {@link ButtonItem|`button item`} in the
-	 * {@link ButtonGridArrays|`buttongrid`} that was clicked.
-	 */
-	onClick?: (payload: ButtonItem) => void
-	/**
-	 * Optional function to determine if the button is active.  If the function returns `true`,
-	 * the button will have the `active` class added to it, and removed if `false`.  This updates
-	 * in the {@link InputButtonGrid.refresh|`refresh`} method, which is called internally
-	 * whenever the input {@link InputButtonGrid.state|`state`} changes.
-	 */
-	isActive?: () => boolean
-	/**
-	 * Optional css styles object.
-	 * @example
-	 * ```ts
-	 * {
-	 *   width: '50%',
-	 *   'background-color': 'red',
-	 *   border: '1px solid black',
-	 * }
-	 * ```
-	 */
-	style?: CreateOptions['style']
-	/**
-	 * Optional tooltip text.
-	 */
-	tooltip?: Partial<TooltipOptions>
-}
-
-/**
- * A {@link ButtonItemOptions} added to the grid is stored internally as a `ButtonItem`,
- * accessible via the {@link InputButtonGrid.buttonGrid | buttonGrid} map.
- */
-export interface ButtonItem extends Omit<ButtonItemOptions, '__type' | 'onClick'> {
-	readonly __type?: 'ButtonItem'
-	/**
-	 * Text to display on the button.  If a function is provided, it will be called whenever the
-	 * button is refreshed (useful for dynamic text based on some external state).
-	 * @remarks If a string is provided, it will be coerced to a function that returns the string.
-	 */
-	label: () => string
-	/**
-	 * The HTMLButtonElement element with its grid position stored in the `dataset` property.
-	 */
-	element: HTMLButtonElement & {
-		dataset: {
-			id: string
-			row: string
-			col: string
-		}
-	}
-	/**
-	 * The button's `onClick` event handler.
-	 */
-	on: EventManager<ButtonItemEvents>['on']
-	/**
-	 * Disposes of the button element and its event listeners.
-	 */
-	dispose: () => void
-}
-
-export interface ButtonItemEvents {
-	readonly click: ButtonItem
-	readonly change: ButtonItem
-	readonly refresh: ButtonItem
-}
-
-/**
- * A 2D array of {@link ButtonItemOptions} objects, representing a grid of buttons. The inner
+ * A 2D array of {@link ButtonControllerOptions} objects, representing a grid of buttons. The inner
  * arrays represent rows, and the outer array represents columns.
  * @example
  * ```ts
  * [
  *   // First row columns
  *   [
- *     { label: 'top-left', onClick: () => {} },
- *     { label: 'top-right', onClick: () => {} }
+ *     { text: 'top-left', onClick: () => {} },
+ *     { text: 'top-right', onClick: () => {} }
  *   ],
  *   // Second row columns
  *   [
- *     { label: 'bottom-left', onClick: () => {} },
- *     { label: 'bottom-right', onClick: () => {} }
+ *     { text: 'bottom-left', onClick: () => {} },
+ *     { text: 'bottom-right', onClick: () => {} }
  *   ]
  * ]
  * ```
  */
-export type ButtonGridArrays = ButtonItemOptions[][]
+export type ButtonGridArrays = ButtonControllerOptions[][]
 
 /**
- * A fully processed {@link ButtonGridArrays} entry with the generated {@link ButtonItem}s stored
- * in the input's {@link InputButtonGrid.buttonGrid|`buttonGrid`}.
+ * A fully processed {@link ButtonGridArrays} entry with the generated {@link ButtonController}s.
+ * Stored in the input's {@link InputButtonGrid.buttonGrid|`buttonGrid`} property.
  */
-export type ButtonGrid = ButtonItem[][]
+export type ButtonGrid = ButtonController[][]
 
 export type ButtonGridInputOptions = {
 	readonly __type?: 'ButtonGridInputOptions'
 	value: ButtonGridArrays
-	styles?: CreateOptions['style']
 	/**
-	 * If `true`, the last clicked button will have the `active` class added to it.
+	 * Optional css style overrides in {@link JavascriptStyleProperty} (camelCase) format.
+	 */
+	style?: CreateOptions['style']
+	/**
+	 * If `true`, the `active` class will be added to the last clicked button, and removed from
+	 * all other buttons.  This is useful for indicating the currently selected button in a grid.
 	 * @default true
 	 */
 	activeOnClick?: boolean
+	disabled?: boolean | (() => boolean)
 } & InputOptions<ButtonGridArrays>
 
 export const BUTTONGRID_INPUT_DEFAULTS = {
 	__type: 'ButtonGridInputOptions' as const,
-	value: [[{ label: '', onClick: () => {} }]],
-	styles: {
+	value: [[{ text: '', onClick: () => {} }]],
+	style: {
 		gap: '0.5em',
 	},
 	activeOnClick: false,
@@ -147,31 +76,29 @@ export interface ButtonGridControllerElements extends ElementMap {
 export type ButtonId = string
 
 export class InputButtonGrid extends Input<
-	ButtonItem,
+	ButtonController,
 	ButtonGridInputOptions,
 	ButtonGridControllerElements,
-	ButtonItemEvents
+	ButtonControllerEvents
 > {
 	readonly __type = 'InputButtonGrid' as const
 	readonly initialValue = {} as ButtonGridArrays
-	readonly state = state({} as ButtonItem) as State<ButtonItem>
+	readonly state = state({} as ButtonController)
 
-	buttons: Map<ButtonId, ButtonItem> = new Map()
-	buttonGrid: ButtonGridArrays
+	buttons: Map<ButtonId, ButtonController> = new Map()
+	buttonGrid: ButtonGrid
 
-	#log: Logger
+	private _log: Logger
 
 	constructor(options: Partial<ButtonGridInputOptions>, folder: Folder) {
-		const opts = Object.assign({}, BUTTONGRID_INPUT_DEFAULTS, options, {
-			__type: 'ButtonGridInputOptions' as const,
-		})
+		const opts = Object.assign({}, BUTTONGRID_INPUT_DEFAULTS, options)
 		super(opts, folder)
 
 		this.evm.registerEvents(['click'])
 
-		this.buttonGrid = this.initialValue = opts.value
-		this.#log = new Logger(`InputButtonGrid ${opts.title}`, { fg: 'cyan' })
-		this.#log.fn('constructor').debug({ opts, this: this })
+		this.initialValue = opts.value
+		this._log = new Logger(`InputButtonGrid ${opts.title}`, { fg: 'cyan' })
+		this._log.fn('constructor').debug({ opts, this: this })
 
 		const container = create('div', {
 			classes: ['fracgui-input', 'fracgui-input-buttongrid-container'],
@@ -183,12 +110,12 @@ export class InputButtonGrid extends Input<
 			buttonGrid: [],
 		} as const satisfies ButtonGridControllerElements
 
-		this.toGrid(this.buttonGrid)
+		this.buttonGrid = this.toGrid(this.initialValue)
 
 		this.refresh()
 	}
 
-	onClick(callback: (payload: ButtonItem) => void) {
+	onClick(callback: (payload: ButtonController) => void) {
 		this.evm.on('click', () => callback(this.state.value))
 	}
 
@@ -199,6 +126,8 @@ export class InputButtonGrid extends Input<
 	 * - appends them to the {@link InputButtonGrid.elements.controllers.container}
 	 */
 	toGrid(grid: ButtonGridArrays) {
+		const instanceGrid: ButtonGrid = []
+
 		const rows = grid.length
 		const cols = Math.max(...grid.map(row => row.length))
 
@@ -215,11 +144,14 @@ export class InputButtonGrid extends Input<
 				style: { gap: '0.5em' },
 			})
 
+			instanceGrid[i] = []
+
 			for (let j = 0; j < cols; j++) {
 				const btn = grid[i]?.[j]
 				if (btn) {
-					const button = this.addButton(btn, toFn(btn.label)(), i, j)
+					const button = this.addButton(btn, btn.id ?? nanoid(8), i, j)
 					row.appendChild(button.element)
+					instanceGrid[i][j] = button
 				}
 			}
 		}
@@ -228,85 +160,52 @@ export class InputButtonGrid extends Input<
 			'height',
 			getComputedStyle(this.elements.controllers.container).height,
 		)
+
+		return instanceGrid
 	}
 
-	addButton(opts: ButtonItemOptions, id: string, i: number, j: number) {
-		const label = toFn(opts.label)
+	addButton(opts: ButtonControllerOptions, id: string, i: number, j: number) {
+		const text = toFn(opts.text)
 
 		const tooltip: Partial<TooltipOptions> | undefined = opts.tooltip
-			? Object.assign(
-					{
-						placement: 'top',
-						delay: 1000,
-					},
-					opts.tooltip,
-				)
+			? Object.assign(opts.tooltip, {
+					placement: 'top',
+					delay: 1000,
+				})
 			: undefined
 
-		const button = create('button', {
+		opts.element = create('button', {
+			id,
 			classes: [
 				'fracgui-controller',
 				'fracgui-controller-button',
 				'fracgui-controller-buttongrid-button',
 			],
-			innerHTML: label(),
+			innerHTML: text(),
 			dataset: {
 				id,
 				row: String(i),
 				col: String(j),
 			},
 			style: {
-				width: '100%',
 				...opts.style,
+				width: '100%',
 			},
 			tooltip,
 		})
 
-		const _evm = new EventManager(['click'])
-		const btn = {
-			...opts,
-			__type: 'ButtonItem' as const,
-			element: button,
-			label,
-			on: _evm.on.bind(_evm),
-			dispose: () => {
-				_evm.dispose()
-				button.remove()
-			},
-		} satisfies ButtonItem
+		const btn = new ButtonController(opts)
 
-		if (typeof opts.isActive !== 'function') {
+		if (typeof opts.active !== 'function') {
 			if (this.opts.activeOnClick) {
-				btn.isActive = () => {
+				btn.active = () => {
 					return this.state.value === btn
 				}
 			}
 		}
 
-		if (opts.onClick) {
-			btn.on('click', () => {
-				opts.onClick?.(btn)
-			})
-		}
-
-		_evm.listen(button, 'click', e => {
-			const id = (e.target as HTMLButtonElement).dataset['id']
-
-			if (!id) {
-				if (DEV) console.error('ButtonGrid button missing id', e.target)
-				return
-			}
-
-			const button = this.buttons.get(id)
-
-			if (!button) {
-				if (DEV) console.error('ButtonGrid button not found', id)
-				return
-			}
-
-			this.set(btn)
-
-			_evm.emit('click', btn)
+		btn.on('click', ({ button }) => {
+			this.set(button)
 		})
 
 		this.buttons.set(id, btn)
@@ -314,7 +213,7 @@ export class InputButtonGrid extends Input<
 		return btn
 	}
 
-	set(button: ButtonItem) {
+	set(button: ButtonController) {
 		this.state.set(button)
 
 		this._emit('click', button)
@@ -322,15 +221,10 @@ export class InputButtonGrid extends Input<
 	}
 
 	refresh() {
-		this.#log.fn('refresh').debug({ this: this })
+		this._log.fn('refresh').debug({ this: this })
 
-		for (const [, { element, isActive, label }] of this.buttons) {
-			if (typeof isActive === 'function') {
-				element.classList.toggle('active', !!isActive())
-			}
-			if (typeof label === 'function') {
-				element.innerHTML = label()
-			}
+		for (const btn of this.buttons.values()) {
+			btn.refresh()
 		}
 
 		super.refresh()
@@ -338,26 +232,24 @@ export class InputButtonGrid extends Input<
 	}
 
 	enable() {
-		for (const { element } of this.buttons.values()) {
-			element.disabled = false
-			element.classList.remove('disabled')
+		for (const btn of this.buttons.values()) {
+			btn.enable()
 		}
 		super.enable()
 		return this
 	}
 
 	disable() {
-		for (const { element } of this.buttons.values()) {
-			element.disabled = true
-			element.classList.add('disabled')
+		for (const btn of this.buttons.values()) {
+			btn.disable()
 		}
 		super.disable()
 		return this
 	}
 
 	dispose() {
-		for (const { element } of this.buttons.values()) {
-			element.remove()
+		for (const btn of this.buttons.values()) {
+			btn.dispose()
 		}
 		this.buttons.clear()
 		super.dispose()

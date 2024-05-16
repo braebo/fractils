@@ -10,10 +10,10 @@ export class BinauralBeatsGui extends Gui {
 			value: [
 				Object.keys(WAVE_PRESETS).map(kind => {
 					return {
-						label: kind,
-						onClick: item => {
+						text: kind,
+						onClick: ({ button }) => {
 							this.beats.addWave(kind as keyof typeof WAVE_PRESETS)
-							item.element.setAttribute('disabled', '')
+							button.element.setAttribute('disabled', '')
 						},
 					}
 				}),

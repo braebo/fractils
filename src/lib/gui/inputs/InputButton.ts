@@ -39,20 +39,20 @@ interface ButtonInputEvents extends InputEvents<InputButton> {
 }
 
 export class InputButton extends Input<
-	ButtonClickFunction,
+	ButtonController,
 	ButtonInputOptions,
 	ButtonControllerElements,
 	ButtonInputEvents
 > {
 	readonly __type = 'InputButton' as const
-	readonly initialValue = {} as ButtonClickFunction
-	readonly state = state({}) as State<ButtonClickFunction>
+	readonly initialValue = {} as ButtonController
+	readonly state = state({}) as State<ButtonController>
 
 	onClick: ButtonClickFunction = () => {}
 
 	button: ButtonController
 
-	#log: Logger
+	private _log: Logger
 
 	constructor(options: Partial<ButtonInputOptions>, folder: Folder) {
 		const opts = Object.assign({}, BUTTON_INPUT_DEFAULTS, options, {
@@ -61,8 +61,8 @@ export class InputButton extends Input<
 		super(opts, folder)
 		this.evm.registerEvents(['change', 'refresh', 'click'])
 
-		this.#log = new Logger(`InputButton ${opts.title}`, { fg: 'cyan' })
-		this.#log.fn('constructor').debug({ opts, this: this })
+		this._log = new Logger(`InputButton ${opts.title}`, { fg: 'cyan' })
+		this._log.fn('constructor').debug({ opts, this: this })
 
 		if (opts.value) this.onClick = opts.value
 		else if (opts.onClick) this.onClick = opts.onClick
@@ -79,14 +79,15 @@ export class InputButton extends Input<
 			parent: this.elements.content,
 		})
 
-		this.button = new ButtonController(container, {
+		this.button = new ButtonController({
 			text: opts.text,
 			onClick: opts.onClick,
+			parent: container,
 		})
 
 		this.elements.controllers = {
 			container,
-			button: this.button.elements.button,
+			button: this.button.element,
 		} as const satisfies ButtonControllerElements
 
 		this.evm.listen(this.elements.controllers.button, 'click', this.click.bind(this))
@@ -105,9 +106,7 @@ export class InputButton extends Input<
 	 * Manually calls the {@link onClick} function.
 	 */
 	click() {
-		this.button.click()
-		this._emit('click')
-		this._emit('change')
+		this.button.click({ ...new MouseEvent('click'), target: this.button.element })
 	}
 
 	enable() {
@@ -123,18 +122,13 @@ export class InputButton extends Input<
 	}
 
 	/**
-	 * Assigns {@link onClick} to a new function.
+	 * Overwrites the
 	 */
-	set = (v: ButtonClickFunction) => {
-		if (typeof v !== 'function') {
-			if (DEV) {
-				console.error(
-					'InputButton.set() must be called with a function to assign a new onClick action.',
-				)
-			}
-			return
+	set = (v: ButtonController | unknown) => {
+		if (ButtonController.is(v)) {
+			v //=>
+			this.state.set(v)
 		}
-		this.onClick = v
 	}
 
 	/**

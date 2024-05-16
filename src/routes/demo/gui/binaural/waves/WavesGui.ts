@@ -63,7 +63,7 @@ export class WavesGui extends Gui {
 			value: [
 				[
 					{
-						label: 'Start',
+						text: 'Start',
 						onClick: () => {
 							if (waves.playing) return
 							waves.start()
@@ -74,7 +74,7 @@ export class WavesGui extends Gui {
 						},
 					},
 					{
-						label: 'Stop',
+						text: 'Stop',
 						onClick: (item) => {
 							if (!waves.playing) return
 							waves.stop()
