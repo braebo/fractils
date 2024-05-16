@@ -79,6 +79,9 @@ export class RenameSVG {
             animation: blink 1.5s infinite;
             animation-delay: 0.5s;
         }
+        .fracgui-icon-rename.disabled .cursor {
+            transform: translate(2px, 0) scale(1, 0.9);
+        }
 
         @keyframes blink {
             0%, 45%, 80% {
@@ -106,6 +109,10 @@ export class RenameSVG {
         }
         .fracgui-icon-rename:hover .box {
             transform: scale(1);
+        }
+        .fracgui-icon-rename.disabled .box {
+            opacity: 0;
+            transform: scale(0);
         }
     `
 }
