@@ -453,6 +453,7 @@ export abstract class Input<
 	 * Refreshes the value of any controllers to match the current input state.
 	 */
 	refresh(v = this.state.value as TValueType) {
+		this.dirty = this._dirty
 		this.evm.emit('refresh', v as TValueType)
 
 		return this
