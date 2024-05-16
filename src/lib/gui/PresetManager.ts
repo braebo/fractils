@@ -191,15 +191,16 @@ export class PresetManager {
 		/**
 		 * Download the active preset as a JSON file.
 		 */
-		const downloadActivePreset = () => {
-			const preset = this.activePreset.value
+		const download = (preset: GuiPreset | GuiPreset[]) => {
+			// const preset = this.activePreset.value
+			const title = Array.isArray(preset) ? this.gui.folder.title + ' presets' : preset.title
 			const blob = new Blob([JSON.stringify(preset, null, 2)], {
 				type: 'application/json',
 			})
 			const url = URL.createObjectURL(blob)
 			const a = document.createElement('a')
 			a.href = url
-			a.download = `${preset.title}.json`
+			a.download = `${title}.json`
 			a.click()
 			URL.revokeObjectURL(url)
 		}
@@ -213,17 +214,17 @@ export class PresetManager {
 					{
 						text: 'update',
 						id: 'update',
-						tooltip: { text: 'Overwrite active preset' },
+						tooltip: { text: 'Overwrite active preset', placement: 'top' },
 						onClick: () => {
 							const { id, title } = this.activePreset.value
 							const current = this.gui.toJSON(title, id)
 							this.add(current)
 						},
-						disabled: () => !this.gui.dirty || this.defaultPresetIsActive,
+						disabled: () => this.defaultPresetIsActive,
 					},
 					{
 						text: 'delete',
-						tooltip: { text: 'Delete active preset' },
+						tooltip: { text: 'Delete active preset', placement: 'top' },
 						onClick: () => {
 							let index = undefined as number | undefined
 							this.presets.update(presets => {
@@ -239,13 +240,24 @@ export class PresetManager {
 						disabled: () => this.defaultPresetIsActive,
 					},
 					{
-						text: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>',
-						tooltip: { text: 'Download preset', delay: 250 },
+						text: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fracgui-icon fracgui-icon-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>',
+						id: 'download',
+						tooltip: { text: 'Download', delay: 250, placement: 'left' },
 						style: { maxWidth: '1.5rem', padding: '0.3rem' },
 						onClick: () => {
-							downloadActivePreset()
+							download(this.activePreset.value)
 						},
 						disabled: () => this.defaultPresetIsActive,
+					},
+					{
+						text: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="fracgui-icon fracgui-icon-download-all"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 14v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 11v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 17v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m7 8 5 5 5-5" /><path  stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 13V1" /></svg>`,
+						id: 'download-all',
+						tooltip: { text: 'Download All', delay: 250, placement: 'left' },
+						style: { maxWidth: '1.5rem', padding: '0.3rem' },
+						onClick: () => {
+							download(this.presets.value)
+						},
+						disabled: () => this.presets.value.length <= 1,
 					},
 				],
 			],
