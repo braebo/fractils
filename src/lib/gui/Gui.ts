@@ -2,11 +2,11 @@ import './gui.scss'
 
 import type { WindowManagerOptions } from '../utils/windowManager'
 import type { Placement, PlacementOptions } from '../dom/place'
-import type { PrimitiveState, State } from '../utils/state'
 import type { ResizableOptions } from '../utils/resizable'
 import type { DraggableOptions } from '../utils/draggable'
 import type { Theme, ThemeMode } from '../themer/types'
 import type { ThemerOptions } from '../themer/Themer'
+import type { PrimitiveState } from '../utils/state'
 import type { PropertiesHyphen } from 'csstype'
 import type { FolderPreset } from './Folder'
 
@@ -254,10 +254,26 @@ export class Gui {
 
 	declare elements: GuiElements
 
+	/**
+	 * The initial options passed to the gui.
+	 */
 	opts: GuiOptions
+
+	/**
+	 * Whether the gui root folder is currently collapsed.
+	 */
 	closed: PrimitiveState<boolean>
-	closedMap: State<Map<string, boolean>>
+	// closedMap: State<Map<string, boolean>> // todo
+
+	/**
+	 * The {@link PresetManager} instance for the gui.
+	 */
 	presetManager!: PresetManager
+
+	/**
+	 * Whether any of the inputs have been changed from their default values in the active preset.
+	 */
+	dirty = false
 
 	wrapper!: HTMLElement
 	container!: HTMLElement
@@ -356,10 +372,10 @@ export class Gui {
 				? (storageOpts.key += `::${opts.title?.toLowerCase().replaceAll(/\s/g, '-')}::closed`)
 				: ''
 
-		const closedMapKey =
-			storageOpts && storageOpts.closed
-				? (storageOpts.key += `::${opts.title?.toLowerCase().replaceAll(/\s/g, '-')}::closed-map`)
-				: ''
+		// const closedMapKey =
+		// 	storageOpts && storageOpts.closed
+		// 		? (storageOpts.key += `::${opts.title?.toLowerCase().replaceAll(/\s/g, '-')}::closed-map`)
+		// 		: ''
 
 		this.closed = state(!!this.opts.closed, {
 			key: closedKey,
@@ -370,14 +386,14 @@ export class Gui {
 		})
 
 		// todo - Finish this whole "deep expanded persistence" thing with `closedMap`
-		this.closedMap = state(new Map(), {
-			key: closedMapKey,
-			// key:
-			// 	(storageOpts &&
-			// 		storageOpts.key +
-			// 			`::${opts.title?.toLowerCase().replaceAll(/\s/g, '-')}::closed-map`) ||
-			// 	'',
-		})
+		// this.closedMap = state(new Map(), {
+		// 	key: closedMapKey,
+		// 	// key:
+		// 	// 	(storageOpts &&
+		// 	// 		storageOpts.key +
+		// 	// 			`::${opts.title?.toLowerCase().replaceAll(/\s/g, '-')}::closed-map`) ||
+		// 	// 	'',
+		// })
 
 		// this.closedMap.setKey(this.title, this.closed.value)
 		// todo - We will need to emit a close/open event from `Folder`, and listen for it here.
@@ -597,6 +613,8 @@ export class Gui {
 	load(preset: GuiPreset) {
 		this._log.fn('load').debug({ preset })
 
+		// todo - this isn't working, it's being unset immediately somewhere...
+		this.dirty = false
 		this.folder.load(preset.data)
 	}
 
