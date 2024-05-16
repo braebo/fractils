@@ -399,6 +399,13 @@
 .fracgui-controller-button {
 	color: var(--fracgui-controller-dim_color);
 	background: var(--fracgui-controller-dim_background);
+
+	&.disabled {
+		opacity: 0.75;
+		filter: brightness(0.75);
+		color: var(--fracgui-bg-e);
+		pointer-events: none;
+	}
 }
 
 .fracgui-controller {
@@ -2262,6 +2269,19 @@ input.fracgui-search-input {
 							background: color-mix(in lch, var(--fracgui-light-d) 60%, transparent);
 							outline-color: var(--fracgui-light-d);
 						}
+					}
+				}
+			}
+
+			&:has([disabled]) {
+				pointer-events: none;
+				opacity: 0.75;
+				filter: brightness(0.75);
+				.fracgui-controller-select-selected {
+					background: var(--fracgui-controller-dim_background);
+					color: var(--fracgui-fg-e);
+					&::before {
+						color: var(--fracgui-controller-dim_color);
 					}
 				}
 			}
