@@ -278,7 +278,7 @@ export class Select<T> {
 		/**
 		 * If false, the select controller will not attempt to select a new fallback option
 		 * when the removed option is also the currently selection one.
-		 * @default true
+		 * @default false
 		 */
 		autoSelectFallback = false,
 	) {

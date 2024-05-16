@@ -77,7 +77,6 @@ export class PresetManager {
 
 		if (this.activePreset.value.id !== this._defaultPresetId) {
 			Promise.resolve().then(() => {
-				console.warn(this.activePreset.value)
 				this.gui.load(this.activePreset.value)
 			})
 		}
@@ -130,6 +129,8 @@ export class PresetManager {
 
 		// this._presetsInput?.refresh()
 		this._refresh()
+
+		// todo - save and restore cursor position?
 	}
 
 	private _resolveUnusedTitle(title: string) {
@@ -260,7 +261,7 @@ export class PresetManager {
 				],
 			],
 			order: 1,
-			resettable: false
+			resettable: false,
 		})
 
 		//? Presets Select Input
@@ -273,16 +274,18 @@ export class PresetManager {
 			value: this.activePreset.value,
 			resettable: false,
 		})
+
 		this._presetsInput.on('change', ({ value }) => {
 			this._log.fn('_presetsInput.on(change)').info({ value, this: this })
 			this.gui.load(value)
 			this.activePreset.set(value)
-			this._refreshRename()
 		})
+
 		this._presetsInput.on('open', () => {
 			this._log.fn('_presetsInput.on(open)').info()
 			this._presetSnapshot = this.gui.toJSON('__snapshot__')
 		})
+
 		this._presetsInput.on('cancel', () => {
 			this._log.fn('_presetsInput.on(cancel)').info()
 			if (this._presetSnapshot) {
@@ -399,15 +402,24 @@ export class PresetManager {
 
 	private _toggleRename = () => {
 		if (this._presetsInput.select.elements.selected.getAttribute('contenteditable')) {
-			this._disableRename()
+			this._handleRename()
 		} else {
 			this._enableRename()
 		}
 	}
 
+	/**
+	 * When the rename button is active, clicking it to disable triggers a blur event which
+	 * disables it immediately before the click event is triggered, re-enabling it.
+	 *
+	 * The latch and timer prevent that from happening.
+	 */
 	private _blurLatch = false
 	private _blurLatchTimer: ReturnType<typeof setTimeout> | undefined
 
+	/**
+	 * Disables the dropdown, making the select's text editable.
+	 */
 	private _enableRename = () => {
 		this._log.fn('_enableRename').info({ this: this })
 
@@ -439,46 +451,44 @@ export class PresetManager {
 		sel?.addRange(range)
 
 		// Handle rename / cancel.
-		el.addEventListener('blur', this._disableRename)
-		addEventListener('keydown', this._handleRename)
+		this.folder.evm.listen(el, 'blur', this._handleRename, {}, 'preset-manager-rename')
+		this.folder.evm.listen(window, 'keydown', this._cancelOnEscape, {}, 'preset-manager-rename')
+		// el.addEventListener('blur', this._disableRename)
+		// addEventListener('keydown', this._cancelOnEscape)
 	}
 
-	private _disableRename = (e?: Event) => {
-		this._log.fn('_disableRename').info({ this: this })
+	private _handleRename = (e?: Event) => {
+		this._log.fn('_disableRename').info({ e, this: this })
+
+		this._presetsInput.select.disableClicks = false
+		this._presetsInput.select.elements.selected.removeAttribute('contenteditable')
+		this._renamePresetButton.element.classList.remove('active')
+
+		this.folder.evm.clearGroup('preset-manager-rename')
+		// el.removeEventListener('blur', this._disableRename)
+		// removeEventListener('keydown', this._cancelOnEscape)
 
 		if (e?.type === 'blur') {
+			// If this is a click event targetting the rename button, trigger the latch.
 			this._blurLatch = true
 			clearTimeout(this._blurLatchTimer)
 			setTimeout(() => {
 				this._blurLatch = false
 			}, 300)
+
+			// Commit the rename if the title has changed.
+			const text = (e.target as HTMLElement)?.textContent ?? ''
+			if (text !== this.activePreset.value.title) {
+				this._renamePreset(text)
+			}
 		}
-
-		if ((e?.target as HTMLElement)?.classList.contains(this._renamePresetButton.class)) return
-		const el = this._presetsInput.select.elements.selected
-
-		this._presetsInput.select.disableClicks = false
-		el.removeAttribute('contenteditable')
-
-		el.removeEventListener('blur', this._disableRename)
-		removeEventListener('keydown', this._handleRename)
-
-		this._renamePresetButton.element.classList.remove('active')
 	}
 
-	private _handleRename = (e: KeyboardEvent) => {
-		this._log.fn('_handleRename').info({ key: e.key, e, this: this })
+	private _cancelOnEscape = (e: KeyboardEvent) => {
+		this._log.fn('_cancelOnEscape').info({ key: e.key, e, this: this })
 		if (e.key === 'Escape') {
-			this._disableRename()
-			return
+			this._handleRename()
 		}
-
-		setTimeout(() => {
-			const text = (e.target as HTMLElement)?.textContent ?? ''
-			if (text === this.activePreset.value.title) return
-			// console.log({ text })
-			this._renamePreset(text)
-		}, 0)
 	}
 
 	private _refreshRename() {

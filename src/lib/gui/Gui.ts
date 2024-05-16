@@ -598,8 +598,6 @@ export class Gui {
 		this._log.fn('load').debug({ preset })
 
 		this.folder.load(preset.data)
-		// this.presetManager.set(preset)
-		// this.presetManager.afterLoad(preset)
 	}
 
 	#createThemer(folder: Folder) {
