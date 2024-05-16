@@ -20,14 +20,17 @@ type AnchorRect = DOMRect | { left: number; top: number; width: number; height: 
  */
 export interface TooltipOptions {
 	readonly __type?: 'TooltipOptions'
+
 	/**
 	 * The text to display in the tooltip.  Can be a string, number, or a function that returns a string or number.
 	 */
 	text: string | (() => string)
+
 	/**
 	 * The placement of the tooltip relative to the element.  Can be `'top'`, `'bottom'`, `'left'`, or `'right'`.
 	 */
 	placement: 'top' | 'bottom' | 'left' | 'right'
+
 	/**
 	 * The element to which the tooltip is placed relative to.  Can be a selector,
 	 * an element, or the string literal `'mouse'` to use the pointer position.
@@ -39,32 +42,31 @@ export interface TooltipOptions {
 	 * @example { x: 'mouse', y: undefined }
 	 */
 	anchor: Anchor | Anchors
+
 	/**
 	 * Delay in milliseconds before the tooltip is shown.
 	 * @defaultValue 250
 	 */
 	delay: number
+
 	/**
 	 * Delay in milliseconds before the tooltip is hidden.
 	 * @defaultValue 0
 	 */
 	delayOut: number
+
 	/**
 	 * An optional x-axis offset (any valid css unit).
 	 * @defaultValue '0%'
 	 */
 	offsetX: string
+
 	/**
 	 * An optional y-axis offset (any valid css unit).
 	 * @defaultValue '0%'
 	 */
 	offsetY: string
-	/**
-	 * Custom style overrides for the tooltip element (all valid CSS properties are allowed).
-	 * i.e. { padding: '4px 8px', color: 'var(--fg-a, #fff)' }
-	 * @defaultValue undefined
-	 */
-	style?: Partial<Record<JavascriptStyleProperty, string>>
+
 	/**
 	 * Animation in/out duration times / easing.
 	 */
@@ -85,11 +87,20 @@ export interface TooltipOptions {
 		 */
 		easing: KeyframeAnimationOptions['easing']
 	}
+
+	/**
+	 * Custom style overrides for the tooltip element (all valid CSS properties are allowed).
+	 * i.e. { padding: '4px 8px', color: 'var(--fg-a, #fff)' }
+	 * @defaultValue undefined
+	 */
+	style?: Partial<Record<JavascriptStyleProperty, string>>
+
 	/**
 	 * If specified, the container element for the tooltip.
 	 * @defaultValue document.body
 	 */
 	parent?: HTMLElement
+
 	/**
 	 * Hides the tooltip on click if `true`.
 	 * @defaultValue false
@@ -106,39 +117,53 @@ export const TOOLTIP_DEFAULTS: TooltipOptions = {
 	delayOut: 0,
 	offsetX: '0%',
 	offsetY: '0%',
-	style: {},
 	animation: {
 		duration: 300,
 		durationOut: 150,
 		easing: 'cubic-bezier(0.23, 1, 0.320, 1)',
 	},
+	style: undefined,
 	hideOnClick: false,
 }
 
 @styled
 export class Tooltip {
 	readonly __type = 'Tooltip' as const
-	/** The tooltip element itself. */
+
+	/**
+	 * The tooltip element itself.
+	 */
 	element: HTMLDivElement
-	/** The parent element of the tooltip. */
+
+	/**
+	 * The parent element of the tooltip.
+	 */
 	parent: HTMLElement
-	/** Whether the tooltip is currently showing. */
+
+	/**
+	 * Whether the tooltip is currently showing.
+	 */
 	showing = false
 
 	opts: TooltipOptions
 
 	private _text: () => string
-	private _animPositions!: { from: string; to: string }
 
+	private _evm = new EventManager()
+
+	private _animPositions!: { from: string; to: string }
 	private _delayInTimer!: ReturnType<typeof setTimeout>
 	private _delayOutTimer!: ReturnType<typeof setTimeout>
 
-	private _evm = new EventManager()
-	/** removeEventListener callbacks for listeners with particularly short lifecycles. */
-	private _tempListeners = new Set<() => void>()
+	/**
+	 * removeEventListener callbacks for listeners with particularly short lifecycles.
+	 */
+	// private _tempListeners = new Set<() => void>()
 
 	constructor(
-		/** The node that the tooltip is attached to. */
+		/**
+		 * The node that the tooltip is attached to.
+		 */
 		public node: HTMLElement,
 		options?: Partial<TooltipOptions>,
 	) {
@@ -157,9 +182,11 @@ export class Tooltip {
 			style: options?.style,
 		})
 
-		for (const [key, value] of entries(opts.style!)) {
-			if (key && value) {
-				this.element.style.setProperty(key, value)
+		if (opts.style) {
+			for (const [key, value] of entries(opts.style)) {
+				if (key && value) {
+					this.element.style.setProperty(key, value)
+				}
 			}
 		}
 
@@ -227,14 +254,19 @@ export class Tooltip {
 		this._updatePosition()
 	}
 
+	/**
+	 * Animates the tooltip into view.
+	 */
 	show = () => {
 		if (this.showing) return
+
 		clearTimeout(this._delayInTimer)
 		clearTimeout(this._delayOutTimer)
 
 		this._delayInTimer = setTimeout(async () => {
 			this.parent.appendChild(this.element)
 			this.showing = true
+
 			this.element.animate(
 				[
 					{ opacity: '0', transform: this._animPositions.from },
@@ -246,11 +278,15 @@ export class Tooltip {
 					fill: 'forwards',
 				},
 			)
+
 			this._updatePosition()
 			this._maybeWatchAnchor()
 		}, this.opts.delay)
 	}
 
+	/**
+	 * Animates the tooltip out of view.
+	 */
 	hide = () => {
 		clearTimeout(this._delayInTimer)
 		clearTimeout(this._delayOutTimer)
@@ -258,6 +294,11 @@ export class Tooltip {
 		this._delayOutTimer = setTimeout(async () => {
 			if (this.showing) {
 				this.showing = false
+
+				if (this._watcherId) {
+					this._evm.unlisten(this._watcherId)
+				}
+
 				await this.element.animate(
 					[
 						{ opacity: '1', transform: this._animPositions.to },
@@ -269,6 +310,7 @@ export class Tooltip {
 						fill: 'forwards',
 					},
 				).finished
+
 				this.unmount()
 			}
 		}, this.opts.delayOut)
@@ -407,6 +449,8 @@ export class Tooltip {
 		return { x: rect, y: rect }
 	}
 
+	private _watcherId?: string
+
 	/**
 	 * Determines if the tooltip should watch any anchors for movement.
 	 */
@@ -426,10 +470,16 @@ export class Tooltip {
 			}
 
 			if (anchor) {
-				anchor.removeEventListener('transitionrun', watchAnchor)
-				anchor.addEventListener('transitionrun', watchAnchor, { once: true })
-				this._tempListeners.add(() =>
-					anchor.removeEventListener('transitionrun', watchAnchor),
+				if (this._watcherId) {
+					this._evm.unlisten(this._watcherId)
+				}
+
+				this._watcherId = this._evm.listen(
+					anchor,
+					'transitionrun',
+					watchAnchor,
+					{},
+					'anchor',
 				)
 			}
 		}
@@ -523,18 +573,10 @@ export class Tooltip {
 			clearTimeout(this._watchTimeout)
 		}
 
-		for (const listener of this._tempListeners) {
-			listener()
-		}
-		this._tempListeners.clear()
-
 		this._evm.dispose()
 		this.element.remove()
 	}
 
-	/**
-	 * A default style for the tooltip element.
-	 */
 	static style = /*css*/ `
 		.fractils-tooltip {
 			position: absolute;
@@ -608,8 +650,8 @@ export const tooltip = (node: HTMLElement, options?: Partial<TooltipOptions>) =>
 
 	return {
 		update(opts: TooltipOptions) {
-			// todo - We're not actually triggering any updates here...
 			Object.assign(tt.opts, opts)
+			tt.refresh()
 		},
 		destroy() {
 			tt.dispose()
