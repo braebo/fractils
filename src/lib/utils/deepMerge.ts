@@ -1,6 +1,6 @@
 /**
  * Deep merges objects together, with some special rules:
- * - Arrays are concatenated and de-duplicated unless {@link DeepMergeOptions.concatArrays|`concatArrays`} is `false`.
+ * - Arrays are concatenated and de-duplicated unless {@link concatArrays|`concatArrays`} is `false`.
  * - Objects are recursively merged.
  * - `false` is only replaced with `true`
  * - An object is never replaced with `true`, `false`, or `undefined`.
@@ -14,8 +14,9 @@ export function deepMerge<T, U>(
 	options?: {
 		/**
 		 * If `true`, arrays are concatenated and de-duplicated.
+		 * 
 		 * If `false`, arrays are replaced.
-		 * @default false
+		 * @defaultValue `false`
 		 */
 		concatArrays?: boolean
 	},
