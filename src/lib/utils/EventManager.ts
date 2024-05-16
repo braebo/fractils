@@ -131,11 +131,12 @@ export class EventManager<EventMap extends Record<string, any>> {
 	}
 
 	/**
-	 * Remove a listener callback from the event manager without calling it.
+	 * Call the listener callback with the specified ID, then remove it.
 	 * @param id - The ID of the listener to remove.
 	 * @returns `true` if the listener was removed, `false` if it was not found.
 	 */
 	unlisten(id: string): boolean {
+		this._listeners.get(id)?.()
 		return this._listeners.delete(id)
 	}
 
