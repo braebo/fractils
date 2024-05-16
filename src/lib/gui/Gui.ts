@@ -286,24 +286,23 @@ export class Gui {
 
 		const opts = deepMerge([GUI_DEFAULTS, options ?? {}], { concatArrays: false }) as GuiOptions
 
+		opts.container ??= document.body
+
 		// Resolve storage separately since GUI_DEFAULTS.storage is `false`.
-		// opts.storage = resolveOpts(opts.storage, GUI_STORAGE_DEFAULTS)
 		if (typeof opts.storage === 'object') {
 			opts.storage = Object.assign({}, GUI_STORAGE_DEFAULTS, opts.storage)
 		}
+
 		opts.position =
 			opts.position ??
 			// https://github.com/microsoft/TypeScript/issues/54825#issuecomment-1612948506
 			(((opts.windowManagerOptions as WindowManagerOptions)?.draggable as DraggableOptions)
 				?.position as Placement)
-		opts.windowManagerOptions
-		opts.container ??= document.body
+
 		this.opts = opts
 
 		this.container = opts.container
 		this.theme = opts.theme ?? 'default'
-
-		// const rootElement = this.#createRootElement()
 
 		this.wrapper = create('div', {
 			classes: ['fracgui-wrapper'],
@@ -311,16 +310,14 @@ export class Gui {
 				display: 'contents',
 			},
 			parent: this.container,
-			// children: [rootElement],
 		})
 
 		this.folder = new Folder({
 			...opts,
 			__type: 'FolderOptions',
+			container: this.wrapper,
 			// @ts-expect-error @internal
 			gui: this,
-			container: this.wrapper,
-			isRoot: true,
 		})
 
 		this.on = this.folder.on
@@ -569,7 +566,7 @@ export class Gui {
 	/**
 	 * Saves the current gui state as a preset.
 	 */
-	save(
+	toJSON(
 		/**
 		 * The title of the preset.
 		 */
@@ -652,9 +649,9 @@ export class Gui {
 					title: 'mode',
 					value: [
 						['light', 'dark', 'system'].map(m => ({
-							label: m,
+							text: m,
 							onClick: () => this.themer?.mode.set(m as ThemeMode),
-							isActive: () => this.themer?.mode.value === m,
+							active: () => this.themer?.mode.value === m,
 						})),
 					],
 				})
