@@ -103,8 +103,6 @@ const FOLDER_DEFAULTS = Object.freeze({
 export interface InternalFolderOptions {
 	__type?: 'InternalFolderOptions'
 
-	// title: string
-
 	/**
 	 * The parent folder of this folder (or a circular reference if this is the root folder).
 	 */
@@ -193,7 +191,7 @@ export class Folder {
 	settingsFolder!: Folder
 
 	closed = state(false)
-	#hidden: () => boolean
+	private _hidden: () => boolean
 
 	element: HTMLElement
 	elements = {} as FolderElements
@@ -206,8 +204,9 @@ export class Folder {
 		}
 	}
 
-	evm = new EventManager<FolderEvents>(['change', 'refresh', 'toggle'])
-	on = this.evm.on.bind(this.evm)
+	private _evm = new EventManager<FolderEvents>(['change', 'refresh', 'toggle'])
+	on = this._evm.on.bind(this._evm)
+	listen = this._evm.listen.bind(this._evm)
 
 	/**
 	 * Subscriptions to be disposed of when the folder is destroyed.
@@ -285,13 +284,13 @@ export class Folder {
 			}, 0)
 		}
 
-		this.#hidden = opts.hidden ? toFn(opts.hidden) : toFn(false)
+		this._hidden = opts.hidden ? toFn(opts.hidden) : toFn(false)
 
 		// Open/close the folder when the closed state changes.
-		this.evm.add(
+		this._evm.add(
 			this.closed.subscribe(v => {
 				v ? this.close() : this.open()
-				this.evm.emit('toggle', v)
+				this._evm.emit('toggle', v)
 				// this.root.closedMap?.setKey(this.presetId, v)
 			}),
 		)
@@ -351,10 +350,10 @@ export class Folder {
 	 * Whether the folder is visible.
 	 */
 	get hidden() {
-		return this.#hidden()
+		return this._hidden()
 	}
 	set hidden(v: boolean | (() => boolean)) {
-		this.#hidden = toFn(v)
+		this._hidden = toFn(v)
 	}
 
 	/**
@@ -483,7 +482,7 @@ export class Folder {
 
 		this.closed.set(state)
 
-		this.evm.emit('toggle', state)
+		this._evm.emit('toggle', state)
 	}
 
 	open(updateState = false) {
@@ -566,7 +565,7 @@ export class Folder {
 			id: this.presetId,
 			title: this.title,
 			closed: this.closed.value,
-			hidden: toFn(this.#hidden)(),
+			hidden: toFn(this._hidden)(),
 			children: this.children
 				.filter(c => c.title !== Gui.settingsFolderTitle)
 				.map(child => child.toJSON()),

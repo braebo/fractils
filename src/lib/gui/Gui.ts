@@ -261,15 +261,15 @@ export class Gui {
 	settingsFolder: Folder
 	static settingsFolderTitle = 'fracgui-settings-folder'
 
-	private _theme: GuiOptions['theme']
 	themer?: Themer
 	themeEditor?: ThemeEditor
 	windowManager?: WindowManager
 	undoManager = new UndoManager()
-
+	private _theme: GuiOptions['theme']
+	private _subs = new Set<() => void>()
 	private _log: Logger
 
-	// fwd Folder API
+	// Forwarding the Folder API...
 	on: Folder['on']
 	addFolder: Folder['addFolder']
 	add: Folder['add']
@@ -629,7 +629,7 @@ export class Gui {
 				finalThemer = themer
 			}
 
-			this.folder.evm.add(
+			this._subs.add(
 				finalThemer.mode.subscribe(() => {
 					if (this.settingsFolder) {
 						this.applyAltStyle(this.settingsFolder)
@@ -750,11 +750,15 @@ export class Gui {
 	}
 
 	dispose = () => {
-		this.folder.dispose()
-
-		window.addEventListener
 		this.themer?.dispose()
 		// this.themeEditor?.dispose()
 		this.windowManager?.dispose?.()
+		this.settingsFolder.dispose()
+		this.folder.dispose()
+		this.container.remove()
+
+		for (const unsub of this._subs) {
+			unsub()
+		}
 	}
 }

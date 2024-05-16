@@ -614,15 +614,20 @@ export class Themer {
 
 export class ThemeEditor {
 	gui: Gui
-	// #unsub: () => void
-	#log: Logger
+	private _log: Logger
+
+	/**
+	 * Unsubscribes the theme editor from the theme.  Called on dispose.
+	 * @internal
+	 */
+	private _unsubscribe?: () => void
 
 	get folder() {
 		return this.gui.folder
 	}
 
 	constructor(public targetGui: Gui) {
-		this.#log = new Logger(`ThemeEditor ${targetGui.folder.title}`, {
+		this._log = new Logger(`ThemeEditor ${targetGui.folder.title}`, {
 			fg: 'DarkCyan',
 			deferred: false,
 		})
@@ -668,10 +673,8 @@ export class ThemeEditor {
 
 		targetGui.themer?.addTarget(this.gui.wrapper)
 
-		this.gui.folder.evm.add(() => {
-			this.targetGui.themer?.theme.subscribe(t => {
-				this.gui.folder.title = `${opts?.title} · ${t.title}`
-			})
+		this._unsubscribe = this.targetGui.themer?.theme.subscribe(t => {
+			this.gui.folder.title = `${opts?.title} · ${t.title}`
 		})
 
 		this.targetGui.themer!.applyTheme()
@@ -679,17 +682,17 @@ export class ThemeEditor {
 		setTimeout(() => {
 			this.generate()
 
-			console.log(this.targetGui.folder.id, this.gui.folder.id)
-			console.log(this.targetGui.windowManager?.windows.map(w => w.id))
-			console.log(
-				this.targetGui.windowManager?.windows.find(w => w.id === this.targetGui.folder.id),
-			)
-			console.log(this.gui.windowManager?.windows.find(w => w.id === this.gui.folder.id))
+			// console.log(this.targetGui.folder.id, this.gui.folder.id)
+			// console.log(this.targetGui.windowManager?.windows.map(w => w.id))
+			// console.log(
+			// 	this.targetGui.windowManager?.windows.find(w => w.id === this.targetGui.folder.id),
+			// )
+			// console.log(this.gui.windowManager?.windows.find(w => w.id === this.gui.folder.id))
 		}, 0)
 	}
 
 	dispose() {
-		// this.#unsub()
+		this._unsubscribe?.()
 		this.gui.dispose()
 	}
 
@@ -707,7 +710,7 @@ export class ThemeEditor {
 			value: string,
 			onChange: InputOptions['onChange'],
 		) => {
-			this.#log.fn('add').debug({ title, value, onChange, this: this })
+			this._log.fn('add').debug({ title, value, onChange, this: this })
 
 			if (value.match(/^\d+(\.\d+)?$/g)) {
 				try {
@@ -742,7 +745,7 @@ export class ThemeEditor {
 					if (isColor(v)) {
 						v = v.hex8String
 					}
-					this.#log.fn('onChange').debug({
+					this._log.fn('onChange').debug({
 						k,
 						v,
 						value: `--${this.targetGui.themer!.theme.value.prefix}-${k}`,
