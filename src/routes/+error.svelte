@@ -8,7 +8,22 @@
 	}
 </script>
 
-<FourOhFour />
+{#if $page.status === 404}
+	<FourOhFour />
+{:else}
+	<pre class="message" style="position:absolute; bottom:0; right:1rem;">{$page.status}</pre>
+	<div class="internal-error">
+		<h1
+			>{$page.status !== 500 && $page.error?.message
+				? $page.error.message
+				: 'Something went wrong'}</h1
+		>
+		<div class="br-sm"></div>
+		<p>Sorry about that 🙁</p>
+	</div>
+	<div class="br-sm"></div>
+	<div class="br"></div>
+{/if}
 
 <div class="error">
 	<a href="/"> go back</a>
@@ -20,25 +35,35 @@
 <slot />
 
 <style>
+	.internal-error {
+		width: fit-content;
+		text-align: center;
+		margin: auto;
+		margin-top: 33vh;
+	}
+
 	a {
 		display: flex;
 
 		width: max-content;
-		/* margin: -5rem auto 0 auto; */
+
+		color: var(--fg-a, pink);
 
 		font-size: 1.5rem;
 		text-align: center;
-
-		color: var(--fg-a, pink);
 		text-decoration-skip-ink: auto;
-		text-decoration-color: #ffffff50;
+		text-decoration-color: #ffffff00;
+
+		&:hover {
+			text-decoration-color: #ffffff50;
+		}
 	}
 
 	.error {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 1rem;
+		/* gap: 1rem; */
 
 		text-align: center;
 	}
