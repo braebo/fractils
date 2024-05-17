@@ -392,12 +392,9 @@ export class Draggable {
 		public node: HTMLElement,
 		options?: Partial<DraggableOptions>,
 	) {
-		this.opts = Object.assign(DRAGGABLE_DEFAULTS, options)
+		this.opts = Object.assign({}, DRAGGABLE_DEFAULTS, options)
 
-		this.#log = new Logger('draggable ' + this.node.classList[0], {
-			fg: 'SkyBlue',
-			deferred: false,
-		})
+		this.#log = new Logger('draggable ' + this.node.classList[0], { fg: 'SkyBlue' })
 
 		this.#recomputeBounds = this.#resolveBounds(this.opts.bounds)
 
@@ -420,7 +417,7 @@ export class Draggable {
 		// Setup local storage if the key is provided.
 		if (this.opts.localStorageKey) {
 			this._storage = persist(this.opts.localStorageKey, startPosition)
-			const storagePostion = this._storage.value
+			const storagePostion = this._storage.get()
 			if (storagePostion) {
 				startPosition.x = storagePostion.x
 				startPosition.y = storagePostion.y
@@ -692,6 +689,7 @@ export class Draggable {
 	 * for collisions with {@link obstacleEls obstacles} or {@link boundsRect bounds}.
 	 */
 	moveTo(target: { x: number; y: number }, tweenTime = this.opts.animation.duration) {
+		this.#log.fn('moveTo').debug('Moving to:', target, this)
 		if (this.canMoveX) {
 			if (this.bounds) target.x = clamp(target.x, this.#leftBound, this.#rightBound)
 			const deltaX = target.x - this.x
@@ -795,7 +793,7 @@ export class Draggable {
 			)
 
 		if (this._storage) {
-			this._storage.value = this._position
+			this._storage.set(this._position)
 		}
 	}
 
