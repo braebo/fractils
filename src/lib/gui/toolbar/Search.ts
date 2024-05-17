@@ -16,12 +16,12 @@ export class Search {
 	needle = ''
 	showing = false
 
-	#evm = new EventManager()
-
 	tooltip: Tooltip
 	get defaultTooltipText() {
-		return 'Search ' + (this.folder.isRootFolder() ? 'All' : this.folder.title)
+		return 'Search ' + (this.folder.isRoot ? 'All' : this.folder.title)
 	}
+
+	private _evm = new EventManager()
 
 	constructor(public folder: Folder) {
 		const container = create('div', {
@@ -33,7 +33,7 @@ export class Search {
 			classes: ['fracgui-controller-text', 'fracgui-search-input', 'fractils-cancel'],
 			parent: container,
 		})
-		this.#evm.listen(input, 'input', e => this.search(e.target.value))
+		this._evm.listen(input, 'input', e => this.search(e.target.value))
 
 		const button = create('button', {
 			classes: ['fracgui-search-button', 'fractils-cancel'],
@@ -46,9 +46,9 @@ export class Search {
 			delay: 500,
 		})
 
-		const icon = this.#searchIcon()
+		const icon = this._searchIcon()
 		button.appendChild(icon)
-		this.#evm.listen(button, 'click', this.toggle)
+		this._evm.listen(button, 'click', this.toggle)
 
 		this.elements = {
 			container,
@@ -81,16 +81,16 @@ export class Search {
 			node.dataset['search_opacity'] ??= style.opacity ?? 1
 
 			if (result === 'hit') {
-				this.#expandInput(node)
+				this._expandInput(node)
 			} else if (result === 'miss') {
-				this.#collapseInput(node)
+				this._collapseInput(node)
 			}
 
 			node.dataset['search'] = result
 		}
 	}
 
-	#expandInput = async (node: HTMLElement) => {
+	private _expandInput = async (node: HTMLElement) => {
 		if (node.dataset['search'] === 'miss') {
 			node.style.setProperty('overflow', node.dataset['search_overflow']!)
 			node.style.setProperty('contain', node.dataset['search_contain']!)
@@ -114,7 +114,7 @@ export class Search {
 		}
 	}
 
-	#collapseInput = async (node: HTMLElement) => {
+	private _collapseInput = async (node: HTMLElement) => {
 		node.style.setProperty('overflow', 'hidden')
 		node.style.setProperty('contain', 'size')
 
@@ -130,8 +130,11 @@ export class Search {
 
 	clear = () => {
 		for (const [, controller] of this.folder.allInputs) {
-			this.#expandInput(controller.elements.container)
+			this._expandInput(controller.elements.container)
 		}
+
+		// todo - is it nicer to leave the search term in the input, or clear it?
+		// this.elements.input.value = ''
 	}
 
 	toggle = (e?: MouseEvent) => {
@@ -140,21 +143,21 @@ export class Search {
 		this.showing ? this.close() : this.open()
 	}
 
-	#tooltipTimeout!: ReturnType<typeof setTimeout>
+	private _tooltipTimeout!: ReturnType<typeof setTimeout>
 
 	open = () => {
 		this.showing = true
 		this.elements.container.classList.add('active')
 		this.elements.input.focus()
 
-		removeEventListener('click', this.#clickOutside)
-		addEventListener('click', this.#clickOutside)
-		removeEventListener('keydown', this.#escape)
-		addEventListener('keydown', this.#escape)
+		removeEventListener('click', this._clickOutside)
+		addEventListener('click', this._clickOutside)
+		removeEventListener('keydown', this._escape)
+		addEventListener('keydown', this._escape)
 
 		this.tooltip.hide()
-		clearTimeout(this.#tooltipTimeout)
-		this.#tooltipTimeout = setTimeout(() => {
+		clearTimeout(this._tooltipTimeout)
+		this._tooltipTimeout = setTimeout(() => {
 			this.tooltip.text = 'Cancel (esc)'
 			this.tooltip.placement = 'top'
 			this.tooltip.offsetX = '-40px'
@@ -174,12 +177,12 @@ export class Search {
 
 		this.clear()
 
-		removeEventListener('click', this.#clickOutside)
-		removeEventListener('keydown', this.#escape)
+		removeEventListener('click', this._clickOutside)
+		removeEventListener('keydown', this._escape)
 
 		this.tooltip.hide()
-		clearTimeout(this.#tooltipTimeout)
-		this.#tooltipTimeout = setTimeout(() => {
+		clearTimeout(this._tooltipTimeout)
+		this._tooltipTimeout = setTimeout(() => {
 			this.tooltip.text = this.defaultTooltipText
 			this.tooltip.placement = 'left'
 			this.tooltip.offsetX = TOOLTIP_DEFAULTS.offsetX
@@ -187,19 +190,19 @@ export class Search {
 		}, 100)
 	}
 
-	#clickOutside = (e: MouseEvent) => {
+	private _clickOutside = (e: MouseEvent) => {
 		if (!this.needle && !e.composedPath().includes(this.elements.container)) {
 			this.close()
 		}
 	}
 
-	#escape = (e: KeyboardEvent) => {
+	private _escape = (e: KeyboardEvent) => {
 		if (e.key === 'Escape') {
 			this.close()
 		}
 	}
 
-	#searchIcon() {
+	private _searchIcon() {
 		const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
 		svg.setAttribute('aria-hidden', 'true')
 		svg.setAttribute('width', '100%')
@@ -228,7 +231,7 @@ export class Search {
 	}
 
 	dispose() {
-		this.#evm.dispose()
+		this._evm.dispose()
 		this.tooltip.dispose()
 		this.elements.container.remove()
 	}
