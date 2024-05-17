@@ -8,26 +8,31 @@
 
 	import { demoGui, code, showCode } from './demoGui'
 
-	import { onDestroy, onMount } from 'svelte'
 	import { fly } from 'svelte/transition'
+	import { onMount } from 'svelte'
 
 	let gui: Gui
 	let ready = false
 
-	onMount(async () => {
+	onMount(() => {
 		params.update(p => {
 			p.height = Math.round(window.innerHeight / 10)
 			p.width = Math.round(window.innerWidth / 7)
 			return p
 		})
-		gui = await demoGui(params.value)
+		gui = demoGui(params.value)
 		ready = true
+// 
+		return () => {
+			gui?.dispose()
+			// globalThis.window?.location.reload()
+		}
 	})
 
-	onDestroy(() => {
-		gui?.dispose()
-		globalThis.window?.location.reload()
-	})
+	// onDestroy(() => {
+	// gui?.dispose()
+	// 	globalThis.window?.location.reload()
+	// })
 
 	function onResize() {
 		params.update(p => {

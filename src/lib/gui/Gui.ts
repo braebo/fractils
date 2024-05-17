@@ -227,7 +227,6 @@ export const GUI_DEFAULTS: GuiOptions = {
 		},
 	},
 	storage: false,
-	// storageOptions: GUI_STORAGE_DEFAULTS,
 	closed: false,
 	position: 'top-right',
 	positionOptions: {
@@ -235,9 +234,6 @@ export const GUI_DEFAULTS: GuiOptions = {
 		bounds: 'body',
 	},
 	theme: 'default',
-	// hidden: false,
-	// _parentFolder: undefined,
-	// depth: 0,
 } as const
 //⌟
 

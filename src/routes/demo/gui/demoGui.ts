@@ -1,14 +1,16 @@
 import type { Params } from '../../../lib/components/orbs/params'
+import type { GuiPreset } from '../../../lib/gui/Gui'
 
-import { Gui, type GuiPreset } from '../../../lib/gui/Gui'
+import { ORBS_PRESETS } from '../../../lib/gui/demo/ORBS_PRESETS'
 import { stringify } from '../../../lib/utils/stringify'
 import { debrief } from '../../../lib/utils/debrief'
 import { state } from '../../../lib/utils/state'
+import { Gui } from '../../../lib/gui/Gui'
 
 export const showCode = state(false)
 export const code = state('')
 
-export async function demoGui(params: Params) {
+export function demoGui(params: Params) {
 	const gui = new Gui({
 		title: 'Orbs',
 		position: 'top-center',
@@ -22,6 +24,7 @@ export async function demoGui(params: Params) {
 		windowManagerOptions: {
 			zFloor: 0,
 		},
+		presets: ORBS_PRESETS,
 	})
 
 	gui.folder.on('toggle', v => {
@@ -231,9 +234,6 @@ export async function demoGui(params: Params) {
 			if (showCode.value) showActivePreset(v)
 		}),
 	)
-
-	await Promise.resolve()
-	await Promise.resolve()
 
 	return gui
 }

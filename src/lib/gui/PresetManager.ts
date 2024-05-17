@@ -8,10 +8,10 @@ import { Tooltip } from '../actions/tooltip'
 import { RenameSVG } from './svg/RenameSVG'
 import { Logger } from '../utils/logger'
 import { nanoid } from '../utils/nanoid'
+import { isType } from '../utils/isType'
 import { SaveSVG } from './svg/SaveSVG'
 import { state } from '../utils/state'
 import { r } from '../utils/l'
-import { isType } from '$lib/utils/isType'
 
 export interface PresetManagerOptions {
 	__type?: 'PresetManagerOptions'
