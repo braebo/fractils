@@ -227,6 +227,7 @@ export const GUI_DEFAULTS: GuiOptions = {
 	themer: true,
 	themerOptions: {
 		localStorageKey: 'fracgui::themer',
+		mode: 'dark'
 	},
 	windowManager: undefined,
 	windowManagerOptions: {
