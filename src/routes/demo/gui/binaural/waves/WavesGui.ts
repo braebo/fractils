@@ -42,8 +42,6 @@ export class WavesGui extends Gui {
 			storage: false,
 		})
 
-		console.log(this.opts.position)
-
 		const btnGrid = this.addButtonGrid({
 			title: 'Playback',
 			value: [

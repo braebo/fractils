@@ -25,7 +25,7 @@ export function select(input: ElementsOrSelectors, node?: HTMLElement): HTMLElem
 		if (!el) return []
 
 		if (el instanceof HTMLElement) return [el]
-		// @ts-expect-error //- (document instanceof Document) is always `true`, so this is safe
+		// @ts-expect-error - (document instanceof Document) is always `true`, so this is safe..
 		if (el instanceof Document) {
 			return [document.documentElement]
 		}

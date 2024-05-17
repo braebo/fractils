@@ -472,6 +472,12 @@ export class Gui {
 		if (dragOpts) {
 			dragOpts.handle = this.folder.elements.header
 			dragOpts.bounds = this.container
+			if (options?.position) {
+				dragOpts.position = options.position
+			}
+			if (options?.storage === false) {
+				dragOpts.localStorageKey = undefined
+			}
 		}
 
 		const resizeOpts = resolveOpts<ResizableOptions>(
@@ -480,6 +486,20 @@ export class Gui {
 		)
 		if (resizeOpts) {
 			resizeOpts.bounds = this.container
+		}
+
+		// Use the provided window manager if it's an instance.
+		if (options?.windowManager instanceof WindowManager) {
+			const windowManager = options.windowManager
+
+			windowManager.add(this.folder.element, {
+				id: this.folder.id,
+				...this.opts.windowManagerOptions,
+				resizable: resizeOpts,
+				draggable: dragOpts,
+			})
+
+			return windowManager
 		}
 
 		const windowManagerOpts = resolveOpts<WindowManagerOptions>(
