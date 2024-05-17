@@ -287,7 +287,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 	static readonly #pickerHeight = '75px'
 
-	get #pickerContainer() {
+	private get _pickerContainer(): HTMLDivElement | undefined {
 		return this.picker.elements.container
 	}
 
@@ -304,7 +304,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 		this.elements.container.dataset['search_height'] = '100px'
 
-		const pickerAnim = this.#pickerContainer.animate(
+		const pickerAnim = this._pickerContainer?.animate(
 			[
 				{ height: '0px', clipPath: 'inset(0 0 100% 0)' },
 				{ height: InputColor.#pickerHeight, clipPath: 'inset(0 0 -50% 0)' },
@@ -315,14 +315,18 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		const containerAnim = this.elements.container.animate(
 			{ maxHeight: '100px', height: '100px' },
 			{ duration: 200, easing: 'cubic-bezier(.08,.38,0,0.92)', fill: 'forwards' },
-		)
+		) as Animation | undefined
 
-		this.#pickerContainer.style.overflow = 'visible'
-		this.#pickerContainer.classList.add('expanded')
+		this._pickerContainer?.style.setProperty('overflow', 'visible')
+		this._pickerContainer?.classList.add('expanded')
 
-		await Promise.all([pickerAnim.finished, containerAnim.finished])
-		pickerAnim.commitStyles()
-		containerAnim.commitStyles()
+		await Promise.all([pickerAnim?.finished, containerAnim?.finished])
+		if (this._pickerContainer && document.contains(this._pickerContainer)) {
+			pickerAnim?.commitStyles()
+		}
+		if (this.elements.container && document.contains(this.elements.container)) {
+			containerAnim?.commitStyles()
+		}
 	}
 
 	close = async (duration = 300) => {
@@ -330,7 +334,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 		delete this.elements.container.dataset['search_height']
 
-		const pickerAnim = this.#pickerContainer.animate(
+		const pickerAnim = this._pickerContainer?.animate(
 			[
 				{ height: InputColor.#pickerHeight, clipPath: 'inset(0 0 -100% 0)' },
 				{ height: '0px', clipPath: 'inset(0 0 100% 0)' },
@@ -344,14 +348,19 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 				height: 'var(--fracgui-input_height)',
 			},
 			{ duration: duration, easing: 'cubic-bezier(.13,.09,.02,.96)', fill: 'forwards' },
-		)
+		) as Animation | undefined
 
-		this.#pickerContainer.style.overflow = 'hidden'
-		this.#pickerContainer.classList.remove('expanded')
+		this._pickerContainer?.style.setProperty('overflow', 'hidden')
+		this._pickerContainer?.classList.remove('expanded')
 
-		await Promise.all([pickerAnim.finished, containerAnim.finished])
-		pickerAnim.commitStyles()
-		containerAnim.commitStyles()
+		await Promise.all([pickerAnim?.finished, containerAnim?.finished])
+
+		if (this._pickerContainer && document.contains(this._pickerContainer)) {
+			pickerAnim?.commitStyles()
+		}
+		if (this.elements.container && document.contains(this.elements.container)) {
+			containerAnim?.commitStyles()
+		}
 	}
 	//⌟
 
