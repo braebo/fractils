@@ -133,12 +133,12 @@ export class Tooltip {
 	/**
 	 * The tooltip element itself.
 	 */
-	element: HTMLDivElement
+	element: HTMLDivElement | undefined | null
 
 	/**
 	 * The parent element of the tooltip.
 	 */
-	parent: HTMLElement
+	parent: HTMLElement | undefined | null
 
 	/**
 	 * Whether the tooltip is currently showing.
@@ -164,7 +164,7 @@ export class Tooltip {
 		/**
 		 * The node that the tooltip is attached to.
 		 */
-		public node: HTMLElement,
+		public node: HTMLElement | undefined | null,
 		options?: Partial<TooltipOptions>,
 	) {
 		const opts = deepMerge([TOOLTIP_DEFAULTS, options])
@@ -185,21 +185,22 @@ export class Tooltip {
 		if (opts.style) {
 			for (const [key, value] of entries(opts.style)) {
 				if (key && value) {
-					this.element.style.setProperty(key, value)
+					this.element?.style.setProperty(key, value)
 				}
 			}
 		}
 
-		this._evm.listen(node, 'pointerenter', this.show)
-		this._evm.listen(node, 'pointerleave', this.hide)
-		this._evm.listen(node, 'pointermove', this._updatePosition)
-		this._evm.listen(node, 'click', () => {
+		this._evm.listen(node!, 'pointerenter', this.show)
+		this._evm.listen(node!, 'pointerleave', this.hide)
+		this._evm.listen(node!, 'pointermove', this._updatePosition)
+		this._evm.listen(node!, 'click', () => {
 			if (opts.hideOnClick) this.hide()
 			else this.refresh()
 		})
 	}
 
 	refresh() {
+		if (!this.element) return
 		this.element.innerHTML = String(this.text)
 		setTimeout(() => this._updatePosition(), 0)
 		this._maybeWatchAnchor()
@@ -215,6 +216,7 @@ export class Tooltip {
 	}
 	set text(text: string | (() => string)) {
 		this._text = toFn(text)
+		if (!this.element) return
 		this.element.innerHTML = String(this._text())
 	}
 
@@ -264,10 +266,10 @@ export class Tooltip {
 		clearTimeout(this._delayOutTimer)
 
 		this._delayInTimer = setTimeout(async () => {
-			this.parent.appendChild(this.element)
+			if (this.element) this.parent?.appendChild(this.element)
 			this.showing = true
 
-			this.element.animate(
+			this.element?.animate(
 				[
 					{ opacity: '0', transform: this._animPositions.from },
 					{ opacity: '1', transform: this._animPositions.to },
@@ -299,7 +301,7 @@ export class Tooltip {
 					this._evm.unlisten(this._watcherId)
 				}
 
-				await this.element.animate(
+				await this.element?.animate(
 					[
 						{ opacity: '1', transform: this._animPositions.to },
 						{ opacity: '0', transform: this._animPositions.from },
@@ -324,15 +326,17 @@ export class Tooltip {
 	mount() {
 		if (this._mounted) return
 		this._mounted = true
-		this.parent.appendChild(this.element)
+		if (this.element) this.parent?.appendChild(this.element)
 	}
 	unmount() {
 		if (!this._mounted) return
 		this._mounted = false
-		this.parent.removeChild(this.element)
+		if (this.element) this.parent?.removeChild(this.element)
 	}
 
 	private _updatePosition = (e?: PointerEvent) => {
+		if (!this.element) return
+
 		const tooltipRect = this.element.getBoundingClientRect()
 
 		if (this.element.innerHTML !== this.text) {
@@ -348,6 +352,7 @@ export class Tooltip {
 
 		// todo - can we safely "cache" the anchor?
 		const anchor = this._getAnchorRects()
+		if (!anchor) return
 
 		let left = 0
 		let top = 0
@@ -375,7 +380,8 @@ export class Tooltip {
 				break
 		}
 
-		const parentRect = this.parent.getBoundingClientRect()
+		const parentRect = this.parent?.getBoundingClientRect()
+		if (!parentRect) return
 
 		this.element.style.left = `calc(${left - parentRect.left}px + ${this.opts.offsetX!})`
 		this.element.style.top = `calc(${top - parentRect.top}px + ${this.opts.offsetY!})`
@@ -384,20 +390,22 @@ export class Tooltip {
 	// todo - mobile touch events support?
 	private _mouse = { x: 0, y: 0 }
 
-	private _getAnchorRects(): {
-		x: AnchorRect
-		y: AnchorRect
-	} {
+	private _getAnchorRects():
+		| {
+				x: AnchorRect
+				y: AnchorRect
+		  }
+		| undefined {
 		const getRect = <Alt extends string = never>(
 			anchor: TooltipOptions['anchor'],
-		): AnchorRect | Alt => {
-			if (!anchor) return this.node.getBoundingClientRect()
+		): AnchorRect | Alt | undefined => {
+			if (!anchor) return this.node?.getBoundingClientRect()
 
 			switch (typeof anchor) {
 				case 'string': {
 					switch (anchor) {
 						case 'node': {
-							return this.node.getBoundingClientRect()
+							return this.node?.getBoundingClientRect()
 						}
 						case 'mouse': {
 							return {
@@ -413,8 +421,8 @@ export class Tooltip {
 							if (el) {
 								return el.getBoundingClientRect()
 							} else {
-								console.error('Tooltip anchor not found:', anchor)
-								return this.node.getBoundingClientRect()
+								if (DEV) console.warn('Tooltip anchor not found:', anchor)
+								return this.node?.getBoundingClientRect()
 							}
 						}
 					}
@@ -427,12 +435,12 @@ export class Tooltip {
 						return anchor.getBoundingClientRect()
 					} else {
 						if (DEV) console.warn('Invalid tooltip anchor:', anchor)
-						return this.node.getBoundingClientRect()
+						return this.node?.getBoundingClientRect()
 					}
 				}
 				default: {
 					if (DEV) console.warn('Invalid tooltip anchor:', anchor)
-					return this.node.getBoundingClientRect()
+					return this.node?.getBoundingClientRect()
 				}
 			}
 		}
@@ -443,9 +451,12 @@ export class Tooltip {
 			const x = getRect((this.opts.anchor as Anchors).x)
 			const y = getRect((this.opts.anchor as Anchors).y)
 
+			if (!x || !y) return undefined
+
 			return { x, y }
 		}
 
+		if (!rect) return undefined
 		return { x: rect, y: rect }
 	}
 
@@ -461,7 +472,7 @@ export class Tooltip {
 			const anchor =
 				el instanceof HTMLElement
 					? el
-					: this.node.querySelector(el) ?? document.querySelector(el)
+					: this.node?.querySelector(el) ?? document.querySelector(el)
 
 			const watchAnchor = () => {
 				if (anchor) {
@@ -531,7 +542,7 @@ export class Tooltip {
 		const complete = () => {
 			this._watchingFinished = true
 			this._watchingAnchor = false
-			this.element.style.transitionDuration = '0.1s'
+			this.element?.style.setProperty('transition-duration', '0.1s')
 			if (timeout) el.removeEventListener('transitionend', timeout)
 		}
 
@@ -556,7 +567,7 @@ export class Tooltip {
 		el.addEventListener('transitionend', timeout)
 
 		if (!this._watchingFinished) {
-			this.node.style.transitionDuration = '0s'
+			this.node?.style.setProperty('transition-duration', '0s')
 
 			tickLoop(() => {
 				if (!this._watchingFinished) {
@@ -574,7 +585,7 @@ export class Tooltip {
 		}
 
 		this._evm.dispose()
-		this.element.remove()
+		this.element?.remove()
 	}
 
 	static style = /*css*/ `
