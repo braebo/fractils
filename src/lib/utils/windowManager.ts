@@ -95,12 +95,12 @@ export class WindowManager {
 	windows: WindowInstance[] = []
 	opts: WindowManagerOptions
 
-	#log = new Logger('WindowManager', { fg: 'lightseagreen' })
-	#evm = new EventManager()
+	private _log = new Logger('WindowManager', { fg: 'lightseagreen' })
+	private _evm = new EventManager()
 
 	constructor(options?: Partial<WindowManagerOptions>) {
 		this.opts = this.#resolveOptions(options)
-		this.#log.fn('constructor').info({ opts: this.opts, this: this })
+		this._log.fn('constructor').info({ opts: this.opts, this: this })
 	}
 
 	add: Action<HTMLElement, Partial<WindowInstanceOptions> | undefined> = (
@@ -108,17 +108,17 @@ export class WindowManager {
 		options?: Partial<WindowInstanceOptions>,
 	) => {
 		const instanceOpts = this.#resolveOptions(options) as WindowInstanceOptions
-		this.#log.fn('add').info({ node, options, instanceOpts })
+		this._log.fn('add').info({ node, options, instanceOpts })
 
 		const instance = new WindowInstance(this, node, instanceOpts)
 		this.windows.push(instance)
 
-		const listenerId = this.#evm.listen(node, 'grab', this.select)
+		const listenerId = this._evm.listen(node, 'grab', this.select)
 
 		return {
 			destroy: () => {
 				this.windows = this.windows.filter(i => i !== instance)
-				this.#evm.unlisten(listenerId)
+				this._evm.unlisten(listenerId)
 				instance.dispose()
 			},
 		}
@@ -177,11 +177,11 @@ export class WindowManager {
 			concatArrays: false,
 		}) as WindowManagerOptions
 
-		this.#log.fn('#resolveOptions').debug('incoming options:', { options, opts })
+		this._log.fn('#resolveOptions').debug('incoming options:', { options, opts })
 
 		opts.draggable = resolveOpts(options?.draggable, WINDOWMANAGER_DEFAULTS.draggable)
 		opts.resizable = resolveOpts(options?.resizable, WINDOWMANAGER_DEFAULTS.resizable)
-		this.#log
+		this._log
 			.fn('#resolveOptions')
 			.debug('resolved options:', { draggable: opts.draggable, resizable: opts.resizable })
 
@@ -204,13 +204,13 @@ export class WindowManager {
 			}
 		}
 
-		this.#log.fn('#resolveOptions').debug('resolved:', options)
+		this._log.fn('#resolveOptions').debug('resolved:', options)
 
 		return opts
 	}
 
 	dispose() {
-		this.#evm.dispose()
+		this._evm.dispose()
 		for (const instance of this.windows) {
 			instance.resizableInstance?.dispose()
 			instance.draggableInstance?.dispose()
