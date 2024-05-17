@@ -140,7 +140,7 @@ export class ButtonController {
 
 	constructor(options: Partial<ButtonControllerOptions>) {
 		const opts = Object.assign({}, BUTTON_INPUT_DEFAULTS, options)
-		this._log.fn('constructor').info({ opts, this: this })
+		this._log.fn('constructor').debug({ opts, this: this })
 
 		this.element = opts.element
 			? opts.element
@@ -178,6 +178,10 @@ export class ButtonController {
 		this.element.classList.toggle('active', this._active())
 	}
 
+	/**
+	 * Set this to `true` to disable the button.  If a function is assigned, it will be called
+	 * whenever the button is refreshed.
+	 */
 	get disabled(): boolean {
 		return this._disabled()
 	}
@@ -187,6 +191,9 @@ export class ButtonController {
 		this._disabled() ? this.disable() : this.enable()
 	}
 
+	/**
+	 * Update the button with new options.
+	 */
 	set(options: Partial<ButtonControllerOptions>) {
 		Object.assign(this, options)
 		this._evm.emit('change', this)
@@ -194,18 +201,20 @@ export class ButtonController {
 	}
 
 	click = (e: MouseEvent & { target: HTMLButtonElement }) => {
-		this._log.fn('click').info({ this: this })
+		this._log.fn('click').debug({ this: this })
 		this._evm.emit('click', { e, button: this })
 		this.refresh()
 	}
 
 	enable = () => {
+		if (this.disabled) return (this.disabled = false)
 		this.element.classList.remove('disabled')
 		this.element.removeAttribute('disabled')
 		return this
 	}
 
 	disable = () => {
+		if (!this.disabled) return (this.disabled = true)
 		this.element.classList.add('disabled')
 		this.element.setAttribute('disabled', 'true')
 		return this

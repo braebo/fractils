@@ -221,16 +221,16 @@ export abstract class Input<
 		public folder: Folder,
 	) {
 		this.opts = options
-		// this.__type = options.__type
+
 		this.id =
 			this.opts.presetId ??
-			`${folder.resolvePresetId()}_${this.opts.title}__${this.opts.__type}`
+			`${folder.presetId}_${this.opts.title}__${this.opts.__type}`
 
 		this.__log = new Logger(
-			`Input${this.opts.__type!.replaceAll(/Options|Input/g, '')} ${this.opts.title}`,
+			`SuperInput${this.opts.__type!.replaceAll(/Options|Input/g, '')} ${this.opts.title}`,
 			{ fg: 'skyblue' },
 		)
-		this.__log.fn('super constructor').info({ options, this: this })
+		this.__log.fn('super constructor').debug({ options, this: this })
 
 		this._title = this.opts.title ?? ''
 		this._disabled = toFn(this.opts.disabled ?? false)
@@ -296,7 +296,7 @@ export abstract class Input<
 	}
 
 	get undoManager() {
-		return this.folder.gui?.undoManager
+		return this.folder.gui?._undoManager
 	}
 
 	get title() {
