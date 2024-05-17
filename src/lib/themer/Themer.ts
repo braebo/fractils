@@ -137,15 +137,18 @@ export class Themer {
 	 * The element to theme.
 	 */
 	node: HTMLElement
+
 	/**
 	 * The currently active theme.  When `theme.set` is called, the new theme
 	 * passed in is automatically applied.
 	 */
 	theme: State<Theme>
+
 	/**
 	 * All themes available to the themer.
 	 */
 	themes: State<Theme[]>
+
 	/**
 	 * The title of the currently active {@link theme}.
 	 *
@@ -153,6 +156,7 @@ export class Themer {
 	 * saved to localStorage and used to restore the theme on page load.
 	 */
 	activeThemeTitle: State<ThemeTitle>
+
 	/**
 	 * The current mode ('light', 'dark', or 'system').
 	 *
@@ -163,18 +167,18 @@ export class Themer {
 	 * to localStorage and used to restore the mode on page load.
 	 */
 	mode: State<'light' | 'dark' | 'system'>
+
 	/**
 	 * If provided, theme css vars will be added to the wrapper.
 	 */
 	wrapper?: HTMLElement
 
-	#initialized = false
-	#persistent: boolean
-	#key: string
-	#unsubs: Array<() => void> = []
-	#targets = new Set<HTMLElement>()
-
-	#log: Logger
+	private _initialized = false
+	private _persistent: boolean
+	private _key: string
+	private _unsubs: Array<() => void> = []
+	private _targets = new Set<HTMLElement>()
+	private _log: Logger
 
 	constructor(
 		/**
@@ -187,7 +191,7 @@ export class Themer {
 		options?: Partial<ThemerOptions>,
 	) {
 		const opts = deepMerge([THEMER_DEFAULTS, options])
-		this.#key = String(opts.localStorageKey)
+		this._key = String(opts.localStorageKey)
 
 		if (opts.wrapper) {
 			this.wrapper = opts.wrapper
@@ -200,9 +204,9 @@ export class Themer {
 					? select(node)[0] ?? document.documentElement
 					: (node as HTMLElement)
 
-		this.#log = new Logger(`themer ${this.node.classList[0]}`, { fg: 'DarkCyan' })
+		this._log = new Logger(`themer ${this.node.classList[0]}`, { fg: 'DarkCyan' })
 
-		this.#log.fn(g('constructor')).info({ node, opts, this: this })
+		this._log.fn(g('constructor')).info({ node, opts, this: this })
 
 		this.theme = state(resolveTheme(opts.theme, opts.vars))
 
@@ -213,7 +217,7 @@ export class Themer {
 		)
 
 		this.activeThemeTitle = state(opts.theme.title, {
-			key: this.#key + '::activeTheme',
+			key: this._key + '::activeTheme',
 		})
 
 		const storedTitle = this.activeThemeTitle.value
@@ -223,28 +227,28 @@ export class Themer {
 		}
 
 		this.mode = state(opts.mode, {
-			key: this.#key + '::mode',
+			key: this._key + '::mode',
 		})
 
-		this.#persistent = opts.persistent ?? true
+		this._persistent = opts.persistent ?? true
 
 		this.#addSub(this.theme, v => {
-			this.#log.fn(o('theme.subscribe')).debug({ v, this: this })
-			if (this.#initialized) {
+			this._log.fn(o('theme.subscribe')).debug({ v, this: this })
+			if (this._initialized) {
 				this.activeThemeTitle.set(v.title)
 				this.applyTheme()
 			}
 		})
 
 		this.#addSub(this.mode, v => {
-			this.#log.fn(o('mode.subscribe')).debug('v', v, { this: this })
+			this._log.fn(o('mode.subscribe')).debug('v', v, { this: this })
 
 			if (typeof v === 'undefined') throw new Error('Mode is undefined.')
 
-			if (this.#initialized) this.applyTheme()
+			if (this._initialized) this.applyTheme()
 		})
 
-		this.#targets.add(this.wrapper ?? this.node.parentElement ?? this.node)
+		this._targets.add(this.wrapper ?? this.node.parentElement ?? this.node)
 
 		if (opts.autoInit) {
 			this.init()
@@ -255,18 +259,18 @@ export class Themer {
 		S extends PrimitiveState<unknown>,
 		V extends Parameters<Parameters<S['subscribe']>[0]>[0],
 	>(state: S, cb: (v: V) => void) {
-		this.#unsubs.push(state.subscribe(v => cb(v as V)))
+		this._unsubs.push(state.subscribe(v => cb(v as V)))
 	}
 
 	init() {
 		const themes = this.themes.value
 		const theme = this.theme.value
 
-		this.#log.fn(c('init')).debug({ theme: this.theme, this: this })
+		this._log.fn(c('init')).debug({ theme: this.theme, this: this })
 		if (typeof document === 'undefined') return
 
-		if (this.#initialized) return this
-		this.#initialized = true
+		if (this._initialized) return this
+		this._initialized = true
 
 		// Make sure the initial theme is in the themes array.
 		if (!themes.find(t => t.title === theme.title)) {
@@ -346,7 +350,7 @@ export class Themer {
 			save?: boolean
 		},
 	) => {
-		this.#log.fn(c('addTheme')).debug({ newTheme, options, this: this })
+		this._log.fn(c('addTheme')).debug({ newTheme, options, this: this })
 
 		const theme = structuredClone(newTheme)
 
@@ -371,7 +375,7 @@ export class Themer {
 				}
 
 				if (i > 100) {
-					this.#log.fn(c('addTheme')).debug(r('Runaway loop detected.') + ' Aborting.', {
+					this._log.fn(c('addTheme')).debug(r('Runaway loop detected.') + ' Aborting.', {
 						this: this,
 					})
 					break
@@ -385,7 +389,7 @@ export class Themer {
 	}
 
 	delete(themeOrTitle: ThemeTitle | Theme) {
-		this.#log.fn(c('deleteTheme')).debug({ themeOrTitle, this: this })
+		this._log.fn(c('deleteTheme')).debug({ themeOrTitle, this: this })
 
 		const themeTitle = typeof themeOrTitle === 'string' ? themeOrTitle : themeOrTitle.title
 
@@ -394,7 +398,7 @@ export class Themer {
 		const theme = themes.find(t => t.title === themeTitle)
 
 		if (!theme) {
-			this.#log.error('`themeTitle` not found in `themes` array.', {
+			this._log.error('`themeTitle` not found in `themes` array.', {
 				themeTitle,
 				this: this,
 			})
@@ -427,15 +431,15 @@ export class Themer {
 	 * Applies the current theme to the document.
 	 */
 	applyTheme = (targets?: HTMLElement[]) => {
-		this.#log
+		this._log
 			.fn(c('applyTheme'))
-			.debug({ theme: this.theme.value.title, targets: this.#targets, this: this })
+			.debug({ theme: this.theme.value.title, targets: this._targets, this: this })
 		if (!('document' in globalThis)) return
 
 		const theme = this.theme.value
 
 		if (!theme) {
-			this.#log.error('theme not found').debug({ theme, this: this })
+			this._log.error('theme not found').debug({ theme, this: this })
 			throw new Error(`Theme not found.`)
 		}
 
@@ -456,7 +460,7 @@ export class Themer {
 		theme ??= this.themes.value.find(t => t.title === json.activeTheme)
 
 		if (!theme) {
-			this.#log.error('`activeTheme` not found in `themes` array.', {
+			this._log.error('`activeTheme` not found in `themes` array.', {
 				activeTheme: json.activeTheme,
 				json,
 				this: this,
@@ -488,10 +492,10 @@ export class Themer {
 	 * @returns The JSON that was loaded (if found).
 	 */
 	load = () => {
-		this.#log.fn(c('load')).debug({ this: this })
+		this._log.fn(c('load')).debug({ this: this })
 
-		if (this.#persistent && 'localStorage' in globalThis) {
-			const json = localStorage.getItem(this.#key + '::themer')
+		if (this._persistent && 'localStorage' in globalThis) {
+			const json = localStorage.getItem(this._key + '::themer')
 
 			if (json) {
 				this.fromJSON(JSON.parse(json))
@@ -506,23 +510,23 @@ export class Themer {
 	 * @returns The JSON that was saved.
 	 */
 	save() {
-		this.#log.fn(c('save')).debug({ this: this })
+		this._log.fn(c('save')).debug({ this: this })
 
 		if (!('localStorage' in globalThis)) return
-		if (!this.#persistent) return
+		if (!this._persistent) return
 
 		const json = this.toJSON()
 
-		const exists = `${this.#key}themer` in localStorage
+		const exists = `${this._key}themer` in localStorage
 
 		try {
 			const identical =
 				exists &&
 				JSON.parse(JSON.stringify(json)) ===
-					JSON.parse(localStorage.getItem(`${this.#key}themer`) || '')
+					JSON.parse(localStorage.getItem(`${this._key}themer`) || '')
 
 			if (!identical) {
-				localStorage.setItem(`${this.#key}themer`, JSON.stringify(json))
+				localStorage.setItem(`${this._key}themer`, JSON.stringify(json))
 			}
 		} catch (error) {
 			console.error(r('Error') + ': Failed to save to localStorage.', { error, this: this })
@@ -536,16 +540,16 @@ export class Themer {
 	 * Removes the current Themer state from localStorage.
 	 */
 	clear() {
-		this.#log.fn(c('clear')).debug({ this: this })
+		this._log.fn(c('clear')).debug({ this: this })
 		if (!('localStorage' in globalThis)) return
-		localStorage.removeItem(`${this.#key}themer`)
+		localStorage.removeItem(`${this._key}themer`)
 		this.themes.set([theme_default])
 		this.theme.set(theme_default)
 		this.mode.set('system')
 	}
 
 	addTarget(target: HTMLElement) {
-		this.#targets.add(target)
+		this._targets.add(target)
 		this.applyTheme([target])
 	}
 
@@ -555,13 +559,13 @@ export class Themer {
 	 * @returns A string of CSS custom properties.
 	 * @internal
 	 */
-	#applyStyleProps = (themeConfig: Theme, targets = this.#targets as any as HTMLElement[]) => {
+	#applyStyleProps = (themeConfig: Theme, targets = this._targets as any as HTMLElement[]) => {
 		const config = themeConfig
-		this.#log.fn(c('applyStyleProps')).debug({ config, this: this })
+		this._log.fn(c('applyStyleProps')).debug({ config, this: this })
 
 		const themeColors = config.vars.color[this.activeMode]
 		if (!themeColors) {
-			this.#log.error('`theme` not found in `config`.', {
+			this._log.error('`theme` not found in `config`.', {
 				theme: themeColors,
 				config,
 				'this.activeMode': this.activeMode,
@@ -606,7 +610,7 @@ export class Themer {
 	}
 
 	dispose() {
-		for (const unsub of this.#unsubs) {
+		for (const unsub of this._unsubs) {
 			unsub()
 		}
 	}
