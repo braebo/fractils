@@ -415,8 +415,8 @@ export class Draggable {
 		const startPosition = this.opts.position as { x: number; y: number }
 
 		// Setup local storage if the key is provided.
-		if (this.opts.localStorageKey) {
-			this._storage = persist(this.opts.localStorageKey, startPosition)
+		if (options?.localStorageKey) {
+			this._storage = persist(this.opts.localStorageKey!, startPosition)
 			const storagePostion = this._storage.get()
 			if (storagePostion) {
 				startPosition.x = storagePostion.x

@@ -48,7 +48,7 @@
 	$: if (insidePos) data = insidePos // Update `data` anytime `insidePos` changes.
 	//- Update `data` with the initial position after `innerbox` is mounted.
 	onMount(() => {
-		const innerbox = wm.windows.find(({ id }) => id === 'innerbox')
+		const innerbox = wm.windows.get('innerbox')
 		if (innerbox) {
 			data = innerbox.draggableInstance!.position
 		}

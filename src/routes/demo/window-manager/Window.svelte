@@ -2,7 +2,7 @@
 	import type { WindowManager, WindowInstanceOptions } from '$lib/utils/windowManager'
 
 	export let wm: WindowManager
-	export let i = wm.windows.length
+	export let i = wm.windows.size
 	export let title = `Window ${i}`
 	export let options: Partial<WindowInstanceOptions>
 	export let debug = false

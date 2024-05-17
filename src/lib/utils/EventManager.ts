@@ -40,7 +40,7 @@ export class EventManager<EventMap extends Record<string, any>> {
 	 * @returns The ID of the listener (for use via {@link unlisten} to remove the listener).
 	 */
 	on<K extends keyof EventMap>(event: K, callback: EventCallback<EventMap[K]>): string {
-		this._log.fn('on').info(this)
+		this._log.fn('on').debug(this)
 
 		if (!this._handlers.has(event)) {
 			this._log.warn(`Event "${String(event)}" is not registered.`, this)

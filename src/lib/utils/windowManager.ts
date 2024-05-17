@@ -88,11 +88,18 @@ export const WINDOWMANAGER_DEFAULTS = {
 } as const satisfies WindowManagerOptions
 
 /**
- * Manages the z-index of multiple elements to ensure
- * the most recently selected element is on top.
+ * Manages multiple draggable and/or resizable {@link WindowInstance}s.
+ *
+ * {@link WindowManager.windows|`windows`} can be added, removed, and their
+ * z-index values are managed to ensure the most recently selected element is on top.
+ * @todo Add examples
  */
 export class WindowManager {
-	windows: WindowInstance[] = []
+	/**
+	 * A map of all windows managed by the instance.  The key is the window's id specified in the
+	 * options for each window.
+	 */
+	windows = new Map<WindowInstance['id'], WindowInstance>()
 	opts: WindowManagerOptions
 
 	private _log = new Logger('WindowManager', { fg: 'lightseagreen' })
@@ -111,15 +118,15 @@ export class WindowManager {
 		this._log.fn('add').info({ node, options, instanceOpts })
 
 		const instance = new WindowInstance(this, node, instanceOpts)
-		this.windows.push(instance)
+		this.windows.set(instance.id, instance)
 
 		const listenerId = this._evm.listen(node, 'grab', this.select)
 
 		return {
 			destroy: () => {
-				this.windows = this.windows.filter(i => i !== instance)
-				this._evm.unlisten(listenerId)
 				instance.dispose()
+				this.windows.delete(instance.id)
+				this._evm.unlisten(listenerId)
 			},
 		}
 	}
@@ -132,8 +139,9 @@ export class WindowManager {
 	}
 
 	applyZ() {
-		for (let i = 1; i < this.windows.length; i++) {
-			this.windows[i].node.style.setProperty('z-index', String(this.opts.zFloor + i))
+		let i = 0
+		for (const instance of this.windows.values()) {
+			instance.node.style.setProperty('z-index', String(this.opts.zFloor + i++))
 		}
 
 		return this
@@ -142,7 +150,7 @@ export class WindowManager {
 	select = (e: PointerEvent) => {
 		const target_node = e.currentTarget as HTMLElement
 
-		const instance = this.windows.find(({ node }) => node === target_node)
+		const instance = this.windows.get(target_node.id)
 
 		if (!instance) {
 			throw new Error('Unable to resolve instance from selected node: ' + target_node)
@@ -150,9 +158,9 @@ export class WindowManager {
 
 		// this.#animate(node)
 
-		if (this.windows.length > 1) {
+		if (this.windows.size > 1) {
 			const initialZ = target_node.style.getPropertyValue('z-index')
-			target_node.style.setProperty('z-index', String(this.opts.zFloor + this.windows.length))
+			target_node.style.setProperty('z-index', String(this.opts.zFloor + this.windows.size))
 
 			if (target_node.dataset['keepZ'] === 'true' || this.opts.preserveZ) {
 				addEventListener(
@@ -163,8 +171,8 @@ export class WindowManager {
 					},
 				)
 			} else {
-				this.windows = this.windows.filter(i => i !== instance)
-				this.windows.push(instance)
+				this.windows.delete(instance.id)
+				this.windows.set(instance.id, instance)
 				this.applyZ()
 			}
 		}
@@ -209,12 +217,16 @@ export class WindowManager {
 		return opts
 	}
 
+	/**
+	 * Dispose of the instance and all windows.
+	 */
 	dispose() {
+		this._log.fn('dispose').info(this)
 		this._evm.dispose()
-		for (const instance of this.windows) {
-			instance.resizableInstance?.dispose()
-			instance.draggableInstance?.dispose()
+		for (const instance of this.windows.values()) {
+			instance.dispose()
 		}
+		this.windows.clear()
 	}
 }
 
@@ -250,7 +262,7 @@ export class WindowInstance {
 			node.dataset['keepZ'] = 'true'
 		}
 
-		const i = this.manager.windows.length
+		const i = this.manager.windows.size
 		const dragOpts = resolveOpts(options.draggable, DRAGGABLE_DEFAULTS)
 		const resizeOpts = resolveOpts(options.resizable, RESIZABLE_DEFAULTS)
 

@@ -139,7 +139,6 @@ export class Waves {
 	dispose() {
 		this.stop()
 		this.merger.disconnect()
-		this.ctx.close()
 		this.gui?.dispose()
 	}
 }
