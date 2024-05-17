@@ -1,7 +1,8 @@
 import type { ThemeInput } from 'shiki'
 
 export default {
-	name: 'Serendipity Midnight',
+	name: 'serendipity',
+	displayName: 'Serendipity Midnight',
 	type: 'dark',
 	bg: '#0000',
 	fg: '#d4d4d4',
