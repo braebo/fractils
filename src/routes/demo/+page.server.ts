@@ -4,8 +4,8 @@ export const load = () => {
 			eager: true,
 		}),
 	)
-		.toSpliced(0, 1)
-		.map((path) => path.replace(/\.\/+/g, '').replace(/\/\+page\.svelte$/, ''))
+		.slice(1)
+		.map(path => path.replace(/\.\/+/g, '').replace(/\/\+page\.svelte$/, ''))
 
 	return { routes }
 }
