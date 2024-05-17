@@ -1,12 +1,11 @@
-import { state, Color } from '$lib'
+import { Color } from '../../color/color'
+import { state } from '../../utils/state'
 
 const count = 10
 const defaults = {
 	orbs: 50,
 	size: 5,
 	floop: 0.01,
-	// a1: 0.1,
-	// a2: 0.5,
 	a1: 1,
 	a2: 1,
 	drift: 0,
@@ -24,5 +23,4 @@ const defaults = {
 }
 
 export type Params = typeof defaults
-
 export const params = state(defaults)

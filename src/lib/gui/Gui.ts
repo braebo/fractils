@@ -398,12 +398,12 @@ export class Gui {
 		// })
 		//⌟
 
-		this.folder.elements.toolbar.settingsButton = this.#createSettingsButton(
+		this.folder.elements.toolbar.settingsButton = this._createSettingsButton(
 			this.folder.elements.toolbar.container,
 		)
-		this.settingsFolder = this.#createSettingsFolder()
+		this.settingsFolder = this._createSettingsFolder()
 
-		this.windowManager ??= this.#createWindowManager(options, storageOpts)
+		this.windowManager ??= this._createWindowManager(options, storageOpts)
 
 		//· Theme Editor ·····················································¬
 
@@ -427,16 +427,18 @@ export class Gui {
 
 		//· Reveal Animation ·················································¬
 
-		this.#reveal()
+		this._reveal()
 		//⌟
 
 		return this
 	}
 
-	async #reveal() {
+	private async _reveal() {
 		// Wait until the gui is fully constructed before positioning it
 		// to make sure we can calculate the correct size and position.
 		await Promise.resolve()
+
+		if (!this.container) return
 
 		// Append a non-animating, full-size clone to get the proper rect.
 		const ghost = this.wrapper.cloneNode(true) as HTMLElement
@@ -466,7 +468,10 @@ export class Gui {
 		})
 	}
 
-	#createWindowManager(options?: Partial<GuiOptions>, storageOpts?: GuiStorageOptions | false) {
+	private _createWindowManager(
+		options?: Partial<GuiOptions>,
+		storageOpts?: GuiStorageOptions | false,
+	) {
 		if (this.windowManager) return this.windowManager
 
 		const dragOpts = resolveOpts<DraggableOptions>(
@@ -543,7 +548,7 @@ export class Gui {
 		return this._theme!
 	}
 
-	#createSettingsFolder() {
+	private _createSettingsFolder() {
 		const settingsFolder = this.folder.addFolder({
 			title: Gui.settingsFolderTitle,
 			closed: false,
@@ -553,7 +558,7 @@ export class Gui {
 		})
 
 		if (this.opts.themer) {
-			const themer = this.#createThemer(settingsFolder)
+			const themer = this._createThemer(settingsFolder)
 			if (themer) this.themer = themer
 			// this.themeEditor = new ThemeEditor(this)
 		}
@@ -614,7 +619,7 @@ export class Gui {
 		this.folder.load(preset.data)
 	}
 
-	#createThemer(folder: Folder) {
+	private _createThemer(folder: Folder) {
 		this._log.fn('createThemer').debug({ folder })
 		let finalThemer = undefined as Themer | undefined
 		const { themer, themerOptions, storage } = this.opts
@@ -680,13 +685,7 @@ export class Gui {
 		return this.__type === 'Gui'
 	}
 
-	#createSettingsButton(parent: HTMLElement) {
-		// if (!this.isGui()) {
-		// 	throw new Error('Settings button can only be created on the root folder.')
-		// }
-
-		// const svg = new DOMParser().parseFromString(settingsIcon, 'image/svg+xml').documentElement
-
+	private _createSettingsButton(parent: HTMLElement) {
 		const button = create<'button', any, HTMLButtonElement>('button', {
 			parent,
 			classes: ['fracgui-toolbar-item', 'fracgui-settings-button'],
@@ -765,8 +764,8 @@ export class Gui {
 		this.themer?.dispose()
 		// this.themeEditor?.dispose()
 		this.windowManager?.dispose?.()
-		this.settingsFolder.dispose()
-		this.folder.dispose()
-		this.container.remove()
+		this.settingsFolder?.dispose()
+		this.folder?.dispose()
+		this.container?.remove()
 	}
 }
