@@ -111,7 +111,7 @@ export interface GuiOptions {
 	/**
 	 * Additional options when using a {@link Placement} string for `position`
 	 * instead of an explicit {x, y} object.
-	 * @defaultValue { margin: 16, bounds: 'window' } // todo - Update the defaults.
+	 * @defaultValue { margin: 16, bounds: 'body' }
 	 */
 	positionOptions?: Partial<PlacementOptions>
 
@@ -286,10 +286,22 @@ export class Gui {
 	settingsFolder: Folder
 	static settingsFolderTitle = 'fracgui-settings-folder'
 
+	/**
+	 * The {@link UndoManager} instance for the gui, handling undo/redo functionality.
+	 * @internal
+	 */
+	_undoManager = new UndoManager()
+
 	themer?: Themer
 	themeEditor?: ThemeEditor
 	windowManager?: WindowManager
-	undoManager = new UndoManager()
+	/**
+	 * `false` if this {@link Gui}'s {@link WindowManager} belongs to an existing, external
+	 * instance _(i.e. a separate {@link Gui} instance or custom {@link WindowManager})_.  The
+	 * {@link WindowManager} will be disposed when this {@link Gui} is disposed.
+	 */
+	private _isWindowManagerOwner = false
+
 	private _theme: GuiOptions['theme']
 	private _log: Logger
 
@@ -362,7 +374,7 @@ export class Gui {
 		const undo = (e: KeyboardEvent) => {
 			if (!e.metaKey || e.key !== 'z') return
 			e.preventDefault()
-			e.shiftKey ? this.undoManager.redo() : this.undoManager.undo()
+			e.shiftKey ? this._undoManager.redo() : this._undoManager.undo()
 		}
 
 		removeEventListener('keydown', undo)
@@ -418,6 +430,7 @@ export class Gui {
 		// to make sure we can calculate the correct size and position.
 		await Promise.resolve()
 
+		// In case dispose() was called before this resolved...
 		if (!this.container) return
 
 		// Append a non-animating, full-size clone to get the proper rect.
@@ -425,18 +438,22 @@ export class Gui {
 		ghost.style.visibility = 'hidden'
 		this.container.prepend(ghost)
 
-		// This is the only way to get the correct future rect afaik.
+		// This is the only way to get the correct future rect afaik 😅
 		const rect = ghost.children[0].getBoundingClientRect()
 		ghost.remove()
+		if (this.opts.positionOptions && typeof this.opts.position === 'string') {
+			const placementPosition = place(rect, this.opts.position, {
+				bounds: this.opts.positionOptions.bounds ?? this.container,
+				margin: this.opts.positionOptions.margin,
+			})
 
-		if (this.opts.position && this.opts.positionOptions) {
-			if (typeof this.opts.position === 'string') {
-				const placementPosition = place(rect, this.opts.position, {
-					bounds: this.opts.positionOptions.bounds ?? this.container,
-					margin: this.opts.positionOptions.margin,
-				})
-
-				this.windowManager?.windows.at(-1)?.draggableInstance?.moveTo(placementPosition, 0)
+			if (this.windowManager) {
+				;[...this.windowManager.windows]
+					.at(-1)?.[1]
+					?.draggableInstance?.moveTo(placementPosition, 0)
+			} else {
+				// todo - i imagine this folder element shouldn't be positioned if it has no window manager... but when I disabled all logic here, the folder position was top and centered, which I'm not sure is correct (might be though..).  Anyways, if the position option was provided but the window manager is disabled, we should probably set the position here.  Or, should we just enforce the window manager and use it for positioning?
+				console.error('//TODO')
 			}
 		}
 
@@ -452,19 +469,7 @@ export class Gui {
 		options?: Partial<GuiOptions>,
 		storageOpts?: GuiStorageOptions | false,
 	) {
-		if (this.windowManager) return this.windowManager
-
-		// Use the provided window manager if it's an instance.
-		if (options?.windowManager instanceof WindowManager) {
-			const windowManager = options.windowManager
-
-			windowManager.add(this.folder.element, {
-				id: this.folder.id,
-				...this.opts.windowManagerOptions,
-			})
-
-			return windowManager
-		}
+		if (this.windowManager) return this.windowManager // ??
 
 		const dragOpts = resolveOpts<DraggableOptions>(
 			(this.opts.windowManagerOptions as WindowManagerOptions)['draggable'],
@@ -476,6 +481,7 @@ export class Gui {
 			if (options?.position) {
 				dragOpts.position = options.position
 			}
+			// If storage is disabled, we need to override the DRAGGABLE_DEFAULTS.localStorageKey.
 			if (options?.storage === false) {
 				dragOpts.localStorageKey = undefined
 			}
@@ -527,6 +533,7 @@ export class Gui {
 			draggable: dragOpts,
 			resizable: resizeOpts,
 		})
+		this._isWindowManagerOwner = true
 
 		windowManager.add(this.folder.element, {
 			draggable: dragOpts,
@@ -549,7 +556,7 @@ export class Gui {
 	private _createSettingsFolder() {
 		const settingsFolder = this.folder.addFolder({
 			title: Gui.settingsFolderTitle,
-			closed: false,
+			closed: true,
 			hidden: false,
 			// @ts-expect-error @internal
 			headerless: true,
@@ -758,11 +765,14 @@ export class Gui {
 	}
 
 	dispose = () => {
+		this._log.fn('dispose').info(this)
 		this.themer?.dispose()
 		// this.themeEditor?.dispose()
-		this.windowManager?.dispose?.()
+		if (this._isWindowManagerOwner) {
+			this.windowManager?.dispose()
+			this.container?.remove()
+		}
 		this.settingsFolder?.dispose()
 		this.folder?.dispose()
-		this.container?.remove()
 	}
 }
