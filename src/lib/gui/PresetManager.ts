@@ -63,7 +63,7 @@ export class PresetManager {
 		options: PresetManagerOptions,
 	) {
 		this._log = new Logger(`PresetManager ${gui.folder.title}`, { fg: 'slateblue' })
-		this._log.fn('constructor').info({ options, this: this })
+		this._log.fn('constructor').debug({ options, this: this })
 
 		this.opts = Object.freeze(options)
 
@@ -103,12 +103,12 @@ export class PresetManager {
 	 * Set the active preset.
 	 */
 	set(value: GuiPreset) {
-		this._log.fn('set').info({ value, this: this })
+		this._log.fn('set').debug({ value, this: this })
 		this.activePreset.set(value)
 	}
 
 	private _renamePreset(title: string) {
-		this._log.fn('_renamePreset').info({ this: this, title })
+		this._log.fn('_renamePreset').debug({ this: this, title })
 
 		if (!this.isInitialized()) throw new Error('PresetManager not initialized.')
 
@@ -131,7 +131,7 @@ export class PresetManager {
 	}
 
 	private _resolveUnusedTitle(title: string) {
-		this._log.fn('resolveUnusedTitle').info({ this: this, title })
+		this._log.fn('resolveUnusedTitle').debug({ this: this, title })
 		if (!this.isInitialized()) throw new Error('PresetManager not initialized.')
 
 		const presets = this.presets.value
@@ -159,7 +159,7 @@ export class PresetManager {
 	}
 
 	async addGui(parentFolder: Folder, defaultPreset?: GuiPreset) {
-		this._log.fn('add').info({ this: this, parentFolder, defaultPreset })
+		this._log.fn('add').debug({ this: this, parentFolder, defaultPreset })
 
 		if (!this.isInitialized()) throw new Error('PresetManager not initialized.')
 
@@ -340,19 +340,19 @@ export class PresetManager {
 		})
 
 		this._presetsInput.on('change', ({ value }) => {
-			this._log.fn('_presetsInput.on(change)').info({ value, this: this })
+			this._log.fn('_presetsInput.on(change)').debug({ value, this: this })
 			this.gui.load(value)
 			this.activePreset.set(value)
 			this._refreshInputs()
 		})
 
 		this._presetsInput.on('open', () => {
-			this._log.fn('_presetsInput.on(open)').info()
+			this._log.fn('_presetsInput.on(open)').debug()
 			this._presetSnapshot = this.gui.toJSON('__snapshot__')
 		})
 
 		this._presetsInput.on('cancel', () => {
-			this._log.fn('_presetsInput.on(cancel)').info()
+			this._log.fn('_presetsInput.on(cancel)').debug()
 			if (this._presetSnapshot) {
 				this.gui.load(this._presetSnapshot)
 				this._refreshInputs()
@@ -362,7 +362,7 @@ export class PresetManager {
 		//? New Preset Button
 		const newPresetButton = new SaveSVG()
 		this._presetsInput.listen(newPresetButton.element, 'click', () => {
-			this._log.fn('newPresetButton.on(click)').info()
+			this._log.fn('newPresetButton.on(click)').debug()
 			this.add()
 		})
 
@@ -400,7 +400,7 @@ export class PresetManager {
 	 * Delete a preset.
 	 */
 	deletePreset(preset: GuiPreset | GuiPreset['id']) {
-		this._log.fn('deletePreset').info({ this: this, preset })
+		this._log.fn('deletePreset').debug({ this: this, preset })
 
 		if (!this.isInitialized()) {
 			throw new Error('PresetManager not initialized.')
@@ -445,10 +445,10 @@ export class PresetManager {
 
 		const existing = this.presets.value.find(p => p.id === preset.id)
 		if (!existing) {
-			this._log.info('pushing preset:', { preset, existing })
+			this._log.debug('pushing preset:', { preset, existing })
 			this.presets.push(preset)
 		} else {
-			this._log.info('preset exists. replacing with:', { preset, existing })
+			this._log.debug('preset exists. replacing with:', { preset, existing })
 			this.presets.update(presets => {
 				const index = presets.findIndex(p => p.id === preset.id)
 				presets[index] = preset
@@ -485,7 +485,7 @@ export class PresetManager {
 	 * Disables the dropdown, making the select's text editable.
 	 */
 	private _enableRename = () => {
-		this._log.fn('_enableRename').info({ this: this })
+		this._log.fn('_enableRename').debug({ this: this })
 
 		const el = this._presetsInput.select.elements.selected
 
@@ -518,7 +518,7 @@ export class PresetManager {
 	}
 
 	private _handleRename = (e?: Event) => {
-		this._log.fn('_disableRename').info({ e, this: this })
+		this._log.fn('_disableRename').debug({ e, this: this })
 
 		this._presetsInput.select.disableClicks = false
 		this._presetsInput.select.elements.selected.removeAttribute('contenteditable')
@@ -543,7 +543,7 @@ export class PresetManager {
 	}
 
 	private _handleKeydown = (e: KeyboardEvent) => {
-		this._log.fn('_handleKeydown').info({ key: e.key, e, this: this })
+		this._log.fn('_handleKeydown').debug({ key: e.key, e, this: this })
 
 		if (e.key === 'Enter') {
 			e.preventDefault()
@@ -562,14 +562,14 @@ export class PresetManager {
 
 		this._manageInput.refresh()
 
-		this._log.fn('_refreshInputs').info({ disableRename, this: this })
+		this._log.fn('_refreshInputs').debug({ disableRename, this: this })
 	}
 
 	/**
 	 * Refresh the presets input.
 	 */
 	private _refresh() {
-		this._log.fn('_refresh').info('Refreshing options and setting input.', { this: this })
+		this._log.fn('_refresh').debug('Refreshing options and setting input.', { this: this })
 
 		this._presetsInput.options = this.presets.value.map(o => ({ label: o.title, value: o }))
 		const activePreset = this.activePreset.value

@@ -407,7 +407,7 @@ export class Folder {
 		return folder
 	}
 
-	#handleClick(event: PointerEvent) {
+	private _handleClick(event: PointerEvent) {
 		if (event.button !== 0) return
 
 		this._log.fn('#handleClick').debug({ event, this: this })
@@ -417,21 +417,21 @@ export class Folder {
 
 		// todo - with the addition of the dataset `dragged` attribute from draggable, this might not be necessary.
 		// todo - Figure out why `stopPropagation` doesn't work so we don't need this.
-		if (composedPathContains(event, 'fractils-cancel')) return this.#disableClicks()
+		if (composedPathContains(event, 'fractils-cancel')) return this._disableClicks()
 
 		// We need to watch for the mouseup event within a certain timeframe
 		// to make sure we don't accidentally trigger a click after dragging.
 		clearTimeout(this._disabledTimer)
 		// First we delay the drag check to allow for messy clicks.
 		this._disabledTimer = setTimeout(() => {
-			this.elements.header.removeEventListener('pointermove', this.#disableClicks)
-			this.elements.header.addEventListener('pointermove', this.#disableClicks, {
+			this.elements.header.removeEventListener('pointermove', this._disableClicks)
+			this.elements.header.addEventListener('pointermove', this._disableClicks, {
 				once: true,
 			})
 
 			// Then we set a timer to disable the drag check.
 			this._disabledTimer = setTimeout(() => {
-				this.elements.header.removeEventListener('pointermove', this.#disableClicks)
+				this.elements.header.removeEventListener('pointermove', this._disableClicks)
 				this.element.removeEventListener('pointerup', this.toggle)
 				this._clicksDisabled = false
 			}, this._clickTime)
@@ -439,7 +439,7 @@ export class Folder {
 
 		if (this._clicksDisabled) return
 	}
-	#disableClicks = () => {
+	private _disableClicks = () => {
 		if (!this._clicksDisabled) {
 			this._clicksDisabled = true
 			this._log.fn('disable').debug('Clicks DISABLED')
@@ -447,7 +447,7 @@ export class Folder {
 		this._clicksDisabled = true
 		clearTimeout(this._disabledTimer)
 	}
-	#resetClicks() {
+	private _resetClicks() {
 		this._log.fn('cancel').debug('Clicks ENABLED')
 		removeEventListener('pointerup', this.toggle)
 		this._clicksDisabled = false
@@ -459,7 +459,7 @@ export class Folder {
 		this._log.fn('toggle').debug()
 		clearTimeout(this._disabledTimer)
 		if (this._clicksDisabled) {
-			this.#resetClicks()
+			this._resetClicks()
 			return
 		}
 
@@ -771,7 +771,7 @@ export class Folder {
 			parent: element,
 			classes: ['fracgui-header'],
 		})
-		header.addEventListener('pointerdown', this.#handleClick.bind(this))
+		header.addEventListener('pointerdown', this._handleClick.bind(this))
 
 		const title = create('div', {
 			parent: header,
@@ -860,9 +860,14 @@ export class Folder {
 		return Object.assign({}, FOLDER_DEFAULTS, opts)
 	}
 
+	disposed = false
 	dispose() {
+		if (this.disposed && DEV) {
+			this._log.fn('dispose').error('Already disposed.', this)
+			return
+		}
 		this.elements.header.removeEventListener('click', this.toggle)
-		this.elements.header.addEventListener('pointerdown', this.#handleClick)
+		this.elements.header.addEventListener('pointerdown', this._handleClick)
 
 		this.element.remove()
 
@@ -879,5 +884,7 @@ export class Folder {
 		} catch (err) {
 			this._log.fn('dispose').error('Error removing folder from parent', { err })
 		}
+
+		this.disposed = true
 	}
 }
