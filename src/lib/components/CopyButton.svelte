@@ -107,16 +107,22 @@
 		outline: 1px solid transparent;
 		color: var(--bg-d);
 
-		&.active,
-		&.outro {
-			outline-color: transparent !important;
-			color: var(--bg-d) !important;
-			background: transparent !important;
-		}
-
 		&:hover {
 			color: var(--fg-c);
 			background: var(--bg-b);
+
+			@at-root {
+				:global(:root[theme='light']) & {
+					&:hover {
+						background: var(--bg-e);
+						color: var(--bg-a);
+					}
+					&.active,
+					&.outro {
+						background: transparent;
+					}
+				}
+			}
 		}
 
 		&:active,
@@ -142,6 +148,7 @@
 		height: 100%;
 
 		grid-area: 1/1;
+		aspect-ratio: 1/1;
 	}
 
 	$dur: 0.33s;
@@ -149,8 +156,14 @@
 	$bounceXtreme: cubic-bezier(0.2, 2, 0.2, 0.85);
 	$quintInOut: cubic-bezier(0.86, 0, 0.07, 1);
 	$quartInOut: cubic-bezier(0.77, 0, 0.175, 1);
-	svg {
-		overflow: visible;
+	button.copy {
+		&:not(.active, .outro) {
+			backdrop-filter: blur(0.35rem);
+		}
+
+		svg {
+			overflow: visible;
+		}
 	}
 
 	.front,
@@ -160,29 +173,22 @@
 	}
 
 	.front {
-		transition-duration: 0.66s !important;
+		transition-duration: 0.66s;
 		transition-timing-function: $bounce;
 
-		// x: 9;
-		// y: 9;
 		stroke: currentColor;
 
 		&.active {
 			transition-timing-function: $bounceXtreme;
-			// transition-timing-function: $bounce;
 			transition-duration: 0.2s;
 
 			transform: scale(2);
-			// x: 5.5;
-			// y: 5.5;
-			// rx: 10;
-			// ry: 10;
-			fill: #12a084 !important;
-			stroke: #12a084 !important;
+			fill: #12a084;
+			stroke: #12a084;
 		}
 
 		&.outro {
-			transition-duration: 0.5s !important;
+			transition-duration: 0.5s;
 		}
 	}
 
@@ -196,13 +202,14 @@
 		}
 
 		&.outro {
-			transition-delay: 0s !important;
-			transition-duration: 1s !important;
+			transition-delay: 0s;
+			transition-duration: 1s;
 		}
 	}
 
 	.check {
-		stroke: var(--color, var(--fg-a));
+		fill: transparent;
+		stroke: var(--color, var(--light-a));
 
 		opacity: 0;
 
@@ -216,5 +223,12 @@
 
 			transition: 0.3s $bounceXtreme 0.1s;
 		}
+	}
+
+	button.active,
+	button.outro {
+		outline-color: transparent;
+		color: var(--bg-d);
+		background: transparent;
 	}
 </style>
