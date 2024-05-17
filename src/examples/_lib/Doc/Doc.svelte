@@ -54,11 +54,13 @@
 	{#each exports as d}
 		<svelte:self doc={d} {filePath} depth={depth + 1} />
 	{/each}
-{:else}
+{:else if doc.comment && !doc.comment.internal}
 	<div class="doc" class:mobile={$mobile}>
 		<header>
 			<a href="#{title}"><h1 id={title}>{title}</h1></a>
-			<p class="code">{type}</p>
+			<!-- svelte-ignore a11y-click-events-have-key-events -->
+			<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+			<p class="code" on:click={() => console.log(doc)}>{type}</p>
 		</header>
 
 		<div class="description" class:mobile={$mobile}>
