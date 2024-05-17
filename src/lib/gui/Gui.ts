@@ -344,16 +344,17 @@ export class Gui {
 			gui: this,
 		})
 
-		this.on = this.folder.on
-		this.addFolder = this.folder.addFolder
-		this.add = this.folder.add
-		this.addButtonGrid = this.folder.addButtonGrid
-		this.addSelect = this.folder.addSelect
-		this.addButton = this.folder.addButton
-		this.addText = this.folder.addText
-		this.addNumber = this.folder.addNumber
-		this.addSwitch = this.folder.addSwitch
-		this.addColor = this.folder.addColor
+		// Not stoked about this.
+		this.on = this.folder.on.bind(this.folder)
+		this.addFolder = this.folder.addFolder.bind(this.folder)
+		this.add = this.folder.add.bind(this.folder)
+		this.addButtonGrid = this.folder.addButtonGrid.bind(this.folder)
+		this.addSelect = this.folder.addSelect.bind(this.folder)
+		this.addButton = this.folder.addButton.bind(this.folder)
+		this.addText = this.folder.addText.bind(this.folder)
+		this.addNumber = this.folder.addNumber.bind(this.folder)
+		this.addSwitch = this.folder.addSwitch.bind(this.folder)
+		this.addColor = this.folder.addColor.bind(this.folder)
 
 		this._log = new Logger(`Gui ${opts.title}`, { fg: 'palevioletred' })
 		this._log.fn('constructor').info({ options, opts })
