@@ -7,7 +7,7 @@
 .code-window {
 	position: relative;
 
-	width: 100%;
+	width: var(--width, 100%);
 
 	margin: auto;
 
@@ -17,6 +17,7 @@
 	box-shadow: var(--shadow-sm);
 
 	font-size: 0.8rem;
+	text-align: var(--text-align, left);
 
 	overflow: hidden;
 
@@ -148,10 +149,11 @@
 }
 
 pre.shiki-wrapper {
-	overflow: auto;
+	height: var(--height, fit-content);
 	padding: var(--padding-sm, 0.5rem);
 
 	box-shadow: var(--shadow-inset);
+	overflow: auto;
 }
 
 .sticky {
