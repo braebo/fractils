@@ -56,6 +56,18 @@ export class BinauralBeats {
 	}
 
 	addWave = (kind: keyof typeof WAVE_PRESETS) => {
-		this.waves.set(kind, new Waves(this, kind))
+		const wave = new Waves(this, kind)
+		this.waves.set(kind, wave)
+		return wave
+	}
+
+	removeWave = (kind: keyof typeof WAVE_PRESETS) => {
+		const wave = this.waves.get(kind)
+		if (wave) {
+			wave.dispose()
+			this.waves.delete(kind)
+		} else {
+			console.error(`Wave kind "${kind}" not found`)
+		}
 	}
 }

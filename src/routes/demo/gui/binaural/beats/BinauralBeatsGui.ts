@@ -3,7 +3,7 @@ import { Gui } from '$lib/gui/Gui'
 
 export class BinauralBeatsGui extends Gui {
 	constructor(public beats: BinauralBeats) {
-		super({ title: 'Binaural Beats' })
+		super({ title: 'Binaural Beats', position: 'top-center' })
 
 		this.folder.addButtonGrid({
 			title: 'Presets',
@@ -12,8 +12,16 @@ export class BinauralBeatsGui extends Gui {
 					return {
 						text: kind,
 						onClick: ({ button }) => {
-							this.beats.addWave(kind as keyof typeof WAVE_PRESETS)
-							button.element.setAttribute('disabled', '')
+							let wave =
+								this.beats.waves.get(kind)
+
+							if (!wave) {
+								button.active = true
+								wave = this.beats.addWave(kind as keyof typeof WAVE_PRESETS)
+							} else {
+								button.active = false
+								this.beats.removeWave(kind as keyof typeof WAVE_PRESETS)
+							}
 						},
 					}
 				}),
