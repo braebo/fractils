@@ -40,11 +40,13 @@ export interface GuiElements {
 
 export interface GuiOptions {
 	__type?: 'GuiOptions'
+
 	/**
 	 * The title of the Gui.
 	 * @defaultValue 'gooey'
 	 */
 	title?: string
+
 	/**
 	 * Defines which properties to persist in localStorage, and under which
 	 * key, if any.  If `true`, the {@link GUI_STORAGE_DEFAULTS} will be used.
@@ -52,17 +54,20 @@ export interface GuiOptions {
 	 * @defaultValue false
 	 */
 	storage?: boolean | Partial<GuiStorageOptions>
+
 	/**
 	 * The container to append the gui to.
 	 * @defaultValue document.body
 	 */
 	container?: HTMLElement
+
 	/**
 	 * The title of the theme to use for the gui.  To add your own themes,
 	 * use {@link themerOptions.themes}.
 	 * @defaultValue 'default'
 	 */
 	theme?: GuiTheme
+
 	/**
 	 * Optional {@link Themer} instance for syncing the gui's theme
 	 * with your app's theme.  If `true`, a new themer will be created
@@ -70,10 +75,12 @@ export interface GuiOptions {
 	 * @defaultValue true
 	 */
 	themer: Themer | boolean
+
 	/**
 	 * Options for the {@link Themer} instance when `themer` is `true`.
 	 */
 	themerOptions: Partial<ThemerOptions>
+
 	/**
 	 * {@link WindowManager} controls behaviors like dragging, resizing, and
 	 * z-index management.  This option can be:
@@ -83,12 +90,14 @@ export interface GuiOptions {
 	 * @defaultValue true
 	 */
 	windowManager?: boolean | WindowManager
+
 	/**
 	 * Options for the {@link WindowManager} instance when `windowManager` is
 	 * `true`.  They will be merged with the {@link WINDOWMANAGER_DEFAULTS}.
 	 * @defaultValue {@link GUI_WINDOWMANAGER_DEFAULTS}
 	 */
 	windowManagerOptions?: Partial<WindowManagerOptions>
+
 	/**
 	 * The gui's initial position on the screen.  If `undefined`, the gui will
 	 * be placed in the top-right corner of the screen.
@@ -98,33 +107,31 @@ export interface GuiOptions {
 	 * @defaultValue 'top-right'
 	 */
 	position?: Placement | { x: number; y: number }
+
 	/**
 	 * Additional options when using a {@link Placement} string for `position`
 	 * instead of an explicit {x, y} object.
 	 * @defaultValue { margin: 16, bounds: 'window' } // todo - Update the defaults.
 	 */
 	positionOptions?: Partial<PlacementOptions>
+
 	/**
 	 * The initial expanded state of the gui.
 	 * @defaultValue `false`
 	 */
 	closed?: boolean
+
 	/**
 	 * Presets to make available in the gui.
 	 * @defaultValue `[]`
 	 */
 	presets?: GuiPreset[]
+
 	/**
 	 * The default preset to load when the gui is created, or the initial gui state if undefined.
 	 * @defaultValue `undefined`
 	 */
 	defaultPreset?: GuiPreset
-	// /**
-	//  * `parentFolder` should always be `undefined` for the root gui.
-	//  * @private
-	//  * @internal
-	//  */
-	// _parentFolder: undefined
 	/**
 	 * A unique id for the gui's root element.
 	 * @defaultValue {@link nanoid}
@@ -134,33 +141,39 @@ export interface GuiOptions {
 
 export interface GuiStorageOptions {
 	__type?: 'GuiStorageOptions'
+
 	/**
 	 * Prefix to use for localStorage keys.
 	 * @defaultValue "fractils::gui"
 	 */
 	key: string
+
 	/**
 	 * Whether to persist the folder's expanded state.
 	 * @defaultValue true
 	 */
 	closed?: boolean
+
 	/**
 	 * Whether to persist the theme.
 	 * @defaultValue true
 	 */
 	theme?: boolean
+
 	/**
 	 * Whether to persist the gui's position.
 	 * @defaultValue false
-	 * /// todo - implement this!
+	 * /// todo - implement this! // edit - I think this works now, no?
 	 */
 	position?: boolean
+
 	/**
 	 * Whether to persist the gui's size.
 	 * @defaultValue false
-	 * /// todo - implement this!
+	 * /// todo - implement this! // edit - I think this works now, no?
 	 */
 	size?: boolean
+
 	/**
 	 * Whether to persist the gui's presets.
 	 * @defaultValue true
@@ -211,8 +224,6 @@ export const GUI_WINDOWMANAGER_DEFAULTS = {
 export const GUI_DEFAULTS: GuiOptions = {
 	__type: 'GuiOptions',
 	title: 'gui',
-	// controls: new Map(),
-	// children: [],
 	themer: true,
 	themerOptions: {
 		localStorageKey: 'fracgui::themer',
@@ -259,7 +270,6 @@ export class Gui {
 	 * Whether the gui root folder is currently collapsed.
 	 */
 	closed: PrimitiveState<boolean>
-	// closedMap: State<Map<string, boolean>> // todo
 
 	/**
 	 * The {@link PresetManager} instance for the gui.
@@ -349,7 +359,6 @@ export class Gui {
 		this._log.fn('constructor').info({ options, opts })
 
 		const undo = (e: KeyboardEvent) => {
-			// todo - make sure the active element is within the gui first
 			if (!e.metaKey || e.key !== 'z') return
 			e.preventDefault()
 			e.shiftKey ? this.undoManager.redo() : this.undoManager.undo()
@@ -368,34 +377,9 @@ export class Gui {
 				? (storageOpts.key += `::${opts.title?.toLowerCase().replaceAll(/\s/g, '-')}::closed`)
 				: ''
 
-		// const closedMapKey =
-		// 	storageOpts && storageOpts.closed
-		// 		? (storageOpts.key += `::${opts.title?.toLowerCase().replaceAll(/\s/g, '-')}::closed-map`)
-		// 		: ''
-
 		this.closed = state(!!this.opts.closed, {
 			key: closedKey,
-			// (storageOpts &&
-			// 	storageOpts.key +
-			// 		`::${opts.title?.toLowerCase().replaceAll(/\s/g, '-')}::closed`) ||
-			// '',
 		})
-
-		// todo - Finish this whole "deep expanded persistence" thing with `closedMap`
-		// this.closedMap = state(new Map(), {
-		// 	key: closedMapKey,
-		// 	// key:
-		// 	// 	(storageOpts &&
-		// 	// 		storageOpts.key +
-		// 	// 			`::${opts.title?.toLowerCase().replaceAll(/\s/g, '-')}::closed-map`) ||
-		// 	// 	'',
-		// })
-
-		// this.closedMap.setKey(this.title, this.closed.value)
-		// todo - We will need to emit a close/open event from `Folder`, and listen for it here.
-		// this.closedMap.subscribe(map => {
-		// 	this.closed.set(!!map.get(this.title))
-		// })
 		//⌟
 
 		this.folder.elements.toolbar.settingsButton = this._createSettingsButton(
@@ -423,12 +407,7 @@ export class Gui {
 		// }
 		//⌟
 
-		// if (this.closed.value) this.close()
-
-		//· Reveal Animation ·················································¬
-
 		this._reveal()
-		//⌟
 
 		return this
 	}
@@ -474,6 +453,18 @@ export class Gui {
 	) {
 		if (this.windowManager) return this.windowManager
 
+		// Use the provided window manager if it's an instance.
+		if (options?.windowManager instanceof WindowManager) {
+			const windowManager = options.windowManager
+
+			windowManager.add(this.folder.element, {
+				id: this.folder.id,
+				...this.opts.windowManagerOptions,
+			})
+
+			return windowManager
+		}
+
 		const dragOpts = resolveOpts<DraggableOptions>(
 			(this.opts.windowManagerOptions as WindowManagerOptions)['draggable'],
 			DRAGGABLE_DEFAULTS,
@@ -489,20 +480,6 @@ export class Gui {
 		)
 		if (resizeOpts) {
 			resizeOpts.bounds = this.container
-		}
-
-		// Use the provided window manager if it's an instance.
-		if (options?.windowManager instanceof WindowManager) {
-			const windowManager = options.windowManager
-
-			windowManager.add(this.folder.element, {
-				id: this.folder.id,
-				...this.opts.windowManagerOptions,
-				// draggable: dragOpts,
-				// resizable: resizeOpts,
-			})
-
-			return windowManager
 		}
 
 		const windowManagerOpts = resolveOpts<WindowManagerOptions>(
@@ -590,6 +567,7 @@ export class Gui {
 		 * The title of the preset.
 		 */
 		title: string,
+
 		/**
 		 * A unique id for the preset.
 		 * @defaultValue {@link nanoid|nanoid(10)}
@@ -638,10 +616,8 @@ export class Gui {
 
 			if (themer === true) {
 				themerOptions.wrapper = this.wrapper
-				// this.themer = new Themer(this.folder.root.element, themerOptions)
 				finalThemer = new Themer(this.folder.element, themerOptions)
 			} else {
-				// this.themer = themer
 				finalThemer = themer
 			}
 
@@ -715,7 +691,7 @@ export class Gui {
 	}
 
 	applyAltStyle(folder: Folder) {
-		this.setProp(
+		this._setProp(
 			folder.elements.content,
 			`box-shadow`,
 			`0px 0px 10px 0px hsl(10deg, 0%, var(--${VAR_PREFIX}-shadow-lightness), inset`,
@@ -723,7 +699,7 @@ export class Gui {
 
 		switch (this.themer?.activeMode) {
 			case 'light': {
-				this.setProps(folder.element, [
+				this._setProps(folder.element, [
 					['input-container_background', `rbga(var(--${VAR_PREFIX}-bg-b-rgb), 0.75)`],
 					['input-container_color', `var(--${VAR_PREFIX}-fg-b)`],
 					['folder-header_background', `rgba(var(--${VAR_PREFIX}-bg-a-rgb), 0.6)`],
@@ -732,7 +708,7 @@ export class Gui {
 				break
 			}
 			case 'dark': {
-				this.setProps(folder.element, [
+				this._setProps(folder.element, [
 					['input-container_background', `var(--${VAR_PREFIX}-bg-b)`],
 					['input-container_color', `var(--${VAR_PREFIX}-fg-b)`],
 					['folder-header_background', `rgba(var(--${VAR_PREFIX}-bg-a-rgb), 0.75)`],
@@ -746,7 +722,7 @@ export class Gui {
 		}
 	}
 
-	setProp(el: HTMLElement, key: keyof PropertiesHyphen | (string & {}), value: string) {
+	private _setProp(el: HTMLElement, key: keyof PropertiesHyphen | (string & {}), value: string) {
 		el.style.setProperty(`--${VAR_PREFIX}-${key}`, value)
 		Promise.resolve().then(() => {
 			if (!el.style.getPropertyValue(`--${VAR_PREFIX}-${key}`)) {
@@ -754,9 +730,9 @@ export class Gui {
 			}
 		})
 	}
-	setProps(el: HTMLElement, props: [keyof PropertiesHyphen | (string & {}), string][]) {
+	private _setProps(el: HTMLElement, props: [keyof PropertiesHyphen | (string & {}), string][]) {
 		for (const [key, value] of props) {
-			this.setProp(el, key, value)
+			this._setProp(el, key, value)
 		}
 	}
 

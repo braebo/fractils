@@ -8,6 +8,7 @@
 
 	import { demoGui, code, showCode } from './demoGui'
 
+	import { quintOut } from 'svelte/easing'
 	import { fly } from 'svelte/transition'
 	import { onMount } from 'svelte'
 
@@ -22,17 +23,12 @@
 		})
 		gui = demoGui(params.value)
 		ready = true
-// 
+
 		return () => {
 			gui?.dispose()
-			// globalThis.window?.location.reload()
+			globalThis.window?.location.reload()
 		}
 	})
-
-	// onDestroy(() => {
-	// gui?.dispose()
-	// 	globalThis.window?.location.reload()
-	// })
 
 	function onResize() {
 		params.update(p => {
@@ -47,14 +43,14 @@
 
 <div class="page">
 	{#if $showCode}
-		<div class="debug" transition:fly={{ y: 10 }}>
+		<div class="debug" transition:fly={{ y: 5, duration: 250, easing: quintOut }}>
 			{#key $code}
 				<Code
 					--max-height="90vh"
 					title="active preset"
 					lang="ts"
 					text={$code}
-					on:close={() => ($code = '')}
+					on:close={() => showCode.set(false)}
 				/>
 			{/key}
 		</div>

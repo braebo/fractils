@@ -105,7 +105,6 @@ export class PresetManager {
 	set(value: GuiPreset) {
 		this._log.fn('set').info({ value, this: this })
 		this.activePreset.set(value)
-		// this._refresh()
 	}
 
 	private _renamePreset(title: string) {
@@ -124,17 +123,11 @@ export class PresetManager {
 
 			active.title = title
 			this.activePreset.set(active)
-			// presets.set(this.activePreset.value.presetId, preset)
-			// presets = presets.map(p => (p.id === active.id ? active : p))
-			// return presets
 
 			return presets.map(p => (p.id === active.id ? active : p))
 		})
 
-		// this._presetsInput?.refresh()
 		this._refresh()
-
-		// todo - save and restore cursor position?
 	}
 
 	private _resolveUnusedTitle(title: string) {
@@ -174,8 +167,7 @@ export class PresetManager {
 
 		const presetsFolder = parentFolder.addFolder({
 			title: 'presets',
-			//! closed: true,
-			closed: false,
+			closed: true,
 			hidden: true,
 			children: [],
 		})
@@ -512,8 +504,6 @@ export class PresetManager {
 		this._presetsInput.select.disableClicks = true
 		el.setAttribute('contenteditable', 'true')
 		el.focus()
-
-		// Move the cursor to the end of the text
 		const range = document.createRange()
 		range.selectNodeContents(el)
 		range.collapse(false)
