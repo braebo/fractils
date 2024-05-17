@@ -1,4 +1,3 @@
-// import type { State } from '$lib'
 import type { BinauralBeats } from '../beats/BinauralBeats'
 
 import { WAVE_PRESETS } from '../beats/BinauralBeats'

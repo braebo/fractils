@@ -1,9 +1,6 @@
-// @ts-nocheck
-// import type { BinauralBeatsGui } from '../beats/BinauralBeatsGui'
 import type { Waves } from './Waves'
 
 import { WAVE_PRESETS } from '../beats/BinauralBeats'
-// import { Folder } from '$lib/gui/Folder'
 import { Gui } from '$lib/gui/Gui'
 
 const dims = {
@@ -14,14 +11,9 @@ const dims = {
 }
 
 export class WavesGui extends Gui {
-	// params = {
-	// 	vol: 0.5,
-	// }
-
 	constructor(
 		public waves: Waves,
 		public kind: keyof typeof WAVE_PRESETS,
-		// parentFolder: BinauralBeatsGui,
 	) {
 		const positions = {
 			alpha: {
@@ -52,12 +44,6 @@ export class WavesGui extends Gui {
 
 		console.log(this.opts.position)
 
-		// todo - handle state so we can do:
-		// gui.add({
-		// 	title: 'Right Frequency',
-		// 	value: params.freqL,
-		// })
-
 		const btnGrid = this.addButtonGrid({
 			title: 'Playback',
 			value: [
@@ -67,27 +53,27 @@ export class WavesGui extends Gui {
 						onClick: () => {
 							if (waves.playing) return
 							waves.start()
-							this.allInputs.forEach(c => c.refresh())
+							this.folder.allInputs.forEach(c => c.refresh())
 						},
-						isActive() {
+						active() {
 							return waves.playing && !waves.stopping
 						},
 					},
 					{
 						text: 'Stop',
-						onClick: (item) => {
+						onClick: ({ button }) => {
 							if (!waves.playing) return
 							waves.stop()
 							const startBtn = btnGrid.buttons.get('Start')
 							startBtn?.element.setAttribute('disabled', '')
-							const { color } = item.element.style
-							item.element.style.color = 'tomato'
+							const { color } = button.element.style
+							button.element.style.color = 'tomato'
 							setTimeout(() => {
 								startBtn?.element.removeAttribute('disabled')
-								item.element.style.color = color
+								button.element.style.color = color
 							}, 0.25 * 1000)
 						},
-						isActive() {
+						active() {
 							return waves.stopping
 						},
 					},
@@ -96,6 +82,12 @@ export class WavesGui extends Gui {
 		})
 
 		const folderL = this.addFolder({ title: 'Left' })
+
+		// todo - handle state so we can do:
+		// gui.add({
+		// 	title: 'Right Frequency',
+		// 	value: params.freqL,
+		// })
 
 		folderL
 			.addNumber({
