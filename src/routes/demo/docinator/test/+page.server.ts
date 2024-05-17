@@ -1,7 +1,7 @@
 // hmr-reset
 
 import type { ParsedFile } from '$scripts/extractinator/src/types'
-import type { Load } from '@sveltejs/kit'
+import { error, type Load } from '@sveltejs/kit'
 
 // import { getHighlighterInstance } from '$lib/utils/highlight'
 // import { fromHighlighter } from 'markdown-it-shikiji/core'
@@ -10,27 +10,33 @@ import type { Load } from '@sveltejs/kit'
 // import MarkdownIt from 'markdown-it'
 
 export const prerender = true
-// export const csr = false
-// export const ssr = true
+export const csr = false
+// export const ssr = false
 
 export const load: Load = async () => {
 	console.clear()
 
 	const modules = import.meta.glob<{ default: ParsedFile }>(
 		// '../../docs/highlighted/Code.svelte.doc.json',
-		'../../docs/highlighted/test/Test.svelte.doc.json',
+		'../../../../docs/highlighted/test/Test.svelte.doc.json',
 		{
 			eager: true,
 		},
 	)
 
-	const start = performance.now()
+	// const start = performance.now()
 
 	// const docs = await highlightDocs(Object.values(modules).map((m) => m.default))
-	const docs = Object.values(modules).map((m) => m.default)
+	const docs = Object.values(modules).map(m => m.default)
 
-	const end = performance.now()
-	console.log('highlighted in', end - start + 'ms')
+	// const end = performance.now()
+	// console.log('highlighted in', end - start + 'ms')
+
+	if (docs.length === 0) {
+		error(424, {
+			message: 'Failed to read docs from disk.',
+		})
+	}
 
 	return { docs }
 }

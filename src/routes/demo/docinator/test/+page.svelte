@@ -13,10 +13,10 @@
 		return file.type === 'svelte'
 	}
 
-	if (BROWSER) console.log(data.docs[0])
+	if (BROWSER) console.log(data.docs?.[0])
 </script>
 
-{#each data.docs as contents}
+{#each data.docs ?? [] as contents}
 	{#if isSvelteFile(contents)}
 		<Doc doc={contents}  />
 	{:else}
