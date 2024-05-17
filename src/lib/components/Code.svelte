@@ -52,13 +52,13 @@
 <!-- //todo - Document the events -->
 
 <script lang="ts" context="module">
-	import type { highlight } from '../utils/highlight'
-
-	import { BROWSER, DEV } from 'esm-env'
 </script>
 
 <script lang="ts">
-	// import type { LanguageInput, ThemeInput } from 'shiki'
+	import type { highlight } from '../utils/highlight'
+
+	import type { BundledLanguage } from 'shiki'
+	import { BROWSER, DEV } from 'esm-env'
 
 	import { createEventDispatcher } from 'svelte'
 	import CopyButton from './CopyButton.svelte'
@@ -103,10 +103,10 @@
 	export let title = 'code'
 
 	/**
-	 * The language to use.  Must be a {@link ValidLanguage}.
+	 * The language to use.  Must be a {@link BundledLanguage}.
 	 * @defaultValue 'json'
 	 */
-	export let lang = 'json5'
+	export let lang = 'json5' as BundledLanguage
 
 	/**
 	 * The theme to use.
