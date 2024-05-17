@@ -493,7 +493,7 @@ export abstract class Input<
 		this.evm.dispose()
 
 		const rm = (elOrObj: any) => {
-			if (elOrObj instanceof HTMLElement) {
+			if (elOrObj instanceof HTMLElement || elOrObj instanceof SVGElement) {
 				elOrObj.remove()
 			} else if (typeof elOrObj === 'object') {
 				for (const k in elOrObj) {
