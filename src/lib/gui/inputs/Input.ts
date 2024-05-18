@@ -9,10 +9,10 @@ import type { InputText, TextInputOptions } from './InputText'
 
 import type { ColorFormat } from '../../color/types/colorFormat'
 import type { EventCallback } from '../../utils/EventManager'
-import type { Commit } from '../../utils/undoManager'
 import type { Option } from '../controllers/Select'
 import type { State } from '../../utils/state'
 import type { Color } from '../../color/color'
+import type { Commit } from '../UndoManager'
 import type { Folder } from '../Folder'
 
 import { EventManager } from '../../utils/EventManager'
