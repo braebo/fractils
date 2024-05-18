@@ -2,8 +2,8 @@ import type { Input, ElementMap, InputOptions, ValidInput } from '../inputs/Inpu
 
 /**
  * Controller factory funtions create the DOM elements that are
- * used to control the input, and bind their change events to
- * the input's {@link Input.refresh | updateState} method.
+ * used to control the inputs, and bind their change events to
+ * the input's {@link Input.refresh | refresh} method.
  */
 export type ControllerFactory<
 	TElement extends Element | ElementMap,

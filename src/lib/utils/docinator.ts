@@ -1,4 +1,5 @@
 import type { ParsedFile, TSDocComment } from '$scripts/extractinator/src/types'
+import type { BundledLanguage } from 'shiki'
 
 import { mkdir, readdir, writeFile } from 'node:fs/promises'
 import { markedHighlight } from 'marked-highlight'
@@ -39,7 +40,7 @@ export interface Block {
 export interface HighlightedBlock extends Block {
 	type: 'code'
 	content: string
-	lang: string
+	lang: BundledLanguage
 	raw: string
 	title?: string
 }
@@ -279,7 +280,7 @@ function splitContent(input: string): Blocks | null {
 		const codeBlock: HighlightedBlock = {
 			type: 'code',
 			content,
-			lang: og.lang,
+			lang: og.lang as BundledLanguage,
 			raw: og.code,
 			title: getTitle(og) ?? '',
 		}
