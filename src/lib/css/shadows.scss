@@ -1,8 +1,9 @@
 @mixin shadows {
 	--shadow-color: 0deg 0% 0%;
 
-	&[mode='light'] {
-		--shadow-color: 0deg 0% 50%;
+	&[mode='light'],
+	&[theme='light'] {
+		--shadow-color: 0deg 0% 0%;
 	}
 
 	--shadow-xs: 0rem 0.015rem 0.02rem hsl(var(--shadow-color) / 0.01),
@@ -49,6 +50,7 @@
 		-0.4px 22.1px 20.6px -3.3px hsl(var(--shadow-color) / 0.33),
 		-0.6px 33.8px 31.4px -3.8px hsl(var(--shadow-color) / 0.28);
 
-	--shadow-inset: 0 0 5px 0 #000 inset;
-	--shadow-inset-b: 0 0 13px 0 #000a inset, 0 0 5px 0 #000a inset, 0 0 3px 1px #0009 inset;
+	--shadow-inset: 0 0 5px 0 hsl(var(--shadow-color)) inset;
+	--shadow-inset-b: 0 0 13px 0 #000a inset, 0 0 5px 0 hsl(var(--shadow-color) / 66.67%) inset,
+		0 0 3px 1px hsl(var(--shadow-color) / 60%) inset;
 }
