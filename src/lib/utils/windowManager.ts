@@ -153,7 +153,7 @@ export class WindowManager {
 		const instance = this.windows.get(target_node.id)
 
 		if (!instance) {
-			throw new Error('Unable to resolve instance from selected node: ' + target_node)
+			throw new Error('Unable to resolve instance from selected node: ' + target_node.id)
 		}
 
 		// this.#animate(node)
@@ -255,7 +255,7 @@ export class WindowInstance {
 		public node: HTMLElement,
 		options: WindowInstanceOptions,
 	) {
-		this.id = options.id || nanoid()
+		this.id = node.id ?? options.id ?? nanoid()
 		node.id ??= this.id
 
 		if (options?.preserveZ) {
