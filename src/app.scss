@@ -5,11 +5,10 @@ $mobile: 1000px;
 
 html {
 	--body-bg: var(--bg-a);
-	background: var(--body-bg);
-}
+	&[theme='light'] {
+		--body-bg: var(--bg-b);
+	}
 
-html[theme='light'] {
-	--body-bg: var(--bg-b);
 	background: var(--body-bg);
 }
 
