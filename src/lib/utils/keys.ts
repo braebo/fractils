@@ -1,4 +1,11 @@
-import { getOS } from './platform'
+import { getOS, isMac } from './platform'
+
+/**
+ * Returns the `metaKey` on Mac, and `ctrlKey` on other platforms.
+ */
+export function modKey(event: KeyboardEvent | PointerEvent) {
+	return isMac() ? event.metaKey : event.ctrlKey
+}
 
 export type ModifierMap = Record<'metaKey' | 'altKey' | 'shiftKey' | 'ctrlKey', PlatformData>
 export type PlatformData = Record<'mac' | 'windows' | 'linux', KeyData>

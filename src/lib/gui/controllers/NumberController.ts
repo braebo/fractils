@@ -3,6 +3,7 @@ import type { Tooltip } from '../../actions/tooltip'
 
 import { create } from '../../utils/create'
 import { Logger } from '$lib/utils/logger'
+import { modKey } from '$lib/utils/keys'
 
 export class NumberController<
 	TInput extends ValidInput = ValidInput,
@@ -75,7 +76,7 @@ export class NumberController<
 	}
 
 	dragKeyHeld = (e: KeyboardEvent | PointerEvent) => {
-		return navigator.platform.toUpperCase().includes('MAC') ? e.metaKey : e.ctrlKey
+		return modKey(e)
 	}
 
 	cancelDrag = (e: KeyboardEvent | PointerEvent) => {

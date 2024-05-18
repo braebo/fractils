@@ -20,12 +20,13 @@ import { PresetManager } from './PresetManager'
 import { deepMerge } from '../utils/deepMerge'
 import { UndoManager } from './UndoManager'
 import { nanoid } from '../utils/nanoid'
-import { BROWSER } from '../utils/env'
 import { isType } from '../utils/isType'
 import { Logger } from '../utils/logger'
 import { create } from '../utils/create'
 import { VAR_PREFIX } from './GUI_VARS'
 import { state } from '../utils/state'
+import { modKey } from '../utils/keys'
+import { BROWSER } from '../utils/env'
 import { GUI_VARS } from './GUI_VARS'
 import { place } from '../dom/place'
 import { Folder } from './Folder'
@@ -227,7 +228,7 @@ export const GUI_DEFAULTS: GuiOptions = {
 	themer: true,
 	themerOptions: {
 		localStorageKey: 'fracgui::themer',
-		mode: 'dark'
+		mode: 'dark',
 	},
 	windowManager: undefined,
 	windowManagerOptions: {
@@ -373,7 +374,7 @@ export class Gui {
 		this._log.fn('constructor').info({ options, opts })
 
 		const undo = (e: KeyboardEvent) => {
-			if (!e.metaKey || e.key !== 'z') return
+			if (!modKey(e) || e.key !== 'z') return
 			e.preventDefault()
 			e.shiftKey ? this._undoManager.redo() : this._undoManager.undo()
 		}

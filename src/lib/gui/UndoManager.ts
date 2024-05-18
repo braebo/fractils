@@ -1,4 +1,4 @@
-import type { Input, ValidInputValue } from '$lib/gui/inputs/Input'
+import type { Input, ValidInputValue } from '../gui/inputs/Input'
 
 export interface Commit<V extends ValidInputValue = ValidInputValue> {
 	input: Input<V>
@@ -23,8 +23,6 @@ export class UndoManager {
 			return
 		}
 
-		// todo - this wont work because the `from` will be stale,
-		// todo - a solution that caches `from` and isolates timers per-input
 		const diff = this.pointer + 1 - this.stack.length
 
 		if (diff < 0) {
@@ -34,8 +32,6 @@ export class UndoManager {
 
 		this.pointer++
 		this.stack.push(commit)
-
-		// this.logState('\nadd()', commit)
 	}
 
 	undo() {
@@ -51,7 +47,6 @@ export class UndoManager {
 		}
 
 		this.pointer--
-		// this.logState('\nundo()', commit)
 	}
 
 	redo() {
@@ -68,16 +63,5 @@ export class UndoManager {
 		}
 
 		this.pointer++
-		// this.logState('redo()', commit)
 	}
-
-	// logState(str: string, commit?: Commit) {
-	// 	console.log(str)
-	// 	console.log('pointer', this.pointer)
-	// 	console.log('stack', this.stack.length, this.stack)
-
-	// 	if (commit) {
-	// 		console.log('commit', commit)
-	// 	}
-	// }
 }

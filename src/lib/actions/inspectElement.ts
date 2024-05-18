@@ -1,6 +1,7 @@
 import type { Action } from 'svelte/action'
 
 import { create } from '$lib/utils/create'
+import { modKey } from '$lib/utils/keys'
 
 export const inspectElement: Action = (node: HTMLElement) => {
 	const elements = node.querySelectorAll('*')
@@ -23,7 +24,7 @@ export const inspectElement: Action = (node: HTMLElement) => {
 	let disabled = true
 
 	const toggle = (e: KeyboardEvent) => {
-		if (e.metaKey && e.key === 'Alt') {
+		if (modKey(e) && e.key === 'Alt') {
 			disabled = false
 			window.addEventListener(
 				'keyup',
