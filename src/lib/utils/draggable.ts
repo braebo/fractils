@@ -812,6 +812,7 @@ export class Draggable {
 
 		// Check for a custom bounds rect.
 		if (
+			opts &&
 			typeof opts === 'object' &&
 			('left' in opts || 'right' in opts || 'top' in opts || 'bottom' in opts)
 		) {
