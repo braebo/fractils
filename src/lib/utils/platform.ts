@@ -1,8 +1,13 @@
 /**
- * Detects the current operating system.
+ * Detects the current operating system.  On the server, the request object must be provided.
+ * @param request - The request object. If not provided, the global `navigator` object is used.
+ * @returns The operating system.  Note: `ipados` is separate from `ios`.
  */
-export function getOS(request?: Request): 'mac' | 'windows' | 'linux' | 'android' | 'ios' {
+export function getOS(
+	request?: Request,
+): 'mac' | 'windows' | 'linux' | 'android' | 'ios' | 'ipados' {
 	if (isIOS(request)) return 'ios'
+	if (isIPad(request)) return 'ipados'
 	if (isAndroid(request)) return 'android'
 	if (isMac(request)) return 'mac'
 	if (isWindows(request)) return 'windows'
@@ -25,11 +30,17 @@ export function getBrowser(request?: Request): 'chrome' | 'firefox' | 'safari' |
  * @param request - The request object. If not provided, the global `navigator` object is returned.
  */
 export function getUserAgent(request?: Request) {
+	if (typeof globalThis.navigator === 'undefined' && !request) {
+		console.error(
+			'Error getting user-agent: Request object is required on the server, but was not provided.',
+		)
+	}
+
 	return request?.headers.get('user-agent') || globalThis.navigator?.userAgent
 }
 
 /**
- *
+ * Detects if the current browser matches the provided platform.
  */
 export function isPlatform(platform: RegExp, request?: Request) {
 	const ua = getUserAgent(request)
@@ -41,28 +52,27 @@ export function isPlatform(platform: RegExp, request?: Request) {
  * @param request - The request object. If not provided, the global `navigator` object is used.
  */
 export function isWebview(request?: Request) {
-	const ua = getUserAgent(request)
-	if (ua) {
-		console.error('Error detecting webview: request object not provided on server-side')
-		return false
-	}
+	return !!getUserAgent(request).match(/webview|wv|ip((?!.*Safari)|(?=.*like Safari))/i)
+}
 
-	return !!ua.match(/webview|wv|ip((?!.*Safari)|(?=.*like Safari))/i)
+/**
+ * `true` if the current browser is running on a desktop.
+ */
+export function isDesktop(request?: Request) {
+	return !isMobile(request)
 }
 
 /**
  * `true` if the current browser is running on MacOS.
  */
 export function isMac(request?: Request) {
-	// return plat(/mac/i)
-	return isPlatform(/mac/i, request)
+	return isPlatform(/mac/i, request) && !isIPad(request)
 }
 
 /**
  * `true` if the current browser is running on Windows.
  */
 export function isWindows(request?: Request) {
-	// return plat(/win/i)
 	return isPlatform(/win/i, request)
 }
 
@@ -70,50 +80,56 @@ export function isWindows(request?: Request) {
  * `true` if the current browser is running on Linux.
  */
 export function isLinux(request?: Request) {
-	// return plat(/linux/i)
 	return isPlatform(/linux/i, request)
 }
 
 /**
- * `true` if the current browser is running on Android.
+ * `true` when running in a browser.
  */
-export function isAndroid(request?: Request) {
-	// return plat(/android/i)
-	return isPlatform(/android/i, request)
+export function isBrowser() {
+	return typeof window !== 'undefined'
 }
 
 /**
- * `true` if the current browser is running on iOS.
+ * `true` when running in a server environment.
  */
-export function isIOS(request?: Request) {
-	// return plat(/iphone|ipad/i)
-	return isPlatform(/iphone|ipad/i, request)
+export function isServer() {
+	return typeof window === 'undefined'
 }
 
 /**
  * `true` if the current browser is running on a mobile device.
  */
 export function isMobile(request?: Request) {
-	return isAndroid(request) || isIOS(request)
+	return isAndroid(request) || isIOS(request) || isIPad(request)
+}
+
+/**
+ * `true` if the current browser is running on iOS.
+ */
+export function isIOS(request?: Request) {
+	return isPlatform(/iphone/i, request)
+}
+
+/**
+ * `true` if the current browser is running on iOS.
+ */
+export function isIPadOS(request?: Request) {
+	return isPlatform(/ipad/i, request)
 }
 
 /**
  * `true` if the current browser is running on an iPad.
  */
 export function isIPad(request?: Request) {
-	return (
-		isSafari(request) &&
-		!isIOS(request) &&
-		!!globalThis.navigator?.maxTouchPoints &&
-		!!(globalThis.navigator.maxTouchPoints > 1)
-	)
+	return isSafari(request) && !isIOS(request)
 }
 
 /**
- * Returns the `metaKey` on Mac, and `ctrlKey` on other platforms.
+ * `true` if the current browser is running on Android.
  */
-export function metaKey(request?: Request) {
-	return isMac(request) ? 'metaKey' : 'ctrlKey'
+export function isAndroid(request?: Request) {
+	return isPlatform(/android/i, request)
 }
 
 /**
