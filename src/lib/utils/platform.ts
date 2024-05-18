@@ -66,7 +66,7 @@ export function isDesktop(request?: Request) {
  * `true` if the current browser is running on MacOS.
  */
 export function isMac(request?: Request) {
-	return isPlatform(/mac/i, request) && !isIPad(request)
+	return isPlatform(/mac/i, request) && !isMobile(request)
 }
 
 /**
