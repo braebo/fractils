@@ -100,12 +100,12 @@ export function isMobile(request?: Request) {
 /**
  * `true` if the current browser is running on an iPad.
  */
-export function isPad(request?: Request) {
+export function isIPad(request?: Request) {
 	return (
 		isSafari(request) &&
 		!isIOS(request) &&
-		'maxTouchPoints' in globalThis.navigator &&
-		globalThis.navigator.maxTouchPoints > 1
+		!!globalThis.navigator?.maxTouchPoints &&
+		!!(globalThis.navigator.maxTouchPoints > 1)
 	)
 }
 

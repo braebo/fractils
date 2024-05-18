@@ -21,7 +21,7 @@ export function getInfo(request?: Request): PlatformInfo {
 			{ k: 'Mobile', v: ua.isMobile(request) },
 			{ k: 'Android', v: ua.isAndroid(request) },
 			{ k: 'IOS', v: ua.isIOS(request) },
-			{ k: 'Pad', v: ua.isPad(request) },
+			{ k: 'Pad', v: ua.isIPad(request) },
 			{ k: '', v: '' },
 		],
 		modifiers: [
