@@ -21,6 +21,7 @@ import { keys, values } from '../../utils/object'
 import { create } from '../../utils/create'
 import { Logger } from '../../utils/logger'
 import { toFn } from '../../utils/toFn'
+import { o } from '../../utils/l'
 
 //· Types ··············································································¬
 export type InputType = (typeof INPUT_TYPES)[number]
@@ -222,9 +223,7 @@ export abstract class Input<
 	) {
 		this.opts = options
 
-		this.id =
-			this.opts.presetId ??
-			`${folder.presetId}_${this.opts.title}__${this.opts.__type}`
+		this.id = this.opts.presetId ?? `${folder.presetId}_${this.opts.title}__${this.opts.__type}`
 
 		this.__log = new Logger(
 			`SuperInput${this.opts.__type!.replaceAll(/Options|Input/g, '')} ${this.opts.title}`,
@@ -268,7 +267,7 @@ export abstract class Input<
 				delay: 1000,
 			},
 			onclick: () => {
-				this.__log.fn('reset').info('resetting to initial value', this.initialValue)
+				this.__log.fn('reset').debug('resetting to initial value', this.initialValue)
 				this.set(this.initialValue as TValueType)
 			},
 		})
@@ -402,13 +401,13 @@ export abstract class Input<
 	protected lock = (from = this.state.value) => {
 		this.undoLock = true
 		this.lockCommit.from = from
-		this.__log.fn('lock').info('lockCommit:', this.lockCommit)
+		this.__log.fn(o('lock')).info('lockCommit:', this.lockCommit)
 	}
 	/**
 	 * Unlocks commits and saves the current commit stored in lock.
 	 */
 	protected unlock = (commit?: Partial<Commit>) => {
-		this.__log.fn('unlock').debug('commit', { commit, lockCommit: this.lockCommit })
+		this.__log.fn(o('unlock')).debug('commit', { commit, lockCommit: this.lockCommit })
 		commit ??= {}
 		commit.input ??= this as unknown as Input<TValueType>
 		commit.to ??= this.state.value as TValueType
