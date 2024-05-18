@@ -1,4 +1,4 @@
-import { getOS, isMac } from './platform'
+import { getOS, isIPad, isMac } from './platform'
 
 /**
  * Returns the `metaKey` on Mac, and `ctrlKey` on other platforms.
@@ -28,6 +28,10 @@ export function getModifierKey(
 	name: string
 	key: string
 } {
+	if (isIPad(request)) {
+		return MODIFIER_KEY_DATA[type].mac
+	}
+
 	const os = getOS(request)
 
 	switch (os) {
