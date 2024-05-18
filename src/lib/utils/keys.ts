@@ -5,6 +5,11 @@ import { getOS, isIPad, isMac } from './platform'
  */
 export function modKey(event: KeyboardEvent | PointerEvent) {
 	return isMac() ? event.metaKey : event.ctrlKey
+
+}
+
+export function modIcon() {
+	return isMac() ? MODIFIER_KEY_DATA.metaKey.mac.icon : MODIFIER_KEY_DATA.ctrlKey.windows.icon
 }
 
 export type ModifierMap = Record<'metaKey' | 'altKey' | 'shiftKey' | 'ctrlKey', PlatformData>

@@ -3,7 +3,7 @@ import type { Tooltip } from '../../actions/tooltip'
 
 import { create } from '../../utils/create'
 import { Logger } from '$lib/utils/logger'
-import { modKey } from '$lib/utils/keys'
+import { modIcon, modKey } from '$lib/utils/keys'
 
 export class NumberController<
 	TInput extends ValidInput = ValidInput,
@@ -31,7 +31,7 @@ export class NumberController<
 			value: String(input.state.value),
 			parent,
 			tooltip: {
-				text: /*html*/ `Hold <span class="fractils-hotkey">⌘</span> or <span class="fractils-hotkey">ctrl</span> to drag`,
+				text: /*html*/ `Hold <span class="fractils-hotkey">${modIcon()}</span> to drag`,
 				placement: 'top',
 				delay: 1500,
 				parent,
