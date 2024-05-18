@@ -1,7 +1,5 @@
-import { getInfo } from './getInfo.js'
+import { redirect } from '@sveltejs/kit'
 
-export const load = ({ request }) => {
-	return {
-		info: getInfo(request),
-	}
+export const load = () => {
+	redirect(301, '/demo/ua')
 }
