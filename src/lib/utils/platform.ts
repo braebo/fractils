@@ -70,6 +70,15 @@ export function isMac(request?: Request) {
 }
 
 /**
+ * `true` if the current browser is running on MacOS.
+ */
+export function isApple(request?: Request) {
+	return (
+		isMac(request) || isIOS(request) || isIPad(request) || isIPadOS(request) || isIPad(request)
+	)
+}
+
+/**
  * `true` if the current browser is running on Windows.
  */
 export function isWindows(request?: Request) {
@@ -112,17 +121,18 @@ export function isIOS(request?: Request) {
 }
 
 /**
- * `true` if the current browser is running on iOS.
+ * `true` if the current browser is running on iPadOS.
  */
 export function isIPadOS(request?: Request) {
-	return isPlatform(/ipad/i, request)
+	return isIPad(request)
 }
 
 /**
  * `true` if the current browser is running on an iPad.
  */
 export function isIPad(request?: Request) {
-	return isSafari(request) && !isIOS(request)
+	// return isSafari(request) && !isIOS(request)
+	return isPlatform(/ipad/i, request)
 }
 
 /**

@@ -110,7 +110,7 @@ export class PresetManager {
 	private _renamePreset(title: string) {
 		this._log.fn('_renamePreset').debug({ this: this, title })
 
-		if (!this.isInitialized()) throw new Error('PresetManager not initialized.')
+		if (!this._isInitialized()) throw new Error('PresetManager not initialized.')
 
 		const active = this.activePreset.value
 
@@ -132,7 +132,7 @@ export class PresetManager {
 
 	private _resolveUnusedTitle(title: string) {
 		this._log.fn('resolveUnusedTitle').debug({ this: this, title })
-		if (!this.isInitialized()) throw new Error('PresetManager not initialized.')
+		if (!this._isInitialized()) throw new Error('PresetManager not initialized.')
 
 		const presets = this.presets.value
 		let i = 0
@@ -147,7 +147,7 @@ export class PresetManager {
 	}
 
 	private _resolveDefaultPreset(defaultPreset?: GuiPreset) {
-		if (!this.isInitialized()) throw new Error('PresetManager not initialized.')
+		if (!this._isInitialized()) throw new Error('PresetManager not initialized.')
 
 		defaultPreset ??= this.presets.value.find(p => p.id === this._defaultPresetId)
 		if (!defaultPreset) {
@@ -161,7 +161,7 @@ export class PresetManager {
 	async addGui(parentFolder: Folder, defaultPreset?: GuiPreset) {
 		this._log.fn('add').debug({ this: this, parentFolder, defaultPreset })
 
-		if (!this.isInitialized()) throw new Error('PresetManager not initialized.')
+		if (!this._isInitialized()) throw new Error('PresetManager not initialized.')
 
 		await Promise.resolve()
 
@@ -402,7 +402,7 @@ export class PresetManager {
 	deletePreset(preset: GuiPreset | GuiPreset['id']) {
 		this._log.fn('deletePreset').debug({ this: this, preset })
 
-		if (!this.isInitialized()) {
+		if (!this._isInitialized()) {
 			throw new Error('PresetManager not initialized.')
 		}
 
@@ -433,7 +433,7 @@ export class PresetManager {
 	) {
 		this._log.fn('saveNewPreset')
 
-		if (!this.isInitialized()) {
+		if (!this._isInitialized()) {
 			throw new Error('PresetManager not initialized.')
 		}
 
@@ -458,9 +458,11 @@ export class PresetManager {
 
 		this.set(preset)
 		this._refresh()
+
+		this._enableRename()
 	}
 
-	isInitialized(): this is { presets: State<GuiPreset[]>; folder: Folder } {
+	private _isInitialized(): this is { presets: State<GuiPreset[]>; folder: Folder } {
 		return this._initialized
 	}
 
@@ -484,7 +486,7 @@ export class PresetManager {
 	/**
 	 * Disables the dropdown, making the select's text editable.
 	 */
-	private _enableRename = () => {
+	private _enableRename = (cursorToEnd = true) => {
 		this._log.fn('_enableRename').debug({ this: this })
 
 		const el = this._presetsInput.select.elements.selected
@@ -506,8 +508,9 @@ export class PresetManager {
 		el.focus()
 		const range = document.createRange()
 		range.selectNodeContents(el)
-		range.collapse(false)
-
+		if (cursorToEnd) {
+			range.collapse(false)
+		}
 		const sel = window.getSelection()
 		sel?.removeAllRanges()
 		sel?.addRange(range)
