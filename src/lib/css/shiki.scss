@@ -1,3 +1,5 @@
+// todo - Remove all !important
+
 :root[theme='light'] {
 	.code-window {
 		background: var(--dark-d);
@@ -194,6 +196,8 @@ pre.shiki-wrapper::-webkit-scrollbar-thumb {
 	border: 1px solid var(--bg-a);
 	background: var(--bg-b);
 	border-radius: 0.125rem;
+
+	cursor: pointer;
 }
 pre.shiki-wrapper::-webkit-scrollbar-corner {
 	background: transparent;
@@ -213,7 +217,6 @@ html[theme='light'] .shiki {
 	filter: brightness(1.1);
 }
 
-// .code-window .codeblock pre.shiki-wrapper {
 div.code-window > div.codeblock > pre > pre > code,
 div.code-window > div.codeblock > * {
 	font-family: var(--font-mono) !important;
