@@ -75,20 +75,13 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 
 		this.evm.add(this.state.subscribe(this.refresh))
 
-		this.evm.listen(this.elements.controllers.range, 'pointerdown', this._lock)
-		this.evm.listen(this.elements.controllers.range, 'pointerup', this._unlock)
+		this.evm.listen(this.elements.controllers.range, 'pointerdown', this.lock)
+		this.evm.listen(this.elements.controllers.range, 'pointerup', () => this.unlock())
 
 		this.evm.listen(this.elements.controllers.input, 'input', this.set)
 
-		this.evm.listen(this.elements.controllers.input, 'dragStart', this._lock)
-		this.evm.listen(this.elements.controllers.input, 'dragEnd', this._unlock)
-	}
-
-	private _lock = () => {
-		this.lock()
-	}
-	private _unlock = () => {
-		this.unlock()
+		this.evm.listen(this.elements.controllers.input, 'dragStart', this.lock)
+		this.evm.listen(this.elements.controllers.input, 'dragEnd', () => this.unlock())
 	}
 
 	set = (v?: number | Event) => {
@@ -129,7 +122,6 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 		this.elements.controllers.range.value = String(v)
 		this.elements.controllers.input.value = String(v)
 		super.refresh(v)
-
 		return this
 	}
 
