@@ -82,6 +82,7 @@ export class PresetManager {
 		if (this.activePreset.value.id !== this._defaultPresetId) {
 			Promise.resolve().then(() => {
 				this.gui.load(this.activePreset.value)
+				this.gui._undoManager.clear()
 			})
 		}
 	}
