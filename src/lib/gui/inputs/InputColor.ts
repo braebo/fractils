@@ -87,16 +87,16 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 	 */
 	expanded: boolean
 
-	#mode: ColorMode
+	private _mode: ColorMode
 	get mode() {
-		return this.#mode
+		return this._mode
 	}
 	set mode(v: ColorMode) {
-		this.#mode = v
+		this._mode = v
 		this.components.mode = v
 	}
 
-	#log: Logger
+	private _log: Logger
 
 	constructor(options: Partial<ColorInputOptions>, folder: Folder) {
 		const opts = Object.assign({}, COLOR_INPUT_DEFAULTS, options, {
@@ -105,9 +105,9 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		super(opts, folder)
 
 		this.expanded = opts.expanded
-		this.#mode = opts.mode
-		this.#log = new Logger(`InputColor ${opts.title}`, { fg: 'cyan' })
-		this.#log.fn('constructor').debug({ opts, this: this }).groupEnd()
+		this._mode = opts.mode
+		this._log = new Logger(`InputColor ${opts.title}`, { fg: 'cyan' })
+		this._log.fn('constructor').debug({ opts, this: this }).groupEnd()
 
 		//? Initialize state.
 		if (opts.binding) {
@@ -132,7 +132,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		this.elements.controllers.container = container
 
 		//- Current Color
-		this.elements.controllers.currentColor = this.#createCurrentColor(container)
+		this.elements.controllers.currentColor = this._createCurrentColor(container)
 
 		//- Body
 		const body = create('div', {
@@ -152,15 +152,6 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 			components: this.components.elements,
 		}
 
-		this.state.subscribe(_v => {
-			// this.callOnChange(v)
-			// if (first) return first = false
-			// throw new Error('Do not set state directly')
-			// throw new Error('Do not set state directly')
-		})
-
-		// this.components.refresh()
-
 		setTimeout(() => {
 			this.expanded ? this.open() : this.close(0)
 		}, 10)
@@ -168,48 +159,26 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		this._emit('change')
 		this.refresh()
 
-		this.listen(this.picker.element, 'onPointerDown', this.#lock.bind(this))
-		this.listen(this.picker.element, 'onPointerUp', this.#unlock.bind(this))
-	}
-
-	/**
-	 * Prevents the range slider from registering undo history commits while dragging,
-	 * storing the initial value on pointerdown for the eventual commit in #unlock.
-	 */
-	#lock() {
-		this.lock(this.state.value.rgba)
-	}
-	/**
-	 * Saves the commit stored in #lock on pointerup.
-	 */
-	#unlock() {
-		this.unlock({
-			input: this,
-			to: this.state.value.rgba,
-			setter: v => {
-				this.state.value.set(v)
-				this.state.refresh()
-			},
-		})
-		// this.refresh()
+		this.listen(this.picker.element, 'onPointerDown', this._lock)
+		this.listen(this.picker.element, 'onPointerUp', this._unlock)
 	}
 
 	set(v: ColorFormat | Color) {
 		if (isColor(v)) {
 			this.commit({
-				to: v.rgba as any,
-				from: this.state.value.rgba as any,
+				to: v.hex8String as any,
+				from: this.state.value.hex8String as any,
 				setter: v => {
 					this.state.value.set(v)
 					this.state.refresh()
 				},
 			})
-			this.state.set(new Color(v.hsva))
+			this.state.set(new Color(v.hex8String))
 		} else {
 			const newColor = new Color(v)
 			this.commit({
-				to: newColor.rgba as any,
-				from: this.state.value.rgba as any,
+				to: newColor.hex8String as any,
+				from: this.state.value.hex8String as any,
 				setter: v => {
 					this.state.value.set(v)
 					this.state.refresh()
@@ -220,12 +189,16 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 		const newValue = this.state.value
 
+		this._log.fn('set').info({ v, newValue, this: this })
+
 		this._emit('change', newValue)
 		this.refresh(newValue)
 		return this
 	}
 
 	refresh = (v = this.state.value) => {
+		this._log.fn('refresh').info({ v, this: this })
+
 		this.elements.controllers.currentColor.display.style.backgroundColor = v.hex8String
 		this.picker.refresh()
 		this.components.refresh()
@@ -250,7 +223,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 	}
 	//⌟
 
-	#createCurrentColor(parent: HTMLDivElement) {
+	private _createCurrentColor(parent: HTMLDivElement) {
 		const container = create('div', {
 			classes: ['fracgui-input-color-current-color-container'],
 			parent,
@@ -364,9 +337,30 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 	}
 	//⌟
 
-	//· Super Overrides ···································································¬
+	//· Super Overrides ··········································································¬
 
-	protected dirtyCheck() {
+	/**
+	 * Prevents the range slider from registering undo history commits while dragging on the
+	 * canvas, storing the initial value on pointerdown for the eventual commit in {@link _unlock}.
+	 */
+	private _lock = () => {
+		this.lock(this.state.value.rgba)
+	}
+	/**
+	 * Saves the commit stored in #lock on pointerup.
+	 */
+	private _unlock = () => {
+		this.unlock({
+			input: this,
+			to: this.state.value.hex8String,
+			setter: v => {
+				this.state.value.set(v)
+				this.state.refresh()
+			},
+		})
+	}
+
+	protected _dirtyCheck() {
 		return this.state.value.hex8String !== this.initialValue.hex8String
 	}
 
@@ -387,13 +381,17 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 	}
 
 	load(json: string | InputPreset<ColorInputOptions>) {
-		const { value } = typeof json === 'string' ? JSON.parse(json) : json
-		this.set(new Color(value))
+		const data = typeof json === 'string' ? JSON.parse(json) : json
+		this.id = data.presetId
+		this.disabled = data.disabled
+		this.hidden = data.hidden
+		this.initialValue = new Color(data.value)
+		this.set(this.initialValue)
 	}
 	//⌟
 
 	dispose() {
-		this.#log.fn('dispose').debug({ this: this })
+		this._log.fn('dispose').debug({ this: this })
 		this.picker.dispose()
 		super.dispose()
 	}
