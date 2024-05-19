@@ -25,10 +25,10 @@ import { Logger } from '../utils/logger'
 import { create } from '../utils/create'
 import { VAR_PREFIX } from './GUI_VARS'
 import { state } from '../utils/state'
-import { modKey } from '../utils/keys'
 import { BROWSER } from '../utils/env'
 import { GUI_VARS } from './GUI_VARS'
 import { place } from '../dom/place'
+import { isMac } from '../utils/ua'
 import { Folder } from './Folder'
 
 //· Types ························································································¬
@@ -373,14 +373,27 @@ export class Gui {
 		this._log = new Logger(`Gui ${opts.title}`, { fg: 'palevioletred' })
 		this._log.fn('constructor').info({ options, opts })
 
-		const undo = (e: KeyboardEvent) => {
-			if (!modKey(e) || e.key !== 'z') return
-			e.preventDefault()
-			e.shiftKey ? this._undoManager.redo() : this._undoManager.undo()
+		const handleUndoRedo = (e: KeyboardEvent) => {
+			if (isMac()) {
+				if (e.metaKey && e.key === 'z') {
+					e.preventDefault()
+					e.shiftKey ? this._undoManager.redo() : this._undoManager.undo()
+				}
+			} else if (e.ctrlKey) {
+				if (e.key === 'z') {
+					e.preventDefault()
+					this._undoManager.undo()
+				}
+
+				if (e.key === 'y') {
+					e.preventDefault()
+					this._undoManager.redo()
+				}
+			}
 		}
 
-		removeEventListener('keydown', undo)
-		addEventListener('keydown', undo)
+		removeEventListener('keydown', handleUndoRedo)
+		addEventListener('keydown', handleUndoRedo)
 		//⌟
 
 		//· State ····························································¬
