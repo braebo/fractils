@@ -343,7 +343,7 @@ export abstract class Input<
 		this._dirty = toFn(v)
 		this.elements.resetBtn.classList.toggle('dirty', this._dirty())
 	}
-	protected dirtyCheck() {
+	protected _dirtyCheck() {
 		return this.state.value !== this.initialValue
 	}
 
@@ -375,17 +375,7 @@ export abstract class Input<
 	 * Called from subclasses at the end of their `set` method to emit the `change` event.
 	 */
 	_emit(event: keyof TEvents, v = this.state.value as TValueType) {
-		this.dirty = this.dirtyCheck()
-
-		// if (this.bubble === false) {
-		// 	this.__log
-		// 		.fn('_emit')
-		// 		.info('Bubbling disabled.  Events will be silent until next update.')
-
-		// 	this.bubble = true
-
-		// 	return this
-		// }
+		this.dirty = this._dirtyCheck()
 
 		// @ts-expect-error
 		this.evm.emit(event, v)
