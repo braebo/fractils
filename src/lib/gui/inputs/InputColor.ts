@@ -166,22 +166,24 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 	set(v: ColorFormat | Color) {
 		if (isColor(v)) {
 			this.commit({
-				to: v.hex8String as any,
-				from: this.state.value.hex8String as any,
+				to: v.rgba,
+				from: this.state.value.rgba,
 				setter: v => {
 					this.state.value.set(v)
 					this.state.refresh()
+					this.refresh()
 				},
 			})
-			this.state.set(new Color(v.hex8String))
+			this.state.set(new Color(v.rgba))
 		} else {
 			const newColor = new Color(v)
 			this.commit({
-				to: newColor.hex8String as any,
-				from: this.state.value.hex8String as any,
+				to: newColor.rgba,
+				from: this.state.value.rgba,
 				setter: v => {
 					this.state.value.set(v)
 					this.state.refresh()
+					this.refresh()
 				},
 			})
 			this.state.set(newColor)
@@ -198,12 +200,10 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 	refresh = (v = this.state.value) => {
 		this._log.fn('refresh').info({ v, this: this })
-
 		this.elements.controllers.currentColor.display.style.backgroundColor = v.hex8String
 		this.picker.refresh()
 		this.components.refresh()
 		super.refresh()
-
 		return this
 	}
 
@@ -341,26 +341,30 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 	/**
 	 * Prevents the range slider from registering undo history commits while dragging on the
-	 * canvas, storing the initial value on pointerdown for the eventual commit in {@link _unlock}.
+	 * canvas, storing the initial value on pointerdown for the eventual commit in {@link unlock}.
 	 */
 	private _lock = () => {
+		// console.log('lock', 'from:' + chalk.hex(this.state.value.hex)(this.state.value.rgbaString))
 		this.lock(this.state.value.rgba)
 	}
 	/**
 	 * Saves the commit stored in #lock on pointerup.
 	 */
 	private _unlock = () => {
+		// console.log('unlock', 'to:' + chalk.hex(this.state.value.hex)(this.state.value.rgbaString))
 		this.unlock({
 			input: this,
-			to: this.state.value.hex8String,
+			to: this.state.value.rgba,
 			setter: v => {
 				this.state.value.set(v)
 				this.state.refresh()
+				this._emit('change', this.state.value)
+				this.refresh()
 			},
 		})
 	}
 
-	protected _dirtyCheck() {
+	protected dirtyCheck() {
 		return this.state.value.hex8String !== this.initialValue.hex8String
 	}
 
