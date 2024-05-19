@@ -5,6 +5,7 @@ import { ORBS_PRESETS } from '../../../lib/gui/demo/ORBS_PRESETS'
 import { stringify } from '../../../lib/utils/stringify'
 import { debrief } from '../../../lib/utils/debrief'
 import { state } from '../../../lib/utils/state'
+import { DEV } from '../../../lib/utils/env'
 import { Gui } from '../../../lib/gui/Gui'
 
 export const showCode = state(false)
@@ -13,10 +14,11 @@ export const code = state('')
 export function demoGui(params: Params) {
 	const gui = new Gui({
 		title: 'Orbs',
-		position: 'top-center',
-		positionOptions: {
-			margin: 60,
-		},
+		position: 'center',
+		// position: 'top-center',
+		// positionOptions: {
+		// 	margin: 175,
+		// },
 		storage: {
 			key: 'fracgui',
 		},
@@ -234,6 +236,39 @@ export function demoGui(params: Params) {
 			if (showCode.value) showActivePreset(v)
 		}),
 	)
+
+	if (DEV) {
+		setTimeout(() => {
+			gui.settingsFolder.open()
+		})
+		gui.settingsFolder.addButtonGrid({
+			title: 'dev',
+			value: [
+				[
+					{
+						text: 'log(this)',
+						onClick: () => {
+							console.log(gui)
+						},
+					},
+					{
+						text: 'show preset',
+						onClick: () => {
+							showCode.set(!showCode.value)
+						},
+					},
+				],
+				[
+					{
+						text: 'clear storage',
+						onClick: () => {
+							localStorage.clear()
+						},
+					},
+				],
+			],
+		})
+	}
 
 	return gui
 }

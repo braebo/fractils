@@ -42,6 +42,8 @@
 <svelte:window on:resize={onResize} />
 
 <div class="page">
+	<h1 class="hero-title">gooey</h1>
+
 	{#if $showCode}
 		<div class="debug" transition:fly={{ y: 5, duration: 250, easing: quintOut }}>
 			{#key $code}
@@ -56,11 +58,11 @@
 		</div>
 	{/if}
 
-	<button class:active={$showCode} on:click={() => ($showCode = !$showCode)}>
+	<!-- <button class:active={$showCode} on:click={() => ($showCode = !$showCode)}>
 		Show Active Preset
 	</button>
 	<button on:click={() => console.log(gui)}>Log Gui</button>
-	<button on:click={() => localStorage.clear()}>Clear localStorage</button>
+	<button on:click={() => localStorage.clear()}>Clear localStorage</button> -->
 
 	{#if ready}
 		<div class="orbs">
@@ -79,6 +81,14 @@
 		background: color-mix(in lch, var(--bg-a), var(--bg-b));
 
 		overflow: hidden;
+	}
+
+	.hero-title {
+		width: fit-content;
+		font-variation-settings: 'wght' 333;
+		font-family: 'fredoka', sans-serif;
+		font-size: var(--font-xxl);
+		line-height: 2rem;
 	}
 
 	.orbs {
