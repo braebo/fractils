@@ -159,8 +159,8 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		this._emit('change')
 		this.refresh()
 
-		this.listen(this.picker.element, 'onPointerDown', this._lock)
-		this.listen(this.picker.element, 'onPointerUp', this._unlock)
+		this.picker.on('pointerdown', this._lock)
+		this.picker.on('pointerup', this._unlock)
 	}
 
 	set(v: ColorFormat | Color) {

@@ -75,7 +75,8 @@ export class ColorPicker {
 	private _dragging = false
 	private _lockCursorPosition = false
 
-	private _evm = new EventManager()
+	private _evm = new EventManager(['pointerdown', 'pointerup'])
+	on = this._evm.on.bind(this._evm)
 
 	constructor(
 		public input: InputColor,
@@ -276,8 +277,7 @@ export class ColorPicker {
 
 	//· Pointer Events ···································································¬
 
-	#onPointerDown = (e: PointerEvent) => {
-		this.element.dispatchEvent(new CustomEvent('onPointerDown'))
+		this._evm.emit('pointerdown')
 		this._dragging = true
 		this._updateFromMousePosition(e)
 
@@ -290,8 +290,7 @@ export class ColorPicker {
 		}
 	}
 
-	#onPointerUp = () => {
-		this.element.dispatchEvent(new CustomEvent('onPointerUp'))
+		this._evm.emit('pointerup')
 		this._dragging = false
 	}
 
