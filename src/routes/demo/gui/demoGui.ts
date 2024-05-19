@@ -5,7 +5,7 @@ import { ORBS_PRESETS } from '../../../lib/gui/demo/ORBS_PRESETS'
 import { stringify } from '../../../lib/utils/stringify'
 import { debrief } from '../../../lib/utils/debrief'
 import { state } from '../../../lib/utils/state'
-import { DEV } from '../../../lib/utils/env'
+// import { DEV } from '../../../lib/utils/env'
 import { Gui } from '../../../lib/gui/Gui'
 
 export const showCode = state(false)

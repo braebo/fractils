@@ -175,9 +175,9 @@ export class ColorPicker {
 		this.canvas.width = this._width
 		this.refresh()
 
-		this._evm.listen(this.canvas, 'click', this.#onClick as EventListener)
-		this._evm.listen(this.canvas, 'pointerdown', this.#onPointerDown)
-		this._evm.listen(window, 'pointermove', this.#onPointerMove, { passive: true })
+		this._evm.listen(this.input.elements.container, 'pointermove', this._onPointerMove, {
+			passive: true,
+		})
 
 		this.#updateGradients()
 		setTimeout(this.draw, 10)
