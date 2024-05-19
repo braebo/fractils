@@ -71,7 +71,7 @@
 	{/if}
 </div>
 
-<style lang="scss">
+<style>
 	.page {
 		width: 100vw;
 		height: 100vh;
@@ -110,7 +110,7 @@
 		z-index: 0;
 	}
 
-	button {
+	/* button {
 		background: var(--bg-a);
 		color: var(--fg-c);
 		outline: 1px solid var(--bg-c);
@@ -126,5 +126,5 @@
 	button.active {
 		background: var(--bg-a);
 		color: var(--theme-a);
-	}
+	} */
 </style>
