@@ -4,9 +4,9 @@
 
 	import { stringify } from '$lib/utils/stringify'
 	import Code from '$lib/components/Code.svelte'
-	import * as ua from '$lib/utils/platform'
 	import { quintOut } from 'svelte/easing'
 	import { fly } from 'svelte/transition'
+	import * as ua from '$lib/utils/ua'
 	import { getInfo } from './getInfo'
 	import { page } from '$app/stores'
 	import { onMount } from 'svelte'
