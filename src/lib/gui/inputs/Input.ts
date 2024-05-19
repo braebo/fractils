@@ -205,7 +205,7 @@ export abstract class Input<
 	 * Prevents the input from registering commits to undo history until
 	 * {@link unlock} is called.
 	 */
-	private undoLock = false
+	private _undoLock = false
 	/**
 	 * The commit object used to store the initial value of the input when
 	 * {@link lock} is called.
@@ -343,7 +343,7 @@ export abstract class Input<
 		this._dirty = toFn(v)
 		this.elements.resetBtn.classList.toggle('dirty', this._dirty())
 	}
-	protected _dirtyCheck() {
+	protected dirtyCheck() {
 		return this.state.value !== this.initialValue
 	}
 
@@ -375,7 +375,7 @@ export abstract class Input<
 	 * Called from subclasses at the end of their `set` method to emit the `change` event.
 	 */
 	_emit(event: keyof TEvents, v = this.state.value as TValueType) {
-		this.dirty = this._dirtyCheck()
+		this.dirty = this.dirtyCheck()
 
 		// @ts-expect-error
 		this.evm.emit(event, v)
@@ -389,9 +389,9 @@ export abstract class Input<
 	 * for the eventual commit in {@link unlock}.
 	 */
 	protected lock = (from = this.state.value) => {
-		this.undoLock = true
+		this._undoLock = true
 		this.lockCommit.from = from
-		this.__log.fn(o('lock')).info('lockCommit:', this.lockCommit)
+		this.__log.fn(o('lock')).debug('lockCommit:', this.lockCommit)
 	}
 	/**
 	 * Unlocks commits and saves the current commit stored in lock.
@@ -402,7 +402,7 @@ export abstract class Input<
 		commit.input ??= this as unknown as Input<TValueType>
 		commit.to ??= this.state.value as TValueType
 		commit.from ??= this.lockCommit.from
-		this.undoLock = false
+		this._undoLock = false
 		this.commit(commit)
 	}
 
@@ -411,15 +411,13 @@ export abstract class Input<
 	 */
 	commit(commit: Partial<Commit>) {
 		commit.from ??= this.state.value
-		if (this.undoLock) {
+		commit.input ??= this as unknown as Input<TValueType>
+		if (this._undoLock) {
 			this.__log.fn('commit').debug('prevented commit while locked')
 			return
 		}
 		this.__log.fn('commit').debug('commited', commit)
-		this.undoManager?.commit<TValueType>({
-			input: this,
-			...commit,
-		} as Commit)
+		this.undoManager?.commit(commit as Commit)
 	}
 
 	/**
