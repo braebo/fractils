@@ -1,5 +1,5 @@
-import { getModifierKey, type KeyData } from '$lib/utils/keys'
-import * as ua from '$lib/utils/platform'
+import { getModifierKey, type KeyData } from '../../../lib/utils/keys'
+import * as ua from '../../../lib/utils/ua'
 
 export interface PlatformInfo {
 	platforms: { k: string; v: string | boolean }[]
