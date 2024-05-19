@@ -237,38 +237,38 @@ export function demoGui(params: Params) {
 		}),
 	)
 
-	if (DEV) {
-		setTimeout(() => {
-			gui.settingsFolder.open()
-		})
-		gui.settingsFolder.addButtonGrid({
-			title: 'dev',
-			value: [
-				[
-					{
-						text: 'log(this)',
-						onClick: () => {
-							console.log(gui)
-						},
-					},
-					{
-						text: 'show preset',
-						onClick: () => {
-							showCode.set(!showCode.value)
-						},
-					},
-				],
-				[
-					{
-						text: 'clear storage',
-						onClick: () => {
-							localStorage.clear()
-						},
-					},
-				],
-			],
-		})
-	}
+	// if (DEV) {
+	// 	setTimeout(() => {
+	// 		gui.settingsFolder.open()
+	// 	})
+	// 	gui.settingsFolder.addButtonGrid({
+	// 		title: 'dev',
+	// 		value: [
+	// 			[
+	// 				{
+	// 					text: 'log(this)',
+	// 					onClick: () => {
+	// 						console.log(gui)
+	// 					},
+	// 				},
+	// 				{
+	// 					text: 'show preset',
+	// 					onClick: () => {
+	// 						showCode.set(!showCode.value)
+	// 					},
+	// 				},
+	// 			],
+	// 			[
+	// 				{
+	// 					text: 'clear storage',
+	// 					onClick: () => {
+	// 						localStorage.clear()
+	// 					},
+	// 				},
+	// 			],
+	// 		],
+	// 	})
+	// }
 
 	return gui
 }
