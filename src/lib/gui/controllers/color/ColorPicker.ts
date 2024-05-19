@@ -4,12 +4,13 @@ import type { InputColor } from '../../inputs/InputColor'
 
 import { disableable, type Disableable } from '../../../decorators/disableable-class-decorator'
 import { Color, type ColorValue } from '../../../color/color'
+import { EventManager } from '../../../utils/EventManager'
 import { tooltip } from '../../../actions/tooltip'
 import { mapRange } from '../../../utils/mapRange'
 import { debounce } from '../../../utils/debounce'
+import { Logger } from '../../../utils/logger'
 import { create } from '../../../utils/create'
 import { clamp } from '../../../utils/clamp'
-import { EventManager } from '$lib/utils/EventManager'
 
 export type LayoutDirection = 'vertical' | 'horizontal' | ''
 
@@ -75,6 +76,7 @@ export class ColorPicker {
 	private _dragging = false
 	private _lockCursorPosition = false
 
+	private _log: Logger
 	private _evm = new EventManager(['pointerdown', 'pointerup'])
 	on = this._evm.on.bind(this._evm)
 
@@ -85,6 +87,8 @@ export class ColorPicker {
 		const opts = { ...COLOR_PICKER_DEFAULTS, ...options }
 
 		this.opts = opts
+		this._log = new Logger('ColorPicker', { fg: 'lightgreen' })
+		this._log.fn('constructor').debug({ opts, this: this })
 
 		// Make sure the rect is accurate on mount.
 		const style = input.expanded ? {} : { height: '0px' }
@@ -120,7 +124,7 @@ export class ColorPicker {
 			min: 0,
 			max: 359,
 		})
-		this._evm.listen(hueSlider, 'input', this._updateStateFromHue as EventListener)
+		this._evm.listen(hueSlider, 'input', this._updateStateFromHue)
 
 		tooltip(hueSlider, {
 			parent: container,
@@ -176,11 +180,13 @@ export class ColorPicker {
 		this.canvas.width = this._width
 		this.refresh()
 
+		this._evm.listen(this.canvas, 'click', this._onClick)
+		this._evm.listen(this.canvas, 'pointerdown', this._onPointerDown)
 		this._evm.listen(this.input.elements.container, 'pointermove', this._onPointerMove, {
 			passive: true,
 		})
 
-		this.#updateGradients()
+		this._updateGradients()
 		setTimeout(this.draw, 10)
 		setTimeout(this._updateHandle, 20)
 	}
@@ -226,16 +232,17 @@ export class ColorPicker {
 		this.input.refresh()
 	}
 
-	#lastColor: Color | undefined
+	private _lastColor: Color | undefined
 
 	/**
 	 * Updates the UI to reflect the current state of the color picker.
 	 */
 	refresh = () => {
+		this._log.fn('refresh').debug()
 		const color = this.input.state.value
 
-		if (this.#lastColor?.hex8String === color.hex8String) return this
-		this.#lastColor = color.clone()
+		if (this._lastColor?.hex === color.hex8String) return this
+		this._lastColor = color.clone()
 
 		this.elements.hueSlider.value = String(this.hue)
 		this.elements.alphaSlider.value = String(this.alpha)
@@ -255,17 +262,17 @@ export class ColorPicker {
 	}
 
 	draw = () => {
-		this.#fill(`hsl(${this.hue}, 100%, 50%)`)
-		this.#fill(this._gradientWhite)
-		this.#fill(this._gradientBlack)
+		this._fill(`hsl(${this.hue}, 100%, 50%)`)
+		this._fill(this._gradientWhite)
+		this._fill(this._gradientBlack)
 	}
 
-	#fill(style: string | CanvasGradient) {
+	private _fill(style: string | CanvasGradient) {
 		this._ctx.fillStyle = style
 		this._ctx.fillRect(0, 0, this.canvas.width, this.canvas.height)
 	}
 
-	#updateGradients() {
+	private _updateGradients() {
 		this._gradientWhite = this._ctx.createLinearGradient(0, 0, this.canvas.width, 0)
 		this._gradientWhite.addColorStop(0, 'rgba(255,255,255,1)')
 		this._gradientWhite.addColorStop(1, 'rgba(255,255,255,0)')
@@ -277,24 +284,39 @@ export class ColorPicker {
 
 	//· Pointer Events ···································································¬
 
+	private _pointerUpClickLatch = false
+
+	private _onPointerDown = (e: PointerEvent) => {
+		this._log.fn('_onPointerDown').debug()
 		this._evm.emit('pointerdown')
 		this._dragging = true
 		this._updateFromMousePosition(e)
 
-		addEventListener('pointerup', this.#onPointerUp, { once: true })
+		addEventListener('pointerup', this._onPointerUp, { once: true })
 	}
 
-	#onPointerMove = (e: PointerEvent) => {
+	private _onPointerMove = (e: PointerEvent) => {
+		this._log.fn('_onPointerMove').debug()
 		if (this._dragging) {
 			this._updateFromMousePosition(e)
 		}
 	}
 
+	private _onPointerUp = () => {
+		this._log.fn('_onPointerUp').debug()
 		this._evm.emit('pointerup')
 		this._dragging = false
+		this._pointerUpClickLatch = true
 	}
 
-	#onClick = (e: PointerEvent) => {
+	private _onClick = (e: MouseEvent) => {
+		this._log.fn('_onClick')
+		if (this._pointerUpClickLatch) {
+			this._log.debug('Click latch triggered. Aborting.')
+			this._pointerUpClickLatch = false
+			return
+		}
+		this._log.debug()
 		this._updateFromMousePosition(e)
 		this._dragging = false
 	}
@@ -302,7 +324,8 @@ export class ColorPicker {
 	/**
 	 * Updates the color picker's state based on the current mouse position.
 	 */
-	private _updateFromMousePosition(e: PointerEvent) {
+	private _updateFromMousePosition(e: MouseEvent) {
+		this._log.fn('_updateFromMousePosition').debug()
 		const { left, top, width, height } = this.canvas.getBoundingClientRect()
 		const x = clamp(e.clientX - left, 0, width)
 		const y = clamp(e.clientY - top, 0, height)
@@ -319,6 +342,7 @@ export class ColorPicker {
 	 * Maps canvas `x` and `y` coordinates to their respective `s` and `v` color values.
 	 */
 	private _getColorAtPosition = (x: number, y: number) => {
+		this._log.fn('_getColorAtPosition').debug()
 		const { width, height } = this.canvas.getBoundingClientRect()
 		const r = this.opts.handleSize / 3
 
@@ -328,12 +352,9 @@ export class ColorPicker {
 		}
 	}
 
-	private _updateStateFromHue = (e: InputEvent) => {
+	private _updateStateFromHue = (e: Event) => {
+		this._log.fn('_updateStateFromHue').debug()
 		this._lockCursorPosition = true
-		const commit = {
-			input: this.input,
-			from: this.input.state.value.rgba as any as Color, // todo
-		}
 
 		const hue = Number((e.target as HTMLInputElement).value)
 
@@ -341,10 +362,6 @@ export class ColorPicker {
 		this.input.state.value.hsva = { h: hue, s, v, a }
 		this.input.set(this.input.state.value)
 
-		this.input.undoManager?.commit({
-			...commit,
-			to: this.input.state.value.rgba as any as Color, // todo
-		})
 		this.elements.handle.style.background = this.input.state.value.hexString
 
 		this.draw()
