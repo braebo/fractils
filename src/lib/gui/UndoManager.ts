@@ -1,3 +1,14 @@
+/*
+ * // todo - There's still an off-by-one error in the undo manager.
+ * repro:
+ * - change 2 different inputs
+ * - undo once
+ * - change 1 input
+ * Things will be out of sync.
+ * Also, when undoing all the way, the pointer is -1, but the stack still has 1 commit.
+ */
+
+import chalk from 'chalk'
 import type { Input, ValidInputValue } from '../gui/inputs/Input'
 
 import { y, c, b, m, g } from '../utils/l'
@@ -19,14 +30,14 @@ export class UndoManager {
 	_log = new Logger('UndoManager', { fg: 'aliceblue' })
 
 	constructor() {
-		this._dump('constructor')
+		this.#l('constructor')
 	}
 
 	commit<V>(commit: Commit<V>, _debounce = 100) {
-		this._dump(c('commit'), g('start'), { commit })
+		this.#lc(c('commit') + g(' start'), commit)
 
 		if (this.locked) {
-			this._dump(c('commit'), y('locked'), 'aborting commit.')
+			this.#l(c('commit'), y('locked'), 'aborting commit.')
 			this.locked = false
 			return
 		}
@@ -34,7 +45,7 @@ export class UndoManager {
 		const diff = this.pointer + 1 - this.stack.length
 
 		if (diff < 0) {
-			this._dump('commit', 'shaving stack with diff:', diff)
+			this.#l('commit', 'shaving stack with diff:', diff)
 			this.stack = this.stack.slice(0, diff)
 		}
 
@@ -42,46 +53,50 @@ export class UndoManager {
 		this.stack.push(commit)
 
 		if (this.stack.length > this.maxHistory) {
+			this.#l(c('commit'), 'stack length exceeds maxHistory, shifting stack.')
 			this.stack.shift()
 			this.pointer--
 		}
 
-		this._dump(c('commit'), b('end'), 'pushed commit')
+		this.#lc(c('commit') + b(' end'), commit, 'pushed commit')
 	}
 
-	undo() {
+	undo = () => {
 		if (this.pointer === -1) {
-			this._dump(m('undo'), 'pointer is -1, aborting undo.')
+			this.#l(m('undo'), 'pointer is -1, aborting undo.')
 			return
 		}
-		this._dump(m('undo'), g('start'))
+		this.#l(m('undo'), g('start'))
+
 		this.locked = true
 
 		const commit = this.stack[this.pointer]
 
 		if (commit.setter) {
+			this.#lc('undo', commit, 'Using custom undo setter.')
 			commit.setter(commit.from)
 		} else {
 			commit.input.set(commit.from)
 		}
 
 		this.pointer--
-		this._dump(m('undo'), b('end'))
+
+		this.#l(m('undo'), b('end'))
 	}
 
-	redo() {
+	redo = () => {
 		if (this.pointer + 1 > this.stack.length - 1) {
-			this._dump('redo', y('pointer is at end of stack, aborting redo.'))
+			this.#l('redo', y('pointer is at end of stack, aborting redo.'))
 			return
 		}
-		this._dump('redo', g('start'))
+		this.#l('redo', g('start'))
 
 		this.locked = true
 
 		const commit = this.stack[this.pointer + 1]
 
 		if (commit.setter) {
-			this._dump('redo', 'Custom setter found.  Using it instead.')
+			this.#l('redo', 'Using custom redo setter.')
 			commit.setter(commit.to)
 		} else {
 			commit.input.set(commit.to)
@@ -89,12 +104,34 @@ export class UndoManager {
 
 		this.pointer++
 
-		this._dump('redo', b('end'))
+		this.#l('redo', b('end'))
 	}
 
-	_dump(fn_name: string, ...args: any[]) {
+	clear() {
+		this.#l('clear', g('start'))
+		this.stack = []
+		this.pointer = -1
+		this.#l('clear', b('end'))
+	}
+
+	#l(fn_name: string, ...args: any[]) {
 		this._log
 			.fn(fn_name)
 			.info(...args, { data: { stack: this.stack, pointer: this.pointer, this: this } })
+	}
+	#lc(fn_name: string, commit: Commit, ...args: any[]) {
+		if (!(typeof commit.from.r === 'number')) return this.#l(fn_name, commit, ...args)
+
+		const from = chalk.rgb(commit.from.r, commit.from.g, commit.from.b)
+		const to = chalk.rgb(commit.to.r, commit.to.g, commit.to.b)
+		this._log
+			.fn(fn_name)
+			.info(
+				`from: ${from(commit.from.r)} ${from(commit.from.g)} ${from(commit.from.b)}, to: ${to(commit.to.r)} ${to(commit.to.g)} ${to(commit.to.b)}`,
+				...args,
+				{
+					data: { stack: this.stack, pointer: this.pointer, this: this },
+				},
+			)
 	}
 }
