@@ -666,27 +666,9 @@ export class Folder {
 		return input
 	}
 
-	updateInputOrder() {
-		const [negativeOnes, explicits] = Array.from(this.inputs.values()).reduce(
-			(acc, input) => {
-				if (input.index === -1) {
-					acc[0].push(input)
-				} else {
-					acc[1].push(input)
-				}
-				return acc
-			},
-			[[], []] as [ValidInput[], ValidInput[]],
-		)
-		const inputs = explicits.sort((a, b) => a.index - b.index).concat(negativeOnes)
-		for (const [i, input] of inputs.entries()) {
-			input.folder.element.style.setProperty('order', i.toString())
-		}
-	}
-
 	private _createInput(options: InputOptions) {
 		this._log.fn('#createInput').debug(this)
-		const type = this.resolveType(options)
+		const type = this._resolveType(options)
 
 		switch (type) {
 			case 'InputText':
@@ -706,7 +688,7 @@ export class Folder {
 		throw new Error('Invalid input type: ' + type + ' for options: ' + options)
 	}
 
-	resolveType(options: any): InputType {
+	private _resolveType(options: any): InputType {
 		this._log.fn('resolveType').debug({ options, this: this })
 		const value = options.value ?? options.binding!.target[options.binding!.key]
 
