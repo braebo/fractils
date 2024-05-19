@@ -356,10 +356,13 @@ export class Color {
 		this.rgbString = value
 	}
 
+	/**
+	 * Hex string with an alpha channel, i.e. `'#5500eeff'`. Identical to {@link hex8String}.
+	 */
 	get hex(): HexString {
 		return this.hex8String
 	}
-	/** i.e. `'#5500ee'` */
+	/** Hex string with no alpha channel, i.e. `'#5500ee'` */
 	get hexString(): HexString {
 		const rgb = this.rgb
 		return `#${intToHex(rgb.r)}${intToHex(rgb.g)}${intToHex(rgb.b)}` as HexString
