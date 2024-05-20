@@ -23,19 +23,8 @@ import { Logger } from '../utils/logger'
 import { nanoid } from '../utils/nanoid'
 import { state } from '../utils/state'
 import { toFn } from '../utils/toFn'
-import { DEV } from 'esm-env'
+import { DEV } from '../utils/env'
 import { Gui } from './Gui'
-
-export interface FolderElements {
-	header: HTMLElement
-	title: HTMLElement
-	contentWrapper: HTMLElement
-	content: HTMLElement
-	toolbar: {
-		container: HTMLElement
-		settingsButton?: HTMLButtonElement & { tooltip?: Tooltip }
-	}
-}
 
 export interface FolderOptions {
 	__type?: 'FolderOptions'
@@ -86,6 +75,14 @@ export interface FolderOptions {
 	 * Any controls this folder should contain.
 	 */
 	controls?: Map<string, ValidInput>
+
+	/**
+	 * Whether this Folder should be saved as a {@link FolderPreset} when saving the
+	 * {@link GuiPreset} for the {@link Gui} this Folder belongs to.  If `false`, this Input will
+	 * be skipped.
+	 * @default true
+	 */
+	saveable?: boolean
 }
 
 const FOLDER_DEFAULTS = Object.freeze({
@@ -95,6 +92,7 @@ const FOLDER_DEFAULTS = Object.freeze({
 	closed: false,
 	hidden: false,
 	controls: new Map(),
+	saveable: true,
 }) satisfies Omit<FolderOptions, 'container'>
 
 /**
@@ -135,13 +133,22 @@ export interface InternalFolderOptions {
 	headerless: boolean
 }
 
-export const INTERNAL_FOLDER_DEFAULTS = {
+/**
+ * Internal folder creation api defaults.
+ */
+const INTERNAL_FOLDER_DEFAULTS = {
 	__type: 'InternalFolderOptions',
+	parentFolder: undefined,
 	isRoot: true,
 	instant: true,
+	gui: undefined,
 	headerless: false,
 } as const satisfies InternalFolderOptions
 
+/**
+ * A folder preset stores the state of a folder and all of its inputs, as well as the state of all
+ * child folders and their inputs.
+ */
 export interface FolderPreset {
 	__type: 'FolderPreset'
 	id: string
@@ -150,6 +157,17 @@ export interface FolderPreset {
 	hidden: boolean
 	children: FolderPreset[]
 	inputs: InputPreset<any>[]
+}
+
+export interface FolderElements {
+	header: HTMLElement
+	title: HTMLElement
+	contentWrapper: HTMLElement
+	content: HTMLElement
+	toolbar: {
+		container: HTMLElement
+		settingsButton?: HTMLButtonElement & { tooltip?: Tooltip }
+	}
 }
 
 export interface FolderEvents {
@@ -163,9 +181,13 @@ export interface FolderEvents {
 	 */
 	toggle: Folder['closed']['value']
 	/**
-	 * When the folder is refreshed, this event emits the folder.
+	 * Fires when {@link Folder.refresh} is called.
 	 */
-	refresh: Folder
+	refresh: void
+	/**
+	 * Fired after the folder and all of it's children/graphics have been mounted.
+	 */
+	mount: void
 }
 
 /**
@@ -182,6 +204,7 @@ export class Folder {
 
 	private _title: string
 	presetId: string
+	saveable: boolean
 	children = [] as Folder[]
 	inputs = new Map<string, ValidInput>()
 
@@ -204,7 +227,7 @@ export class Folder {
 		}
 	}
 
-	evm = new EventManager<FolderEvents>(['change', 'refresh', 'toggle'])
+	evm = new EventManager<FolderEvents>(['change', 'refresh', 'toggle', 'mount'])
 	on = this.evm.on.bind(this.evm)
 	private _log: Logger
 	/**
@@ -267,6 +290,7 @@ export class Folder {
 		this.elements = this._createElements(this.element)
 
 		this.presetId = this.resolvePresetId(opts)
+		this.saveable = !!opts.saveable
 
 		this.search = new Search(this)
 
@@ -293,6 +317,7 @@ export class Folder {
 			if (opts.closed) {
 				this.closed.set(opts.closed)
 			}
+			this.evm.emit('mount')
 		})
 	}
 
@@ -381,7 +406,7 @@ export class Folder {
 
 	addFolder = (options?: Partial<FolderOptions>) => {
 		this._log.fn('addFolder').debug({ options, this: this })
-		const defaults = Object.assign(Folder._getDefaults(), {
+		const defaults = Object.assign({}, INTERNAL_FOLDER_DEFAULTS, {
 			parentFolder: this,
 			depth: this._depth + 1,
 			gui: this.gui,
@@ -393,7 +418,8 @@ export class Folder {
 			isRoot: false,
 		}
 
-		const opts = Object.assign(defaults, options, overrides)
+		const opts = Object.assign({}, defaults, options, overrides) as FolderOptions &
+			InternalFolderOptions
 
 		const folder = new Folder(opts)
 		folder.on('change', v => this.evm.emit('change', v))
@@ -401,7 +427,7 @@ export class Folder {
 		this.children.push(folder)
 		this._createSvgs()
 
-		if (defaults.headerless) {
+		if (opts.headerless) {
 			folder.elements.header.style.display = 'none'
 		}
 
@@ -454,7 +480,7 @@ export class Folder {
 		this._clicksDisabled = false
 	}
 
-	//·· Open/Close ···························································¬
+	//·· Open/Close ······································································¬
 
 	toggle = () => {
 		this._log.fn('toggle').debug()
@@ -504,7 +530,7 @@ export class Folder {
 	}
 
 	hide() {
-		this._log.fn('hide').debug()
+		this._log.fn('hide').error()
 		this.element.classList.add('hidden')
 	}
 
@@ -524,7 +550,7 @@ export class Folder {
 	}
 	//⌟
 
-	//·· Save/Load ···························································¬
+	//·· Save/Load ···············································································¬
 
 	resolvePresetId = (opts?: FolderOptions) => {
 		this._log.fn('resolvePresetId').debug({ opts, this: this })
@@ -552,6 +578,10 @@ export class Folder {
 	save(): FolderPreset {
 		this._log.fn('save').debug({ this: this })
 
+		if (this.saveable !== true) {
+			throw new Error('Attempted to save unsaveable Folder: ' + this.title)
+		}
+
 		const preset: FolderPreset = {
 			__type: 'FolderPreset',
 			id: this.presetId,
@@ -559,14 +589,21 @@ export class Folder {
 			closed: this.closed.value,
 			hidden: toFn(this._hidden)(),
 			children: this.children
-				.filter(c => c.title !== Gui.settingsFolderTitle)
+				.filter(c => c.title !== Gui.settingsFolderTitle && c.saveable)
 				.map(child => child.save()),
-			inputs: Array.from(this.inputs.values()).map(input => input.save()),
+			inputs: Array.from(this.inputs.values())
+				.filter(i => i.opts.saveable)
+				.map(input => input.save()),
 		}
 
 		return preset
 	}
 
+	/**
+	 * Updates all inputs with values from the {@link FolderPreset}.  If the preset has children,
+	 * those presets will also be passed to the corresponding child folders'
+	 * {@link Folder.load|`load`} method.
+	 */
 	load(preset: FolderPreset) {
 		this._log.fn('load').debug({ preset, this: this })
 
@@ -610,6 +647,21 @@ export class Folder {
 		this.evm.emit('refresh')
 	}
 
+	// todo - This should take any object and build the inputs from it.
+	addMany(obj: Record<string, any>) {
+		for (const [key, value] of Object.entries(obj)) {
+			this.add(key, { value })
+			if (typeof value === 'object') {
+				if (isColor(value)) {
+					this.addColor({ title: key, value })
+				}
+				// this.addFolder({ title: key }).addMany(value)
+			} else {
+				this.add(key, { value })
+			}
+		}
+	}
+
 	add(title: string, options: SwitchInputOptions): InputSwitch
 	add(options: SwitchInputOptions, never?: never): InputSwitch
 	add(title: string, options: NumberInputOptions): InputNumber
@@ -636,9 +688,6 @@ export class Folder {
 		this._refreshIcon()
 		return input
 	}
-
-	// todo - This should take any object and build the inputs from it.
-	// addMany(obj: Record<string, any>) {}
 
 	addNumber(options: Partial<NumberInputOptions>) {
 		const input = new InputNumber(options, this)
@@ -751,7 +800,7 @@ export class Folder {
 	}
 	//⌟
 
-	//· Elements ·····························································¬
+	//· Elements ·················································································¬
 
 	private _createElement(el?: HTMLElement) {
 		this._log.fn('#createElement').debug({ el, this: this })
@@ -811,7 +860,7 @@ export class Folder {
 	}
 	//⌟
 
-	//· SVG's ································································¬
+	//· SVG's ····················································································¬
 
 	private async _createGraphics(headerless = false) {
 		this._log.fn('createGraphics').debug({ this: this })
@@ -852,18 +901,6 @@ export class Folder {
 		}
 	}
 	//⌟
-
-	private static _getDefaults(): InternalFolderOptions {
-		const opts: Omit<InternalFolderOptions, keyof FolderOptions> = {
-			parentFolder: undefined,
-			isRoot: true,
-			instant: true,
-			gui: undefined,
-			headerless: false,
-		}
-
-		return Object.assign({}, FOLDER_DEFAULTS, opts)
-	}
 
 	disposed = false
 	dispose() {
