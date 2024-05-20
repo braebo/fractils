@@ -9,6 +9,7 @@ import type { ThemerOptions } from '../themer/Themer'
 import type { PrimitiveState } from '../utils/state'
 import type { PropertiesHyphen } from 'csstype'
 import type { FolderPreset } from './Folder'
+import type { Commit } from './UndoManager'
 
 import { WindowManager, WINDOWMANAGER_DEFAULTS } from '../utils/windowManager'
 import { RESIZABLE_DEFAULTS } from '../utils/resizable'
@@ -30,6 +31,7 @@ import { GUI_VARS } from './GUI_VARS'
 import { place } from '../dom/place'
 import { isMac } from '../utils/ua'
 import { Folder } from './Folder'
+import { o } from '../utils/l'
 
 //· Types ························································································¬
 
@@ -605,7 +607,7 @@ export class Gui {
 	/**
 	 * Saves the current gui state as a preset.
 	 */
-	toJSON(
+	save(
 		/**
 		 * The title of the preset.
 		 */
@@ -637,7 +639,51 @@ export class Gui {
 
 		// todo - this isn't working, it's being unset immediately somewhere...
 		this.dirty = false
+
+		this.lockCommits(preset)
 		this.folder.load(preset.data)
+		Promise.resolve().then(() => this.unlockCommits())
+	}
+
+	_undoLock = false
+	lockCommit: { from: GuiPreset | undefined } = { from: undefined }
+
+	/**
+	 * Commits a change to the input's value to the undo manager.
+	 */
+	commit(commit: Partial<Commit>) {
+		if (this._undoLock) {
+			this._log.fn('commit').info('LOCKED: prevented commit while locked')
+			return
+		}
+		this._log.fn('commit').info('commited', commit)
+		this._undoManager?.commit(commit as Commit)
+	}
+
+	/**
+	 * Prevents the input from registering undo history, storing the initial
+	 * for the eventual commit in {@link unlockCommits}.
+	 */
+	private lockCommits = (from: GuiPreset) => {
+		// this._undoLock = true
+		this._undoManager.lockedExternally = true
+		this.lockCommit.from = from
+		this._log.fn(o('lock')).info('commit', { from, lockCommit: this.lockCommit })
+	}
+
+	/**
+	 * Unlocks commits and saves the current commit stored in lock.
+	 */
+	private unlockCommits = (commit?: Partial<Commit>) => {
+		commit ??= {}
+		commit.target ??= this as any
+		commit.from ??= this.lockCommit.from
+
+		// this._undoLock = false
+		this._undoManager.lockedExternally = false
+		this.commit(commit)
+
+		this._log.fn(o('unlock')).info('commit', { commit, lockCommit: this.lockCommit })
 	}
 
 	private _createThemer(folder: Folder) {
