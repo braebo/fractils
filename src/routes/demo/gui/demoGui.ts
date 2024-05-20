@@ -5,7 +5,7 @@ import { ORBS_PRESETS } from '../../../lib/gui/demo/ORBS_PRESETS'
 import { stringify } from '../../../lib/utils/stringify'
 import { debrief } from '../../../lib/utils/debrief'
 import { state } from '../../../lib/utils/state'
-// import { DEV } from '../../../lib/utils/env'
+import { DEV } from '../../../lib/utils/env'
 import { Gui } from '../../../lib/gui/Gui'
 
 export const showCode = state(false)
@@ -237,38 +237,53 @@ export function demoGui(params: Params) {
 		}),
 	)
 
-	// if (DEV) {
-	// 	setTimeout(() => {
-	// 		gui.settingsFolder.open()
-	// 	})
-	// 	gui.settingsFolder.addButtonGrid({
-	// 		title: 'dev',
-	// 		value: [
-	// 			[
-	// 				{
-	// 					text: 'log(this)',
-	// 					onClick: () => {
-	// 						console.log(gui)
-	// 					},
-	// 				},
-	// 				{
-	// 					text: 'show preset',
-	// 					onClick: () => {
-	// 						showCode.set(!showCode.value)
-	// 					},
-	// 				},
-	// 			],
-	// 			[
-	// 				{
-	// 					text: 'clear storage',
-	// 					onClick: () => {
-	// 						localStorage.clear()
-	// 					},
-	// 				},
-	// 			],
-	// 		],
-	// 	})
-	// }
+	if (DEV) {
+		const devFolder = gui.addFolder({
+			title: 'dev',
+			closed: true,
+			saveable: false,
+		})
+
+		// setTimeout(() => {
+		// 	gui.settingsFolder.open()
+		// })
+		devFolder.addButtonGrid({
+			title: 'dev',
+			saveable: false,
+			resettable: false,
+			value: [
+				[
+					{
+						text: 'log(this)',
+						onClick: () => {
+							console.log(gui)
+						},
+					},
+					{
+						text: 'show preset',
+						onClick: () => {
+							showCode.set(!showCode.value)
+						},
+					},
+					{
+						text: '🚫 storage',
+						onClick: () => {
+							localStorage.clear()
+						},
+						style: {
+							textWrap: 'nowrap',
+							overflow: 'hidden',
+							// this css makes the overflowing text have an elipsis...
+							whiteSpace: 'nowrap',
+							textOverflow: 'ellipsis',
+							filter: 'saturate(0)',
+							alignItems: 'center',
+						},
+					},
+				],
+			],
+		})
+	}
 
 	return gui
 }
