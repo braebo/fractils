@@ -95,7 +95,7 @@ export class InputButtonGrid extends Input<
 		const opts = Object.assign({}, BUTTONGRID_INPUT_DEFAULTS, options)
 		super(opts, folder)
 
-		this.evm.registerEvents(['click'])
+		this._evm.registerEvents(['click'])
 
 		this.initialValue = opts.value
 		this._log = new Logger(`InputButtonGrid ${opts.title}`, { fg: 'cyan' })
@@ -117,7 +117,7 @@ export class InputButtonGrid extends Input<
 	}
 
 	onClick(callback: (payload: ButtonController) => void) {
-		this.evm.on('click', () => callback(this.state.value))
+		this._evm.on('click', () => callback(this.state.value))
 	}
 
 	/**

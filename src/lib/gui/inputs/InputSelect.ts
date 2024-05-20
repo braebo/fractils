@@ -100,7 +100,7 @@ export class InputSelect<T = unknown> extends Input<
 
 		super(opts, folder)
 
-		this.evm.registerEvents(['preview', 'open', 'close', 'cancel'])
+		this._evm.registerEvents(['preview', 'open', 'close', 'cancel'])
 
 		this._log = new Logger(`InputSelect ${opts.title}`, { fg: 'slategrey' })
 		this._log.fn('constructor').debug({ opts, this: this })
@@ -138,7 +138,7 @@ export class InputSelect<T = unknown> extends Input<
 
 		this.disabled = opts.disabled ?? false
 
-		this.evm.add(
+		this._evm.add(
 			this.state.subscribe(v => {
 				if (!this.select.bubble) return
 
@@ -166,7 +166,7 @@ export class InputSelect<T = unknown> extends Input<
 		)
 
 		if (options.onChange) {
-			this.evm.on('change', v => {
+			this._evm.on('change', v => {
 				this._log.fn('calling options onChange').debug(v)
 				options.onChange?.(toLabeledOption(v))
 			})
@@ -206,7 +206,7 @@ export class InputSelect<T = unknown> extends Input<
 			this._emit('cancel')
 		})
 
-		this.dirty = () => this.value.label !== this.initialValue.label
+		this._dirty = () => this.value.label !== this.initialValue.label
 
 		this._log.fn('constructor').debug({ this: this })
 	}

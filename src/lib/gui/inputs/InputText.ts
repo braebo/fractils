@@ -50,7 +50,7 @@ export class InputText extends Input<string, TextInputOptions, TextControllerEle
 			this.initialValue = opts.binding.target[opts.binding.key]
 			this.state = state(this.initialValue)
 
-			this.evm.add(
+			this._evm.add(
 				this.state.subscribe(v => {
 					opts.binding!.target[opts.binding!.key] = v
 				}),
@@ -70,9 +70,9 @@ export class InputText extends Input<string, TextInputOptions, TextControllerEle
 			input: textController(this, opts, container),
 		} as const satisfies TextControllerElements
 
-		this.evm.listen(this.elements.controllers.input, 'input', this.set)
+		this._evm.listen(this.elements.controllers.input, 'input', this.set)
 
-		this.evm.add(
+		this._evm.add(
 			this.state.subscribe(() => {
 				this.refresh()
 			}),

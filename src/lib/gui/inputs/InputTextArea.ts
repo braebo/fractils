@@ -60,9 +60,9 @@ export class InputTextArea extends Input<string, TextAreaInputOptions, TextAreaC
 			input: textareaController(this, opts, container),
 		} as const satisfies TextAreaControllerElements
 
-		this.evm.listen(this.elements.controllers.input, 'input', this.set)
+		this._evm.listen(this.elements.controllers.input, 'input', this.set)
 
-		this.evm.add(this.state.subscribe(this.refresh))
+		this._evm.add(this.state.subscribe(this.refresh))
 	}
 
 	enable() {

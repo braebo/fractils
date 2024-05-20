@@ -73,15 +73,15 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 			range: rangeController(this, opts, container),
 		} as const satisfies NumberControllerElements
 
-		this.evm.add(this.state.subscribe(this.refresh))
+		this._evm.add(this.state.subscribe(this.refresh))
 
-		this.evm.listen(this.elements.controllers.range, 'pointerdown', this.lock)
-		this.evm.listen(this.elements.controllers.range, 'pointerup', () => this.unlock())
+		this._evm.listen(this.elements.controllers.range, 'pointerdown', this.lock)
+		this._evm.listen(this.elements.controllers.range, 'pointerup', () => this.unlock())
 
-		this.evm.listen(this.elements.controllers.input, 'input', this.set)
+		this._evm.listen(this.elements.controllers.input, 'input', this.set)
 
-		this.evm.listen(this.elements.controllers.input, 'dragStart', this.lock)
-		this.evm.listen(this.elements.controllers.input, 'dragEnd', () => this.unlock())
+		this._evm.listen(this.elements.controllers.input, 'dragStart', this.lock)
+		this._evm.listen(this.elements.controllers.input, 'dragEnd', () => this.unlock())
 	}
 
 	set = (v?: number | Event) => {

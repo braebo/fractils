@@ -84,7 +84,7 @@ export class InputSwitch extends Input<boolean, SwitchInputOptions, SwitchInputE
 			this.initialValue = opts.binding.target[opts.binding.key]
 			this.state = state(!!this.initialValue)
 
-			this.evm.add(
+			this._evm.add(
 				this.state.subscribe(v => {
 					opts.binding!.target[opts.binding!.key] = v
 				}),
@@ -137,8 +137,8 @@ export class InputSwitch extends Input<boolean, SwitchInputOptions, SwitchInputE
 			stateText,
 		} as const satisfies SwitchInputElements
 
-		this.evm.listen(this.elements.controllers.input, 'click', () => this.set())
-		this.evm.add(this.state.subscribe(this.refresh.bind(this)))
+		this._evm.listen(this.elements.controllers.input, 'click', () => this.set())
+		this._evm.add(this.state.subscribe(this.refresh.bind(this)))
 	}
 
 	set(v = !this.state.value) {

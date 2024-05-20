@@ -59,7 +59,7 @@ export class InputButton extends Input<
 			__type: 'ButtonInputOptions' as const,
 		})
 		super(opts, folder)
-		this.evm.registerEvents(['change', 'refresh', 'click'])
+		this._evm.registerEvents(['change', 'refresh', 'click'])
 
 		this._log = new Logger(`InputButton ${opts.title}`, { fg: 'cyan' })
 		this._log.fn('constructor').debug({ opts, this: this })
@@ -90,9 +90,9 @@ export class InputButton extends Input<
 			button: this.button.element,
 		} as const satisfies ButtonControllerElements
 
-		this.evm.listen(this.elements.controllers.button, 'click', this.click.bind(this))
+		this._evm.listen(this.elements.controllers.button, 'click', this.click.bind(this))
 
-		this.evm.add(this.state.subscribe(this.refresh.bind(this)))
+		this._evm.add(this.state.subscribe(this.refresh.bind(this)))
 	}
 
 	get text() {
