@@ -55,8 +55,7 @@ export class Color {
 	readonly isColor = true as const
 
 	#hsva: HsvaColor // The primary internal color value (source of truth).
-	#initialValue: HsvaColor
-	#onChangeListeners: Set<(newColor: Color) => void> = new Set()
+	readonly #initialValue: HsvaColor
 
 	/**
 	 * @param color - The initial color value.
@@ -142,29 +141,6 @@ export class Color {
 		return new Color(this)
 	}
 
-	/**
-	 * Clears any {@link onChange} callbacks.
-	 */
-	unbind() {
-		this.#onChangeListeners.clear()
-	}
-
-	/**
-	 * Add a callback to be called when the color value changes.
-	 * @returns A function that removes the listener when called.
-	 */
-	onChange = (callback: (newColor: Color) => void) => {
-		this.#onChangeListeners.add(callback)
-		return () => this.#onChangeListeners.delete(callback)
-	}
-
-	/**
-	 * Calls all the registered {@link onChange} callbacks.
-	 */
-	#callOnChange = () => {
-		this.#onChangeListeners.forEach(callback => callback(this))
-	}
-
 	/** i.e. `{ h: 261, s: 100, v: 47 }` */
 	get hsv(): HsvColor {
 		const { h, s, v } = this.#hsva
@@ -194,8 +170,6 @@ export class Color {
 		}
 
 		// this.#hsva = mergedValue
-
-		this.#callOnChange()
 	}
 
 	/** i.e. `{ h: 261, s: 100, v: 47, a: 1 }` */
@@ -206,6 +180,7 @@ export class Color {
 		this.hsv = value
 	}
 
+	/** The value of `H` in `HSVA`. */
 	get hue(): number {
 		return this.#hsva.h
 	}
@@ -213,6 +188,7 @@ export class Color {
 		this.hsv = { h: value }
 	}
 
+	/** The value of `S` in `HSVA`. */
 	get saturation(): number {
 		return this.#hsva.s
 	}
@@ -220,6 +196,7 @@ export class Color {
 		this.hsv = { s: value }
 	}
 
+	/** The value of `V` in `HSVA`. */
 	get value(): number {
 		return this.#hsva.v
 	}
@@ -227,6 +204,7 @@ export class Color {
 		this.hsv = { v: value }
 	}
 
+	/** The value of `L` in `HSLA`. */
 	get lightness(): number {
 		return this.hsl.l
 	}
