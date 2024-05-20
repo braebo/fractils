@@ -197,15 +197,19 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 		this._emit('change', newValue)
 		this.refresh(newValue)
+
 		return this
 	}
 
 	refresh = (v = this.state.value) => {
 		this._log.fn('refresh').info({ v, this: this })
+
 		this.elements.controllers.currentColor.display.style.backgroundColor = v.hex
+
 		this.picker.refresh()
 		this.components.refresh()
 		super.refresh()
+
 		return this
 	}
 
@@ -354,7 +358,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 	 */
 	private _unlock = () => {
 		this.unlock({
-			input: this,
+			target: this,
 			to: this.state.value.rgba,
 			setter: v => {
 				this.state.value.set(v)

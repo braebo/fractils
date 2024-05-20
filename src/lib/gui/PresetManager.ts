@@ -88,6 +88,10 @@ export class PresetManager {
 	}
 	opts: PresetManagerOptions
 
+	get defaultPresetIsActive() {
+		return this.activePreset.value.id === this._defaultPresetId
+	}
+
 	async init() {
 		if (this.opts.disabled) {
 			this._log.debug('Aborting initialization: disabled by options.')
@@ -152,7 +156,7 @@ export class PresetManager {
 
 		defaultPreset ??= this.presets.value.find(p => p.id === this._defaultPresetId)
 		if (!defaultPreset) {
-			defaultPreset = this.gui.toJSON(this._defaultPresetTitle, this._defaultPresetId)
+			defaultPreset = this.gui.save(this._defaultPresetTitle, this._defaultPresetId)
 			this.presets.push(defaultPreset)
 		}
 
@@ -168,8 +172,8 @@ export class PresetManager {
 
 		const presetsFolder = parentFolder.addFolder({
 			title: 'presets',
-			closed: true,
-			hidden: true,
+			closed: false,
+			hidden: false,
 			children: [],
 		})
 
@@ -224,14 +228,14 @@ export class PresetManager {
 					if (Array.isArray(data)) {
 						for (const preset of data) {
 							if (isType<GuiPreset, 'GuiPreset'>(preset, 'GuiPreset')) {
-								this.add(preset)
+								this.put(preset)
 							} else {
 								console.warn('Invalid preset:', preset)
 							}
 						}
 					} else {
 						if (isType<GuiPreset>(data, 'GuiPreset')) {
-							this.add(data)
+							this.put(data)
 						} else {
 							console.warn('Invalid preset:', data)
 						}
@@ -243,32 +247,36 @@ export class PresetManager {
 			input.click()
 		}
 
+		const createIcon = (name: string, contents: string) =>
+			/*html*/ `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" class="fracgui-icon fracgui-icon-${name}">${contents}</svg>`
+
+		//? Preset Management Buttons
 		this._manageInput = presetsFolder.addButtonGrid({
-			title: 'manage',
+			// title: 'manage',
 			value: [
 				[
 					{
 						text: 'update',
 						id: 'update',
-						tooltip: {
-							text: 'Overwrite active preset',
-							placement: 'top',
-							hideOnClick: true,
-						},
+						// tooltip: {
+						// 	text: 'Overwrite Active Preset',
+						// 	placement: 'bottom',
+						// 	hideOnClick: true,
+						// },
 						onClick: () => {
 							const { id, title } = this.activePreset.value
-							const current = this.gui.toJSON(title, id)
-							this.add(current)
+							const current = this.gui.save(title, id)
+							this.put(current)
 						},
 						disabled: () => this.defaultPresetIsActive,
 					},
 					{
 						text: 'delete',
-						tooltip: {
-							text: 'Delete active preset',
-							placement: 'top',
-							hideOnClick: true,
-						},
+						// tooltip: {
+						// 	text: 'Delete Active Preset',
+						// 	placement: 'bottom',
+						// 	hideOnClick: true,
+						// },
 						onClick: () => {
 							let index = undefined as number | undefined
 							this.presets.update(presets => {
@@ -284,12 +292,70 @@ export class PresetManager {
 						disabled: () => this.defaultPresetIsActive,
 					},
 					{
-						text: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="fracgui-icon fracgui-icon-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>',
+						text: createIcon(
+							'copy',
+							/*html*/ `<rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path>`,
+						),
+						id: 'copy',
+						tooltip: {
+							text: 'Copy',
+							delay: 0,
+							placement: 'bottom',
+							hideOnClick: true,
+						},
+						style: { maxWidth: '1.5rem', padding: '0.3rem' },
+						onClick: () => {
+							navigator.clipboard?.writeText(
+								JSON.stringify(this.activePreset.value, null, 2),
+							)
+						},
+						disabled: () => this.defaultPresetIsActive,
+					},
+					{
+						text: createIcon(
+							'paste',
+							/*html*/ `<rect width="8" height="4" x="8" y="2" rx="1" ry="1"></rect><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>`,
+						),
+						id: 'paste',
+						tooltip: {
+							text: 'Paste',
+							delay: 0,
+							placement: 'bottom',
+							hideOnClick: true,
+						},
+						style: { maxWidth: '1.5rem', padding: '0.3rem' },
+						onClick: async ({ button }) => {
+							button.disabled = true
+							try {
+								const text = await navigator.clipboard.readText()
+								console.log(text)
+								if (text) {
+									const preset = JSON.parse(text)
+									if (
+										typeof preset === 'object' &&
+										preset.__type === 'GuiPreset'
+									) {
+										this.put(preset)
+									}
+								}
+							} catch (e) {
+								// todo - need a toast / err msg / overlay for errors
+								console.error(e)
+							}
+							button.disabled = false
+						},
+						disabled: () => this.defaultPresetIsActive,
+					},
+					{
+						text: createIcon(
+							'download',
+							/*html*/ `<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" x2="12" y1="15" y2="3"></line></svg>`,
+						),
 						id: 'download',
 						tooltip: {
 							text: 'Download',
-							delay: 250,
-							placement: 'left',
+							delay: 0,
+							placement: 'bottom',
 							hideOnClick: true,
 						},
 						style: { maxWidth: '1.5rem', padding: '0.3rem' },
@@ -299,13 +365,17 @@ export class PresetManager {
 						disabled: () => this.defaultPresetIsActive,
 					},
 					{
-						text: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="fracgui-icon fracgui-icon-download-all"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 14v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 11v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 17v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m7 8 5 5 5-5" /><path  stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 13V1" /></svg>`,
+						text: createIcon(
+							'download-all',
+							/*html*/ `<path stroke-linecap="round" stroke-linejoin="round" d="M21 14v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path stroke-linecap="round" stroke-linejoin="round" d="M21 11v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path stroke-linecap="round" stroke-linejoin="round" d="M21 17v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path stroke-linecap="round" stroke-linejoin="round" d="m7 8 5 5 5-5" /><path  stroke-linecap="round" stroke-linejoin="round" d="M12 13V1" />`,
+						),
 						id: 'download-all',
 						tooltip: {
 							text: 'Download All',
-							delay: 250,
-							placement: 'left',
+							delay: 0,
+							placement: 'bottom',
 							hideOnClick: true,
+							// offsetY: '0.1rem',
 						},
 						style: { maxWidth: '1.5rem', padding: '0.3rem' },
 						onClick: () => {
@@ -314,12 +384,15 @@ export class PresetManager {
 						disabled: () => this.presets.value.length <= 1,
 					},
 					{
-						text: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="fracgui-icon fracgui-icon-upload"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m17 8-5-5-5 5" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v12" /></svg>`,
 						id: 'upload',
+						text: createIcon(
+							'upload',
+							/*html*/ `<path stroke-linecap="round" stroke-linejoin="round" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path stroke-linecap="round" stroke-linejoin="round" d="m17 8-5-5-5 5" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12" />`,
+						),
 						tooltip: {
 							text: 'Upload',
-							delay: 250,
-							placement: 'left',
+							delay: 0,
+							placement: 'bottom',
 							hideOnClick: true,
 						},
 						style: { maxWidth: '1.5rem', padding: '0.3rem' },
@@ -337,7 +410,7 @@ export class PresetManager {
 		//? Presets Select Input
 		this._presetsInput = presetsFolder.addSelect({
 			__type: 'SelectInputOptions',
-			title: 'presets',
+			// title: 'active',
 			options: this.presets.value,
 			labelKey: 'title',
 			order: -1,
@@ -345,6 +418,9 @@ export class PresetManager {
 			resettable: false,
 			disabled: () => this.defaultPresetIsActive && this.presets.value.length === 1,
 		})
+
+		// //! This should happen automatically if no title is provided
+		// this._presetsInput.element.style.setProperty('--fracgui-input-section-1_width', '0px')
 
 		this._presetsInput.on('change', ({ value }) => {
 			this._log.fn('_presetsInput.on(change)').debug({ value, this: this })
@@ -355,7 +431,7 @@ export class PresetManager {
 
 		this._presetsInput.on('open', () => {
 			this._log.fn('_presetsInput.on(open)').debug()
-			this._presetSnapshot = this.gui.toJSON('__snapshot__')
+			this._presetSnapshot = this.gui.save('__snapshot__')
 		})
 
 		this._presetsInput.on('cancel', () => {
@@ -368,23 +444,33 @@ export class PresetManager {
 
 		//? New Preset Button
 		const newPresetButton = new SaveSVG()
+		newPresetButton.element.tooltip = new Tooltip(newPresetButton.element, {
+			text: 'Save',
+			delay: 0,
+			placement: 'bottom',
+			// offsetY: '0.1rem',
+			hideOnClick: true
+		})
 		this._presetsInput.listen(newPresetButton.element, 'click', () => {
 			this._log.fn('newPresetButton.on(click)').debug()
-			this.add()
+			this.put()
 		})
 
 		//? Rename Preset Button
 		this._renamePresetButton = new RenameSVG()
 		this._renamePresetButton.element.tooltip = new Tooltip(this._renamePresetButton.element, {
-			delay: 1000,
-			placement: 'left',
+			delay: 0,
+			placement: 'bottom',
+			// offsetY: '0.1rem',
+			hideOnClick: true,
 			text: () => {
 				if (this._renamePresetButton.element.classList.contains('active')) {
-					return `Cancel`
+					return ``
 				} else {
 					return this.defaultPresetIsActive
 						? `Can't rename default preset`
-						: `Rename ${this.activePreset.value.title}`
+						: `Rename`
+						// : `Rename ${this.activePreset.value.title}`
 				}
 			},
 		})
@@ -399,14 +485,51 @@ export class PresetManager {
 		return presetsFolder
 	}
 
-	get defaultPresetIsActive() {
-		return this.activePreset.value.id === this._defaultPresetId
+	/**
+	 * Updates a preset if it exists, adds it as a new preset if not, or creates a new one from the
+	 * current state and adds it if none is provided.
+	 */
+	put(
+		/**
+		 * The preset to update or add.  If not provided, a new preset is created from the current state.
+		 */
+		preset?: GuiPreset,
+	) {
+		this._log.fn('saveNewPreset')
+
+		if (!this._isInitialized()) {
+			throw new Error('PresetManager not initialized.')
+		}
+
+		if (!this._presetsInput) {
+			throw new Error('No select input.')
+		}
+
+		preset ??= this.gui.save(this._resolveUnusedTitle('preset'), nanoid())
+
+		const existing = this.presets.value.find(p => p.id === preset.id)
+		if (!existing) {
+			this._log.debug('pushing preset:', { preset, existing })
+			this.presets.push(preset)
+		} else {
+			this._log.debug('preset exists. replacing with:', { preset, existing })
+			this.presets.update(presets => {
+				const index = presets.findIndex(p => p.id === preset.id)
+				presets[index] = preset
+				return presets
+			})
+		}
+
+		this.set(preset)
+		this._refresh()
+
+		this._enableRename()
 	}
 
 	/**
 	 * Delete a preset.
 	 */
-	deletePreset(preset: GuiPreset | GuiPreset['id']) {
+	delete(preset: GuiPreset | GuiPreset['id']) {
 		this._log.fn('deletePreset').debug({ this: this, preset })
 
 		if (!this._isInitialized()) {
@@ -426,47 +549,6 @@ export class PresetManager {
 		})
 
 		this.activePreset.set(this.presets.value[0] ?? this.defaultPreset)
-	}
-
-	/**
-	 * Updates a preset if it exists, adds a new preset if not, or creates a new one from the
-	 * current state and adds it if none is provided.
-	 */
-	add(
-		/**
-		 * The preset to update or add.  If not provided, a new preset is created from the current state.
-		 */
-		preset?: GuiPreset,
-	) {
-		this._log.fn('saveNewPreset')
-
-		if (!this._isInitialized()) {
-			throw new Error('PresetManager not initialized.')
-		}
-
-		if (!this._presetsInput) {
-			throw new Error('No select input.')
-		}
-
-		preset ??= this.gui.toJSON(this._resolveUnusedTitle('preset'), nanoid())
-
-		const existing = this.presets.value.find(p => p.id === preset.id)
-		if (!existing) {
-			this._log.debug('pushing preset:', { preset, existing })
-			this.presets.push(preset)
-		} else {
-			this._log.debug('preset exists. replacing with:', { preset, existing })
-			this.presets.update(presets => {
-				const index = presets.findIndex(p => p.id === preset.id)
-				presets[index] = preset
-				return presets
-			})
-		}
-
-		this.set(preset)
-		this._refresh()
-
-		this._enableRename()
 	}
 
 	private _isInitialized(): this is { presets: State<GuiPreset[]>; folder: Folder } {
