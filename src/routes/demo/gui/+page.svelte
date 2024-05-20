@@ -100,6 +100,9 @@
 
 		z-index: 20;
 		pointer-events: none;
+
+		opacity: 0;
+		animation: fade-in 2s ease-in 0.25s forwards;
 	}
 
 	.debug {
