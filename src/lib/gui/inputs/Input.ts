@@ -428,7 +428,9 @@ export abstract class Input<
 	 * Called from subclasses at the end of their `set` method to emit the `change` event.
 	 */
 	_emit(event: keyof TEvents, v = this.state.value as TValueType) {
-		this.elements.resetBtn.classList.toggle('dirty', this._dirty())
+		if (this.opts.resettable) {
+			this.elements.resetBtn.classList.toggle('dirty', this._dirty())
+		}
 
 		// @ts-expect-error
 		this._evm.emit(event, v)
@@ -497,7 +499,7 @@ export abstract class Input<
 	 * Refreshes the value of any controllers to match the current input state.
 	 */
 	refresh(v = this.state.value as TValueType) {
-		if (this.opts.resettable === false) return
+		if (!this.opts.resettable) return
 		this.elements.resetBtn.classList.toggle('dirty', this._dirty())
 		this._evm.emit('refresh', v as TValueType)
 		return this
