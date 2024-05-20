@@ -191,7 +191,7 @@ export class Folder {
 	settingsFolder!: Folder
 
 	closed = state(false)
-	private _hidden: () => boolean
+	private _hidden = () => false
 
 	element: HTMLElement
 	elements = {} as FolderElements
@@ -278,7 +278,7 @@ export class Folder {
 			}, 0)
 		}
 
-		this._hidden = opts.hidden ? toFn(opts.hidden) : toFn(false)
+		this.hidden = opts.hidden ? toFn(opts.hidden) : () => false
 
 		// Open/close the folder when the closed state changes.
 		this.evm.add(
@@ -348,6 +348,7 @@ export class Folder {
 	}
 	set hidden(v: boolean | (() => boolean)) {
 		this._hidden = toFn(v)
+		this._hidden() ? this.hide() : this.show()
 	}
 
 	/**
