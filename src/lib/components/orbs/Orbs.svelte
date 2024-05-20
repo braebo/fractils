@@ -7,7 +7,7 @@
 
 	export let params: State<typeof defaults>
 
-	let count = 10
+	let size = 100
 	const defaults = {
 		orbs: 50,
 		size: 5,
@@ -17,10 +17,10 @@
 		a2: 1,
 		drift: 0,
 		modulate: true,
-		width: count * 10,
-		height: count * 10,
+		width: size,
+		height: size,
 		speed: 0.02,
-		mid: count * 5,
+		mid: size / 2,
 		brightness: 0.4,
 		color: new Color({ r: 10, g: 200, b: 250, a: 1 }),
 		accent: new Color({ r: 0, g: 50, b: 100, a: 1 }),
@@ -33,9 +33,9 @@
 
 	const sinX = tweened(p.a1, { duration: 500 })
 	const sinY = tweened(p.a2, { duration: 500 })
-	const floop = tweened(p.floop, { duration: 300 })
+	const floop = tweened(p.floop, { duration: 0 })
 
-	let time = 0
+	let time = 1
 	// $: snake = circle()
 	let snake = circle()
 	function circle() {
