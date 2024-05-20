@@ -5,19 +5,15 @@ import { create } from '../../utils/create'
 
 @styled
 export class SaveSVG {
-	class = 'fracgui-icon-save'
 	element: HTMLElement & { tooltip: Tooltip }
-	classes = [this.class, 'fracgui-icon']
 
 	constructor() {
 		this.element = create('div', {
-			classes: this.classes,
+			classes: ['fracgui-icon-save', 'fracgui-icon'],
 			innerHTML: /*html*/ `
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <g class="Frame">
-                        <!-- <g class="back-group"> -->
                         <path class="back-group" fill="currentColor" fill-rule="evenodd" d="M6.127 21A3.496 3.496 0 0 0 9 22.5h10a3.5 3.5 0 0 0 3.5-3.5V9c0-1.19-.593-2.24-1.5-2.873V7.5c.314.418.5.937.5 1.5v10a2.5 2.5 0 0 1-2.5 2.5H9a2.489 2.489 0 0 1-1.5-.5H6.127Z" class="Subtract" clip-rule="evenodd"/>
-                        <!-- </g> -->
                         <rect width="16" height="16" x="3" y="3" fill="currentColor" stroke-width="1.5" class="front" rx="2"/>
                         <g class="plus">
                             <path stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M11 8v7" class="vertical"/>
@@ -26,12 +22,7 @@ export class SaveSVG {
                     </g>
                 </svg>
             `.replaceAll(/\t|\n/g, ''),
-			tooltip: {
-				text: 'New Preset',
-				delay: 1000,
-				placement: 'left',
-			},
-		})
+		}) as HTMLElement & { tooltip: Tooltip }
 	}
 
 	static style = /*css*/ `
