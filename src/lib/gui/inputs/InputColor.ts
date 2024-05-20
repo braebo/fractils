@@ -112,16 +112,16 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		//? Initialize state.
 		if (opts.binding) {
 			this.initialValue = new Color(opts.binding.target[opts.binding.key])
-			this.state = state(this.initialValue)
+			this.state = state(this.initialValue.clone())
 
-			this.evm.add(
+			this._evm.add(
 				this.state.subscribe(v => {
 					opts.binding!.target[opts.binding!.key] = v
 				}),
 			)
 		} else {
 			this.initialValue = new Color(opts.value)
-			this.state = state(this.initialValue)
+			this.state = state(this.initialValue.clone())
 		}
 
 		//? Elements.
@@ -151,6 +151,8 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 			picker: this.picker.elements,
 			components: this.components.elements,
 		}
+
+		this._dirty = () => this.state.value.hex !== this.initialValue.hex
 
 		setTimeout(() => {
 			this.expanded ? this.open() : this.close(0)
@@ -200,7 +202,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 	refresh = (v = this.state.value) => {
 		this._log.fn('refresh').info({ v, this: this })
-		this.elements.controllers.currentColor.display.style.backgroundColor = v.hex8String
+		this.elements.controllers.currentColor.display.style.backgroundColor = v.hex
 		this.picker.refresh()
 		this.components.refresh()
 		super.refresh()
@@ -238,12 +240,12 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 			classes: ['fracgui-input-color-current-color-display'],
 			parent: displayBackground,
 		})
-		this.evm.listen(display, 'click', this.togglePicker)
+		this._evm.listen(display, 'click', this.togglePicker)
 
 		const copyButton = new CopyButton(
 			container,
 			() => {
-				return this.state.value.hex8String
+				return this.state.value.hex
 			},
 			'Copy Hex',
 		)
@@ -351,7 +353,6 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 	 * Saves the commit stored in #lock on pointerup.
 	 */
 	private _unlock = () => {
-		// console.log('unlock', 'to:' + chalk.hex(this.state.value.hex)(this.state.value.rgbaString))
 		this.unlock({
 			input: this,
 			to: this.state.value.rgba,
@@ -362,10 +363,6 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 				this.refresh()
 			},
 		})
-	}
-
-	protected dirtyCheck() {
-		return this.state.value.hex8String !== this.initialValue.hex8String
 	}
 
 	enable() {
@@ -381,7 +378,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 	}
 
 	save() {
-		return super.save({ value: this.state.value.hex8String })
+		return super.save({ value: this.state.value.hex })
 	}
 
 	load(json: string | InputPreset<ColorInputOptions>) {
@@ -390,7 +387,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 		this.disabled = data.disabled
 		this.hidden = data.hidden
 		this.initialValue = new Color(data.value)
-		this.set(this.initialValue)
+		this.set(this.initialValue.clone())
 	}
 	//⌟
 
