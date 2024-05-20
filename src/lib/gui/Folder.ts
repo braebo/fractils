@@ -586,7 +586,29 @@ export class Folder {
 	//⌟
 	//⌟
 
-	//· Input Generators ·····················································¬
+	//· Input Generators ·········································································¬
+
+	/**
+	 * Updates the ui for all inputs belonging to this folder to reflect their current values.
+	 */
+	refresh() {
+		this._log.fn('refresh').debug(this)
+
+		for (const input of this.inputs.values()) {
+			input.refresh()
+		}
+	}
+
+	/**
+	 * Updates the ui for all inputs in this folder and all child folders recursively.
+	 */
+	refreshAll() {
+		for (const input of this.allInputs.values()) {
+			input.refresh()
+		}
+
+		this.evm.emit('refresh')
+	}
 
 	add(title: string, options: SwitchInputOptions): InputSwitch
 	add(options: SwitchInputOptions, never?: never): InputSwitch
