@@ -257,6 +257,11 @@ export abstract class Input<
 			parent: this.folder.elements.content,
 		})
 
+		// Make the right side full-width if the title is empty.
+		if (!this.title) {
+			this.element.style.setProperty('--fracgui-input-section-1_width', '0px')
+		}
+
 		this.elements.drawerToggle = create('div', {
 			classes: ['fracgui-input-drawer-toggle'],
 			parent: this.elements.container,
