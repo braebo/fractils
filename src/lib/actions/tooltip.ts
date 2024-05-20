@@ -261,6 +261,7 @@ export class Tooltip {
 	 */
 	show = () => {
 		if (this.showing) return
+		if (!this.text) return
 
 		clearTimeout(this._delayInTimer)
 		clearTimeout(this._delayOutTimer)
