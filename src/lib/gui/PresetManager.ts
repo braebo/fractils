@@ -173,6 +173,12 @@ export class PresetManager {
 			children: [],
 		})
 
+		// Fully desaturate the presets folder's header connector to svg.
+		presetsFolder.on('mount', () => {
+			presetsFolder.graphics?.connector?.svg.style.setProperty('filter', 'saturate(0.1)')
+			presetsFolder.graphics?.icon.style.setProperty('filter', 'saturate(0)')
+		})
+
 		this.defaultPreset = defaultPreset ?? this._resolveDefaultPreset()
 
 		if (!Object.keys(this.activePreset.value).length) {

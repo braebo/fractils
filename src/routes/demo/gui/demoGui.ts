@@ -159,7 +159,7 @@ export function demoGui(params: Params) {
 
 	appearanceFolder.addColor({
 		title: 'color',
-		mode: 'hsva',
+		mode: 'hex8',
 		binding: {
 			target: params,
 			key: 'color',
