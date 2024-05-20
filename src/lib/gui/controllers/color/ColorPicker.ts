@@ -75,6 +75,7 @@ export class ColorPicker {
 
 	private _dragging = false
 	private _lockCursorPosition = false
+	private _lastColor: Color
 
 	private _log: Logger
 	private _evm = new EventManager(['pointerdown', 'pointerup'])
@@ -87,8 +88,10 @@ export class ColorPicker {
 		const opts = { ...COLOR_PICKER_DEFAULTS, ...options }
 
 		this.opts = opts
-		this._log = new Logger('ColorPicker', { fg: 'lightgreen' })
+		this._log = new Logger(`ColorPicker ${input.title}`, { fg: 'lightgreen' })
 		this._log.fn('constructor').debug({ opts, this: this })
+
+		this._lastColor = this.input.state.value.clone()
 
 		// Make sure the rect is accurate on mount.
 		const style = input.expanded ? {} : { height: '0px' }
@@ -178,7 +181,7 @@ export class ColorPicker {
 
 		this._ctx = canvas.getContext('2d')!
 		this.canvas.width = this._width
-		this.refresh()
+		// this.refresh()
 
 		this._evm.listen(this.canvas, 'click', this._onClick)
 		this._evm.listen(this.canvas, 'pointerdown', this._onPointerDown)
@@ -231,8 +234,6 @@ export class ColorPicker {
 		this.input.state.value.alpha = Number((e.target as HTMLInputElement).value)
 		this.input.refresh()
 	}
-
-	private _lastColor: Color | undefined
 
 	/**
 	 * Updates the UI to reflect the current state of the color picker.
