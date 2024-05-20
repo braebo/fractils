@@ -78,37 +78,58 @@ export type InputOptions<
 	 * The title displayed to the left of the input.
 	 */
 	title?: string
+
 	/**
 	 * If provided, will be used as the key for the input's value in a preset.
 	 * @defaultValue `<folder_title>:<input_type>:<input_title>`
 	 */
 	presetId?: string
+
 	/**
-	 * Whether the inputs are disabled.  A function can be
-	 * used to dynamically determine the disabled state.
+	 * Whether the inputs are disabled.  A function can be used to dynamically determine the
+	 * disabled state.
 	 * @default false
 	 */
 	disabled?: boolean | (() => boolean)
+
 	/**
-	 * Whether the input is hidden. A function can be
-	 * used to dynamically determine the hidden state.
+	 * Whether the input is hidden. A function can be used to dynamically determine the hidden
+	 * state.
 	 * @default false
 	 */
 	hidden?: boolean
+
 	/**
 	 * The order in which this input should appear in its folder relative to the other inputs.
 	 * @default 0
 	 */
 	order?: number
+
 	/**
 	 * If true, the `reset to default` button will appear when the input's value is marked dirty.
 	 * @default true
 	 */
 	resettable?: boolean
+
+	/**
+	 * Whether this Input should be saved as a {@link InputPreset} when saving the
+	 * {@link FolderPreset} for the {@link Folder} this Input belongs to.  If `false`, this Input
+	 * will be skipped.
+	 * @default true
+	 */
+	saveable?: boolean
+
+	/**
+	 * An optional callback to run when this Input's state changes.  Also accessible via
+	 * `Input.on('change', value => {})`.
+	 */
 	onChange?: (value: TValue) => void
 } & ValueOrBinding<TValue, TBindTarget>
 
-export type InputPreset<T extends ValidInputOptions> = Omit<InputOptions<T>, 'title'> & {
+export type InputPreset<T extends ValidInputOptions> = Omit<
+	InputOptions<T>,
+	'title' | 'saveable'
+> & {
 	__type: InputOptionType
 	presetId: string
 	title: string
@@ -237,6 +258,7 @@ export abstract class Input<
 		public folder: Folder,
 	) {
 		this.opts = options
+		this.opts.saveable ??= true
 
 		this.id = this.opts.presetId ?? `${folder.presetId}_${this.opts.title}__${this.opts.__type}`
 
@@ -314,6 +336,9 @@ export abstract class Input<
 		return this.state.value as TValueType
 	}
 
+	/**
+	 * The title displayed on this Input's label.
+	 */
 	get title() {
 		return this._title
 	}
@@ -322,6 +347,10 @@ export abstract class Input<
 		this.elements.title.textContent = v
 	}
 
+	/**
+	 * The main Element.  Usually a container div for the rest of the Input's
+	 * {@link Input.elements|`elements`}.
+	 */
 	get element() {
 		return this.elements.container
 	}
@@ -339,8 +368,8 @@ export abstract class Input<
 	}
 
 	/**
-	 * Whether the input is disabled.  A function can be used to
-	 * dynamically determine the disabled state.
+	 * Whether the input is disabled.  A function can be used to dynamically determine the
+	 * disabled state.
 	 */
 	get disabled(): boolean {
 		return this._disabled()
@@ -350,6 +379,9 @@ export abstract class Input<
 		this._disabled() ? this.disable() : this.enable()
 	}
 
+	/**
+	 * Completely hides the Input from view when set to `true`.
+	 */
 	get hidden(): boolean {
 		return this.elements.container.classList.contains('hidden')
 	}
@@ -358,10 +390,17 @@ export abstract class Input<
 		this.elements.container.classList.toggle('hidden', this._hidden())
 	}
 
-	get dirty() {
+	/**
+	 * Wether the current state value differs from the initial state value.
+	 * @internal
+	 */
+	protected get dirty() {
 		return this._dirty()
 	}
 
+	/**
+	 * Updates the Input's state to the given value.
+	 */
 	abstract set(v: TValueType): void
 
 	protected resolveState<T = TValueType>(opts: TOptions): State<T> {
@@ -376,7 +415,6 @@ export abstract class Input<
 
 			return s
 		} else {
-			// this.initialValue = opts.value!
 			return state<T>(opts.value!)
 		}
 	}
@@ -418,7 +456,7 @@ export abstract class Input<
 	protected unlock = (commit?: Partial<Commit>) => {
 		this.__log.fn(o('unlock')).debug('commit', { commit, lockCommit: this.lockCommit })
 		commit ??= {}
-		commit.input ??= this as unknown as Input<TValueType>
+		commit.target ??= this as unknown as Input<TValueType>
 		commit.to ??= this.state.value as TValueType
 		commit.from ??= this.lockCommit.from
 		this._undoLock = false
@@ -430,7 +468,7 @@ export abstract class Input<
 	 */
 	commit(commit: Partial<Commit>) {
 		commit.from ??= this.state.value
-		commit.input ??= this as unknown as Input<TValueType>
+		commit.target ??= this as unknown as Input<TValueType>
 		if (this._undoLock) {
 			this.__log.fn('commit').debug('prevented commit while locked')
 			return
@@ -466,6 +504,10 @@ export abstract class Input<
 	}
 
 	save(overrides: Partial<InputPreset<TOptions>> = {}) {
+		if (this.opts.saveable !== true) {
+			throw new Error('Attempted to save unsaveable Input: ' + this.title)
+		}
+
 		const preset: InputPreset<any> = {
 			__type: INPUT_TYPE_MAP[this.__type],
 			title: this.title,
