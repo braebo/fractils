@@ -168,17 +168,23 @@ export abstract class Input<
 	abstract state: State<TValueType>
 	abstract initialValue: ValidInputValue
 
-	opts: TOptions & { __type: T__TYPE }
+	readonly opts: TOptions & { __type: T__TYPE }
+
 	/**
 	 * Unique identifier for the input. Also used for saving and loading presets.
 	 * @default `<folder_title>:<input_type>:<input_title>`
 	 */
 	id: string
+
 	/**
 	 * Whether the input was initialized with a bind target/key.
 	 * @default false
 	 */
 	bound = false
+
+	/**
+	 * All HTMLElement's created by this input.
+	 */
 	elements = {
 		controllers: {},
 	} as {
@@ -197,24 +203,33 @@ export abstract class Input<
 	 */
 	bubble = false
 
+	private _title = ''
+	private _index: number
+
 	// #firstUpdate = true
 	private _disabled: () => boolean
 	private _hidden: () => boolean
-	private _dirty: () => boolean
+
 	/**
 	 * Prevents the input from registering commits to undo history until
 	 * {@link unlock} is called.
 	 */
 	private _undoLock = false
+
 	/**
 	 * The commit object used to store the initial value of the input when
 	 * {@link lock} is called.
 	 */
 	private lockCommit = {} as Commit
-	protected evm = new EventManager<TEvents>(['change', 'refresh'])
 
-	private _title = ''
-	private _index: number
+	/**
+	 * The input's {@link EventManager}.
+	 */
+	protected _dirty: () => boolean
+	protected _evm = new EventManager<TEvents>(['change', 'refresh'])
+	listen = this._evm.listen.bind(this._evm)
+	on = this._evm.on.bind(this._evm)
+
 	private __log: Logger
 
 	constructor(
@@ -277,12 +292,12 @@ export abstract class Input<
 			parent: this.elements.content,
 		})
 
-		this.evm.listen(this.elements.drawerToggle, 'click', () => {
+		this._evm.listen(this.elements.drawerToggle, 'click', () => {
 			console.warn('todo')
 		})
 
 		if ('onChange' in options) {
-			this.evm.on('change', options.onChange as EventCallback<TEvents['change']>)
+			this._evm.on('change', options.onChange as EventCallback<TEvents['change']>)
 		}
 
 		Promise.resolve().then(() => {
@@ -294,10 +309,6 @@ export abstract class Input<
 		return this.state.value as TValueType
 	}
 
-	get undoManager() {
-		return this.folder.gui?._undoManager
-	}
-
 	get title() {
 		return this._title
 	}
@@ -306,12 +317,20 @@ export abstract class Input<
 		this.elements.title.textContent = v
 	}
 
+	get element() {
+		return this.elements.container
+	}
+
 	get index() {
 		return this._index
 	}
 	set index(v: number) {
 		this._index = v
 		this.elements.container.style.order = v.toString()
+	}
+
+	get undoManager() {
+		return this.folder.gui?._undoManager
 	}
 
 	/**
@@ -337,15 +356,6 @@ export abstract class Input<
 	get dirty() {
 		return this._dirty()
 	}
-	set dirty(v: boolean | (() => boolean)) {
-		if (this.opts.resettable === false) return
-
-		this._dirty = toFn(v)
-		this.elements.resetBtn.classList.toggle('dirty', this._dirty())
-	}
-	protected dirtyCheck() {
-		return this.state.value !== this.initialValue
-	}
 
 	abstract set(v: TValueType): void
 
@@ -353,7 +363,7 @@ export abstract class Input<
 		if (opts.binding) {
 			const s = state<T>(opts.binding.target[opts.binding.key])
 
-			this.evm.add(
+			this._evm.add(
 				s.subscribe(v => {
 					opts.binding!.target[opts.binding!.key] = v
 				}),
@@ -375,11 +385,15 @@ export abstract class Input<
 	 * Called from subclasses at the end of their `set` method to emit the `change` event.
 	 */
 	_emit(event: keyof TEvents, v = this.state.value as TValueType) {
-		this.dirty = this.dirtyCheck()
+		this.elements.resetBtn.classList.toggle('dirty', this._dirty())
 
 		// @ts-expect-error
-		this.evm.emit(event, v)
-		if (event === 'change') this.folder.evm.emit('change', this as any as ValidInput)
+		this._evm.emit(event, v)
+
+		// Let the folder know one of its inputs has changed.
+		if (event === 'change') {
+			this.folder.evm.emit('change', this as any as ValidInput)
+		}
 
 		return this
 	}
@@ -440,14 +454,11 @@ export abstract class Input<
 	 * Refreshes the value of any controllers to match the current input state.
 	 */
 	refresh(v = this.state.value as TValueType) {
-		this.dirty = this._dirty
-		this.evm.emit('refresh', v as TValueType)
-
+		if (this.opts.resettable === false) return
+		this.elements.resetBtn.classList.toggle('dirty', this._dirty())
+		this._evm.emit('refresh', v as TValueType)
 		return this
 	}
-
-	listen = this.evm.listen.bind(this.evm)
-	on = this.evm.on.bind(this.evm)
 
 	save(overrides: Partial<InputPreset<TOptions>> = {}) {
 		const preset: InputPreset<any> = {
@@ -477,7 +488,7 @@ export abstract class Input<
 
 	dispose() {
 		this.__log.fn('dispose').debug(this)
-		this.evm.dispose()
+		this._evm.dispose()
 
 		const rm = (elOrObj: any) => {
 			if (elOrObj instanceof HTMLElement || elOrObj instanceof SVGElement) {
