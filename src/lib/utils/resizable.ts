@@ -3,8 +3,7 @@ import type { resizable } from '../actions/resizable'
 import type { State } from './state'
 
 import { collisionClampX, collisionClampY } from './collisions'
-import { deepMerge } from './deepMerge'
-import { debounce } from './debounce'
+import { deepMergeOpts } from './deepMerge'
 import { nanoid } from './nanoid'
 import { Logger } from './logger'
 import { select } from './select'
@@ -131,6 +130,11 @@ export interface ResizableOptions {
 		/** @defaultValue 'resize-grabbing' */
 		active: string
 	}
+	/**
+	 * Whether the element is disabled.
+	 * @defaultValue false
+	 */
+	disabled: boolean
 }
 
 export const RESIZABLE_DEFAULTS: ResizableOptions = {
@@ -151,6 +155,7 @@ export const RESIZABLE_DEFAULTS: ResizableOptions = {
 		active: 'resize-grabbing',
 	},
 	bounds: 'document',
+	disabled: false,
 } as const
 
 /**
@@ -189,6 +194,7 @@ export class Resizable {
 	static initialized = false
 	id = nanoid(8)
 	opts: ResizableOptions
+	disabled: boolean
 
 	bounds: HTMLElement
 	obstacleEls: HTMLElement[]
@@ -206,7 +212,8 @@ export class Resizable {
 		public node: HTMLElement,
 		options?: Partial<ResizableOptions>,
 	) {
-		this.opts = deepMerge([RESIZABLE_DEFAULTS, options], { concatArrays: false })
+		this.opts = deepMergeOpts([RESIZABLE_DEFAULTS, options], { concatArrays: false })
+		this.disabled = this.opts.disabled
 
 		this.#log = new Logger('resizable', {
 			fg: 'GreenYellow',
@@ -293,6 +300,7 @@ export class Resizable {
 	clickOffset = { x: 0, y: 0 }
 
 	onGrab = (e: PointerEvent) => {
+		if (this.disabled) return
 		this.node.setPointerCapture(e.pointerId)
 		this.#activeGrabber = e.currentTarget as HTMLElement
 		this.#activeGrabber.classList.add(this.opts.classes.active)
