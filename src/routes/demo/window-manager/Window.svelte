@@ -15,8 +15,11 @@
 {#if !destroy}
 	<div class="window window-{i} {classes.join(' ')}" use:wm.add={options}>
 		<button class="delete" on:click={() => (destroy = true)}></button>
+
 		{#if title}<h2 class="title">{title}</h2>{/if}
+
 		<slot />
+
 		{#if debug}
 			<pre><code class="language-html content"></code></pre>
 		{/if}
@@ -46,7 +49,8 @@
 		height: 120px;
 		padding: 0.5rem;
 
-		background-color: rgba(var(--bg-a-rgb), 0.5);
+		color: var(--light-c);
+		background-color: rgba(var(--dark-a-rgb), 0.75);
 		backdrop-filter: blur(0.25rem);
 		border: 1px solid var(--bg-b);
 		border-radius: var(--radius);
@@ -57,6 +61,8 @@
 
 		cursor: grab;
 		overflow: hidden;
+
+		user-select: none;
 	}
 
 	.window-2 {
