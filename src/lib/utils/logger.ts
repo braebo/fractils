@@ -12,42 +12,42 @@ import { defer } from './defer'
 export interface LoggerOptions {
 	/**
 	 * Whether to use the styled logger or the regular console.log.
-	 * @defaultValue true
+	 * @default true
 	 */
 	styled?: boolean
 	/**
 	 * Whether to defer the log to the next idle state.  Disabled on Safari to avoid crashing.
-	 * @defaultValue true
+	 * @default true
 	 */
 	deferred?: boolean
 	/**
 	 * The foreground color of the log.
-	 * @defaultValue randomColor()
+	 * @default randomColor()
 	 */
 	fg?: CSSColorName | (string & {})
 	/**
 	 * The background color of the log.
-	 * @defaultValue transparent
+	 * @default transparent
 	 */
 	bg?: CSSColorName | (string & {})
 	/**
 	 * Any additional CSS to apply to the log.
-	 * @defaultValue ''
+	 * @default ''
 	 */
 	css?: string
 	/**
 	 * Run the logger on the server.
-	 * @defaultValue false
+	 * @default false
 	 */
 	server?: boolean
 	/**
 	 * Run the logger in the browser.
-	 * @defaultValue true
+	 * @default true
 	 */
 	browser?: boolean
 	/**
 	 * Whether to only run the logger in development mode.
-	 * @defaultValue true
+	 * @default true
 	 */
 	devOnly?: boolean
 	/**
@@ -56,7 +56,7 @@ export interface LoggerOptions {
 	callsite?: boolean
 	/**
 	 * The title of the logger.  Prepended to all logs.
-	 * @defaultValue ''
+	 * @default ''
 	 */
 	title?: string
 }
@@ -70,8 +70,8 @@ const ENABLED =
 export type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
 
 export class Logger {
-	static #BYPASS_STYLES = false
-	static #BYPASS_DEFER = true
+	private static _BYPASS_STYLES = false
+	private static _BYPASS_DEFER = true
 
 	title = ''
 	options: LoggerOptions
@@ -100,7 +100,7 @@ export class Logger {
 	}
 
 	get deferred() {
-		return !Logger.#BYPASS_DEFER && this.options?.deferred
+		return !Logger._BYPASS_DEFER && this.options?.deferred
 	}
 
 	/**
@@ -239,10 +239,10 @@ export class Logger {
 		const css = options.css ?? ''
 
 		options.styled ??= true
-		const styled = options.styled && !Logger.#BYPASS_STYLES
+		const styled = options.styled && !Logger._BYPASS_STYLES
 
 		options.deferred ??= true
-		const deferred = options.deferred && !Logger.#BYPASS_DEFER && !isSafari()
+		const deferred = options.deferred && !Logger._BYPASS_DEFER && !isSafari()
 
 		if (!ENABLED) return () => void 0
 
