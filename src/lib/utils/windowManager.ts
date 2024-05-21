@@ -332,7 +332,7 @@ export class WindowInstance {
 		public node: HTMLElement,
 		options?: WindowInstanceOptions,
 	) {
-		this.id = node.id || options?.id || nanoid()
+		this.id = node.id || options?.id || `wm-instance-${nanoid(8)}`
 		node.id ||= this.id
 
 		// @ts-expect-error - yoink
