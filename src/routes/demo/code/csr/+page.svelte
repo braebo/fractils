@@ -1,6 +1,5 @@
 <script>
-	import Code from '$lib/components/Code.svelte'
-	import { keys } from '$lib'
+	import { keys, Code } from '$lib'
 
 	const code = {
 		typescript: `import { writable } from 'svelte/store'

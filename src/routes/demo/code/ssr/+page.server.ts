@@ -1,8 +1,8 @@
 // TLDR; Use the `highlight` function on the server and return the HTML to the client.
 
+import { highlight } from '$lib/utils/highlight'
 import { readFile } from 'node:fs/promises'
 import { transform } from './transform'
-import { highlight } from '$lib/utils/highlight'
 
 export const prerender = true
 

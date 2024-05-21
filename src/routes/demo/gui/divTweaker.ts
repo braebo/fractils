@@ -6,7 +6,7 @@ import type { ValidInput } from '$lib/gui/inputs/Input'
 import type { Folder } from '$lib/gui/Folder'
 import type { Color } from '$lib/color/color'
 
-import { deepMerge } from '$lib/utils/deepMerge'
+import { deepMergeOpts } from '$lib/gui/shared/deepMergeOpts'
 import { isColorFormat } from '$lib/color/color'
 import { Gui } from '$lib/gui/Gui'
 import { DEV } from 'esm-env'
@@ -53,7 +53,7 @@ export class DivTweaker {
 			return
 		}
 
-		this.opts = deepMerge([DIV_TWEAKER_DEFAULTS, options])
+		this.opts = deepMergeOpts([DIV_TWEAKER_DEFAULTS, options])
 
 		this.gui = new Gui({
 			title: 'Page Tweaker',
