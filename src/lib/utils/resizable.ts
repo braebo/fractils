@@ -199,7 +199,6 @@ export class Resizable {
 	bounds: HTMLElement
 	obstacleEls: HTMLElement[]
 	size: State<{ width: number; height: number }>
-	localStorageKey?: string
 
 	#activeGrabber: HTMLElement | null = null
 	#listeners: (() => void)[] = []
@@ -219,7 +218,7 @@ export class Resizable {
 			fg: 'GreenYellow',
 			deferred: false,
 		})
-		this.#log.fn('constructor').debug({ opts: this.opts, this: this })
+		this.#log.fn('constructor').info({ opts: this.opts, this: this })
 
 		this.node.classList.add('fractils-resizable')
 
@@ -233,10 +232,10 @@ export class Resizable {
 
 		const { offsetWidth: width, offsetHeight: height } = node
 
-		this.size = state({ width, height }, { key: this.localStorageKey })
+		this.size = state({ width, height }, { key: this.opts.localStorageKey })
 
 		//? Load size from local storage.
-		if (this.localStorageKey) {
+		if (this.opts.localStorageKey) {
 			const { width, height } = this.size.value
 
 			if (width === 0 || height === 0) {
@@ -263,18 +262,16 @@ export class Resizable {
 			console.error('Min width is greater than bounds width.')
 			return
 		}
+
+		this.size.set({
+			width: this.node.offsetWidth,
+			height: this.node.offsetHeight,
+		})
 	}
 
 	get boundsRect() {
 		return this.bounds.getBoundingClientRect()
 	}
-
-	saveSize = debounce(() => {
-		this.size.set({
-			width: this.node.offsetWidth,
-			height: this.node.offsetHeight,
-		})
-	}, 50)
 
 	//? Create resize grabbers.
 
@@ -498,7 +495,10 @@ export class Resizable {
 
 		this.node.dispatchEvent(new CustomEvent('resize'))
 
-		if (this.localStorageKey) this.saveSize()
+		this.size.set({
+			width: this.node.offsetWidth,
+			height: this.node.offsetHeight,
+		})
 
 		this.opts.onResize({
 			width: this.node.offsetWidth,
