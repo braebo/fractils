@@ -143,9 +143,6 @@ export class WindowManager {
 		node: HTMLElement,
 		options?: Partial<WindowInstanceOptions>,
 	) => {
-		// const instanceOpts = this._resolveOptions(options) as WindowInstanceOptions
-		// this._log.fn('add').info({ node, options, instanceOpts })
-
 		const instance = new WindowInstance(this, node, options)
 		this.windows.set(instance.id, instance)
 
@@ -228,7 +225,9 @@ export class WindowManager {
 		opts.draggable = resolveOpts(options?.draggable, defaults.draggable)
 		opts.resizable = resolveOpts(options?.resizable, defaults.resizable)
 		opts.obstacles = options?.obstacles ?? defaults.obstacles
-		opts.bounds = options?.bounds ?? defaults.bounds
+		opts.bounds =
+			options?.bounds ??
+			(isObject(options?.draggable) ? options.draggable.bounds : defaults.bounds)
 
 		if (typeof options?.obstacles === 'undefined') {
 			if (opts.obstacles) {
@@ -249,6 +248,9 @@ export class WindowManager {
 
 		if (opts.bounds) {
 			if (opts.draggable) {
+				if (isObject(options?.draggable) && options?.draggable.bounds) {
+					opts.draggable.bounds = options.draggable.bounds
+				}
 				opts.draggable.bounds = opts.bounds
 			}
 			if (opts.resizable) {
@@ -259,7 +261,7 @@ export class WindowManager {
 		// Resolve localStorage options.
 		if (typeof options?.localStorage !== 'undefined') {
 			if (options.localStorage === true) {
-				opts.localStorage = WINDOWMANGER_STORAGE_DEFAULTS
+				opts.localStorage = defaults.localStorage
 			} else if (options.localStorage === false) {
 				opts.localStorage = false
 			} else if (typeof options.localStorage === 'object') {
@@ -272,12 +274,12 @@ export class WindowManager {
 						options.localStorage.debounce ?? WINDOWMANGER_STORAGE_DEFAULTS.debounce,
 				}
 
-				if (isObject(opts.draggable)) {
-					opts.draggable.localStorageKey = opts.localStorage.key
-				}
-				if (isObject(opts.resizable)) {
-					opts.resizable.localStorageKey = opts.localStorage.key
-				}
+				// if (isObject(opts.draggable)) {
+				// 	opts.draggable.localStorageKey = opts.localStorage.key
+				// }
+				// if (isObject(opts.resizable)) {
+				// 	opts.resizable.localStorageKey = opts.localStorage.key
+				// }
 			}
 		}
 
@@ -297,14 +299,6 @@ export class WindowManager {
 	}
 }
 
-// export interface WindowInstanceOptions {
-// 	id?: string
-// 	draggable: Partial<DraggableOptions> | boolean
-// 	resizable: Partial<ResizableOptions> | boolean
-// 	bounds?: WindowManagerOptions['bounds']
-// 	obstacles?: WindowManagerOptions['obstacles']
-// 	preserveZ?: WindowManagerOptions['preserveZ']
-// }
 export type WindowInstanceOptions = Partial<WindowManagerOptions> & {
 	/**
 	 * A unique identifier for the window, making it accessible via the
@@ -339,45 +333,48 @@ export class WindowInstance {
 		const opts = manager._resolveOptions(options, manager.opts)
 
 		let dragKey: string | undefined = undefined
-		const dragKeyParts = [] as string[]
-		const dragOpts = opts.draggable
-
-		if (!!dragOpts) {
-			if (typeof dragOpts === 'object') {
-				if (typeof dragOpts.localStorageKey === 'undefined') {
-					if (typeof manager.opts.localStorage === 'object') {
-						dragKeyParts.push(manager.opts.localStorage.key)
-					} else {
-						dragKeyParts.push(WINDOWMANGER_STORAGE_DEFAULTS.key)
-					}
-				} else if (dragOpts.localStorageKey) {
-					dragKeyParts.push(dragOpts.localStorageKey)
-				}
-			}
-			dragKeyParts.push(`${this.manager.windows.size + 1}`)
-			dragKey = [...dragKeyParts, 'draggable'].join('::')
-			dragOpts.localStorageKey = dragKey
-		}
-
 		let resizeKey: string | undefined = undefined
+
+		const dragKeyParts = [] as string[]
 		const resizeKeyParts = [] as string[]
+
+		const dragOpts = opts.draggable
 		const resizeOpts = opts.resizable
 
-		if (resizeOpts) {
-			if (typeof resizeOpts === 'object') {
-				if (typeof resizeOpts.localStorageKey === 'undefined') {
-					if (typeof manager.opts.localStorage === 'object') {
-						resizeKeyParts.push(manager.opts.localStorage.key)
-					} else {
-						resizeKeyParts.push(WINDOWMANGER_STORAGE_DEFAULTS.key)
+		if (opts.localStorage !== false) {
+			if (!!dragOpts) {
+				if (typeof dragOpts === 'object') {
+					if (typeof dragOpts.localStorageKey === 'undefined') {
+						if (typeof manager.opts.localStorage === 'object') {
+							dragKeyParts.push(manager.opts.localStorage.key)
+						} else {
+							dragKeyParts.push(WINDOWMANGER_STORAGE_DEFAULTS.key)
+						}
+					} else if (dragOpts.localStorageKey) {
+						dragKeyParts.push(dragOpts.localStorageKey)
 					}
-				} else if (resizeOpts.localStorageKey) {
-					resizeKeyParts.push(resizeOpts.localStorageKey)
 				}
+				dragKeyParts.push(`${this.manager.windows.size + 1}`)
+				dragKey = [...dragKeyParts, 'draggable'].join('::')
+				dragOpts.localStorageKey = dragKey
 			}
-			resizeKeyParts.push(`${this.manager.windows.size}`)
-			resizeKey = [...resizeKeyParts, 'resizable'].join('::')
-			resizeOpts.localStorageKey = resizeKey
+
+			if (resizeOpts) {
+				if (typeof resizeOpts === 'object') {
+					if (typeof resizeOpts.localStorageKey === 'undefined') {
+						if (typeof manager.opts.localStorage === 'object') {
+							resizeKeyParts.push(manager.opts.localStorage.key)
+						} else {
+							resizeKeyParts.push(WINDOWMANGER_STORAGE_DEFAULTS.key)
+						}
+					} else if (resizeOpts.localStorageKey) {
+						resizeKeyParts.push(resizeOpts.localStorageKey)
+					}
+				}
+				resizeKeyParts.push(`${this.manager.windows.size}`)
+				resizeKey = [...resizeKeyParts, 'resizable'].join('::')
+				resizeOpts.localStorageKey = resizeKey
+			}
 		}
 
 		this.draggableInstance = new Draggable(node, dragOpts || { disabled: true })

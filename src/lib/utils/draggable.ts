@@ -36,10 +36,10 @@ export type DraggablePlacementOptions = PlacementOptions & {
 	position: Placement | { x: number; y: number }
 }
 
-/**
- * Represents the bounds to which the draggable element is limited to.
- */
-export type DragBounds = ElementOrSelector | false | Partial<VirtualRect>
+// /**
+//  * Represents the bounds to which the draggable element is limited to.
+//  */
+// export type VirtualBounds = ElementOrSelector | false | Partial<VirtualRect>
 
 /**
  * Data passed to listeners of the {@link DraggableOptions.onDragStart|onDragStart},
@@ -82,7 +82,7 @@ export type DraggableOptions = {
 	 * **Note**: Make sure the bounds is smaller than the node's min size.
 	 * @default undefined
 	 */
-	bounds: DragBounds
+	bounds?: ElementOrSelector
 
 	/**
 	 * Axis on which the element can be dragged on.
@@ -810,7 +810,7 @@ export class Draggable {
 	 * function that updates the {@link bounds} property when called.
 	 */
 	#resolveBounds(opts: DraggableOptions['bounds']): () => void {
-		if (opts === false) return () => void 0
+		if (!opts) return () => void 0
 
 		// Check for a custom bounds rect.
 		if (
