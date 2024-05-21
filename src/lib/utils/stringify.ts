@@ -1,9 +1,11 @@
 /**
- * JSON.stringify() with circular reference support.
+ * A simple, minimal stringify replacer that handles circular references,
+ * undefined values, and functions with strings.
  * - Circular references are replaced with the string `[Circular ~<path>]`
- * where `<path>` is the path to the circular reference.
- * - `undefined` -\> `"undefined"`
- * - `function` -\> `"function"`
+ * where `<path>` is the path to the circular reference relative to the
+ * root object, i.e. `[Circular ~.b.c]`.
+ * - Functions are replaced with the string `"[Function]"`.
+ * - `undefined` values are replaced with the string `"undefined"`.
  *
  * @param obj - The object to stringify.
  * @param indentation - Number of spaces for indentation. Optional.
@@ -14,14 +16,9 @@ export const stringify = (input: unknown, indentation = 0) => {
 }
 
 /**
- * Replaces circular references, undefined values, and functions with strings.
- * - Circular references are replaced with the string `[Circular ~<path>]`
- * where `<path>` is the path to the circular reference relative to the
- * root object, i.e. `[Circular ~.b.c]`.
- * - `undefined` values are replaced with the string `"undefined"`.
- * - Functions are replaced with the string `"function"`.
- *
- * @returns A replacer function for JSON.stringify.
+ * A replacer function for `JSON.stringify` that handles circular references,
+ * undefined values, and functions with strings.
+ * @see {@link stringify}
  */
 export function serialize(stack: unknown[]) {
 	const keys: string[] = []
@@ -59,7 +56,9 @@ export function serialize(stack: unknown[]) {
 		}
 
 		if (value instanceof Element) {
-			return `${value.tagName}#${value.id}.${Array.from(value.classList).join('.')}`
+			return `${value.tagName}.${Array.from(value.classList)
+				.filter(s => !s.startsWith('s-'))
+				.join('.')}#${value.id}`
 		}
 
 		if (stack.length > 0) {
@@ -69,12 +68,3 @@ export function serialize(stack: unknown[]) {
 		return value
 	}
 }
-
-const test = stringify(
-	{
-		foo: 'bar',
-		baz: new Map([['foo', 'bar']]),
-	},
-	2,
-)
-console.log(test)
