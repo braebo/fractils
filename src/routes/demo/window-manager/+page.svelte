@@ -9,14 +9,18 @@
 
 	const dragOpts = {
 		cancel: '.delete',
-		localStorageKey: `demo-window-manager:draggable`,
 		placementOptions: {
-			bounds: '.page',
+			// bounds: '.page',
 			margin: 20,
 		},
 	}
 
 	const wm = new WindowManager({
+		localStorage: {
+			key: `demo-wm`,
+			// size: false,
+		},
+		bounds: '.page',
 		draggable: dragOpts,
 		resizable: {
 			sides: ['top', 'right', 'bottom', 'left'],
@@ -32,6 +36,8 @@
 		'left-center',
 	] as DraggableOptions['position'][]
 
+	let insidePos = { x: 0, y: 0 }
+
 	function randomWindow() {
 		const w = window.innerWidth
 		const h = window.innerHeight
@@ -42,24 +48,24 @@
 		windows = windows
 	}
 
-	// todo - Debugging innerbox position -- remove when fixed.
-	let insidePos: any = { x: 0, y: 0 }
-	let data = insidePos
-	$: if (insidePos) data = insidePos // Update `data` anytime `insidePos` changes.
-	//- Update `data` with the initial position after `innerbox` is mounted.
-	onMount(() => {
-		const innerbox = wm.windows.get('innerbox')
-		if (innerbox) {
-			data = innerbox.draggableInstance!.position
-		}
-	})
+	let debugData = null as any
+	let showDebugData = false
+	onMount(() => (debugData = wm))
+
+	function toggleDebug() {
+		showDebugData = !showDebugData
+		console.log(wm)
+	}
 </script>
 
-<DebugData {data} />
+{#if debugData && showDebugData}
+	<DebugData data={debugData} />
+{/if}
 
 <div class="page">
 	<div class="main">
 		<div class="buttons" style:position="absolute">
+			<button class:active={showDebugData} on:click={toggleDebug}>Show/Log WM</button>
 			<button on:click={randomWindow}>Add Window</button>
 			<button on:click={() => localStorage.clear()}>Clear localStorage</button>
 		</div>
@@ -94,10 +100,10 @@
 					id: 'innerbox',
 					preserveZ: true,
 					obstacles: '.window-6',
+					localStorage: false,
 					draggable: {
 						position: 'center',
 						bounds: '.containerbox',
-						localStorageKey: undefined,
 						onDrag: e => {
 							insidePos = {
 								x: e.x,
@@ -105,9 +111,7 @@
 							}
 						},
 					},
-					resizable: {
-						corners: ['top-left', 'top-right', 'bottom-right', 'bottom-left'],
-					},
+					resizable: false,
 				}}
 			>
 				<p>Inside</p>
@@ -138,6 +142,22 @@
 	button {
 		margin: 1rem;
 		margin-right: 0;
+
+		background: var(--bg-b);
+		padding: 0.25rem 0.4rem;
+		outline: 1px solid var(--bg-e);
+		border: none;
+		border-radius: var(--radius-sm);
+
+		cursor: pointer;
+		font-family: var(--font-c);
+		font-variation-settings: 'wght' 500;
+		font-size: 0.9rem;
+
+		&:hover,
+		&.active {
+			background: var(--bg-a);
+		}
 	}
 
 	:global(.innerbox) {
