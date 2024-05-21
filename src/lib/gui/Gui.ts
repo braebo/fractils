@@ -16,9 +16,9 @@ import { RESIZABLE_DEFAULTS } from '../utils/resizable'
 import { DRAGGABLE_DEFAULTS } from '../utils/draggable'
 import { ThemeEditor, Themer } from '../themer/Themer'
 import settingsIcon from './svg/settings-icon.svg?raw'
+import { deepMergeOpts } from './shared/deepMergeOpts'
 import { resolveOpts } from './shared/resolveOpts'
 import { PresetManager } from './PresetManager'
-import { deepMerge } from '../utils/deepMerge'
 import { UndoManager } from './UndoManager'
 import { nanoid } from '../utils/nanoid'
 import { isType } from '../utils/isType'
@@ -324,7 +324,9 @@ export class Gui {
 	constructor(options?: Partial<GuiOptions>) {
 		//· Setup ····························································¬
 
-		const opts = deepMerge([GUI_DEFAULTS, options ?? {}], { concatArrays: false }) as GuiOptions
+		const opts = deepMergeOpts([GUI_DEFAULTS, options ?? {}], {
+			concatArrays: false,
+		}) as GuiOptions
 
 		opts.container ??= document.body
 
@@ -700,7 +702,7 @@ export class Gui {
 					: true
 
 				// Load up the default generated theme vars.
-				themerOptions.vars = deepMerge([GUI_VARS, themerOptions.vars])
+				themerOptions.vars = deepMergeOpts([GUI_VARS, themerOptions.vars])
 			}
 
 			if (themer === true) {

@@ -3,7 +3,7 @@ import type { resizable } from '../actions/resizable'
 import type { State } from './state'
 
 import { collisionClampX, collisionClampY } from './collisions'
-import { deepMergeOpts } from './deepMerge'
+import { deepMergeOpts } from '../gui/shared/deepMergeOpts'
 import { nanoid } from './nanoid'
 import { Logger } from './logger'
 import { select } from './select'

@@ -9,7 +9,7 @@
  * - `0` is accepted.
  * @todo More options would be nice.
  */
-export function deepMerge<T, U>(
+export function deepMergeOpts<T, U>(
 	objects: [target: T, ...sources: U[]],
 	options?: {
 		/**
@@ -49,7 +49,7 @@ export function deepMerge<T, U>(
 							) {
 								acc[k] = newV
 							} else {
-								acc[k] = deepMerge([{ ...v }, newV], options)
+								acc[k] = deepMergeOpts([{ ...v }, newV], options)
 							}
 						} else if (newV || newV === false) {
 							acc[k] = newV

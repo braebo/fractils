@@ -2,7 +2,7 @@ import type { JavascriptStyleProperty } from '../css/types'
 import type { ElementOrSelector } from '../utils/select'
 
 import { EventManager } from '../utils/EventManager'
-import { deepMerge } from '../utils/deepMerge'
+import { deepMergeOpts } from '../gui/shared/deepMergeOpts'
 import { styled } from '../decorators/styled'
 import { tickLoop } from '../utils/loopTick'
 import { entries } from '../utils/object'
@@ -167,7 +167,7 @@ export class Tooltip {
 		public node: HTMLElement | undefined | null,
 		options?: Partial<TooltipOptions>,
 	) {
-		const opts = deepMerge([TOOLTIP_DEFAULTS, options])
+		const opts = deepMergeOpts([TOOLTIP_DEFAULTS, options])
 		this.opts = opts
 
 		this.placement = opts.placement

@@ -26,7 +26,7 @@ import theme_flat from './themes/flat'
 
 // import { RESIZABLE_DEFAULTS } from '$lib/utils/resizable'
 // import { DRAGGABLE_DEFAULTS } from '../utils/draggable'
-import { deepMerge } from '../utils/deepMerge'
+import { deepMergeOpts } from '../gui/shared/deepMergeOpts'
 import { partition } from '../utils/partition'
 import { hexToRgb } from '../utils/hexToRgb'
 import { entries } from '../utils/object'
@@ -190,7 +190,7 @@ export class Themer {
 		node: ElementOrSelector | Document | 'document' = 'document',
 		options?: Partial<ThemerOptions>,
 	) {
-		const opts = deepMerge([THEMER_DEFAULTS, options])
+		const opts = deepMergeOpts([THEMER_DEFAULTS, options])
 		this._key = String(opts.localStorageKey)
 
 		if (opts.wrapper) {
