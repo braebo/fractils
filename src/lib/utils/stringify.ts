@@ -9,7 +9,8 @@
  * @param indentation - Number of spaces for indentation. Optional.
  */
 export const stringify = (input: unknown, indentation = 0) => {
-	return JSON.stringify(input, serialize(), indentation)
+	const stack = [] as unknown[]
+	return JSON.stringify(input, serialize(stack), indentation)
 }
 
 /**
@@ -22,13 +23,12 @@ export const stringify = (input: unknown, indentation = 0) => {
  *
  * @returns A replacer function for JSON.stringify.
  */
-export function serialize() {
-	const stack: unknown[] = [],
-		keys: string[] = []
+export function serialize(stack: unknown[]) {
+	const keys: string[] = []
 
 	return function (this: unknown, key: string, value: unknown): unknown {
-		if (typeof value === 'undefined') return 'undefined'
-		if (typeof value === 'function') return 'function'
+		if (typeof value === 'undefined') return
+		if (typeof value === 'function') return '[Function]'
 
 		let thisPos = stack.indexOf(this)
 		if (thisPos !== -1) {
@@ -45,6 +45,23 @@ export function serialize() {
 			return '[Circular ~' + keys.slice(0, valuePos).join('.') + ']'
 		}
 
+		if (value instanceof Set) {
+			return Array.from(value)
+		}
+
+		if (value instanceof Map) {
+			return Object.fromEntries(
+				Array.from(value.entries()).map(([k, v]) => {
+					const newStack = [...stack]
+					return [k, JSON.parse(JSON.stringify(v, serialize(newStack)))]
+				}),
+			)
+		}
+
+		if (value instanceof Element) {
+			return `${value.tagName}#${value.id}.${Array.from(value.classList).join('.')}`
+		}
+
 		if (stack.length > 0) {
 			stack.push(value)
 		}
@@ -52,3 +69,12 @@ export function serialize() {
 		return value
 	}
 }
+
+const test = stringify(
+	{
+		foo: 'bar',
+		baz: new Map([['foo', 'bar']]),
+	},
+	2,
+)
+console.log(test)
