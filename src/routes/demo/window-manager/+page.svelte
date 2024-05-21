@@ -36,8 +36,6 @@
 		'left-center',
 	] as DraggableOptions['position'][]
 
-	let insidePos = { x: 0, y: 0 }
-
 	function randomWindow() {
 		const w = window.innerWidth
 		const h = window.innerHeight
@@ -101,15 +99,9 @@
 					preserveZ: true,
 					obstacles: '.window-6',
 					localStorage: false,
+					bounds: '.containerbox',
 					draggable: {
 						position: 'center',
-						bounds: '.containerbox',
-						onDrag: e => {
-							insidePos = {
-								x: e.x,
-								y: e.y,
-							}
-						},
 					},
 					resizable: false,
 				}}
