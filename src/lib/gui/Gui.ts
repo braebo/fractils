@@ -211,15 +211,14 @@ export const GUI_WINDOWMANAGER_DEFAULTS = {
 	zFloor: 0,
 	bounds: undefined,
 	obstacles: undefined,
+	localStorage: { key: 'fracgui' },
 	resizable: {
-		localStorageKey: 'fracgui::resizable',
 		grabberSize: 9,
 		color: 'var(--bg-d)',
 		sides: ['right'],
 		corners: [],
 	},
 	draggable: {
-		localStorageKey: 'fracgui::draggable',
 		bounds: undefined,
 	},
 } as const satisfies WindowManagerOptions
