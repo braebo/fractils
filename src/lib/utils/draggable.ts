@@ -394,7 +394,9 @@ export class Draggable {
 	) {
 		this.opts = Object.assign({}, DRAGGABLE_DEFAULTS, options)
 
-		this.#log = new Logger('draggable ' + this.node.classList[0], { fg: 'SkyBlue' })
+		this.#log = new Logger('draggable ' + Array.from(this.node.classList).join('.'), {
+			fg: 'SkyBlue',
+		})
 
 		this.#recomputeBounds = this.#resolveBounds(this.opts.bounds)
 
@@ -528,7 +530,7 @@ export class Draggable {
 		if (DEV) {
 			for (const el of this.obstacleEls) {
 				el.dataset['outline'] = el.style.outline
-				el.style.outline = '2px dotted red'
+				el.style.outline = '2px dotted #f007'
 			}
 		}
 
