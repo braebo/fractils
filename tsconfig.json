@@ -2,14 +2,22 @@
 	// "$schema": "http://json.schemastore.org/tsconfig",
 	"extends": "./.svelte-kit/tsconfig.json",
 	"compilerOptions": {
-		"types": ["@sveltejs/kit", "svelte"],
-		"lib": ["ESNext", "Decorators", "DOM", "DOM.Iterable"],
+		"types": [
+			"@sveltejs/kit",
+			"svelte",
+			"@vitest/browser/providers/playwright"
+		],
+		"lib": [
+			"ESNext",
+			"Decorators",
+			"DOM",
+			"DOM.Iterable"
+		],
 		"target": "ESNext",
 		"module": "ESNext",
 		"moduleDetection": "force",
 		"jsx": "preserve",
 		"allowJs": true,
-
 		// Bundler mode
 		"moduleResolution": "bundler",
 		"allowImportingTsExtensions": true,
@@ -19,18 +27,15 @@
 		"removeComments": false,
 		"skipLibCheck": true,
 		"noEmit": true,
-
 		// Best practices
 		"strict": true,
 		"checkJs": true,
 		"noFallthroughCasesInSwitch": true,
 		"forceConsistentCasingInFileNames": true,
-
 		// Some stricter flags
 		"noPropertyAccessFromIndexSignature": true,
 		"noUnusedParameters": true,
 		"noUnusedLocals": true,
-
 		// Output optimizations
 		"importHelpers": true,
 		"esModuleInterop": true,
@@ -38,11 +43,15 @@
 		"sourceMap": true,
 		"declaration": true, // https://api-extractor.com/pages/setup/invoking/#invoking-via-the-command-line
 		"declarationMap": true, // https://api-extractor.com/pages/setup/invoking/#invoking-via-the-command-line
-
 		// Experimental
 		"experimentalDecorators": true,
 	},
-	"include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.ts", "src/**/*.svelte"],
+	"include": [
+		"src/**/*.d.ts",
+		"src/**/*.js",
+		"src/**/*.ts",
+		"src/**/*.svelte"
+	],
 	"exclude": [
 		"**/*.example.js",
 		"./src/scripts/extract/**/*.*",

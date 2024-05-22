@@ -69,6 +69,7 @@
     "@types/node": "^20.12.12",
     "@types/prismjs": "^1.26.4",
     "@types/react": "^18.3.2",
+    "@vitest/browser": "^1.6.0",
     "@vitest/ui": "^1.6.0",
     "autoprefixer": "^10.4.19",
     "bun": "^1.1.8",

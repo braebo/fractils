@@ -68,6 +68,9 @@ importers:
       '@types/react':
         specifier: ^18.3.2
         version: 18.3.2
+      '@vitest/browser':
+        specifier: ^1.6.0
+        version: 1.6.0(vitest@1.6.0)
       '@vitest/ui':
         specifier: ^1.6.0
         version: 1.6.0(vitest@1.6.0)
@@ -226,7 +229,7 @@ importers:
         version: 1.6.0(@types/node@20.12.12)(sass@1.77.2)
       vitest:
         specifier: ^1.6.0
-        version: 1.6.0(@types/node@20.12.12)(@vitest/ui@1.6.0)(happy-dom@14.11.0)(jsdom@24.0.0)(sass@1.77.2)
+        version: 1.6.0(@types/node@20.12.12)(@vitest/browser@1.6.0)(@vitest/ui@1.6.0)(happy-dom@14.11.0)(jsdom@24.0.0)(sass@1.77.2)
 
 packages:
 
@@ -961,6 +964,21 @@ packages:
     resolution: {integrity: sha512-NHxohEqad6Ra/r4lGknO52uc/GrWILXAMs1BB4401GTqww0fw1bAqzpG1XHuDO+dprg4GvsD9ZLLSsdo78p9hQ==}
     engines: {node: '>=16'}
     hasBin: true
+
+  '@vitest/browser@1.6.0':
+    resolution: {integrity: sha512-3Wpp9h1hf++rRVPvoXevkdHybLhJVn7MwIMKMIh08tVaoDMmT6fnNhbP222Z48V9PptpYeA5zvH9Ct/ZcaAzmQ==}
+    peerDependencies:
+      playwright: '*'
+      safaridriver: '*'
+      vitest: 1.6.0
+      webdriverio: '*'
+    peerDependenciesMeta:
+      playwright:
+        optional: true
+      safaridriver:
+        optional: true
+      webdriverio:
+        optional: true
 
   '@vitest/expect@1.6.0':
     resolution: {integrity: sha512-ixEvFVQjycy/oNgHjqsL6AZCDduC+tflRluaHIzKIsdbzkLn2U/iBnVeJwB6HsIjQBdfMR8Z0tRxKUsvFJEeWQ==}
@@ -4619,6 +4637,13 @@ snapshots:
       - encoding
       - supports-color
 
+  '@vitest/browser@1.6.0(vitest@1.6.0)':
+    dependencies:
+      '@vitest/utils': 1.6.0
+      magic-string: 0.30.10
+      sirv: 2.0.4
+      vitest: 1.6.0(@types/node@20.12.12)(@vitest/browser@1.6.0)(@vitest/ui@1.6.0)(happy-dom@14.11.0)(jsdom@24.0.0)(sass@1.77.2)
+
   '@vitest/expect@1.6.0':
     dependencies:
       '@vitest/spy': 1.6.0
@@ -4650,7 +4675,7 @@ snapshots:
       pathe: 1.1.2
       picocolors: 1.0.1
       sirv: 2.0.4
-      vitest: 1.6.0(@types/node@20.12.12)(@vitest/ui@1.6.0)(happy-dom@14.11.0)(jsdom@24.0.0)(sass@1.77.2)
+      vitest: 1.6.0(@types/node@20.12.12)(@vitest/browser@1.6.0)(@vitest/ui@1.6.0)(happy-dom@14.11.0)(jsdom@24.0.0)(sass@1.77.2)
 
   '@vitest/utils@1.6.0':
     dependencies:
@@ -7555,7 +7580,7 @@ snapshots:
     optionalDependencies:
       vite: 5.2.11(@types/node@20.12.12)(sass@1.77.2)
 
-  vitest@1.6.0(@types/node@20.12.12)(@vitest/ui@1.6.0)(happy-dom@14.11.0)(jsdom@24.0.0)(sass@1.77.2):
+  vitest@1.6.0(@types/node@20.12.12)(@vitest/browser@1.6.0)(@vitest/ui@1.6.0)(happy-dom@14.11.0)(jsdom@24.0.0)(sass@1.77.2):
     dependencies:
       '@vitest/expect': 1.6.0
       '@vitest/runner': 1.6.0
@@ -7579,6 +7604,7 @@ snapshots:
       why-is-node-running: 2.2.2
     optionalDependencies:
       '@types/node': 20.12.12
+      '@vitest/browser': 1.6.0(vitest@1.6.0)
       '@vitest/ui': 1.6.0(vitest@1.6.0)
       happy-dom: 14.11.0
       jsdom: 24.0.0
