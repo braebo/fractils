@@ -259,6 +259,7 @@ export abstract class Input<
 	) {
 		this.opts = options
 		this.opts.saveable ??= true
+		this.opts.resettable ??= true
 
 		this.id = this.opts.presetId ?? `${folder.presetId}_${this.opts.title}__${this.opts.__type}`
 
