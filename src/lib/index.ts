@@ -115,7 +115,7 @@ export type { ResizableOptions, Side } from './utils/resizable'
 export { draggable, Draggable, DRAGGABLE_DEFAULTS } from './utils/draggable'
 export type {
 	DraggableOptions,
-	DragBounds,
+	// VirtualBounds,
 	DragEventData,
 	DragEvents,
 	DraggablePlacementOptions,
