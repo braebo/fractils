@@ -181,6 +181,7 @@
 //· Gui Root ·································································¬
 
 .fracgui-root {
+	contain: content;
 	position: absolute;
 	display: flex;
 	flex-direction: column;
@@ -204,6 +205,7 @@
 }
 
 .fracgui-root > .fracgui-header {
+	contain: strict;
 	position: relative;
 
 	display: flex;
@@ -225,6 +227,7 @@
 	cursor: grab;
 
 	.fracgui-title {
+		contain: layout style paint;
 		position: relative;
 		width: fit-content;
 		height: var(--fracgui-root-header_height);
@@ -297,6 +300,7 @@
 //· Gui Folders ······························································¬
 
 .fracgui-folder {
+	contain: content;
 	height: fit-content;
 	background: var(--fracgui-folder_background);
 
@@ -310,6 +314,7 @@
 }
 
 .fracgui-folder .fracgui-header {
+	contain: strict;
 	position: relative;
 
 	display: flex;
@@ -325,10 +330,11 @@
 	outline: var(--fracgui-folder-header_outline, 1px solid rgba(var(--fracgui-bg-b-rgb), 0.5));
 	box-shadow: var(--fracgui-folder-header_box-shadow, 0 0 0.1rem #000 inset);
 
-	transition: 0.1s;
+	transition: opacity var(--fracgui-transition-duration);
 	cursor: pointer;
 
 	.fracgui-title {
+		contain: layout style paint;
 		position: relative;
 		width: fit-content;
 
@@ -340,20 +346,24 @@
 			'wght' var(--fracgui-folder-header_font-weight),
 			'wdth' 100;
 
-		transition: 0.1s;
+		transition: color var(--fracgui-transition-duration);
 	}
 
 	.fracgui-folder-icon-container {
+		contain: strict;
 		width: 1.1rem !important;
 		height: 1.1rem !important;
 
 		color: var(--fracgui-fg-c);
 
-		opacity: 0.75;
-		transition: opacity 0.15s;
+		.fracgui-folder-icon {
+			transition: opacity var(--fracgui-transition-duration);
+			opacity: 0.75;
+			contain: strict;
+		}
 	}
 
-	&:hover svg.icon-folder {
+	&:hover .fracgui-folder-icon-container .fracgui-folder-icon {
 		opacity: 1;
 	}
 }
@@ -372,7 +382,9 @@
 }
 
 .fracgui-folder {
+	contain: content;
 	.fracgui-content {
+		contain: content;
 		display: flex;
 		flex-direction: column;
 
@@ -381,7 +393,7 @@
 		border-left: var(--fracgui-folder-content_padding-left) solid
 			var(--fracgui-folder-header_background);
 
-		transition: 0.1s;
+		// transition: 0.1s;
 	}
 }
 
@@ -398,10 +410,6 @@
 		opacity: 1;
 	}
 }
-
-// .fracgui-root > .fracgui-content-wrapper > .fracgui-content > .fracgui-folder {
-// 	contain: content;
-// }
 //⌟
 
 //· Controllers ······························································¬
@@ -422,6 +430,7 @@
 }
 
 .fracgui-controller {
+	contain: layout style;
 	width: 100%;
 
 	box-shadow: var(--fracgui-controller_box-shadow);
@@ -439,11 +448,18 @@
 	}
 
 	// transition: 0.15s;
-	transition: 0.1s;
+	transition-duration: var(--fracgui-transition-duration);
+	transition-property: color, background, opacity;
 }
 
 .fracgui-controller-button {
+	contain: strict;
 	cursor: pointer;
+
+	svg {
+		width: 100%;
+		height: 100%;
+	}
 
 	height: 1.5rem;
 	margin: 0;
@@ -467,8 +483,12 @@
 
 	@include fontMono;
 
-	scale: 1;
+	// scale: 1;
+	transform: scale(1);
 	backface-visibility: hidden;
+
+	transition-duration: var(--fracgui-transition-duration);
+	transition-property: background, color, transform, box-shadow;
 
 	&:hover,
 	&:active {
@@ -479,9 +499,9 @@
 	}
 
 	&:active {
-		scale: 0.975;
+		// scale: 0.975;
+		transform: scale(0.975);
 		color: var(--fracgui-theme-a);
-		transition-duration: 0.075s;
 
 		// prettier-ignore
 		box-shadow:
@@ -506,6 +526,7 @@ $option-height: 1.5rem;
 $option-padding: 0.1rem 0.75rem;
 
 .fracgui-controller-select-container {
+	contain: content;
 	position: relative;
 	outline: none;
 	border: none;
@@ -524,7 +545,9 @@ $option-padding: 0.1rem 0.75rem;
 	letter-spacing: var(--fracgui-folder-content_letter-spacing);
 
 	overflow: hidden;
-	transition: 0.15s;
+	// transition-duration: 0.15s;
+	transition-duration: var(--fracgui-transition-duration);
+	transition-property: background, color, filter;
 	cursor: pointer;
 
 	&.active,
@@ -536,6 +559,8 @@ $option-padding: 0.1rem 0.75rem;
 }
 
 .fracgui-controller-select-dropdown {
+	contain: layout style;
+	backface-visibility: hidden;
 	display: none;
 
 	position: absolute;
@@ -558,9 +583,15 @@ $option-padding: 0.1rem 0.75rem;
 		-1.2px 30.6px 32.6px -2.9px hsla(var(--fracgui-shadow-lightness), 0.38);
 
 	z-index: 100;
+	// transition:
+	// 	all 0.2s cubic-bezier(0.23, 1, 0.32, 1),
+	// 	inset 0s;
+	// transition-duration: 0.2s;
+	// transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+	// transition-property: opacity, transform, inset;
 	transition:
-		all 0.2s cubic-bezier(0.23, 1, 0.32, 1),
-		inset 0s;
+		opacity 0.2s cubic-bezier(0.23, 1, 0.32, 1),
+		transform 0.2s cubic-bezier(0.23, 1, 0.32, 1);
 
 	opacity: 0;
 	pointer-events: none;
@@ -568,6 +599,7 @@ $option-padding: 0.1rem 0.75rem;
 	transform-origin: top center;
 
 	&.expanded {
+		contain: content;
 		display: block;
 		width: fit-content;
 		height: fit-content;
@@ -578,6 +610,7 @@ $option-padding: 0.1rem 0.75rem;
 }
 
 .fracgui-controller-select-option {
+	contain: content;
 	padding: $option-padding;
 	line-height: $option-height;
 
@@ -586,7 +619,8 @@ $option-padding: 0.1rem 0.75rem;
 	letter-spacing: 0.5px;
 	color: var(--fracgui-fg-d);
 
-	transition: 0.15s;
+	transition-duration: 0.15s;
+	transition-property: background, color, filter;
 	outline: 1px solid rgba(var(--fracgui-bg-d-rgb), 0);
 
 	&:hover,
@@ -620,7 +654,8 @@ $option-padding: 0.1rem 0.75rem;
 //· Toolbar ···································································¬
 
 .fracgui-toolbar {
-	contain: paint;
+	contain: content;
+	backface-visibility: hidden;
 
 	position: absolute;
 	right: 0;
@@ -652,9 +687,12 @@ $icon-height: 0.9rem;
 
 //·· Search ························································¬
 
-//? Container
+//? Search Container
 
 .fracgui-search-container {
+	contain: content;
+	backface-visibility: hidden;
+
 	display: flex;
 	align-items: center;
 	justify-content: flex-end;
@@ -663,19 +701,19 @@ $icon-height: 0.9rem;
 	padding: 0.25rem 0.1rem 0.25rem 0;
 
 	cursor: pointer;
-	transition: 0.1s;
-	backface-visibility: hidden;
+	// transition: 0.1s;
 
 	pointer-events: all;
 }
 
-//? Button
+//? Search Button
 
 .fracgui-header:hover .fracgui-search-button {
 	opacity: 1;
 }
 
 .fracgui-search-button {
+	contain: strict;
 	all: unset;
 
 	display: flex;
@@ -685,7 +723,8 @@ $icon-height: 0.9rem;
 	height: $icon-height;
 
 	// transition: color 1s, opacity 1s;
-	transition: 0.5s;
+	transition-duration: 0.5s;
+	transition-property: color, opacity;
 
 	svg {
 		pointer-events: none;
@@ -706,7 +745,7 @@ $icon-height: 0.9rem;
 	}
 }
 
-//- Hover
+//- Search Hover
 
 .fracgui-search-button {
 	color: var(--fracgui-toolbar-icon-dim_color);
@@ -728,7 +767,7 @@ $icon-height: 0.9rem;
 	scale: 0.9;
 }
 
-//- Active
+//- Search Active
 
 .fracgui-search-container.active .fracgui-search-button {
 	color: var(--fracgui-bg-e);
@@ -745,9 +784,10 @@ $icon-height: 0.9rem;
 	}
 }
 
-//? Input
+//? Search Input
 
 input.fracgui-search-input {
+	contain: content;
 	width: 6rem;
 	height: 1rem;
 	padding: 0 0.25rem;
@@ -772,7 +812,7 @@ input.fracgui-search-input {
 	}
 }
 
-//- Active
+//- Search Input Active
 
 .fracgui-search-input {
 	max-width: 0rem;
@@ -791,6 +831,7 @@ input.fracgui-search-input {
 //·· Settings Button ···································································¬
 
 .fracgui-settings-button {
+	contain: content;
 	display: flex;
 	align-items: center;
 	justify-content: flex-start;
@@ -809,7 +850,7 @@ input.fracgui-search-input {
 	background: none;
 
 	cursor: pointer;
-	transition: 0.15s;
+	transition: color 0.15s;
 
 	&:hover {
 		color: var(--fracgui-toolbar-icon_color);
@@ -819,7 +860,9 @@ input.fracgui-search-input {
 	.dot-left,
 	.dot-center,
 	.dot-right {
-		transition: 0.5s cubic-bezier(0.16, 0.9, 0, 1.01);
+		transition-duration: 0.5s;
+		transition-timing-function: cubic-bezier(0.16, 0.9, 0, 1.01);
+		transition-property: opacity, transform;
 		transform-origin: center;
 		pointer-events: none;
 	}
@@ -898,6 +941,7 @@ input.fracgui-search-input {
 
 .fracgui-folder {
 	.copy-button {
+		contain: content;
 		cursor: pointer;
 
 		// width: var(--copy-button-width, 2rem);
@@ -954,75 +998,75 @@ input.fracgui-search-input {
 		height: 100%;
 
 		grid-area: 1/1;
-	}
 
-	$dur: 0.33s;
-	$bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-	$bounceXtreme: cubic-bezier(0.2, 2, 0.2, 0.85);
-	$quintInOut: cubic-bezier(0.86, 0, 0.07, 1);
-	$quartInOut: cubic-bezier(0.77, 0, 0.175, 1);
-	svg {
-		overflow: visible;
+		$dur: 0.33s;
+		$bounce: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+		$bounceXtreme: cubic-bezier(0.2, 2, 0.2, 0.85);
+		$quintInOut: cubic-bezier(0.86, 0, 0.07, 1);
+		$quartInOut: cubic-bezier(0.77, 0, 0.175, 1);
+		svg {
+			overflow: visible;
 
-		width: 100%;
-		height: 100%;
+			width: 100%;
+			height: 100%;
 
-		.front,
-		.back,
-		.check {
-			transform-origin: 50% 50%;
-		}
+			.front,
+			.back,
+			.check {
+				transform-origin: 50% 50%;
+			}
 
-		.front {
-			transition-duration: 0.66s !important;
-			transition-timing-function: $bounce;
+			.front {
+				transition-duration: 0.66s !important;
+				transition-timing-function: $bounce;
 
-			stroke: currentColor;
-		}
-		&.active .front {
-			transition-timing-function: $bounceXtreme;
-			transition-duration: 0.2s;
+				stroke: currentColor;
+			}
+			&.active .front {
+				transition-timing-function: $bounceXtreme;
+				transition-duration: 0.2s;
 
-			transform: scale(2);
-			fill: #12a084 !important;
-			stroke: #12a084 !important;
-		}
+				transform: scale(2);
+				fill: #12a084 !important;
+				stroke: #12a084 !important;
+			}
 
-		&.outro .front {
-			transition-duration: 0.5s !important;
-		}
+			&.outro .front {
+				transition-duration: 0.5s !important;
+			}
 
-		.back {
-			opacity: 1;
-			transform: translate(0, 0);
-			transition-duration: $dur;
-			transition-timing-function: $quartInOut;
-		}
-		&.active .back {
-			opacity: 0;
-			transform: translate(15%, 15%);
-		}
+			.back {
+				opacity: 1;
+				transform: translate(0, 0);
+				transition-duration: $dur;
+				transition-timing-function: $quartInOut;
+			}
+			&.active .back {
+				opacity: 0;
+				transform: translate(15%, 15%);
+			}
 
-		&.outro .back {
-			transition:
-				opacity 0.25s 0.25s,
-				transform 1s 0s;
-		}
+			&.outro .back {
+				transition:
+					opacity 0.25s 0.25s,
+					transform 1s 0s;
+			}
 
-		.check {
-			stroke: var(--fracgui-light-a);
+			.check {
+				stroke: var(--fracgui-light-a);
 
-			opacity: 0;
+				opacity: 0;
 
-			transform: scale(0);
+				transform: scale(0);
 
-			transition: 0.2s $bounce 0s;
-		}
-		&.active .check {
-			opacity: 1;
-			transform: scale(1.25);
+				transition: 0.2s $bounce 0s;
+			}
+			&.active .check {
+				opacity: 1;
+				transform: scale(1.25);
 
-			transition: 0.3s $bounceXtreme 0.1s;
+				transition: 0.3s $bounceXtreme 0.1s;
+			}
 		}
 	}
 }
@@ -1032,6 +1076,7 @@ input.fracgui-search-input {
 //· Inputs ···································································¬
 
 .fracgui-input-drawer-toggle {
+	contain: strict;
 	right: 0.5rem;
 	top: 0.5rem;
 
@@ -1040,7 +1085,7 @@ input.fracgui-search-input {
 
 	color: var(--fracgui-fg-c);
 	background: var(--fracgui-drawer-toggle_background);
-	transition: 0.1s;
+	transition: background var(--fracgui-transition-duration);
 	box-shadow: -1px 0 1px 0.5px rgba(var(--fracgui-bg-a-rgb), 0.5) inset;
 
 	border-top-right-radius: var(--fracgui-radius-sm);
@@ -1066,6 +1111,7 @@ input.fracgui-search-input {
 }
 
 .fracgui-input-reset-btn {
+	contain: strict;
 	--fracgui-resetbtn-gradstart: 10%;
 	--fracgui-resetbtn-gradend: 33%;
 	position: absolute;
@@ -1122,7 +1168,8 @@ input.fracgui-search-input {
 	white-space: nowrap;
 	text-overflow: ellipsis;
 
-	transition: 0.05s;
+	transition-duration: var(--fracgui-transition-duration);
+	transition-property: color;
 }
 
 .fracgui-input-container {
@@ -1145,7 +1192,7 @@ input.fracgui-search-input {
 	box-shadow: var(--fracgui-input-container_box-shadow);
 
 	transition:
-		all 0.15s,
+		// all 0.15s,
 		opacity 0.15s ease-in 0.2s;
 
 	$inverted-border-size: 0.5rem;
@@ -1266,6 +1313,7 @@ input.fracgui-search-input {
 	}
 
 	.fracgui-input-content {
+		contain: content;
 		position: relative;
 		display: flex;
 		align-items: center;
@@ -1278,12 +1326,13 @@ input.fracgui-search-input {
 		//? Number Input
 
 		.fracgui-input-number-container {
+			contain: content;
 			position: relative;
 
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
-			gap: 0.5rem;
+			// gap: 0.5rem;
 
 			width: 100%;
 			height: 90%;
@@ -1291,6 +1340,7 @@ input.fracgui-search-input {
 			border-radius: var(--fracgui-radius-sm);
 
 			.fracgui-input-number-buttons-container {
+				contain: strict;
 				display: flex;
 				flex-direction: column;
 				align-items: center;
@@ -1300,8 +1350,10 @@ input.fracgui-search-input {
 				height: 1.5rem;
 				margin: 0;
 				padding: 0;
+				margin-left: 0.3rem;
 
 				.fracgui-input-number-button {
+					contain: strict;
 					cursor: pointer;
 
 					display: flex;
@@ -1309,7 +1361,7 @@ input.fracgui-search-input {
 					justify-content: center;
 
 					width: 90%;
-					height: 45%;
+					height: 50%;
 
 					outline: none;
 					opacity: 0.5;
@@ -1318,7 +1370,12 @@ input.fracgui-search-input {
 					border-radius: var(--fracgui-radius-xs);
 					box-shadow: none;
 
-					transition: 0.1s;
+					//- ?
+					background: transparent;
+
+					// transition: 0.1s;
+					transition-duration: var(--fracgui-transition-duration);
+					transition-property: color, background, box-shadow, opacity;
 
 					svg {
 						width: 1rem;
@@ -1328,18 +1385,22 @@ input.fracgui-search-input {
 						opacity: 0.1;
 
 						scale: 1;
-						transition: 0.1s;
+						// transition: 0.1s;
+						transition-duration: var(--fracgui-transition-duration);
+						transition-property: color, opacity;
 
 						user-select: none;
 						pointer-events: none;
 					}
 
-					&:hover {
+					&:hover,
+					&:active {
+						// background: var(--fracgui-controller_background);
+						opacity: 1;
 						box-shadow: 0px 0px 1px 0px hsl(0, 0%, 0%) inset;
 						@at-root .fracgui-root[mode='light'] & {
 							box-shadow: 0px 0px 1px 0px hsl(0, 0%, 100%) inset;
 						}
-						opacity: 1;
 
 						svg {
 							opacity: 1;
@@ -1347,17 +1408,17 @@ input.fracgui-search-input {
 					}
 
 					&:active {
-						opacity: 1;
-						box-shadow: 0px 0px 1px 1px hsl(0, 0%, 5%) inset;
-						@at-root .fracgui-root[mode='light'] & {
-							box-shadow: 0px 0px 2px 1px hsl(0, 0%, 90%) inset;
-						}
+						// opacity: 1;
+						// box-shadow: 0px 0px 1px 1px hsl(0, 0%, 5%) inset;
+						// @at-root .fracgui-root[mode='light'] & {
+						// 	box-shadow: 0px 0px 2px 1px hsl(0, 0%, 90%) inset;
+						// }
 
 						svg {
-							opacity: 1;
+							// opacity: 1;
 							color: var(--fracgui-theme-a);
 							//? svg shadow glow.
-							filter: drop-shadow(0 0 3px var(--fracgui-theme-a));
+							// filter: drop-shadow(0 0 3px var(--fracgui-theme-a));
 						}
 					}
 				}
@@ -1376,6 +1437,7 @@ input.fracgui-search-input {
 		//- Range <input>
 
 		input.fracgui-input-number-range {
+			contain: layout style size;
 			-webkit-appearance: none;
 			appearance: none;
 
@@ -1479,7 +1541,9 @@ input.fracgui-search-input {
 
 			@include fontMono;
 
-			transition: 0.1s;
+			// transition: 0.1s;
+			transition-duration: var(--fracgui-transition-duration);
+			transition-property: color, background, box-shadow;
 			overflow: visible;
 
 			&::-webkit-inner-spin-button,
@@ -2149,8 +2213,14 @@ input.fracgui-search-input {
 		.fracgui-input-number-container {
 			.fracgui-input-number-buttons-container {
 				.fracgui-input-number-button {
-					opacity: 1;
-					background: var(--fracgui-controller_background);
+					// background: initial;
+					// opacity: 1;
+					// background: var(--fracgui-controller_background);
+
+					svg {
+						// opacity: 1;
+						opacity: 0.75;
+					}
 				}
 			}
 		}
@@ -2175,6 +2245,7 @@ input.fracgui-search-input {
 		//? Select Input
 
 		.fracgui-input-select-container {
+			contain: content;
 			width: 100%;
 			height: 100%;
 
@@ -2188,9 +2259,9 @@ input.fracgui-search-input {
 				background: var(--fracgui-controller-dim_background);
 				border-radius: var(--fracgui-radius-xs);
 
-				outline-width: 1px;
-				outline-style: solid;
-				outline-color: transparent;
+				border-width: 1px;
+				border-style: solid;
+				border-color: transparent;
 
 				//? chevron icon
 				&::before {
@@ -2203,7 +2274,9 @@ input.fracgui-search-input {
 
 					color: var(--fracgui-bg-d);
 					transform: rotate(90deg) translateX(0);
-					transition: 0.2s;
+					// transition: 0.2s;
+					transition-duration: var(--fracgui-transition-duration);
+					transition-property: color, transform, border-color;
 				}
 
 				filter: unset;
@@ -2214,7 +2287,7 @@ input.fracgui-search-input {
 				&:active {
 					background: var(--fracgui-controller_background);
 					&[contenteditable='true'] {
-						outline-color: var(--fracgui-controller-dim_color);
+						border-color: var(--fracgui-controller-dim_color);
 					}
 					&::before {
 						color: var(--fracgui-bg-e);
@@ -2230,7 +2303,7 @@ input.fracgui-search-input {
 					cursor: text;
 					&:focus-visible,
 					&:active {
-						outline-color: var(--fracgui-theme-a);
+						border-color: var(--fracgui-theme-a);
 					}
 				}
 			}
