@@ -9,12 +9,13 @@ import type {
 } from '../controllers/ButtonController'
 
 import { ButtonController } from '../controllers/ButtonController'
+import { getStyle } from '../../dom/getStyle'
+import { nanoid } from '../../utils/nanoid'
 import { Logger } from '../../utils/logger'
 import { create } from '../../utils/create'
 import { state } from '../../utils/state'
 import { toFn } from '../../utils/toFn'
 import { Input } from './Input'
-import { nanoid } from '$lib/utils/nanoid'
 
 /**
  * A 2D array of {@link ButtonControllerOptions} objects, representing a grid of buttons. The inner
@@ -159,7 +160,8 @@ export class InputButtonGrid extends Input<
 
 		this.elements.container.style.setProperty(
 			'height',
-			getComputedStyle(this.elements.controllers.container).height,
+			// getComputedStyle(this.elements.controllers.container).height,
+			getStyle(this.elements.controllers.container, 'height'),
 		)
 
 		return instanceGrid

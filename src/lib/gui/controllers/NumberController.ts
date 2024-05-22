@@ -1,9 +1,10 @@
 import type { InputOptions, ValidInput } from '../inputs/Input'
 import type { Tooltip } from '../../actions/tooltip'
 
-import { create } from '../../utils/create'
-import { Logger } from '$lib/utils/logger'
 import { modIcon, modKey } from '$lib/utils/keys'
+import { getStyle } from '../../dom/getStyle'
+import { create } from '../../utils/create'
+import { Logger } from '../../utils/logger'
 
 export class NumberController<
 	TInput extends ValidInput = ValidInput,
@@ -110,7 +111,8 @@ export class NumberController<
 			this.element.removeEventListener('pointerdown', this.maybeDragStart)
 			this.element.addEventListener('pointerdown', this.maybeDragStart)
 
-			this.element.dataset['cursor'] = getComputedStyle(this.element).cursor
+			// this.element.dataset['cursor'] = getComputedStyle(this.element).cursor
+			this.element.dataset['cursor'] = getStyle(this.element, 'cursor')
 			this.element.style.cursor = 'ns-resize'
 		}
 	}

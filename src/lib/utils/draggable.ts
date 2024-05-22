@@ -5,6 +5,7 @@ import type { Action } from 'svelte/action'
 import { collisionClampX, collisionClampY } from './collisions'
 import { isDefined, isHTMLElement, isString } from './is'
 import { EventManager } from './EventManager'
+import { getStyleMap } from '../dom/getStyle'
 import { cubicOut } from 'svelte/easing'
 import { tweened } from 'svelte/motion'
 import { place } from '../dom/place'
@@ -677,12 +678,13 @@ export class Draggable {
 			this.bounds.bottom - this.bounds.top - styleTop - (this.rect.bottom - this.rect.top)
 		// refresh bounds element padding ...
 		if (this.boundsEl) {
-			const { paddingLeft, paddingRight, paddingTop, paddingBottom } =
-				window.getComputedStyle(this.boundsEl)
-			this.#leftBound -= parseFloat(paddingLeft)
-			this.#rightBound -= parseFloat(paddingRight)
-			this.#topBound -= parseFloat(paddingTop)
-			this.#bottomBound -= parseFloat(paddingBottom)
+			const styleMap = getStyleMap(this.boundsEl)
+			// const { paddingLeft, paddingRight, paddingTop, paddingBottom } =
+			// 	getStyleMap(this.boundsEl)
+			this.#leftBound -= parseFloat(styleMap.get('padding-left'))
+			this.#rightBound -= parseFloat(styleMap.get('padding-right'))
+			this.#topBound -= parseFloat(styleMap.get('padding-top'))
+			this.#bottomBound -= parseFloat(styleMap.get('padding-bottom'))
 		}
 	}
 
