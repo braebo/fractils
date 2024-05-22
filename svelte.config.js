@@ -14,9 +14,14 @@ const config = {
 		},
 		prerender: {
 			handleHttpError: ({ path }) => {
-				if (path === 'playground/code/ssr') {
-					return
-				}
+				// if (path === 'demo/code/ssr') {
+				// 	console.error('yayeet : ssr')
+				// 	return
+				// }
+				// if (path === 'demo/code/csr') {
+				// 	console.error('yayeet : csr')
+				// 	return
+				// }
 			},
 			/// todo - remove
 			handleMissingId: ({ path }) => {
