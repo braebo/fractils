@@ -21,5 +21,8 @@ export default defineConfig({
 		setupFiles: './mocks.ts',
 		include: ['**/src/lib/**/*.test.ts'],
 		exclude: ['test/**.*', '**/scripts/**.*'],
+		browser: {
+			provider: 'playwright',
+		},
 	},
 })
