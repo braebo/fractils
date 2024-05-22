@@ -172,15 +172,6 @@ export function createFolderConnector(folder: Folder) {
 
 	svg.setAttribute('preserveAspectRatio', 'xMinYMin slice')
 
-	svg.style.setProperty('position', 'absolute')
-	svg.style.setProperty('display', 'flex')
-	svg.style.setProperty('top', '0')
-	svg.style.setProperty('left', '0')
-	svg.style.setProperty('width', '20px')
-	svg.style.setProperty('height', '100%')
-	svg.style.setProperty('pointer-events', 'none')
-	svg.style.setProperty('overflow', 'hidden')
-	svg.style.setProperty('z-index', '10')
 	svg.style.setProperty('filter', `hue-rotate(${folder.hue}deg)`)
 
 	//? Path

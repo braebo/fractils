@@ -358,6 +358,19 @@
 	}
 }
 
+.fracgui-connector-svg {
+	contain: strict;
+	display: flex;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 20px;
+	height: 100%;
+	pointer-events: none;
+	overflow: hidden;
+	z-index: 10;
+}
+
 .fracgui-folder {
 	.fracgui-content {
 		display: flex;
