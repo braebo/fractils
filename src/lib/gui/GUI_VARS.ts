@@ -21,6 +21,7 @@ const GUI_VARS_UTILITY: ThemeVars = {
 		radius: '0.3125rem',
 		'radius-md': '0.4375rem',
 		filter: 'none',
+		'transition-duration': '75ms',
 	},
 	dark: {},
 	light: {
