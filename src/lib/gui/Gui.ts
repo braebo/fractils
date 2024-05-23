@@ -1,4 +1,4 @@
-import './gui.scss'
+import './styles/gui.scss'
 
 import type { WindowManagerOptions } from '../utils/windowManager'
 import type { Placement, PlacementOptions } from '../dom/place'
@@ -24,10 +24,10 @@ import { nanoid } from '../utils/nanoid'
 import { isType } from '../utils/isType'
 import { Logger } from '../utils/logger'
 import { create } from '../utils/create'
-import { VAR_PREFIX } from './GUI_VARS'
+import { VAR_PREFIX } from './styles/GUI_VARS'
 import { state } from '../utils/state'
 import { BROWSER } from '../utils/env'
-import { GUI_VARS } from './GUI_VARS'
+import { GUI_VARS } from './styles/GUI_VARS'
 import { place } from '../dom/place'
 import { isMac } from '../utils/ua'
 import { Folder } from './Folder'
@@ -574,7 +574,8 @@ export class Gui {
 	private _createSettingsFolder() {
 		const settingsFolder = this.folder.addFolder({
 			title: Gui.settingsFolderTitle,
-			closed: true,
+			// closed: true, //! TEMP
+			closed: false, //! TEMP
 			hidden: false,
 			// @ts-expect-error @internal
 			headerless: true,

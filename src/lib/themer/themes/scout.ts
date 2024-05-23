@@ -1,4 +1,4 @@
-import type { GUI_VARS } from '../../gui/GUI_VARS'
+import type { GUI_VARS } from '../../gui/styles/GUI_VARS'
 import type { ThemeDefinition } from '../types'
 
 import { resolveTheme } from '../resolveTheme'

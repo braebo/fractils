@@ -9,8 +9,8 @@ export default resolveTheme({
 		color: {
 			base: {
 				'theme-a': '#00bcd4',
-				'theme-b': '#f8d2c9',
-				'theme-c': '#ba788a',
+				// 'theme-b': '#f8d2c9',
+				// 'theme-c': '#ba788a',
 				'dark-a': '#0B0B11',
 				'dark-b': '#1b1d29',
 				'dark-c': '#46465e',

@@ -27,7 +27,6 @@ export { default as Code } from './components/Code.svelte'
 // Gui
 
 export { default as Select } from './gui/controls/Select.svelte'
-export { default as Socket } from './gui/Socket.svelte'
 export { default as Root } from './gui/Gui.svelte'
 
 // Theme

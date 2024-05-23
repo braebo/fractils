@@ -82,8 +82,8 @@ export type ThemeColors = BaseColors & ModeColors
 export interface BaseColors {
 	[key: string]: string
 	'theme-a': string
-	'theme-b': string
-	'theme-c': string
+	// 'theme-b': string
+	// 'theme-c': string
 
 	'dark-a': string
 	'dark-b': string
