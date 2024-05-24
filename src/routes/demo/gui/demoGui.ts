@@ -14,19 +14,11 @@ export const code = state('')
 export function demoGui(params: Params) {
 	const gui = new Gui({
 		title: 'Orbs',
-		// position: 'center',
-		position: 'top-left',
-		// positionOptions: {
-		// 	margin: 175,
-		// },
+		position: 'center',
 		storage: {
 			key: 'fracgui',
 			position: true,
 			size: true,
-		},
-		windowManager: true,
-		windowManagerOptions: {
-			zFloor: 0,
 		},
 		presets: ORBS_PRESETS,
 	})
