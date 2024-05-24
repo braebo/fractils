@@ -60,7 +60,7 @@ export interface WindowManagerOptions {
 	 *
 	 * @see WindowManagerStorageOptions
 	 */
-	localStorage?: true | WindowManagerStorageOptions
+	localStorage?: boolean | WindowManagerStorageOptions
 }
 
 interface WindowManagerStorageOptions {
@@ -258,7 +258,6 @@ export class WindowManager {
 			}
 		}
 
-		// console.log(options?.localStorage)
 		// Resolve localStorage options.
 		if (typeof options?.localStorage !== 'undefined') {
 			if (options.localStorage === true) {
@@ -335,41 +334,42 @@ export class WindowInstance {
 		const dragOpts = opts.draggable
 		const resizeOpts = opts.resizable
 
-		opts.localStorage
-		// if (opts.localStorage !== false) {
-		// if (opts.localStorage) {
-		if (typeof dragOpts === 'object') {
-			const dragKeyParts = [] as string[]
-			if (typeof dragOpts.localStorageKey === 'undefined') {
-				if (typeof manager.opts.localStorage === 'object') {
-					dragKeyParts.push(manager.opts.localStorage.key)
-				} else {
-					dragKeyParts.push(WINDOWMANGER_STORAGE_DEFAULTS.key)
+		// Respect disabled localStorage for individual windows independently of the manager.
+		if (options?.localStorage === false) {
+			if (dragOpts) dragOpts.localStorageKey = undefined
+			if (resizeOpts) resizeOpts.localStorageKey = undefined
+		} else {
+			// Construct a unique draggable localStorage key for each window.
+			if (typeof dragOpts === 'object') {
+				const dragKeyParts = [] as string[]
+				if (typeof dragOpts.localStorageKey === 'undefined') {
+					if (typeof manager.opts.localStorage === 'object') {
+						dragKeyParts.push(manager.opts.localStorage.key)
+					} else {
+						dragKeyParts.push(WINDOWMANGER_STORAGE_DEFAULTS.key)
+					}
+				} else if (dragOpts.localStorageKey) {
+					dragKeyParts.push(dragOpts.localStorageKey)
 				}
-			} else if (dragOpts.localStorageKey) {
-				dragKeyParts.push(dragOpts.localStorageKey)
+				dragKeyParts.push('wm', `${this.manager.windows.size}`, 'position')
+				dragOpts.localStorageKey = dragKeyParts.join('::')
 			}
-			dragKeyParts.push('wm', `${this.manager.windows.size}`, 'position')
-			dragOpts.localStorageKey = dragKeyParts.join('::')
-		}
-
-		// if (resizeOpts) {
-		if (typeof resizeOpts === 'object') {
-			const resizeKeyParts = [] as string[]
-			if (typeof resizeOpts.localStorageKey === 'undefined') {
-				if (typeof manager.opts.localStorage === 'object') {
-					resizeKeyParts.push(manager.opts.localStorage.key)
-				} else {
-					resizeKeyParts.push(WINDOWMANGER_STORAGE_DEFAULTS.key)
+			// Construct a unique resizable localStorage key for each window.
+			if (typeof resizeOpts === 'object') {
+				const resizeKeyParts = [] as string[]
+				if (typeof resizeOpts.localStorageKey === 'undefined') {
+					if (typeof manager.opts.localStorage === 'object') {
+						resizeKeyParts.push(manager.opts.localStorage.key)
+					} else {
+						resizeKeyParts.push(WINDOWMANGER_STORAGE_DEFAULTS.key)
+					}
+				} else if (resizeOpts.localStorageKey) {
+					resizeKeyParts.push(resizeOpts.localStorageKey)
 				}
-			} else if (resizeOpts.localStorageKey) {
-				resizeKeyParts.push(resizeOpts.localStorageKey)
+				resizeKeyParts.push('wm', `${this.manager.windows.size}`, 'size')
+				resizeOpts.localStorageKey = resizeKeyParts.join('::')
 			}
-			// }
-			resizeKeyParts.push('wm', `${this.manager.windows.size}`, 'size')
-			resizeOpts.localStorageKey = resizeKeyParts.join('::')
 		}
-		// }
 
 		this.draggableInstance = new Draggable(node, dragOpts || { disabled: true })
 		this.resizableInstance = new Resizable(node, resizeOpts || { disabled: true })
