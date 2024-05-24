@@ -13,19 +13,16 @@
 @mixin scrollbar {
 	width: 5px;
 	height: 0px;
-	// transition: 0.15s;
 }
 
 @mixin scrollbarThumb {
 	background: var(--fracgui-controller_background);
 	border: none;
-	// transition: 0.15s;
 }
 
 @mixin scrollbarTrack {
 	background: var(--fracgui-folder-header_background);
 	border-bottom-right-radius: var(--fracgui-radius-sm);
-	// transition: 0.15s;
 }
 
 @mixin scrollable {
@@ -598,8 +595,6 @@
 	padding: 0;
 	margin: 0;
 
-	// background: var(--fracgui-bg-a);
-	// background: var(--fracgui-folder-header_background);
 	background: color-mix(
 		in sRGB,
 		var(--fracgui-folder-header_background) calc(var(--fracgui-opacity) / 4 * 100%),
@@ -607,7 +602,6 @@
 	);
 	color: var(--fracgui-controller-dim_color);
 	backdrop-filter: var(--fracgui-backdrop-filter);
-	// outline: 1px solid var(--fracgui-controller_outline);
 	outline: 1px solid var(--fracgui-bg-b);
 	border-radius: var(--fracgui-radius);
 	box-shadow:
@@ -619,12 +613,6 @@
 		-1.2px 30.6px 32.6px -2.9px hsla(var(--fracgui-shadow-lightness), 0.38);
 
 	z-index: 100;
-	// transition:
-	// 	all 0.2s cubic-bezier(0.23, 1, 0.32, 1),
-	// 	inset 0s;
-	// transition-duration: 0.2s;
-	// transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
-	// transition-property: opacity, transform, inset;
 	transition:
 		opacity 0.2s cubic-bezier(0.23, 1, 0.32, 1),
 		transform 0.2s cubic-bezier(0.23, 1, 0.32, 1);
@@ -658,25 +646,15 @@
 
 	transition-duration: 0.15s;
 	transition-property: background, color, filter;
-	// --fracgui-opacity: 0.25;
-	//! outline: 1px solid rgba(var(--fracgui-bg-d-rgb), 0);
-	// outline: 1px solid color-mix(in sRGB, var(--fracgui-bg-d) 10%, transparent);
 
 	&:hover,
 	&:focus-visible {
 		color: var(--fracgui-controller_color);
-		// background: var(--fracgui-folder_background);
 		background: color-mix(
 			in sRGB,
 			var(--fracgui-controller_background) 50%,
 			var(--fracgui-folder_background)
 		);
-		// background: var(--fracgui-bg-c);
-		// filter: contrast(1.1) brightness(1.25);
-		//! outline: 1px solid rgba(var(--fracgui-bg-d-rgb), 1);
-		// outline: 1px solid color-mix(in sRGB, var(--fracgui-bg-d) 25%, transparent);
-		// outline-offset: 1px;
-		// color: var(--fracgui-fg-a);
 	}
 
 	cursor: pointer;
@@ -693,15 +671,6 @@
 
 	&.selected,
 	&:hover {
-		// background: var(--fracgui-bg-c);
-		// background: var(--fracgui-folder_background);
-		// background: var(--fracgui-controller_background);
-		// background: var(--fracgui-controller_background);
-		// background: color-mix(
-		// 	in sRGB,
-		// 	var(--fracgui-controller_background) 50%,
-		// 	var(--fracgui-folder_background)
-		// );
 		color: var(--fracgui-fg-a);
 	}
 }
@@ -741,10 +710,6 @@ $icon-width: 1.5rem;
 $icon-height: 0.9rem;
 
 .fracgui-toolbar-item {
-	// outline: red;
-	// width: 2rem;
-	// height: 1.5rem;
-
 	svg {
 		max-height: 1rem;
 	}
@@ -766,7 +731,6 @@ $icon-height: 0.9rem;
 	padding: 0.25rem 0.1rem 0.25rem 0;
 
 	cursor: pointer;
-	// transition: 0.1s;
 
 	pointer-events: all;
 }
@@ -864,7 +828,6 @@ input.fracgui-search-input {
 	outline: none;
 	border: none;
 
-	// font-size: var(--fracgui-font-xxs);
 	font-size: calc(var(--fracgui-font-size) * 0.75);
 	caret-color: var(--fracgui-bg-e);
 	caret-shape: block;
@@ -1154,8 +1117,6 @@ input.fracgui-search-input {
 	color: var(--fracgui-fg-c);
 	background: var(--fracgui-drawer-toggle_background);
 	transition: background var(--fracgui-transition-duration);
-	//! box-shadow: -1px 0 1px 0.5px rgba(var(--fracgui-bg-a-rgb), 0.5) inset;
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	box-shadow: -1px 0 1px 0.5px color-mix(in sRGB, var(--fracgui-bg-a) 50%, transparent) inset;
 
 	border-top-right-radius: var(--fracgui-radius-sm);
@@ -1182,12 +1143,9 @@ input.fracgui-search-input {
 
 .fracgui-input-reset-btn {
 	contain: strict;
-	// --fracgui-resetbtn-gradstart: 10%;
-	// --fracgui-resetbtn-gradend: 33%;
 	--fracgui-resetbtn-gradstart: 5%;
 	--fracgui-resetbtn-gradend: 16%;
 	position: absolute;
-	// left: 3px;
 	right: 5px;
 	top: 0;
 	bottom: 0;
@@ -1195,7 +1153,7 @@ input.fracgui-search-input {
 	width: 20px;
 	height: 20px;
 	margin: auto 0;
-	// transform: translateX(-19px);
+
 	transform: translateX(0);
 
 	opacity: 0;
@@ -1229,7 +1187,6 @@ input.fracgui-search-input {
 }
 
 .fracgui-input-title {
-	// outline: 1px solid hsla(120, 100%, 25%, 0.2); // debug-outline
 	position: relative;
 	contain: content;
 
@@ -1258,18 +1215,11 @@ input.fracgui-search-input {
 	height: 0%;
 	min-height: var(--fracgui-input_height);
 
-	// color: var(--fracgui-input-container_color);
-	// background: var(--fracgui-input-container_background);
-	// background: var(--fracgui-input-container_background);
 	color: var(--fracgui-input-container_color);
-	// background: var(--fracgui-folder_background);
-	// background: var(--fracgui-input-container_background);
-
 	outline: var(--fracgui-input-container_outline);
 	box-shadow: var(--fracgui-input-container_box-shadow);
 
 	transition: opacity 0.15s ease-in 0.2s;
-	// all 0.15s,
 
 	$inverted-border-size: 0.5rem;
 	$inverted-border-radius: 0.25rem;
@@ -1313,7 +1263,6 @@ input.fracgui-search-input {
 	}
 
 	@at-root .fracgui-folder:not(:last-of-type) .fracgui-input-container:last-of-type {
-		// &:last-of-type {
 		border-bottom-left-radius: var(--fracgui-radius-sm);
 		border-bottom-right-radius: var(--fracgui-radius-sm);
 
@@ -1397,7 +1346,6 @@ input.fracgui-search-input {
 
 		width: 100%;
 		margin: 0;
-		// padding-right: 0.75rem;
 		padding-right: 0.5rem;
 
 		//? Number Input
@@ -1409,7 +1357,6 @@ input.fracgui-search-input {
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
-			// gap: 0.5rem;
 			padding-left: 1px;
 
 			width: 100%;
@@ -1452,7 +1399,6 @@ input.fracgui-search-input {
 					//- ?
 					background: transparent;
 
-					// transition: 0.1s;
 					transition-duration: var(--fracgui-transition-duration);
 					transition-property: color, background, box-shadow, opacity;
 
@@ -1464,7 +1410,6 @@ input.fracgui-search-input {
 						opacity: 0.1;
 
 						scale: 1;
-						// transition: 0.1s;
 						transition-duration: var(--fracgui-transition-duration);
 						transition-property: color, opacity;
 
@@ -1474,7 +1419,6 @@ input.fracgui-search-input {
 
 					&:hover,
 					&:active {
-						// background: var(--fracgui-controller_background);
 						opacity: 1;
 						box-shadow: 0px 0px 1px 0px hsl(0, 0%, 0%) inset;
 						@at-root .fracgui-root[mode='light'] & {
@@ -1487,17 +1431,8 @@ input.fracgui-search-input {
 					}
 
 					&:active {
-						// opacity: 1;
-						// box-shadow: 0px 0px 1px 1px hsl(0, 0%, 5%) inset;
-						// @at-root .fracgui-root[mode='light'] & {
-						// 	box-shadow: 0px 0px 2px 1px hsl(0, 0%, 90%) inset;
-						// }
-
 						svg {
-							// opacity: 1;
 							color: var(--fracgui-theme-a);
-							//? svg shadow glow.
-							// filter: drop-shadow(0 0 3px var(--fracgui-theme-a));
 						}
 					}
 				}
@@ -1539,8 +1474,6 @@ input.fracgui-search-input {
 				opacity: 1;
 			}
 			&:active {
-				// background: rgba(var(--fracgui-theme-a-rgb), 0.1);
-				// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 				background: color-mix(
 					in lch,
 					var(--fracgui-theme-a),
@@ -1621,7 +1554,6 @@ input.fracgui-search-input {
 
 			@include fontMono;
 
-			// transition: 0.1s;
 			transition-duration: var(--fracgui-transition-duration);
 			transition-property: color, background, box-shadow;
 			overflow: visible;
@@ -1635,9 +1567,7 @@ input.fracgui-search-input {
 			}
 
 			&.dragging {
-				//! outline: 1px solid rgba(var(--fracgui-theme-a-rgb), 0.5);
 				outline: 1px solid color-mix(in sRGB, var(--fracgui-theme-a) 50%, transparent);
-				//! box-shadow: 0 0 0.75rem rgba(var(--fracgui-theme-a-rgb), transparent 0.33);
 				box-shadow: 0 0 0.75rem color-mix(in sRGB, var(--fracgui-theme-a) 33%, transparent);
 			}
 		}
@@ -1657,17 +1587,6 @@ input.fracgui-search-input {
 				width: 100%;
 				max-width: unset;
 				height: 1.25rem;
-
-				// color: var(--fracgui-controller-dim_color);
-				// color: color-mix(
-				// 	in lch,
-				// 	var(--fracgui-controller_color),
-				// 	var(--fracgui-controller-dim_color)
-				// );
-				// background: var(--fracgui-controller-dim_background);
-				// background-image: var(--fracgui-controller_background-image);
-				// box-shadow: var(--fracgui-input-content_box-shadow);
-				// border-radius: var(--fracgui-radius-sm);
 
 				border: none;
 				outline: var(--fracgui-controller_outline);
@@ -1829,8 +1748,6 @@ input.fracgui-search-input {
 					}
 
 					&.expanded {
-						// margin-bottom: 0.25rem;
-
 						.fracgui-input-color-picker-handle {
 							opacity: 1;
 							transition-delay: 0s, 0.25s;
@@ -1957,7 +1874,6 @@ input.fracgui-search-input {
 						}
 
 						font-size: var(--fracgui-font-size);
-						// font-family: var(--fracgui-font-family);
 
 						span {
 							transition: 0.4s;
@@ -1965,7 +1881,6 @@ input.fracgui-search-input {
 						}
 
 						.fracgui-controller-select-selected {
-							// font-size: var(--fracgui-input_font-size);
 							font-size: calc(var(--fracgui-font-size) * 0.8);
 						}
 					}
@@ -2106,7 +2021,6 @@ input.fracgui-search-input {
 
 				border-radius: var(--fracgui-radius-sm);
 				overflow: hidden;
-				// contain: none;
 				border: none;
 				outline: none;
 
@@ -2117,27 +2031,20 @@ input.fracgui-search-input {
 				&:focus-visible {
 					&:not(:disabled) {
 						color: var(--fracgui-controller_color);
-						// background: var(--fracgui-controller_background);
 					}
 				}
 
 				box-shadow:
 					-1px 1px 7px 0px #000f inset,
 					-1px 1px 1px 0px #000c inset;
-				// background: var(--fracgui-controller-dim_background);
 				background: var(--fracgui-input-number-range_background);
 				background-image: radial-gradient(
 					circle at 25% 50% in lab,
 					var(--fracgui-theme-a) 0%,
-					//! rgba(var(--fracgui-theme-a-rgb), 0.5) 3%,
 					color-mix(in sRGB, var(--fracgui-theme-a) 50%, transparent) 3%,
-					//! rgba(var(--fracgui-theme-a-rgb), 0.2) 10%,
 					color-mix(in sRGB, var(--fracgui-theme-a) 20%, transparent) 10%,
-					//! rgba(var(--fracgui-theme-a-rgb), 0.15) 20%,
 					color-mix(in sRGB, var(--fracgui-theme-a) 15%, transparent) 20%,
-					//! rgba(var(--fracgui-theme-a-rgb), 0.1) 30%,
 					color-mix(in sRGB, var(--fracgui-theme-a) 10%, transparent) 30%,
-					//! rgba(var(--fracgui-theme-a-rgb), 0.1) 50%,
 					color-mix(in sRGB, var(--fracgui-theme-a) 10%, transparent) 50%,
 					var(--fracgui-input-number-range_background) 100%
 						// var(--fracgui-controller-dim_background) 100%
@@ -2151,15 +2058,10 @@ input.fracgui-search-input {
 					background-image: radial-gradient(
 						circle at 25% 50% in lab,
 						var(--fracgui-theme-a) 3%,
-						//! rgba(var(--fracgui-theme-a-rgb), 0.4) 3%,
 						color-mix(in sRGB, var(--fracgui-theme-a) 40%, transparent) 3%,
-						//! rgba(var(--fracgui-theme-a-rgb), 0.3) 10%,
 						color-mix(in sRGB, var(--fracgui-theme-a) 30%, transparent) 10%,
-						//! rgba(var(--fracgui-theme-a-rgb), 0.2) 20%,
 						color-mix(in sRGB, var(--fracgui-theme-a) 20%, transparent) 20%,
-						//! rgba(var(--fracgui-theme-a-rgb), 0.1) 30%,
 						color-mix(in sRGB, var(--fracgui-theme-a) 10%, transparent) 30%,
-						//! rgba(var(--fracgui-theme-a-rgb), 0.05) 50%,
 						color-mix(in sRGB, var(--fracgui-theme-a) 5%, transparent) 50%,
 						var(--fracgui-input-number-range_background) 100%
 							// var(--fracgui-controller-dim_background) 100%
@@ -2180,7 +2082,6 @@ input.fracgui-search-input {
 					width: 100%;
 					height: 100%;
 
-					// background: var(--fracgui-controller-dim_background);
 					background: var(--fracgui-input-number-range_background);
 					box-shadow:
 						-1px 1px 7px 0px #000c inset,
@@ -2237,7 +2138,6 @@ input.fracgui-search-input {
 						right: 10%;
 						box-shadow:
 							-2px 0px #00000069,
-							//! -2px 0px rgba(var(--fracgui-theme-a-rgb), 0.1),
 							-2px 0px color-mix(in sRGB, var(--fracgui-theme-a) 10%, transparent),
 							1px -1px 1px #0002 inset;
 
@@ -2282,14 +2182,12 @@ input.fracgui-search-input {
 					color: var(--fracgui-theme-a);
 
 					font-variation-settings: 'wght' 800;
-					// outline: 1px solid var(--fracgui-controller-active_background);
 				}
 				@at-root .fracgui-root[mode='light'] & {
 					background: var(--fracgui-controller-dim_background);
 					color: var(--fracgui-controller_color);
 					&.active {
 						color: var(--fracgui-theme-a);
-						// background: var(--fracgui-bg-e);
 						background: var(--fracgui-controller_background);
 					}
 				}
@@ -2307,12 +2205,7 @@ input.fracgui-search-input {
 		.fracgui-input-number-container {
 			.fracgui-input-number-buttons-container {
 				.fracgui-input-number-button {
-					// background: initial;
-					// opacity: 1;
-					// background: var(--fracgui-controller_background);
-
 					svg {
-						// opacity: 1;
 						opacity: 0.75;
 					}
 				}
@@ -2351,14 +2244,10 @@ input.fracgui-search-input {
 				box-sizing: content-box;
 
 				background: var(--fracgui-controller-dim_background);
-				// background: var(--fracgui-controller_background);
-				// border-radius: var(--fracgui-radius-xs);
 
 				border-width: 1px;
 				border-style: solid;
 				border-color: transparent;
-
-				// font-family: var(--fracgui-font-family);
 
 				//? chevron icon
 				&::before {
@@ -2371,7 +2260,7 @@ input.fracgui-search-input {
 
 					color: var(--fracgui-bg-d);
 					transform: rotate(90deg) translateX(0);
-					// transition: 0.2s;
+
 					transition-duration: var(--fracgui-transition-duration);
 					transition-property: color, transform, border-color;
 				}
@@ -2404,82 +2293,6 @@ input.fracgui-search-input {
 					}
 				}
 			}
-
-			// // The dropdown portals to the body to escape the root's containment clipping.
-			// @at-root body {
-			// 	@keyframes dropdown {
-			// 		from {
-			// 			transform: translateY(0rem);
-			// 		}
-			// 		to {
-			// 			transform: translateY(0.25rem);
-			// 		}
-			// 	}
-
-			// 	.fracgui-controller-select-dropdown {
-			// 		// transform: translateY(0);
-			// 		// &.expanded {
-			// 		// 	animation: dropdown 0.15s forwards;
-			// 		// }
-
-			// 		// todo - We can't use the theme vars (cus portal).  Will need to fix this.
-			// 		// background: var(--fracgui-controller_background);
-			// 		// backdrop-filter: blur(var(--fracgui-root-blur));
-			// 		// .fracgui-controller-select-option:hover {
-			// 		// background: var(fracgui-input-dim_background);
-			// 		// }
-
-			// 		// color: var(--fracgui-light-a);
-			// 		// background: color-mix(in lch, var(--fracgui-dark-a) 60%, transparent);
-			// 		// backdrop-filter: blur(5px);
-			// 		// backdrop-filter: var(--fracgui-backdrop-filter);
-			// 		// outline: 1px solid;
-			// 		// outline-color: var(--fracgui-dark-b);
-			// 		// outline-color: var(--fracgui-controller_outline);
-
-			// 		//! background: var(--fracgui-folder-header_background);
-
-			// 		// color: var(--fracgui-controller-dim_color);
-			// 		// background: var(--fracgui-folder_background);
-			// 		// outline-color: var(--fracgui-controller_outline);
-			// 		// backdrop-filter: var(--fracgui-backdrop-filter);
-
-			// 		.fracgui-controller-select-option:hover {
-			// 			color: var(--fracgui-controller_color);
-			// 			background: var(--fracgui-folder_background);
-			// 			// background: red;
-			// 			// color: var(--fracgui-light-a);
-			// 			// background: color-mix(in lch, var(--fracgui-dark-c), transparent);
-			// 			// outline-color: var(--fracgui-dark-b);
-			// 		}
-			// 	}
-			// 	// &:has(.fracgui-root[mode='light']) {
-			// 	// 	.fracgui-controller-select-dropdown {
-			// 	// 		// color: var(--fracgui-dark-b);
-			// 	// 		// background: color-mix(in lch, var(--fracgui-light-a) 60%, transparent);
-			// 	// 		// outline-color: var(--fracgui-light-b);
-
-			// 	// 		.fracgui-controller-select-option:hover {
-			// 	// 			// color: var(--fracgui-dark-a);
-			// 	// 			// background: color-mix(in lch, var(--fracgui-light-d) 60%, transparent);
-			// 	// 			// outline-color: var(--fracgui-light-d);
-			// 	// 		}
-			// 	// 	}
-			// 	// }
-			// }
-
-			// &:has([disabled]) {
-			// 	pointer-events: none;
-			// 	opacity: 0.75;
-			// 	filter: brightness(0.75);
-			// 	.fracgui-controller-select-selected {
-			// 		background: var(--fracgui-controller-dim_background);
-			// 		color: var(--fracgui-fg-e);
-			// 		&::before {
-			// 			color: var(--fracgui-controller-dim_color);
-			// 		}
-			// 	}
-			// }
 		}
 	}
 }
