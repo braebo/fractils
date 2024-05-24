@@ -14,6 +14,7 @@
 
 	let gui: Gui
 	let ready = false
+	let orbs = true
 
 	onMount(() => {
 		params.update(p => {
@@ -64,7 +65,7 @@
 	<button on:click={() => console.log(gui)}>Log Gui</button>
 	<button on:click={() => localStorage.clear()}>Clear localStorage</button> -->
 
-	{#if ready}
+	{#if ready && orbs}
 		<div class="orbs">
 			<Orbs {params} />
 		</div>
