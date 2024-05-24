@@ -446,6 +446,8 @@ export class Themer {
 		this.#applyStyleProps(theme, targets)
 		this.node.setAttribute('theme', theme.title)
 		this.node.setAttribute('mode', this.activeMode)
+		this.wrapper?.setAttribute('theme', theme.title)
+		this.wrapper?.setAttribute('mode', this.activeMode)
 
 		return this
 	}
