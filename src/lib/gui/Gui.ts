@@ -780,36 +780,24 @@ export class Gui {
 		return button
 	}
 
+	// todo - convert this crap to an 'alt' class
 	applyAltStyle(folder: Folder) {
-		// alert('applyAltStyle')
 		this._setVar(
 			folder.elements.content,
 			`box-shadow`,
 			`0px 0px 10px 0px hsl(10deg, 0%, var(--${VAR_PREFIX}-shadow-lightness), inset`,
 		)
 
-		// folder.elements.content.style.setProperty('--fracgui-folder_background', `color-mix(in sRGB, var(--${VAR_PREFIX}-bg-b) 75%, transparent)`, 'important')
-		// folder.elements.contentWrapper.style.background = `color-mix(in sRGB, var(--${VAR_PREFIX}-bg-b) 75%, transparent)`
-		folder.elements.content.style.setProperty(
-			'background',
-			// `--${VAR_PREFIX}-input-container_background`,
-			`--${VAR_PREFIX}-folder_background`,
-		)
+		folder.elements.content.style.setProperty('background', `--${VAR_PREFIX}-folder_background`)
 
 		this._setProps(folder.element, [
-			['background', `color-mix(in sRGB, var(--${VAR_PREFIX}-bg-b) 100%, transparent)`]
+			['background', `color-mix(in sRGB, var(--${VAR_PREFIX}-bg-b) 100%, transparent)`],
 		])
 
-		// todo - Are any of these doing anything post-refactor?
 		switch (this.themer?.activeMode) {
 			case 'dark': {
-				// this._setProps(folder.element, [
 				this._setVars(folder.elements.contentWrapper, [
 					//- ['input-container_background', `var(--${VAR_PREFIX}-bg-b)`],
-					// [
-					// 	'folder_background',
-					// 	`color-mix(in sRGB, var(--${VAR_PREFIX}-bg-b) 75%, transparent)`,
-					// ],
 					['input-container_color', `var(--${VAR_PREFIX}-fg-b)`],
 					[
 						'folder-header_background',
@@ -823,32 +811,17 @@ export class Gui {
 						'controller_background',
 						`color-mix(in sRGB, var(--${VAR_PREFIX}-bg-c) 50%, transparent)`,
 					],
-					// [
-					// 	'controller_outline',
-					// 	`color-mix(in sRGB, var(--${VAR_PREFIX}-bg-a) 50%, transparent)`,
-					// ],
 				])
 
 				break
 			}
 			case 'light': {
-				// this._setVars(folder.element, [
 				this._setVars(folder.elements.contentWrapper, [
-					// ['input-container_background', `color-mix(in sRGB, var(--${VAR_PREFIX}-bg-b) 75%, transparent)`],
-					// [
-					// 	'folder_background',
-					// 	`color-mix(in sRGB, var(--${VAR_PREFIX}-bg-b) 75%, transparent)`,
-					// ],
-					// ['input-container_color', `var(--${VAR_PREFIX}-fg-b)`],
 					[
 						'folder-header_background',
 						`color-mix(in sRGB, var(--${VAR_PREFIX}-bg-a) 60%, transparent)`,
 					],
-					[
-						'controller_background',
-						// `color-mix(in sRGB, var(--${VAR_PREFIX}-bg-a) 75%, transparent)`,
-						`var(--${VAR_PREFIX}-light-a)`,
-					],
+					['controller_background', `var(--${VAR_PREFIX}-light-a)`],
 				])
 				break
 			}
