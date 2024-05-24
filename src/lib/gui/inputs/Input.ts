@@ -303,11 +303,12 @@ export abstract class Input<
 
 		this.elements.resetBtn = create('div', {
 			classes: ['fracgui-input-reset-btn'],
-			parent: this.elements.content,
+			// parent: this.elements.content,
+			parent: this.elements.title,
 			tooltip: {
 				text: 'Reset',
 				placement: 'left',
-				delay: 1000,
+				delay: 0,
 			},
 			onclick: () => {
 				this.__log.fn('reset').debug('resetting to initial value', this.initialValue)
