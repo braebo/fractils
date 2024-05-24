@@ -3,31 +3,33 @@ import { deepMergeOpts } from './deepMergeOpts'
 export type MaybeBooleanOrT<T> = T | boolean
 
 /**
- *
- * @param optionsOrBoolean The provided options or a boolean value.
- * @param defaultOptions The fallback options to use if {@link optionsOrBoolean} is `true`.  If
- * {@link optionsOrBoolean} is an object, it will be merged with these defaults.
- * @returns
+ * - If {@link maybeT} is `undefined`, returns {@link tDefaults}.
+ * - If {@link maybeT} is `true`, returns {@link tDefaults}.
+ * - If {@link maybeT} is `false`, returns `false`.
+ * - If {@link maybeT} is an object, it's returned merged with {@link tDefaults}.
+ * @param maybeT The provided options or a boolean value.
+ * @param tDefaults The fallback options to use if {@link maybeT} is `true`.  If
+ * {@link maybeT} is an object, it will be merged with these defaults.
  */
 export function resolveOpts<T extends {}>(
-	optionsOrBoolean: MaybeBooleanOrT<Partial<T>> | undefined,
-	defaultOptions: T,
+	maybeT: MaybeBooleanOrT<Partial<T>> | undefined,
+	tDefaults: T,
 ): T | false {
-	if (typeof optionsOrBoolean === 'undefined') {
-		return defaultOptions
+	if (typeof maybeT === 'undefined') {
+		return tDefaults
 	}
 
-	if (optionsOrBoolean === true) {
-		return defaultOptions
+	if (maybeT === true) {
+		return tDefaults
 	}
 
-	if (optionsOrBoolean === false) {
+	if (maybeT === false) {
 		return false
 	}
 
-	if (typeof optionsOrBoolean === 'object') {
-		return deepMergeOpts([defaultOptions, optionsOrBoolean], { concatArrays: false })
+	if (typeof maybeT === 'object') {
+		return deepMergeOpts([tDefaults, maybeT], { concatArrays: false })
 	}
 
-	return optionsOrBoolean
+	return maybeT
 }
