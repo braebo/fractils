@@ -450,30 +450,6 @@ export class Gui {
 		// In case dispose() was called before this resolved...
 		if (!this.container) return
 
-		// Append a non-animating, full-size clone to get the proper rect.
-		const ghost = this.wrapper.cloneNode(true) as HTMLElement
-		ghost.style.visibility = 'hidden'
-		this.container.prepend(ghost)
-
-		// This is the only way to get the correct future rect afaik 😅
-		const rect = ghost.children[0].getBoundingClientRect()
-		ghost.remove()
-		if (this.opts.positionOptions && typeof this.opts.position === 'string') {
-			const placementPosition = place(rect, this.opts.position, {
-				bounds: this.opts.positionOptions.bounds ?? this.container,
-				margin: this.opts.positionOptions.margin,
-			})
-
-			if (this.windowManager) {
-				;[...this.windowManager.windows]
-					.at(-1)?.[1]
-					?.draggableInstance?.moveTo(placementPosition, 0)
-			} else {
-				// todo - i imagine this folder element shouldn't be positioned if it has no window manager... but when I disabled all logic here, the folder position was top and centered, which I'm not sure is correct (might be though..).  Anyways, if the position option was provided but the window manager is disabled, we should probably set the position here.  Or, should we just enforce the window manager and use it for positioning?
-				console.error('//TODO')
-			}
-		}
-
 		// Now that we're in position and inputs are loaded, we can animate-in.
 		this.container.appendChild(this.wrapper)
 		this.folder.element.animate([{ opacity: 0 }, { opacity: 1 }], {
