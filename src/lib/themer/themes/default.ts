@@ -27,7 +27,8 @@ export default resolveTheme({
 		},
 		core: {
 			light: {
-				'controller-dim_background': 'rgba(var(--fracgui-bg-a-rgb), 0.75)',
+				// 'controller-dim_background': 'rgba(var(--fracgui-bg-a-rgb), 0.75)',
+				'controller-dim_background': 'color-mix(in sRGB, var(--fracgui-bg-a) 75%, transparent)',
 			},
 		},
 	},

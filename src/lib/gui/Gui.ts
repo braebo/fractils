@@ -2,6 +2,7 @@ import './styles/gui.scss'
 
 import type { WindowManagerOptions } from '../utils/windowManager'
 import type { Placement, PlacementOptions } from '../dom/place'
+import type { JavascriptStyleProperty } from '../css/types'
 import type { ResizableOptions } from '../utils/resizable'
 import type { DraggableOptions } from '../utils/draggable'
 import type { Theme, ThemeMode } from '../themer/types'
@@ -19,15 +20,15 @@ import settingsIcon from './svg/settings-icon.svg?raw'
 import { deepMergeOpts } from './shared/deepMergeOpts'
 import { resolveOpts } from './shared/resolveOpts'
 import { PresetManager } from './PresetManager'
+import { VAR_PREFIX } from './styles/GUI_VARS'
+import { GUI_VARS } from './styles/GUI_VARS'
 import { UndoManager } from './UndoManager'
 import { nanoid } from '../utils/nanoid'
 import { isType } from '../utils/isType'
 import { Logger } from '../utils/logger'
 import { create } from '../utils/create'
-import { VAR_PREFIX } from './styles/GUI_VARS'
 import { state } from '../utils/state'
 import { BROWSER } from '../utils/env'
-import { GUI_VARS } from './styles/GUI_VARS'
 import { place } from '../dom/place'
 import { isMac } from '../utils/ua'
 import { Folder } from './Folder'
@@ -147,39 +148,37 @@ export interface GuiStorageOptions {
 
 	/**
 	 * Prefix to use for localStorage keys.
-	 * @defaultValue "fractils::gui"
+	 * @defaultValue `"fractils::gui"`
 	 */
 	key: string
 
 	/**
 	 * Whether to persist the folder's expanded state.
-	 * @defaultValue true
+	 * @defaultValue `true`
 	 */
 	closed?: boolean
 
 	/**
 	 * Whether to persist the theme.
-	 * @defaultValue true
+	 * @defaultValue `true`
 	 */
 	theme?: boolean
 
 	/**
 	 * Whether to persist the gui's position.
-	 * @defaultValue false
-	 * /// todo - implement this! // edit - I think this works now, no?
+	 * @defaultValue `false`
 	 */
 	position?: boolean
 
 	/**
 	 * Whether to persist the gui's size.
-	 * @defaultValue false
-	 * /// todo - implement this! // edit - I think this works now, no?
+	 * @defaultValue `false`
 	 */
 	size?: boolean
 
 	/**
 	 * Whether to persist the gui's presets.
-	 * @defaultValue true
+	 * @defaultValue `true`
 	 */
 	presets?: boolean
 }
@@ -782,30 +781,70 @@ export class Gui {
 	}
 
 	applyAltStyle(folder: Folder) {
-		this._setProp(
+		this._setVar(
 			folder.elements.content,
 			`box-shadow`,
 			`0px 0px 10px 0px hsl(10deg, 0%, var(--${VAR_PREFIX}-shadow-lightness), inset`,
 		)
 
+		// folder.elements.content.style.setProperty('--fracgui-folder_background', `color-mix(in sRGB, var(--${VAR_PREFIX}-bg-b) 75%, transparent)`, 'important')
+		// folder.elements.contentWrapper.style.background = `color-mix(in sRGB, var(--${VAR_PREFIX}-bg-b) 75%, transparent)`
+		folder.elements.content.style.setProperty(
+			'background',
+			// `--${VAR_PREFIX}-input-container_background`,
+			`--${VAR_PREFIX}-folder_background`,
+		)
+
+		this._setProps(folder.element, [
+			['background', `color-mix(in sRGB, var(--${VAR_PREFIX}-bg-b) 100%, transparent)`]
+		])
+
+		// todo - Are any of these doing anything post-refactor?
 		switch (this.themer?.activeMode) {
 			case 'light': {
-				this._setProps(folder.element, [
-					['input-container_background', `rbga(var(--${VAR_PREFIX}-bg-b-rgb), 0.75)`],
+				this._setVars(folder.element, [
+					// ['input-container_background', `color-mix(in sRGB, var(--${VAR_PREFIX}-bg-b) 75%, transparent)`],
+					[
+						'folder_background',
+						`color-mix(in sRGB, var(--${VAR_PREFIX}-bg-b) 75%, transparent)`,
+					],
 					['input-container_color', `var(--${VAR_PREFIX}-fg-b)`],
-					['folder-header_background', `rgba(var(--${VAR_PREFIX}-bg-a-rgb), 0.6)`],
-					['controller_background', `rgba(var(--${VAR_PREFIX}-bg-a-rgb), 0.75)`],
+					[
+						'folder-header_background',
+						`color-mix(in sRGB, var(--${VAR_PREFIX}-bg-a) 60%, transparent)`,
+					],
+					[
+						'controller_background',
+						`color-mix(in sRGB, var(--${VAR_PREFIX}-bg-a) 75%, transparent)`,
+					],
 				])
 				break
 			}
 			case 'dark': {
-				this._setProps(folder.element, [
-					['input-container_background', `var(--${VAR_PREFIX}-bg-b)`],
+				// this._setProps(folder.element, [
+				this._setVars(folder.elements.contentWrapper, [
+					// ['input-container_background', `var(--${VAR_PREFIX}-bg-b)`],
+					[
+						'folder_background',
+						`color-mix(in sRGB, var(--${VAR_PREFIX}-bg-b) 75%, transparent)`,
+					],
 					['input-container_color', `var(--${VAR_PREFIX}-fg-b)`],
-					['folder-header_background', `rgba(var(--${VAR_PREFIX}-bg-a-rgb), 0.75)`],
-					['controller-dim_background', `rgba(var(--${VAR_PREFIX}-bg-a-rgb), 0.5)`],
-					['controller_background', `rgba(var(--${VAR_PREFIX}-bg-c-rgb), 0.5)`],
-					['controller_outline', `rgba(var(--${VAR_PREFIX}-bg-a-rgb), 0.5)`],
+					[
+						'folder-header_background',
+						`color-mix(in sRGB, var(--${VAR_PREFIX}-bg-a) 75%, transparent)`,
+					],
+					[
+						'controller-dim_background',
+						`color-mix(in sRGB, var(--${VAR_PREFIX}-bg-a) 50%, transparent)`,
+					],
+					[
+						'controller_background',
+						`color-mix(in sRGB, var(--${VAR_PREFIX}-bg-c) 50%, transparent)`,
+					],
+					[
+						'controller_outline',
+						`color-mix(in sRGB, var(--${VAR_PREFIX}-bg-a) 50%, transparent)`,
+					],
 				])
 
 				break
@@ -813,7 +852,13 @@ export class Gui {
 		}
 	}
 
-	private _setProp(el: HTMLElement, key: keyof PropertiesHyphen | (string & {}), value: string) {
+	private _setProps(el: HTMLElement, props: [JavascriptStyleProperty | (string & {}), string][]) {
+		for (const [k, v] of props) {
+			el.style.setProperty(k, v)
+		}
+	}
+
+	private _setVar(el: HTMLElement, key: keyof PropertiesHyphen | (string & {}), value: string) {
 		el.style.setProperty(`--${VAR_PREFIX}-${key}`, value)
 		Promise.resolve().then(() => {
 			if (!el.style.getPropertyValue(`--${VAR_PREFIX}-${key}`)) {
@@ -821,9 +866,9 @@ export class Gui {
 			}
 		})
 	}
-	private _setProps(el: HTMLElement, props: [keyof PropertiesHyphen | (string & {}), string][]) {
+	private _setVars(el: HTMLElement, props: [keyof PropertiesHyphen | (string & {}), string][]) {
 		for (const [key, value] of props) {
-			this._setProp(el, key, value)
+			this._setVar(el, key, value)
 		}
 	}
 

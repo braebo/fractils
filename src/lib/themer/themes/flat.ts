@@ -25,5 +25,10 @@ export default resolveTheme({
 			dark: {},
 			light: {},
 		},
+		core: {
+			dark: {
+				'input-number-range_outline': `1px solid color-mix(in sRGB, var(--fracgui-bg-c) 33%, transparent)`,
+			},
+		},
 	},
 } as const satisfies ThemeDefinition)

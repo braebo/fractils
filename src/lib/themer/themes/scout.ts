@@ -33,7 +33,8 @@ export default resolveTheme({
 		},
 		core: {
 			dark: {
-				'input-container_background': 'rgba(var(--fracgui-bg-a-rgb), 0.5)',
+				// 'input-container_background': 'color-mix(in sRGB, var(--fracgui-bg-a) 50%, transparent)',
+				'folder-header_background': 'color-mix(in sRGB, var(--fracgui-bg-a) 100%, transparent)',
 			},
 			light: {
 				'controller-dim_background': '#96a09c',

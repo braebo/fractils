@@ -1,4 +1,4 @@
-import type { ThemeVars, StructuredVars } from '../../css/custom-properties'
+import type { ThemeVars } from '../../css/custom-properties'
 import type { ColorTheme, ThemeMode } from '../../themer/types'
 
 import { VAR_PREFIX, GUI_VARS } from './GUI_VARS'
@@ -12,7 +12,7 @@ const here = new URL('.', import.meta.url).pathname
 
 console.clear()
 
-const test = destructureVars(GUI_VARS as any, VAR_PREFIX)
+const test = flattenAllVars(GUI_VARS as any, VAR_PREFIX)
 
 const css = `
 .fracgui-root ${j(test['base'])}
@@ -43,14 +43,14 @@ const all = Object.assign(...counts)
 
 // @ts-expect-error
 const sorted = Object.fromEntries(Object.entries(all).sort((a, b) => b[1] - a[1]))
-console.log(sorted)
+// console.log(sorted)
 
 writeFileSync(join(here, 'gui-vars-counts.json'), JSON.stringify(sorted, null, 2))
 
 /**
- * Destructures {@link StructuredVars} into a flat object of CSS variables.
+ * Destructures theme vars into a flat object of CSS variables.
  */
-function destructureVars(vars: Record<string, ThemeVars>, prefix: string) {
+function flattenAllVars(vars: Record<string, ThemeVars>, prefix: string) {
 	const destructureMode = (mode: ThemeMode) => {
 		const allVars = {} as Record<string, any>
 
