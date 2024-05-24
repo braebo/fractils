@@ -10,7 +10,8 @@ export const VAR_PREFIX = 'fracgui' as const
 const GUI_VARS_UTILITY: ThemeVars = {
 	base: {
 		'font-family': "'fredoka', sans-serif",
-		'font-size': 'clamp(0.75rem, 3vw, 1.1rem)',
+		// 'font-size': 'clamp(0.75rem, 3vw, 1.1rem)',
+		'font-size': 'clamp(0.75rem, 3vw, 1rem)',
 		'shadow-lightness': '0%',
 		'shadow-opacity': '0.2',
 		'shadow-color': `hsla(250, 10%, var(--${VAR_PREFIX}-shadow-lightness), var(--${VAR_PREFIX}-shadow-opacity))`,
@@ -44,15 +45,16 @@ const GUI_VARS_STRUCTURED: ThemeVars = {
 			'backdrop-filter': 'blur(0.5rem)',
 			// 'box-shadow': `0 1px 1.5px 0.5px rgba(var(--${VAR_PREFIX}-bg-d-rgb), 0.25) inset`,
 			header: {
-				height: '2rem',
-				'font-size': 'clamp(0.9rem, 4vw, 1rem)',
+				// height: '2rem',
+				height: '1.75rem',
+				// 'font-size': 'clamp(0.9rem, 4vw, 1rem)',
 			},
 		},
 		header: {
 			height: '1.75rem',
 			// 'font-family': "'fredoka', sans-serif",
 			// 'font-size': `var(--${VAR_PREFIX}-font-size)`,
-			'font-size': 'clamp(0.9rem, 4vw, 1rem)',
+			// 'font-size': 'clamp(0.9rem, 4vw, 1rem)',
 			// 'font-weight': '500',
 			// 'letter-spacing': '0.125rem',
 		},
