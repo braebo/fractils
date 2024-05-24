@@ -1,8 +1,9 @@
 // The custom-regions extension is recommended for this file.
 
-import type { InputOptions, InputPreset, InputType, ValidInput } from './inputs/Input'
+import type { Input, InputOptions, InputPreset, InputType, ValidInput } from './inputs/Input'
 import type { Option } from './controllers/Select'
 import type { Tooltip } from '../actions/tooltip'
+import type { GuiPreset } from './Gui'
 
 import { InputButtonGrid, type ButtonGridInputOptions } from './inputs/InputButtonGrid'
 import { InputSwitch, type SwitchInputOptions } from './inputs/InputSwitch'
@@ -26,6 +27,8 @@ import { toFn } from '../utils/toFn'
 import { DEV } from '../utils/env'
 import { Gui } from './Gui'
 
+//· Types ························································································¬
+
 export interface FolderOptions {
 	__type?: 'FolderOptions'
 
@@ -37,7 +40,7 @@ export interface FolderOptions {
 
 	/**
 	 * The title of the folder.
-	 * @default ''
+	 * @defaultValue `''`
 	 */
 	title?: string
 
@@ -80,20 +83,17 @@ export interface FolderOptions {
 	 * Whether this Folder should be saved as a {@link FolderPreset} when saving the
 	 * {@link GuiPreset} for the {@link Gui} this Folder belongs to.  If `false`, this Input will
 	 * be skipped.
-	 * @default true
+	 * @defaultValue `true`
 	 */
 	saveable?: boolean
-}
 
-const FOLDER_DEFAULTS = Object.freeze({
-	presetId: '',
-	title: '',
-	children: [],
-	closed: false,
-	hidden: false,
-	controls: new Map(),
-	saveable: true,
-}) satisfies Omit<FolderOptions, 'container'>
+	/**
+	 * When `true`, a search input will be added to the folder's toolbar, allowing users to search
+	 * for inputs within the folder by title.  By default, only the root folder is searchable.
+	 * @defaultValue `false`
+	 */
+	searchable?: boolean
+}
 
 /**
  * @internal
@@ -116,34 +116,24 @@ export interface InternalFolderOptions {
 	 * creating a `new Folder()`. Always false inside of the
 	 * `gui.addFolder` and `folder.addFolder` methods.
 	 * Be wary of infinite loops when setting manually.
-	 * @default true
+	 * @defaultValue `true`
 	 * @internal
 	 */
 	isRoot: boolean
 
 	/**
-	 * Bypasses the folder open/close animations.
+	 * Temporarily bypasses the folder open/close animations upon creation.
+	 * @internal
 	 */
-	instant: boolean
+	_skipAnimations: boolean
 
 	/**
 	 * Hides the folder header.
-	 * @default false
+	 * @defaultValue `false`
+	 * @internal
 	 */
-	headerless: boolean
+	_headerless: boolean
 }
-
-/**
- * Internal folder creation api defaults.
- */
-const INTERNAL_FOLDER_DEFAULTS = {
-	__type: 'InternalFolderOptions',
-	parentFolder: undefined,
-	isRoot: true,
-	instant: true,
-	gui: undefined,
-	headerless: false,
-} as const satisfies InternalFolderOptions
 
 /**
  * A folder preset stores the state of a folder and all of its inputs, as well as the state of all
@@ -175,46 +165,105 @@ export interface FolderEvents {
 	 * When any input in the folder changes, this event emits the input that changed.
 	 */
 	change: ValidInput
+
 	/**
 	 * When the folder is opened or closed, this event emits the new
 	 * {@link Folder.closed | `closed`} state.
 	 */
 	toggle: Folder['closed']['value']
+
 	/**
 	 * Fires when {@link Folder.refresh} is called.
 	 */
 	refresh: void
+
 	/**
 	 * Fired after the folder and all of it's children/graphics have been mounted.
 	 */
 	mount: void
 }
+//⌟
+
+//· Contants ·····················································································¬
+
+const FOLDER_DEFAULTS = Object.freeze({
+	presetId: '',
+	title: '',
+	children: [],
+	closed: false,
+	hidden: false,
+	controls: new Map(),
+	saveable: true,
+}) satisfies Omit<FolderOptions, 'container'>
 
 /**
- * @internal
+ * Internal folder creation api defaults.
+ */
+const INTERNAL_FOLDER_DEFAULTS = {
+	__type: 'InternalFolderOptions',
+	parentFolder: undefined,
+	isRoot: true,
+	_skipAnimations: true,
+	gui: undefined,
+	_headerless: false,
+} as const satisfies InternalFolderOptions
+//⌟
+
+/**
+ * Folder is a container for organizing and grouping {@link Input|Inputs} and child Folders.
+ *
+ * This class should not be instantiated directly.  Instead, use the {@link Gui.addFolder} method.
+ *
+ * @example
+ * ```typescript
+ * const gui = new Gui()
+ * const folder = gui.addFolder({ title: 'My Folder' })
+ * folder.addNumber({ title: 'foo', value: 5 })
+ * ```
  */
 export class Folder {
 	//· Props ····················································································¬
 	__type = 'Folder' as const
-	// isFolder = true as const
-
 	isRoot = true
 	id = nanoid()
 	gui?: Gui
 
-	private _title: string
+	/**
+	 * A preset namespace to use for saving/loading.  By default, the {@link title|`title`}
+	 * is used, in combiniation with the parent folder's title (and so on up the hierarchy).
+	 * Therefore, if you want to use presets, you will only need to set this if you:
+	 * - Use the same title for multiple inputs _in the same {@link Folder}_, or
+	 * - Leave all titles empty
+	 * Otherwise, this can be left as the default and presets will work as expected.
+	 * @defaultValue {@link title|`title`}
+	 */
 	presetId: string
+
+	/**
+	 * Whether this Folder should be saved as a {@link FolderPreset} when saving the
+	 * {@link GuiPreset} for the {@link Gui} this Folder belongs to.  If `false`, this Input will
+	 * be skipped.
+	 * @defaultValue `true`
+	 */
 	saveable: boolean
+
+	/**
+	 * The child folders of this folder.
+	 */
 	children = [] as Folder[]
+
+	/**
+	 * All inputs added to this folder.
+	 */
 	inputs = new Map<string, ValidInput>()
 
+	/**
+	 * The root folder.  All folders have a reference to the same root folder.
+	 */
 	root: Folder
-	search: Search
 	parentFolder: Folder
 	settingsFolder!: Folder
-
 	closed = state(false)
-	private _hidden = () => false
 
 	element: HTMLElement
 	elements = {} as FolderElements
@@ -229,19 +278,15 @@ export class Folder {
 
 	evm = new EventManager<FolderEvents>(['change', 'refresh', 'toggle', 'mount'])
 	on = this.evm.on.bind(this.evm)
+
+	private _title: string
+	private _hidden = () => false
 	private _log: Logger
-	/**
-	 * Used to disable clicking the header to open/close the folder.
-	 */
+	/** Used to disable clicking the header to open/close the folder. */
 	private _disabledTimer?: ReturnType<typeof setTimeout>
-	/**
-	 * The time in ms to wait after mousedown before
-	 * disabling toggle for a potential drag.
-	 */
+	/** The time in ms to wait after mousedown before disabling toggle for a potential drag. */
 	private _clickTime = 200
-	/**
-	 * Whether clicking the header to open/close the folder is disabled.
-	 */
+	/** Whether clicking the header to open/close the folder is disabled. */
 	private _clicksDisabled = false
 	private _depth = -1
 	//⌟
@@ -282,19 +327,17 @@ export class Folder {
 		this.gui = opts.gui
 		this._title = opts.title ?? ''
 
-		// todo - I _really_ want to know why this blows everything up, and why FOLDER_DEFAULTS.children is mutated to contain the parent
-		// todo - as a child even though its frozen, and _nowhere_ is `children` even passed into the constructor options...??!?!?!
-		//! this.children = opts.children
-
 		this.element = this._createElement(opts.container)
 		this.elements = this._createElements(this.element)
 
 		this.presetId = this.resolvePresetId(opts)
 		this.saveable = !!opts.saveable
 
-		this.search = new Search(this)
+		if (this.isRoot || opts.searchable) {
+			new Search(this)
+		}
 
-		if (opts.instant) {
+		if (opts._skipAnimations) {
 			// We need to bypass animations so I can get the rect.
 			this.element.classList.add('instant')
 			setTimeout(() => {
@@ -309,11 +352,10 @@ export class Folder {
 			this.closed.subscribe(v => {
 				v ? this.close() : this.open()
 				this.evm.emit('toggle', v)
-				// this.root.closedMap?.setKey(this.presetId, v)
 			}),
 		)
 
-		this._createGraphics(opts.headerless).then(() => {
+		this._createGraphics(opts._headerless).then(() => {
 			if (opts.closed) {
 				this.closed.set(opts.closed)
 			}
@@ -324,7 +366,7 @@ export class Folder {
 	//· Getters/Setters ··········································································¬
 
 	/**
-	 * The folder's title.  Reactive to assignments.
+	 * The folder's title.  Changing this will update the UI.
 	 */
 	get title() {
 		return this._title
@@ -427,7 +469,7 @@ export class Folder {
 		this.children.push(folder)
 		this._createSvgs()
 
-		if (opts.headerless) {
+		if (opts._headerless) {
 			folder.elements.header.style.display = 'none'
 		}
 
@@ -442,9 +484,8 @@ export class Folder {
 		this.element.removeEventListener('pointerup', this.toggle)
 		this.element.addEventListener('pointerup', this.toggle, { once: true })
 
-		// todo - with the addition of the dataset `dragged` attribute from draggable, this might not be necessary.
-		// todo - Figure out why `stopPropagation` doesn't work so we don't need this.
-		if (composedPathContains(event, 'fractils-cancel')) return this._disableClicks()
+		// Abort if a toolbar button was clicked.
+		if (composedPathContains(event, 'fracgui-cancel')) return this._disableClicks()
 
 		// We need to watch for the mouseup event within a certain timeframe
 		// to make sure we don't accidentally trigger a click after dragging.
@@ -490,9 +531,9 @@ export class Folder {
 			return
 		}
 
-		// If the folder is being dragged, don't toggle. // todo - Is this doing anything?
-		if (this.element.classList.contains('fractils-dragged')) {
-			this.element.classList.remove('fractils-dragged')
+		// If the folder is being dragged, don't toggle.
+		if (this.element.classList.contains('fracgui-dragged')) {
+			this.element.classList.remove('fracgui-dragged')
 			return
 		}
 
@@ -650,12 +691,13 @@ export class Folder {
 	// todo - This should take any object and build the inputs from it.
 	addMany(obj: Record<string, any>) {
 		for (const [key, value] of Object.entries(obj)) {
-			this.add(key, { value })
 			if (typeof value === 'object') {
 				if (isColor(value)) {
 					this.addColor({ title: key, value })
+					continue
 				}
-				// this.addFolder({ title: key }).addMany(value)
+
+				this.add(value)
 			} else {
 				this.add(key, { value })
 			}
@@ -885,7 +927,7 @@ export class Folder {
 
 	get hue() {
 		const localIndex = this.parentFolder.children.indexOf(this)
-		//-note: Color will be off if we ever add built-in folders other than "Settings Folder".
+		// note: Color will be off if we ever add built-in folders other than "Settings Folder".
 		const i = this.parentFolder.isRootFolder() ? localIndex - 1 : localIndex
 		// Don't count the root folder.
 		const depth = this._depth - 1
@@ -897,7 +939,7 @@ export class Folder {
 		this._log.fn('#refreshIcon').debug(this)
 
 		if (this.graphics) {
-			this.graphics.icon.replaceWith(createFolderSvg(this)) // ...
+			this.graphics.icon.replaceWith(createFolderSvg(this)) // Don't love this...
 		}
 	}
 	//⌟
