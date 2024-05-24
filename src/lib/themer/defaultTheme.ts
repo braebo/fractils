@@ -1,10 +1,10 @@
-import type { ThemeDefinition } from '../types'
+import type { ThemeDefinition } from '../themer/types'
 
-import { resolveTheme } from '../resolveTheme'
+import { resolveTheme } from '../themer/resolveTheme'
 
 export default resolveTheme({
 	title: 'default',
-	prefix: 'fracgui',
+	prefix: 'themer',
 	vars: {
 		color: {
 			base: {
@@ -24,12 +24,6 @@ export default resolveTheme({
 			},
 			dark: {},
 			light: {},
-		},
-		core: {
-			light: {
-				// 'controller-dim_background': 'rgba(var(--fracgui-bg-a-rgb), 0.75)',
-				'controller-dim_background': 'color-mix(in sRGB, var(--fracgui-bg-a) 75%, transparent)',
-			},
 		},
 	},
 } as const satisfies ThemeDefinition)

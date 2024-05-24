@@ -1,7 +1,7 @@
-import type { GUI_VARS } from '../../gui/styles/GUI_VARS'
-import type { ThemeDefinition } from '../types'
+import type { GUI_VARS } from '../GUI_VARS'
+import type { ThemeDefinition } from '../../../themer/types'
 
-import { resolveTheme } from '../resolveTheme'
+import { resolveTheme } from '../../../themer/resolveTheme'
 
 export default resolveTheme({
 	title: 'scout',
@@ -34,7 +34,8 @@ export default resolveTheme({
 		core: {
 			dark: {
 				// 'input-container_background': 'color-mix(in sRGB, var(--fracgui-bg-a) 50%, transparent)',
-				'folder-header_background': 'color-mix(in sRGB, var(--fracgui-bg-a) 100%, transparent)',
+				'folder-header_background':
+					'color-mix(in sRGB, var(--fracgui-bg-a) 100%, transparent)',
 			},
 			light: {
 				'controller-dim_background': '#96a09c',

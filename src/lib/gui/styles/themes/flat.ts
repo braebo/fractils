@@ -1,6 +1,6 @@
-import type { ThemeDefinition } from '../types'
+import type { ThemeDefinition } from '../../../themer/types'
 
-import { resolveTheme } from '../resolveTheme'
+import { resolveTheme } from '../../../themer/resolveTheme'
 
 export default resolveTheme({
 	title: 'flat',
