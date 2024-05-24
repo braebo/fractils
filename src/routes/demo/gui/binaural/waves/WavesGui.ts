@@ -37,7 +37,7 @@ export class WavesGui extends Gui {
 		super({
 			title: kind,
 			closed: false,
-			windowManager: waves.beats.gui!.windowManager,
+			_windowManager: waves.beats.gui!.windowManager,
 			position: positions[kind],
 			storage: false,
 		})

@@ -33,12 +33,9 @@ export class ThemeEditor {
 
 		this.gui = new Gui({
 			title: 'Theme Editor',
-			// themer: false, // Prevents infinite recursion.
+			container: targetGui.container,
 			_themer: targetGui.themer,
 			_windowManager: targetGui.windowManager, // Recycling!
-			// storage: { key },
-			container: targetGui.container,
-			// hidden: true,
 		})
 
 		// const dragOpts = isType(this.targetGui.windowManager?.opts.draggable, 'object')

@@ -60,7 +60,7 @@ export class DivTweaker {
 			container: options?.container ?? document.body,
 			storage: undefined,
 			closed: false,
-			windowManager: false,
+			_windowManager: false,
 			themer: true,
 		})
 
