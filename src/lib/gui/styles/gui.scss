@@ -705,6 +705,14 @@
 		color: var(--fracgui-fg-a);
 	}
 }
+
+@at-root .fracgui-wrapper[mode='light'] .fracgui-controller-select-option {
+	&.selected,
+	&:hover {
+		background: var(--fracgui-folder-header_background);
+	}
+}
+
 //⌟
 //⌟
 
