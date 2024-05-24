@@ -87,38 +87,16 @@ export interface GuiOptions {
 	 * @defaultValue 'default'
 	 */
 	theme: GuiTheme
+
+	/**
+	 * The themes available to the gui.
+	 */
 	themes: Theme[]
+
+	/**
+	 * The initial {@link Themer.mode|theme mode}.
+	 */
 	themeMode: 'light' | 'dark' | 'system'
-
-	// /**
-	//  * Optional {@link Themer} instance for syncing the gui's theme
-	//  * with your app's theme.  If `true`, a new themer will be created
-	//  * for you. If `false` or `undefined`, no themer will be created.
-	//  * @defaultValue true
-	//  */
-	// themer: Themer | boolean
-
-	// /**
-	//  * Options for the {@link Themer} instance when `themer` is `true`.
-	//  */
-	// themerOptions: Partial<ThemerOptions>
-
-	// /**
-	//  * {@link WindowManager} controls behaviors like dragging, resizing, and
-	//  * z-index management.  This option can be:
-	//  * - Your own {@link WindowManager} instance.
-	//  * - `false` disables the window manager.
-	//  * - `true` uses default options.
-	//  * @defaultValue true
-	//  */
-	// windowManager: boolean | WindowManager
-
-	// /**
-	//  * Options for the {@link WindowManager} instance when `windowManager` is
-	//  * `true`.  They will be merged with the {@link WINDOWMANAGER_DEFAULTS}.
-	//  * @defaultValue {@link GUI_WINDOWMANAGER_DEFAULTS}
-	//  */
-	// windowManagerOptions: Partial<WindowManagerOptions>
 
 	/**
 	 * The gui's initial position on the screen.  If `undefined`, the gui will
@@ -130,22 +108,6 @@ export interface GuiOptions {
 	 */
 	position: Placement | { x: number; y: number }
 
-	// /**
-	//  * The bounding box used when {@link draggable} is `true`.  Can be a DOMRect, custom
-	//  * {@link VirtualRect}, or `'window'`.
-	//  * @default 'body'
-	//  */
-	// bounds:
-	// 	| ElementOrSelector
-	// 	| DOMRect
-	// 	| 'body'
-	// 	| {
-	// 			left: number
-	// 			top: number
-	// 			right: number
-	// 			bottom: number
-	// 	  }
-
 	/**
 	 * The margin in pixels to apply to the placement.  Can be a number
 	 * to apply the same margin to both x and y, or an object with x
@@ -153,13 +115,6 @@ export interface GuiOptions {
 	 * @default 16
 	 */
 	margin: number | { x: number; y: number }
-
-	// /**
-	//  * Additional options when using a {@link Placement} string for `position`
-	//  * instead of an explicit {x, y} object.
-	//  * @defaultValue { margin: 16, bounds: 'body' }
-	//  */
-	// positionOptions: Partial<PlacementOptions>
 
 	/**
 	 * The initial expanded state of the gui.
@@ -178,6 +133,7 @@ export interface GuiOptions {
 	 * @defaultValue `undefined`
 	 */
 	defaultPreset?: GuiPreset
+
 	/**
 	 * A unique id for the gui's root element.
 	 * @defaultValue {@link nanoid}
@@ -188,6 +144,7 @@ export interface GuiOptions {
 	 * @internal
 	 */
 	_windowManager?: WindowManager
+
 	/**
 	 * @internal
 	 */
@@ -261,7 +218,6 @@ export const GUI_WINDOWMANAGER_DEFAULTS = {
 	zFloor: 0,
 	bounds: undefined,
 	obstacles: undefined,
-	// localStorage: { key: 'fracgui' },
 	resizable: {
 		grabberSize: 9,
 		color: 'var(--bg-d)',
@@ -282,11 +238,6 @@ export const GUI_WINDOWMANAGER_DEFAULTS = {
 export const GUI_DEFAULTS = {
 	__type: 'GuiOptions',
 	title: 'gui',
-	// themer: true,
-	// themerOptions: {
-	// 	localStorageKey: 'fracgui::themer',
-	// 	mode: 'dark',
-	// },
 	storage: false,
 	closed: false,
 	position: 'top-right',
@@ -347,6 +298,7 @@ export class Gui {
 	themer: Themer
 	themeEditor?: ThemeEditor
 	windowManager?: WindowManager
+
 	/**
 	 * `false` if this {@link Gui}'s {@link WindowManager} belongs to an existing, external
 	 * instance _(i.e. a separate {@link Gui} instance or custom {@link WindowManager})_.  The
@@ -384,11 +336,6 @@ export class Gui {
 			opts.storage = Object.assign({}, GUI_STORAGE_DEFAULTS, opts.storage)
 		}
 
-		// opts.position =
-		// 	opts.position ??
-		// 	// https://github.com/microsoft/TypeScript/issues/54825#issuecomment-1612948506
-		// 	(((opts.windowManagerOptions as WindowManagerOptions)?.draggable as DraggableOptions)
-		// 		?.position as Placement)
 		const storageOpts = resolveOpts(opts.storage, GUI_STORAGE_DEFAULTS)
 		if (storageOpts) {
 			opts.storage = {
@@ -462,37 +409,6 @@ export class Gui {
 			key: this.opts.storage ? `${this.opts.storage.key}::closed` : undefined,
 		})
 
-		//\· State ····························································¬
-
-		// const storageOpts = resolveOpts(this.opts.storage, GUI_STORAGE_DEFAULTS)
-		// if (storageOpts) {
-		// 	this.opts.storage = {
-		// 		...storageOpts,
-		// 		key: `${storageOpts.key}::${this.opts.title?.toLowerCase().replaceAll(/\s/g, '-')}`,
-		// 	}
-		// }
-
-		// const closedKey =
-		// 	storageOpts && storageOpts.closed
-		// 		? ()
-		// 		: ''
-
-		// this.closed = state(!!this.opts.closed, {
-		// 	key: this.opts.storage ? `${this.opts.storage.key}::closed` : undefined,
-		// })
-		//\⌟
-
-		// this.folder.elements.toolbar.settingsButton = this._createSettingsButton(
-		// 	this.folder.elements.toolbar.container,
-		// )
-		// this.settingsFolder = this._createSettingsFolder()
-
-		// if (this.opts._themer) {
-		// 	const themer = this._createThemer(settingsFolder)
-		// 	if (themer) this.themer = themer
-		// 	// this.themeEditor = new ThemeEditor(this)
-		// }
-
 		this.folder.elements.toolbar.settingsButton = this._createSettingsButton(
 			this.folder.elements.toolbar.container,
 		)
@@ -513,29 +429,7 @@ export class Gui {
 		// todo - convert this crap to an 'alt' class
 		this.applyAltStyle(this.settingsFolder)
 
-		// console.log(this.opts.storage)
-		// this.windowManager ??= this._createWindowManager(options, this.opts.storage)
 		this.windowManager ??= this._createWindowManager(this.opts, this.opts.storage)
-
-		//\· Theme ·····················································¬
-
-		// this.theme = this.opts.theme
-
-		// if (isType(opts.storage, 'GuiStorageOptions')) {
-		// 	this.opts = {
-		// 		...opts,
-		// 		storage: {
-		// 			...opts.storage,
-		// 			...storageOpts,
-		// 		},
-		// 	}
-		// }
-
-		// // todo - Uncomment this once it has a button.
-		// if (opts._themer) {
-		// 	this.themeEditor = new ThemeEditor(this)
-		// }
-		//\⌟
 
 		this._reveal(reposition)
 
@@ -562,20 +456,10 @@ export class Gui {
 			const placementPosition = place(rect, this.opts.position, {
 				bounds: this.opts.container,
 				margin: this.opts.margin,
-				// margin: this.opts.positionOptions.margin,
 			})
 
 			// Use the rect to correct the window manager's positioning when storage is off.
-			if (
-				// ((this.opts.storage && this.opts.storage.position !== false) ||
-				// 	this.opts.storage) &&
-				// this.windowManager
-				reposition ||
-				(this.opts.storage && this.opts.storage.position === false)
-			) {
-				// ;[...this.windowManager.windows]
-				// 	.at(-1)?.[1]
-				// 	?.draggableInstance?.moveTo(placementPosition, 0)
+			if (reposition || (this.opts.storage && this.opts.storage.position === false)) {
 				const win = this.windowManager?.windows.get(this.folder.element.id)
 				if (win?.draggableInstance) {
 					win.draggableInstance.position = placementPosition
@@ -598,10 +482,6 @@ export class Gui {
 			fill: 'none',
 			duration: 400,
 		})
-
-		// Promise.resolve().then(() => {
-		// 	this.windowManager?.update()
-		// })
 	}
 
 	_createPresetManager(settingsFolder: Folder) {
@@ -623,32 +503,6 @@ export class Gui {
 		storageOpts: typeof this.opts.storage,
 	) {
 		if (this.windowManager) return this.windowManager // ??
-
-		// const dragOpts = resolveOpts<DraggableOptions>(
-		// 	// (this.opts.windowManagerOptions as WindowManagerOptions)['draggable'],
-		// 	GUI_WINDOWMANAGER_DEFAULTS['draggable'],
-		// 	DRAGGABLE_DEFAULTS,
-		// )
-		// if (dragOpts) {
-		// 	dragOpts.handle = this.folder.elements.header
-		// 	dragOpts.bounds = this.container
-		// 	if (options?.position) {
-		// 		dragOpts.position = options.position
-		// 	}
-		// 	// If storage is disabled, we need to override the DRAGGABLE_DEFAULTS.localStorageKey.
-		// 	if (options?.storage === false) {
-		// 		dragOpts.localStorageKey = undefined
-		// 	}
-		// }
-
-		// const resizeOpts = resolveOpts<ResizableOptions>(
-		// 	// (this.opts.windowManagerOptions as WindowManagerOptions)['resizable'],
-		// 	GUI_WINDOWMANAGER_DEFAULTS['resizable'],
-		// 	RESIZABLE_DEFAULTS,
-		// )
-		// if (resizeOpts) {
-		// 	resizeOpts.bounds = this.container
-		// }
 
 		let dragOpts = undefined as Partial<DraggableOptions> | undefined
 		if (this.opts.draggable) {
@@ -673,20 +527,11 @@ export class Gui {
 			}
 		}
 
-		// console.log(dragOpts?.localStorageKey)
-		// console.log(resizeOpts?.localStorageKey)
-		// console.log(resizeOpts?.sides)
-		// console.log(resizeOpts?.corners)
-		// console.log(options.resizable?.sides)
-		// console.log(options.resizable?.corners)
-
 		// Use the provided window manager if it's an instance.
 		if (options?._windowManager instanceof WindowManager) {
 			const windowManager = options._windowManager
 
 			windowManager.add(this.folder.element, {
-				// id: this.folder.id,
-				// ...this.opts.windowManagerOptions,
 				id: this.id,
 				resizable: resizeOpts,
 				draggable: dragOpts,
@@ -696,28 +541,9 @@ export class Gui {
 		}
 
 		const windowManagerOpts = resolveOpts<WindowManagerOptions>(
-			// this.opts.windowManagerOptions as WindowManagerOptions,
 			GUI_WINDOWMANAGER_DEFAULTS,
 			WINDOWMANAGER_DEFAULTS,
 		)
-		// if (typeof this.opts.storage === 'object') {
-		// 	if (typeof dragOpts === 'object' && this.opts.storage.position === false) {
-		// 		dragOpts.localStorageKey = undefined
-		// 	}
-		// 	if (typeof resizeOpts === 'object' && this.opts.storage.size === false) {
-		// 		resizeOpts.localStorageKey = undefined
-		// 	}
-		// }
-
-		//? Forward any storage options to the draggable and resizable options.
-		// if (storageOpts && storageOpts.key && windowManagerOpts) {
-		// 	if (typeof windowManagerOpts.draggable === 'object') {
-		// 		windowManagerOpts.draggable.localStorageKey = `${storageOpts.key}::draggable`
-		// 	}
-		// 	if (typeof windowManagerOpts.resizable === 'object') {
-		// 		windowManagerOpts.resizable.localStorageKey = `${storageOpts.key}::resizable`
-		// 	}
-		// }
 
 		this._log
 			.fn('constructor')
@@ -731,18 +557,14 @@ export class Gui {
 		this._isWindowManagerOwner = true
 
 		windowManager.add(this.folder.element, {
-			// ...windowManagerOpts,
-			// ...this.opts.windowManagerOptions,
 			id: this.id,
-			// draggable: dragOpts,
-			// resizable: resizeOpts,
+			// The rest of the options will inherit from the WindowManager instance.
 		})
 
 		return windowManager
 	}
 
 	set theme(theme: GuiTheme) {
-		// if (!this.themer) return
 		this._theme = theme
 		this.folder.element.setAttribute('theme', theme)
 		this.folder.element.setAttribute('mode', this.themer.mode.value)
@@ -750,12 +572,6 @@ export class Gui {
 	get theme() {
 		return this._theme!
 	}
-
-	// private _createSettingsFolder() {
-	// 	const
-
-	// 	return settingsFolder
-	// }
 
 	/**
 	 * Saves the current gui state as a preset.
@@ -780,7 +596,6 @@ export class Gui {
 			data: this.folder.save(),
 		} as const
 
-		// this.presetManager.save(preset)
 		return preset
 	}
 
@@ -842,10 +657,8 @@ export class Gui {
 	private _createThemer(folder: Folder) {
 		this._log.fn('createThemer').debug({ folder })
 		let finalThemer = undefined as Themer | undefined
-		// const { themer, themerOptions, storage } = this.opts
 		const themer = this.opts._themer
 		const themerOptions: Partial<ThemerOptions> = {
-			// localStorageKey: 'fracgui::themer',
 			localStorageKey: this.opts.storage ? this.opts.storage.key + '::themer' : undefined,
 			mode: this.opts.themeMode,
 			autoInit: !this.themer,
@@ -855,16 +668,6 @@ export class Gui {
 			vars: GUI_VARS,
 		}
 		themerOptions.vars = deepMergeOpts([GUI_VARS, themerOptions.vars])
-
-		// if (themer) {
-		// if (themerOptions) {
-		// 	themerOptions.persistent = isType(storage, 'GuiStorageOptions')
-		// 		? storage.theme
-		// 		: true
-
-		// 	// Load up the default generated theme vars.
-		// 	themerOptions.vars = deepMergeOpts([GUI_VARS, themerOptions.vars])
-		// }
 
 		if (themer) {
 			finalThemer = themer
@@ -917,7 +720,6 @@ export class Gui {
 		const button = create<'button', any, HTMLButtonElement>('button', {
 			parent,
 			classes: ['fracgui-toolbar-item', 'fracgui-settings-button'],
-			// children: [svg],
 			innerHTML: settingsIcon,
 			tooltip: {
 				text: () => {
