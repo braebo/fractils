@@ -146,4 +146,8 @@
 		overflow: hidden;
 		pointer-events: all;
 	}
+
+	div {
+		animation: fade-in 0.5s;
+	}
 </style>
