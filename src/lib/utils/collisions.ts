@@ -1,8 +1,4 @@
 /**
- *  X || Y distance to closest Element.
- */
-
-/**
  * Represents a dom element's bounding rectangle.
  */
 export type VirtualRect = {
@@ -20,7 +16,6 @@ export type VirtualRect = {
  * colliding with an obstacle.  If no collision is detected, the full distance (`targetX`)
  * is returned.  If the draggable is already colliding with an obstacle, `0` is returned.
  */
-
 export const collisionClampX = (
 	deltaX: number,
 	nodeRect: VirtualRect,

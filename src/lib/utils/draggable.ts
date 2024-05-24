@@ -397,7 +397,7 @@ export class Draggable {
 
 		this.opts.position = this.resolvePosition(this.opts.position)
 
-		this.#log.fn('constructor').info({ opts: this.opts, this: this })
+		this.#log.fn('constructor').debug({ opts: this.opts, this: this })
 
 		this.tween = tweened(
 			{ x: 0, y: 0 },
@@ -559,7 +559,7 @@ export class Draggable {
 			return
 		}
 
-		this.#log.fn('dragStart').info('Dragging initiated.')
+		this.#log.fn('dragStart').debug('Dragging initiated.')
 		e.stopPropagation()
 
 		// Resolve the event target.
@@ -687,8 +687,7 @@ export class Draggable {
 	 * for collisions with {@link obstacleEls obstacles} or {@link boundsRect bounds}.
 	 */
 	moveTo(target: { x: number; y: number }, tweenTime = this.opts.animation.duration) {
-		this.#log.fn('moveTo').info('Moving to:', target, this)
-		console.trace()
+		this.#log.fn('moveTo').debug('Moving to:', target, this)
 		if (this.canMoveX) {
 			if (this.bounds) target.x = clamp(target.x, this.#leftBound, this.#rightBound)
 			const deltaX = target.x - this.x
@@ -723,10 +722,6 @@ export class Draggable {
 		// Start at half tweentime and map the momentum.
 		const speed = tt * 0.75 + (momentum / tt) * (tt / 2)
 		const max = tt * 2
-
-		// // Logs for dialing in the speed.
-		// const c = speed < max ? g : r
-		// console.log(c(speed))
 
 		const duration = Math.min(speed, max) || tt
 
@@ -774,7 +769,7 @@ export class Draggable {
 	}
 
 	update(v = this.position) {
-		this.#log.fn('update').info('Updating position:', v, this)
+		this.#log.fn('update').debug('Updating position:', v, this)
 		this.moveTo(v)
 	}
 
@@ -786,7 +781,7 @@ export class Draggable {
 
 		this.#log
 			.fn('updateLocalStorage')
-			.info(
+			.debug(
 				'Updating position in localStorage:',
 				`{ x: ${this._position.x}, y: ${this._position.y} }`,
 				this,
