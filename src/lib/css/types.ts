@@ -10,7 +10,8 @@ export type CSSProperty = keyof PropertiesHyphen
  */
 export type JavascriptStyleProperty = {
 	[K in keyof CSSStyleDeclaration]: CSSStyleDeclaration[K] extends string ? K : never
-}[keyof CSSStyleDeclaration]
+}[keyof CSSStyleDeclaration] &
+	string
 
 /**
  * A CSS variable reference value, used to reference other CSS variables.
