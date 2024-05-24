@@ -652,7 +652,7 @@
 	line-height: 1.5rem;
 
 	font-family: var(--fracgui-font, var(--font-d));
-	font-size: calc(var(--fracgui-font-size) * 0.7);
+	font-size: calc(var(--fracgui-font-size) * 0.8);
 	letter-spacing: 0.5px;
 	color: var(--fracgui-fg-d);
 
@@ -1966,7 +1966,7 @@ input.fracgui-search-input {
 
 						.fracgui-controller-select-selected {
 							// font-size: var(--fracgui-input_font-size);
-							font-size: calc(var(--fracgui-font-size) * 0.75);
+							font-size: calc(var(--fracgui-font-size) * 0.8);
 						}
 					}
 
