@@ -1,13 +1,14 @@
+import type { ExtendedVars } from '$lib/themer/types'
 import type { DestructuredVars, ThemeVars } from '../../css/custom-properties'
 
 import { destructureVars } from '../../css/custom-properties'
-import defaultTheme from '../../themer/themes/default'
+import defaultTheme from './themes/default'
 
 export type GuiCoreVars = DestructuredVars<typeof GUI_VARS_STRUCTURED, typeof VAR_PREFIX>
 
 export const VAR_PREFIX = 'fracgui' as const
 
-const GUI_VARS_UTILITY: ThemeVars = {
+const GUI_VARS_UTILITY = {
 	base: {
 		'font-family': "'fredoka', sans-serif",
 		'font-size': 'clamp(0.75rem, 3vw, 1rem)',
@@ -28,7 +29,7 @@ const GUI_VARS_UTILITY: ThemeVars = {
 		'shadow-lightness': '50%',
 		'shadow-opacity': '0.1',
 	},
-} as const satisfies ThemeVars
+} as const satisfies ExtendedVars['utility']
 
 const GUI_VARS_STRUCTURED: ThemeVars = {
 	base: {
@@ -131,7 +132,7 @@ const GUI_VARS_STRUCTURED: ThemeVars = {
 	},
 } as const satisfies ThemeVars
 
-export const GUI_VARS = {
+export const GUI_VARS: ExtendedVars = {
 	color: defaultTheme.vars.color,
 	utility: GUI_VARS_UTILITY,
 	core: {
