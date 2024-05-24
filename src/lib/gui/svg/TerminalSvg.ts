@@ -8,7 +8,7 @@ import { create } from '../../utils/create'
 export class TerminalSvg {
 	class = 'fracgui-terminal-icon'
 	element: HTMLElement & { tooltip: Tooltip }
-	classes = [this.class, 'fractils-cancel']
+	classes = [this.class, 'fracgui-cancel']
 
 	constructor(folder: Folder) {
 		const parent = folder.isRoot ? folder.elements.header : folder.elements.title
