@@ -30,13 +30,13 @@ export class Search {
 		folder.elements.toolbar.container.prepend(container)
 
 		const input = create('input', {
-			classes: ['fracgui-controller-text', 'fracgui-search-input', 'fractils-cancel'],
+			classes: ['fracgui-controller-text', 'fracgui-search-input', 'fracgui-cancel'],
 			parent: container,
 		})
 		this._evm.listen(input, 'input', e => this.search(e.target.value))
 
 		const button = create('button', {
-			classes: ['fracgui-search-button', 'fractils-cancel'],
+			classes: ['fracgui-search-button', 'fracgui-cancel'],
 			parent: container,
 		})
 
