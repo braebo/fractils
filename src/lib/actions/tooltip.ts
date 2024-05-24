@@ -1,8 +1,8 @@
 import type { JavascriptStyleProperty } from '../css/types'
 import type { ElementOrSelector } from '../utils/select'
 
-import { EventManager } from '../utils/EventManager'
 import { deepMergeOpts } from '../gui/shared/deepMergeOpts'
+import { EventManager } from '../utils/EventManager'
 import { styled } from '../decorators/styled'
 import { tickLoop } from '../utils/loopTick'
 import { entries } from '../utils/object'
@@ -621,7 +621,7 @@ export class Tooltip {
 		.fractils-tooltip .fractils-hotkey {
 			filter: contrast(1.1);
 			background: var(--fractils-hotkey_background, #1118);
-			background: var(--fractils-hotkey_background, rgba(var(--bg-c-rgb), 0.66));
+			background: var(--fractils-hotkey_background, color-mix(in sRGB, var(--bg-c) 66%, transparent));
 			color: var(--fractils-hotkey_color, var(--fg-a, #fff));
 			padding: 0px 3px;
 			border-radius: 2px;
@@ -629,7 +629,7 @@ export class Tooltip {
 		}
 
 		:root[theme='dark'] .fractils-tooltip .fractils-hotkey {
-			background: var(--fractils-hotkey_background, rgba(var(--bg-d-rgb), 1));
+			background: var(--fractils-hotkey_background, color-mix(in sRGB, var(--bg-d) 100%, transparent));
 		}
 	`
 }
