@@ -11,5 +11,6 @@ vitest.config.js.timestamp*
 .extractinator
 scripts/extractinator
 
-scratch.md
+/scratch.md
+/scratch.svelte
 _/
