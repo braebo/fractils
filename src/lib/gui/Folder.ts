@@ -690,6 +690,7 @@ export class Folder {
 
 	// todo - This should take any object and build the inputs from it.
 	addMany(obj: Record<string, any>) {
+		console.error('WIP')
 		for (const [key, value] of Object.entries(obj)) {
 			if (typeof value === 'object') {
 				if (isColor(value)) {
