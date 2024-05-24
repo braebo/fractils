@@ -37,11 +37,6 @@ export type DraggablePlacementOptions = PlacementOptions & {
 	position: Placement | { x: number; y: number }
 }
 
-// /**
-//  * Represents the bounds to which the draggable element is limited to.
-//  */
-// export type VirtualBounds = ElementOrSelector | false | Partial<VirtualRect>
-
 /**
  * Data passed to listeners of the {@link DraggableOptions.onDragStart|onDragStart},
  * {@link DraggableOptions.onDrag|onDrag}, {@link DraggableOptions.onDragEnd|onDragEnd}, and
@@ -251,7 +246,6 @@ export const DRAGGABLE_DEFAULTS: DraggableOptions = {
 	handle: undefined,
 	obstacles: undefined,
 	classes: DEFAULT_CLASSES,
-	// defaultPosition: { x: 0, y: 0 },
 	onDragStart: () => {},
 	onDrag: () => {},
 	onDragEnd: () => {},
@@ -419,7 +413,7 @@ export class Draggable {
 
 		// Setup local storage if the key is provided.
 		if (options?.localStorageKey) {
-			this._storage = persist(this.opts.localStorageKey!, startPosition)
+			this._storage = persist(options.localStorageKey, startPosition)
 			const storagePostion = this._storage.get()
 			if (storagePostion) {
 				startPosition.x = storagePostion.x
@@ -693,7 +687,8 @@ export class Draggable {
 	 * for collisions with {@link obstacleEls obstacles} or {@link boundsRect bounds}.
 	 */
 	moveTo(target: { x: number; y: number }, tweenTime = this.opts.animation.duration) {
-		this.#log.fn('moveTo').debug('Moving to:', target, this)
+		this.#log.fn('moveTo').info('Moving to:', target, this)
+		console.trace()
 		if (this.canMoveX) {
 			if (this.bounds) target.x = clamp(target.x, this.#leftBound, this.#rightBound)
 			const deltaX = target.x - this.x
@@ -779,7 +774,8 @@ export class Draggable {
 	}
 
 	update(v = this.position) {
-		this.#log.info('Updating position:', v, this)
+		this.#log.fn('update').info('Updating position:', v, this)
+		this.moveTo(v)
 	}
 
 	/**
