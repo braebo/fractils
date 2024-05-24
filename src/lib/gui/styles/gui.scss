@@ -1267,74 +1267,74 @@ input.fracgui-search-input {
 	$inverted-border-radius: 0.25rem;
 	$inverted-border-radius-bottom: 0.25rem;
 
-	// &:first-of-type {
-	// 	border-top-left-radius: var(--fracgui-radius-sm);
-	// 	border-top-right-radius: var(--fracgui-radius-sm);
+	&:first-of-type {
+		border-top-left-radius: var(--fracgui-radius-sm);
+		border-top-right-radius: var(--fracgui-radius-sm);
 
-	// 	// top left corner
-	// 	&::before {
-	// 		content: '';
-	// 		position: absolute;
-	// 		background-color: transparent;
-	// 		bottom: $inverted-border-size * 2;
-	// 		width: $inverted-border-size;
-	// 		height: $inverted-border-size * 2;
-	// 		border-top-left-radius: $inverted-border-radius;
-	// 		box-shadow: 0 -#{$inverted-border-size} 0 0 var(--fracgui-folder-header_background);
+		// top left corner
+		&::before {
+			content: '';
+			position: absolute;
+			background-color: transparent;
+			bottom: $inverted-border-size * 2;
+			width: $inverted-border-size;
+			height: $inverted-border-size * 2;
+			border-top-left-radius: $inverted-border-radius;
+			box-shadow: 0 -#{$inverted-border-size} 0 0 var(--fracgui-folder-header_background);
 
-	// 		clip-path: inset(0 0 0 0);
-	// 		opacity: 1;
-	// 		transition: inherit;
-	// 	}
-	// 	// top right corner
-	// 	&::after {
-	// 		content: '';
-	// 		position: absolute;
-	// 		background-color: transparent;
-	// 		right: 0;
-	// 		bottom: $inverted-border-size * 2;
-	// 		width: $inverted-border-size;
-	// 		min-height: $inverted-border-size * 2;
-	// 		border-top-right-radius: $inverted-border-radius;
-	// 		box-shadow: 0 -#{$inverted-border-size} 0 0 var(--fracgui-folder-header_background);
+			clip-path: inset(0 0 0 0);
+			opacity: 1;
+			transition: inherit;
+		}
+		// top right corner
+		&::after {
+			content: '';
+			position: absolute;
+			background-color: transparent;
+			right: 0;
+			bottom: $inverted-border-size * 2;
+			width: $inverted-border-size;
+			min-height: $inverted-border-size * 2;
+			border-top-right-radius: $inverted-border-radius;
+			box-shadow: 0 -#{$inverted-border-size} 0 0 var(--fracgui-folder-header_background);
 
-	// 		clip-path: inset(0 0 0 0);
-	// 		opacity: 1;
-	// 		transition: inherit;
-	// 	}
-	// }
+			clip-path: inset(0 0 0 0);
+			opacity: 1;
+			transition: inherit;
+		}
+	}
 
-	// @at-root .fracgui-folder:not(:last-of-type) .fracgui-input-container:last-of-type {
-	// 	// &:last-of-type {
-	// 	border-bottom-left-radius: var(--fracgui-radius-sm);
-	// 	border-bottom-right-radius: var(--fracgui-radius-sm);
+	@at-root .fracgui-folder:not(:last-of-type) .fracgui-input-container:last-of-type {
+		// &:last-of-type {
+		border-bottom-left-radius: var(--fracgui-radius-sm);
+		border-bottom-right-radius: var(--fracgui-radius-sm);
 
-	// 	// bottom left corner
-	// 	&::before {
-	// 		content: '';
-	// 		position: absolute;
-	// 		background-color: transparent;
-	// 		top: $inverted-border-size * 2;
-	// 		height: $inverted-border-size * 2;
-	// 		width: $inverted-border-size;
-	// 		border-bottom-left-radius: $inverted-border-radius-bottom;
-	// 		box-shadow: 0 $inverted-border-size 0 0 var(--fracgui-folder-header_background);
-	// 		clip-path: inset(0 0 0 0);
-	// 	}
-	// 	// bottom right corner
-	// 	&::after {
-	// 		content: '';
-	// 		position: absolute;
-	// 		background-color: transparent;
-	// 		right: 0;
-	// 		top: $inverted-border-size * 2;
-	// 		height: $inverted-border-size * 2;
-	// 		width: $inverted-border-size;
-	// 		border-bottom-right-radius: $inverted-border-radius-bottom;
-	// 		box-shadow: 0 $inverted-border-size 0 0 var(--fracgui-folder-header_background);
-	// 		clip-path: inset(0 0 0 0);
-	// 	}
-	// }
+		// bottom left corner
+		&::before {
+			content: '';
+			position: absolute;
+			background-color: transparent;
+			top: $inverted-border-size * 2;
+			height: $inverted-border-size * 2;
+			width: $inverted-border-size;
+			border-bottom-left-radius: $inverted-border-radius-bottom;
+			box-shadow: 0 $inverted-border-size 0 0 var(--fracgui-folder-header_background);
+			clip-path: inset(0 0 0 0);
+		}
+		// bottom right corner
+		&::after {
+			content: '';
+			position: absolute;
+			background-color: transparent;
+			right: 0;
+			top: $inverted-border-size * 2;
+			height: $inverted-border-size * 2;
+			width: $inverted-border-size;
+			border-bottom-right-radius: $inverted-border-radius-bottom;
+			box-shadow: 0 $inverted-border-size 0 0 var(--fracgui-folder-header_background);
+			clip-path: inset(0 0 0 0);
+		}
+	}
 
 	&:hover {
 		color: var(--fracgui-fg-b);
