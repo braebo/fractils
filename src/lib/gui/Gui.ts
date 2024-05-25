@@ -322,7 +322,7 @@ export class Gui {
 	addColor: Folder['addColor']
 
 	constructor(options?: Partial<GuiOptions>) {
-		//· Setup ····························································¬
+		//· Setup ················································································¬
 
 		const opts = deepMergeOpts([GUI_DEFAULTS, options ?? {}], {
 			concatArrays: false,
@@ -342,7 +342,9 @@ export class Gui {
 				...storageOpts,
 				key: `${storageOpts.key}::${opts.title?.toLowerCase().replaceAll(/\s/g, '-')}`,
 			}
-			if (!(`${opts.storage.key}::draggable` in localStorage)) {
+			// When storage is on, repositioning after animating-in is disabled unless this is the
+			// very first page load.
+			if (!(`${opts.storage.key}::wm::0::position` in localStorage)) {
 				reposition = true
 			}
 		}
@@ -541,13 +543,17 @@ export class Gui {
 		}
 
 		const windowManagerOpts = resolveOpts<WindowManagerOptions>(
-			GUI_WINDOWMANAGER_DEFAULTS,
+			{
+				...GUI_WINDOWMANAGER_DEFAULTS,
+				draggable: dragOpts,
+				resizable: resizeOpts,
+			},
 			WINDOWMANAGER_DEFAULTS,
 		)
 
 		this._log
-			.fn('constructor')
-			.debug({ options, opts: this.opts, dragOptions: dragOpts, resizeOpts })
+			.fn('_createWindowManager')
+			.debug({ windowManagerOpts, options, opts: this.opts, dragOpts, resizeOpts })
 
 		const windowManager = new WindowManager({
 			...windowManagerOpts,

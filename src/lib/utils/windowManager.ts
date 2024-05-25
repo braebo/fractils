@@ -340,7 +340,7 @@ export class WindowInstance {
 			if (resizeOpts) resizeOpts.localStorageKey = undefined
 		} else {
 			// Construct a unique draggable localStorage key for each window.
-			if (typeof dragOpts === 'object') {
+			if (typeof dragOpts === 'object' && dragOpts.localStorageKey !== undefined) {
 				const dragKeyParts = [] as string[]
 				if (typeof dragOpts.localStorageKey === 'undefined') {
 					if (typeof manager.opts.localStorage === 'object') {
@@ -355,7 +355,7 @@ export class WindowInstance {
 				dragOpts.localStorageKey = dragKeyParts.join('::')
 			}
 			// Construct a unique resizable localStorage key for each window.
-			if (typeof resizeOpts === 'object') {
+			if (typeof resizeOpts === 'object' && resizeOpts.localStorageKey !== undefined) {
 				const resizeKeyParts = [] as string[]
 				if (typeof resizeOpts.localStorageKey === 'undefined') {
 					if (typeof manager.opts.localStorage === 'object') {
