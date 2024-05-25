@@ -313,6 +313,7 @@ export class Gui {
 	on: Folder['on']
 	addFolder: Folder['addFolder']
 	add: Folder['add']
+	addMany: Folder['addMany']
 	addButtonGrid: Folder['addButtonGrid']
 	addSelect: Folder['addSelect']
 	addButton: Folder['addButton']
@@ -347,6 +348,8 @@ export class Gui {
 			if (!(`${opts.storage.key}::wm::0::position` in localStorage)) {
 				reposition = true
 			}
+		} else {
+			reposition = true
 		}
 
 		this.opts = opts as GuiOptions & { storage: GuiStorageOptions | false }
@@ -376,6 +379,7 @@ export class Gui {
 		this.on = this.folder.on.bind(this.folder)
 		this.addFolder = this.folder.addFolder.bind(this.folder)
 		this.add = this.folder.add.bind(this.folder)
+		this.addMany = this.folder.addMany.bind(this.folder)
 		this.addButtonGrid = this.folder.addButtonGrid.bind(this.folder)
 		this.addSelect = this.folder.addSelect.bind(this.folder)
 		this.addButton = this.folder.addButton.bind(this.folder)
