@@ -688,9 +688,9 @@ export class Folder {
 		this.evm.emit('refresh')
 	}
 
-	// todo - This should take any object and build the inputs from it.
-	addMany(obj: Record<string, any>) {
-		console.error('WIP')
+	addMany(obj: Record<string, any>, options?: { folder?: Folder }) {
+		const folder = options?.folder ?? this
+
 		for (const [key, value] of Object.entries(obj)) {
 			if (typeof value === 'object') {
 				if (isColor(value)) {
@@ -698,9 +698,33 @@ export class Folder {
 					continue
 				}
 
-				this.add(value)
+				const subFolder = folder.addFolder(key)
+				subFolder.addMany(value, { folder: subFolder })
 			} else {
-				this.add(key, { value })
+				const opts = {
+					title: key,
+					value,
+					binding: {
+						target: obj,
+						key,
+					},
+				}
+				if (typeof value === 'number') {
+					if (value > 0) {
+						;(opts as NumberInputOptions).max = value * 2
+						;(opts as NumberInputOptions).step = value / 10
+						;(opts as NumberInputOptions).min = 0
+					} else if (value == 0) {
+						;(opts as NumberInputOptions).min = -1
+						;(opts as NumberInputOptions).step = 0.01
+						;(opts as NumberInputOptions).max = 1
+					} else {
+						;(opts as NumberInputOptions).min = value * 2
+						;(opts as NumberInputOptions).step = value / 10
+						;(opts as NumberInputOptions).max = 0
+					}
+				}
+				this.add(opts)
 			}
 		}
 	}
