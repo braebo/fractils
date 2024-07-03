@@ -6,10 +6,10 @@ import { NumberController } from '../NumberController'
 import { Select } from '../Select'
 
 import { disableable, type Disableable } from '../../../decorators/disableable-class-decorator'
+import { EventManager } from '../../../utils/EventManager'
 import { entries } from '../../../utils/object'
 import { create } from '../../../utils/create'
 import { Logger } from '../../../utils/logger'
-import { EventManager } from '$lib/utils/EventManager'
 
 export interface ColorComponentsOptions {
 	container?: HTMLDivElement

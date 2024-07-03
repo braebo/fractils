@@ -1,11 +1,11 @@
 import type { InputButtonGrid } from '../inputs/InputButtonGrid'
 import type { JavascriptStyleProperty } from '../../css/types'
-import type { TooltipOptions } from '$lib/actions/tooltip'
+import type { TooltipOptions } from '../../actions/tooltip'
 
 import { create, type CreateOptions } from '../../utils/create'
 import { EventManager } from '../../utils/EventManager'
 import { Logger } from '../../utils/logger'
-import { nanoid } from '$lib/utils/nanoid'
+import { nanoid } from '../../utils/nanoid'
 import { toFn } from '../../utils/toFn'
 
 export type ButtonClickFunction = () => void
