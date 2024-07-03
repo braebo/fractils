@@ -2035,8 +2035,9 @@ input.fracgui-search-input {
 				}
 
 				box-shadow:
-					-1px 1px 7px 0px #000f inset,
-					-1px 1px 1px 0px #000c inset;
+					-1px 1px 7px 0px hsla(250, 10%, var(--fracgui-shadow-lightness), 0.33) inset,
+					-1px 1px 1px 0px hsla(250, 10%, var(--fracgui-shadow-lightness), 0.5) inset;
+
 				background: var(--fracgui-input-number-range_background);
 				background-image: radial-gradient(
 					circle at 25% 50% in lab,
