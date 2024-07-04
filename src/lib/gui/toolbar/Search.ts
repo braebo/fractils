@@ -163,6 +163,14 @@ export class Search {
 			this.tooltip.offsetX = '-40px'
 			this.tooltip.offsetY = '-2px'
 		}, 100)
+
+		// Open all folders that are closed, and mark them for closing on cancel/close.
+		// todo - It would be nice to allow clicking a folder to keep it open after the search.
+		for (const folder of this.folder.allChildren) {
+			if (!folder.closed.value) continue
+			folder.element.dataset['searchclosed'] = 'true'
+			folder.open()
+		}
 	}
 
 	close = () => {
@@ -188,6 +196,15 @@ export class Search {
 			this.tooltip.offsetX = TOOLTIP_DEFAULTS.offsetX
 			this.tooltip.offsetY = TOOLTIP_DEFAULTS.offsetY
 		}, 100)
+
+		// Re-close all folders that were opened by the search.
+		// todo - It would be better to only open folders if they contain a search hit.
+		// todo - It would be nice to allow clicking a folder to keep it open after the search.
+		for (const folder of this.folder.allChildren) {
+			if (!folder.element.dataset['searchclosed']) continue
+			folder.element.dataset['searchclosed'] = ''
+			folder.close()
+		}
 	}
 
 	private _clickOutside = (e: MouseEvent) => {
