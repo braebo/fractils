@@ -64,8 +64,8 @@ export interface LoggerOptions {
 // todo - Is there a reliable way to type an ImportMetaEnv entry globally for consumers?
 const ENABLED =
 	DEV &&
-	import.meta.env.FRACTILS_LOG_LEVEL !== 'off' &&
-	!(import.meta.env.VITEST && !import.meta.env.FRACTILS_LOG_VITEST)
+	import.meta.env.VITE_FRACTILS_LOG_LEVEL !== 'off' &&
+	!(import.meta.env.VITEST && !import.meta.env.VITE_FRACTILS_LOG_VITEST)
 
 export type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal' | 'off'
 
@@ -130,7 +130,7 @@ export class Logger {
 	}
 
 	debug(...args: any[]) {
-		if (import.meta.env.FRACTILS_LOG_LEVEL === 'debug') this.dump('🐞', ...args)
+		if (import.meta.env.VITE_FRACTILS_LOG_LEVEL === 'debug') this.dump('🐞', ...args)
 		return this
 	}
 

@@ -15,8 +15,8 @@ declare global {
 
 	interface ImportMetaEnv {
 		VITEST: string
-		FRACTILS_LOG_VITEST: string
-		FRACTILS_LOG_LEVEL: string
+		VITE_FRACTILS_LOG_VITEST: string
+		VITE_FRACTILS_LOG_LEVEL: string
 	}
 }
 
