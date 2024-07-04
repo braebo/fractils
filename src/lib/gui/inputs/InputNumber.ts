@@ -37,12 +37,11 @@ export const NUMBER_INPUT_DEFAULTS: NumberInputOptions = {
 
 export class InputNumber extends Input<number, NumberInputOptions, NumberControllerElements> {
 	readonly __type = 'InputNumber' as const
+	private _log: Logger
 	initialValue: number
 	state: State<number>
-	#log: Logger
 
-	// todo - Move this into the number controller?
-	dragEnabled = false
+	dragEnabled = false // todo - Move this into the number controller?
 	numberController: NumberController
 	numberButtonsController: NumberButtonsController
 
@@ -52,8 +51,8 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 		})
 		super(opts, folder)
 
-		this.#log = new Logger(`InputNumber ${opts.title}`, { fg: 'cyan' })
-		this.#log.fn('constructor').debug({ opts, this: this })
+		this._log = new Logger(`InputNumber ${opts.title}`, { fg: 'cyan' })
+		this._log.fn('constructor').debug({ opts, this: this })
 
 		this.initialValue = this.resolveInitialValue(opts)
 		this.state = this.resolveState(opts)
@@ -85,7 +84,7 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 	}
 
 	set = (v?: number | Event) => {
-		this.#log.fn('set').debug(v)
+		this._log.fn('set').debug(v)
 
 		if (typeof v === 'undefined') return
 
@@ -103,14 +102,14 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 	}
 
 	enable() {
-		this.#log.fn('enable').debug()
+		this._log.fn('enable').debug()
 		this.elements.controllers.input.disabled = false
 		super.enable()
 		return this
 	}
 
 	disable() {
-		this.#log.fn('disable').debug()
+		this._log.fn('disable').debug()
 		this.elements.controllers.input.disabled = true
 		super.disable()
 		return this
@@ -118,7 +117,7 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 
 	refresh = () => {
 		const v = this.state.value
-		this.#log.fn('refresh').debug(v)
+		this._log.fn('refresh').debug(v)
 		this.elements.controllers.range.value = String(v)
 		this.elements.controllers.input.value = String(v)
 		super.refresh(v)
@@ -126,7 +125,7 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 	}
 
 	dispose() {
-		this.#log.fn('dispose').debug()
+		this._log.fn('dispose').debug()
 		super.dispose()
 	}
 }
