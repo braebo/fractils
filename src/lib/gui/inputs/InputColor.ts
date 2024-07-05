@@ -57,8 +57,8 @@ export interface ColorControllerElements extends ElementMap<ColorPicker> {
 
 export type ColorInputOptions = {
 	__type?: 'ColorInputOptions'
-	mode: ColorMode
-	expanded: boolean
+	mode?: ColorMode
+	expanded?: boolean
 	onChange?: (value: Color) => void
 } & InputOptions<ColorFormat | Color>
 //⌟
@@ -193,7 +193,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 
 		const newValue = this.state.value
 
-		this._log.fn('set').info({ v, newValue, this: this })
+		this._log.fn('set').debug({ v, newValue, this: this })
 
 		this._emit('change', newValue)
 		this.refresh(newValue)
@@ -202,7 +202,7 @@ export class InputColor extends Input<Color, ColorInputOptions, ColorControllerE
 	}
 
 	refresh = (v = this.state.value) => {
-		this._log.fn('refresh').info({ v, this: this })
+		this._log.fn('refresh').debug({ v, this: this })
 
 		this.elements.controllers.currentColor.display.style.backgroundColor = v.hex
 
