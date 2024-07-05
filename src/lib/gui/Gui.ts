@@ -509,17 +509,17 @@ export class Gui {
 		})
 	}
 
-	_createPresetManager(settingsFolder: Folder) {
+	private _createPresetManager(settingsFolder: Folder) {
 		const { presets, defaultPreset, storage } = this.opts
-		let storageKey: string | undefined
-		if (isType(storage, 'GuiStorageOptions') && storage.presets) {
-			storageKey = storage.key + '::presets'
+		let localStorageKey: string | undefined
+		if (typeof storage === 'object' && storage.presets) {
+			localStorageKey = storage.key + '::presets'
 		}
 
 		return new PresetManager(this, settingsFolder, {
 			presets,
 			defaultPreset,
-			storageKey,
+			localStorageKey,
 		})
 	}
 
@@ -712,6 +712,14 @@ export class Gui {
 				}
 			}),
 		)
+
+		const uiFolder = folder.addFolder('ui', { closed: true })
+
+		// Fully desaturate the ui folder's header connector to svg.
+		uiFolder.on('mount', () => {
+			uiFolder.graphics?.connector?.svg.style.setProperty('filter', 'saturate(0.1)')
+			uiFolder.graphics?.icon.style.setProperty('filter', 'saturate(0)')
+		})
 
 		if (folder) {
 			uiFolder.addSelect<Theme>({
