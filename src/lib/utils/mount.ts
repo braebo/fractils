@@ -20,7 +20,7 @@ export function append(...els: Element[]) {
 	let c = e.shift()
 
 	function mount(..._e: Element[]) {
-		if (i++ > 200) throw new Error('infinite loop?')
+		if (i++ > 500) throw new Error('infinite loop detected! (500 iteration limit)')
 
 		if (p && c) p.appendChild(c)
 

@@ -34,10 +34,21 @@ export interface DebriefOptions {
 }
 
 /**
- * Like `tree` for objects, with options for depth, max siblings, and max string length.
+ * `tree` for objects, with variable depth, max siblings, and max string/number length.
+ *
+ * Useful when you want to:
+ * - TLDR a large object
+ * - serialize circular references
+ * - pretty-print a complex object
  */
 export function debrief<T>(
+	/**
+	 * The object to debrief.
+	 */
 	obj: unknown,
+	/**
+	 * Optional {@link DebriefOptions}.
+	 */
 	{
 		depth = 2,
 		siblings = 4,

@@ -20,6 +20,13 @@ const defaults = {
 	glowR: 10,
 	glowG: 10,
 	glowB: 50,
+	nested: {
+		glow: {
+			r: 10,
+			g: 10,
+			b: 50,
+		},
+	}
 }
 
 export type Params = typeof defaults
