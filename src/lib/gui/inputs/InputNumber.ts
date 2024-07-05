@@ -29,10 +29,6 @@ export type NumberInputOptions = {
 
 export const NUMBER_INPUT_DEFAULTS: NumberInputOptions = {
 	__type: 'NumberInputOptions' as const,
-	value: 0.5,
-	min: 0,
-	max: 1,
-	step: 0.01,
 } as const
 
 export class InputNumber extends Input<number, NumberInputOptions, NumberControllerElements> {
@@ -49,6 +45,15 @@ export class InputNumber extends Input<number, NumberInputOptions, NumberControl
 		const opts = Object.assign({}, NUMBER_INPUT_DEFAULTS, options, {
 			__type: 'NumberInputOptions' as const,
 		})
+
+		// Smart defaults.
+		let v = opts.binding?.initial ?? opts.value ?? 1
+		opts.value ??= v
+		opts.min ??= v <= 0 ? v * 2 : 0
+		opts.max ??= v <= 0 ? v * -2 : v * 2
+		const step = v / 100
+		opts.step ??= step <= 0.1 ? 0.001 : 0.1
+
 		super(opts, folder)
 
 		this._log = new Logger(`InputNumber ${opts.title}`, { fg: 'cyan' })
