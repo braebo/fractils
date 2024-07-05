@@ -32,7 +32,7 @@ export interface PresetManagerOptions {
 	 * The key to use for storage.  If not provided, storage is disabled.
 	 * @default undefined
 	 */
-	storageKey?: string
+	localStorageKey?: string
 	autoInit?: boolean
 }
 
@@ -65,14 +65,15 @@ export class PresetManager {
 		this._log = new Logger(`PresetManager ${gui.folder.title}`, { fg: 'slateblue' })
 		this._log.fn('constructor').debug({ options, this: this })
 
-		this.opts = Object.freeze(options)
+		this.opts = options
+		this.opts.localStorageKey ??= 'fracgui::presets'
 
 		this.activePreset = state(this.opts.defaultPreset ?? ({} as GuiPreset), {
-			key: this.opts.storageKey + '::active',
+			key: this.opts.localStorageKey + '::active',
 		})
 
 		this.presets = state(this.opts.presets ?? [], {
-			key: this.opts.storageKey,
+			key: this.opts.localStorageKey,
 		})
 
 		if (this.opts.autoInit !== false) {
@@ -168,10 +169,9 @@ export class PresetManager {
 
 		if (!this._isInitialized()) throw new Error('PresetManager not initialized.')
 
-		await Promise.resolve()
+		await new Promise(r => setTimeout(r, 0))
 
-		const presetsFolder = parentFolder.addFolder({
-			title: 'presets',
+		const presetsFolder = parentFolder.addFolder('presets', {
 			closed: false,
 			hidden: false,
 			children: [],
@@ -449,7 +449,7 @@ export class PresetManager {
 			delay: 0,
 			placement: 'bottom',
 			// offsetY: '0.1rem',
-			hideOnClick: true
+			hideOnClick: true,
 		})
 		this._presetsInput.listen(newPresetButton.element, 'click', () => {
 			this._log.fn('newPresetButton.on(click)').debug()
@@ -467,10 +467,8 @@ export class PresetManager {
 				if (this._renamePresetButton.element.classList.contains('active')) {
 					return ``
 				} else {
-					return this.defaultPresetIsActive
-						? `Can't rename default preset`
-						: `Rename`
-						// : `Rename ${this.activePreset.value.title}`
+					return this.defaultPresetIsActive ? `Can't rename default preset` : `Rename`
+					// : `Rename ${this.activePreset.value.title}`
 				}
 			},
 		})
