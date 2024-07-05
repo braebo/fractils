@@ -2,6 +2,7 @@ import './styles/gui.scss'
 
 import type { WindowManagerOptions } from '../utils/windowManager'
 import type { JavascriptStyleProperty } from '../css/types'
+import type { FolderOptions, FolderPreset } from './Folder'
 import type { ResizableOptions } from '../utils/resizable'
 import type { DraggableOptions } from '../utils/draggable'
 import type { Theme, ThemeMode } from '../themer/types'
@@ -9,7 +10,6 @@ import type { ThemerOptions } from '../themer/Themer'
 import type { PrimitiveState } from '../utils/state'
 import type { PropertiesHyphen } from 'csstype'
 import type { Placement } from '../dom/place'
-import type { FolderPreset } from './Folder'
 import type { Commit } from './UndoManager'
 
 import theme_default from './styles/themes/default'
@@ -28,7 +28,6 @@ import { UndoManager } from './UndoManager'
 import { Themer } from '../themer/Themer'
 import { select } from '../utils/select'
 import { nanoid } from '../utils/nanoid'
-import { isType } from '../utils/isType'
 import { Logger } from '../utils/logger'
 import { create } from '../utils/create'
 import { state } from '../utils/state'
@@ -303,15 +302,32 @@ export class Gui {
 	 * `false` if this {@link Gui}'s {@link WindowManager} belongs to an existing, external
 	 * instance _(i.e. a separate {@link Gui} instance or custom {@link WindowManager})_.  The
 	 * {@link WindowManager} will be disposed when this {@link Gui} is disposed.
+	 * @internal
 	 */
 	private _isWindowManagerOwner = false
-
+	/**
+	 * The time of the gui's creation.
+	 * @internal
+	 */
+	private readonly _birthday = Date.now()
+	/**
+	 * The number of milliseconds post-instantiation to watch for adders for repositioning.
+	 * @internal
+	 */
+	private _honeymoon: false | 1000 = 1000
 	private _theme!: GuiOptions['theme']
 	private _log: Logger
 
 	// Forwarding the Folder API...
 	on: Folder['on']
-	addFolder: Folder['addFolder']
+	addFolder(title: string, options?: Partial<FolderOptions>) {
+		if (this._honeymoon && this._birthday - Date.now() < 1000) {
+			this._honeymoon = false
+			this._reveal(true)
+		}
+
+		return this.folder.addFolder(title, options)
+	}
 	add: Folder['add']
 	addMany: Folder['addMany']
 	addButtonGrid: Folder['addButtonGrid']
@@ -355,7 +371,7 @@ export class Gui {
 		this.opts = opts as GuiOptions & { storage: GuiStorageOptions | false }
 
 		this._log = new Logger(`Gui ${this.opts.title}`, { fg: 'palevioletred' })
-		this._log.fn('constructor').info({ options, opts })
+		this._log.fn('constructor').debug({ options, opts })
 
 		this.container = select(this.opts.container)[0]
 
@@ -419,10 +435,8 @@ export class Gui {
 			this.folder.elements.toolbar.container,
 		)
 
-		this.settingsFolder = this.folder.addFolder({
-			title: Gui.settingsFolderTitle,
-			// closed: true, //! TEMP
-			closed: false, //! TEMP
+		this.settingsFolder = this.folder.addFolder(Gui.settingsFolderTitle, {
+			closed: true,
 			hidden: false,
 			// @ts-expect-error @internal
 			_headerless: true,
@@ -437,6 +451,8 @@ export class Gui {
 
 		this.windowManager ??= this._createWindowManager(this.opts, this.opts.storage)
 
+		// Give the user a chance to add folders / inputs before positioning.
+		// setTimeout(() => this._reveal(reposition))
 		this._reveal(reposition)
 
 		return this
@@ -457,7 +473,9 @@ export class Gui {
 
 		// This is the only way to get the correct future rect afaik 😅
 		const rect = ghost.children[0].getBoundingClientRect()
+
 		ghost.remove()
+
 		if (typeof this.opts.position === 'string') {
 			const placementPosition = place(rect, this.opts.position, {
 				bounds: this.opts.container,
@@ -473,10 +491,11 @@ export class Gui {
 			} else {
 				/** // todo
 				 * Should we just enforce the window manager and use it for positioning?
-				 * I imagine this folder element shouldn't be positioned if it has no window manager...
-				 * but when I disabled all logic here, the folder position was top and centered,
-				 * which I'm not sure is correct (might be though..).  Anyways, if the position option
-				 * was provided but the window manager is disabled, we should probably set the position here.
+				 * I imagine this {@link folder.element} shouldn't be positioned if it has no
+				 * window manager... but when I disabled all logic here, the folder position was
+				 * top and centered, which I'm not sure is correct (might be though..).  Anyways,
+				 * if the position option was provided but the window manager is disabled, we
+				 * should probably set the position here.
 				 */
 				console.error('//todo - set position here or enforce window manager')
 			}
@@ -631,10 +650,10 @@ export class Gui {
 	 */
 	commit(commit: Partial<Commit>) {
 		if (this._undoLock) {
-			this._log.fn('commit').info('LOCKED: prevented commit while locked')
+			this._log.fn('commit').debug('LOCKED: prevented commit while locked')
 			return
 		}
-		this._log.fn('commit').info('commited', commit)
+		this._log.fn('commit').debug('commited', commit)
 		this._undoManager?.commit(commit as Commit)
 	}
 
@@ -646,7 +665,7 @@ export class Gui {
 		// this._undoLock = true
 		this._undoManager.lockedExternally = true
 		this.lockCommit.from = from
-		this._log.fn(o('lock')).info('commit', { from, lockCommit: this.lockCommit })
+		this._log.fn(o('lock')).debug('commit', { from, lockCommit: this.lockCommit })
 	}
 
 	/**
@@ -661,7 +680,7 @@ export class Gui {
 		this._undoManager.lockedExternally = false
 		this.commit(commit)
 
-		this._log.fn(o('unlock')).info('commit', { commit, lockCommit: this.lockCommit })
+		this._log.fn(o('unlock')).debug('commit', { commit, lockCommit: this.lockCommit })
 	}
 
 	private _createThemer(folder: Folder) {
@@ -695,7 +714,7 @@ export class Gui {
 		)
 
 		if (folder) {
-			folder.addSelect<Theme>({
+			uiFolder.addSelect<Theme>({
 				title: 'theme',
 				labelKey: 'title',
 				options: finalThemer.themes.value,
@@ -705,7 +724,7 @@ export class Gui {
 				},
 			})
 
-			folder.addButtonGrid({
+			uiFolder.addButtonGrid({
 				title: 'mode',
 				activeOnClick: true,
 				value: [
@@ -754,7 +773,7 @@ export class Gui {
 		return button
 	}
 
-	// todo - convert this crap to an 'alt' class
+	// todo - convert this crap to a css utility class
 	applyAltStyle(folder: Folder) {
 		this._setVar(
 			folder.elements.content,
@@ -823,7 +842,7 @@ export class Gui {
 	}
 
 	dispose = () => {
-		this._log.fn('dispose').info(this)
+		this._log.fn('dispose').debug(this)
 		this.themer?.dispose()
 		// this.themeEditor?.dispose()
 		if (this._isWindowManagerOwner) {
