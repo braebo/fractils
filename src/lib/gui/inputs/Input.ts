@@ -101,7 +101,9 @@ export type InputOptions<
 
 	/**
 	 * The order in which this input should appear in its folder relative to the other inputs.
-	 * @default 0
+	 * - To force an input to be first *(at the top of its folder)*, set `order` to `0` or below.
+	 * - To force an input to be last *(at the bottom of its folder)*, set `order` to any number greater than number of inputs + 1.
+	 * @default folder.inputs.size + 1
 	 */
 	order?: number
 
@@ -272,7 +274,10 @@ export abstract class Input<
 		this._title = this.opts.title ?? ''
 		this._disabled = toFn(this.opts.disabled ?? false)
 		this._hidden = toFn(this.opts.hidden ?? false)
-		this._index = this.opts.order ?? 0
+
+		this._index = this.opts.order ?? this.folder.inputs.size
+		this._index += 1
+
 		this._dirty = () => this.value !== this.initialValue
 
 		this.elements.container = create('div', {
@@ -502,6 +507,9 @@ export abstract class Input<
 	 */
 	refresh(v = this.state.value as TValueType) {
 		if (!this.opts.resettable) return
+		if (this.opts.binding) {
+			this.state.set(this.opts.binding.target[this.opts.binding.key])
+		}
 		this.elements.resetBtn.classList.toggle('dirty', this._dirty())
 		this._evm.emit('refresh', v as TValueType)
 		return this
