@@ -232,6 +232,16 @@ export class Color {
 	set red(value: number) {
 		this.rgb = { ...this.rgb, r: value }
 	}
+	/**
+	 * A float version of the {@link red} channel value as a fraction of 1 (0-1 vs 0-255).
+	 */
+	get r(): number {
+		// return this.red
+		return this.rgb.r / 255
+	}
+	set r(value: number) {
+		this.red = value * 255
+	}
 
 	get green(): number {
 		return this.rgb.g
@@ -239,12 +249,31 @@ export class Color {
 	set green(value: number) {
 		this.rgb = { ...this.rgb, g: value }
 	}
+	/**
+	 * A float version of the {@link green} channel value as a fraction of 1 (0-1 vs 0-255).
+	 */
+	get g(): number {
+		// return this.green
+		return this.rgb.g / 255
+	}
+	set g(value: number) {
+		this.green = value * 255
+	}
 
 	get blue(): number {
 		return this.rgb.b
 	}
 	set blue(value: number) {
 		this.rgb = { ...this.rgb, b: value }
+	}
+	/**
+	 * A float version of the {@link blue} channel value as a fraction of 1 (0-1 vs 0-255).
+	 */
+	get b(): number {
+		return this.rgb.b / 255
+	}
+	set b(value: number) {
+		this.blue = value * 255
 	}
 
 	/** i.e. `{ r: 85, g: 0, b: 238 }` */
@@ -264,11 +293,28 @@ export class Color {
 		}
 	}
 
+	/**
+	 * A float version of {@link rgb} values as a fraction of 1 (0-1 vs 0-255).
+	 */
+	get rgbf(): RgbColor {
+		return {
+			r: this.r,
+			g: this.g,
+			b: this.b,
+		}
+	}
+	set rgbf(value: RgbColor) {
+		this.rgb = {
+			r: value.r,
+			g: value.g,
+			b: value.b,
+		}
+	}
+
 	/** i.e. `'rgba(85, 0, 238, 1)'` */
 	get rgba(): RgbaColor {
 		return { ...this.rgb, a: this.alpha }
 	}
-
 	set rgba(value: RgbColor | RgbaColor) {
 		this.rgb = value
 	}
