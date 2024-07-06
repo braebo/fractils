@@ -600,7 +600,6 @@ export class Draggable {
 
 		// Dispatch custom events
 		this.#fireSvelteDragStartEvent()
-
 		this.#fireUpdateEvent()
 	}
 
@@ -657,7 +656,12 @@ export class Draggable {
 		this.updateLocalStorage()
 	}
 
-	resize = () => {}
+	resize = () => {
+		this.#recomputeBounds()
+		this.#updateBounds()
+
+		this.moveTo(this.position) // works but doesn't preserve original position
+	}
 
 	#updateBounds = () => {
 		// refresh style left & top
@@ -713,27 +717,13 @@ export class Draggable {
 			}
 		}
 
-		// Tween slower for longer distances.
-		const { left, top } = this.node.getBoundingClientRect()
-		const momentum = Math.abs(this.rect.left + this.rect.top - (left + top))
-
-		const tt = tweenTime ?? 0
-
-		// Start at half tweentime and map the momentum.
-		const speed = tt * 0.75 + (momentum / tt) * (tt / 2)
-		const max = tt * 2
-
-		const duration = Math.min(speed, max) || tt
-
-		const tweenOpts = {
-			duration,
-			easing: this.opts.animation.easing,
-		}
-
 		// Check for a custom user transform function before applying ours.
 		if (!this.opts.transform) {
 			// Set the tween and let it animate the position.
-			this.tween.set({ x: this.x, y: this.y }, tweenOpts)
+			this.tween.set(
+				{ x: this.x, y: this.y },
+				{ ...this.opts.animation, duration: tweenTime },
+			)
 		} else {
 			// Call the user's custom transform function.
 			const customTransformResult = this.opts.transform?.({
@@ -750,7 +740,7 @@ export class Draggable {
 				'y' in customTransformResult
 			) {
 				const { x, y } = customTransformResult
-				this.tween.set({ x, y }, tweenOpts)
+				this.tween.set({ x, y }, { ...this.opts.animation, duration: tweenTime })
 			}
 		}
 
