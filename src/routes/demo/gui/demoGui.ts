@@ -27,10 +27,9 @@ export function demoGui(params: Params) {
 		console.log(v)
 	})
 
-	const f1 = gui.addFolder({ title: 'base' })
+	const f1 = gui.addFolder('base')
 
-	f1.add({
-		title: 'count',
+	f1.add('count', {
 		binding: {
 			target: params,
 			key: 'orbs',
@@ -40,16 +39,24 @@ export function demoGui(params: Params) {
 		step: 1,
 	})
 
-	f1.addNumber({
-		title: 'width',
-		binding: {
-			target: params,
-			key: 'width',
-		},
+	// f1.bind({
+	// 	title: 'width',
+	// 	binding: {
+	// 		target: params,
+	// 		key: 'width',
+	// 	},
+	// 	min: 10,
+	// 	max: window.innerWidth / 4,
+	// 	step: 1,
+	// })
+
+	const widthInput = f1.bind(params, 'width', {
+		//=>
 		min: 10,
 		max: window.innerWidth / 4,
 		step: 1,
 	})
+	widthInput // InputNumber
 
 	f1.addNumber({
 		title: 'height',
@@ -62,7 +69,7 @@ export function demoGui(params: Params) {
 		step: 1,
 	})
 
-	const motionFolder = gui.addFolder({ title: 'motion' })
+	const motionFolder = gui.addFolder('motion')
 
 	motionFolder.addNumber({
 		title: 'speed',
@@ -116,7 +123,7 @@ export function demoGui(params: Params) {
 		},
 	})
 
-	const appearanceFolder = gui.addFolder({ title: 'appearance' })
+	const appearanceFolder = gui.addFolder('appearance')
 
 	appearanceFolder.addNumber({
 		title: 'size',
@@ -169,7 +176,7 @@ export function demoGui(params: Params) {
 		},
 	})
 
-	const glowFolder = appearanceFolder.addFolder({ title: 'glow' })
+	const glowFolder = appearanceFolder.addFolder('glow')
 
 	glowFolder.addNumber({
 		title: 'glowR',
@@ -232,8 +239,7 @@ export function demoGui(params: Params) {
 	)
 
 	if (DEV) {
-		const devFolder = gui.addFolder({
-			title: 'dev',
+		const devFolder = gui.addFolder('dev', {
 			closed: true,
 			saveable: false,
 		})
