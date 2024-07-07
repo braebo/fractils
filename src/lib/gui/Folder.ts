@@ -1,6 +1,7 @@
 // The custom-regions extension is recommended for this file.
 
 import type { Input, InputOptions, InputPreset, InputType, ValidInput } from './inputs/Input'
+import type { ColorFormat } from '../color/types/colorFormat'
 import type { Option } from './controllers/Select'
 import type { Tooltip } from '../actions/tooltip'
 import type { GuiPreset } from './Gui'
@@ -12,6 +13,7 @@ import { InputSelect, type SelectInputOptions } from './inputs/InputSelect'
 import { InputNumber, type NumberInputOptions } from './inputs/InputNumber'
 import { InputColor, type ColorInputOptions } from './inputs/InputColor'
 import { InputText, type TextInputOptions } from './inputs/InputText'
+import { isLabeledOption } from './controllers/Select'
 
 import { animateConnector, createFolderConnector, createFolderSvg } from './svg/createFolderSVG'
 import { composedPathContains } from '../internal/cancelClassFound'
@@ -28,6 +30,41 @@ import { DEV } from '../utils/env'
 import { Gui } from './Gui'
 
 //· Types ························································································¬
+
+export type BindingFactory<
+	TTarget extends Record<string, any>,
+	TOptions extends InputOptions,
+	TInput extends ValidInput,
+	TTargetKey extends keyof TTarget,
+> = (target: TTarget, key: TTargetKey, options: Partial<TOptions>) => TInput
+
+export type InferOptions<T> = T extends number
+	? NumberInputOptions
+	: T extends boolean
+		? SwitchInputOptions
+		: T extends Array<infer T>
+			? SelectInputOptions<T>
+			: T extends Option<infer T>
+				? SelectInputOptions<T>
+				: T extends ColorFormat
+					? ColorInputOptions
+					: T extends string
+						? TextInputOptions
+						: InputOptions
+
+export type InferInput<T> = T extends number
+	? InputNumber
+	: T extends boolean
+		? InputSwitch
+		: T extends Array<infer T>
+			? InputSelect<T>
+			: T extends Option<infer T>
+				? InputSelect<T>
+				: T extends ColorFormat
+					? InputColor
+					: T extends string
+						? InputText
+						: ValidInput
 
 export interface FolderOptions {
 	__type?: 'FolderOptions'
@@ -263,6 +300,7 @@ export class Folder {
 	root: Folder
 	parentFolder: Folder
 	settingsFolder!: Folder
+	// closed: State<boolean>
 	closed = state(false)
 
 	element: HTMLElement
@@ -305,6 +343,15 @@ export class Folder {
 			} as const,
 			options,
 		) as FolderOptions & InternalFolderOptions
+
+		// this.closed = state(opts.closed ?? false)
+		// if (opts.title === 'base') {
+		// 	console.log(opts.closed)
+		// 	console.log(this.closed.value)
+		// 	setTimeout(() => {
+		// 		console.log(this.closed.value)
+		// 	}, 1000)
+		// }
 
 		this._log = new Logger(`Folder ${opts.title}`, { fg: 'DarkSalmon' })
 		this._log.fn('constructor').debug({ opts, this: this })
@@ -446,7 +493,9 @@ export class Folder {
 
 	//· Folders ··················································································¬
 
-	addFolder = (options?: Partial<FolderOptions>) => {
+	addFolder(title?: string, options?: Partial<FolderOptions>): Folder {
+		options ??= {}
+		options.title ??= title
 		this._log.fn('addFolder').debug({ options, this: this })
 		const defaults = Object.assign({}, INTERNAL_FOLDER_DEFAULTS, {
 			parentFolder: this,
@@ -745,69 +794,403 @@ export class Folder {
 	add<T>(options: SelectInputOptions<T>, never?: never): InputSelect<T>
 	add(options: InputOptions, never?: never): ValidInput
 	add(titleOrOptions: string | InputOptions, maybeOptions?: InputOptions): ValidInput {
-		const twoArgs = typeof titleOrOptions === 'string' && typeof maybeOptions === 'object'
-		const title = twoArgs ? (titleOrOptions as string) : maybeOptions?.title ?? ''
-		const options = twoArgs ? maybeOptions! : (titleOrOptions as InputOptions)
-		if (!twoArgs && options) options.title ??= title
-
-		const input = this._createInput(options)
+		const opts = this._resolveOptions(titleOrOptions, maybeOptions)
+		const input = this._createInput(opts)
 		this.inputs.set(input.id, input)
 		this._refreshIcon()
 		return input
 	}
 
-	addNumber(options: Partial<NumberInputOptions>) {
-		const input = new InputNumber(options, this)
+	/**
+	 * Binds an input to a target object and key.  The input will automatically update the target
+	 * object's key when the input value changes.
+	 * @param target - The object to bind the input to.
+	 * @param key - The key of the target object to bind the input to.
+	 * @param options - The {@link InputOptions}, the type of which is inferred based on the type
+	 * of the value at the {@link target} object's {@link key}.
+	 * @example
+	 * ```ts
+	 * const gui = new Gui()
+	 * const params = { foo: 5, bar: 'baz' }
+	 * const folder = gui.addFolder('params')
+	 *
+	 * const numberInput = folder.bind(params, 'foo', { min: 0, max: 10, step: 1 })
+	 * //    ^? `InputNumber`
+	 *
+	 * const textInput = folder.bind(params, 'bar', { maxLength: 50 })
+	 * //    ^? `InputText`
+	 */
+	bind<
+		TTarget extends Record<string, any>,
+		TKey extends keyof TTarget,
+		TValue extends TTarget[TKey],
+		TOptions extends InferOptions<TValue>,
+		TInput extends InferInput<TValue>,
+	>(target: TTarget, key: TKey, options?: Partial<TOptions>): TInput {
+		const value = target[key] as TValue
+		const opts = options ?? ({} as TOptions)
+		opts.title ??= key as string
+		opts.binding = { target, key, initial: value }
+
+		const input = this._createInput(opts)
+		this.inputs.set(input.id, input)
+		this._refreshIcon()
+
+		return input as unknown as TInput
+	}
+
+	/**
+	 * Explicitly adds an {@link InputNumber} to the folder.
+	 */
+	addNumber(title: string, options: NumberInputOptions): InputNumber
+	addNumber(options: NumberInputOptions, never?: never): InputNumber
+	addNumber(
+		titleOrOptions: string | NumberInputOptions,
+		maybeOptions?: NumberInputOptions,
+	): InputNumber {
+		const opts = this._resolveOptions(titleOrOptions, maybeOptions)
+		const input = new InputNumber(opts, this)
+		this.inputs.set(input.id, input)
+		this._refreshIcon()
+		return input
+	}
+	/**
+	 * Explicitly binds an {@link InputNumber} to the provided key on the given target object.
+	 */
+	bindNumber<T extends Record<string, any>, K extends keyof T>(
+		target: T,
+		key: K,
+		options?: Partial<NumberInputOptions>,
+	): InputNumber
+	bindNumber(title: string, options: Partial<NumberInputOptions>): InputNumber
+	bindNumber<
+		T extends Record<any, any>,
+		K extends keyof T,
+		KK extends T[K] extends number ? K : never,
+	>(
+		titleOrTarget: string | T,
+		keyOrOptions?: KK | Partial<NumberInputOptions>,
+		options?: Partial<NumberInputOptions>,
+	): InputNumber {
+		const opts = this._resolveBinding<NumberInputOptions>(titleOrTarget, keyOrOptions, options)
+		const input = new InputNumber(opts, this)
 		this.inputs.set(input.title, input)
 		this._refreshIcon()
 		return input
 	}
 
-	addText(options: Partial<TextInputOptions>) {
-		const input = new InputText(options, this)
+	/**
+	 * Explicitly adds an {@link InputText} to the folder.
+	 */
+	addText(title: string, options: TextInputOptions): InputText
+	addText(options: TextInputOptions, never?: never): InputText
+	addText(titleOrOptions: string | TextInputOptions, maybeOptions?: TextInputOptions): InputText {
+		const opts = this._resolveOptions(titleOrOptions, maybeOptions)
+		const input = new InputText(opts, this)
+		this.inputs.set(input.id, input)
+		this._refreshIcon()
+		return input
+	}
+	/**
+	 * Explicitly binds an {@link InputText} to the provided key on the given target object.
+	 */
+	bindText<T extends Record<string, any>, K extends keyof T>(
+		target: T,
+		key: K,
+		options?: Partial<TextInputOptions>,
+	): InputText
+	bindText(title: string, options: Partial<TextInputOptions>): InputText
+	bindText<
+		T extends Record<any, any>,
+		K extends keyof T,
+		KK extends T[K] extends string ? K : never,
+	>(
+		titleOrTarget: string | T,
+		keyOrOptions?: KK | Partial<TextInputOptions>,
+		options?: Partial<TextInputOptions>,
+	): InputText {
+		const opts = this._resolveBinding<TextInputOptions>(titleOrTarget, keyOrOptions, options)
+		const input = new InputText(opts, this)
 		this.inputs.set(input.title, input)
 		this._refreshIcon()
 		return input
 	}
 
-	addColor(options: Partial<ColorInputOptions>) {
-		const input = new InputColor(options, this)
+	/**
+	 * Explicitly adds an {@link InputColor} to the folder.
+	 */
+	addColor(title: string, options: ColorInputOptions): InputColor
+	addColor(options: ColorInputOptions, never?: never): InputColor
+	addColor(
+		titleOrOptions: string | ColorInputOptions,
+		maybeOptions?: ColorInputOptions,
+	): InputColor {
+		const opts = this._resolveOptions(titleOrOptions, maybeOptions)
+		const input = new InputColor(opts, this)
+		this.inputs.set(input.id, input)
+		this._refreshIcon()
+		return input
+	}
+	/**
+	 * Explicitly binds an {@link InputColor} to the provided key on the given target object.
+	 */
+	bindColor<T extends Record<string, any>, K extends keyof T>(
+		target: T,
+		key: K,
+		options?: Partial<ColorInputOptions>,
+	): InputColor
+	bindColor(title: string, options: Partial<ColorInputOptions>): InputColor
+	bindColor<
+		T extends Record<any, any>,
+		K extends keyof T,
+		KK extends T[K] extends ColorFormat ? K : never,
+	>(
+		titleOrTarget: string | T,
+		keyOrOptions?: KK | Partial<ColorInputOptions>,
+		options?: Partial<ColorInputOptions>,
+	): InputColor {
+		const opts = this._resolveBinding<ColorInputOptions>(titleOrTarget, keyOrOptions, options)
+		const input = new InputColor(opts, this)
 		this.inputs.set(input.title, input)
 		this._refreshIcon()
 		return input
 	}
 
-	addButton(options: Partial<ButtonInputOptions>) {
-		const input = new InputButton(options, this)
+	/**
+	 * Explicitly adds an {@link InputButton} to the folder.
+	 */
+	addButton(title: string, options: ButtonInputOptions): InputButton
+	addButton(options: ButtonInputOptions, never?: never): InputButton
+	addButton(
+		titleOrOptions: string | ButtonInputOptions,
+		maybeOptions?: ButtonInputOptions,
+	): InputButton {
+		const opts = this._resolveOptions(titleOrOptions, maybeOptions)
+		const input = new InputButton(opts, this)
+		this.inputs.set(input.id, input)
+		this._refreshIcon()
+		return input
+	}
+	/**
+	 * Explicitly binds an {@link InputButton} to the provided key on the given target object.
+	 */
+	bindButton<T extends Record<string, any>, K extends keyof T>(
+		target: T,
+		key: K,
+		options?: Partial<ButtonInputOptions>,
+	): InputButton
+	bindButton(title: string, options: Partial<ButtonInputOptions>): InputButton
+	bindButton<
+		T extends Record<any, any>,
+		K extends keyof T,
+		KK extends T[K] extends Function ? K : never,
+	>(
+		titleOrTarget: string | T,
+		keyOrOptions?: KK | Partial<ButtonInputOptions>,
+		options?: Partial<ButtonInputOptions>,
+	): InputButton {
+		const opts = this._resolveBinding<ButtonInputOptions>(titleOrTarget, keyOrOptions, options)
+		const input = new InputButton(opts, this)
 		this.inputs.set(input.title, input)
 		this._refreshIcon()
 		return input
 	}
 
-	addButtonGrid(options: Partial<ButtonGridInputOptions>) {
-		const input = new InputButtonGrid(options, this)
+	/**
+	 * Explicitly adds an {@link InputButtonGrid} to the folder.
+	 */
+	addButtonGrid(title: string, options: ButtonGridInputOptions): InputButtonGrid
+	addButtonGrid(options: ButtonGridInputOptions, never?: never): InputButtonGrid
+	addButtonGrid(
+		titleOrOptions: string | ButtonGridInputOptions,
+		maybeOptions?: ButtonGridInputOptions,
+	): InputButtonGrid {
+		const opts = this._resolveOptions(titleOrOptions, maybeOptions)
+		const input = new InputButtonGrid(opts, this)
+		this.inputs.set(input.id, input)
+		this._refreshIcon()
+		return input
+	}
+	/**
+	 * Explicitly binds an {@link InputButtonGrid} to the provided key on the given target object.
+	 */
+	bindButtonGrid<T extends Record<string, any>, K extends keyof T>(
+		target: T,
+		key: K,
+		options?: Partial<ButtonGridInputOptions>,
+	): InputButtonGrid
+	bindButtonGrid(title: string, options: Partial<ButtonGridInputOptions>): InputButtonGrid
+	bindButtonGrid<
+		T extends Record<any, any>,
+		K extends keyof T,
+		KK extends T[K] extends Function ? K : never,
+	>(
+		titleOrTarget: string | T,
+		keyOrOptions?: KK | Partial<ButtonGridInputOptions>,
+		options?: Partial<ButtonGridInputOptions>,
+	): InputButtonGrid {
+		const opts = this._resolveBinding<ButtonGridInputOptions>(
+			titleOrTarget,
+			keyOrOptions,
+			options,
+		)
+		const input = new InputButtonGrid(opts, this)
 		this.inputs.set(input.title, input)
 		this._refreshIcon()
 		return input
 	}
 
-	addSelect<T>(options: Partial<SelectInputOptions<T>>) {
-		const input = new InputSelect(options, this)
+	/**
+	 * Explicitly adds an {@link InputSelect} to the folder.
+	 */
+	addSelect<T>(title: string, options: SelectInputOptions<T>): InputSelect<T>
+	addSelect<T>(options: SelectInputOptions<T>, never?: never): InputSelect<T>
+	addSelect<T>(
+		titleOrOptions: string | SelectInputOptions<T>,
+		maybeOptions?: SelectInputOptions<T>,
+	): InputSelect<T> {
+		const opts = this._resolveOptions(titleOrOptions, maybeOptions)
+		const input = new InputSelect(opts, this)
+		this.inputs.set(input.id, input)
+		this._refreshIcon()
+		return input
+	}
+	/**
+	 * Explicitly binds an {@link InputSelect} to the provided key on the given target object.
+	 */
+	bindSelect<T extends Record<any, any> = Record<any, any>, K extends keyof T = keyof T>(
+		target: T,
+		key: K,
+		options?: Partial<SelectInputOptions<T>>,
+	): InputSelect<T>
+	bindSelect<T>(title: string, options: Partial<SelectInputOptions<T>>): InputSelect<T>
+	bindSelect<
+		T extends Record<any, any> = Record<any, any>,
+		TOptions extends SelectInputOptions<T> = SelectInputOptions<T>,
+	>(
+		titleOrTarget: string | T,
+		keyOrOptions?: TOptions | never,
+		options?: TOptions,
+	): InputSelect<T> {
+		const opts = this._resolveBinding<SelectInputOptions<T>>(
+			titleOrTarget,
+			keyOrOptions,
+			options,
+		)
+		const input = new InputSelect(opts, this)
 		this.inputs.set(input.title, input)
 		this._refreshIcon()
 		return input
 	}
 
-	addSwitch(options: Partial<SwitchInputOptions>) {
-		const input = new InputSwitch(options, this)
+	/**
+	 * Explicitly adds an {@link InputSwitch} to the folder.
+	 */
+	addSwitch(title: string, options: SwitchInputOptions): InputSwitch
+	addSwitch(options: SwitchInputOptions, never?: never): InputSwitch
+	addSwitch(
+		titleOrOptions: string | SwitchInputOptions,
+		maybeOptions?: SwitchInputOptions,
+	): InputSwitch {
+		const opts = this._resolveOptions(titleOrOptions, maybeOptions)
+		const input = new InputSwitch(opts, this)
+		this.inputs.set(input.id, input)
+		this._refreshIcon()
+		return input
+	}
+	/**
+	 * Explicitly binds an {@link InputSwitch} to the provided key on the given target object.
+	 */
+	bindSwitch<T, K extends keyof T>(
+		target: T,
+		key: K,
+		options?: Partial<SwitchInputOptions>,
+	): InputSwitch
+	bindSwitch(title: string, options: Partial<SwitchInputOptions>): InputSwitch
+	bindSwitch<
+		T extends Record<any, any>,
+		K extends keyof T,
+		KK extends T[K] extends boolean ? K : never,
+	>(
+		titleOrTarget: string | T,
+		keyOrOptions?: KK | Partial<SwitchInputOptions>,
+		options?: Partial<SwitchInputOptions>,
+	): InputSwitch {
+		const opts = this._resolveBinding<SwitchInputOptions>(titleOrTarget, keyOrOptions, options)
+		const input = new InputSwitch(opts, this)
 		this.inputs.set(input.title, input)
 		this._refreshIcon()
 		return input
 	}
 
-	private _createInput(options: InputOptions) {
+	/**
+	 * Does validation / error handling.
+	 * If no title was provided, this method will also assign the binding key to the title.
+	 * @returns The processed options.
+	 */
+	private _validateOptions<T extends InputOptions>(options: T, validate?: boolean): T {
+		if (options.binding?.key && !options.title) {
+			options.title = options.binding.key
+		}
+
+		// Some (hopefully) helpful error handling.
+		if (validate) {
+			const b = options.binding
+			let value = options.value
+
+			if (!value) {
+				value = b?.target[b?.key]
+			}
+
+			if (!value) {
+				if (b) {
+					let err = false
+
+					if (typeof b.target === 'undefined') {
+						err = true
+						console.error(
+							`\x1b[96mgooey\x1b[39m ~ \x1b[91mError\x1b[39m Binding "target" is undefined:`,
+							b,
+						)
+					}
+
+					if (typeof b.key === 'undefined') {
+						err = true
+						console.error(
+							`\x1b[96mgooey\x1b[39m ~ \x1b[91mError\x1b[39m Binding "key" is undefined:`,
+							b,
+						)
+					}
+
+					if (typeof b.target[b.key] === 'undefined') {
+						err = true
+						console.error(
+							`\x1b[96mgooey\x1b[39m ~ \x1b[91mError\x1b[39m The provided binding key \x1b[33m"${b.key}"\x1b[39m does not exist on provided \x1b[33mtarget\x1b[39m:`,
+							b,
+						)
+					}
+
+					if (err) {
+						throw new Error(
+							'gooey ~ Failed to bind input to the provided target object.',
+							{
+								cause: options,
+							},
+						)
+					}
+				} else {
+					throw new Error('gooey ~ No value or binding provided.', { cause: options })
+				}
+			}
+		}
+
+		return options
+	}
+
+	private _createInput<TOptions extends InputOptions>(options: TOptions) {
 		this._log.fn('#createInput').debug(this)
 		const type = this._resolveType(options)
+		options = this._validateOptions(options)
 
 		switch (type) {
 			case 'InputText':
@@ -827,42 +1210,92 @@ export class Folder {
 		throw new Error('Invalid input type: ' + type + ' for options: ' + options)
 	}
 
+	private _resolveOptions<T extends InputOptions>(
+		titleOrOptions: string | T,
+		maybeOptions?: T,
+	): T {
+		const twoArgs = typeof titleOrOptions === 'string' && typeof maybeOptions === 'object'
+		const title = twoArgs ? (titleOrOptions as string) : maybeOptions?.title ?? ''
+		const options = twoArgs ? maybeOptions! : (titleOrOptions as T)
+		options.title ??= title
+		return options
+	}
+
+	private _resolveBinding<
+		TOptions extends InputOptions,
+		T extends Record<any, any> = Record<any, any>,
+		K extends keyof T = keyof T,
+		KK extends T[K] extends number ? K : never = T[K] extends number ? K : never,
+	>(
+		titleOrTarget: string | T,
+		keyOrOptions?: KK | Partial<TOptions>,
+		options?: Partial<TOptions>,
+	) {
+		let opts: Partial<TOptions>
+		let shouldHaveValue = false
+		if (typeof titleOrTarget === 'string') {
+			opts = (keyOrOptions as Partial<TOptions>) ?? {}
+			opts.title = titleOrTarget
+		} else {
+			shouldHaveValue = true
+			const target = titleOrTarget
+			const key = keyOrOptions as KK
+			opts = options ?? {}
+			opts.binding = { target, key, initial: target[key] }
+		}
+
+		return this._validateOptions(opts, shouldHaveValue)
+	}
+
 	private _resolveType(options: any): InputType {
 		this._log.fn('resolveType').debug({ options, this: this })
-		const value = options.value ?? options.binding!.target[options.binding!.key]
+		let value = options.value ?? options.binding?.target[options.binding!.key]
 
 		if ('onClick' in options) {
 			return 'InputButton'
 		}
 
-		if ('options' in options) {
+		if (('options' in options && Array.isArray(options.options)) || isLabeledOption(value)) {
+			value ??= options.options[0]
+			options.value ??= value
 			return 'InputSelect'
 		}
 
 		switch (typeof value) {
-			case 'boolean':
-				// todo - We need some way to differentiate between a switch and a checkbox once the checkbox is added.
-				// if ((options as SwitchInputOptions).labels) return 'InputSwitch'
+			case 'boolean': {
+				// todo:
+				// We need some way to differentiate between a switch and a checkbox once the checkbox is added.
+				// ^ Why do we need a checkbox?
 				return 'InputSwitch'
-			case 'number':
+			}
+			case 'number': {
 				return 'InputNumber'
-			case 'string':
+			}
+			case 'string': {
 				if (isColorFormat(value)) return 'InputColor'
-				// todo - Could detect CSS units like `rem` and `-5px 0 0 3px` for an advanced `CSSTextInput`.
-				// todo - Or even better, a "TextComponents" input that can have any number of "components" (like a color picker, number, select, etc) inside a string.
+				// todo:
+				// Could detect CSS units like `rem` and `-5px 0 0 3px` for an advanced `CSSTextInput` or something.
+				// Or like a "TextComponents" input that can have any number of "components" (like a color picker, number, select, etc) inside a string.
 				return 'InputText'
-			case 'function':
+			}
+			case 'function': {
 				return 'InputButton'
-			case 'object':
+			}
+			case 'object': {
 				if (Array.isArray(value)) {
 					return 'InputSelect'
 				}
 				if (isColor(value)) {
 					return 'InputColor'
 				}
+				if (isLabeledOption(value)) {
+					return 'InputSelect'
+				}
 				throw new Error('Invalid input view: ' + JSON.stringify(value))
-			default:
+			}
+			default: {
 				throw new Error('Invalid input view: ' + value)
+			}
 		}
 	}
 	//⌟

@@ -468,7 +468,6 @@ export class PresetManager {
 					return ``
 				} else {
 					return this.defaultPresetIsActive ? `Can't rename default preset` : `Rename`
-					// : `Rename ${this.activePreset.value.title}`
 				}
 			},
 		})
